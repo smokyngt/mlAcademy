@@ -1,0 +1,10 @@
+{
+  "id": "saf.04.ex1",
+  "title": "Taux de réussite d'attaque avec intervalles de confiance",
+  "prompt": "Évaluer une défense, c'est estimer à quelle fréquence les attaques réussissent, avec une incertitude honnête. Toutes les données ici sont abstraites (booléens et comptages) ; aucun prompt ni texte d'attaque n'est impliqué.\n\nImplémente :\n\n- `wilson_interval(k, n, z=1.96)` -> `(low, high)`, l'intervalle de Wilson pour une proportion `k/n`.\n- `asr_at_budget(first_success, k)` : fraction des comportements dont la première attaque réussie est survenue en au plus `k` requêtes (`first_success[i]` vaut `np.inf` si jamais).\n- `two_prop_z(k1, n1, k2, n2)` : statistique z à deux proportions groupées pour comparer deux défenses.\n- `n_needed(p, half_width, z=1.96)` : le plus petit `n` tel qu'un intervalle par approximation normale autour de `p` ait la demi-largeur donnée.\n- `union_asr(M)` : `M` a la forme `(behaviours, attacks)` ; un comportement est considéré brisé si une attaque quelconque réussit. Compare-la à l'ASR de la meilleure attaque seule (`best_single_asr(M)`) : un évaluateur adaptatif rapporte l'union, un benchmark statique rapporte une colonne.\n- `fit_power_law(x, y)` -> `(alpha, a)` avec `y ~ a * x**(-alpha)`, par moindres carrés sur les logarithmes (utilisée pour des courbes d'erreur d'apprentissage en contexte bénin en fonction du nombre d'exemples).",
+  "hints": [
+    "Intervalle de Wilson : avec p = k/n et z = 1.96, centre = (p + z^2/(2n)) / (1 + z^2/n), demi-largeur = z*sqrt(p(1-p)/n + z^2/(4n^2)) / (1 + z^2/n).",
+    "asr_at_budget : un comportement est brisé en au plus k requêtes si l'indice de sa première requête réussie est <= k (utilise np.inf pour jamais).",
+    "union_asr : un comportement est brisé si N'IMPORTE QUELLE attaque (colonne) réussit sur lui : M.any(axis=1).mean(). La pente de log(erreur) en fonction de log(shots) donne l'exposant de la loi de puissance."
+  ]
+}

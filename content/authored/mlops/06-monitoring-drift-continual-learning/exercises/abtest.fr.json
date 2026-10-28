@@ -1,0 +1,10 @@
+{
+  "id": "ops.06.ex2",
+  "title": "Tests A/B, peeking et bandits",
+  "prompt": "Tu compares le modèle A au modèle B sur un résultat binaire (clic / pas de clic).\n\n- `z_test(xa, na, xb, nb)` -> statistique z à deux proportions pour `B - A` (erreur standard groupée).\n- `false_positive_rate(n_sims, n_per_arm, looks, p, rng)` -> exécute `n_sims` expériences **A/A** (les deux bras ont le même taux réel `p`). Dans chacune, teste à `looks` tailles d'échantillon également espacées `n_per_arm/looks, 2*n_per_arm/looks, ..., n_per_arm` et déclare un gagnant dès que `|z| > 1.96`. Retourne la part des expériences qui ont déclaré un gagnant à une consultation quelconque.\n- `thompson_pulls(p_a, p_b, horizon, rng)` -> tableau `[pulls_a, pulls_b]` après `horizon` tours d'échantillonnage de Thompson à deux bras avec des a priori Beta(1,1).",
+  "hints": [
+    "z à deux proportions : p groupé = (xa+xb)/(na+nb), se = sqrt(p(1-p)(1/na+1/nb)), z = (xb/nb - xa/na)/se. Rejette si |z| > 1.96.",
+    "Simulation du peeking : tire les résultats Bernoulli(p) des deux bras pour n_per_arm utilisateurs, prends les sommes cumulées, et à chacune des `looks` tailles d'échantillon également espacées calcule z pour toutes les simulations à la fois ; une simulation est un faux positif si N'IMPORTE QUELLE consultation rejette.",
+    "Échantillonnage de Thompson : garde une Beta(succès+1, échecs+1) par bras, tire une valeur par bras à chaque tour, joue le bras dont le tirage est le plus grand."
+  ]
+}

@@ -1,0 +1,661 @@
+[
+  {
+    "id": "mask-sliding",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Sliding-window causal mask for N = 8 and W = 4. Each dot is an allowed (key j, query i) pair; grey dots are the causal pairs that the window removes. 26 of the 36 causal entries remain. Queries go upward, keys to the right.",
+      "fr": "Masque causal à fenêtre glissante pour N = 8 et W = 4. Chaque point est une paire autorisée (clé j, requête i) ; les points gris sont les paires causales que la fenêtre supprime. 26 des 36 entrées causales subsistent. Requêtes vers le haut, clés vers la droite."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        8
+      ],
+      "yDomain": [
+        -1,
+        8
+      ],
+      "height": 340,
+      "title": "allowed pairs: x = key j, y = query i",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#9ca3af",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              5
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              0,
+              6
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ],
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              7
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              7
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              7,
+              7
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              7,
+              7
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "mask-global-local",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Global plus local mask (window W = 4 and key 0 as a global token). Blue: sliding window; orange: the extra global column, so every query reaches position 0 at a cost of about N(W + g) entries; grey: still masked.",
+      "fr": "Masque global plus local (fenêtre W = 4 et clé 0 comme token global). Bleu : fenêtre glissante ; orange : la colonne globale en plus, donc chaque requête atteint la position 0 pour un coût d'environ N(W + g) entrées ; gris : toujours masqué."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        8
+      ],
+      "yDomain": [
+        -1,
+        8
+      ],
+      "height": 340,
+      "title": "allowed pairs: x = key j, y = query i",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#9ca3af",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              0,
+              4
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              1,
+              5
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              0,
+              6
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ],
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              7
+            ],
+            [
+              2,
+              7
+            ],
+            [
+              3,
+              7
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              7,
+              7
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              4
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              3,
+              6
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ],
+            [
+              4,
+              7
+            ],
+            [
+              5,
+              7
+            ],
+            [
+              6,
+              7
+            ],
+            [
+              7,
+              7
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              4
+            ],
+            [
+              0,
+              5
+            ],
+            [
+              0,
+              6
+            ],
+            [
+              0,
+              7
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "gqa-heads",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Which KV head each query head uses, for h = 8 query heads. MHA: 8 KV heads (one each). GQA with G = 2: query head j reads KV head floor(j/4). MQA: all heads read the single KV head. Cache size scales with the number of KV heads.",
+      "fr": "Quelle tête KV utilise chaque tête de requête, pour h = 8 têtes de requête. MHA : 8 têtes KV (une chacune). GQA avec G = 2 : la tête j lit la tête KV floor(j/4). MQA : toutes les têtes lisent l'unique tête KV. La taille du cache suit le nombre de têtes KV."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph MHA[\"MHA: h_kv = 8\"]\n    direction LR\n    a0[\"q0\"] --> ka0[\"KV0\"]\n    a1[\"q1\"] --> ka1[\"KV1\"]\n    a2[\"...\"] --> ka2[\"...\"]\n    a7[\"q7\"] --> ka7[\"KV7\"]\n  end\n  subgraph GQA[\"GQA: G = 2, h/G = 4 queries per KV head\"]\n    direction LR\n    b0[\"q0..q3\"] --> kb0[\"KV0\"]\n    b1[\"q4..q7\"] --> kb1[\"KV1\"]\n  end\n  subgraph MQA[\"MQA: h_kv = 1\"]\n    direction LR\n    c0[\"q0..q7\"] --> kc0[\"KV0\"]\n  end",
+      "fr": "flowchart LR\n  subgraph MHA[\"MHA : h_kv = 8\"]\n    direction LR\n    a0[\"q0\"] --> ka0[\"KV0\"]\n    a1[\"q1\"] --> ka1[\"KV1\"]\n    a2[\"...\"] --> ka2[\"...\"]\n    a7[\"q7\"] --> ka7[\"KV7\"]\n  end\n  subgraph GQA[\"GQA : G = 2, h/G = 4 requêtes par tête KV\"]\n    direction LR\n    b0[\"q0..q3\"] --> kb0[\"KV0\"]\n    b1[\"q4..q7\"] --> kb1[\"KV1\"]\n  end\n  subgraph MQA[\"MQA : h_kv = 1\"]\n    direction LR\n    c0[\"q0..q7\"] --> kc0[\"KV0\"]\n  end"
+    }
+  },
+  {
+    "id": "mla",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Multi-head latent attention: only the latent c_t of size r (512 in DeepSeek-V3) is cached. Keys and values for all heads are rebuilt by up-projections, and W_UK can be absorbed on the query side so full keys are never materialised.",
+      "fr": "Attention latente multi-têtes : seul le latent c_t de taille r (512 dans DeepSeek-V3) est mis en cache. Les clés et valeurs de toutes les têtes sont reconstruites par des projections montantes, et W_UK peut être absorbée côté requête pour ne jamais matérialiser les clés complètes."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"hidden state x_t (d,)\"] --> DN[\"c_t = x_t W_DKV<br/>(r,), r = 512\"]\n  DN --> CA[(\"KV cache<br/>stores only c_t per token<br/>(N, r)\")]\n  CA --> UK[\"k = c W_UK<br/>(h * d_h)\"]\n  CA --> UV[\"v = c W_UV<br/>(h * d_h)\"]\n  X --> QQ[\"q_t (h * d_h)\"]\n  QQ --> AB[\"q W_UK^T absorbed<br/>score = (q W_UK^T) c^T\"]\n  CA --> AB\n  AB --> SC[\"softmax, then times v\"]\n  UV --> SC",
+      "fr": "flowchart LR\n  X[\"état caché x_t (d,)\"] --> DN[\"c_t = x_t W_DKV<br/>(r,), r = 512\"]\n  DN --> CA[(\"cache KV<br/>ne stocke que c_t par token<br/>(N, r)\")]\n  CA --> UK[\"k = c W_UK<br/>(h * d_h)\"]\n  CA --> UV[\"v = c W_UV<br/>(h * d_h)\"]\n  X --> QQ[\"q_t (h * d_h)\"]\n  QQ --> AB[\"q W_UK^T absorbée<br/>score = (q W_UK^T) c^T\"]\n  CA --> AB\n  AB --> SC[\"softmax, puis fois v\"]\n  UV --> SC"
+    }
+  },
+  {
+    "id": "diff-attention",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Differential attention: queries and keys are split in two groups, two softmax maps are computed, the second scaled by lambda is subtracted, and the difference multiplies V. The common-mode noise floor cancels.",
+      "fr": "Attention différentielle : requêtes et clés sont séparées en deux groupes, deux cartes softmax sont calculées, la seconde pondérée par lambda est soustraite, et la différence multiplie V. Le bruit commun s'annule."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q[\"Q\"] --> Q1[\"Q1\"]\n  Q --> Q2[\"Q2\"]\n  K[\"K\"] --> K1[\"K1\"]\n  K --> K2[\"K2\"]\n  Q1 --> A1[\"A1 = softmax(Q1 K1^T / sqrt d)<br/>(N, N)\"]\n  K1 --> A1\n  Q2 --> A2[\"A2 = softmax(Q2 K2^T / sqrt d)<br/>(N, N)\"]\n  K2 --> A2\n  A1 --> DF[\"A1 - lambda A2<br/>(N, N)\"]\n  A2 --> DF\n  DF --> OUT[\"output = (A1 - lambda A2) V\"]\n  V[\"V\"] --> OUT",
+      "fr": "flowchart LR\n  Q[\"Q\"] --> Q1[\"Q1\"]\n  Q --> Q2[\"Q2\"]\n  K[\"K\"] --> K1[\"K1\"]\n  K --> K2[\"K2\"]\n  Q1 --> A1[\"A1 = softmax(Q1 K1^T / sqrt d)<br/>(N, N)\"]\n  K1 --> A1\n  Q2 --> A2[\"A2 = softmax(Q2 K2^T / sqrt d)<br/>(N, N)\"]\n  K2 --> A2\n  A1 --> DF[\"A1 - lambda A2<br/>(N, N)\"]\n  A2 --> DF\n  DF --> OUT[\"sortie = (A1 - lambda A2) V\"]\n  V[\"V\"] --> OUT"
+    }
+  },
+  {
+    "id": "kv-variants",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "KV cache of a Llama-3-8B-shaped model at 128K tokens in BF16 (32 layers, d_h = 128): MHA 64 GiB, GQA 16, MQA 2, GQA with a 4096 sliding window on every layer 0.5, and the 5:1 hybrid with GQA 2.6 GiB.",
+      "fr": "Cache KV d'un modèle de forme Llama-3-8B à 128K tokens en BF16 (32 couches, d_h = 128) : MHA 64 GiB, GQA 16, MQA 2, GQA avec fenêtre glissante de 4096 sur chaque couche 0,5, et l'hybride 5:1 avec GQA 2,6 GiB."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"KV cache at 128K tokens, GiB\"\n  x-axis [\"MHA 32\", \"GQA 8\", \"MQA 1\", \"GQA + window 4096\", \"hybrid 5:1 GQA\"]\n  y-axis \"GiB\" 0 --> 70\n  bar [64, 16, 2, 0.5, 2.6]"
+    }
+  }
+]

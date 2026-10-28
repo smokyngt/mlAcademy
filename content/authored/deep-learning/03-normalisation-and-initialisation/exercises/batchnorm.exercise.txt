@@ -1,0 +1,144 @@
+#@@ meta
+{"id": "dl.03.ex1", "title": "Batch norm forward/backward with a gradient check", "difficulty": 4, "runtime": "pyodide", "concepts": ["dl.batchnorm", "dl.layernorm", "dl.init"], "hints": ["Forward: mu = x.mean(0), var = x.var(0) (population variance, divide by N), xh = (x-mu)/sqrt(var+eps), y = gamma*xh + beta. Cache xh, 1/sqrt(var+eps) and gamma.", "Backward: dxh = dy*gamma; dx = (inv/N) * (N*dxh - dxh.sum(0) - xh*(dxh*xh).sum(0)); dgamma = (dy*xh).sum(0); dbeta = dy.sum(0).", "Layer norm is the same computation on axis 1 (keepdims=True). He init: std = sqrt(2/fan_in)."]}
+#@@ prompt
+Implement, with NumPy only:
+
+- `bn_forward(x, gamma, beta, eps=1e-5)` for `x` of shape `(N, D)`; return `(y, cache)`.
+- `bn_backward(dy, cache)`; return `(dx, dgamma, dbeta)`.
+- `bn_eval(x, gamma, beta, run_mean, run_var, eps=1e-5)` using stored running statistics.
+- `update_running(run, batch_stat, momentum=0.1)` returning `(1-momentum)*run + momentum*batch_stat`.
+- `layer_norm(x, gamma, beta, eps=1e-5)` normalising each row over its features.
+- `he_init(fan_in, fan_out, rng)` returning an array of shape `(fan_in, fan_out)` with standard deviation `sqrt(2/fan_in)`.
+
+The helper `numgrad` (central differences) is provided; the tests use it to compare your backward pass with finite differences.
+#@@ starter
+import numpy as np
+
+def numgrad(f, x, h=1e-6):
+    g = np.zeros_like(x)
+    it = np.nditer(x, flags=["multi_index"])
+    for _ in it:
+        i = it.multi_index
+        old = x[i]
+        x[i] = old + h; a = f()
+        x[i] = old - h; b = f()
+        x[i] = old
+        g[i] = (a - b) / (2 * h)
+    return g
+
+def bn_forward(x, gamma, beta, eps=1e-5):
+    raise NotImplementedError
+
+def bn_backward(dy, cache):
+    raise NotImplementedError
+
+def bn_eval(x, gamma, beta, run_mean, run_var, eps=1e-5):
+    raise NotImplementedError
+
+def update_running(run, batch_stat, momentum=0.1):
+    raise NotImplementedError
+
+def layer_norm(x, gamma, beta, eps=1e-5):
+    raise NotImplementedError
+
+def he_init(fan_in, fan_out, rng):
+    raise NotImplementedError
+
+x = np.array([[1.0], [2.0], [3.0], [4.0]])
+y, cache = bn_forward(x, np.ones(1), np.zeros(1), eps=0.0)
+print(y.ravel())
+#@@ tests
+import numpy as np
+
+rng = np.random.default_rng(0)
+N, D = 8, 5
+x = rng.normal(2, 3, (N, D)); gamma = rng.normal(1, 0.3, D); beta = rng.normal(size=D)
+Wt = rng.normal(size=(N, D))
+
+y, cache = bn_forward(x, np.ones(D), np.zeros(D))
+check("with gamma=1, beta=0 each feature has mean 0", lambda: np.allclose(y.mean(0), 0, atol=1e-8))
+check("with gamma=1, beta=0 each feature has variance about 1", lambda: np.allclose(y.var(0), 1, atol=1e-3))
+y2, _ = bn_forward(x, gamma, beta)
+check("gamma and beta rescale and shift", lambda: np.allclose(y2.mean(0), beta, atol=1e-8) and np.allclose(y2.std(0), np.abs(gamma), atol=1e-3))
+xs = np.array([[1.0], [2.0], [3.0], [4.0]])
+ys, cs = bn_forward(xs, np.ones(1), np.zeros(1), eps=0.0)
+check("worked example: x = 1..4 gives -1.342, -0.447, 0.447, 1.342", lambda: np.allclose(ys.ravel(), [-1.34164, -0.44721, 0.44721, 1.34164], atol=1e-4))
+dxs, dgs, dbs = bn_backward(np.array([[1.0], [0.0], [0.0], [0.0]]), cs)
+check("worked example: dx = (0.268, -0.358, -0.089, 0.179)", lambda: np.allclose(dxs.ravel(), [0.26833, -0.35777, -0.08944, 0.17889], atol=1e-4))
+check("worked example: dgamma = -1.342, dbeta = 1", lambda: abs(dgs[0] + 1.34164) < 1e-4 and abs(dbs[0] - 1.0) < 1e-9)
+
+def loss():
+    return (bn_forward(x, gamma, beta)[0] * Wt).sum()
+y3, c3 = bn_forward(x, gamma, beta)
+dx, dg, db = bn_backward(Wt, c3)
+rel = lambda a, b: np.abs(a - b).max() / max(np.abs(a).max(), np.abs(b).max(), 1e-12)
+check("gradient check: dx", lambda: rel(dx, numgrad(loss, x)) < 1e-6, "Remember the three paths: direct, through the mean, through the variance")
+check("gradient check: dgamma", lambda: rel(dg, numgrad(loss, gamma)) < 1e-6)
+check("gradient check: dbeta", lambda: rel(db, numgrad(loss, beta)) < 1e-6)
+check("dx sums to zero over the batch", lambda: np.allclose(dx.sum(0), 0, atol=1e-8))
+
+rm = np.zeros(D); rv = np.ones(D)
+rm2 = update_running(rm, x.mean(0), 0.1)
+check("running mean update", lambda: np.allclose(rm2, 0.1 * x.mean(0)))
+check("bn_eval uses the stored statistics, not the batch", lambda: np.allclose(bn_eval(x, np.ones(D), np.zeros(D), x.mean(0), x.var(0)), bn_forward(x, np.ones(D), np.zeros(D))[0], atol=1e-8))
+single = x[:1]
+check("bn_eval works for a batch of one", lambda: bn_eval(single, np.ones(D), np.zeros(D), x.mean(0), x.var(0)).shape == (1, D))
+
+ln = layer_norm(x, np.ones(D), np.zeros(D))
+check("layer norm: each row has mean 0 and variance about 1", lambda: np.allclose(ln.mean(1), 0, atol=1e-8) and np.allclose(ln.var(1), 1, atol=1e-3))
+check("layer norm output for a row does not depend on the other rows", lambda: np.allclose(layer_norm(x[:1], np.ones(D), np.zeros(D)), ln[:1], atol=1e-10))
+
+W = he_init(400, 300, np.random.default_rng(1))
+check("he_init shape", lambda: W.shape == (400, 300))
+check("he_init std is sqrt(2/fan_in)", lambda: abs(W.std() / np.sqrt(2 / 400) - 1) < 0.03)
+h = np.random.default_rng(2).normal(size=(512, 400))
+rr = np.random.default_rng(3)
+for _ in range(10):
+    h = np.maximum(0, h @ he_init(400, 400, rr))
+check("He init keeps the ReLU second moment of order 1 after 10 layers", lambda: 0.5 < (h ** 2).mean() < 2.0)
+#@@ solution
+import numpy as np
+
+def numgrad(f, x, h=1e-6):
+    g = np.zeros_like(x)
+    it = np.nditer(x, flags=["multi_index"])
+    for _ in it:
+        i = it.multi_index
+        old = x[i]
+        x[i] = old + h; a = f()
+        x[i] = old - h; b = f()
+        x[i] = old
+        g[i] = (a - b) / (2 * h)
+    return g
+
+def bn_forward(x, gamma, beta, eps=1e-5):
+    mu = x.mean(0)
+    var = x.var(0)
+    inv = 1.0 / np.sqrt(var + eps)
+    xh = (x - mu) * inv
+    return gamma * xh + beta, (xh, inv, gamma)
+
+def bn_backward(dy, cache):
+    xh, inv, gamma = cache
+    N = dy.shape[0]
+    dxh = dy * gamma
+    dx = (inv / N) * (N * dxh - dxh.sum(0) - xh * (dxh * xh).sum(0))
+    return dx, (dy * xh).sum(0), dy.sum(0)
+
+def bn_eval(x, gamma, beta, run_mean, run_var, eps=1e-5):
+    return gamma * (x - run_mean) / np.sqrt(run_var + eps) + beta
+
+def update_running(run, batch_stat, momentum=0.1):
+    return (1 - momentum) * run + momentum * batch_stat
+
+def layer_norm(x, gamma, beta, eps=1e-5):
+    mu = x.mean(1, keepdims=True)
+    var = x.var(1, keepdims=True)
+    return gamma * (x - mu) / np.sqrt(var + eps) + beta
+
+def he_init(fan_in, fan_out, rng):
+    return rng.normal(0.0, np.sqrt(2.0 / fan_in), (fan_in, fan_out))
+
+x = np.array([[1.0], [2.0], [3.0], [4.0]])
+y, cache = bn_forward(x, np.ones(1), np.zeros(1), eps=0.0)
+print(y.ravel())

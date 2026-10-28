@@ -1,0 +1,18 @@
+[
+ {"id": "sys.04.c1", "front": "Contamination d'un benchmark", "back": "Les questions du benchmark (ou des quasi-copies) apparaissent dans les données d'entraînement, donc le score mesure en partie la mémorisation, pas la capacité."},
+ {"id": "sys.04.c2", "front": "Saturation d'un benchmark", "back": "Quand tous les modèles forts obtiennent un score dans une bande étroite et élevée, les différences sont du bruit ou reflètent des éléments obscurs ; le benchmark cesse de discriminer."},
+ {"id": "sys.04.c3", "front": "Pourquoi des évaluations sur mesure ?", "back": "Seule une évaluation construite à partir de ta tâche, de tes données et de tes modes de défaillance prédit la qualité en production ; les benchmarks publics conviennent à une sélection grossière de modèle."},
+ {"id": "sys.04.c4", "front": "Recall@k", "back": "$|\\text{top-}k\\cap\\text{Rel}|/|\\text{Rel}|$ : les documents pertinents sont-ils entrés dans les k premiers résultats ?"},
+ {"id": "sys.04.c5", "front": "MRR", "back": "Moyenne sur les requêtes de 1/rang du premier résultat pertinent (0 s'il n'y en a pas). Récompense le fait de placer une bonne réponse en premier."},
+ {"id": "sys.04.c6", "front": "nDCG@k", "back": "DCG $=\\sum_i g_i/\\log_2(i+1)$ divisé par le DCG de l'ordre idéal ; gère la pertinence graduée et récompense un placement précoce."},
+ {"id": "sys.04.c7", "front": "Fidélité (groundedness)", "back": "Chaque affirmation de la réponse générée est-elle soutenue par les passages récupérés ? Une réponse fluide peut être infidèle."},
+ {"id": "sys.04.c8", "front": "Évaluer séparément récupérateur et générateur", "back": "Le recall@k isole les erreurs de récupération ; la fidélité isole les erreurs de génération ; l'exactitude de bout en bout mélange les deux."},
+ {"id": "sys.04.c9", "front": "Biais des LLM juges", "back": "Biais de position, biais de verbosité, auto-préférence. Randomiser l'ordre, contrôler la longueur, utiliser une autre famille de modèles, valider contre des étiquettes humaines."},
+ {"id": "sys.04.c10", "front": "Score attendu d'Elo", "back": "$E_w=1/(1+10^{(R_l-R_w)/400})$ : 0.5 pour des classements égaux, environ 0.91 pour un écart de 400 points."},
+ {"id": "sys.04.c11", "front": "IC bootstrap percentile", "back": "Rééchantillonner les n éléments avec remise B fois, prendre la moyenne de chacun, rapporter les quantiles alpha/2 et 1-alpha/2."},
+ {"id": "sys.04.c12", "front": "Largeur d'un IC en fonction de la taille d'échantillon", "back": "Rétrécit comme $1/\\sqrt n$ : 4 fois plus d'éléments divisent la largeur par 2. 90 % sur 50 éléments donne environ [0.79, 0.96] ; sur 1000 éléments environ [0.88, 0.92]."},
+ {"id": "sys.04.c13", "front": "Pourquoi comparer les systèmes avec un test apparié ?", "back": "Les deux systèmes voient les mêmes éléments ; le bootstrap des différences par élément annule la difficulté partagée et donne un intervalle plus serré et correct."},
+ {"id": "sys.04.c14", "front": "Des IC qui se chevauchent ne signifient pas aucune différence", "back": "L'IC de la différence, issu d'une analyse appariée, est le bon objet. Rapporte aussi sur combien d'éléments les systèmes divergent."},
+ {"id": "sys.04.c15", "front": "Évaluation par tranches", "back": "Rapporter les métriques par sous-groupe. Paradoxe de Simpson : A peut gagner dans chaque tranche et pourtant perdre globalement quand les tailles de tranches diffèrent."},
+ {"id": "sys.04.c16", "front": "Références à toujours rapporter", "back": "Aléatoire, heuristique simple / règle zéro (majorité), solution existante, humain. Une métrique sans référence est ininterprétable."}
+]

@@ -1,0 +1,85 @@
+[
+  {
+    "id": "bpe-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Byte-pair encoding training as a greedy loop: count adjacent pairs, merge the most frequent into a new token, rewrite the corpus, repeat. Encoding replays the recorded rules in learning order.",
+      "fr": "L'entraînement de l'encodage par paires d'octets comme boucle gloutonne : compter les paires adjacentes, fusionner la plus fréquente en un nouveau jeton, réécrire le corpus, recommencer. L'encodage rejoue les règles enregistrées dans l'ordre d'apprentissage."
+    },
+    "code": {
+      "en": "flowchart TD\n  S[\"corpus as bytes<br/>vocabulary = 0..255\"] --> C[\"count adjacent pairs c(x,y)\"]\n  C --> M{\"best pair occurs at least twice<br/>and merges left?\"}\n  M -->|yes| N[\"new token 256+k = (x*, y*)<br/>rewrite corpus, record rule k\"]\n  N --> C\n  M -->|no| D[\"done: K rules + 256 bytes\"]\n  D --> E[\"encode new text: replay rules<br/>in the order learned\"]",
+      "fr": "flowchart TD\n  S[\"corpus en octets<br/>vocabulaire = 0..255\"] --> C[\"compter les paires adjacentes c(x,y)\"]\n  C --> M{\"meilleure paire vue au moins 2 fois<br/>et fusions restantes ?\"}\n  M -->|yes| N[\"nouveau jeton 256+k = (x*, y*)<br/>réécrire le corpus, noter la règle k\"]\n  N --> C\n  M -->|no| D[\"fini : K règles + 256 octets\"]\n  D --> E[\"encoder un nouveau texte : rejouer les règles<br/>dans l'ordre appris\"]"
+    }
+  },
+  {
+    "id": "bpe-banana",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The worked example: 14 bytes become 6 tokens after three merges (vocabulary 259). Each merge shortens the corpus by exactly the pair count (4, 2, 2).",
+      "fr": "L'exemple : 14 octets deviennent 6 jetons après trois fusions (vocabulaire 259). Chaque fusion raccourcit le corpus exactement du nombre d'occurrences de la paire (4, 2, 2)."
+    },
+    "code": {
+      "en": "flowchart LR\n  S0[\"bytes, 14 tokens<br/>b a n a n a _ b a n d a n a\"] -->|\"merge (a,n) = 256, saves 4\"| S1[\"10 tokens<br/>b 256 256 a _ b 256 d 256 a\"]\n  S1 -->|\"merge (b,256) = 257, saves 2\"| S2[\"8 tokens<br/>257 256 a _ 257 d 256 a\"]\n  S2 -->|\"merge (256,a) = 258, saves 2\"| S3[\"6 tokens<br/>257 258 _ 257 d 258\"]",
+      "fr": "flowchart LR\n  S0[\"octets, 14 jetons<br/>b a n a n a _ b a n d a n a\"] -->|\"fusion (a,n) = 256, gagne 4\"| S1[\"10 jetons<br/>b 256 256 a _ b 256 d 256 a\"]\n  S1 -->|\"fusion (b,256) = 257, gagne 2\"| S2[\"8 jetons<br/>257 256 a _ 257 d 256 a\"]\n  S2 -->|\"fusion (256,a) = 258, gagne 2\"| S3[\"6 jetons<br/>257 258 _ 257 d 258\"]"
+    }
+  },
+  {
+    "id": "tok-shapes",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From text to logits: special tokens are matched first, BPE yields ids, and the vocabulary size V appears twice (embedding table in, output projection out). Targets are the inputs shifted by one.",
+      "fr": "Du texte aux logits : les jetons spéciaux sont reconnus en premier, le BPE produit des identifiants, et la taille de vocabulaire V apparaît deux fois (table d'embedding en entrée, projection en sortie). Les cibles sont les entrées décalées d'un cran."
+    },
+    "code": {
+      "en": "flowchart LR\n  TXT[\"text\"] --> SP[\"match special tokens<br/>never split\"]\n  SP --> BPE[\"BPE merges inside chunks\"]\n  BPE --> IDS[\"ids (B,T)<br/>pad to common T\"]\n  IDS --> EMB[\"embedding (V,d)<br/>(B,T,d)\"]\n  EMB --> NET[\"transformer\"]\n  NET --> LOG[\"output projection (d,V)<br/>logits (B,T,V)\"]\n  IDS -.-> TG[\"x = ids[:, :-1]<br/>y = ids[:, 1:]\"]",
+      "fr": "flowchart LR\n  TXT[\"texte\"] --> SP[\"reconnaître les jetons spéciaux<br/>jamais découpés\"]\n  SP --> BPE[\"fusions BPE dans les segments\"]\n  BPE --> IDS[\"ids (B,T)<br/>remplissage à un T commun\"]\n  IDS --> EMB[\"embedding (V,d)<br/>(B,T,d)\"]\n  EMB --> NET[\"transformeur\"]\n  NET --> LOG[\"projection de sortie (d,V)<br/>logits (B,T,V)\"]\n  IDS -.-> TG[\"x = ids[:, :-1]<br/>y = ids[:, 1:]\"]"
+    }
+  },
+  {
+    "id": "vocab-cost",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Embedding table cost V*d for d = 4096, in millions of parameters (x is V in thousands): 32k gives 131M and 128k gives 524M, and the output projection costs the same again unless tied.",
+      "fr": "Coût de la table d'embedding V*d pour d = 4096, en millions de paramètres (x est V en milliers) : 32k donne 131M et 128k donne 524M, et la projection de sortie coûte autant de plus sauf si elle est partagée."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        140
+      ],
+      "yDomain": [
+        0,
+        600
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "4.096*x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              32,
+              131.072
+            ],
+            [
+              128,
+              524.288
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

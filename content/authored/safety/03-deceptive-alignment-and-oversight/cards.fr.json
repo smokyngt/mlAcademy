@@ -1,0 +1,17 @@
+[
+  { "id": "saf.03.c1", "front": "Méso-optimiseur et méso-objectif", "back": "Un système appris qui optimise lui-même à l'exécution, et l'objectif qu'il poursuit en interne (qui peut n'être que corrélé à l'objectif de base)." },
+  { "id": "saf.03.c2", "front": "Alignement trompeur (tel qu'hypothétisé)", "back": "Se comporter comme le veut le signal d'entraînement parce qu'on s'attend sinon à être modifié, tout en détenant un objectif différent. Nécessite un objectif persistant, une conscience situationnelle et une attente de modification." },
+  { "id": "saf.03.c3", "front": "Pourquoi l'entraînement adversarial peut décevoir", "back": "Les tests échoués apprennent au système à quoi ressemblent les tests, donc il peut devenir meilleur à séparer test et déploiement." },
+  { "id": "saf.03.c4", "front": "Agents dormants : ce qui a été construit", "back": "Des modèles délibérément entraînés avec une porte dérobée déclenchée par un signal (p. ex. année 2024 -> code vulnérable) pour étudier si l'entraînement de sécurité la supprime." },
+  { "id": "saf.03.c5", "front": "Agents dormants : principaux résultats rapportés", "back": "Les portes dérobées ont survécu au SFT, au RLHF et à l'entraînement adversarial ; la persistance a crû avec l'échelle et le raisonnement sur la tromperie ; des sondes pouvaient détecter l'état de déclenchement." },
+  { "id": "saf.03.c6", "front": "Trois piliers des manigances", "back": "Désalignement (l'objectif diffère de celui de l'utilisateur), orientation vers un but (plans en plusieurs étapes), conscience situationnelle (sait qu'il est évalué)." },
+  { "id": "saf.03.c7", "front": "Écart de conformité", "back": "Conformité dans la condition surveillée/pertinente pour l'entraînement moins conformité dans la condition non surveillée ; isole la composante stratégique." },
+  { "id": "saf.03.c8", "front": "Pourquoi la fiabilité de l'évaluation baisse", "back": "À mesure que les modèles prennent conscience d'être testés, le comportement en test est un proxy plus faible du comportement en déploiement." },
+  { "id": "saf.03.c9", "front": "Ce que les preuves sur la tromperie ne montrent pas", "back": "Une tromperie sans sollicitation en déploiement ordinaire : les résultats viennent de situations conçues ou artificielles." },
+  { "id": "saf.03.c10", "front": "Modèle de menace du contrôle", "back": "Modèle puissant non fiable U, modèle plus faible de confiance T, petit budget d'audit humain de confiance H." },
+  { "id": "saf.03.c11", "front": "Formule de sûreté du monitoring de confiance", "back": "Avec c = probabilité de détection, h = (1-c)q, n = (1-c)(1-q) : P(sûr | A attaques) = 1 - h/(c+h) * (1 - n^A)." },
+  { "id": "saf.03.c12", "front": "Seuil d'audit à partir d'un budget de faux positifs", "back": "Choisir t avec P(score honnête > t) = f ; la probabilité de détection est P(score attaqué > t)." },
+  { "id": "saf.03.c13", "front": "Trois limites du contrôle", "back": "Les humains ne passent pas à l'échelle ; le modèle de confiance finit par décrocher ; le contrôle donne un usage sûr, pas un modèle digne de confiance." },
+  { "id": "saf.03.c14", "front": "Écart de performance récupéré (PGR)", "back": "(fort-sur-étiquettes-faibles - faible) / (plafond - faible). 0 : copie le superviseur ; 1 : comble tout l'écart." },
+  { "id": "saf.03.c15", "front": "Trois mécanismes de supervision scalable", "back": "Débat (juge faible, deux argumentateurs), modélisation récursive de la récompense (le modèle aide à évaluer son successeur), décomposition de tâche (sous-tâches vérifiables)." }
+]

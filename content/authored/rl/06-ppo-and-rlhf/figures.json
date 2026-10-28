@@ -1,0 +1,145 @@
+[
+  {
+    "id": "ppo-clip-pos",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "PPO clipped objective for a good action (A = +1, epsilon = 0.2): min(rho, 1.2) in blue, the unclipped rho in grey. Rising until rho = 1.2 then flat: no incentive to raise the probability by more than epsilon.",
+      "fr": "Objectif écrêté de PPO pour une bonne action (A = +1, epsilon = 0,2) : min(rho, 1,2) en bleu, rho non écrêté en gris. Croissant jusqu'à rho = 1,2 puis plat : aucune incitation à augmenter la probabilité de plus de epsilon."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        2
+      ],
+      "yDomain": [
+        0,
+        2
+      ],
+      "title": "rho",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "min(x, 1.2)",
+          "color": "#2563eb"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1,
+          "text": "rho = 1"
+        },
+        {
+          "x": 1.2,
+          "text": "1 + eps"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ppo-clip-neg",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "PPO clipped objective for a bad action (A = -1, epsilon = 0.2): -max(rho, 0.8) in red, the unclipped -rho in grey. Flat once rho < 0.8 (no incentive to cut further) but still sloping for rho > 1.2 so the gradient can repair a mistake.",
+      "fr": "Objectif écrêté de PPO pour une mauvaise action (A = -1, epsilon = 0,2) : -max(rho, 0,8) en rouge, -rho non écrêté en gris. Plat dès que rho < 0,8 (aucune incitation à réduire plus) mais toujours en pente pour rho > 1,2 : le gradient peut réparer l'erreur."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        2
+      ],
+      "yDomain": [
+        -2,
+        0
+      ],
+      "title": "rho",
+      "data": [
+        {
+          "fn": "-x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "-max(x, 0.8)",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1,
+          "text": "rho = 1"
+        },
+        {
+          "x": 0.8,
+          "text": "1 - eps"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ppo-loop",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The PPO training loop: collect with the current policy, compute and freeze advantages, store log pi_old, run K epochs of minibatch steps on the clipped loss, then throw the data away.",
+      "fr": "La boucle d'entraînement PPO : collecter avec la politique courante, calculer et geler les avantages, stocker log pi_old, faire K époques de pas par minibatch sur la perte écrêtée, puis jeter les données."
+    },
+    "code": {
+      "en": "flowchart LR\n  C[\"collect N x T transitions\"] --> A[\"GAE advantages, frozen<br/>store log pi_old\"]\n  A --> K[\"K epochs of minibatch steps<br/>L = L_CLIP - c_v L_V + c_e H\"]\n  K --> X[\"discard data\"]\n  X --> C",
+      "fr": "flowchart LR\n  C[\"collecter N x T transitions\"] --> A[\"avantages GAE, gelés<br/>stocker log pi_old\"]\n  A --> K[\"K époques de pas par minibatch<br/>L = L_CLIP - c_v L_V + c_e H\"]\n  K --> X[\"jeter les données\"]\n  X --> C"
+    }
+  },
+  {
+    "id": "gae-weights",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "GAE weights (gamma*lambda)^l on the TD residual delta_(t+l), gamma = 0.99. lambda = 0.5 decays fast (orange), lambda = 0.95 (blue) is the usual compromise, lambda = 1 gives the Monte Carlo advantage (purple, slowest decay). At lambda = 0 only delta_t remains.",
+      "fr": "Poids GAE (gamma*lambda)^l sur le résidu TD delta_(t+l), gamma = 0,99. lambda = 0,5 décroît vite (orange), lambda = 0,95 (bleu) est le compromis usuel, lambda = 1 donne l'avantage Monte Carlo (violet, décroissance la plus lente). Pour lambda = 0 il ne reste que delta_t."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "l",
+      "data": [
+        {
+          "fn": "0.495^x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.9405^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.99^x",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rlhf-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "RLHF end to end: a reward model trained on human preferences scores the policy's samples; PPO maximises the reward while a KL penalty keeps the policy close to the SFT reference.",
+      "fr": "RLHF de bout en bout : un modèle de récompense entraîné sur des préférences humaines note les échantillons de la politique ; PPO maximise la récompense tandis qu'une pénalité KL garde la politique proche de la référence SFT."
+    },
+    "code": {
+      "en": "flowchart LR\n  SFT[\"SFT model (pi_ref)\"] --> POL[\"policy pi_theta\"]\n  H[\"human preference pairs\"] --> RM[\"reward model r(x,y)\"]\n  POL -->|\"response y\"| RM\n  RM -->|\"r\"| PPO[\"PPO\"]\n  SFT -.->|\"KL penalty\"| PPO\n  PPO -->|\"update\"| POL",
+      "fr": "flowchart LR\n  SFT[\"modèle SFT (pi_ref)\"] --> POL[\"politique pi_theta\"]\n  H[\"paires de préférences humaines\"] --> RM[\"modèle de récompense r(x,y)\"]\n  POL -->|\"réponse y\"| RM\n  RM -->|\"r\"| PPO[\"PPO\"]\n  SFT -.->|\"KL penalty\"| PPO\n  PPO -->|\"mise à jour\"| POL"
+    }
+  }
+]

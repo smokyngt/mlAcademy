@@ -1,0 +1,56 @@
+[
+  {
+    "id": "seq.04.q1",
+    "prompt": "Dans un LSTM, l'état de cellule est mis à jour par...",
+    "options": ["$c_t=\\tanh(W_cx_t+U_ch_{t-1})$", "$c_t=f_t\\odot c_{t-1}+i_t\\odot g_t$", "$c_t=o_t\\odot\\tanh(h_t)$", "$c_t=\\sigma(c_{t-1})$"],
+    "explanation": "Oublier l'ancien contenu par le facteur $f_t$ et ajouter le nouveau candidat filtré $i_t\\odot g_t$ : une mise à jour additive."
+  },
+  {
+    "id": "seq.04.q2",
+    "prompt": "L'état caché transmis à la couche suivante (la sortie de la cellule) est...",
+    "options": ["$c_t$", "$h_t=o_t\\odot\\tanh(c_t)$", "$f_t$", "$i_t\\odot g_t$"],
+    "explanation": "La porte de sortie décide quelle part du contenu écrasé de la cellule est exposée sous la forme $h_t$."
+  },
+  {
+    "id": "seq.04.q3",
+    "prompt": "Combien de paramètres a une couche LSTM avec une taille d'entrée $n=128$ et une taille cachée $H=256$ (un vecteur de biais par porte) ?",
+    "options": [],
+    "explanation": "$4H(n+H+1)=4\\cdot256\\cdot385=394{,}240$."
+  },
+  {
+    "id": "seq.04.q4",
+    "prompt": "Un GRU avec les mêmes $n$ et $H$ a quelle fraction des paramètres du LSTM ?",
+    "options": ["1/2", "2/3", "3/4", "1/4"],
+    "explanation": "Trois blocs ($r,z,n$) au lieu de quatre ($i,f,g,o$) : $3/4$."
+  },
+  {
+    "id": "seq.04.q5",
+    "prompt": "En rétropropageant à travers $c_t=f\\odot c_{t-1}+i\\odot g$, le gradient vers la cellule précédente est...",
+    "options": ["$\\bar c^{tot}\\odot i$", "$W_{hh}^\\top\\bar c^{tot}$", "$\\bar c^{tot}\\odot f$", "$\\bar c^{tot}\\odot(1-f^2)$"],
+    "explanation": "$\\partial c_t/\\partial c_{t-1}$ contient directement $\\operatorname{diag}(f_t)$, donc $\\bar c_{t-1}=\\bar c^{tot}\\odot f_t$ (plus des termes indirects à travers $h_{t-1}$ qui sont traités via $\\bar h_{t-1}$)."
+  },
+  {
+    "id": "seq.04.q6",
+    "prompt": "Pourquoi le biais de la porte d'oubli est-il souvent initialisé à une valeur positive ?",
+    "options": ["Pour que $f\\approx1$, de sorte que la mémoire soit conservée par défaut et que les gradients circulent le long du chemin de cellule", "Pour faire saturer la porte de sortie", "Pour réduire le nombre de paramètres", "Pour rendre la sigmoïde linéaire"],
+    "explanation": "Un $\\sigma(b_f)$ proche de 1 au départ signifie $c_t\\approx c_{t-1}$, donc le début de l'entraînement n'efface pas la mémoire."
+  },
+  {
+    "id": "seq.04.q7",
+    "prompt": "Une porte d'oubli reste à 0.99 pendant 100 pas. Quelle fraction du gradient de la cellule survit le long du chemin direct ($0.99^{100}$, 2 décimales) ?",
+    "options": [],
+    "explanation": "$0.99^{100}=0.366$. Avec $0.9$ par pas ce serait $2.7\\times10^{-5}$."
+  },
+  {
+    "id": "seq.04.q8",
+    "prompt": "Dans le GRU $h_t=(1-z_t)\\odot\\tilde h_t+z_t\\odot h_{t-1}$, que se passe-t-il quand $z_t\\to1$ ?",
+    "options": ["l'état est remplacé par le candidat", "l'état est remis à zéro", "l'état précédent est copié inchangé", "le gradient s'évanouit"],
+    "explanation": "$h_t\\to h_{t-1}$ et $\\partial h_t/\\partial h_{t-1}\\to I$ : un chemin d'identité additif, comme une connexion résiduelle."
+  },
+  {
+    "id": "seq.04.q9",
+    "prompt": "Que contrôle la porte de réinitialisation $r_t$ du GRU ?",
+    "options": ["quelle part de l'état précédent le candidat $\\tilde h_t$ peut voir", "quelle part de la cellule est oubliée", "le taux d'apprentissage", "l'échelle de la sortie"],
+    "explanation": "Le candidat est $\\tanh(W_nx_t+r_t\\odot(U_nh_{t-1})+b_n)$ : $r_t\\approx0$ lui fait ignorer le passé."
+  }
+]

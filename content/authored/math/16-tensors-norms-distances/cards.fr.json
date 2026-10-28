@@ -1,0 +1,18 @@
+[
+  { "id": "math.16.c1", "front": "Rang contre forme d'un tenseur", "back": "Rang = nombre d'axes ; forme = n-uplet des longueurs d'axes. Nombre d'éléments = produit de la forme." },
+  { "id": "math.16.c2", "front": "Formes typiques en apprentissage profond", "back": "Images (B,C,H,W) ; plongements de tokens (B,T,D) ; scores d'attention (B,H,T,T) ; poids linéaires (out,in) ; table de plongements (vocab,dim)." },
+  { "id": "math.16.c3", "front": "Règle de diffusion (broadcasting)", "back": "Aligne les formes par la droite, complète les axes de tête manquants par 1 ; les tailles doivent être égales ou l'une doit valoir 1 ; le résultat prend la plus grande. Aucune donnée n'est copiée." },
+  { "id": "math.16.c4", "front": "Bug classique de diffusion", "back": "(N,) moins (N,1) se diffuse silencieusement en (N,N). Corrige avec des formes qui correspondent, par ex. reshape ou keepdims=True." },
+  { "id": "math.16.c5", "front": "Pas (strides) et transposition", "back": "Pas = éléments à sauter par axe, par ex. (4,1) pour la forme (3,4). La transposition échange les pas sans déplacer de données, donc le tableau devient non contigu." },
+  { "id": "math.16.c6", "front": "Règle d'einsum", "back": "Les lettres absentes de la sortie sont sommées ; les lettres répétées dans un opérande prennent la diagonale. `ik,kj->ij` est le produit matriciel." },
+  { "id": "math.16.c7", "front": "Scores d'attention en einsum", "back": "`bhtd,bhsd->bhts` : produit scalaire sur d pour chaque (lot, tête, requête t, clé s)." },
+  { "id": "math.16.c8", "front": "Définition d'une norme", "back": "$\\|\\lambda x\\|=|\\lambda|\\|x\\|$, inégalité triangulaire $\\|x+y\\|\\le\\|x\\|+\\|y\\|$, et $\\|x\\|\\ge0$ avec égalité si et seulement si $x=0$." },
+  { "id": "math.16.c9", "front": "Normes L1, L2, Linf", "back": "$\\sum|x_i|$ ; $\\sqrt{\\sum x_i^2}$ ; $\\max|x_i|$. Ordre : $\\|x\\|_\\infty\\le\\|x\\|_2\\le\\|x\\|_1$. Pour $(3,-4,12)$ : 19, 13, 12." },
+  { "id": "math.16.c10", "front": "Pourquoi L1 donne la parcimonie et L2 le rétrécissement", "back": "La boule L1 est un losange avec des coins sur les axes (les minimiseurs tombent sur un coin, coordonnées exactement 0) ; la boule L2 est ronde, donc les poids rétrécissent mais s'annulent rarement." },
+  { "id": "math.16.c11", "front": "Norme de Frobenius contre norme spectrale", "back": "$\\|A\\|_F=\\sqrt{\\sum_{ij}a_{ij}^2}=\\sqrt{\\sum\\sigma_k^2}$ ; $\\|A\\|_2=\\max_{\\|x\\|=1}\\|Ax\\|=\\sigma_{\\max}$." },
+  { "id": "math.16.c12", "front": "Similarité cosinus", "back": "$\\cos=a^\\top b/(\\|a\\|\\|b\\|)\\in[-1,1]$ ; ignore la longueur. Pour des vecteurs unité $\\|a-b\\|^2=2-2\\cos$." },
+  { "id": "math.16.c13", "front": "Distance de Mahalanobis", "back": "$\\sqrt{(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)}=\\|\\Sigma^{-1/2}(x-\\mu)\\|_2$ : distance euclidienne après blanchiment ; tient compte de l'échelle et de la corrélation." },
+  { "id": "math.16.c14", "front": "Fraction de coquille d'une boule de grande dimension", "back": "La fraction du volume à moins de $\\varepsilon$ de la surface est $1-(1-\\varepsilon)^D$ : 99.4 % pour $\\varepsilon=0.05$, $D=100$." },
+  { "id": "math.16.c15", "front": "Concentration des distances", "back": "En grande dimension, le plus proche et le plus lointain voisin sont presque aussi éloignés : $(d_{\\max}-d_{\\min})/d_{\\min}\\to0$. La distance au carré est une somme de nombreux termes de coordonnées." },
+  { "id": "math.16.c16", "front": "Pourquoi l'apprentissage marche malgré le fléau de la dimension", "back": "Les données réelles se trouvent près d'une variété de faible dimension et les cibles sont localement lisses (Bishop Sec. 1.4)." }
+]

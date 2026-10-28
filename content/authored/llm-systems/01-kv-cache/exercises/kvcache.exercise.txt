@@ -1,0 +1,113 @@
+#@@ meta
+{"id": "sys.01.ex1", "title": "Generation with and without a KV cache", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.kv-cache"], "hints": ["kv_cache_bytes = 2 (K and V) * layers * kv_heads * d_head * seq_len * bytes_per * batch.", "Naive step with t tokens: projections 6*t*d_model*d_head plus a causal t x t attention, 2*t*(t+1)*d_head. Cached step: projections for ONE token, 6*d_model*d_head, plus attention of one query over t keys, 4*t*d_head.", "In generate_cached, start with K = X0 @ Wk, V = X0 @ Wv and the output for the last prompt row. Each step: build the next embedding from the previous output, append its k and v, attend with its query over the whole cache."]}
+#@@ prompt
+A single-head attention "language model" with a deterministic next-token rule: the next embedding is `tanh(out_last @ Wo)`, where `out_last` is the attention output of the last position.
+
+Implement:
+
+- `kv_cache_bytes(layers, kv_heads, d_head, seq_len, bytes_per=2, batch=1)`
+- `flops_naive_step(t, d_model, d_head)` and `flops_cached_step(t, d_model, d_head)` with the counting convention of the lesson (a matmul of $(a,b)\times(b,c)$ costs $2abc$)
+- `generate_naive` (recompute Q, K, V of every row at every step, causal mask) and `generate_cached` (compute k and v once per token and append them)
+
+The two generators must agree to numerical precision. Then compare the total FLOPs.
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def make_weights(d_model, d_head, seed=0):
+    rng = np.random.default_rng(seed)
+    s = 1 / np.sqrt(d_model)
+    return {"Wq": rng.normal(0, s, (d_model, d_head)), "Wk": rng.normal(0, s, (d_model, d_head)),
+            "Wv": rng.normal(0, s, (d_model, d_head)), "Wo": rng.normal(0, 1 / np.sqrt(d_head), (d_head, d_model))}
+
+def kv_cache_bytes(layers, kv_heads, d_head, seq_len, bytes_per=2, batch=1):
+    raise NotImplementedError
+
+def flops_naive_step(t, d_model, d_head):
+    # one decoding step when t tokens are already present, recomputing everything
+    raise NotImplementedError
+
+def flops_cached_step(t, d_model, d_head):
+    # one decoding step when t tokens are already present and K, V of all of them are cached
+    raise NotImplementedError
+
+def generate_naive(X0, steps, W):
+    # X0: (T0, d_model). Each step: recompute Q,K,V for ALL rows, causal softmax, take the last row,
+    # next embedding = tanh(out_last @ Wo). Return all rows, shape (T0 + steps, d_model).
+    raise NotImplementedError
+
+def generate_cached(X0, steps, W):
+    # same output, but K and V are computed once per token and appended to a cache.
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+W = make_weights(16, 8, 0)
+X0 = np.random.default_rng(1).normal(size=(5, 16))
+a = generate_naive(X0, 20, W)
+b = generate_cached(X0, 20, W)
+check("naive output shape (T0+steps, d_model)", lambda: a.shape == (25, 16))
+check("cached output shape", lambda: b.shape == (25, 16))
+check("prompt rows are copied unchanged", lambda: np.allclose(a[:5], X0) and np.allclose(b[:5], X0))
+check("cached generation equals naive generation", lambda: np.allclose(a, b, atol=1e-10))
+check("generated rows are not trivial", lambda: np.abs(a[5:]).max() > 0.01)
+check("KV bytes, 7B-like config = 2 GiB", lambda: kv_cache_bytes(32, 32, 128, 4096) == 2 * 1024**3)
+check("GQA with 8 KV heads is 4x smaller", lambda: kv_cache_bytes(32, 8, 128, 4096) * 4 == kv_cache_bytes(32, 32, 128, 4096))
+check("batch scales linearly", lambda: kv_cache_bytes(2, 2, 4, 10, 2, batch=3) == 3 * kv_cache_bytes(2, 2, 4, 10, 2))
+check("naive flops at t=5", lambda: flops_naive_step(5, 16, 8) == 4320)
+check("cached flops at t=5", lambda: flops_cached_step(5, 16, 8) == 928)
+tot_n = sum(flops_naive_step(5 + i, 16, 8) for i in range(20))
+tot_c = sum(flops_cached_step(5 + i, 16, 8) for i in range(20))
+check("total naive flops over 20 steps", lambda: tot_n == 305280)
+check("total cached flops over 20 steps", lambda: tot_c == 24640)
+check("saving grows with length", lambda: flops_naive_step(1000, 4096, 128) / flops_cached_step(1000, 4096, 128) > 900)
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def make_weights(d_model, d_head, seed=0):
+    rng = np.random.default_rng(seed)
+    s = 1 / np.sqrt(d_model)
+    return {"Wq": rng.normal(0, s, (d_model, d_head)), "Wk": rng.normal(0, s, (d_model, d_head)),
+            "Wv": rng.normal(0, s, (d_model, d_head)), "Wo": rng.normal(0, 1 / np.sqrt(d_head), (d_head, d_model))}
+
+def kv_cache_bytes(layers, kv_heads, d_head, seq_len, bytes_per=2, batch=1):
+    return 2 * layers * kv_heads * d_head * seq_len * bytes_per * batch
+
+def flops_naive_step(t, d_model, d_head):
+    return 6 * t * d_model * d_head + 2 * t * (t + 1) * d_head
+
+def flops_cached_step(t, d_model, d_head):
+    return 6 * d_model * d_head + 4 * t * d_head
+
+def generate_naive(X0, steps, W):
+    X = X0.copy()
+    d_head = W["Wq"].shape[1]
+    for _ in range(steps):
+        Q, K, V = X @ W["Wq"], X @ W["Wk"], X @ W["Wv"]
+        S = Q @ K.T / np.sqrt(d_head)
+        S = np.where(np.tril(np.ones_like(S)) == 1, S, -np.inf)
+        out = softmax(S) @ V
+        X = np.vstack([X, np.tanh(out[-1] @ W["Wo"])])
+    return X
+
+def generate_cached(X0, steps, W):
+    d_head = W["Wq"].shape[1]
+    K, V = X0 @ W["Wk"], X0 @ W["Wv"]
+    q = X0[-1] @ W["Wq"]
+    rows = [r for r in X0]
+    out = softmax(q @ K.T / np.sqrt(d_head)) @ V
+    for _ in range(steps):
+        nxt = np.tanh(out @ W["Wo"])
+        rows.append(nxt)
+        K = np.vstack([K, nxt @ W["Wk"]])
+        V = np.vstack([V, nxt @ W["Wv"]])
+        out = softmax((nxt @ W["Wq"]) @ K.T / np.sqrt(d_head)) @ V
+    return np.array(rows)

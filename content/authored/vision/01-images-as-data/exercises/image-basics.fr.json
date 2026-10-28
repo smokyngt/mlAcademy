@@ -1,0 +1,10 @@
+{
+ "id": "vis.01.ex1",
+ "title": "Pixels, standardisation et filtres de convolution",
+ "prompt": "Construis la boîte à outils de base pour les images avec NumPy uniquement.\n\n- `to_gray(rgb)` : tableau `(H, W, 3)` -> tableau float `(H, W)` en utilisant les poids `0.299, 0.587, 0.114`.\n- `standardize(img_uint8, mean, std)` : `(H, W, 3)` uint8 -> `(3, H, W)` float : divise par 255, soustrais `mean`, divise par `std` (par canal), puis place les canaux en premier.\n- `conv2d_valid(img, kernel)` : filtrage 2D « valid » à fenêtre glissante (sans remplissage, pas de 1). Comme les bibliothèques de deep learning, ne **retourne pas** le noyau (c'est de l'intercorrélation). Forme de sortie `(H-kh+1, W-kw+1)`.\n- `sobel_magnitude(gray)` : intensité de contour `sqrt(gx^2 + gy^2)` avec les noyaux de Sobel `Kx = [[-1,0,1],[-2,0,2],[-1,0,1]]` et `Ky = Kx.T`.\n- `histogram(gray, bins)` : effectifs des valeurs de pixels dans `bins` classes de largeur égale sur `[0, 256)` (entiers de 0 à 255).",
+ "hints": [
+  "Le gris est une somme pondérée sur le DERNIER axe : rgb.astype(float) @ np.array([0.299, 0.587, 0.114]).",
+  "Standardise avec (img/255 - mean) / std en diffusant sur le dernier axe, PUIS transpose(2, 0, 1) pour obtenir CHW.",
+  "conv2d_valid : pour chaque position de sortie (i, j), prends la fenêtre img[i:i+kh, j:j+kw] et somme fenêtre * noyau. La forme de sortie est (H-kh+1, W-kw+1). La magnitude de Sobel est sqrt(gx**2 + gy**2) où gy utilise le noyau transposé."
+ ]
+}

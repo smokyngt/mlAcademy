@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.01.c1",
+  "concept": "mx.complex",
+  "front": "Imaginary unit",
+  "back": "$i^2=-1$; a quarter turn in the plane."
+ },
+ {
+  "id": "mx.01.c2",
+  "concept": "mx.complex",
+  "front": "Complex number",
+  "back": "$z=a+bi$ with real part $a$ and imaginary part $b$; the point $(a,b)$ in the plane."
+ },
+ {
+  "id": "mx.01.c3",
+  "concept": "mx.complex",
+  "front": "Conjugate and modulus",
+  "back": "$\\bar z=a-bi$; $z\\bar z=|z|^2=a^2+b^2$."
+ },
+ {
+  "id": "mx.01.c4",
+  "concept": "mx.complex",
+  "front": "Polar form",
+  "back": "$z=r(\\cos\\theta+i\\sin\\theta)=re^{i\\theta}$ with $r=|z|$, $\\theta=\\operatorname{atan2}(b,a)$."
+ },
+ {
+  "id": "mx.01.c5",
+  "concept": "mx.complex",
+  "front": "Multiplication geometrically",
+  "back": "Multiply lengths and add angles: a rotation plus a scaling."
+ },
+ {
+  "id": "mx.01.c6",
+  "concept": "mx.complex",
+  "front": "Complex number as a matrix",
+  "back": "$a+bi\\leftrightarrow\\begin{pmatrix}a&-b\\\\b&a\\end{pmatrix}$, a $2\\times2$ rotation times a scale."
+ },
+ {
+  "id": "mx.01.c7",
+  "concept": "mx.euler",
+  "front": "Euler's formula",
+  "back": "$e^{i\\theta}=\\cos\\theta+i\\sin\\theta$; a point on the unit circle."
+ },
+ {
+  "id": "mx.01.c8",
+  "concept": "mx.euler",
+  "front": "Derivation of Euler's formula",
+  "back": "Plug $x=i\\theta$ into $\\sum x^k/k!$; powers of $i$ cycle with period 4; even terms give the cosine series, odd terms $i$ times the sine series."
+ },
+ {
+  "id": "mx.01.c9",
+  "concept": "mx.euler",
+  "front": "Euler's identity",
+  "back": "$e^{i\\pi}+1=0$."
+ },
+ {
+  "id": "mx.01.c10",
+  "concept": "mx.roots-unity",
+  "front": "Roots of unity",
+  "back": "Solutions of $z^n=1$: $\\omega_k=e^{2\\pi ik/n}$, vertices of a regular $n$-gon."
+ },
+ {
+  "id": "mx.01.c11",
+  "concept": "mx.roots-unity",
+  "front": "Sum of roots of unity",
+  "back": "Zero for $n\\ge2$, by the geometric series with $\\omega^n=1$."
+ },
+ {
+  "id": "mx.01.c12",
+  "concept": "mx.roots-unity",
+  "front": "Eigenvalues of a rotation",
+  "back": "$R_\\theta$ has $\\lambda=e^{\\pm i\\theta}$ from $\\lambda^2-2\\cos\\theta\\,\\lambda+1=0$."
+ },
+ {
+  "id": "mx.01.c13",
+  "concept": "mx.roots-unity",
+  "front": "Meaning of eigenvalue modulus",
+  "back": "$|\\lambda|=1$ pure rotation or oscillation; $>1$ spirals out (explodes); $<1$ spirals in (vanishes)."
+ },
+ {
+  "id": "mx.01.c14",
+  "concept": "mx.complex",
+  "front": "Why conjugate in inner products?",
+  "back": "For complex vectors $\\langle x,y\\rangle=x^Hy$ with $x^H=\\bar x^\\top$ so that $\\langle x,x\\rangle=\\sum|x_j|^2\\ge0$."
+ }
+]

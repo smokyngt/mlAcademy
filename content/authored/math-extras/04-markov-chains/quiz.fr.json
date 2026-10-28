@@ -1,0 +1,91 @@
+[
+ {
+  "id": "mx.04.q1",
+  "prompt": "La propriété de Markov dit que l'état suivant dépend de...",
+  "options": [
+   "tout l'historique",
+   "seulement l'état courant",
+   "seulement l'état initial",
+   "rien ; c'est aléatoire"
+  ],
+  "explanation": "$P(X_{t+1}\\mid X_t,\\dots,X_0)=P(X_{t+1}\\mid X_t)$."
+ },
+ {
+  "id": "mx.04.q2",
+  "prompt": "Une matrice de transition $P$ est stochastique par lignes. Cela signifie...",
+  "options": [
+   "les colonnes somment à 1",
+   "chaque ligne somme à 1 et les entrées sont non négatives",
+   "$P$ est symétrique",
+   "$P$ est orthogonale"
+  ],
+  "explanation": "La ligne $i$ est une distribution de probabilité sur l'état suivant."
+ },
+ {
+  "id": "mx.04.q3",
+  "prompt": "Pour $P=\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$ en partant de l'état 0, quelle est la probabilité d'être dans l'état 0 après deux pas ?",
+  "options": [],
+  "explanation": "$0.9\\cdot0.9+0.1\\cdot0.5=0.81+0.05=0.86$."
+ },
+ {
+  "id": "mx.04.q4",
+  "prompt": "Une distribution stationnaire $\\pi$ vérifie...",
+  "options": [
+   "$P\\pi=\\pi$ avec $\\pi$ une colonne",
+   "$\\pi P=\\pi$ avec $\\pi$ une ligne de somme 1",
+   "$\\pi P=0$",
+   "$\\pi P^\\top=\\pi$ pour toutes les chaînes"
+  ],
+  "explanation": "C'est un vecteur propre à gauche de $P$ de valeur propre 1, normalisé pour sommer à 1."
+ },
+ {
+  "id": "mx.04.q5",
+  "prompt": "Pour $P=\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$, que vaut $\\pi_0$ (la probabilité stationnaire de l'état 0) ?",
+  "options": [],
+  "explanation": "$0.1\\pi_0=0.5\\pi_1$, donc $\\pi_0=5\\pi_1$ et $\\pi_0=5/6$."
+ },
+ {
+  "id": "mx.04.q6",
+  "prompt": "Quelle chaîne n'est PAS ergodique ?",
+  "options": [
+   "$\\begin{pmatrix}0.5&0.5\\\\0.5&0.5\\end{pmatrix}$",
+   "$\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$",
+   "$\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$",
+   "Toutes les entrées de $P$ strictement positives"
+  ],
+  "explanation": "La bascule est périodique (période 2) : $P^k$ alterne entre l'identité et elle-même, sans jamais être entièrement positive."
+ },
+ {
+  "id": "mx.04.q7",
+  "prompt": "À quelle vitesse une chaîne ergodique converge-t-elle vers $\\pi$ ?",
+  "options": [
+   "Comme $|\\lambda_2|^n$, le deuxième plus grand module de valeur propre",
+   "Comme $1/n$ toujours",
+   "En exactement un pas",
+   "Comme $\\lambda_{\\min}^n$"
+  ],
+  "explanation": "Les composantes selon les autres vecteurs propres meurent comme $\\lambda_i^n$ ; la plus lente est $\\lambda_2$."
+ },
+ {
+  "id": "mx.04.q8",
+  "prompt": "L'équilibre détaillé $\\pi_iP_{ij}=\\pi_jP_{ji}$ implique...",
+  "options": [
+   "que $P$ est symétrique",
+   "que $\\pi$ est uniforme",
+   "que la chaîne est périodique",
+   "que $\\pi P=\\pi$"
+  ],
+  "explanation": "Sommer sur $i$ donne $\\sum_i\\pi_iP_{ij}=\\pi_j$."
+ },
+ {
+  "id": "mx.04.q9",
+  "prompt": "Pourquoi Metropolis-Hastings n'a-t-il pas besoin de la constante de normalisation de la cible ?",
+  "options": [
+   "Il échantillonne uniformément",
+   "La probabilité d'acceptation n'utilise que le rapport $\\pi_j/\\pi_i$",
+   "Il ignore la cible",
+   "La constante vaut toujours 1"
+  ],
+  "explanation": "Dans un rapport, la constante s'annule."
+ }
+]

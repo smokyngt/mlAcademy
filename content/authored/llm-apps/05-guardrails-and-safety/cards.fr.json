@@ -1,0 +1,72 @@
+[
+ {
+  "id": "app.05.c1",
+  "front": "Sandwich de garde-fous",
+  "back": "Valider l'entrée, traiter (modèle et outils), valider la sortie ; ajouter limitation de débit, authentification et permissions au niveau des outils."
+ },
+ {
+  "id": "app.05.c2",
+  "front": "Injection directe vs indirecte",
+  "back": "Directe : le message de l'utilisateur tente de passer outre les instructions. Indirecte : instructions cachées dans du contenu que le modèle lit (pages, e-mails, résultats d'outils)."
+ },
+ {
+  "id": "app.05.c3",
+  "front": "Pourquoi l'injection est difficile",
+  "back": "Instructions et données partagent un seul canal de texte, donc le modèle ne peut pas les séparer de façon fiable."
+ },
+ {
+  "id": "app.05.c4",
+  "front": "Jailbreak",
+  "back": "Une technique qui contourne le comportement de sécurité propre du modèle (jeu de rôle, manipulation multi-tours), par opposition au fait de passer outre ton prompt système."
+ },
+ {
+  "id": "app.05.c5",
+  "front": "Moindre privilège pour les agents",
+  "back": "Donner aux outils des portées minimales ; exiger une approbation pour les actions irréversibles ; appliquer les permissions dans le code, pas dans le prompt."
+ },
+ {
+  "id": "app.05.c6",
+  "front": "Algorithme de Luhn",
+  "back": "En partant de la droite, doubler un chiffre sur deux, soustraire 9 si supérieur à 9, sommer ; valide si et seulement si la somme est divisible par 10."
+ },
+ {
+  "id": "app.05.c7",
+  "front": "Ce que Luhn garantit",
+  "back": "Détecte toutes les erreurs d'un seul chiffre et la plupart des transpositions adjacentes ; environ 10 pour cent des chaînes de chiffres aléatoires passent quand même."
+ },
+ {
+  "id": "app.05.c8",
+  "front": "IBAN mod-97",
+  "back": "Déplacer les quatre premiers caractères à la fin, lettres en 10-35, lire comme un entier : un reste de 1 modulo 97 signifie bien formé."
+ },
+ {
+  "id": "app.05.c9",
+  "front": "Règles de structure du SSN américain",
+  "back": "AAA-GG-SSSS avec AAA pas 000, 666 ni 9xx ; GG pas 00 ; SSSS pas 0000 ; pas de somme de contrôle, donc garder des mots de contexte."
+ },
+ {
+  "id": "app.05.c10",
+  "front": "Pourquoi ignorer les correspondances qui se chevauchent dans la détection de PII ?",
+  "back": "Les chiffres à l'intérieur d'un IBAN pourraient sinon être relus comme une carte ; lancer d'abord les motifs spécifiques et ignorer les chevauchements."
+ },
+ {
+  "id": "app.05.c11",
+  "front": "Taux de faux positifs vs de faux négatifs",
+  "back": "FPR : part des entrées bénignes bloquées. FNR : part des attaques laissées passer. Abaisser le seuil échange du FNR contre du FPR."
+ },
+ {
+  "id": "app.05.c12",
+  "front": "Seau à jetons",
+  "back": "Capacité C, recharge R par seconde ; niveau = min(C, niveau + R*dt) ; admettre si niveau >= coût. Autorise les rafales, impose un débit moyen."
+ },
+ {
+  "id": "app.05.c13",
+  "front": "Chaîne de repli",
+  "back": "Modèle principal, modèle de secours, réponse en cache ou préenregistrée, erreur ; noter quel niveau a répondu ; échouer en mode fermé pour les actions à haut risque."
+ },
+ {
+  "id": "app.05.c14",
+  "front": "Questions du modèle de menaces",
+  "back": "Que peut lire le modèle, que peut-il faire, quels secrets sont atteignables, qui attaque, pire résultat, ce qui est journalisé, que se passe-t-il si une couche échoue."
+ }
+]

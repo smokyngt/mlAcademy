@@ -1,0 +1,43 @@
+[
+  {
+    "id": "f2n.10.q1", "concept": "nn.backprop", "stage": "pre",
+    "prompt": "$Z=XW$ with $X:(B,n)$, $W:(n,m)$ and upstream gradient $\\bar Z:(B,m)$. What is $\\bar W$?",
+    "options": ["$\\bar Z X^\\top$", "$X^\\top\\bar Z$", "$X\\bar Z^\\top$", "$\\bar Z^\\top X^\\top$"],
+    "answer": 1,
+    "explanation": "$\\bar W_{jk}=\\sum_bX_{bj}\\bar Z_{bk}=(X^\\top\\bar Z)_{jk}$, shape $(n\\times B)(B\\times m)=(n\\times m)$, the shape of $W$."
+  },
+  {
+    "id": "f2n.10.q2", "concept": "nn.backprop",
+    "prompt": "Same setting. What is the gradient with respect to the input, $\\bar X$?",
+    "options": ["$\\bar ZW^\\top$", "$W\\bar Z$", "$W^\\top\\bar Z$", "$\\bar Z^\\top W$"],
+    "answer": 0,
+    "explanation": "$\\bar X_{bj}=\\sum_k\\bar Z_{bk}W_{jk}=(\\bar ZW^\\top)_{bj}$, shape $(B\\times m)(m\\times n)=(B\\times n)$."
+  },
+  {
+    "id": "f2n.10.q3", "concept": "nn.backprop",
+    "prompt": "In the lesson's walk-through, what is $\\bar a_1$ given $\\bar z_2=-0.52498$ and $w_2=2$?",
+    "kind": "numeric", "options": [], "answer": { "value": -1.04996, "tol": 0.001 },
+    "explanation": "$z_2=w_2a_1+b_2$, so $\\partial z_2/\\partial a_1=w_2$ and $\\bar a_1=\\bar z_2w_2=-0.52498\\cdot2=-1.04996$."
+  },
+  {
+    "id": "f2n.10.q4", "concept": "nn.backprop",
+    "prompt": "$\\bar b_2$ for a batch is computed as...",
+    "options": ["the first row of $\\bar Z_2$", "$\\sum_b(\\bar Z_2)_{b,:}$, summing over the batch axis", "$\\bar Z_2$ itself, shape $(B,K)$", "$\\bar Z_2W_2^\\top$"],
+    "answer": 1,
+    "explanation": "The same bias vector is added to every example, so its gradient is the sum of the per-example gradients: shape $(K,)$."
+  },
+  {
+    "id": "f2n.10.q5", "concept": "nn.backprop",
+    "prompt": "Which tensors must the forward pass cache for the backward pass of `Z1=X@W1+b1; A1=relu(Z1); Z2=A1@W2+b2`?",
+    "options": ["Only the final loss", "$X$, $Z_1$ (ReLU mask), $A_1$ and the softmax output $P$", "Only the weights", "Nothing: gradients can be recomputed from the loss alone"],
+    "answer": 1,
+    "explanation": "$\\bar W_1$ needs $X$, the ReLU backward needs $Z_1$, $\\bar W_2$ needs $A_1$ and the loss gradient needs $P$. This is the activation memory of training."
+  },
+  {
+    "id": "f2n.10.q6", "concept": "nn.backprop",
+    "prompt": "Your analytic gradient for $W_1$ matches finite differences up to an exact constant factor of $B$. The most likely bug is...",
+    "options": ["a wrong learning rate", "a missing (or extra) $1/B$ from the mean over the batch in the loss gradient", "ReLU being non-differentiable", "using float32"],
+    "answer": 1,
+    "explanation": "A constant factor equal to the batch size points directly at the mean over the batch: $\\bar Z_2=(P-Y)/B$. Finite differences measure the true gradient of the mean loss."
+  }
+]

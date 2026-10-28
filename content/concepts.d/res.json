@@ -1,0 +1,4 @@
+[
+  {"id": "res.reproduction", "title": "Reproducing a published result", "description": "Extracting the exact setup of a claim, reproducing it at small scale over many seeds, comparing with the reported number using confidence intervals and tolerances, documenting deviations, and diagnosing why reproductions fail.", "stage": "VII", "prereqs": ["res.ablation", "stat.testing", "nn.training", "dl.dropout"]},
+  {"id": "res.design", "title": "Designing and evaluating original experiments", "description": "From research question to hypothesis, controls and baselines; power and sample size; multiple comparisons (Bonferroni, Benjamini-Hochberg); ablation grids and interactions; pre-registration, p-hacking and honest reporting of negative results.", "stage": "VII", "prereqs": ["res.reproduction", "stat.testing", "res.ablation"]}
+]

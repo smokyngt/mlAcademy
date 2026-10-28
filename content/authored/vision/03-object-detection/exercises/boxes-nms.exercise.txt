@@ -1,0 +1,73 @@
+#@@ meta
+{"id": "vis.03.ex1", "title": "IoU, non-maximum suppression and box decoding", "difficulty": 3, "runtime": "pyodide", "concepts": ["vis.iou", "vis.detection"], "hints": ["Intersection width = max(0, min(x2a, x2b) - max(x1a, x1b)); same for height. Union = areaA + areaB - intersection.", "NMS: sort indices by score descending; repeatedly take the first remaining index, keep it, and drop every remaining box whose IoU with it is strictly greater than the threshold.", "decode: cx = (sigmoid(tx) + cell_x) * stride, cy likewise, w = anchor_w * exp(tw), h = anchor_h * exp(th); return (cx - w/2, cy - h/2, cx + w/2, cy + h/2)."]}
+#@@ prompt
+Boxes are `(x1, y1, x2, y2)` with `x1 < x2`, `y1 < y2`.
+
+- `iou(a, b)`: intersection over union of two boxes (0 when they do not overlap).
+- `iou_matrix(A, B)`: `(len(A), len(B))` matrix of pairwise IoU.
+- `nms(boxes, scores, thr)`: greedy non-maximum suppression; return the kept indices in order of decreasing score. A box is suppressed when its IoU with an already kept box is **strictly greater** than `thr`.
+- `decode_cell(t, cell_x, cell_y, stride, anchor)`: `t = (tx, ty, tw, th)`, `anchor = (aw, ah)`; return the decoded box in pixels as `(x1, y1, x2, y2)`.
+#@@ starter
+import numpy as np
+
+def iou(a, b):
+    raise NotImplementedError
+
+def iou_matrix(A, B):
+    raise NotImplementedError
+
+def nms(boxes, scores, thr):
+    raise NotImplementedError
+
+def decode_cell(t, cell_x, cell_y, stride, anchor):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("IoU of (0,0,10,10) and (5,5,15,15) is 25/175", lambda: abs(iou((0, 0, 10, 10), (5, 5, 15, 15)) - 25 / 175) < 1e-12)
+check("identical boxes have IoU 1", lambda: abs(iou((1, 2, 5, 9), (1, 2, 5, 9)) - 1) < 1e-12)
+check("disjoint boxes have IoU 0", lambda: iou((0, 0, 1, 1), (2, 2, 3, 3)) == 0)
+check("touching boxes have IoU 0", lambda: iou((0, 0, 1, 1), (1, 0, 2, 1)) == 0)
+check("a box inside another: IoU = area ratio", lambda: abs(iou((0, 0, 10, 10), (2, 2, 4, 4)) - 0.04) < 1e-12)
+A = [(0, 0, 10, 10), (5, 5, 15, 15)]
+M = iou_matrix(A, A)
+check("iou_matrix shape and diagonal", lambda: np.shape(M) == (2, 2) and np.allclose(np.diag(M), 1))
+check("iou_matrix is symmetric for A vs A", lambda: np.allclose(M, np.array(M).T))
+boxes = [(0, 0, 10, 10), (1, 1, 11, 11), (50, 50, 60, 60), (0, 0, 10, 9)]
+scores = [0.9, 0.8, 0.7, 0.6]
+check("NMS keeps the best box and the far box (thr 0.5)", lambda: list(nms(boxes, scores, 0.5)) == [0, 2])
+check("NMS with thr 1.0 keeps everything, sorted by score", lambda: list(nms(boxes, scores, 1.0)) == [0, 1, 2, 3])
+check("NMS orders by score even if input is unsorted", lambda: list(nms(boxes, [0.1, 0.8, 0.7, 0.6], 0.5)) == [1, 2])
+check("NMS on an empty list returns an empty list", lambda: list(nms([], [], 0.5)) == [])
+b = decode_cell((0.0, 0.0, 0.0, 0.0), 3, 2, 32, (60, 40))
+check("zero offsets: centre at (cell + 0.5) * stride, size = anchor", lambda: np.allclose(b, (3.5 * 32 - 30, 2.5 * 32 - 20, 3.5 * 32 + 30, 2.5 * 32 + 20)))
+b2 = decode_cell((0.0, 0.0, np.log(2.0), np.log(0.5)), 0, 0, 16, (10, 10))
+check("tw = ln 2 doubles the width, th = ln 0.5 halves the height", lambda: np.allclose(b2, (8 - 10, 8 - 2.5, 8 + 10, 8 + 2.5)))
+#@@ solution
+import numpy as np
+
+def iou(a, b):
+    iw = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    ih = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = iw * ih
+    ua = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / ua if ua > 0 else 0.0
+
+def iou_matrix(A, B):
+    return np.array([[iou(a, b) for b in B] for a in A]).reshape(len(A), len(B))
+
+def nms(boxes, scores, thr):
+    order = list(np.argsort(-np.asarray(scores, dtype=float), kind="stable"))
+    keep = []
+    while order:
+        i = order.pop(0)
+        keep.append(int(i))
+        order = [j for j in order if iou(boxes[i], boxes[j]) <= thr]
+    return keep
+
+def decode_cell(t, cell_x, cell_y, stride, anchor):
+    sig = lambda z: 1.0 / (1.0 + np.exp(-z))
+    cx = (sig(t[0]) + cell_x) * stride
+    cy = (sig(t[1]) + cell_y) * stride
+    w = anchor[0] * np.exp(t[2])
+    h = anchor[1] * np.exp(t[3])
+    return (cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2)

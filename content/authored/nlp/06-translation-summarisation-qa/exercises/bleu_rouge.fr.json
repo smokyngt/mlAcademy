@@ -1,0 +1,10 @@
+{
+ "id": "nlp.06.ex1",
+ "title": "BLEU et ROUGE à partir de zéro",
+ "prompt": "Toutes les entrées sont des listes de tokens.\n\n- `ngrams(tokens, n)` -> `collections.Counter` de tuples de n-grammes.\n- `clipped(c, refs, n)` -> `(matched, total)` : correspondances de n-grammes écrêtées du candidat `c` contre une liste de listes de tokens de référence, et le nombre de n-grammes du candidat.\n- `bleu(c, refs, max_n=4, smooth=False)` -> BLEU au niveau de la phrase avec pénalité de brièveté (longueur de référence la plus proche). Renvoie `0.0` si une précision est nulle. Avec `smooth=True`, ajoute 1 à matched et à total pour `n >= 2` avant de tester la nullité.\n- `lcs(a, b)` -> longueur de la plus longue sous-séquence commune.\n- `rouge_n(c, r, n)` -> F1 du recouvrement de n-grammes ; `rouge_l(c, r)` -> F1 à partir de la LCS. Renvoie 0.0 quand un dénominateur est nul.",
+ "hints": [
+  "clipped(c, refs, n) : compte les n-grammes du candidat avec Counter ; pour chaque n-gramme prends le compte maximal sur les références ; matched = sum(min(count_c, max_ref)) ; total = sum(count_c).",
+  "BLEU = BP * exp(mean(log p_n)). rho = longueur de la référence dont la longueur est la plus proche de len(c). BP = 1 si len(c) > rho sinon exp(1 - rho/len(c)). Renvoie 0.0 si un p_n vaut 0 (sauf si smooth=True : ajoute 1 au numérateur et au dénominateur pour n >= 2).",
+  "Recouvrement ROUGE-n = sum((Counter_c & Counter_r).values()). LCS par programmation dynamique : D[i+1][j+1] = D[i][j]+1 si a[i]==b[j] sinon max(D[i][j+1], D[i+1][j])."
+ ]
+}

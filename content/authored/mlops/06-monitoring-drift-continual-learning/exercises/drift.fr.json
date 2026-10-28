@@ -1,0 +1,10 @@
+{
+  "id": "ops.06.ex1",
+  "title": "Détection de dérive avec le test KS et le PSI",
+  "prompt": "Compare un échantillon de référence (données d'entraînement) à un échantillon de production récent d'une feature.\n\n- `ks_statistic(a, b)` -> la statistique de Kolmogorov-Smirnov à deux échantillons `D = max_x |F_a(x) - F_b(x)|`.\n- `ks_pvalue(d, n, m)` -> p-valeur approchée de `D` pour des tailles d'échantillon `n` et `m` (formule dans les indices).\n- `psi(reference, new, bins=10, eps=1e-4)` -> indice de stabilité de la population avec des bornes d'intervalles tirées des quantiles de la **référence** (`bins` intervalles de masse égale), proportions écrêtées par le bas à `eps`.\n- `drift_report(reference, new, alpha=0.01, psi_alert=0.2)` -> dict avec les clés `ks`, `p`, `psi`, `drifted` (True si `p < alpha` ou `psi > psi_alert`).",
+  "hints": [
+    "Statistique KS : évalue les deux fonctions de répartition empiriques en chaque point groupé avec np.searchsorted(sorted_sample, points, side='right') / n et prends le plus grand écart absolu.",
+    "P-valeur asymptotique : lam = (sqrt(ne) + 0.12 + 0.11/sqrt(ne)) * D avec ne = n*m/(n+m) ; p = 2 * sum_{k=1..100} (-1)^(k-1) exp(-2 k^2 lam^2), écrêtée à [0, 1].",
+    "PSI : prends les 9 bornes intérieures des déciles de l'échantillon de RÉFÉRENCE, répartis les deux échantillons avec np.searchsorted(edges, x, side='right'), transforme les comptes en proportions, écrête à eps, puis somme (p_new - p_ref) * log(p_new / p_ref)."
+  ]
+}

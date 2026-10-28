@@ -1,0 +1,91 @@
+[
+ {
+  "id": "gen.02.q1",
+  "prompt": "Un autoencodeur simple est un mauvais générateur principalement parce que...",
+  "options": [
+   "sa perte n'est pas différentiable",
+   "son espace de codes a des trous et aucune distribution d'échantillonnage connue",
+   "il a trop peu de paramètres",
+   "il ne peut pas reconstruire les données d'entraînement"
+  ],
+  "explanation": "Rien ne force les codes à remplir une région dans laquelle on peut échantillonner."
+ },
+ {
+  "id": "gen.02.q2",
+  "prompt": "L'ELBO est une borne inférieure de...",
+  "options": [
+   "$\\log p_\\theta(x)$",
+   "$\\mathrm{KL}(q\\|p)$",
+   "l'erreur de reconstruction",
+   "l'a priori $p(z)$"
+  ],
+  "explanation": "$\\log p_\\theta(x)=\\mathrm{ELBO}+\\mathrm{KL}(q\\|p_\\theta(z|x))\\ge\\mathrm{ELBO}$."
+ },
+ {
+  "id": "gen.02.q3",
+  "prompt": "La borne ELBO est serrée quand...",
+  "options": [
+   "$q_\\phi(z|x)$ égale la vraie loi a posteriori $p_\\theta(z|x)$",
+   "l'a priori est uniforme",
+   "$\\beta=0$",
+   "le décodeur est linéaire"
+  ],
+  "explanation": "L'écart vaut exactement $\\mathrm{KL}(q\\|p_\\theta(z|x))$, qui vaut $0$ si et seulement si les distributions sont égales."
+ },
+ {
+  "id": "gen.02.q4",
+  "prompt": "Calcule $\\mathrm{KL}(\\mathcal N(1,1)\\|\\mathcal N(0,1))$ en nats.",
+  "options": [],
+  "explanation": "$\\tfrac12(\\mu^2+\\sigma^2-\\log\\sigma^2-1)=\\tfrac12(1+1-0-1)=0.5$."
+ },
+ {
+  "id": "gen.02.q5",
+  "prompt": "Calcule $\\mathrm{KL}(\\mathcal N(0,4)\\|\\mathcal N(0,1))$ en nats (variance 4). Donne 3 décimales.",
+  "options": [],
+  "explanation": "$\\tfrac12(4-\\ln4-1)=\\tfrac12(3-1.3863)=0.8069$."
+ },
+ {
+  "id": "gen.02.q6",
+  "prompt": "Avec $z=\\mu+\\sigma\\varepsilon$, $\\partial z/\\partial\\mu$ vaut...",
+  "options": [
+   "$\\varepsilon$",
+   "$\\sigma$",
+   "$1$",
+   "$0$"
+  ],
+  "explanation": "$\\varepsilon$ est un nombre fixé pendant la rétropropagation, donc $z$ est linéaire en $\\mu$ avec une pente de 1."
+ },
+ {
+  "id": "gen.02.q7",
+  "prompt": "L'encodeur sort logvar plutôt que $\\sigma$ parce que...",
+  "options": [
+   "cela rend la KL nulle",
+   "il n'est pas contraint et $\\sigma=e^{\\text{logvar}/2}$ est automatiquement positif",
+   "logvar est toujours plus petit",
+   "cela supprime le besoin d'un a priori"
+  ],
+  "explanation": "Une sortie réelle avec un $\\sigma$ garanti positif et des gradients stables."
+ },
+ {
+  "id": "gen.02.q8",
+  "prompt": "L'effondrement a posteriori signifie que...",
+  "options": [
+   "le décodeur sort des zéros",
+   "l'encodeur ignore l'entrée donc $q(z|x)\\approx p(z)$ et le décodeur ignore $z$",
+   "la KL croît sans borne",
+   "la taille de batch est trop grande"
+  ],
+  "explanation": "Un décodeur puissant modélise $x$ seul, la KL tombe à zéro et le code n'est pas informatif."
+ },
+ {
+  "id": "gen.02.q9",
+  "prompt": "Augmenter $\\beta$ au-dessus de 1 dans un $\\beta$-VAE...",
+  "options": [
+   "affine les reconstructions et irrégularise le code",
+   "rend l'encodeur déterministe",
+   "régularise davantage l'espace de codes mais floute les reconstructions",
+   "n'a aucun effet sur l'espace latent"
+  ],
+  "explanation": "La pénalité KL pèse davantage, donc les codes se rapprochent de l'a priori au détriment de la fidélité de reconstruction."
+ }
+]

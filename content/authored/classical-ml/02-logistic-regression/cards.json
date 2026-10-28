@@ -1,0 +1,14 @@
+[
+  { "id": "cml.02.c1", "concept": "ml.logreg", "front": "Logistic regression model", "back": "$p=\\sigma(w^\\top x)=P(y=1\\mid x)$; the log-odds $\\ln\\frac p{1-p}=w^\\top x$ are linear." },
+  { "id": "cml.02.c2", "concept": "ml.logreg", "front": "Loss of logistic regression", "back": "Mean binary cross-entropy $-\\frac1N\\sum[y\\ln p+(1-y)\\ln(1-p)]$." },
+  { "id": "cml.02.c3", "concept": "ml.logreg", "front": "Gradient of logistic regression", "back": "$\\nabla_wL=\\frac1N X^\\top(p-y)$, shape $(d)$." },
+  { "id": "cml.02.c4", "concept": "ml.logreg", "front": "Closed form?", "back": "No: $X^\\top(\\sigma(Xw)-y)=0$ is nonlinear. The loss is convex, so use gradient descent or Newton." },
+  { "id": "cml.02.c5", "concept": "ml.logreg", "front": "Decision boundary", "back": "$w^\\top x=0$: a hyperplane. Predict 1 when $w^\\top x>0$ (i.e. $p>0.5$)." },
+  { "id": "cml.02.c6", "concept": "ml.logreg", "front": "Separable data without regularisation", "back": "Weights diverge ($\\|w\\|\\to\\infty$) because probabilities can always be pushed closer to 0/1. Add an L2 penalty." },
+  { "id": "cml.02.c7", "concept": "ml.logreg", "front": "Regularised gradient", "back": "$\\frac1N X^\\top(p-y)+\\lambda w$ (leave the intercept out of the penalty)." },
+  { "id": "cml.02.c8", "concept": "ml.logreg", "front": "Stable cross-entropy from the score", "back": "$\\operatorname{mean}[\\ln(1+e^{z})-yz]$, i.e. `np.logaddexp(0, z) - y*z`." },
+  { "id": "cml.02.c9", "concept": "ml.logreg", "front": "Initial loss of a 2-class model", "back": "$\\ln2\\approx0.693$ when all predictions are $0.5$." },
+  { "id": "cml.02.c10", "concept": "ml.logreg", "front": "Changing the threshold", "back": "Moves along the trade-off between false positives and false negatives; 0.5 is not sacred." },
+  { "id": "cml.02.c11", "concept": "ml.logreg", "front": "Relation to a neural network", "back": "Logistic regression is a network with no hidden layer: one linear layer + sigmoid + cross-entropy." },
+  { "id": "cml.02.c12", "concept": "ml.logreg", "front": "Why standardise features?", "back": "Different scales make the loss ill-conditioned (lesson 7) and slow gradient descent." }
+]

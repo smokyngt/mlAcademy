@@ -1,0 +1,133 @@
+[
+ {
+  "id": "mx.04.q1",
+  "concept": "mx.markov",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "The Markov property says that the next state depends on...",
+  "options": [
+   "the whole history",
+   "only the current state",
+   "only the initial state",
+   "nothing; it is random"
+  ],
+  "answer": 1,
+  "explanation": "$P(X_{t+1}\\mid X_t,\\dots,X_0)=P(X_{t+1}\\mid X_t)$."
+ },
+ {
+  "id": "mx.04.q2",
+  "concept": "mx.markov",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A transition matrix $P$ is row-stochastic. This means...",
+  "options": [
+   "columns sum to 1",
+   "each row sums to 1 and entries are non-negative",
+   "$P$ is symmetric",
+   "$P$ is orthogonal"
+  ],
+  "answer": 1,
+  "explanation": "Row $i$ is a probability distribution over the next state."
+ },
+ {
+  "id": "mx.04.q3",
+  "concept": "mx.markov",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "For $P=\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$ starting in state 0, what is the probability of being in state 0 after two steps?",
+  "options": [],
+  "answer": {
+   "value": 0.86,
+   "tol": 0.001
+  },
+  "explanation": "$0.9\\cdot0.9+0.1\\cdot0.5=0.81+0.05=0.86$."
+ },
+ {
+  "id": "mx.04.q4",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A stationary distribution $\\pi$ satisfies...",
+  "options": [
+   "$P\\pi=\\pi$ with $\\pi$ a column",
+   "$\\pi P=\\pi$ with $\\pi$ a row summing to 1",
+   "$\\pi P=0$",
+   "$\\pi P^\\top=\\pi$ for all chains"
+  ],
+  "answer": 1,
+  "explanation": "It is a left eigenvector of $P$ with eigenvalue 1, normalised to sum to 1."
+ },
+ {
+  "id": "mx.04.q5",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "For $P=\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$, what is $\\pi_0$ (the stationary probability of state 0)?",
+  "options": [],
+  "answer": {
+   "value": 0.8333,
+   "tol": 0.001
+  },
+  "explanation": "$0.1\\pi_0=0.5\\pi_1$, so $\\pi_0=5\\pi_1$ and $\\pi_0=5/6$."
+ },
+ {
+  "id": "mx.04.q6",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which chain is NOT ergodic?",
+  "options": [
+   "$\\begin{pmatrix}0.5&0.5\\\\0.5&0.5\\end{pmatrix}$",
+   "$\\begin{pmatrix}0&1\\\\1&0\\end{pmatrix}$",
+   "$\\begin{pmatrix}0.9&0.1\\\\0.5&0.5\\end{pmatrix}$",
+   "All entries of $P$ strictly positive"
+  ],
+  "answer": 1,
+  "explanation": "The flip is periodic (period 2): $P^k$ alternates between the identity and itself, never all positive."
+ },
+ {
+  "id": "mx.04.q7",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "How fast does an ergodic chain converge to $\\pi$?",
+  "options": [
+   "Like $|\\lambda_2|^n$, the second largest eigenvalue modulus",
+   "Like $1/n$ always",
+   "In exactly one step",
+   "Like $\\lambda_{\\min}^n$"
+  ],
+  "answer": 0,
+  "explanation": "The components along other eigenvectors die like $\\lambda_i^n$; the slowest is $\\lambda_2$."
+ },
+ {
+  "id": "mx.04.q8",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Detailed balance $\\pi_iP_{ij}=\\pi_jP_{ji}$ implies...",
+  "options": [
+   "that $P$ is symmetric",
+   "that $\\pi$ is uniform",
+   "that the chain is periodic",
+   "that $\\pi P=\\pi$"
+  ],
+  "answer": 3,
+  "explanation": "Summing over $i$ gives $\\sum_i\\pi_iP_{ij}=\\pi_j$."
+ },
+ {
+  "id": "mx.04.q9",
+  "concept": "mx.stationary",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why does Metropolis-Hastings not need the normalising constant of the target?",
+  "options": [
+   "It samples uniformly",
+   "The acceptance probability uses only the ratio $\\pi_j/\\pi_i$",
+   "It ignores the target",
+   "The constant is always 1"
+  ],
+  "answer": 1,
+  "explanation": "In a ratio the constant cancels."
+ }
+]

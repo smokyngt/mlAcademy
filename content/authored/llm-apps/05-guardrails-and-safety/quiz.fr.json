@@ -1,0 +1,101 @@
+[
+ {
+  "id": "app.05.q1",
+  "prompt": "Quelle est la cause profonde qui rend l'injection de prompt possible ?",
+  "options": [
+   "les modèles sont trop petits",
+   "instructions et données sont toutes deux du simple texte dans la même fenêtre de contexte",
+   "JSON est ambigu",
+   "les clés d'API fuient"
+  ],
+  "explanation": "Le modèle ne peut pas distinguer de façon fiable tes instructions des instructions intégrées dans les données qu'il lit."
+ },
+ {
+  "id": "app.05.q2",
+  "prompt": "Une page web que l'agent résume contient du texte caché lui disant d'envoyer par e-mail les fichiers de l'utilisateur ailleurs. C'est...",
+  "options": [
+   "une injection indirecte",
+   "un jailbreak",
+   "une injection directe",
+   "un échec de limite de débit"
+  ],
+  "explanation": "L'instruction malveillante arrive par du contenu que le modèle traite, pas par le message de l'utilisateur."
+ },
+ {
+  "id": "app.05.q3",
+  "prompt": "Quel contrôle aide encore quand le filtre d'injection est contourné ?",
+  "options": [
+   "un prompt système plus long",
+   "une température plus basse",
+   "plus d'exemples few-shot",
+   "des outils à moindre privilège avec approbation humaine pour les actions irréversibles"
+  ],
+  "explanation": "Limite ce qu'un modèle compromis peut faire ; ne te fie pas à un seul filtre."
+ },
+ {
+  "id": "app.05.q4",
+  "prompt": "4111 1111 1111 1112 est-il signalé comme numéro de carte par un détecteur regex + Luhn ?",
+  "options": [
+   "oui, il a 16 chiffres",
+   "seulement s'il contient un tiret",
+   "non, il échoue à la somme de contrôle de Luhn",
+   "seulement en sortie"
+  ],
+  "explanation": "Le numéro de test valide se termine par ...1111 ; changer un chiffre casse la somme de contrôle, donc le validateur le rejette."
+ },
+ {
+  "id": "app.05.q5",
+  "prompt": "Pourquoi Luhn détecte-t-il toute substitution d'un seul chiffre ?",
+  "options": [
+   "il vérifie la longueur",
+   "l'application de doublement est une permutation de 0-9, donc un changement modifie la somme d'une quantité non nulle de valeur absolue inférieure à 10",
+   "il utilise une clé secrète",
+   "il compare avec une base de données"
+  ],
+  "explanation": "Le doublement avec soustraction permute les chiffres, donc un chiffre différent décale la somme de 1 à 9 en valeur absolue, jamais d'un multiple de 10."
+ },
+ {
+  "id": "app.05.q6",
+  "prompt": "Filtre d'injection au seuil 3 sur l'ensemble de la leçon : 1 prompt bénin sur 8 bloqué, 5 attaques sur 8 ratées. Relever le seuil à 4 va...",
+  "options": [
+   "baisser le taux de faux positifs et augmenter le taux de faux négatifs",
+   "baisser les deux",
+   "augmenter les deux",
+   "ne rien changer"
+  ],
+  "explanation": "Une barre plus stricte bloque moins de prompts légitimes (de 1/8 à 0) et laisse passer plus d'attaques (de 5/8 à 6/8)."
+ },
+ {
+  "id": "app.05.q7",
+  "prompt": "Seau à jetons : capacité 3, recharge 1 jeton/s, initialement plein. Trois requêtes à t=0 passent. Une requête à t=1,5 (après une à t=1 qui est passée) est...",
+  "options": [
+   "admise",
+   "admise avec un délai",
+   "rejetée pour toujours",
+   "rejetée, seul un demi-jeton s'est rechargé"
+  ],
+  "explanation": "Après l'admission à t=1, le seau est à 0 ; à t=1,5 il contient 0,5 jeton, moins que le coût 1."
+ },
+ {
+  "id": "app.05.q8",
+  "prompt": "Quel est le but d'une chaîne de repli ?",
+  "options": [
+   "augmenter l'exactitude",
+   "cacher les erreurs des journaux",
+   "garder le service répondant quand un modèle ou une couche échoue, et signaler les problèmes par le taux de repli",
+   "augmenter la latence"
+  ],
+  "explanation": "Principal, secours, réponse en cache ou préenregistrée, erreur polie ; note quel niveau a répondu."
+ },
+ {
+  "id": "app.05.q9",
+  "prompt": "Un IBAN passe la vérification mod-97. Que peux-tu conclure ?",
+  "options": [
+   "le compte existe",
+   "il est bien formé (des chaînes aléatoires passent avec une probabilité d'environ 1/97)",
+   "le titulaire est vérifié",
+   "rien du tout"
+  ],
+  "explanation": "Les sommes de contrôle prouvent la structure, pas l'existence ni la propriété."
+ }
+]

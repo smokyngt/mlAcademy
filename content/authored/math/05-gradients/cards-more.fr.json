@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.05.c14", "front": "Notation d'une dérivée partielle", "back": "$\\partial f/\\partial x_i$ : dériver en $x_i$, les autres variables étant tenues constantes." },
+  { "id": "f2n.05.c15", "front": "Dérivée directionnelle le long d'un vecteur unitaire $u$", "back": "$D_uf=\\nabla f\\cdot u$." },
+  { "id": "f2n.05.c16", "front": "Taux maximal d'augmentation", "back": "$\\|\\nabla f\\|$, le long de $\\nabla f/\\|\\nabla f\\|$." },
+  { "id": "f2n.05.c17", "front": "Direction de plus forte descente", "back": "$-\\nabla f$." },
+  { "id": "f2n.05.c18", "front": "Taux de variation le long d'une courbe de niveau", "back": "Nul : le gradient est perpendiculaire aux lignes de niveau." },
+  { "id": "f2n.05.c19", "front": "Gradient de $\\|w\\|^2$", "back": "$2w$." },
+  { "id": "f2n.05.c20", "front": "Gradient de $a^\\top w$", "back": "$a$." },
+  { "id": "f2n.05.c21", "front": "Gradient de $\\frac1N\\|Xw-y\\|^2$", "back": "$\\frac2NX^\\top(Xw-y)$." },
+  { "id": "f2n.05.c22", "front": "Règle de forme du gradient", "back": "Même forme que la variable par rapport à laquelle on dérive." }
+]

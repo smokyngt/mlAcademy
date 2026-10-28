@@ -1,0 +1,40 @@
+[
+  {
+    "id": "f2n.04.q1", "concept": "calc.derivative", "stage": "pre",
+    "prompt": "What is the derivative of $f(x)=x^3$ at $x=2$?",
+    "kind": "numeric", "options": [], "answer": { "value": 12, "tol": 0.001 },
+    "explanation": "$f'(x)=3x^2$, so $f'(2)=3\\cdot4=12$."
+  },
+  {
+    "id": "f2n.04.q2", "concept": "calc.derivative",
+    "prompt": "What is $\\frac{d}{dx}\\ln x$ at $x=4$?",
+    "kind": "numeric", "options": [], "answer": { "value": 0.25, "tol": 0.0001 },
+    "explanation": "$(\\ln x)'=1/x$, which is $1/4=0.25$ at $x=4$."
+  },
+  {
+    "id": "f2n.04.q3", "concept": "calc.derivative",
+    "prompt": "Using the product rule, $\\frac{d}{dx}\\big(x e^{x}\\big)$ at $x=0$ equals...",
+    "kind": "numeric", "options": [], "answer": { "value": 1, "tol": 0.001 },
+    "explanation": "$(xe^x)'=1\\cdot e^x+x\\cdot e^x=(1+x)e^x$. At $x=0$ this is $1$."
+  },
+  {
+    "id": "f2n.04.q4", "concept": "calc.derivative",
+    "prompt": "The sigmoid derivative $\\sigma'(x)$ is largest at $x=0$ where it equals...",
+    "kind": "numeric", "options": [], "answer": { "value": 0.25, "tol": 0.0001 },
+    "explanation": "$\\sigma'(x)=\\sigma(x)(1-\\sigma(x))$ and $\\sigma(0)=0.5$, giving $0.25$. This bound is why gradients shrink through many sigmoid layers."
+  },
+  {
+    "id": "f2n.04.q5", "concept": "calc.numerical-diff",
+    "prompt": "The truncation error of the central difference $\\frac{f(x+h)-f(x-h)}{2h}$ is of order...",
+    "options": ["$O(1)$", "$O(h)$", "$O(h^2)$", "$O(h^3)$"],
+    "answer": 2,
+    "explanation": "In the difference of the two Taylor expansions the $h^2$ terms cancel, leaving an error $\\frac{h^2}{6}f'''(x)$. The forward difference is only $O(h)$."
+  },
+  {
+    "id": "f2n.04.q6", "concept": "calc.numerical-diff",
+    "prompt": "You shrink $h$ in a finite difference from $10^{-5}$ to $10^{-14}$ in float64 and the error gets worse. Why?",
+    "options": ["Taylor's theorem stops holding", "Round-off error of order $\\varepsilon/h$ dominates", "The function stops being differentiable", "The central difference becomes a forward difference"],
+    "answer": 1,
+    "explanation": "Subtracting nearly equal floats loses significant digits; dividing by a tiny $h$ amplifies that error to about $\\varepsilon/h$. Total error is minimal at an intermediate $h$ (about $10^{-5}$ for central differences)."
+  }
+]

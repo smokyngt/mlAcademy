@@ -1,0 +1,51 @@
+[
+  {
+    "id": "gaussian-tails", "after": 3, "kind": "plot",
+    "caption": { "en": "The standard normal density with its two 2.5% tails shaded beyond ±1.96: 95% of the mass lies within about two standard deviations of the mean.", "fr": "La densité normale centrée réduite avec ses deux queues de 2,5 % ombrées au-delà de ±1,96 : 95 % de la masse se trouve à environ deux écarts-types de la moyenne." },
+    "spec": { "xDomain": [-4, 4], "yDomain": [-0.02, 0.45], "height": 300,
+      "data": [
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#2563eb" },
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#dc2626", "range": [1.96, 4], "closed": true },
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#dc2626", "range": [-4, -1.96], "closed": true }
+      ] }
+  },
+  {
+    "id": "gaussian-sigma", "after": 3, "kind": "plot",
+    "caption": { "en": "Effect of the mean and variance on N(μ, σ²): σ = 0.5 (orange) is narrow and tall, σ = 1 (blue) is the standard one, σ = 2 (green) is wide and flat. μ = 1 (red) only shifts the curve.", "fr": "Effet de la moyenne et de la variance sur N(μ, σ²) : σ = 0,5 (orange) est étroite et haute, σ = 1 (bleu) est la loi standard, σ = 2 (vert) est large et plate. μ = 1 (rouge) ne fait que décaler la courbe." },
+    "spec": { "xDomain": [-6, 6], "yDomain": [0, 0.85], "height": 300,
+      "data": [
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#2563eb" },
+        { "fn": "exp(-x^2/0.5)/(0.5*sqrt(2*3.14159265))", "color": "#d97706" },
+        { "fn": "exp(-x^2/8)/(2*sqrt(2*3.14159265))", "color": "#16a34a" },
+        { "fn": "exp(-(x-1)^2/2)/sqrt(2*3.14159265)", "color": "#dc2626" }
+      ] }
+  },
+  {
+    "id": "bivariate-gaussian", "after": 3, "kind": "plot",
+    "caption": { "en": "Level curves of a 2-D Gaussian with μ = (1, 2) and Σ = [[2, 0.6], [0.6, 1]] at Mahalanobis distance 1 and 2. The tilt of the ellipses comes from the positive covariance 0.6.", "fr": "Courbes de niveau d'une gaussienne 2-D avec μ = (1, 2) et Σ = [[2, 0,6], [0,6, 1]] aux distances de Mahalanobis 1 et 2. L'inclinaison des ellipses vient de la covariance positive 0,6." },
+    "spec": { "xDomain": [-3, 5], "yDomain": [-1, 5], "height": 360,
+      "data": [
+        { "fnType": "implicit", "fn": "(x-1)^2 - 1.2*(x-1)*(y-2) + 2*(y-2)^2 - 1.64", "color": "#2563eb" },
+        { "fnType": "implicit", "fn": "(x-1)^2 - 1.2*(x-1)*(y-2) + 2*(y-2)^2 - 6.56", "color": "#93c5fd" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[1, 2]] }
+      ] }
+  },
+  {
+    "id": "cholesky-sampling", "after": 3, "kind": "mermaid",
+    "caption": { "en": "Sampling a multivariate Gaussian: factor Σ = LLᵀ, draw independent standard normals z, and output μ + Lz, whose covariance is LLᵀ = Σ.", "fr": "Échantillonner une gaussienne multivariée : factoriser Σ = LLᵀ, tirer des normales standard indépendantes z, et produire μ + Lz, dont la covariance est LLᵀ = Σ." },
+    "code": {
+      "en": "flowchart LR\n  S[\"covariance Sigma\"] -->|\"Cholesky\"| L[\"L (lower triangular)\"]\n  Z[\"z ~ N(0, I)\"] --> T[\"mu + L z\"]\n  L --> T\n  M[\"mean mu\"] --> T\n  T --> O[\"sample ~ N(mu, Sigma)\"]",
+      "fr": "flowchart LR\n  S[\"covariance Sigma\"] -->|\"Cholesky\"| L[\"L (triangulaire inférieure)\"]\n  Z[\"z ~ N(0, I)\"] --> T[\"mu + L z\"]\n  L --> T\n  M[\"moyenne mu\"] --> T\n  T --> O[\"échantillon ~ N(mu, Sigma)\"]"
+    }
+  },
+  {
+    "id": "gaussian-mle", "after": 4, "kind": "plot",
+    "caption": { "en": "Log-likelihood of the data (2, 4, 4, 5, 5) with μ = 4 as a function of the variance σ². The maximum is at σ² = 6/5 = 1.2 (value −7.55), the maximum-likelihood estimate.", "fr": "Log-vraisemblance des données (2, 4, 4, 5, 5) avec μ = 4 en fonction de la variance σ². Le maximum est en σ² = 6/5 = 1,2 (valeur −7,55), l'estimateur du maximum de vraisemblance." },
+    "spec": { "xDomain": [0.4, 4], "yDomain": [-14, -7], "height": 300,
+      "data": [
+        { "fn": "-2.5*log(2*3.14159265*x) - 3/x", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[1.2, -7.55]] }
+      ],
+      "annotations": [{ "x": 1.2, "text": "sigma^2 = 1.2" }] }
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "id": "selection-families",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": { "en": "Three families of feature selection. Whatever the family, if it looks at the labels it is part of training and must run inside the training split.", "fr": "Trois familles de sélection de variables. Quelle que soit la famille, si elle regarde les étiquettes elle fait partie de l'entraînement et doit s'exécuter à l'intérieur du jeu d'entraînement." },
+    "code": {
+      "en": "mindmap\n  root((\"Feature selection\"))\n    Filter\n      \"variance threshold\"\n      \"correlation / mutual information\"\n    Wrapper\n      \"recursive feature elimination\"\n    Embedded\n      \"L1 weights to zero\"\n      \"tree importances\"\n      \"permutation importance\"",
+      "fr": "mindmap\n  root((\"Sélection de variables\"))\n    Filtre\n      \"seuil de variance\"\n      \"corrélation / information mutuelle\"\n    Enveloppe\n      \"élimination récursive de variables\"\n    Intégrée\n      \"poids L1 à zéro\"\n      \"importances des arbres\"\n      \"importance par permutation\""
+    }
+  },
+  {
+    "id": "leakage-safe-pipeline",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": { "en": "The leakage-safe pipeline: split first; fit every data-dependent step (imputer, scaler, selector, encoder, resampler) on the training rows only; then only apply the fitted transforms to validation and test. The test set is sealed until the very end.", "fr": "Le pipeline sans fuite : séparer d'abord ; ajuster chaque étape dépendante des données (imputation, mise à l'échelle, sélection, encodage, rééchantillonnage) sur les lignes d'entraînement uniquement ; puis seulement appliquer les transformations ajustées à la validation et au test. Le test reste scellé jusqu'à la toute fin." },
+    "code": {
+      "en": "flowchart TD\n  RAW[\"Raw data (deduplicated, split by time or group if needed)\"] --> SP{\"split FIRST\"}\n  SP --> TR[\"Train\"]\n  SP --> VA[\"Validation\"]\n  SP --> TE[\"Test (sealed)\"]\n  TR --> FIT[\"FIT on train only:\\nimputer, scaler, selector, encoder, oversampling\"]\n  FIT --> M[\"Train model\"]\n  FIT -->|\"apply, no refit\"| VT[\"Transformed validation\"]\n  VA --> VT\n  M --> EV[\"Tune: threshold, hyper-parameters\"]\n  VT --> EV\n  EV --> FINAL[\"Final model\"]\n  FIT -->|\"apply, no refit\"| TT[\"Transformed test\"]\n  TE --> TT\n  FINAL -->|\"once\"| TT\n  TT --> REP[\"Reported score\"]",
+      "fr": "flowchart TD\n  RAW[\"Données brutes (dédupliquées, séparées par temps ou groupe si besoin)\"] --> SP{\"séparer D'ABORD\"}\n  SP --> TR[\"Entraînement\"]\n  SP --> VA[\"Validation\"]\n  SP --> TE[\"Test (scellé)\"]\n  TR --> FIT[\"AJUSTER sur l'entraînement seul :\\nimputation, échelle, sélection, encodage, sur-échantillonnage\"]\n  FIT --> M[\"Entraîner le modèle\"]\n  FIT -->|\"appliquer, sans réajuster\"| VT[\"Validation transformée\"]\n  VA --> VT\n  M --> EV[\"Régler : seuil, hyper-paramètres\"]\n  VT --> EV\n  EV --> FINAL[\"Modèle final\"]\n  FIT -->|\"appliquer, sans réajuster\"| TT[\"Test transformé\"]\n  TE --> TT\n  FINAL -->|\"une seule fois\"| TT\n  TT --> REP[\"Score rapporté\"]"
+    }
+  },
+  {
+    "id": "smote",
+    "after": 9,
+    "kind": "plot",
+    "caption": { "en": "SMOTE creates a synthetic minority point on the segment between a minority point x = (1, 1) and a minority neighbour x′ = (3, 2): x_new = x + u(x′ − x), here u = 0.4 gives (1.8, 1.4) (red ring). Blue points are the majority class; the new point lies in the minority region instead of duplicating a row.", "fr": "SMOTE crée un point minoritaire synthétique sur le segment entre un point minoritaire x = (1, 1) et un voisin minoritaire x′ = (3, 2) : x_new = x + u(x′ − x), ici u = 0,4 donne (1,8 ; 1,4) (anneau rouge). Les points bleus sont la classe majoritaire ; le nouveau point se trouve dans la région minoritaire au lieu de dupliquer une ligne." },
+    "spec": {
+      "xDomain": [0, 6], "yDomain": [0, 5], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[3.5, 3.5], [4, 4.2], [4.6, 3], [5, 4.4], [3.8, 4.8], [5.2, 2.2], [4.4, 1.2], [2.8, 4.4]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[1, 1], [3, 2]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[1, 1], [3, 2]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#d97706", "attr": { "r": 8 }, "points": [[1.8, 1.4]] }
+      ]
+    }
+  },
+  {
+    "id": "threshold-f1",
+    "after": 9,
+    "kind": "plot",
+    "caption": { "en": "Worked example 3: F1 as a function of the decision threshold (table values: 0.30 → 0.50, 0.25 → 0.80, 0.20 → 0.67, 0.08 → 0.75, and 0 at 0.5 where nothing is flagged). The default 0.5 gives F1 = 0 although the ranking is fine; the best threshold is 0.25. x-axis: threshold.", "fr": "Exemple traité 3 : F1 en fonction du seuil de décision (valeurs du tableau : 0,30 → 0,50, 0,25 → 0,80, 0,20 → 0,67, 0,08 → 0,75, et 0 en 0,5 où rien n'est signalé). Le seuil par défaut 0,5 donne F1 = 0 bien que le classement soit bon ; le meilleur seuil est 0,25. Axe x : seuil." },
+    "spec": {
+      "xDomain": [0, 0.55], "yDomain": [0, 1], "height": 300,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0.08, 0.75], [0.2, 0.667], [0.25, 0.8], [0.3, 0.5], [0.5, 0]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[0.08, 0.75], [0.2, 0.667], [0.25, 0.8], [0.3, 0.5], [0.5, 0]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 7 }, "points": [[0.25, 0.8]] }
+      ]
+    }
+  },
+  {
+    "id": "prior-correction",
+    "after": 9,
+    "kind": "plot",
+    "caption": { "en": "Correcting probabilities after rebalancing. A model trained 50/50 outputs p_bal (x-axis); deployed on a population with 1% positives, the true posterior is p·0.02/(p·0.02 + (1 − p)·1.98) (blue), far below the diagonal (grey). The red point is the lesson's case: 0.8 becomes 0.039.", "fr": "Corriger les probabilités après rééquilibrage. Un modèle entraîné à 50/50 sort p_bal (axe x) ; déployé sur une population à 1 % de positifs, le vrai a posteriori est p·0,02/(p·0,02 + (1 − p)·1,98) (bleu), très en dessous de la diagonale (gris). Le point rouge est le cas de la leçon : 0,8 devient 0,039." },
+    "spec": {
+      "xDomain": [0, 1], "yDomain": [0, 1], "height": 320,
+      "data": [
+        { "fn": "x", "color": "#9ca3af" },
+        { "fn": "x*0.02/(x*0.02 + (1-x)*1.98)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[0.8, 0.039]] }
+      ]
+    }
+  }
+]

@@ -1,0 +1,513 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The 3-state chain of the worked example; each arrow carries a transition probability P_ij and the outgoing probabilities of every state sum to 1.",
+      "fr": "La chaîne à 3 états de l'exemple ; chaque flèche porte une probabilité de transition P_ij et les probabilités sortantes de chaque état somment à 1."
+    },
+    "code": {
+      "en": "stateDiagram-v2\n  direction LR\n  S0 --> S0: 0.9\n  S0 --> S1: 0.1\n  S1 --> S0: 0.2\n  S1 --> S1: 0.6\n  S1 --> S2: 0.2\n  S2 --> S1: 0.3\n  S2 --> S2: 0.7",
+      "fr": "stateDiagram-v2\n  direction LR\n  state \"État 0\" as S0\n  state \"État 1\" as S1\n  state \"État 2\" as S2\n  S0 --> S0: 0.9\n  S0 --> S1: 0.1\n  S1 --> S0: 0.2\n  S1 --> S1: 0.6\n  S1 --> S2: 0.2\n  S2 --> S1: 0.3\n  S2 --> S2: 0.7"
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Convergence to the stationary distribution pi = (6, 3, 2)/11 = (0.545, 0.273, 0.182) starting from state 0: mu_n = mu_0 P^n.",
+      "fr": "Convergence vers la distribution stationnaire pi = (6, 3, 2)/11 = (0,545 ; 0,273 ; 0,182) en partant de l'état 0 : mu_n = mu_0 P^n."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        30
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.9
+            ],
+            [
+              2,
+              0.83
+            ],
+            [
+              3,
+              0.777
+            ],
+            [
+              4,
+              0.7351
+            ],
+            [
+              5,
+              0.7013
+            ],
+            [
+              6,
+              0.6736
+            ],
+            [
+              7,
+              0.651
+            ],
+            [
+              8,
+              0.6323
+            ],
+            [
+              9,
+              0.617
+            ],
+            [
+              10,
+              0.6044
+            ],
+            [
+              11,
+              0.594
+            ],
+            [
+              12,
+              0.5854
+            ],
+            [
+              13,
+              0.5784
+            ],
+            [
+              14,
+              0.5726
+            ],
+            [
+              15,
+              0.5678
+            ],
+            [
+              16,
+              0.5638
+            ],
+            [
+              17,
+              0.5606
+            ],
+            [
+              18,
+              0.5579
+            ],
+            [
+              19,
+              0.5557
+            ],
+            [
+              20,
+              0.5539
+            ],
+            [
+              21,
+              0.5524
+            ],
+            [
+              22,
+              0.5512
+            ],
+            [
+              23,
+              0.5502
+            ],
+            [
+              24,
+              0.5493
+            ],
+            [
+              25,
+              0.5487
+            ],
+            [
+              26,
+              0.5481
+            ],
+            [
+              27,
+              0.5476
+            ],
+            [
+              28,
+              0.5472
+            ],
+            [
+              29,
+              0.5469
+            ],
+            [
+              30,
+              0.5467
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0.1
+            ],
+            [
+              2,
+              0.15
+            ],
+            [
+              3,
+              0.179
+            ],
+            [
+              4,
+              0.1983
+            ],
+            [
+              5,
+              0.2125
+            ],
+            [
+              6,
+              0.2235
+            ],
+            [
+              7,
+              0.2323
+            ],
+            [
+              8,
+              0.2395
+            ],
+            [
+              9,
+              0.2454
+            ],
+            [
+              10,
+              0.2502
+            ],
+            [
+              11,
+              0.2542
+            ],
+            [
+              12,
+              0.2575
+            ],
+            [
+              13,
+              0.2602
+            ],
+            [
+              14,
+              0.2624
+            ],
+            [
+              15,
+              0.2642
+            ],
+            [
+              16,
+              0.2657
+            ],
+            [
+              17,
+              0.2669
+            ],
+            [
+              18,
+              0.268
+            ],
+            [
+              19,
+              0.2688
+            ],
+            [
+              20,
+              0.2695
+            ],
+            [
+              21,
+              0.2701
+            ],
+            [
+              22,
+              0.2705
+            ],
+            [
+              23,
+              0.2709
+            ],
+            [
+              24,
+              0.2712
+            ],
+            [
+              25,
+              0.2715
+            ],
+            [
+              26,
+              0.2717
+            ],
+            [
+              27,
+              0.2719
+            ],
+            [
+              28,
+              0.272
+            ],
+            [
+              29,
+              0.2722
+            ],
+            [
+              30,
+              0.2723
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#16a34a",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0.0
+            ],
+            [
+              2,
+              0.02
+            ],
+            [
+              3,
+              0.044
+            ],
+            [
+              4,
+              0.0666
+            ],
+            [
+              5,
+              0.0863
+            ],
+            [
+              6,
+              0.1029
+            ],
+            [
+              7,
+              0.1167
+            ],
+            [
+              8,
+              0.1282
+            ],
+            [
+              9,
+              0.1376
+            ],
+            [
+              10,
+              0.1454
+            ],
+            [
+              11,
+              0.1518
+            ],
+            [
+              12,
+              0.1571
+            ],
+            [
+              13,
+              0.1615
+            ],
+            [
+              14,
+              0.1651
+            ],
+            [
+              15,
+              0.168
+            ],
+            [
+              16,
+              0.1705
+            ],
+            [
+              17,
+              0.1725
+            ],
+            [
+              18,
+              0.1741
+            ],
+            [
+              19,
+              0.1755
+            ],
+            [
+              20,
+              0.1766
+            ],
+            [
+              21,
+              0.1775
+            ],
+            [
+              22,
+              0.1783
+            ],
+            [
+              23,
+              0.1789
+            ],
+            [
+              24,
+              0.1794
+            ],
+            [
+              25,
+              0.1798
+            ],
+            [
+              26,
+              0.1802
+            ],
+            [
+              27,
+              0.1805
+            ],
+            [
+              28,
+              0.1807
+            ],
+            [
+              29,
+              0.1809
+            ],
+            [
+              30,
+              0.1811
+            ]
+          ]
+        },
+        {
+          "fn": "0.5455",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.2727",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.1818",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.5455,
+          "text": "pi_0"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Mixing speed: the measured error max_i |mu_n - pi|_i (red dots) decays geometrically, below the envelope |lambda_2|^n = 0.8236^n set by the second-largest eigenvalue.",
+      "fr": "Vitesse de mélange : l'erreur mesurée max_i |mu_n - pi|_i (points rouges) décroît géométriquement, sous l'enveloppe |lambda_2|^n = 0,8236^n fixée par la deuxième plus grande valeur propre."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        0.4
+      ],
+      "data": [
+        {
+          "fn": "0.8236^x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              5,
+              0.156
+            ],
+            [
+              10,
+              0.059
+            ],
+            [
+              20,
+              0.0085
+            ],
+            [
+              40,
+              0.00017
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Metropolis-Hastings: propose a move, accept it with probability min(1, pi_j/pi_i), otherwise stay; only the ratio is needed, so the normalising constant cancels.",
+      "fr": "Metropolis-Hastings : proposer un déplacement, l'accepter avec probabilité min(1, pi_j/pi_i), sinon rester ; seul le rapport compte, donc la constante de normalisation s'annule."
+    },
+    "code": {
+      "en": "flowchart TD\n  S[\"current state i\"] --> Pr[\"propose j from symmetric q(i, j)\"]\n  Pr --> A[\"compute ratio a = pi_j / pi_i\"]\n  A --> U[\"draw u uniform in [0, 1]\"]\n  U --> Q{\"u < min(1, a)?\"}\n  Q -- yes --> Mv[\"move: next state = j\"]\n  Q -- no --> St[\"stay: next state = i\"]\n  Mv --> S\n  St --> S",
+      "fr": "flowchart TD\n  S[\"état courant i\"] --> Pr[\"proposer j selon q(i, j) symétrique\"]\n  Pr --> A[\"calculer le rapport a = pi_j / pi_i\"]\n  A --> U[\"tirer u uniforme dans [0, 1]\"]\n  U --> Q{\"u < min(1, a) ?\"}\n  Q -- oui --> Mv[\"on bouge : état suivant = j\"]\n  Q -- non --> St[\"on reste : état suivant = i\"]\n  Mv --> S\n  St --> S"
+    }
+  }
+]

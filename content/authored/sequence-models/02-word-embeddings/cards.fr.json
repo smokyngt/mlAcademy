@@ -1,0 +1,17 @@
+[
+  { "id": "seq.02.c1", "front": "Pourquoi le one-hot est-il une mauvaise représentation de mot ?", "back": "Creux (taille du vocabulaire), et tous les mots distincts sont orthogonaux à distance $\\sqrt2$ : aucune structure de similarité." },
+  { "id": "seq.02.c2", "front": "Hypothèse distributionnelle", "back": "Le sens d'un mot est donné par les contextes où il apparaît (« on reconnaît un mot à la compagnie qu'il fréquente », Firth)." },
+  { "id": "seq.02.c3", "front": "Skip-gram vs CBOW", "back": "Skip-gram prédit les mots de contexte à partir du mot central (meilleur pour les mots rares) ; CBOW prédit le centre à partir du contexte sommé (bon pour les mots fréquents)." },
+  { "id": "seq.02.c4", "front": "Pourquoi deux tables de plongements $V$ et $U$ ?", "back": "$V$ contient les vecteurs des mots centraux (première couche), $U$ ceux des mots de contexte (couche de sortie). Garder $V$ ou $V+U$ comme plongement." },
+  { "id": "seq.02.c5", "front": "Perte à échantillonnage négatif pour une paire", "back": "$-\\log\\sigma(u_o\\cdot v_c)-\\sum_{j=1}^k\\log\\sigma(-u_j\\cdot v_c)$." },
+  { "id": "seq.02.c6", "front": "Gradients de la perte à échantillonnage négatif", "back": "$g_o=\\sigma(s_o)-1$, $g_j=\\sigma(s_j)$. $\\partial_{v_c}=g_ou_o+\\sum_jg_ju_j$, $\\partial_{u_o}=g_ov_c$, $\\partial_{u_j}=g_jv_c$." },
+  { "id": "seq.02.c7", "front": "Pourquoi l'échantillonnage négatif ?", "back": "Le softmax complet coûte $O(nd)$ par paire ; l'échantillonnage négatif ne met à jour que $1+k$ lignes de contexte et une ligne centrale : $O((k+1)d)$." },
+  { "id": "seq.02.c8", "front": "Perte quand tous les vecteurs sont nuls", "back": "$(1+k)\\ln2$, car chaque score vaut 0 et $\\sigma(0)=1/2$." },
+  { "id": "seq.02.c9", "front": "Similarité cosinus", "back": "$a^\\top b/(\\lVert a\\rVert\\lVert b\\rVert)\\in[-1,1]$. Invariante par changement d'échelle ; préférée à la distance euclidienne pour les plongements." },
+  { "id": "seq.02.c10", "front": "Comment répondre à une analogie a:b::c:?", "back": "Le mot le plus proche (cosinus) de $b-a+c$, en excluant $a$, $b$ et $c$." },
+  { "id": "seq.02.c11", "front": "Objectif de GloVe", "back": "$\\sum f(X_{ij})(w_i^\\top\\tilde w_j+b_i+\\tilde b_j-\\log X_{ij})^2$ avec $f$ amortissant les paires très fréquentes ; plongement $=w+\\tilde w$." },
+  { "id": "seq.02.c12", "front": "Pourquoi GloVe utilise-t-il le logarithme des probabilités de co-occurrence ?", "back": "Les rapports $P(k|i)/P(k|j)$ séparent les axes significatifs ; le logarithme les transforme en différences $(w_i-w_j)^\\top\\tilde w_k$, donc les analogies deviennent des décalages vectoriels." },
+  { "id": "seq.02.c13", "front": "Idée de fastText", "back": "Vecteur de mot = somme des plongements de ses n-grammes de caractères (plus le mot). Les mots jamais vus obtiennent quand même un vecteur ; gère la morphologie." },
+  { "id": "seq.02.c14", "front": "Principales limites des plongements de mots statiques", "back": "Un vecteur par type de mot (pas de polysémie), pas d'ordre des mots, biais du corpus, et les antonymes peuvent finir proches parce que les contextes sont semblables." },
+  { "id": "seq.02.c15", "front": "Dimensions dans un pas d'échantillonnage négatif", "back": "$V,U:(n,d)$ ; $U[\\text{negs}]:(k,d)$ ; scores $(k)$ ; $\\partial_{v_c}:(d)$ ; gradient des négatifs $g\\,v_c^\\top:(k,d)$." }
+]

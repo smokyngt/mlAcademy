@@ -1,0 +1,17 @@
+[
+  {"id": "vis.06.c1", "front": "Architecture de CLIP", "back": "Deux tours (encodeur d'images, encodeur de texte), chacune projetée vers le même $d$ et normalisée en L2 ; la similarité est le cosinus."},
+  {"id": "vis.06.c2", "front": "Matrice de logits de CLIP", "back": "$S=UV^\\top/\\tau\\in\\mathbb R^{N\\times N}$, $S_{ij}=\\cos(f(x_i),g(y_j))/\\tau$ ; diagonale = paires correspondantes."},
+  {"id": "vis.06.c3", "front": "Perte InfoNCE symétrique", "back": "$L=\\frac12[\\mathrm{CE}(S,\\text{identity})+\\mathrm{CE}(S^\\top,\\text{identity})]$ : entropies croisées image-vers-texte et texte-vers-image."},
+  {"id": "vis.06.c4", "front": "Gradient de la perte de CLIP par rapport aux logits", "back": "$\\frac1{2N}[(P-E)+(Q-E)]$ avec le softmax par lignes $P$, le softmax par colonnes $Q$, l'identité $E$."},
+  {"id": "vis.06.c5", "front": "Température dans CLIP", "back": "Scalaire appris (initialisé à 0.07, paramétré en espace logarithmique et borné). Petite : nette, focalisée sur les négatifs difficiles ; grande : plate. L'argmax à l'inférence n'est pas affecté."},
+  {"id": "vis.06.c6", "front": "Perte au niveau du hasard", "back": "$\\log N$ quand tous les logits d'une ligne sont égaux (un tirage au hasard parmi $N$ choix)."},
+  {"id": "vis.06.c7", "front": "Pourquoi de grands lots ?", "back": "$N-1$ négatifs par paire ; plus de négatifs donnent un signal d'apprentissage plus fort (CLIP a utilisé des tailles de lot d'environ 32k)."},
+  {"id": "vis.06.c8", "front": "Perte SigLIP", "back": "Perte binaire sigmoïde par paire $\\log(1+e^{-y_{ij}S_{ij}})$ avec $y=+1$ sur la diagonale, $-1$ ailleurs ; pas de normalisation softmax, pas d'all-gather."},
+  {"id": "vis.06.c9", "front": "Recette de classification zero-shot", "back": "Prompts (a photo of a {class}) -> plongements de texte $T$ ; plongement d'image $u$ ; prédire $\\arg\\max_c T_c\\cdot u$ après normalisation."},
+  {"id": "vis.06.c10", "front": "Assemblage de prompts", "back": "Moyenner les plongements de plusieurs modèles par classe, puis re-normaliser ; généralement un petit gain."},
+  {"id": "vis.06.c11", "front": "Recherche et recall@k", "back": "Classer par similarité cosinus ; recall@k = fraction des requêtes dont l'élément correct figure parmi les $k$ premiers."},
+  {"id": "vis.06.c12", "front": "Zero-shot vs sonde linéaire vs fine-tuning", "back": "Zero-shot : aucun entraînement. Sonde : généralement meilleure dans le domaine. Fine-tuning : le meilleur dans le domaine mais peut nuire au transfert zero-shot."},
+  {"id": "vis.06.c13", "front": "Limites des modèles de style CLIP", "back": "Dépendance aux données web et à leurs biais, sensibilité aux prompts, faiblesse sur le fin/spatial/comptage, similarités non calibrées, un seul vecteur global par image."},
+  {"id": "vis.06.c14", "front": "Où les espaces de type CLIP sont utilisés", "back": "Classification zero-shot, recherche, détection/segmentation à vocabulaire ouvert, encodeur de vision des LLM multimodaux, conditionnement textuel de la génération d'images."},
+  {"id": "vis.06.c15", "front": "Différence avec NT-Xent de SimCLR", "back": "Les positifs couvrent deux modalités, donc la matrice $N\\times N$ n'a pas besoin de masquage de diagonale et subit l'entropie croisée dans les deux directions ; les négatifs sont les $N-1$ autres éléments."}
+]

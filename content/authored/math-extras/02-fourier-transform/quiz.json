@@ -1,0 +1,129 @@
+[
+ {
+  "id": "mx.02.q1",
+  "concept": "mx.dft",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What does the DFT coefficient $X[k]$ measure?",
+  "options": [
+   "The $k$-th sample of the signal",
+   "How much of the rotating wave with $k$ turns over the window is in the signal (amplitude and phase)",
+   "The derivative at sample $k$",
+   "The error of sampling"
+  ],
+  "answer": 1,
+  "explanation": "$X[k]$ correlates the signal with $e^{-2\\pi ikn/N}$; its modulus is the strength and its angle the phase."
+ },
+ {
+  "id": "mx.02.q2",
+  "concept": "mx.dft",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "For $x=(1,2,3,4,0,0,0,0)$, what is $X[0]$?",
+  "options": [],
+  "answer": {
+   "value": 10,
+   "tol": 0.001
+  },
+  "explanation": "$X[0]=\\sum_n x[n]=10$ (N times the mean)."
+ },
+ {
+  "id": "mx.02.q3",
+  "concept": "mx.dft",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which fact makes the inverse DFT work?",
+  "options": [
+   "The roots of unity sum to zero unless the exponent is a multiple of $N$ (orthogonality)",
+   "Sines are odd functions",
+   "The signal is real",
+   "$N$ is a power of 2"
+  ],
+  "answer": 0,
+  "explanation": "$\\sum_n\\omega^{jn}=N\\delta_{j\\equiv0}$ isolates one coefficient when multiplying by $\\omega^{-ln}$."
+ },
+ {
+  "id": "mx.02.q4",
+  "concept": "mx.dft",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A real signal has $N=16$ samples. The signal $\\cos(2\\pi\\cdot5n/16)$ has amplitude 1. What is $|X[5]|$?",
+  "options": [],
+  "answer": {
+   "value": 8,
+   "tol": 0.001
+  },
+  "explanation": "$|X[k]|=NA/2=16\\cdot1/2=8$."
+ },
+ {
+  "id": "mx.02.q5",
+  "concept": "mx.dft",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The FFT reduces the cost of the DFT from...",
+  "options": [
+   "$O(N)$ to $O(\\log N)$",
+   "$O(N^3)$ to $O(N^2)$",
+   "$O(N^2)$ to $O(N\\log N)$",
+   "$O(N\\log N)$ to $O(N)$"
+  ],
+  "answer": 2,
+  "explanation": "Splitting into even and odd halves recursively gives $\\log_2N$ levels of $O(N)$ work."
+ },
+ {
+  "id": "mx.02.q6",
+  "concept": "mx.sampling",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Sampling rate 8000 Hz, $N=1024$ samples. What is the bin spacing in Hz?",
+  "options": [],
+  "answer": {
+   "value": 7.8125,
+   "tol": 0.001
+  },
+  "explanation": "$\\Delta f=f_s/N=8000/1024=7.8125$."
+ },
+ {
+  "id": "mx.02.q7",
+  "concept": "mx.sampling",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A 7 Hz tone is sampled at 10 Hz. At what frequency (Hz) does it appear?",
+  "options": [],
+  "answer": {
+   "value": 3,
+   "tol": 0.001
+  },
+  "explanation": "Nyquist is 5 Hz; the tone folds to $10-7=3$ Hz."
+ },
+ {
+  "id": "mx.02.q8",
+  "concept": "mx.sampling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "How can you get finer frequency resolution?",
+  "options": [
+   "Zero-pad the signal",
+   "Record a longer signal (larger $T$)",
+   "Lower the sampling rate only",
+   "Use more twiddle factors"
+  ],
+  "answer": 1,
+  "explanation": "$\\Delta f=1/T$. Zero padding only interpolates the spectrum."
+ },
+ {
+  "id": "mx.02.q9",
+  "concept": "mx.conv-theorem",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The convolution theorem says the DFT of a circular convolution is...",
+  "options": [
+   "the convolution of the DFTs",
+   "the sum of the DFTs",
+   "the pointwise product of the DFTs",
+   "the DFT of the sum"
+  ],
+  "answer": 2,
+  "explanation": "$\\mathrm{DFT}(a\\circledast b)=\\mathrm{DFT}(a)\\cdot\\mathrm{DFT}(b)$."
+ }
+]

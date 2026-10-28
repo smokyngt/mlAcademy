@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.06.c1", "front": "Règle de la chaîne scalaire", "back": "$(g\\circ f)'(x)=g'(f(x))\\,f'(x)$ ; avec plusieurs chemins, somme sur les chemins." },
+  { "id": "f2n.06.c2", "front": "Jacobienne de $f:\\mathbb{R}^n\\to\\mathbb{R}^m$", "back": "Matrice $m\\times n$ avec $(J)_{ij}=\\partial f_i/\\partial x_j$." },
+  { "id": "f2n.06.c3", "front": "Règle de la chaîne multivariée", "back": "$J_{g\\circ f}(x)=J_g(f(x))\\,J_f(x)$, formes $(k\\times m)(m\\times n)$." },
+  { "id": "f2n.06.c4", "front": "Arrière de $y=Wx$", "back": "$\\nabla_xL=W^\\top g$ et $\\nabla_WL=g\\,x^\\top$ où $g=\\nabla_yL$." },
+  { "id": "f2n.06.c5", "front": "Arrière de $y=\\phi(z)$ terme à terme", "back": "$\\nabla_zL=g\\odot\\phi'(z)$ (jacobienne diagonale)." },
+  { "id": "f2n.06.c6", "front": "Pourquoi l'ordre arrière (inverse) ?", "back": "La perte est un scalaire : un seul balayage arrière de produits vecteur-jacobienne donne les gradients de tous les paramètres." }
+]

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.05.q1",
+  "prompt": "La diffusion latente exécute le processus de diffusion...",
+  "options": [
+   "sur les pixels bruts",
+   "dans l'espace latent d'un autoencodeur gelé",
+   "sur les embeddings de texte",
+   "seulement à la dernière étape"
+  ],
+  "explanation": "On encode avec $E$, on diffuse dans l'espace latent, on décode avec $D$ à la fin."
+ },
+ {
+  "id": "gen.05.q2",
+  "prompt": "Une image $512\\times512\\times3$ est encodée en un latent $64\\times64\\times4$. De quel facteur le nombre de valeurs diminue-t-il ?",
+  "options": [],
+  "explanation": "$786432/16384=48$."
+ },
+ {
+  "id": "gen.05.q3",
+  "prompt": "Dans la cross-attention pour le conditionnement par le texte, les clés et les valeurs proviennent...",
+  "options": [
+   "des caractéristiques de l'image",
+   "du bruit",
+   "des embeddings de tokens du texte",
+   "du pas de temps"
+  ],
+  "explanation": "Les requêtes issues de l'image portent attention aux clés/valeurs issues du prompt."
+ },
+ {
+  "id": "gen.05.q4",
+  "prompt": "Le guidage sans classifieur calcule...",
+  "options": [
+   "$\\varepsilon_u+w(\\varepsilon_c-\\varepsilon_u)$",
+   "$\\varepsilon_c-\\varepsilon_u$",
+   "$w\\varepsilon_c$",
+   "$\\varepsilon_u/w$"
+  ],
+  "explanation": "On extrapole à partir de la prédiction inconditionnelle en passant par la conditionnelle."
+ },
+ {
+  "id": "gen.05.q5",
+  "prompt": "$\\varepsilon_u=0.2$, $\\varepsilon_c=0.5$, $w=4$. Quelle est la prédiction guidée ?",
+  "options": [],
+  "explanation": "$0.2+4(0.5-0.2)=1.4$."
+ },
+ {
+  "id": "gen.05.q6",
+  "prompt": "Poser $w=1$ dans la formule donne...",
+  "options": [
+   "le modèle inconditionnel",
+   "le modèle conditionnel simple",
+   "une sortie aléatoire",
+   "aucun débruitage du tout"
+  ],
+  "explanation": "$\\varepsilon_u+(\\varepsilon_c-\\varepsilon_u)=\\varepsilon_c$."
+ },
+ {
+  "id": "gen.05.q7",
+  "prompt": "De très grandes échelles de guidage provoquent typiquement...",
+  "options": [
+   "des échantillons plus diversifiés",
+   "des échantillons sursaturés et peu diversifiés",
+   "un échantillonnage plus rapide",
+   "un comportement inconditionnel"
+  ],
+  "explanation": "L'extrapolation dépasse le mode conditionnel."
+ },
+ {
+  "id": "gen.05.q8",
+  "prompt": "Un LoRA de rang 8 sur un poids $512\\times512$ ajoute combien de paramètres entraînables ?",
+  "options": [],
+  "explanation": "$r(d_\\text{out}+d_\\text{in})=8\\cdot1024=8192$."
+ },
+ {
+  "id": "gen.05.q9",
+  "prompt": "Les convolutions initialisées à zéro de ControlNet garantissent que...",
+  "options": [
+   "le modèle s'entraîne plus vite que depuis zéro",
+   "l'entraînement démarre exactement depuis le comportement du modèle gelé",
+   "les poids de base sont mis à jour",
+   "la condition est ignorée pour toujours"
+  ],
+  "explanation": "Une sortie nulle signifie que le terme ajouté vaut 0 à l'initialisation, donc le modèle original est inchangé."
+ }
+]

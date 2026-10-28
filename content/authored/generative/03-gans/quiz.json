@@ -1,0 +1,125 @@
+[
+ {
+  "id": "gen.03.q1",
+  "concept": "gen.gan",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "In a GAN the generator is trained to...",
+  "options": [
+   "classify real images",
+   "make the discriminator label its samples as real",
+   "minimise a pixelwise reconstruction error",
+   "maximise the entropy of the discriminator"
+  ],
+  "answer": 1,
+  "explanation": "It uses the discriminator's verdict as the training signal."
+ },
+ {
+  "id": "gen.03.q2",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "For fixed $G$ the optimal discriminator is...",
+  "options": [
+   "$p_g/(p_\\text{data}+p_g)$",
+   "$p_\\text{data}/(p_\\text{data}+p_g)$",
+   "$p_\\text{data}-p_g$",
+   "$1/2$ always"
+  ],
+  "answer": 1,
+  "explanation": "Maximise $a\\log y+b\\log(1-y)$ pointwise: $y=a/(a+b)$."
+ },
+ {
+  "id": "gen.03.q3",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "$V(D^*,G)$ equals...",
+  "options": [
+   "$-\\log4+2\\,\\mathrm{JS}(p_\\text{data}\\|p_g)$",
+   "$\\mathrm{KL}(p_\\text{data}\\|p_g)$",
+   "$\\log 2$",
+   "$-\\log4-2\\,\\mathrm{JS}$"
+  ],
+  "answer": 0,
+  "explanation": "The two cross terms combine into two KLs to the mixture $m$."
+ },
+ {
+  "id": "gen.03.q4",
+  "concept": "gen.gan",
+  "kind": "numeric",
+  "prompt": "At the global optimum $p_g=p_\\text{data}$, what is the value of $D^*(x)$?",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "$p/(p+p)=1/2$: the discriminator can only guess."
+ },
+ {
+  "id": "gen.03.q5",
+  "concept": "gen.gan",
+  "kind": "numeric",
+  "prompt": "Logit $s=-6$ for a fake sample. What is the magnitude of the gradient of $\\log(1-\\sigma(s))$ wrt $s$? (3 decimals)",
+  "options": [],
+  "answer": {
+   "value": 0.002,
+   "tol": 0.0006
+  },
+  "explanation": "$\\sigma(-6)=0.00247$: the saturating loss has almost no gradient."
+ },
+ {
+  "id": "gen.03.q6",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "The non-saturating generator loss $-\\log D(G(z))$ is used because...",
+  "options": [
+   "it has a different optimum",
+   "its gradient does not vanish when $D$ rejects fakes confidently",
+   "it needs no discriminator",
+   "it is convex"
+  ],
+  "answer": 1,
+  "explanation": "Same fixed point, but strong early gradients."
+ },
+ {
+  "id": "gen.03.q7",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "Two distributions with disjoint supports have JS divergence...",
+  "options": [
+   "equal to $\\log2$ whatever the distance",
+   "growing with distance",
+   "zero",
+   "undefined"
+  ],
+  "answer": 0,
+  "explanation": "JS saturates at $\\log2$, giving no gradient on how to move closer."
+ },
+ {
+  "id": "gen.03.q8",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "Mode collapse is when...",
+  "options": [
+   "the discriminator outputs 0.5 everywhere",
+   "the generator covers only a few modes of the data",
+   "the generator output is all zeros",
+   "the loss becomes NaN"
+  ],
+  "answer": 1,
+  "explanation": "The generator sticks to outputs the discriminator accepts and loses diversity."
+ },
+ {
+  "id": "gen.03.q9",
+  "concept": "gen.gan",
+  "kind": "mcq",
+  "prompt": "The Wasserstein-1 distance between point masses at $0$ and $\\theta$ is...",
+  "options": [
+   "$\\log 2$",
+   "$\\theta^2$",
+   "$1$",
+   "$|\\theta|$"
+  ],
+  "answer": 3,
+  "explanation": "The cost of moving unit mass a distance $|\\theta|$; it grows smoothly with the gap."
+ }
+]

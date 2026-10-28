@@ -1,0 +1,101 @@
+#@@ meta
+{"id": "app.01.ex1", "title": "Self-consistency: extract, vote, and predict the gain", "difficulty": 2, "runtime": "pyodide", "concepts": ["app.self-consistency"], "hints": ["Use re.findall with a pattern like r\"answer\\s*(?:is|:)?\\s*(-?\\d+)\" and flags=re.I, then take the LAST match; return None when there is no match.", "Count answers with collections.Counter, ignoring None. To break ties, scan the list in order and return the first answer whose count equals the maximum.", "Exact majority accuracy for odd n: sum over k from n//2+1 to n of comb(n,k) * p**k * (1-p)**(n-k)."]}
+#@@ prompt
+A model was asked 8 arithmetic word problems with chain-of-thought prompting at temperature above zero, and 5 reasoning samples were stored for each question in `CANNED` as `(true_answer, [five_texts])`. No model is called: you build the **parsing and aggregation harness**.
+
+Implement:
+
+- `extract_answer(text)` -> `int` or `None`. The final answer is the integer after the **last** occurrence of the word "answer" (case-insensitive), optionally followed by `is` or `:`. Texts with no such pattern (rambling, truncated) give `None`.
+- `majority_vote(answers)` -> the most frequent non-`None` answer; ties go to the answer that appears first in the list; `None` if there are no valid answers.
+- `sample_accuracy(canned)` -> mean per-sample accuracy over all texts (an unparsable sample counts as wrong).
+- `vote_accuracy(canned)` -> fraction of questions where the majority vote equals the truth.
+- `majority_accuracy(p, n)` -> exact probability that a majority of `n` (odd) independent samples, each correct with probability `p`, is correct. Assume every wrong answer is different, so the vote is correct exactly when more than n/2 samples are correct.
+#@@ starter
+import re
+from math import comb
+from collections import Counter
+
+CANNED = [
+ (42, ["20+22 = 42. So the answer is 42.","Half of 84 is 42. Answer: 42","6*7 = 41, so the answer is 41.","I would guess around forty, but I am not sure.","Add 30 and 12 to get 42. The answer is 42."]),
+ (17, ["15+2 = 17. The answer is 17.","The answer is 17.","17 apples remain. Answer: 17","15 + 3 = 18. The answer is 18.","Two groups of 8 and one extra: the answer is 17."]),
+ (8, ["The answer is 9.","16 / 2 = 8. The answer is 8.","Counting gives 9, so the answer is 9.","Answer: 9","Half of sixteen: the answer is 8."]),
+ (120, ["5! = 120. The answer is 120.","5*4*3*2 = 120, so the answer is 120.","5*4*3 = 60. The answer is 60.","The product is 24 times 5, answer is 100.","Answer: 120"]),
+ (5, ["The answer is 5.","Answer: 5","Subtract 7 from 12: the answer is 5.","12 - 7 = 5, so the answer is 5.","The answer is 5."]),
+ (63, ["7*9 = 63. The answer is 63.","Answer: 63","7*8 = 56, so the answer is 56.","Let me compute 7 times 9, which gives","7*9 = 63, so the answer is 63."]),
+ (9, ["The answer is 7.","The answer is 9.","3 squared is 9: the answer is 9.","The answer is 8.","The answer is 6."]),
+ (31, ["30 + 1 = 31. The answer is 31.","The answer is 32.","Answer: 31","The answer is 31.","32 is wrong, 33 is wrong: the answer is 29."]),
+]
+
+def extract_answer(text):
+    raise NotImplementedError
+
+def majority_vote(answers):
+    raise NotImplementedError
+
+def sample_accuracy(canned):
+    raise NotImplementedError
+
+def vote_accuracy(canned):
+    raise NotImplementedError
+
+def majority_accuracy(p, n):
+    raise NotImplementedError
+#@@ tests
+check("parses 'the answer is 42.'", lambda: extract_answer("so the answer is 42.") == 42)
+check("parses 'Answer: 63'", lambda: extract_answer("Answer: 63") == 63)
+check("uses the LAST answer mention", lambda: extract_answer("The answer is 3. Wait, no: the answer is 4.") == 4)
+check("rambling text gives None", lambda: extract_answer("I would guess around forty.") is None)
+check("majority vote picks the mode", lambda: majority_vote([42, 42, 41, None, 42]) == 42)
+check("None votes are ignored", lambda: majority_vote([None, None, 7]) == 7)
+check("tie goes to the first seen", lambda: majority_vote([5, 9, 9, 5]) == 5)
+check("no valid answers gives None", lambda: majority_vote([None, None]) is None)
+check("single-sample accuracy is 25/40", lambda: abs(sample_accuracy(CANNED) - 25 / 40) < 1e-12)
+check("self-consistency accuracy is 7/8", lambda: abs(vote_accuracy(CANNED) - 7 / 8) < 1e-12)
+check("voting beats a single sample here", lambda: vote_accuracy(CANNED) > sample_accuracy(CANNED))
+check("n=1 is just p", lambda: abs(majority_accuracy(0.6, 1) - 0.6) < 1e-12)
+check("p=0.6, n=5 gives 0.68256", lambda: abs(majority_accuracy(0.6, 5) - 0.68256) < 1e-9)
+check("p=0.6, n=21 is about 0.8256", lambda: abs(majority_accuracy(0.6, 21) - 0.82562213) < 1e-6)
+check("p=0.4: voting makes things worse", lambda: majority_accuracy(0.4, 5) < 0.4)
+check("p=0.5 stays at 0.5", lambda: abs(majority_accuracy(0.5, 11) - 0.5) < 1e-12)
+#@@ solution
+import re
+from math import comb
+from collections import Counter
+
+CANNED = [
+ (42, ["20+22 = 42. So the answer is 42.","Half of 84 is 42. Answer: 42","6*7 = 41, so the answer is 41.","I would guess around forty, but I am not sure.","Add 30 and 12 to get 42. The answer is 42."]),
+ (17, ["15+2 = 17. The answer is 17.","The answer is 17.","17 apples remain. Answer: 17","15 + 3 = 18. The answer is 18.","Two groups of 8 and one extra: the answer is 17."]),
+ (8, ["The answer is 9.","16 / 2 = 8. The answer is 8.","Counting gives 9, so the answer is 9.","Answer: 9","Half of sixteen: the answer is 8."]),
+ (120, ["5! = 120. The answer is 120.","5*4*3*2 = 120, so the answer is 120.","5*4*3 = 60. The answer is 60.","The product is 24 times 5, answer is 100.","Answer: 120"]),
+ (5, ["The answer is 5.","Answer: 5","Subtract 7 from 12: the answer is 5.","12 - 7 = 5, so the answer is 5.","The answer is 5."]),
+ (63, ["7*9 = 63. The answer is 63.","Answer: 63","7*8 = 56, so the answer is 56.","Let me compute 7 times 9, which gives","7*9 = 63, so the answer is 63."]),
+ (9, ["The answer is 7.","The answer is 9.","3 squared is 9: the answer is 9.","The answer is 8.","The answer is 6."]),
+ (31, ["30 + 1 = 31. The answer is 31.","The answer is 32.","Answer: 31","The answer is 31.","32 is wrong, 33 is wrong: the answer is 29."]),
+]
+
+def extract_answer(text):
+    m = re.findall(r"answer\s*(?:is|:)?\s*(-?\d+)", text, flags=re.I)
+    return int(m[-1]) if m else None
+
+def majority_vote(answers):
+    c = Counter(a for a in answers if a is not None)
+    if not c:
+        return None
+    best = max(c.values())
+    for a in answers:
+        if a is not None and c[a] == best:
+            return a
+
+def sample_accuracy(canned):
+    hits = total = 0
+    for truth, texts in canned:
+        for t in texts:
+            hits += extract_answer(t) == truth
+            total += 1
+    return hits / total
+
+def vote_accuracy(canned):
+    return sum(majority_vote([extract_answer(t) for t in texts]) == truth for truth, texts in canned) / len(canned)
+
+def majority_accuracy(p, n):
+    return sum(comb(n, k) * p ** k * (1 - p) ** (n - k) for k in range(n // 2 + 1, n + 1))

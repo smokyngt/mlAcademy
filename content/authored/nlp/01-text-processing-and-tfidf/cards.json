@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.01.c1","concept":"nlp.text-preprocessing","front":"Name the usual preprocessing steps in order","back":"Normalise (case, Unicode), tokenise, optionally drop stop words, optionally stem or lemmatise."},
+ {"id":"nlp.01.c2","concept":"nlp.text-preprocessing","front":"Stemming vs lemmatisation","back":"Stemming chops suffixes by rules (fast, may give non-words like poni). Lemmatisation uses a lexicon and part of speech to return the dictionary form (ran -> run)."},
+ {"id":"nlp.01.c3","concept":"nlp.text-preprocessing","front":"Why is defining a word hard?","back":"Compounds (pomme de terre), clitics (aujourd'hui, don't), German compounds, URLs and hashtags: whitespace is not a reliable boundary."},
+ {"id":"nlp.01.c4","concept":"nlp.text-preprocessing","front":"What are <UNK> and <PAD>?","back":"Special tokens: <UNK> stands for words outside the vocabulary, <PAD> pads sequences to a common length."},
+ {"id":"nlp.01.c5","concept":"nlp.tfidf","front":"Bag-of-words matrix and its shape","back":"$X\\in\\mathbb{N}^{N\\times|V|}$, entry = count of token $j$ in document $d$. Order is discarded."},
+ {"id":"nlp.01.c6","concept":"nlp.tfidf","front":"Why are BoW matrices sparse?","back":"A document uses few distinct tokens out of $|V|$ (often $10^4$-$10^6$), so most entries are zero; store (row, col, value)."},
+ {"id":"nlp.01.c7","concept":"nlp.tfidf","front":"Smoothed IDF formula","back":"$\\mathrm{idf}_j=\\ln\\frac{1+N}{1+\\mathrm{df}_j}+1$ (scikit-learn default)."},
+ {"id":"nlp.01.c8","concept":"nlp.tfidf","front":"Intuition behind IDF","back":"Self-information of seeing the token in a document: ubiquitous words carry little, rare words carry much; the log keeps the scale tame."},
+ {"id":"nlp.01.c9","concept":"nlp.tfidf","front":"Why L2-normalise TF-IDF rows?","back":"Removes the effect of document length and turns cosine similarity into a plain dot product."},
+ {"id":"nlp.01.c10","concept":"nlp.tfidf","front":"Cosine similarity","back":"$\\frac{a\\cdot b}{\\|a\\|\\|b\\|}$, between 0 and 1 for non-negative vectors; the angle, not the length."},
+ {"id":"nlp.01.c11","concept":"nlp.tfidf","front":"What does an n-gram add to a bag of words?","back":"Local order: bigrams such as not_good become features, at the cost of up to $|V|^n$ possible features."},
+ {"id":"nlp.01.c12","concept":"nlp.tfidf","front":"Where must the vectoriser be fitted?","back":"On the training split only; reuse its vocabulary and IDF on validation and test to avoid leakage."},
+ {"id":"nlp.01.c13","concept":"nlp.tfidf","front":"Main limitation of sparse count vectors","back":"No notion of meaning: car and automobile are unrelated columns. Dense embeddings address this."},
+ {"id":"nlp.01.c14","concept":"nlp.text-preprocessing","front":"When is removing stop words harmful?","back":"When small words carry the signal, e.g. removing not in sentiment analysis."}
+]

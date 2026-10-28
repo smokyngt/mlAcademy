@@ -1,0 +1,92 @@
+#@@ meta
+{"id": "math.10.ex1", "title": "Entropy, cross-entropy, KL, softmax loss and perplexity", "difficulty": 3, "runtime": "pyodide", "concepts": ["info.entropy"], "hints": ["entropy: drop zero entries, then -sum(p * log2(p)).", "kl(p, q) = sum over p>0 of p * log2(p / q); it equals cross_entropy - entropy.", "softmax_xent: shift z by its max, then loss = log(sum(exp(z))) - z[c].", "perplexity: exp of the mean negative natural log of the probabilities assigned to the correct tokens."]}
+#@@ prompt
+Implement, with NumPy only (logs in bits unless stated):
+
+- `entropy(p)` - entropy in bits (treat `0 log 0` as 0).
+- `cross_entropy(p, q)` - `-sum p log2 q`, summing only where `p > 0`.
+- `kl(p, q)` - KL divergence in bits.
+- `softmax_xent(Z, y)` - mean cross-entropy loss in nats of logits `Z` with shape `(B, K)` and integer labels `y` with shape `(B,)`. It must be numerically stable (it will be tested with logits around 1000).
+- `perplexity(probs)` - perplexity of a model that gave probabilities `probs` (shape `(N,)`) to the `N` observed correct tokens.
+- `mutual_information(J)` - mutual information in bits of a joint probability matrix `J` of shape `(Kx, Ky)`.
+#@@ starter
+import numpy as np
+
+def entropy(p):
+    raise NotImplementedError
+
+def cross_entropy(p, q):
+    raise NotImplementedError
+
+def kl(p, q):
+    raise NotImplementedError
+
+def softmax_xent(Z, y):
+    raise NotImplementedError
+
+def perplexity(probs):
+    raise NotImplementedError
+
+def mutual_information(J):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+p8 = np.array([1/2, 1/4, 1/8, 1/16, 1/64, 1/64, 1/64, 1/64])
+check("8-state example has entropy 2 bits", lambda: abs(entropy(p8) - 2.0) < 1e-12)
+check("uniform over 8 has entropy 3 bits", lambda: abs(entropy(np.ones(8) / 8) - 3.0) < 1e-12)
+check("biased coin entropy 0.0808", lambda: abs(entropy(np.array([.99, .01])) - 0.08079313589591118) < 1e-9)
+check("point mass has entropy 0", lambda: abs(entropy(np.array([1., 0, 0]))) < 1e-12)
+p = np.array([.5, .25, .125, .125]); u = np.ones(4) / 4
+check("cross-entropy against uniform is 2 bits", lambda: abs(cross_entropy(p, u) - 2.0) < 1e-12)
+check("KL(p||uniform) = 0.25", lambda: abs(kl(p, u) - 0.25) < 1e-12)
+check("KL of p with itself is 0", lambda: abs(kl(p, p)) < 1e-12)
+q2 = np.array([.7, .1, .1, .1])
+check("KL(p||q2) = 0.16825", lambda: abs(kl(p, q2) - 0.16825063385856034) < 1e-9)
+b1 = np.array([.9, .1]); b2 = np.array([.5, .5])
+check("KL is asymmetric: 0.531 vs 0.737", lambda: abs(kl(b1, b2) - 0.5310044064107189) < 1e-9 and abs(kl(b2, b1) - 0.7369655941662061) < 1e-9)
+rng = np.random.default_rng(3)
+ok = True
+for _ in range(50):
+    a = rng.dirichlet(np.ones(5)); b = rng.dirichlet(np.ones(5))
+    ok = ok and kl(a, b) >= -1e-12 and abs(cross_entropy(a, b) - entropy(a) - kl(a, b)) < 1e-9
+check("KL >= 0 and H(p,q) = H(p) + KL on random distributions", lambda: ok)
+Z = np.array([[2., 1, 0.1]])
+check("softmax cross-entropy 0.41703 nats", lambda: abs(softmax_xent(Z, np.array([0])) - 0.4170300162778335) < 1e-9)
+Zb = np.array([[1000., 1001, 999], [1000., 0, 0]])
+check("stable at large logits", lambda: np.isfinite(softmax_xent(Zb, np.array([1, 0]))))
+check("matches the naive formula on small logits", lambda: abs(softmax_xent(np.array([[0., 1], [2, -1]]), np.array([1, 0])) - np.mean([-np.log(np.exp(1) / (1 + np.exp(1))), -np.log(np.exp(2) / (np.exp(2) + np.exp(-1)))])) < 1e-9)
+check("perplexity of (0.5,0.25,0.125,0.125) is 4.7568", lambda: abs(perplexity(np.array([.5, .25, .125, .125])) - 4.756828460010883) < 1e-9)
+check("uniform over 50 tokens has perplexity 50", lambda: abs(perplexity(np.full(10, 1 / 50)) - 50) < 1e-9)
+J = np.array([[.4, .1], [.05, .45]])
+check("mutual information 0.3973 bits", lambda: abs(mutual_information(J) - 0.39731260974948646) < 1e-9)
+check("independent joint has MI 0", lambda: abs(mutual_information(np.outer([.3, .7], [.2, .8]))) < 1e-12)
+#@@ solution
+import numpy as np
+
+def entropy(p):
+    p = np.asarray(p, float)
+    p = p[p > 0]
+    return -np.sum(p * np.log2(p))
+
+def cross_entropy(p, q):
+    p = np.asarray(p, float); q = np.asarray(q, float)
+    m = p > 0
+    return -np.sum(p[m] * np.log2(q[m]))
+
+def kl(p, q):
+    return cross_entropy(p, q) - entropy(p)
+
+def softmax_xent(Z, y):
+    Z = np.asarray(Z, float)
+    Zs = Z - Z.max(axis=1, keepdims=True)
+    lse = np.log(np.exp(Zs).sum(axis=1))
+    return np.mean(lse - Zs[np.arange(len(y)), y])
+
+def perplexity(probs):
+    return float(np.exp(-np.mean(np.log(probs))))
+
+def mutual_information(J):
+    J = np.asarray(J, float)
+    px = J.sum(axis=1, keepdims=True); py = J.sum(axis=0, keepdims=True)
+    m = J > 0
+    return np.sum(J[m] * np.log2(J[m] / (px @ py)[m]))

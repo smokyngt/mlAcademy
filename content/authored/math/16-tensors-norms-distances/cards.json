@@ -1,0 +1,18 @@
+[
+  { "id": "math.16.c1", "concept": "la.tensor", "front": "Rank vs shape of a tensor", "back": "Rank = number of axes; shape = tuple of axis lengths. Number of elements = product of the shape." },
+  { "id": "math.16.c2", "concept": "la.tensor", "front": "Typical deep-learning shapes", "back": "Images (B,C,H,W); token embeddings (B,T,D); attention scores (B,H,T,T); linear weights (out,in); embedding table (vocab,dim)." },
+  { "id": "math.16.c3", "concept": "la.tensor", "front": "Broadcasting rule", "back": "Align shapes from the right, pad missing leading axes with 1; sizes must be equal or one must be 1; the result takes the larger. No data is copied." },
+  { "id": "math.16.c4", "concept": "la.tensor", "front": "Classic broadcasting bug", "back": "(N,) minus (N,1) silently broadcasts to (N,N). Fix with matching shapes, e.g. reshape or keepdims=True." },
+  { "id": "math.16.c5", "concept": "la.tensor", "front": "Strides and transpose", "back": "Strides = elements to skip per axis, e.g. (4,1) for shape (3,4). Transpose swaps strides without moving data, so the array becomes non-contiguous." },
+  { "id": "math.16.c6", "concept": "la.tensor", "front": "Einsum rule", "back": "Letters absent from the output are summed over; repeated letters in one operand take the diagonal. `ik,kj->ij` is matmul." },
+  { "id": "math.16.c7", "concept": "la.tensor", "front": "Attention scores in einsum", "back": "`bhtd,bhsd->bhts`: dot product over d for each (batch, head, query t, key s)." },
+  { "id": "math.16.c8", "concept": "la.norms", "front": "Definition of a norm", "back": "$\\|\\lambda x\\|=|\\lambda|\\|x\\|$, triangle inequality $\\|x+y\\|\\le\\|x\\|+\\|y\\|$, and $\\|x\\|\\ge0$ with equality iff $x=0$." },
+  { "id": "math.16.c9", "concept": "la.norms", "front": "L1, L2, Linf norms", "back": "$\\sum|x_i|$; $\\sqrt{\\sum x_i^2}$; $\\max|x_i|$. Ordering: $\\|x\\|_\\infty\\le\\|x\\|_2\\le\\|x\\|_1$. For $(3,-4,12)$: 19, 13, 12." },
+  { "id": "math.16.c10", "concept": "la.norms", "front": "Why L1 gives sparsity and L2 shrinkage", "back": "The L1 ball is a diamond with corners on the axes (minimisers land on a corner, coordinates exactly 0); the L2 ball is round, so weights shrink but rarely vanish." },
+  { "id": "math.16.c11", "concept": "la.norms", "front": "Frobenius vs spectral norm", "back": "$\\|A\\|_F=\\sqrt{\\sum_{ij}a_{ij}^2}=\\sqrt{\\sum\\sigma_k^2}$; $\\|A\\|_2=\\max_{\\|x\\|=1}\\|Ax\\|=\\sigma_{\\max}$." },
+  { "id": "math.16.c12", "concept": "la.norms", "front": "Cosine similarity", "back": "$\\cos=a^\\top b/(\\|a\\|\\|b\\|)\\in[-1,1]$; ignores length. For unit vectors $\\|a-b\\|^2=2-2\\cos$." },
+  { "id": "math.16.c13", "concept": "la.norms", "front": "Mahalanobis distance", "back": "$\\sqrt{(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)}=\\|\\Sigma^{-1/2}(x-\\mu)\\|_2$: Euclidean distance after whitening; accounts for scale and correlation." },
+  { "id": "math.16.c14", "concept": "la.norms", "front": "Shell fraction of a high-dimensional ball", "back": "Fraction of volume within $\\varepsilon$ of the surface is $1-(1-\\varepsilon)^D$: 99.4% for $\\varepsilon=0.05$, $D=100$." },
+  { "id": "math.16.c15", "concept": "la.norms", "front": "Concentration of distances", "back": "In high dimension nearest and farthest neighbours are almost equally far: $(d_{\\max}-d_{\\min})/d_{\\min}\\to0$. Squared distance is a sum of many coordinate terms." },
+  { "id": "math.16.c16", "concept": "la.norms", "front": "Why learning works despite the curse", "back": "Real data lie near a low-dimensional manifold and targets are locally smooth (Bishop Sec. 1.4)." }
+]

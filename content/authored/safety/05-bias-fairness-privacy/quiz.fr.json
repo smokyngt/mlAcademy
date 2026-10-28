@@ -1,0 +1,91 @@
+[
+ {
+  "id": "saf.05.q1",
+  "prompt": "Un modèle note des CV et donne systématiquement des notes plus basses à des candidats également qualifiés d'un groupe. De quel type de préjudice s'agit-il ?",
+  "options": [
+   "Préjudice de représentation seulement",
+   "Préjudice de vie privée",
+   "Préjudice d'allocation",
+   "Dérive de calibration"
+  ],
+  "explanation": "Le préjudice d'allocation est une distribution inégale de ressources ou d'opportunités ; le préjudice de représentation concerne la manière de dépeindre et les stéréotypes."
+ },
+ {
+  "id": "saf.05.q2",
+  "prompt": "Quel critère exige un TPR égal et un FPR égal entre les groupes ?",
+  "options": [
+   "Cotes égalisées",
+   "Parité démographique",
+   "Parité prédictive",
+   "Équité individuelle"
+  ],
+  "explanation": "Les cotes égalisées conditionnent sur le vrai résultat et comparent les taux d'erreur."
+ },
+ {
+  "id": "saf.05.q3",
+  "prompt": "TPR = 0.6, FPR = 0.2, taux de base p = 0.5. Quel est le PPV $=\\frac{\\mathrm{TPR}\\,p}{\\mathrm{TPR}\\,p+\\mathrm{FPR}(1-p)}$ ?",
+  "options": [],
+  "explanation": "0.3 / (0.3 + 0.1) = 0.75."
+ },
+ {
+  "id": "saf.05.q4",
+  "prompt": "Deux groupes ont le même TPR et FPR mais des taux de base de 0.3 et 0.5. Qu'en résulte-t-il pour le PPV ?",
+  "options": [
+   "Le PPV est automatiquement égal",
+   "Le PPV doit différer (le taux de base le plus grand obtient le plus grand PPV) sauf si le classifieur est dégénéré ou parfait",
+   "Le PPV vaut 0.5 dans les deux groupes",
+   "On ne peut rien dire"
+  ],
+  "explanation": "Le PPV est strictement croissant en fonction du taux de base quand le TPR et le FPR sont positifs."
+ },
+ {
+  "id": "saf.05.q5",
+  "prompt": "Pourquoi l'équité individuelle ne peut-elle pas être vérifiée par les seules statistiques ?",
+  "options": [
+   "Elle nécessite des graphes causaux",
+   "Elle n'est définie que pour les images",
+   "Elle nécessite une métrique de similarité propre à la tâche que quelqu'un doit définir",
+   "Elle exige une perte nulle"
+  ],
+  "explanation": "La condition de Lipschitz dépend de la métrique d ; la choisir est une question de politique."
+ },
+ {
+  "id": "saf.05.q6",
+  "prompt": "L'équité contrefactuelle dépend de quelle hypothèse ?",
+  "options": [
+   "Un modèle causal de la façon dont l'attribut protégé influence les variables et les résultats",
+   "Des taux de base égaux",
+   "Un entraînement différentiellement privé",
+   "Un score calibré"
+  ],
+  "explanation": "Les contrefactuels sont définis par rapport à un graphe causal, qui est un choix de modélisation."
+ },
+ {
+  "id": "saf.05.q7",
+  "prompt": "Quelle échelle de bruit le mécanisme de Laplace utilise-t-il pour une requête de sensibilité $\\Delta$ et de paramètre de confidentialité $\\varepsilon$ ?",
+  "options": [
+   "$b=\\Delta\\varepsilon$",
+   "$b=\\Delta/\\varepsilon$",
+   "$b=\\varepsilon/\\Delta^2$",
+   "$b=1/\\Delta$"
+  ],
+  "explanation": "Le rapport de densités est borné par $e^{\\Delta/b}$ ; le fixer à $e^\\varepsilon$ donne $b=\\Delta/\\varepsilon$."
+ },
+ {
+  "id": "saf.05.q8",
+  "prompt": "Mécanisme gaussien avec une sensibilité de 1, $\\varepsilon=0.5$, $\\delta=10^{-5}$ : quel $\\sigma$ la calibration classique donne-t-elle ?",
+  "options": [],
+  "explanation": "$\\sqrt{2\\ln(1.25/10^{-5})}/0.5=4.845/0.5=9.69$."
+ },
+ {
+  "id": "saf.05.q9",
+  "prompt": "Quel est le rôle de l'écrêtage par exemple dans DP-SGD ?",
+  "options": [
+   "Il accélère l'entraînement",
+   "Il supprime le besoin de bruit",
+   "Il borne l'influence de chaque exemple sur le gradient sommé, de sorte que le bruit peut être calibré sur cette sensibilité",
+   "Il augmente epsilon"
+  ],
+  "explanation": "Après écrêtage à la norme C, ajouter ou retirer un exemple change la somme d'au plus C."
+ }
+]

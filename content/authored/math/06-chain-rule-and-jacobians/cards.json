@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.06.c1", "concept": "calc.chain", "front": "Scalar chain rule", "back": "$(g\\circ f)'(x)=g'(f(x))\\,f'(x)$; with several paths, sum over the paths." },
+  { "id": "f2n.06.c2", "concept": "calc.jacobian", "front": "Jacobian of $f:\\mathbb{R}^n\\to\\mathbb{R}^m$", "back": "$m\\times n$ matrix with $(J)_{ij}=\\partial f_i/\\partial x_j$." },
+  { "id": "f2n.06.c3", "concept": "calc.jacobian", "front": "Multivariate chain rule", "back": "$J_{g\\circ f}(x)=J_g(f(x))\\,J_f(x)$, shapes $(k\\times m)(m\\times n)$." },
+  { "id": "f2n.06.c4", "concept": "calc.jacobian", "front": "Backward of $y=Wx$", "back": "$\\nabla_xL=W^\\top g$ and $\\nabla_WL=g\\,x^\\top$ where $g=\\nabla_yL$." },
+  { "id": "f2n.06.c5", "concept": "calc.jacobian", "front": "Backward of elementwise $y=\\phi(z)$", "back": "$\\nabla_zL=g\\odot\\phi'(z)$ (diagonal Jacobian)." },
+  { "id": "f2n.06.c6", "concept": "calc.chain", "front": "Why backward (reverse) order?", "back": "The loss is a scalar: one backward sweep of vector-Jacobian products yields gradients for all parameters." }
+]

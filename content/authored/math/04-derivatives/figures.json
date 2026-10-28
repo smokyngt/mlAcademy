@@ -1,0 +1,91 @@
+[
+  {
+    "id": "tangent",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The curve y = x² with its tangent line. Move the mouse over the curve: the tangent follows, and its slope is the derivative 2x at that point.",
+      "fr": "La courbe y = x² et sa tangente. Passe la souris sur la courbe : la tangente suit, et sa pente est la dérivée 2x en ce point."
+    },
+    "spec": {
+      "xDomain": [
+        -3,
+        3
+      ],
+      "yDomain": [
+        -1,
+        9
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "x^2",
+          "color": "#2563eb",
+          "derivative": {
+            "fn": "2*x",
+            "updateOnMouseMove": true
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "sigmoid",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "The sigmoid σ(x) (blue) and its derivative σ′(x) = σ(1 − σ) (orange). The derivative peaks at 0.25 at x = 0 and vanishes in the tails.",
+      "fr": "La sigmoïde σ(x) (bleu) et sa dérivée σ′(x) = σ(1 − σ) (orange). La dérivée vaut au plus 0,25 en x = 0 et s'annule dans les queues."
+    },
+    "spec": {
+      "xDomain": [
+        -7,
+        7
+      ],
+      "yDomain": [
+        -0.1,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-x)/(1+exp(-x))^2",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.25,
+          "text": "max of σ′ = 0.25"
+        }
+      ]
+    }
+  },
+  {
+    "id": "finite-diff-error",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Total error of a finite difference as the step h shrinks: truncation error falls, round-off error rises, so there is an optimal h.",
+      "fr": "Erreur totale d'une différence finie quand le pas h diminue : l'erreur de troncature baisse, l'erreur d'arrondi monte, donc il existe un h optimal."
+    },
+    "code": {
+      "en": "flowchart LR\n  H[\"step h\"] --> T[\"truncation error ~ h^p\\n(falls as h shrinks)\"]\n  H --> R[\"round-off error ~ eps/h\\n(rises as h shrinks)\"]\n  T --> S((\"sum\"))\n  R --> S\n  S --> O[\"minimum at an intermediate h\\n(about 1e-5 for central differences)\"]",
+      "fr": "flowchart LR\n  H[\"pas h\"] --> T[\"erreur de troncature ~ h^p\\n(baisse quand h diminue)\"]\n  H --> R[\"erreur d'arrondi ~ eps/h\\n(monte quand h diminue)\"]\n  T --> S((\"somme\"))\n  R --> S\n  S --> O[\"minimum pour un h intermédiaire\\n(environ 1e-5 en différences centrées)\"]"
+    }
+  },
+  {
+    "id": "manim-derivative",
+    "after": 5,
+    "kind": "video",
+    "caption": {
+      "en": "Manim: secant slopes converge to the tangent slope as h shrinks.",
+      "fr": "Manim : les pentes des sécantes convergent vers la pente de la tangente quand h tend vers 0."
+    },
+    "src": "/manim/Derivative.mp4"
+  }
+]

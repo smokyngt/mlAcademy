@@ -1,0 +1,66 @@
+#@@ meta
+{"id": "gpu.01.ex2", "title": "Occupancy calculator and tiled-matmul memory traffic", "difficulty": 3, "runtime": "pyodide", "concepts": ["gpu.occupancy", "gpu.tiling"], "hints": ["An SM can hold several blocks at once; the number is the MINIMUM over each limited resource: max blocks, threads, registers, shared memory. Use integer division for each.", "Registers per block = regs_per_thread * (warps_per_block * 32): registers are handed out per warp. Occupancy = resident warps / max warps per SM.", "Naive matmul: every C element reads one row of A and one column of B -> 2*M*N*K loads. With T x T tiles each A element is loaded N/T times and each B element M/T times."]}
+#@@ prompt
+**Part A: occupancy.** An SM (streaming multiprocessor) keeps a limited number of threads resident, and each block of threads needs registers and shared memory. Implement
+
+`occupancy(threads_per_block, regs_per_thread, smem_per_block, sm)` where `sm` is a dict with keys `max_threads`, `max_blocks`, `max_warps`, `regs`, `smem` (per-SM limits). Warp size is 32.
+
+- `warps_per_block = ceil(threads_per_block / 32)`
+- registers are allocated per warp: `regs_per_block = regs_per_thread * 32 * warps_per_block`
+- `blocks = min(max_blocks, max_threads // threads_per_block, regs // regs_per_block, smem // smem_per_block)` (skip the shared-memory term if `smem_per_block == 0`)
+- return `(blocks, occupancy)` where `occupancy = blocks * warps_per_block / max_warps` capped at 1.0 (0 blocks gives `(0, 0.0)`).
+
+**Part B: tiled matmul traffic.** For `C = A @ B` with `A` of shape `(M, K)` and `B` of shape `(K, N)`, count the bytes moved between global memory and the SMs.
+
+`matmul_global_bytes(M, N, K, tile=None, elem_bytes=4)`: with `tile=None` (naive, every thread reads its own row and column) the loads are `2*M*N*K` elements. With `tile=T` (a `T x T` thread block stages `T x T` tiles of A and B in shared memory; `M, N, K` multiples of `T`) each element of A is loaded `N/T` times and each element of B `M/T` times. Add the `M*N` stores of C. Return **bytes**.
+
+`matmul_intensity(M, N, K, tile=None, elem_bytes=4)`: FLOPs (`2*M*N*K`) divided by that byte count.
+#@@ starter
+import numpy as np
+
+def occupancy(threads_per_block, regs_per_thread, smem_per_block, sm):
+    raise NotImplementedError
+
+def matmul_global_bytes(M, N, K, tile=None, elem_bytes=4):
+    raise NotImplementedError
+
+def matmul_intensity(M, N, K, tile=None, elem_bytes=4):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+SM = dict(max_threads=2048, max_blocks=32, max_warps=64, regs=65536, smem=98304)
+check("256 threads, 32 regs, no smem: thread-limited, 8 blocks, 100%", lambda: occupancy(256, 32, 0, SM) == (8, 1.0))
+check("256 threads, 64 regs: register-limited, 4 blocks, 50%", lambda: occupancy(256, 64, 0, SM) == (4, 0.5))
+check("128 threads, 32 regs, 48 KB smem: smem-limited, 2 blocks, 12.5%", lambda: occupancy(128, 32, 49152, SM) == (2, 0.125))
+check("32-thread blocks hit the max-blocks limit (32 blocks = 32 warps = 50%)", lambda: occupancy(32, 16, 0, SM) == (32, 0.5))
+check("a non-multiple of 32 threads rounds up to whole warps", lambda: occupancy(100, 32, 0, SM)[0] == 16 and abs(occupancy(100, 32, 0, SM)[1] - 1.0) < 1e-12)
+check("too many registers for even one block gives 0", lambda: occupancy(1024, 255, 0, SM) == (0, 0.0))
+check("naive 64^3 matmul in float32: loads 2*64^3 + stores 64^2 elements", lambda: matmul_global_bytes(64, 64, 64) == 4 * (2 * 64**3 + 64**2))
+check("tile 16 divides the loads by 16", lambda: matmul_global_bytes(64, 64, 64, tile=16) == 4 * (2 * 64**3 // 16 + 64**2))
+check("non-square sizes: M=32, N=64, K=128, tile 8", lambda: matmul_global_bytes(32, 64, 128, tile=8) == 4 * (32 * 128 * (64 // 8) + 128 * 64 * (32 // 8) + 32 * 64))
+check("float16 halves the bytes", lambda: matmul_global_bytes(64, 64, 64, tile=16, elem_bytes=2) * 2 == matmul_global_bytes(64, 64, 64, tile=16))
+check("naive intensity is about 0.25 FLOP/byte", lambda: abs(matmul_intensity(1024, 1024, 1024) - 0.25) < 0.001)
+check("tiling with T=32 raises intensity about 32x", lambda: 30 < matmul_intensity(1024, 1024, 1024, tile=32) / matmul_intensity(1024, 1024, 1024) < 32.01)
+#@@ solution
+import numpy as np
+
+def occupancy(threads_per_block, regs_per_thread, smem_per_block, sm):
+    wpb = -(-threads_per_block // 32)
+    regs_per_block = regs_per_thread * 32 * wpb
+    limits = [sm["max_blocks"], sm["max_threads"] // threads_per_block, sm["regs"] // regs_per_block]
+    if smem_per_block > 0:
+        limits.append(sm["smem"] // smem_per_block)
+    blocks = min(limits)
+    if blocks <= 0:
+        return (0, 0.0)
+    return (blocks, min(1.0, blocks * wpb / sm["max_warps"]))
+
+def matmul_global_bytes(M, N, K, tile=None, elem_bytes=4):
+    if tile is None:
+        loads = 2 * M * N * K
+    else:
+        loads = M * K * (N // tile) + K * N * (M // tile)
+    return elem_bytes * (loads + M * N)
+
+def matmul_intensity(M, N, K, tile=None, elem_bytes=4):
+    return 2 * M * N * K / matmul_global_bytes(M, N, K, tile, elem_bytes)

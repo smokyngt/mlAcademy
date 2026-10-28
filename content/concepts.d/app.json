@@ -1,0 +1,102 @@
+[
+ {
+  "id": "app.prompting",
+  "title": "Prompting fundamentals",
+  "description": "Instructions, roles, few-shot examples and chain-of-thought as ways to condition a next-token predictor; prompts as testable artifacts.",
+  "stage": "VI",
+  "prereqs": [
+   "llm.lm",
+   "trf.architectures"
+  ]
+ },
+ {
+  "id": "app.self-consistency",
+  "title": "Self-consistency and tree-of-thought",
+  "description": "Sampling several reasoning paths and voting on the final answer; the binomial accuracy gain and its independence caveat; search over thoughts.",
+  "stage": "VI",
+  "prereqs": [
+   "app.prompting",
+   "llm.sampling",
+   "prob.rv"
+  ]
+ },
+ {
+  "id": "app.structured-output",
+  "title": "Structured outputs and constrained decoding",
+  "description": "JSON Schema as a contract, token-level masking with a grammar automaton, validation and repair loops.",
+  "stage": "VI",
+  "prereqs": [
+   "app.prompting",
+   "llm.sampling"
+  ]
+ },
+ {
+  "id": "app.tool-calling",
+  "title": "Function calling and tool protocols",
+  "description": "The model emits a structured call, application code executes it, the result returns to the context; schemas, errors and loop limits.",
+  "stage": "VI",
+  "prereqs": [
+   "app.structured-output"
+  ]
+ },
+ {
+  "id": "app.context",
+  "title": "Context engineering",
+  "description": "Budgeting the context window, ordering and recency effects, compaction, retrieval versus long context.",
+  "stage": "VI",
+  "prereqs": [
+   "app.prompting",
+   "trf.attention",
+   "llm.lm"
+  ]
+ },
+ {
+  "id": "app.prompt-cache",
+  "title": "Prefix caching and cost",
+  "description": "Provider-side prefix caches, cache-friendly prompt layout, write premium versus read discount and break-even reuse.",
+  "stage": "VI",
+  "prereqs": [
+   "app.context"
+  ]
+ },
+ {
+  "id": "app.eval",
+  "title": "Evaluating LLM applications",
+  "description": "Eval sets, rubrics, LLM-as-judge pitfalls, regression gates and statistical comparison of two prompts.",
+  "stage": "VI",
+  "prereqs": [
+   "app.prompting",
+   "prob.rv"
+  ]
+ },
+ {
+  "id": "app.guardrails",
+  "title": "Guardrails and application safety",
+  "description": "Layered input and output filters, PII detection with checksum validators, prompt-injection defence, rate limits and fallbacks.",
+  "stage": "VI",
+  "prereqs": [
+   "app.tool-calling",
+   "prob.basics"
+  ]
+ },
+ {
+  "id": "app.production",
+  "title": "Production LLM architecture",
+  "description": "Gateway, orchestration, retrieval, tools and observability; latency and cost budgeting.",
+  "stage": "VI",
+  "prereqs": [
+   "app.guardrails",
+   "app.prompt-cache",
+   "app.eval"
+  ]
+ },
+ {
+  "id": "app.agent-graph",
+  "title": "Agent loops as state machines, and MCP",
+  "description": "Explicit graph of nodes and edges with reducers, checkpoints and interrupts; the Model Context Protocol as a shared tool interface.",
+  "stage": "VI",
+  "prereqs": [
+   "app.tool-calling"
+  ]
+ }
+]

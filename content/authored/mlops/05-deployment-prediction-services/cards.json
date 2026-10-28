@@ -1,0 +1,16 @@
+[
+  { "id": "ops.05.c1", "concept": "ops.serving", "front": "Batch versus online prediction", "back": "Batch precomputes and stores predictions (high throughput, stale, inputs known in advance). Online computes on request (fresh, any input, latency on the critical path)." },
+  { "id": "ops.05.c2", "concept": "ops.serving", "front": "Batch (static) versus streaming (dynamic) features", "back": "Static features change slowly and are computed in batch; dynamic features change fast and come from stream processing." },
+  { "id": "ops.05.c3", "concept": "ops.serving", "front": "Why two pipelines for training and serving are dangerous", "back": "They can drift apart and produce different features, a common source of silent production bugs." },
+  { "id": "ops.05.c4", "concept": "ops.serving", "front": "Deployment myth: performance stays the same if untouched", "back": "False: software rot and data distribution shift make models decay; ask how often you can update." },
+  { "id": "ops.05.c5", "concept": "ops.queueing", "front": "Lindley recursion", "back": "start = max(arrival, previous finish); finish = start + service; latency = finish - arrival." },
+  { "id": "ops.05.c6", "concept": "ops.queueing", "front": "M/M/1 mean latency", "back": "$W=1/(\\mu-\\lambda)$ for $\\lambda<\\mu$; utilisation $\\rho=\\lambda/\\mu$." },
+  { "id": "ops.05.c7", "concept": "ops.queueing", "front": "Why high utilisation is dangerous", "back": "Queueing delay grows as $1/(\\mu-\\lambda)$ and the tail (p99) is several times the mean." },
+  { "id": "ops.05.c8", "concept": "ops.queueing", "front": "Dynamic batching rule", "back": "Start a batch when it is full or when the oldest request has waited max_wait, but not before the server is free." },
+  { "id": "ops.05.c9", "concept": "ops.queueing", "front": "Capacity of a batched server", "back": "$B/(a+bB)$ requests per second for batch size $B$, fixed cost $a$ and per-item cost $b$." },
+  { "id": "ops.05.c10", "concept": "ops.compression", "front": "Quantisation", "back": "Represent weights with fewer bits (32 to 16 or 8): smaller, faster, but limited range and rounding error." },
+  { "id": "ops.05.c11", "concept": "ops.compression", "front": "Symmetric int8 quantisation", "back": "$q=\\mathrm{round}(w/s)$ with $s=\\max|w|/127$; error per weight at most $s/2$." },
+  { "id": "ops.05.c12", "concept": "ops.compression", "front": "Knowledge distillation", "back": "Train a small student model to mimic a large teacher; deploy the student." },
+  { "id": "ops.05.c13", "concept": "ops.compression", "front": "Pruning", "back": "Remove or zero the least useful parameters, giving a sparse network that stores in less space." },
+  { "id": "ops.05.c14", "concept": "ops.serving", "front": "Edge versus cloud trade-off", "back": "Edge: offline, no network latency, private, cheap for the provider; but weak hardware and harder operations. Cloud: easy and powerful but costly and network-bound." }
+]

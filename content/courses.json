@@ -1,0 +1,156 @@
+[
+  {
+    "id": "math",
+    "part": "math",
+    "title": "Mathematics for machine learning",
+    "summary": "The notation and the four tools every later algorithm uses: functions and logarithms, vectors, matrices as transformations, and derivatives all the way to gradients, Jacobians and the chain rule. No machine learning yet; every idea is built so that the ML part can use it.",
+    "stage": "I"
+  },
+  {
+    "id": "ml",
+    "part": "ml",
+    "title": "Machine learning: from gradient descent to a trained network",
+    "summary": "Uses the mathematics part: gradient descent, loss functions from maximum likelihood, layers, backpropagation derived with shapes, training and debugging a network from scratch, and proving it correct against PyTorch autograd.",
+    "stage": "II-IV"
+  },
+  {
+    "id": "classical-ml",
+    "part": "ml",
+    "title": "Classical machine learning",
+    "summary": "The models that came before deep learning and still win on tabular data, each derived from the maths part and implemented from scratch: linear and ridge regression, logistic regression, generalisation and cross-validation, k-means, and PCA.",
+    "stage": "III"
+  },
+  {
+    "id": "deep-learning",
+    "part": "ml",
+    "title": "Deep learning toolkit",
+    "summary": "Optimisers, regularisation, normalisation and working in PyTorch: everything between a from-scratch network and a model you can train on real data.",
+    "stage": "IV"
+  },
+  {
+    "id": "sequence-models",
+    "part": "ml",
+    "title": "Images and sequences: CNNs, RNNs, LSTMs, GRUs",
+    "summary": "Convolutions and CNNs for images, then recurrent networks, the vanishing gradient, LSTM and GRU gating and word embeddings, each derived and implemented in NumPy.",
+    "stage": "V"
+  },
+  {
+    "id": "transformers",
+    "part": "ml",
+    "title": "Attention and the transformer",
+    "summary": "Self-attention, multi-head attention, masking, positional encodings (including RoPE) and the full transformer block, built from scratch with every tensor shape.",
+    "stage": "V"
+  },
+  {
+    "id": "llms",
+    "part": "ml",
+    "title": "Building and training language models",
+    "summary": "Tokenisation, a decoder-only GPT, pre-training, fine-tuning with LoRA, and preference alignment, with the data side included.",
+    "stage": "VI"
+  },
+  {
+    "id": "llm-systems",
+    "part": "ml",
+    "title": "Inference, retrieval and research practice",
+    "summary": "Making models fast (KV cache, quantisation, speculative decoding), retrieval-augmented generation and evaluation, and how to read, reproduce and extend research.",
+    "stage": "VI-VII"
+  },
+  {
+    "id": "math-foundations",
+    "part": "math",
+    "title": "Mathematics foundations (start here)",
+    "summary": "Programming basics with Python and NumPy, then algebra, functions and graphs, exponentials and logarithms, trigonometry, sequences, series and limits: everything the mathematics course assumes, taught from zero.",
+    "stage": "I"
+  },
+  {
+    "id": "math-extras",
+    "part": "math",
+    "title": "Mathematics extras: complex numbers, Fourier, graphs, stochastic processes",
+    "summary": "Optional branches that unlock signal processing, graph models and sequence models: complex numbers, the Fourier transform, graph theory and Markov chains.",
+    "stage": "I-II"
+  },
+  {
+    "id": "vision",
+    "part": "ml",
+    "title": "Computer vision",
+    "summary": "From pixels and transfer learning to object detection, segmentation, vision transformers and contrastive image-text models.",
+    "stage": "V"
+  },
+  {
+    "id": "nlp",
+    "part": "ml",
+    "title": "Natural language processing",
+    "summary": "Text processing, bag-of-words and TF-IDF, classification, sequence labelling, topic models, translation, summarisation and question answering before and beyond transformers.",
+    "stage": "V"
+  },
+  {
+    "id": "generative",
+    "part": "ml",
+    "title": "Generative models",
+    "summary": "Autoencoders and VAEs, GANs, diffusion models, latent diffusion with conditioning, and flow matching, each derived and implemented in small form.",
+    "stage": "V"
+  },
+  {
+    "id": "rl",
+    "part": "ml",
+    "title": "Reinforcement learning",
+    "summary": "Markov decision processes, dynamic programming, Monte Carlo and temporal-difference learning, deep Q-networks, policy gradients, actor-critic and PPO.",
+    "stage": "V"
+  },
+  {
+    "id": "audio",
+    "part": "ml",
+    "title": "Speech and audio",
+    "summary": "Waveforms, spectrograms and MFCCs, audio classification, speech recognition with CTC and Whisper, and speech synthesis.",
+    "stage": "V"
+  },
+  {
+    "id": "advanced-architectures",
+    "part": "ml",
+    "title": "Modern architectures",
+    "summary": "Contrastive vision-language models, multimodal LLMs, mixture-of-experts and the design of recent open models, state-space and hybrid architectures, long-context attention variants.",
+    "stage": "VI"
+  },
+  {
+    "id": "safety",
+    "part": "ml",
+    "title": "Safety, alignment, fairness and privacy",
+    "summary": "Reward hacking and alignment failures, red-teaming and prompt injection, bias and fairness metrics, differential privacy, capability evaluations and governance.",
+    "stage": "VI-VII"
+  },
+  {
+    "id": "llm-apps",
+    "part": "ml",
+    "title": "LLM applications",
+    "summary": "Prompting and chain-of-thought, structured outputs and tool calling, context engineering, caching and cost, guardrails, and building a production application.",
+    "stage": "VI"
+  },
+  {
+    "id": "mlops",
+    "part": "ml",
+    "title": "ML systems and operations",
+    "summary": "Designing ML systems: data and training data, offline evaluation to deployment, monitoring and drift, continual learning and testing in production.",
+    "stage": "VI-VII"
+  },
+  {
+    "id": "reasoning-models",
+    "part": "ml",
+    "title": "Reasoning models",
+    "summary": "Inference-time scaling, evaluating reasoning, reinforcement learning for reasoning (GRPO), improving and distilling reasoning models.",
+    "stage": "VII"
+  },
+  {
+    "id": "gpu-performance",
+    "part": "ml",
+    "title": "GPUs, CUDA and performance engineering",
+    "summary": "How a GPU executes work, the CUDA programming model, the memory hierarchy and the roofline model, profiling, and mixed precision, so you can reason about why a model is slow and what to change.",
+    "stage": "VII"
+  },
+  {
+    "id": "research",
+    "part": "ml",
+    "title": "Research methods",
+    "summary": "Reproducing a published result end to end, and designing original experiments: hypotheses, power, baselines, ablations, seeds and honest reporting.",
+    "stage": "VII"
+  }
+]

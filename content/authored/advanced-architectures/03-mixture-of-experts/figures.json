@@ -1,0 +1,109 @@
+[
+  {
+    "id": "moe-layer",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A full MoE layer with shapes. The router (d, E) gives logits (N, E); top-k keeps (N, k) experts; gates are a softmax over the selected logits only. Shared experts process every token and are simply added. Total parameters scale with E + s, active ones with k + s.",
+      "fr": "Une couche MoE complète avec les formes. Le routeur (d, E) donne des logits (N, E) ; le top-k retient (N, k) experts ; les portes sont un softmax sur les seuls logits sélectionnés. Les experts partagés traitent chaque token et sont simplement ajoutés. Les paramètres totaux croissent avec E + s, les actifs avec k + s."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"tokens x<br/>(N, d)\"] --> R[\"router W_r (d, E)<br/>logits z (N, E)\"]\n  R --> TK[\"top-k indices S_t (N, k)\"]\n  TK --> GT[\"gates g = softmax of selected z<br/>(N, k), sum to 1\"]\n  X --> EX[\"k routed experts<br/>SwiGLU FFN, 3 matrices (d, d_ff)\"]\n  X --> SH[\"s shared experts<br/>every token\"]\n  TK -. dispatch .-> EX\n  EX --> CB((\"sum_e g_e Expert_e(x)\"))\n  GT --> CB\n  CB --> ADD((\"+\"))\n  SH --> ADD\n  ADD --> Y[\"y (N, d)\"]",
+      "fr": "flowchart LR\n  X[\"tokens x<br/>(N, d)\"] --> R[\"routeur W_r (d, E)<br/>logits z (N, E)\"]\n  R --> TK[\"indices top-k S_t (N, k)\"]\n  TK --> GT[\"portes g = softmax des z sélectionnés<br/>(N, k), somme 1\"]\n  X --> EX[\"k experts routés<br/>FFN SwiGLU, 3 matrices (d, d_ff)\"]\n  X --> SH[\"s experts partagés<br/>chaque token\"]\n  TK -. aiguillage .-> EX\n  EX --> CB((\"somme_e g_e Expert_e(x)\"))\n  GT --> CB\n  CB --> ADD((\"+\"))\n  SH --> ADD\n  ADD --> Y[\"y (N, d)\"]"
+    }
+  },
+  {
+    "id": "balance-loss",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The balance loss for two experts when f = P = (p, 1 - p): L/alpha = E * sum P_i^2 = 2 (p^2 + (1-p)^2). It is minimal (= 1) at the uniform split p = 1/2 and reaches E = 2 when everything collapses onto one expert, as derived with Cauchy-Schwarz.",
+      "fr": "La perte d'équilibrage pour deux experts quand f = P = (p, 1 - p) : L/alpha = E * somme P_i^2 = 2 (p^2 + (1-p)^2). Elle est minimale (= 1) au partage uniforme p = 1/2 et vaut E = 2 quand tout s'effondre sur un expert, comme le montre Cauchy-Schwarz."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        2.2
+      ],
+      "height": 300,
+      "title": "L_bal / alpha vs P of expert 1 (E = 2)",
+      "data": [
+        {
+          "fn": "2*(x^2+(1-x)^2)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.5,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "balanced value = 1"
+        }
+      ]
+    }
+  },
+  {
+    "id": "bias-balancing",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Auxiliary-loss-free balancing (DeepSeek-V3): a per-expert bias steers selection only, the gates keep using the raw logits, and after each step the bias moves against the load error. No extra loss term competes with language modelling.",
+      "fr": "Équilibrage sans perte auxiliaire (DeepSeek-V3) : un biais par expert oriente la sélection seulement, les portes gardent les logits bruts, et après chaque pas le biais est ajusté contre l'écart de charge. Aucun terme de perte supplémentaire ne concurrence la modélisation du langage."
+    },
+    "code": {
+      "en": "flowchart LR\n  Z[\"logits z (N, E)\"] --> SEL[\"select S_t = top-k of z + b\"]\n  B[\"bias b (E,)\"] --> SEL\n  Z --> GATE[\"gates = softmax of raw z over S_t\"]\n  SEL --> GATE\n  SEL --> CNT[\"token counts c_e per expert\"]\n  CNT --> UPD[\"b_e = b_e - gamma * sign(c_e - mean c)\"]\n  UPD --> B",
+      "fr": "flowchart LR\n  Z[\"logits z (N, E)\"] --> SEL[\"sélection S_t = top-k de z + b\"]\n  B[\"biais b (E,)\"] --> SEL\n  Z --> GATE[\"portes = softmax des z bruts sur S_t\"]\n  SEL --> GATE\n  SEL --> CNT[\"nombre de tokens c_e par expert\"]\n  CNT --> UPD[\"b_e = b_e - gamma * sign(c_e - moyenne c)\"]\n  UPD --> B"
+    }
+  },
+  {
+    "id": "expert-parallel",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Expert parallelism for one MoE layer on G GPUs: a first all-to-all sends each token to the GPUs holding its k chosen experts, experts compute locally, and a second all-to-all returns the outputs. Each token moves about 2 k d b bytes.",
+      "fr": "Parallélisme d'experts pour une couche MoE sur G GPU : un premier all-to-all envoie chaque token vers les GPU qui détiennent ses k experts, les experts calculent localement, et un second all-to-all renvoie les sorties. Chaque token déplace environ 2 k d b octets."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant G0 as GPU 0 (experts 0..E/G-1)\n  participant G1 as GPU 1 (experts E/G..2E/G-1)\n  Note over G0,G1: each GPU routes its own tokens\n  G0->>G0: router, top-k, group tokens by destination\n  G1->>G1: router, top-k, group tokens by destination\n  G0->>G1: all-to-all 1, token vectors (n, d) for experts on GPU 1\n  G1->>G0: all-to-all 1, token vectors (n, d) for experts on GPU 0\n  G0->>G0: local expert FFNs\n  G1->>G1: local expert FFNs\n  G1-->>G0: all-to-all 2, expert outputs (n, d)\n  G0-->>G1: all-to-all 2, expert outputs (n, d)\n  G0->>G0: weight by gates and sum\n  G1->>G1: weight by gates and sum",
+      "fr": "sequenceDiagram\n  participant G0 as GPU 0 (experts 0..E/G-1)\n  participant G1 as GPU 1 (experts E/G..2E/G-1)\n  Note over G0,G1: chaque GPU route ses propres tokens\n  G0->>G0: routeur, top-k, regroupe les tokens par destination\n  G1->>G1: routeur, top-k, regroupe les tokens par destination\n  G0->>G1: all-to-all 1, vecteurs (n, d) pour les experts du GPU 1\n  G1->>G0: all-to-all 1, vecteurs (n, d) pour les experts du GPU 0\n  G0->>G0: FFN des experts locaux\n  G1->>G1: FFN des experts locaux\n  G1-->>G0: all-to-all 2, sorties d'experts (n, d)\n  G0-->>G1: all-to-all 2, sorties d'experts (n, d)\n  G0->>G0: pondération par les portes et somme\n  G1->>G1: pondération par les portes et somme"
+    }
+  },
+  {
+    "id": "capacity-dropping",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The worked example with top-1 routing and capacity C = ceil(1.0 * 6 * 1 / 3) = 2. Expert 0 receives four tokens in order and keeps only the first two; tokens 2 and 5 are dropped and pass through the residual connection only. With a capacity factor of 1.25 (C = 3) only token 5 would drop.",
+      "fr": "L'exemple traité avec routage top-1 et capacité C = ceil(1.0 * 6 * 1 / 3) = 2. L'expert 0 reçoit quatre tokens dans l'ordre et ne garde que les deux premiers ; les tokens 2 et 5 sont abandonnés et ne passent que par la connexion résiduelle. Avec un facteur de capacité 1,25 (C = 3), seul le token 5 serait abandonné."
+    },
+    "code": {
+      "en": "flowchart LR\n  T0[\"token 0\"] --> E0[\"Expert 0, C = 2<br/>f = 4/6\"]\n  T1[\"token 1\"] --> E0\n  T2[\"token 2\"] -. over capacity .-> E0\n  T5[\"token 5\"] -. over capacity .-> E0\n  T3[\"token 3\"] --> E1[\"Expert 1, C = 2<br/>f = 1/6\"]\n  T4[\"token 4\"] --> E2[\"Expert 2, C = 2<br/>f = 1/6\"]\n  E0 --> OUT[\"layer output\"]\n  E1 --> OUT\n  E2 --> OUT\n  T2 -. dropped: residual only .-> RES[\"residual stream\"]\n  T5 -. dropped: residual only .-> RES",
+      "fr": "flowchart LR\n  T0[\"token 0\"] --> E0[\"Expert 0, C = 2<br/>f = 4/6\"]\n  T1[\"token 1\"] --> E0\n  T2[\"token 2\"] -. capacité dépassée .-> E0\n  T5[\"token 5\"] -. capacité dépassée .-> E0\n  T3[\"token 3\"] --> E1[\"Expert 1, C = 2<br/>f = 1/6\"]\n  T4[\"token 4\"] --> E2[\"Expert 2, C = 2<br/>f = 1/6\"]\n  E0 --> OUT[\"sortie de la couche\"]\n  E1 --> OUT\n  E2 --> OUT\n  T2 -. abandonné : résiduel seul .-> RES[\"flux résiduel\"]\n  T5 -. abandonné : résiduel seul .-> RES"
+    }
+  }
+]

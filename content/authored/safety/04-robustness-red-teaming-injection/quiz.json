@@ -1,0 +1,118 @@
+[
+ {
+  "id": "saf.04.q1",
+  "concept": "saf.prompt-injection",
+  "stage": "pre",
+  "prompt": "Why does a filter on the user's message not stop indirect prompt injection?",
+  "options": [
+   "Indirect injection only targets weights",
+   "Filters cannot read English",
+   "The hostile text arrives through retrieved or tool content, not through the user's input",
+   "Indirect injection needs the user's password"
+  ],
+  "answer": 2,
+  "explanation": "The attacker never touches the user; the payload is in content the application fetches."
+ },
+ {
+  "id": "saf.04.q2",
+  "concept": "saf.prompt-injection",
+  "prompt": "What is the guiding principle of information-flow control for agents?",
+  "options": [
+   "Label content by trust, propagate labels, and require ratification before side effects triggered by untrusted content",
+   "Detect and delete every injected instruction",
+   "Never let the model read external content",
+   "Rely on a larger model to ignore instructions in data"
+  ],
+  "answer": 0,
+  "explanation": "It aims at containment rather than perfect prevention."
+ },
+ {
+  "id": "saf.04.q3",
+  "concept": "saf.prompt-injection",
+  "prompt": "An agent can read private data, read untrusted web pages, and send email externally. What is the cheapest way to break the risky combination?",
+  "options": [
+   "Add more private data",
+   "Make the pages longer",
+   "Increase the context window",
+   "Remove one of the three capabilities"
+  ],
+  "answer": 3,
+  "explanation": "The risk needs all three legs; removing any one breaks the chain."
+ },
+ {
+  "id": "saf.04.q4",
+  "concept": "saf.red-teaming",
+  "prompt": "A defence gets 0 successes in 50 behaviours. The 95% Wilson upper bound is closest to...",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.071,
+   "tol": 0.003
+  },
+  "explanation": "For k=0 the upper bound is $z^2/(n+z^2)=3.84/53.84=0.0713$."
+ },
+ {
+  "id": "saf.04.q5",
+  "concept": "saf.red-teaming",
+  "prompt": "Which information MUST accompany an ASR figure to make it comparable?",
+  "options": [
+   "Only the model name",
+   "Only the number of GPUs",
+   "The behaviour set, attack, query budget and judge",
+   "Nothing: ASR is self-contained"
+  ],
+  "answer": 2,
+  "explanation": "ASR depends on all four; 90% at 200 queries is not comparable to 85% at 20."
+ },
+ {
+  "id": "saf.04.q6",
+  "concept": "saf.red-teaming",
+  "prompt": "Five attacks have individual success rates of 1, 10, 0, 7 and 6 percent over the same 100 behaviours; 24 behaviours are broken by at least one. What does an adaptive evaluator report?",
+  "options": [
+   "24%",
+   "10%",
+   "24 out of 5%",
+   "The mean, 4.8%"
+  ],
+  "answer": 0,
+  "explanation": "An attacker uses whichever attack works, so the union over attacks is the relevant number."
+ },
+ {
+  "id": "saf.04.q7",
+  "concept": "saf.red-teaming",
+  "prompt": "Number of trials needed for a 95% interval of half-width 0.05 around $p=0.5$ (normal approximation)?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 385,
+   "tol": 1
+  },
+  "explanation": "$1.96^2\\\\cdot0.25/0.05^2=384.2$, rounded up to 385."
+ },
+ {
+  "id": "saf.04.q8",
+  "concept": "saf.red-teaming",
+  "prompt": "Why is defending against many-shot jailbreaking awkward?",
+  "options": [
+   "It only works on small models",
+   "It needs the model weights",
+   "It cannot be measured",
+   "The mechanism is ordinary in-context learning, so blocking it would also block benign few-shot prompting"
+  ],
+  "answer": 3,
+  "explanation": "Practical defences classify the context and rewrite or truncate the offending portion."
+ },
+ {
+  "id": "saf.04.q9",
+  "concept": "saf.red-teaming",
+  "prompt": "A study finds published injection defences with near-zero ASR against fixed attacks are broken by adaptive attacks. What is the methodological lesson?",
+  "options": [
+   "Use only fixed attack lists",
+   "Report only the best single attack",
+   "Evaluate defences with attackers who know the defence",
+   "Avoid publishing defences"
+  ],
+  "answer": 2,
+  "explanation": "Static benchmarks do not show robustness against an adaptive adversary."
+ }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "ops.03.ex1",
+  "title": "Un vérificateur de décalage entraînement/serving",
+  "prompt": "Ton modèle a été entraîné sur des features produites par un pipeline hors ligne et est servi avec des features produites par un pipeline en ligne. Écris les contrôles qui détectent un désaccord entre les deux.\n\n- `fit_scaler(X)` -> `(mean, std)` par colonne de la matrice d'entraînement, en ignorant les NaN (`std` avec `ddof=0`).\n- `apply_scaler(X, mean, std)` -> `(X - mean) / std`.\n- `time_split(timestamps, test_frac)` -> `(train_idx, test_idx)` : les `1 - test_frac` premières lignes (par horodatage, `int(round(...))` lignes) vont à l'entraînement, le reste au test. Ce sont deux tableaux d'indices entiers ; chaque partie garde les lignes dans l'ordre du temps.\n- `skew_check(train, serve, names, mean_z=0.5, miss_tol=0.02, oor_tol=0.05)` -> dict `{feature_name: liste triée de chaînes de problèmes}` ; seules les features avec des problèmes apparaissent. Problèmes : `\"missing\"` si le taux de NaN diffère de plus de `miss_tol` ; `\"shift\"` si `|serve_mean - train_mean| / train_std > mean_z` (en ignorant les NaN) ; `\"range\"` si plus de `oor_tol` des valeurs de serving non NaN tombent hors de `[train_min, train_max]`.\n- `unseen_category_rate(train_cats, serve_cats)` -> part des valeurs de serving qui n'ont jamais apparu à l'entraînement.",
+  "hints": [
+    "Utilise np.isnan pour les valeurs manquantes et np.nanmean / np.nanstd / np.nanmin / np.nanmax pour les statistiques.",
+    "Standardise avec les statistiques d'ENTRAÎNEMENT uniquement : (x - train_mean) / train_std. Le décalage d'une feature est |serve_mean - train_mean| / train_std.",
+    "Pour time_split, trie par horodatage et coupe l'ordre trié à la position (1 - test_frac) ; les deux parties sont des tableaux d'indices dans les données d'origine."
+  ]
+}

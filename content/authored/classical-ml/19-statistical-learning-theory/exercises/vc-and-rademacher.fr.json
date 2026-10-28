@@ -1,0 +1,10 @@
+{
+ "id": "cml.19.ex2",
+ "title": "Dimension VC par force brute et complexité de Rademacher",
+ "prompt": "Pulvérisation, dimension VC par force brute et complexité de Rademacher.\n\n- `labelings_intervals(x)` : l'ensemble de tous les étiquetages 0/1 des points 1-D `x` qu'un intervalle `(a, b)` peut produire (un point à l'intérieur reçoit l'étiquette 1). Extrémités candidates : une sous le plus petit point, les milieux entre voisins, une au-dessus du plus grand.\n- `shatters_intervals(x)` : vrai si les `2^n` étiquetages sont tous produits.\n- `labelings_halfplanes(P, n_angles=720)` : l'ensemble des étiquetages des points `P` (forme `(n, 2)`) produits par les demi-plans `{p : w.p > t}` ; essaie 720 directions `w` et chaque seuil entre projections voisines.\n- `shatters_halfplanes(P)` : vrai si les `2^n` étiquetages sont tous produits.\n- `threshold_class(n)` : matrice de forme `(2n+2, n)` d'entrées `+-1` de toutes les règles `h(x_i) = +1 if i >= k else -1` et de leurs négations, `k = 0..n`, sur `n` points triés.\n- `rademacher(H, reps, seed)` : estimation Monte-Carlo de `E_sigma max_h (1/n) sum_i sigma_i h(x_i)` avec `reps` vecteurs de signes aléatoires `sigma` issus de `np.random.default_rng(seed).choice([-1, 1], size=(reps, n))`.\n- `massart(M, n)` : `sqrt(2 ln M / n)`, une borne supérieure sur la complexité de Rademacher de `M` hypothèses à valeurs dans `{-1, +1}`.",
+ "hints": [
+  "Pour les intervalles : pour chaque paire de coupures a <= b, étiquette le point x_i par 1 si a < x_i < b. Rassemble les tuples dans un ensemble.",
+  "Pour les demi-plans : pour chaque angle theta prends w = (cos, sin) ; trie les projections P @ w ; les seuils sont les milieux plus un en dessous et un au-dessus ; étiquette = (projection > t).",
+  "Rademacher : signs a pour forme (reps, n) ; (signs @ H.T) a pour forme (reps, |H|) ; prends le max sur les hypothèses, moyenne sur reps, divise par n."
+ ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "ops.02.ex2",
+  "title": "Fonctions d'étiquetage et supervision faible",
+  "prompt": "Une fonction d'étiquetage (LF) vote `1`, `0`, ou s'abstient (`-1`) sur chaque exemple. Étant donnée une matrice de votes `L` de forme `(n, m)` :\n\n- `lf_stats(L)` -> `(coverage, conflict)` : `coverage` est un tableau de longueur `m` (part des lignes où chaque LF ne s'abstient pas) ; `conflict` est la part des lignes qui contiennent à la fois un vote 0 et un vote 1.\n- `majority_vote(L)` -> tableau de longueur `n` : l'étiquette majoritaire parmi les votes qui ne sont pas des abstentions ; en cas d'égalité ou si toutes les LFs s'abstiennent, retourne `-1`.\n- `lf_accuracy(L, gold)` -> tableau de longueur `m` : précision de chaque LF sur les lignes où elle ne s'abstient pas, mesurée par rapport au petit vecteur étiqueté à la main `gold` (valeurs 0/1).\n- `weighted_vote(L, acc)` -> tableau de longueur `n` de valeurs 0/1 : chaque LF qui ne s'abstient pas ajoute `+w` pour un vote 1 et `-w` pour un vote 0 avec `w = log(acc / (1 - acc))` ; prédis 1 quand la somme est strictement positive, sinon 0.",
+  "hints": [
+    "Les votes vivent dans une matrice L de forme (n, m) avec les valeurs 1, 0 et -1 (-1 = abstention). La couverture de la fonction j est la part des lignes où L[:, j] != -1.",
+    "Une ligne est en conflit si elle contient à la fois un vote 0 et un vote 1.",
+    "Vote pondéré : chaque fonction qui ne s'abstient pas contribue +w (vote 1) ou -w (vote 0) avec w = log(acc / (1 - acc)) ; prédis 1 si le total est > 0, sinon 0."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "cml.11.ex2",
+  "title": "Une démonstration de fuite, poids de classes et déplacement du seuil",
+  "prompt": "Des étiquettes qui sont de purs tirages à pile ou face ne peuvent pas être prédites. Pourtant un pipeline qui regarde les lignes de test en choisissant les variables semblera les prédire.\n\nImplémente :\n\n- `select_top_k(X, y, k)` -> indices des `k` colonnes de plus grande corrélation absolue avec `y`.\n- `centroid_fit(X, y)` -> matrice `(2, d)` des moyennes de classes ; `centroid_predict(means, X)` -> étiquettes de la moyenne la plus proche.\n- `experiment(seed, leak, n=40, d=500, k=10)` : tire `X` ~ N(0,1) de forme `(n, d)`, des étiquettes équilibrées mélangées, un découpage aléatoire moitié/moitié entraînement/test (utilise `rng = np.random.default_rng(seed)` et tire dans cet ordre : X, puis les étiquettes (`np.r_[zeros, ones]` mélangé sur place), puis `rng.permutation(n)`). Si `leak`, sélectionne les variables sur toutes les lignes, sinon seulement sur les lignes d'entraînement. Ajuste le classifieur à centroïdes sur les lignes d'entraînement et renvoie la précision de test.\n- `class_weights(y)` -> `{0: w0, 1: w1}` avec $w_c = N/(2\\,n_c)$.\n- `oversample(X, y, seed)` -> jeu d'entraînement où les lignes minoritaires sont dupliquées (tirages aléatoires avec remise parmi les lignes minoritaires) jusqu'à équilibrer les classes. À appliquer uniquement au découpage d'entraînement.\n- `best_f1_threshold(y, p)` -> `(threshold, f1)` maximisant le F1 sur les valeurs prédites distinctes, en prédisant positif quand `p >= threshold`.",
+  "hints": [
+    "select_top_k : corrélation de Pearson absolue de chaque colonne avec y ; np.argsort(-corr, kind='stable')[:k]. Centre d'abord X et y.",
+    "Pipeline avec fuite : choisis les variables avec TOUTES les lignes, puis découpe. Pipeline honnête : découpe d'abord, choisis les variables en utilisant uniquement les lignes d'entraînement. Dans les deux cas, évalue sur les lignes de test.",
+    "best_f1_threshold : pour chaque valeur distincte t de p (prédis positif quand p >= t) calcule le F1 et garde le meilleur ; en cas d'égalité garde le plus grand seuil."
+  ]
+}

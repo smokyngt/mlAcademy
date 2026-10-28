@@ -1,0 +1,18 @@
+[
+ {"id": "sys.03.c1", "front": "Pourquoi le RAG plutôt que le fine-tuning sur des documents ?", "back": "Moins cher, mis à jour en quelques minutes, montre quelle source a été utilisée, modèle inchangé. Le fine-tuning devient périmé et n'offre aucune attribution."},
+ {"id": "sys.03.c2", "front": "Étapes du pipeline RAG", "back": "Hors ligne : nettoyer, découper, calculer les embeddings, indexer. En ligne : calculer l'embedding de la question, récupérer le top-k, (reclasser), construire le prompt avec les passages, générer."},
+ {"id": "sys.03.c3", "front": "Similarité cosinus", "back": "$\\cos(a,b)=a^\\top b/(\\lVert a\\rVert\\lVert b\\rVert)$ : compare la direction, ignore la longueur."},
+ {"id": "sys.03.c4", "front": "Vecteurs unitaires : classement cosinus = produit scalaire = L2", "back": "Pour $\\lVert a\\rVert=\\lVert b\\rVert=1$ : $\\lVert a-b\\rVert^2=2-2a^\\top b$, donc les trois ordonnent les documents de façon identique."},
+ {"id": "sys.03.c5", "front": "TF-IDF", "back": "Comptage du terme fois fréquence inverse de document $\\ln\\frac{1+N}{1+df}+1$, puis normalisation L2 : les mots rares pèsent plus."},
+ {"id": "sys.03.c6", "front": "BM25 en mots", "back": "Score de type TF-IDF avec fréquence de terme saturante ($k_1$) et normalisation de longueur du document ($b$). Valeurs par défaut $k_1=1.2$, $b=0.75$."},
+ {"id": "sys.03.c7", "front": "BM25 contre recherche dense", "back": "BM25 : tokens exacts, excellent pour les codes et les noms, aveugle aux synonymes. Dense : fait correspondre le sens, peut brouiller les chaînes exactes."},
+ {"id": "sys.03.c8", "front": "Fusion de rangs réciproques", "back": "$\\text{RRF}(d)=\\sum_R 1/(k+\\text{rank}_R(d))$, $k\\approx60$. N'utilise que les rangs, donc aucune calibration de scores n'est nécessaire."},
+ {"id": "sys.03.c9", "front": "Pourquoi la constante k dans RRF ?", "back": "Elle aplatit le haut de la courbe pour qu'une seule première place ne l'emporte pas sur l'accord entre plusieurs listes."},
+ {"id": "sys.03.c10", "front": "Bi-encodeur contre cross-encodeur", "back": "Bi-encodeur : embeddings séparés, précalculables, rapide. Cross-encodeur : lit requête et document conjointement, plus précis, un appel par candidat."},
+ {"id": "sys.03.c11", "front": "Récupérer puis reclasser", "back": "Un récupérateur peu coûteux renvoie ~100 candidats, un reclasseur coûteux les rescore et en garde ~10."},
+ {"id": "sys.03.c12", "front": "Compromis sur la taille des chunks", "back": "Les petits chunks perdent le contexte ; les grands brouillent l'embedding et gaspillent le budget de prompt. Le recouvrement protège les phrases coupées aux frontières."},
+ {"id": "sys.03.c13", "front": "Index IVF", "back": "Regrouper les vecteurs avec k-means ; au moment de la requête, ne parcourir que les nprobe clusters les plus proches de la requête. Plus de nprobe = rappel plus élevé, plus lent."},
+ {"id": "sys.03.c14", "front": "Index HNSW", "back": "Graphe de proximité en couches : couches hautes clairsemées pour les longs sauts, couche basse dense pour la recherche fine ; la descente gloutonne donne des voisins approximatifs en ~log n."},
+ {"id": "sys.03.c15", "front": "Pourquoi la requête et les chunks doivent-ils utiliser le même embedder ?", "back": "Les vecteurs de modèles différents vivent dans des espaces différents ; les similarités entre eux n'ont aucun sens."},
+ {"id": "sys.03.c16", "front": "Recall@k d'un index ANN", "back": "Fraction des vrais (exacts) k plus proches voisins que la recherche approximative renvoie. Mesure-le face à la force brute."}
+]

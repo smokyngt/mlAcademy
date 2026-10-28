@@ -1,0 +1,92 @@
+[
+ {
+  "id": "vis.01.c1",
+  "concept": "vis.image-tensor",
+  "front": "Pixel",
+  "back": "One sample of light intensity per channel at a grid location; not an area."
+ },
+ {
+  "id": "vis.01.c2",
+  "concept": "vis.image-tensor",
+  "front": "HWC vs CHW",
+  "back": "HWC $(H,W,C)$: files, PIL, OpenCV. CHW $(C,H,W)$: PyTorch. Convert with transpose(2,0,1)."
+ },
+ {
+  "id": "vis.01.c3",
+  "concept": "vis.image-tensor",
+  "front": "Three numeric conventions",
+  "back": "uint8 0..255 (files), float 0..1 (divide by 255), standardised (subtract channel mean, divide by channel std)."
+ },
+ {
+  "id": "vis.01.c4",
+  "concept": "vis.image-tensor",
+  "front": "Standardisation formula",
+  "back": "$x'_c=(x_c/255-\\mu_c)/\\sigma_c$ per channel; ImageNet: $\\mu=(0.485,0.456,0.406)$, $\\sigma=(0.229,0.224,0.225)$."
+ },
+ {
+  "id": "vis.01.c5",
+  "concept": "vis.image-tensor",
+  "front": "Why standardise before transposing?",
+  "back": "Mean and std have shape (3,) and broadcast over the LAST axis in HWC."
+ },
+ {
+  "id": "vis.01.c6",
+  "concept": "vis.image-tensor",
+  "front": "Grayscale formula",
+  "back": "$Y=0.299R+0.587G+0.114B$ (eye is most sensitive to green)."
+ },
+ {
+  "id": "vis.01.c7",
+  "concept": "vis.image-tensor",
+  "front": "When to use HSV / YCbCr?",
+  "back": "HSV: separate hue from brightness for colour thresholding. YCbCr: brightness vs colour differences, used by JPEG and video."
+ },
+ {
+  "id": "vis.01.c8",
+  "concept": "vis.image-tensor",
+  "front": "Interpolation choices",
+  "back": "Nearest: labels/masks. Bilinear: default for training. Bicubic/Lanczos: sharper, for viewing."
+ },
+ {
+  "id": "vis.01.c9",
+  "concept": "vis.image-tensor",
+  "front": "Valid filter output size",
+  "back": "$(H-k_h+1)\\times(W-k_w+1)$; padding keeps $H\\times W$."
+ },
+ {
+  "id": "vis.01.c10",
+  "concept": "vis.filter",
+  "front": "Filtering formula",
+  "back": "$O[i,j]=\\sum_{u,v}K[u,v]\\,I[i+u,j+v]$, a sliding dot product (cross-correlation)."
+ },
+ {
+  "id": "vis.01.c11",
+  "concept": "vis.filter",
+  "front": "Sobel-x kernel and meaning",
+  "back": "$[[-1,0,1],[-2,0,2],[-1,0,1]]$: right minus left, middle row doubled; responds to vertical edges. $G=\\sqrt{G_x^2+G_y^2}$."
+ },
+ {
+  "id": "vis.01.c12",
+  "concept": "vis.filter",
+  "front": "Box blur kernel",
+  "back": "$\\frac19\\mathbf 1_{3\\times3}$: local mean; reduces noise, softens edges."
+ },
+ {
+  "id": "vis.01.c13",
+  "concept": "vis.filter",
+  "front": "Image histogram",
+  "back": "Counts of pixels per brightness bin; ignores location; reveals under-exposure or clipping."
+ },
+ {
+  "id": "vis.01.c14",
+  "concept": "vis.filter",
+  "front": "Rule for augmentation",
+  "back": "Must preserve the label; apply to training images only. Examples: flip, reflect-padded crop, colour jitter, mixup."
+ },
+ {
+  "id": "vis.01.c15",
+  "concept": "vis.image-tensor",
+  "front": "Classic preprocessing bug list",
+  "back": "uint8 into a float model, BGR vs RGB, wrong layout, missing or wrong mean/std, different resize than training."
+ }
+]

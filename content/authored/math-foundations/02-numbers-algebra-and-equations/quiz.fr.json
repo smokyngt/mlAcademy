@@ -1,0 +1,91 @@
+[
+ {
+  "id": "mf.02.q1",
+  "prompt": "Que vaut $2 + 3 \\times 4^2$ ?",
+  "options": [
+   "80",
+   "50",
+   "32",
+   "26"
+  ],
+  "explanation": "Les puissances d'abord : $4^2=16$ ; puis la multiplication : $3\\times16=48$ ; puis $2+48=50$."
+ },
+ {
+  "id": "mf.02.q2",
+  "prompt": "Résous $3x + 5 = 20$.",
+  "options": [],
+  "explanation": "Soustrais 5 : $3x=15$. Divise par 3 : $x=5$."
+ },
+ {
+  "id": "mf.02.q3",
+  "prompt": "Résous $-2x + 3 < 9$.",
+  "options": [
+   "$x<-3$",
+   "$x>-3$",
+   "$x>3$",
+   "$x<3$"
+  ],
+  "explanation": "$-2x<6$ ; diviser par un nombre NÉGATIF retourne l'inéquation : $x>-3$."
+ },
+ {
+  "id": "mf.02.q4",
+  "prompt": "Un prix de 100 augmente de 20 %, puis baisse de 20 %. Le prix final est...",
+  "options": [],
+  "explanation": "$100\\times1.2=120$, puis $120\\times0.8=96$. Les pourcentages s'appliquent à des bases différentes."
+ },
+ {
+  "id": "mf.02.q5",
+  "prompt": "Que vaut $\\frac12+\\frac13$ ?",
+  "options": [
+   "$\\frac25$",
+   "$\\frac16$",
+   "$\\frac56$",
+   "$\\frac23$"
+  ],
+  "explanation": "Dénominateur commun 6 : $\\frac36+\\frac26=\\frac56$. N'additionne jamais séparément les numérateurs et les dénominateurs."
+ },
+ {
+  "id": "mf.02.q6",
+  "prompt": "Le système $x+y=10$, $x-y=2$ a pour solution...",
+  "options": [
+   "$(4,6)$",
+   "$(6,4)$",
+   "$(5,5)$",
+   "$(8,2)$"
+  ],
+  "explanation": "En additionnant les équations : $2x=12$, donc $x=6$ ; puis $y=4$. Vérification : $6+4=10$, $6-4=2$."
+ },
+ {
+  "id": "mf.02.q7",
+  "prompt": "Que vaut $\\sqrt{49}+2^{-1}$ ?",
+  "options": [
+   "7.5",
+   "6.5",
+   "7.2",
+   "9"
+  ],
+  "explanation": "$2^{-1}=\\frac12$, donc $7+0.5=7.5$."
+ },
+ {
+  "id": "mf.02.q8",
+  "prompt": "Que dit $x\\in\\mathbb{R}$ ?",
+  "options": [
+   "$x$ est un nombre entier",
+   "$x$ est un nombre réel",
+   "$x$ est positif",
+   "$x$ est égal à $\\mathbb R$"
+  ],
+  "explanation": "$\\in$ se lit « est un élément de » ; $\\mathbb R$ est l'ensemble des nombres réels (la droite numérique)."
+ },
+ {
+  "id": "mf.02.q9",
+  "prompt": "Combien de solutions a $2x+4=2x+7$ ?",
+  "options": [
+   "exactement une",
+   "aucune",
+   "une infinité",
+   "deux"
+  ],
+  "explanation": "Soustraire $2x$ donne $4=7$, ce qui est faux pour tout $x$ : aucune solution."
+ }
+]

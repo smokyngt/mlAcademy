@@ -1,0 +1,67 @@
+[
+ {
+  "id": "mf.05.c1",
+  "front": "Radian",
+  "back": "Angle mesuré par la longueur d'arc sur le cercle unité : $2\\pi$ rad $=360^\\circ$, donc $x^\\circ=x\\pi/180$ rad."
+ },
+ {
+  "id": "mf.05.c2",
+  "front": "Cercle unité",
+  "back": "Cercle de rayon 1 centré à l'origine. Le point d'angle $\\theta$ est $(\\cos\\theta,\\sin\\theta)$."
+ },
+ {
+  "id": "mf.05.c3",
+  "front": "Définitions par le triangle rectangle",
+  "back": "$\\sin=\\frac{\\text{opposite}}{\\text{hypotenuse}}$, $\\cos=\\frac{\\text{adjacent}}{\\text{hypotenuse}}$, $\\tan=\\frac{\\text{opposite}}{\\text{adjacent}}$."
+ },
+ {
+  "id": "mf.05.c4",
+  "front": "Identité de Pythagore",
+  "back": "$\\sin^2\\theta+\\cos^2\\theta=1$."
+ },
+ {
+  "id": "mf.05.c5",
+  "front": "Valeurs clés",
+  "back": "$\\sin0=0$, $\\sin\\frac\\pi6=\\frac12$, $\\sin\\frac\\pi4=\\frac{\\sqrt2}2$, $\\sin\\frac\\pi3=\\frac{\\sqrt3}2$, $\\sin\\frac\\pi2=1$ ; le cosinus est la même liste à l'envers."
+ },
+ {
+  "id": "mf.05.c6",
+  "front": "Tangente",
+  "back": "$\\tan\\theta=\\sin\\theta/\\cos\\theta$ ; non définie en $\\pi/2+k\\pi$."
+ },
+ {
+  "id": "mf.05.c7",
+  "front": "Symétrie",
+  "back": "$\\sin(-\\theta)=-\\sin\\theta$ (impaire), $\\cos(-\\theta)=\\cos\\theta$ (paire)."
+ },
+ {
+  "id": "mf.05.c8",
+  "front": "Périodicité",
+  "back": "$\\sin(\\theta+2\\pi)=\\sin\\theta$, idem pour $\\cos$. $A\\sin(2\\pi ft+\\varphi)$ a pour période $1/f$."
+ },
+ {
+  "id": "mf.05.c9",
+  "front": "Amplitude, fréquence, phase",
+  "back": "$A\\sin(2\\pi ft+\\varphi)$ : hauteur $A$, cycles par unité de temps $f$, décalage horizontal $\\varphi$."
+ },
+ {
+  "id": "mf.05.c10",
+  "front": "Addition d'angles",
+  "back": "$\\sin(a+b)=\\sin a\\cos b+\\cos a\\sin b$ ; $\\cos(a+b)=\\cos a\\cos b-\\sin a\\sin b$."
+ },
+ {
+  "id": "mf.05.c11",
+  "front": "Matrice de rotation",
+  "back": "$R(\\theta)=\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$ tourne un point de $\\theta$ dans le sens inverse des aiguilles d'une montre et conserve les longueurs."
+ },
+ {
+  "id": "mf.05.c12",
+  "front": "Coordonnées polaires",
+  "back": "$(x,y)=(r\\cos\\theta,r\\sin\\theta)$ ; $r=\\sqrt{x^2+y^2}$, $\\theta=\\text{atan2}(y,x)$."
+ },
+ {
+  "id": "mf.05.c13",
+  "front": "Pourquoi le ML s'y intéresse",
+  "back": "Rotations (augmentation de données, rotary position embeddings), encodages positionnels sinusoïdaux, et la vision de Fourier de l'audio et des signaux."
+ }
+]

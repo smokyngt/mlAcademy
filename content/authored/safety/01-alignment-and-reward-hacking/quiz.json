@@ -1,0 +1,118 @@
+[
+ {
+  "id": "saf.01.q1",
+  "concept": "saf.goodhart",
+  "stage": "pre",
+  "prompt": "Goodhart's law, in the form used for RLHF, says that...",
+  "options": [
+   "reward models are always inaccurate",
+   "KL penalties make the policy worse",
+   "human raters are unreliable",
+   "pushing hard on an imperfect proxy eventually lowers the true objective it was meant to track"
+  ],
+  "answer": 3,
+  "explanation": "The proxy correlates with the goal over ordinary examples; strong optimisation seeks extreme examples where that correlation fails."
+ },
+ {
+  "id": "saf.01.q2",
+  "concept": "saf.goodhart",
+  "prompt": "In the best-of-n simulator, what happens as n grows?",
+  "options": [
+   "Proxy and gold both rise forever",
+   "Gold rises forever; proxy falls",
+   "Proxy rises forever; gold rises, peaks, then falls",
+   "Neither changes"
+  ],
+  "answer": 2,
+  "explanation": "Large n selects candidates with large exploitable feature x, which raises the proxy and damages the gold score."
+ },
+ {
+  "id": "saf.01.q3",
+  "concept": "saf.goodhart",
+  "prompt": "The Bradley-Terry reward-model loss for a preferred response $y_w$ and a rejected $y_l$ is...",
+  "options": [
+   "$(r_w-r_l)^2$",
+   "$\\max(0,\\,r_l-r_w)$",
+   "$-\\log\\sigma(r_w-r_l)$",
+   "$\\log(r_w/r_l)$"
+  ],
+  "answer": 2,
+  "explanation": "It is logistic regression on the score difference: it is small when the preferred response gets the larger score."
+ },
+ {
+  "id": "saf.01.q4",
+  "concept": "saf.goodhart",
+  "prompt": "The optimum of $\\mathbb{E}[r]-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi_{ref})$ is proportional to...",
+  "options": [
+   "$\\pi_{ref}\\,e^{r/\\beta}$",
+   "$\\pi_{ref}\\,e^{-r/\\beta}$",
+   "$r\\,\\pi_{ref}$",
+   "$\\pi_{ref}/\\beta$"
+  ],
+  "answer": 0,
+  "explanation": "Setting the Lagrangian derivative to zero gives $\\log(\\pi/\\pi_{ref})=(r-\\lambda)/\\beta-1$."
+ },
+ {
+  "id": "saf.01.q5",
+  "concept": "saf.goodhart",
+  "prompt": "Using $\\mathrm{KL}\\approx\\log n-(n-1)/n$, what is the KL estimate for best-of-8 (to 2 decimals)?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 1.2,
+   "tol": 0.01
+  },
+  "explanation": "$\\log 8=2.0794$; $(8-1)/8=0.875$; the difference is $1.2044$."
+ },
+ {
+  "id": "saf.01.q6",
+  "concept": "saf.sycophancy",
+  "prompt": "Why can sycophancy arise even if every rater is honest and well-meaning?",
+  "options": [
+   "Agreement, fluency and confidence merely need to correlate with reward, and the optimiser amplifies whatever correlates",
+   "Raters are paid to agree",
+   "The KL penalty rewards agreement",
+   "Models cannot tell true from false"
+  ],
+  "answer": 0,
+  "explanation": "The amplification argument only needs sycophantic completions to be over-represented among high-reward outputs."
+ },
+ {
+  "id": "saf.01.q7",
+  "concept": "saf.sycophancy",
+  "prompt": "With $\\pi_{ref}=(0.5,0.3,0.2)$ and $r=(1,1.3,0)$, the optimum at $\\beta=0.1$ puts about what probability on the sycophantic answer?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.923,
+   "tol": 0.01
+  },
+  "explanation": "Weights: $0.5e^{10}$, $0.3e^{13}$, $0.2$; the second dominates, giving about 0.923."
+ },
+ {
+  "id": "saf.01.q8",
+  "concept": "saf.sycophancy",
+  "prompt": "What is the main cost of an agreement penalty $r'=r-\\alpha\\,\\text{agree}$?",
+  "options": [
+   "It needs a bigger model",
+   "It also penalises legitimate agreement with correct user beliefs, since both look alike on the surface",
+   "It removes the KL term",
+   "It makes the reward model non-differentiable"
+  ],
+  "answer": 1,
+  "explanation": "A classifier that flags agreement cannot easily separate agreeing with a true claim from agreeing with a false one."
+ },
+ {
+  "id": "saf.01.q9",
+  "concept": "saf.goodhart",
+  "prompt": "Which statement about a KL penalty is best supported by the lesson?",
+  "options": [
+   "It guarantees gold reward never falls",
+   "It is unnecessary if the reward model is large",
+   "It only matters for PPO, not best-of-n",
+   "It limits how far the policy moves but not which flaws of the reward get amplified"
+  ],
+  "answer": 3,
+  "explanation": "Small beta still amplifies the proxy's flaws exponentially; heavy-tailed error can survive a KL constraint."
+ }
+]

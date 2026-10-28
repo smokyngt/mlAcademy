@@ -1,0 +1,676 @@
+[
+  {
+    "id": "optimiser-family",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "How the optimisers relate: each one adds an idea to plain SGD. Momentum adds memory of past directions, RMSProp adds per-parameter scaling, Adam combines both, AdamW fixes how weight decay is applied.",
+      "fr": "Comment les optimiseurs se relient : chacun ajoute une idée au SGD simple. Le momentum ajoute la mémoire des directions passées, RMSProp un échelonnage par paramètre, Adam combine les deux, AdamW corrige l'application du weight decay."
+    },
+    "code": {
+      "en": "flowchart TD\n  SGD[\"SGD: theta - eta g\"] -->|\"+ velocity\"| Mo[\"Momentum\"]\n  Mo -->|\"+ lookahead gradient\"| Ne[\"Nesterov\"]\n  SGD -->|\"+ divide by sqrt of mean g^2\"| Rm[\"RMSProp\"]\n  Mo --> Ad[\"Adam: momentum + RMS scaling + bias correction\"]\n  Rm --> Ad\n  Ad -->|\"+ decoupled weight decay\"| Aw[\"AdamW\"]\n  Sch[\"Schedule: warmup then cosine decay\"] -.->|\"changes eta over time\"| Ad",
+      "fr": "flowchart TD\n  SGD[\"SGD : theta - eta g\"] -->|\"+ vitesse\"| Mo[\"Momentum\"]\n  Mo -->|\"+ gradient anticipé\"| Ne[\"Nesterov\"]\n  SGD -->|\"+ division par la racine de la moyenne de g^2\"| Rm[\"RMSProp\"]\n  Mo --> Ad[\"Adam : momentum + échelle RMS + correction de biais\"]\n  Rm --> Ad\n  Ad -->|\"+ weight decay découplé\"| Aw[\"AdamW\"]\n  Sch[\"Planning : warmup puis décroissance cosinus\"] -.->|\"fait varier eta dans le temps\"| Ad"
+    }
+  },
+  {
+    "id": "adam-flow",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One Adam step: two running averages (of g and g²), each divided by its bias-correction factor, then a per-coordinate scaled step. All state tensors have the shape of the parameter.",
+      "fr": "Un pas d'Adam : deux moyennes mobiles (de g et de g²), chacune divisée par son facteur de correction de biais, puis un pas mis à l'échelle coordonnée par coordonnée. Tous les tenseurs d'état ont la forme du paramètre."
+    },
+    "code": {
+      "en": "flowchart LR\n  g[\"gradient g_t\"] --> m1[\"m_t = b1 m + (1-b1) g\"]\n  g --> v1[\"v_t = b2 v + (1-b2) g^2\"]\n  m1 -->|\"divide by 1 - b1^t\"| mh[\"m-hat\"]\n  v1 -->|\"divide by 1 - b2^t\"| vh[\"v-hat\"]\n  mh --> st[\"step = eta * m-hat / (sqrt v-hat + eps)\"]\n  vh --> st\n  st --> th[\"theta = theta - step - eta*lambda*theta\"]",
+      "fr": "flowchart LR\n  g[\"gradient g_t\"] --> m1[\"m_t = b1 m + (1-b1) g\"]\n  g --> v1[\"v_t = b2 v + (1-b2) g^2\"]\n  m1 -->|\"diviser par 1 - b1^t\"| mh[\"m-chapeau\"]\n  v1 -->|\"diviser par 1 - b2^t\"| vh[\"v-chapeau\"]\n  mh --> st[\"pas = eta * m-chapeau / (sqrt v-chapeau + eps)\"]\n  vh --> st\n  st --> th[\"theta = theta - pas - eta*lambda*theta\"]"
+    }
+  },
+  {
+    "id": "bias-correction",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why Adam divides by 1 - beta^t: the zero-initialised average underestimates by exactly this factor. For beta1 = 0.9 (blue) it is gone after about 30 steps; for beta2 = 0.999 (orange) it is still only 0.05 at t = 50 and takes thousands of steps to disappear.",
+      "fr": "Pourquoi Adam divise par 1 - beta^t : la moyenne initialisée à zéro sous-estime exactement de ce facteur. Pour beta1 = 0,9 (bleu) il disparaît en une trentaine de pas ; pour beta2 = 0,999 (orange) il vaut encore 0,05 à t = 50 et met des milliers de pas à disparaître."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        300
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 300,
+      "title": "1 - beta^t",
+      "data": [
+        {
+          "fn": "1 - 0.9^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1 - 0.999^x",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "quadratic-valley",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The worked ill-conditioned quadratic (kappa = 100, valley rotated by 30 degrees), first 60 steps from (-3,-1). SGD (blue, eta = 0.015) zig-zags across the valley and crawls; heavy-ball momentum (orange, eta = 0.03, mu = 0.9) travels along it far faster. Grey: level curves at gaps 0.5, 2, 6, 15 above the minimum; the dot is the minimum.",
+      "fr": "La quadratique mal conditionnée de l'exemple (kappa = 100, vallée tournée de 30 degrés), 60 premiers pas depuis (-3,-1). SGD (bleu, eta = 0,015) zigzague en travers de la vallée et rampe ; le momentum (orange, eta = 0,03, mu = 0,9) la parcourt bien plus vite. Gris : courbes de niveau à 0,5, 2, 6, 15 au-dessus du minimum ; le point est le minimum."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        3
+      ],
+      "yDomain": [
+        -2.5,
+        2.5
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "0.5*(25.7500*x*x + 2*(-42.8683)*x*y + 75.2500*y*y) - x - y - (-0.4337)",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "0.5*(25.7500*x*x + 2*(-42.8683)*x*y + 75.2500*y*y) - x - y - (1.0663)",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "0.5*(25.7500*x*x + 2*(-42.8683)*x*y + 75.2500*y*y) - x - y - (5.0663)",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "0.5*(25.7500*x*x + 2*(-42.8683)*x*y + 75.2500*y*y) - x - y - (14.0663)",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              -3,
+              -1
+            ],
+            [
+              -2.469,
+              -1.785
+            ],
+            [
+              -2.649,
+              -1.343
+            ],
+            [
+              -2.474,
+              -1.515
+            ],
+            [
+              -2.478,
+              -1.381
+            ],
+            [
+              -2.394,
+              -1.4
+            ],
+            [
+              -2.355,
+              -1.344
+            ],
+            [
+              -2.294,
+              -1.326
+            ],
+            [
+              -2.246,
+              -1.29
+            ],
+            [
+              -2.193,
+              -1.263
+            ],
+            [
+              -2.143,
+              -1.232
+            ],
+            [
+              -2.093,
+              -1.204
+            ],
+            [
+              -2.044,
+              -1.176
+            ],
+            [
+              -1.995,
+              -1.148
+            ],
+            [
+              -1.948,
+              -1.12
+            ],
+            [
+              -1.901,
+              -1.093
+            ],
+            [
+              -1.854,
+              -1.066
+            ],
+            [
+              -1.809,
+              -1.04
+            ],
+            [
+              -1.764,
+              -1.014
+            ],
+            [
+              -1.72,
+              -0.989
+            ],
+            [
+              -1.676,
+              -0.964
+            ],
+            [
+              -1.633,
+              -0.939
+            ],
+            [
+              -1.591,
+              -0.914
+            ],
+            [
+              -1.55,
+              -0.89
+            ],
+            [
+              -1.509,
+              -0.867
+            ],
+            [
+              -1.468,
+              -0.844
+            ],
+            [
+              -1.429,
+              -0.821
+            ],
+            [
+              -1.389,
+              -0.798
+            ],
+            [
+              -1.351,
+              -0.776
+            ],
+            [
+              -1.313,
+              -0.754
+            ],
+            [
+              -1.276,
+              -0.732
+            ],
+            [
+              -1.239,
+              -0.711
+            ],
+            [
+              -1.202,
+              -0.69
+            ],
+            [
+              -1.167,
+              -0.669
+            ],
+            [
+              -1.131,
+              -0.649
+            ],
+            [
+              -1.097,
+              -0.629
+            ],
+            [
+              -1.063,
+              -0.609
+            ],
+            [
+              -1.029,
+              -0.59
+            ],
+            [
+              -0.996,
+              -0.571
+            ],
+            [
+              -0.963,
+              -0.552
+            ],
+            [
+              -0.931,
+              -0.533
+            ],
+            [
+              -0.899,
+              -0.515
+            ],
+            [
+              -0.868,
+              -0.497
+            ],
+            [
+              -0.837,
+              -0.479
+            ],
+            [
+              -0.807,
+              -0.462
+            ],
+            [
+              -0.777,
+              -0.444
+            ],
+            [
+              -0.748,
+              -0.428
+            ],
+            [
+              -0.719,
+              -0.411
+            ],
+            [
+              -0.69,
+              -0.394
+            ],
+            [
+              -0.662,
+              -0.378
+            ],
+            [
+              -0.635,
+              -0.362
+            ],
+            [
+              -0.607,
+              -0.346
+            ],
+            [
+              -0.581,
+              -0.331
+            ],
+            [
+              -0.554,
+              -0.316
+            ],
+            [
+              -0.528,
+              -0.301
+            ],
+            [
+              -0.502,
+              -0.286
+            ],
+            [
+              -0.477,
+              -0.271
+            ],
+            [
+              -0.452,
+              -0.257
+            ],
+            [
+              -0.428,
+              -0.243
+            ],
+            [
+              -0.404,
+              -0.229
+            ],
+            [
+              -0.38,
+              -0.215
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              -3,
+              -1
+            ],
+            [
+              -1.939,
+              -2.571
+            ],
+            [
+              -2.762,
+              -0.644
+            ],
+            [
+              -2.167,
+              -0.978
+            ],
+            [
+              -1.186,
+              -1.828
+            ],
+            [
+              -1.707,
+              0.039
+            ],
+            [
+              -0.778,
+              -0.534
+            ],
+            [
+              0.002,
+              -0.815
+            ],
+            [
+              -0.315,
+              0.805
+            ],
+            [
+              0.708,
+              0.071
+            ],
+            [
+              1.203,
+              0.191
+            ],
+            [
+              0.994,
+              1.445
+            ],
+            [
+              1.927,
+              0.62
+            ],
+            [
+              2.105,
+              0.986
+            ],
+            [
+              1.938,
+              1.827
+            ],
+            [
+              2.669,
+              0.981
+            ],
+            [
+              2.558,
+              1.468
+            ],
+            [
+              2.399,
+              1.911
+            ],
+            [
+              2.891,
+              1.111
+            ],
+            [
+              2.56,
+              1.631
+            ],
+            [
+              2.411,
+              1.739
+            ],
+            [
+              2.681,
+              1.042
+            ],
+            [
+              2.222,
+              1.541
+            ],
+            [
+              2.104,
+              1.4
+            ],
+            [
+              2.203,
+              0.849
+            ],
+            [
+              1.711,
+              1.299
+            ],
+            [
+              1.648,
+              1.002
+            ],
+            [
+              1.637,
+              0.622
+            ],
+            [
+              1.193,
+              1.011
+            ],
+            [
+              1.201,
+              0.642
+            ],
+            [
+              1.137,
+              0.435
+            ],
+            [
+              0.791,
+              0.759
+            ],
+            [
+              0.874,
+              0.384
+            ],
+            [
+              0.798,
+              0.334
+            ],
+            [
+              0.572,
+              0.591
+            ],
+            [
+              0.717,
+              0.254
+            ],
+            [
+              0.651,
+              0.33
+            ],
+            [
+              0.542,
+              0.52
+            ],
+            [
+              0.724,
+              0.244
+            ],
+            [
+              0.673,
+              0.406
+            ],
+            [
+              0.659,
+              0.53
+            ],
+            [
+              0.85,
+              0.323
+            ],
+            [
+              0.81,
+              0.53
+            ],
+            [
+              0.86,
+              0.592
+            ],
+            [
+              1.031,
+              0.447
+            ],
+            [
+              0.994,
+              0.664
+            ],
+            [
+              1.077,
+              0.669
+            ],
+            [
+              1.21,
+              0.578
+            ],
+            [
+              1.168,
+              0.777
+            ],
+            [
+              1.258,
+              0.734
+            ],
+            [
+              1.341,
+              0.686
+            ],
+            [
+              1.292,
+              0.848
+            ],
+            [
+              1.371,
+              0.771
+            ],
+            [
+              1.404,
+              0.754
+            ],
+            [
+              1.349,
+              0.873
+            ],
+            [
+              1.409,
+              0.774
+            ],
+            [
+              1.401,
+              0.78
+            ],
+            [
+              1.345,
+              0.856
+            ],
+            [
+              1.386,
+              0.751
+            ],
+            [
+              1.348,
+              0.774
+            ],
+            [
+              1.298,
+              0.812
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              -3,
+              -1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1.181,
+              0.686
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "warmup-cosine",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The warmup plus cosine-decay schedule, with eta_max = 1 (normalised), eta_min = 0.01, W = 100 warmup steps and T = 1000 total steps: linear ramp up, then half a cosine down.",
+      "fr": "Le planning warmup plus décroissance cosinus, avec eta_max = 1 (normalisé), eta_min = 0,01, W = 100 pas de warmup et T = 1000 pas au total : montée linéaire, puis un demi-cosinus de descente."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "title": "eta(t) / eta_max",
+      "data": [
+        {
+          "fn": "x/100",
+          "range": [
+            0,
+            100
+          ],
+          "color": "#16a34a"
+        },
+        {
+          "fn": "0.01 + 0.495*(1 + cos(3.14159265*(x - 100)/900))",
+          "range": [
+            100,
+            1000
+          ],
+          "color": "#2563eb"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 100,
+          "text": "end of warmup"
+        }
+      ]
+    }
+  }
+]

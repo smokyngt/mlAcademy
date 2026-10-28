@@ -1,0 +1,345 @@
+[
+  {
+    "id": "columns-rule",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "A matrix acts by sending the basis vectors to its columns. For A = [[1,2],[3,4]], e1 goes to (1, 3) and e2 goes to (2, 4); the unit square (blue) becomes a parallelogram (orange).",
+      "fr": "Une matrice agit en envoyant les vecteurs de base sur ses colonnes. Pour A = [[1,2],[3,4]], e1 va en (1, 3) et e2 en (2, 4) ; le carré unité (bleu) devient un parallélogramme (orange)."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        4
+      ],
+      "yDomain": [
+        -1,
+        8
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              3,
+              7
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            1,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            2,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "matvec-combination",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two ways to read Ax: row by row (dot products) or as a linear combination of the columns.",
+      "fr": "Deux façons de lire Ax : ligne par ligne (produits scalaires) ou comme combinaison linéaire des colonnes."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"A = [[1,2],[3,4]]\"] --> R[\"row view:\\n(1,2).(1,1)=3\\n(3,4).(1,1)=7\"]\n  A --> C[\"column view:\\n1*(1,3) + 1*(2,4)\"]\n  R --> Y[\"Ax = (3,7)\"]\n  C --> Y",
+      "fr": "flowchart LR\n  A[\"A = [[1,2],[3,4]]\"] --> R[\"vue lignes :\\n(1,2).(1,1)=3\\n(3,4).(1,1)=7\"]\n  A --> C[\"vue colonnes :\\n1*(1,3) + 1*(2,4)\"]\n  R --> Y[\"Ax = (3,7)\"]\n  C --> Y"
+    }
+  },
+  {
+    "id": "ab-ne-ba",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "AB ≠ BA with A = shear [[1,1],[0,1]] and B = diag(1, 2). The unit square (grey) under AB (blue: stretch first, then shear) differs from BA (orange: shear first, then stretch).",
+      "fr": "AB ≠ BA avec A = cisaillement [[1,1],[0,1]] et B = diag(1, 2). Le carré unité (gris) par AB (bleu : étirer puis cisailler) diffère de BA (orange : cisailler puis étirer)."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        4
+      ],
+      "yDomain": [
+        -1,
+        4
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#9ca3af",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "rotation-square",
+    "after": 10,
+    "kind": "plot",
+    "caption": {
+      "en": "Rotation R(90°) = [[0,−1],[1,0]]: the square (blue) turns into the rotated square (orange), and (1, 1) goes to (−1, 1). Lengths and angles are preserved.",
+      "fr": "Rotation R(90°) = [[0,−1],[1,0]] : le carré (bleu) devient le carré tourné (orange), et (1, 1) va en (−1, 1). Longueurs et angles sont conservés."
+    },
+    "spec": {
+      "xDomain": [
+        -2.5,
+        2.5
+      ],
+      "yDomain": [
+        -2.5,
+        2.5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              -1,
+              1
+            ],
+            [
+              -1,
+              0
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            -1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dense-layer-shapes",
+    "after": 12,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Shapes through a dense layer: the batch dimension B is untouched, only the feature dimension changes from n to m.",
+      "fr": "Formes à travers une couche dense : la dimension de batch B est inchangée, seule la dimension des features passe de n à m."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (B, n)\"] --> M[\"X @ W\\nW (n, m)\"] --> P[\"XW (B, m)\"] --> Pl[\"+ b\\nb (m,) broadcast\"] --> Y[\"Y (B, m)\"]",
+      "fr": "flowchart LR\n  X[\"X (B, n)\"] --> M[\"X @ W\\nW (n, m)\"] --> P[\"XW (B, m)\"] --> Pl[\"+ b\\nb (m,) diffusé\"] --> Y[\"Y (B, m)\"]"
+    }
+  },
+  {
+    "id": "manim-linearmap",
+    "after": 5,
+    "kind": "video",
+    "caption": {
+      "en": "Manim: the plane is transformed; the columns of the matrix are where the basis vectors land.",
+      "fr": "Manim : le plan est transformé ; les colonnes de la matrice sont les images des vecteurs de base."
+    },
+    "src": "/manim/LinearMap.mp4"
+  }
+]

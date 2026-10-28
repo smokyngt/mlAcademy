@@ -1,0 +1,17 @@
+[
+  {"id": "llm.05.c1", "front": "Pourquoi le SFT ne suffit-il pas ?", "back": "Le SFT imite des démonstrations isolées et traite toutes les réponses acceptables comme également bonnes ; il n'a aucun signal indiquant laquelle de deux réponses est meilleure."},
+  {"id": "llm.05.c2", "front": "Modèle de Bradley-Terry", "back": "$P(a\\succ b)=e^{r_a}/(e^{r_a}+e^{r_b})=\\sigma(r_a-r_b)$. Ne dépend que de la différence de scores."},
+  {"id": "llm.05.c3", "front": "Perte du modèle de récompense", "back": "$-\\ln\\sigma(r_w-r_l)=\\ln(1+e^{-d})$ : régression logistique sur l'écart de scores. Des scores égaux donnent $\\ln2$."},
+  {"id": "llm.05.c4", "front": "Gradient de la perte de Bradley-Terry", "back": "$\\partial\\ell/\\partial r_w=-\\sigma(-d)$, $\\partial\\ell/\\partial r_l=+\\sigma(-d)$ : égaux et opposés, de taille la probabilité de se tromper sur la paire."},
+  {"id": "llm.05.c5", "front": "Architecture du modèle de récompense", "back": "Le modèle SFT dont la tête de vocabulaire est remplacée par une tête scalaire ; l'entrée est prompt + réponse, la sortie un seul nombre."},
+  {"id": "llm.05.c6", "front": "Objectif RLHF régularisé par la KL", "back": "$\\max_\\pi\\ \\mathbb E_{y\\sim\\pi}[r(x,y)]-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi_{\\rm ref})$."},
+  {"id": "llm.05.c7", "front": "Politique optimale en forme close", "back": "$\\pi^\\star(y|x)=\\pi_{\\rm ref}(y|x)\\,e^{r(x,y)/\\beta}/Z(x)$, $Z=\\sum_y\\pi_{\\rm ref}e^{r/\\beta}$. Valeur maximale $\\beta\\ln Z$."},
+  {"id": "llm.05.c8", "front": "Pourquoi $\\pi^\\star$ est-il le maximiseur ? (une ligne)", "back": "$J(\\pi)=-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi^\\star)+\\beta\\ln Z$, et la KL est $\\ge0$ avec égalité seulement en $\\pi=\\pi^\\star$."},
+  {"id": "llm.05.c9", "front": "Récompense en fonction de la politique", "back": "$r(x,y)=\\beta\\ln\\frac{\\pi^\\star(y|x)}{\\pi_{\\rm ref}(y|x)}+\\beta\\ln Z(x)$."},
+  {"id": "llm.05.c10", "front": "Perte DPO", "back": "$-\\ln\\sigma\\bigl(\\beta[(\\ln\\pi_w-\\ln\\pi^{\\rm ref}_w)-(\\ln\\pi_l-\\ln\\pi^{\\rm ref}_l)]\\bigr)$ ; $\\ln\\pi$ est la log-probabilité de tokens sommée de la réponse."},
+  {"id": "llm.05.c11", "front": "Gradient de DPO sur les log-probabilités", "back": "$\\partial\\mathcal L/\\partial\\ln\\pi_w=-\\beta\\sigma(-z)$, $\\partial\\mathcal L/\\partial\\ln\\pi_l=+\\beta\\sigma(-z)$ ; fort poids quand la récompense implicite classe mal la paire."},
+  {"id": "llm.05.c12", "front": "Récompense implicite", "back": "$\\hat r(y)=\\beta(\\ln\\pi(y|x)-\\ln\\pi_{\\rm ref}(y|x))$ : le modèle de langage est secrètement un modèle de récompense."},
+  {"id": "llm.05.c13", "front": "RLHF (PPO) vs DPO", "back": "PPO : politique + référence + modèle de récompense (+ valeur), trois étapes, échantillons en ligne, délicat. DPO : politique + référence, paires fixes, entraînement de type supervisé."},
+  {"id": "llm.05.c14", "front": "Détournement de la récompense (reward hacking)", "back": "La politique exploite le substitut imparfait de la récompense (Goodhart) : verbosité, complaisance, esquive, jeu sur la forme. Atténuer par une pénalité KL, des données de récompense adversariales, plusieurs modèles de récompense."},
+  {"id": "llm.05.c15", "front": "Rôle de beta", "back": "Petit beta : la politique peut s'éloigner de la référence pour courir après la récompense ; grand beta : elle reste proche. Met aussi à l'échelle la récompense implicite de DPO."}
+]

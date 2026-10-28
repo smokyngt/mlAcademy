@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.03.c14", "front": "$(AB)_{ij}$", "back": "$\\sum_ka_{ik}b_{kj}$." },
+  { "id": "f2n.03.c15", "front": "A-t-on $AB=BA$ ?", "back": "Pas en général. Multiplier à droite agit sur les colonnes, multiplier à gauche sur les lignes." },
+  { "id": "f2n.03.c16", "front": "Définition d'une application linéaire", "back": "$A(\\alpha x+\\beta y)=\\alpha Ax+\\beta Ay$ ; elle envoie $0$ sur $0$." },
+  { "id": "f2n.03.c17", "front": "Application affine", "back": "$x\\mapsto Ax+b$ : linéaire plus un décalage ; une couche de réseau de neurones avant l'activation." },
+  { "id": "f2n.03.c18", "front": "Déterminant d'une matrice $2\\times2$", "back": "$ad-bc$ : le facteur par lequel les aires sont multipliées (négatif : l'orientation est inversée)." },
+  { "id": "f2n.03.c19", "front": "Forme de la transposée", "back": "$A:(m,n)\\Rightarrow A^\\top:(n,m)$, $(A^\\top)_{ij}=a_{ji}$." },
+  { "id": "f2n.03.c20", "front": "Matrice identité", "back": "$I$ avec des uns sur la diagonale ; $AI=IA=A$." },
+  { "id": "f2n.03.c21", "front": "$Ax$ comme combinaison", "back": "$Ax=x_1a^{(1)}+\\dots+x_na^{(n)}$ (colonnes de $A$)." },
+  { "id": "f2n.03.c22", "front": "Matrice $2\\times2$ de rang 1 / singulière", "back": "Elle écrase le plan sur une droite (det $=0$) ; de l'information est perdue." }
+]

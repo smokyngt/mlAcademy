@@ -1,0 +1,81 @@
+#@@ meta
+{"id": "ops.02.ex2", "title": "Labelling functions and weak supervision", "difficulty": 3, "runtime": "pyodide", "concepts": ["ops.labelling"], "hints": ["Votes live in a matrix L of shape (n, m) with values 1, 0 and -1 (-1 = abstain). Coverage of function j is the share of rows where L[:, j] != -1.", "A row conflicts if it contains both a 0 vote and a 1 vote.", "Weighted vote: each non-abstaining function contributes +w (vote 1) or -w (vote 0) with w = log(acc / (1 - acc)); predict 1 if the total is > 0, else 0."]}
+#@@ prompt
+A labelling function (LF) votes `1`, `0`, or abstains (`-1`) on each example. Given a vote matrix `L` of shape `(n, m)`:
+
+- `lf_stats(L)` -> `(coverage, conflict)`: `coverage` is an array of length `m` (share of rows where each LF does not abstain); `conflict` is the share of rows that contain both a 0 and a 1 vote.
+- `majority_vote(L)` -> array of length `n`: the majority label among non-abstaining votes; if there is a tie or every LF abstains return `-1`.
+- `lf_accuracy(L, gold)` -> array of length `m`: accuracy of each LF on the rows where it does not abstain, measured against the small hand-labelled vector `gold` (values 0/1).
+- `weighted_vote(L, acc)` -> array of length `n` with values 0/1: each non-abstaining LF adds `+w` for a 1 vote and `-w` for a 0 vote with `w = log(acc / (1 - acc))`; predict 1 when the sum is strictly positive, else 0.
+#@@ starter
+import numpy as np
+
+def lf_stats(L):
+    raise NotImplementedError
+
+def majority_vote(L):
+    raise NotImplementedError
+
+def lf_accuracy(L, gold):
+    raise NotImplementedError
+
+def weighted_vote(L, acc):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+L = np.array([[1, 1, -1],
+              [0, 1, -1],
+              [-1, -1, -1],
+              [0, 0, 1],
+              [1, -1, 0]])
+cov, conf = lf_stats(L)
+check("coverage per LF", lambda: np.allclose(cov, [0.8, 0.6, 0.4]))
+check("conflict rate = 3/5", lambda: abs(conf - 0.6) < 1e-12, "rows 1, 3 and 4 contain both a 0 and a 1")
+mv = majority_vote(L)
+check("majority vote: ties and all-abstain give -1", lambda: list(mv) == [1, -1, -1, 0, -1], "row 1 is a 1-1 tie, row 2 is all abstain, row 4 is a 1-1 tie")
+gold = np.array([1, 1, 0, 0, 1])
+acc = lf_accuracy(L, gold)
+check("LF accuracy against gold ignores abstentions", lambda: np.allclose(acc, [0.75, 1.0, 0.0]), "LF0 votes on rows 0,1,3,4 and is right on rows 0, 3 and 4")
+rng = np.random.default_rng(0)
+y = (rng.random(4000) < 0.5).astype(int)
+true_acc = np.array([0.9, 0.6, 0.6, 0.6])
+votes = np.where(rng.random((4000, 4)) < true_acc, y[:, None], 1 - y[:, None])
+est = lf_accuracy(votes, y)
+check("estimated accuracies are close to the truth", lambda: np.all(np.abs(est - true_acc) < 0.03))
+wv = weighted_vote(votes, est)
+mjv = majority_vote(votes)
+check("weighted vote returns 0/1", lambda: set(np.unique(wv)) <= {0, 1})
+check("weighted vote beats unweighted majority when one LF is much better", lambda: (wv == y).mean() > (mjv == y).mean() + 0.02, "the 0.9 LF should outweigh three 0.6 LFs")
+#@@ solution
+import numpy as np
+
+def lf_stats(L):
+    L = np.asarray(L)
+    cov = (L != -1).mean(axis=0)
+    conflict = float(np.mean(((L == 0).any(axis=1)) & ((L == 1).any(axis=1))))
+    return cov, conflict
+
+def majority_vote(L):
+    L = np.asarray(L)
+    ones = (L == 1).sum(axis=1)
+    zeros = (L == 0).sum(axis=1)
+    out = np.full(len(L), -1)
+    out[ones > zeros] = 1
+    out[zeros > ones] = 0
+    return out
+
+def lf_accuracy(L, gold):
+    L = np.asarray(L)
+    gold = np.asarray(gold)
+    acc = np.zeros(L.shape[1])
+    for j in range(L.shape[1]):
+        m = L[:, j] != -1
+        acc[j] = np.mean(L[m, j] == gold[m]) if m.any() else 0.0
+    return acc
+
+def weighted_vote(L, acc):
+    L = np.asarray(L)
+    acc = np.clip(np.asarray(acc, dtype=float), 1e-3, 1 - 1e-3)
+    w = np.log(acc / (1 - acc))
+    sign = np.where(L == 1, 1.0, np.where(L == 0, -1.0, 0.0))
+    return (sign @ w > 0).astype(int)

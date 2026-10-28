@@ -1,0 +1,63 @@
+[
+  {
+    "id": "seq.04.q1", "concept": "seq.lstm", "stage": "pre", "kind": "mcq",
+    "prompt": "In an LSTM, the cell state is updated as...",
+    "options": ["$c_t=\\tanh(W_cx_t+U_ch_{t-1})$", "$c_t=f_t\\odot c_{t-1}+i_t\\odot g_t$", "$c_t=o_t\\odot\\tanh(h_t)$", "$c_t=\\sigma(c_{t-1})$"],
+    "answer": 1,
+    "explanation": "Forget the old content by the factor $f_t$ and add the gated new candidate $i_t\\odot g_t$: an additive update."
+  },
+  {
+    "id": "seq.04.q2", "concept": "seq.lstm", "stage": "pre", "kind": "mcq",
+    "prompt": "The hidden state that is passed to the next layer (the output of the cell) is...",
+    "options": ["$c_t$", "$h_t=o_t\\odot\\tanh(c_t)$", "$f_t$", "$i_t\\odot g_t$"],
+    "answer": 1,
+    "explanation": "The output gate decides how much of the squashed cell content is exposed as $h_t$."
+  },
+  {
+    "id": "seq.04.q3", "concept": "seq.lstm", "kind": "numeric", "stage": "check",
+    "prompt": "How many parameters does an LSTM layer have with input size $n=128$ and hidden size $H=256$ (one bias vector per gate)?",
+    "options": [], "answer": { "value": 394240, "tol": 0.5 },
+    "explanation": "$4H(n+H+1)=4\\cdot256\\cdot385=394{,}240$."
+  },
+  {
+    "id": "seq.04.q4", "concept": "seq.gru", "kind": "mcq", "stage": "check",
+    "prompt": "A GRU with the same $n$ and $H$ has what fraction of the LSTM's parameters?",
+    "options": ["1/2", "2/3", "3/4", "1/4"],
+    "answer": 2,
+    "explanation": "Three blocks ($r,z,n$) instead of four ($i,f,g,o$): $3/4$."
+  },
+  {
+    "id": "seq.04.q5", "concept": "seq.lstm", "kind": "mcq", "stage": "check",
+    "prompt": "Backward through $c_t=f\\odot c_{t-1}+i\\odot g$, the gradient to the previous cell is...",
+    "options": ["$\\bar c^{tot}\\odot i$", "$W_{hh}^\\top\\bar c^{tot}$", "$\\bar c^{tot}\\odot f$", "$\\bar c^{tot}\\odot(1-f^2)$"],
+    "answer": 2,
+    "explanation": "$\\partial c_t/\\partial c_{t-1}$ contains $\\operatorname{diag}(f_t)$ directly, so $\\bar c_{t-1}=\\bar c^{tot}\\odot f_t$ (plus indirect terms through $h_{t-1}$ that are handled via $\\bar h_{t-1}$)."
+  },
+  {
+    "id": "seq.04.q6", "concept": "seq.lstm", "kind": "mcq", "stage": "check",
+    "prompt": "Why is the forget-gate bias often initialised to a positive value?",
+    "options": ["To make $f\\approx1$ so memory is kept by default and gradients flow along the cell path", "To make the output gate saturate", "To reduce the number of parameters", "To make the sigmoid linear"],
+    "answer": 0,
+    "explanation": "$\\sigma(b_f)$ near 1 at the start means $c_t\\approx c_{t-1}$, so early training does not erase the memory."
+  },
+  {
+    "id": "seq.04.q7", "concept": "seq.lstm", "kind": "numeric", "stage": "check",
+    "prompt": "A forget gate stays at 0.99 for 100 steps. What fraction of the cell's gradient survives along the direct path ($0.99^{100}$, 2 decimals)?",
+    "options": [], "answer": { "value": 0.37, "tol": 0.01 },
+    "explanation": "$0.99^{100}=0.366$. With $0.9$ per step it would be $2.7\\times10^{-5}$."
+  },
+  {
+    "id": "seq.04.q8", "concept": "seq.gru", "kind": "mcq", "stage": "check",
+    "prompt": "In the GRU $h_t=(1-z_t)\\odot\\tilde h_t+z_t\\odot h_{t-1}$, what happens when $z_t\\to1$?",
+    "options": ["the state is replaced by the candidate", "the state is reset to zero", "the previous state is copied unchanged", "the gradient vanishes"],
+    "answer": 2,
+    "explanation": "$h_t\\to h_{t-1}$ and $\\partial h_t/\\partial h_{t-1}\\to I$: an additive identity path, like a residual connection."
+  },
+  {
+    "id": "seq.04.q9", "concept": "seq.gru", "kind": "mcq", "stage": "check",
+    "prompt": "What does the GRU reset gate $r_t$ control?",
+    "options": ["how much of the previous state the candidate $\\tilde h_t$ may see", "how much of the cell is forgotten", "the learning rate", "the output scale"],
+    "answer": 0,
+    "explanation": "The candidate is $\\tanh(W_nx_t+r_t\\odot(U_nh_{t-1})+b_n)$: $r_t\\approx0$ makes it ignore the past."
+  }
+]

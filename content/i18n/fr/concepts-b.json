@@ -1,0 +1,314 @@
+{
+  "gpu.simt": {
+    "title": "Exécution SIMT : threads, warps, blocs, grilles et SM",
+    "description": "Comment un GPU répartit une grille de blocs de threads sur des streaming multiprocessors qui exécutent les threads en lock-step par groupes de 32 (les warps), et ce que coûte la divergence de warp."
+  },
+  "gpu.memory-hierarchy": {
+    "title": "Hiérarchie mémoire du GPU",
+    "description": "Registres, mémoire partagée, cache L2 et HBM : les ordres de grandeur de taille, de latence et de bande passante, et pourquoi ce sont le plus souvent les mouvements de données, plus que l'arithmétique, qui constituent le goulot d'étranglement."
+  },
+  "gpu.coalescing": {
+    "title": "Coalescence mémoire et conflits de banques en mémoire partagée",
+    "description": "Pourquoi les chargements d'un warp doivent toucher des adresses consécutives, comment compter les transactions en mémoire globale, et comment les banques de la mémoire partagée sérialisent les accès conflictuels."
+  },
+  "gpu.occupancy": {
+    "title": "Occupation (occupancy)",
+    "description": "Comment les registres, la mémoire partagée et la taille de bloc limitent le nombre de warps résidents par SM, et pourquoi une forte occupation aide à masquer la latence sans être un objectif en soi."
+  },
+  "gpu.tiling": {
+    "title": "Tiling et noyau de multiplication matricielle par tuiles",
+    "description": "Placer des tuiles en mémoire partagée pour que chaque élément de la mémoire globale soit réutilisé T fois ; le modèle de trafic mémoire d'un matmul naïf comparé à un matmul par tuiles."
+  },
+  "gpu.arith-intensity": {
+    "title": "FLOPs, octets et intensité arithmétique",
+    "description": "Compter les opérations arithmétiques et le trafic mémoire d'une opération, puis diviser l'un par l'autre."
+  },
+  "gpu.roofline": {
+    "title": "Le modèle roofline",
+    "description": "La performance atteignable comme minimum entre le plafond de calcul et la bande passante multipliée par l'intensité ; le point de crête (ridge point) ; classer matmul, softmax, layer norm et attention comme limités par le calcul ou par la mémoire."
+  },
+  "gpu.flash-io": {
+    "title": "Attention consciente des IO (FlashAttention)",
+    "description": "Pourquoi l'attention standard est limitée par la mémoire, et comment le tiling avec un softmax en ligne supprime les allers-retours N par N vers la HBM sans changer le résultat."
+  },
+  "gpu.amdahl": {
+    "title": "Loi d'Amdahl pour les pipelines",
+    "description": "L'accélération globale lorsque seule une fraction du temps est accélérée, et pourquoi la partie non accélérée (chargement des données, lancements de noyaux, code côté hôte) fixe le plafond."
+  },
+  "gpu.profiling": {
+    "title": "Lire une timeline de profileur",
+    "description": "Trous d'inactivité du GPU, surcoût de lancement des noyaux, copies hôte vers périphérique et blocages du data loader : comment diagnostiquer où une étape d'entraînement passe son temps."
+  },
+  "gpu.formats": {
+    "title": "Formats numériques pour le deep learning : fp32, tf32, fp16, bf16, fp8",
+    "description": "Les bits de signe, d'exposant et de mantisse de chaque format, leur plage et leur précision, et quel format convient à quelle partie de l'entraînement."
+  },
+  "gpu.loss-scaling": {
+    "title": "Mise à l'échelle de la perte (loss scaling) et poids maîtres",
+    "description": "Pourquoi les gradients en fp16 subissent un underflow, comment un facteur d'échelle de la perte (dynamique) y remédie, et pourquoi les optimiseurs conservent des poids maîtres en fp32."
+  },
+  "gpu.train-memory": {
+    "title": "Comptabilité mémoire de l'entraînement",
+    "description": "Octets par paramètre pour les poids, les gradients et l'état d'Adam en fp32 et en précision mixte, plus le terme des activations qui croît avec la taille de batch, la longueur de séquence et la profondeur."
+  },
+  "gpu.checkpoint-model": {
+    "title": "Modèle du compromis du gradient checkpointing",
+    "description": "Une mémoire (n/k)*a_in + k*a_layer face à un facteur de calcul de 4/3, et l'espacement en racine carrée qui équilibre les deux."
+  },
+  "gpu.grad-accum": {
+    "title": "Accumulation de gradients",
+    "description": "Atteindre un grand batch effectif avec plusieurs petits micro-batchs, en sommant des gradients mis à l'échelle avant une seule étape de l'optimiseur."
+  },
+  "gpu.fusion": {
+    "title": "Fusion de noyaux et torch.compile",
+    "description": "Pourquoi les chaînes d'opérations élément par élément gaspillent de la bande passante mémoire, et comment les fusionner en un seul noyau (ce que fait torch.compile) réduit le trafic."
+  },
+  "llm.training-loop": {
+    "title": "La boucle de pré-entraînement de bout en bout",
+    "description": "Échantillonnage de fenêtres pour la prédiction du token suivant, entropie croisée et perplexité, AdamW avec warmup et décroissance cosinus, écrêtage de gradient, validation face à une baseline unigramme, échantillonnage, et l'arithmétique des paramètres, de la mémoire, des FLOP et du débit d'un entraînement."
+  },
+  "llm.grad-clip-accum": {
+    "title": "Écrêtage et accumulation de gradients",
+    "description": "L'écrêtage par norme globale préserve la direction et plafonne la longueur ; accumuler les gradients de micro-batchs pondérés par leur taille reproduit le gradient du grand batch."
+  },
+  "llm.weight-tying": {
+    "title": "Partage de poids (weight tying)",
+    "description": "Partager la matrice d'embedding des tokens avec la tête de sortie économise V*d paramètres (GPT-2 small : 163M sans partage contre 124M avec partage)."
+  },
+  "llm.quality-filtering": {
+    "title": "Filtrage de qualité heuristique et à base de modèle",
+    "description": "Règles de longueur, de symboles et de répétition, filtres par perplexité et classifieur de qualité par régression logistique sur sacs de mots ; ce qu'ils détectent, ce qu'ils manquent et le biais des étiquettes."
+  },
+  "llm.dedup": {
+    "title": "Détection de doublons exacts et approchés",
+    "description": "Hachage normalisé, shingles de mots, similarité de Jaccard, signatures MinHash, découpage en bandes LSH avec probabilité de collision 1-(1-s^r)^b, vérification, et rappel et précision mesurés."
+  },
+  "llm.decontamination": {
+    "title": "Décontamination des benchmarks",
+    "description": "Scores de recouvrement de n-grammes entre le texte d'entraînement et les items d'évaluation, seuils de fraction de recouvrement, faux positifs dus aux textes types (boilerplate), faux négatifs dus à la paraphrase et à la traduction."
+  },
+  "llm.data-mixture": {
+    "title": "Mélanges de données et curriculums",
+    "description": "Poids d'échantillonnage des sources, échantillonnage par température n^alpha, nombre d'époques par source, et ordonnancement des données au fil de l'entraînement."
+  },
+  "llm.pii": {
+    "title": "Suppression des PII, licences et consentement",
+    "description": "Suppression des données personnelles par regex et NER avec leurs limites, et les enregistrements de provenance nécessaires pour répondre aux questions de licence, d'opt-out et d'audit (ceci n'est pas un conseil juridique)."
+  },
+  "llm.tokenization": {
+    "title": "Tokenisation et vocabulaires",
+    "description": "Pourquoi les modèles de langage lisent des tokens de sous-mots : unités caractère, mot ou sous-mot, le contrat sans perte entre texte et identifiants, les compromis sur la taille du vocabulaire, le repli sur les octets (byte fallback) et les tokens spéciaux."
+  },
+  "llm.bpe": {
+    "title": "Byte-pair encoding",
+    "description": "Apprendre un vocabulaire de sous-mots en fusionnant gloutonnement la paire adjacente la plus fréquente ; encoder avec des règles de fusion ordonnées et décoder par concaténation d'octets."
+  },
+  "llm.lm": {
+    "title": "Modèles de langage autorégressifs",
+    "description": "Factorisation par la règle de la chaîne, objectif d'entropie croisée sur le token suivant et son gradient par rapport aux logits, le modèle decoder-only des identifiants aux logits, et les modèles bigrammes comme cas minimal."
+  },
+  "llm.perplexity": {
+    "title": "Perplexité",
+    "description": "L'exponentielle de l'entropie croisée : le nombre effectif de tokens suivants équiprobables ; un modèle uniforme a une perplexité égale à la taille du vocabulaire."
+  },
+  "llm.sampling": {
+    "title": "Décodage : glouton, température, top-k, top-p",
+    "description": "Transformer des logits en tokens : argmax, softmax avec température, troncature par rang (top-k) ou par masse cumulée (top-p)."
+  },
+  "llm.pretraining-data": {
+    "title": "Pipelines de données de pré-entraînement",
+    "description": "Nettoyage, suppression des doublons exacts et approchés, découpage par document, empaquetage des flux de tokens en blocs de taille fixe avec des cibles décalées, mélange (shuffling) et masques de documents."
+  },
+  "llm.scaling": {
+    "title": "Lois d'échelle et budget de calcul",
+    "description": "Comptage des paramètres, règle des 6ND FLOP, perte de type Chinchilla L(N,D), nombre de tokens par paramètre optimal en calcul, mémoire d'entraînement et de KV-cache, et ce qui peut casser pendant un entraînement."
+  },
+  "llm.sft": {
+    "title": "Fine-tuning supervisé",
+    "description": "Instruction tuning sur des paires (prompt, réponse) avec la perte masquée sur le prompt ; formats de données, hyperparamètres et oubli catastrophique."
+  },
+  "llm.lora": {
+    "title": "LoRA et fine-tuning efficace en paramètres",
+    "description": "Des poids gelés plus une mise à jour de bas rang (alpha/r)BA : nombre de paramètres, initialisation B=0, gradients, fusion, et l'idée de QLoRA."
+  },
+  "llm.reward-model": {
+    "title": "Modèles de récompense à partir de préférences par paires",
+    "description": "Le modèle de Bradley-Terry, sa perte et son gradient, et comment un modèle de langage à tête scalaire est entraîné sur des comparaisons humaines ; le reward hacking."
+  },
+  "llm.dpo": {
+    "title": "Objectif RLHF et optimisation directe des préférences (DPO)",
+    "description": "Maximisation de récompense régularisée par la KL, sa politique optimale en forme close, et la dérivation à partir de celle-ci de la perte DPO avec récompense implicite."
+  },
+  "la.linear-systems": {
+    "title": "Systèmes linéaires, élimination de Gauss et rang",
+    "description": "Résoudre Ax = b par élimination, rang, noyau, existence et unicité, moindres carrés et conditionnement."
+  },
+  "opt.convex": {
+    "title": "Convexité, hessienne et multiplicateurs de Lagrange",
+    "description": "Dérivées secondes et courbure, ensembles et fonctions convexes, méthode de Newton, optimisation sous contraintes et dualité."
+  },
+  "stat.estimation": {
+    "title": "Estimateurs, maximum de vraisemblance et MAP",
+    "description": "Biais et variance d'un estimateur, erreur standard, la variance avec N-1, log-vraisemblance négative, le bruit gaussien comme moindres carrés, et un a priori gaussien comme régularisation L2."
+  },
+  "stat.testing": {
+    "title": "Intervalles de confiance, tests d'hypothèses et bootstrap",
+    "description": "Intervalles de confiance, p-valeurs et leurs pièges, comparaisons multiples, comparaison appariée de modèles et intervalles bootstrap."
+  },
+  "prob.sampling": {
+    "title": "Échantillonnage : transformée inverse, rejet, MCMC",
+    "description": "Échantillonnage par transformée inverse, échantillonnage par rejet et son échec en grande dimension, algorithme de Metropolis et échantillonnage de Gibbs."
+  },
+  "prob.montecarlo": {
+    "title": "Intégration de Monte Carlo et échantillonnage préférentiel",
+    "description": "Les espérances comme moyennes d'échantillons, l'erreur en 1/sqrt(N), les poids d'importance p/q et les cas où ils échouent."
+  },
+  "num.floatingpoint": {
+    "title": "Formats à virgule flottante",
+    "description": "float64, float32, float16 et bfloat16 selon IEEE-754 : mantisse, exposant, epsilon machine, plage, dépassement (overflow) et underflow."
+  },
+  "num.stability": {
+    "title": "Stabilité numérique",
+    "description": "Annulation catastrophique, softmax et log-sum-exp stables, variance de Welford, nombre de conditionnement, ordre de sommation et pas des différences finies."
+  },
+  "la.tensor": {
+    "title": "Tenseurs, broadcasting et einsum",
+    "description": "Rang et forme, dispositions des tenseurs en deep learning, strides, règles de broadcasting et notation einsum."
+  },
+  "la.norms": {
+    "title": "Normes, distances et fléau de la dimension",
+    "description": "Normes L1, L2, Linf, de Frobenius et spectrale, distances cosinus et de Mahalanobis, et concentration des distances en grande dimension."
+  },
+  "la.vector-space": {
+    "title": "Espaces vectoriels, sous-espaces, espace engendré et indépendance",
+    "description": "Les axiomes d'un espace vectoriel en mots simples, les sous-espaces (et des contre-exemples), l'espace engendré (span), l'indépendance linéaire et l'espace des colonnes."
+  },
+  "la.basis": {
+    "title": "Base, dimension, coordonnées et changement de base",
+    "description": "Bases et dimension, théorème du rang, coordonnées par rapport à une base, matrice de changement de base et matrices semblables."
+  },
+  "la.projection": {
+    "title": "Orthogonalité et projection orthogonale",
+    "description": "Bases orthogonales et orthonormées, matrices orthogonales (Q^T Q = I), orthogonal d'un sous-espace et matrice de projection A (A^T A)^-1 A^T."
+  },
+  "la.qr": {
+    "title": "Gram-Schmidt, QR et moindres carrés par QR",
+    "description": "Gram-Schmidt (classique et modifié), A = QR, résolution des moindres carrés par substitution arrière et pourquoi c'est plus stable que les équations normales."
+  },
+  "mf.python": {
+    "title": "Bases de Python",
+    "description": "Variables, listes, boucles, conditions et fonctions en Python."
+  },
+  "mf.numpy": {
+    "title": "Tableaux NumPy, formes et broadcasting",
+    "description": "Créer, indexer et découper des tableaux, arithmétique vectorisée, réductions selon un axe, formes et broadcasting."
+  },
+  "mf.algebra": {
+    "title": "Nombres, algèbre et équations",
+    "description": "Types de nombres, priorité des opérations, puissances et racines, fractions et pourcentages, équations linéaires, inéquations, systèmes 2x2 et notation mathématique."
+  },
+  "mf.functions": {
+    "title": "Fonctions et graphes",
+    "description": "Domaine et image, fonctions linéaires, quadratiques et polynomiales, transformations de graphes, composition et fonctions réciproques."
+  },
+  "mf.explog": {
+    "title": "Exponentielles et logarithmes depuis zéro",
+    "description": "Lois des exposants, croissance composée, le nombre e, logarithmes et leurs lois, changement de base, et rôle des logarithmes dans l'entropie croisée et la log-vraisemblance."
+  },
+  "mf.trig": {
+    "title": "Trigonométrie et cercle unité",
+    "description": "Radians, sinus, cosinus, tangente, cercle unité, identités, matrices de rotation et ondes périodiques."
+  },
+  "mf.series": {
+    "title": "Suites, séries et sommation",
+    "description": "Suites et séries arithmétiques et géométriques, notations sigma et produit, convergence des séries géométriques et série harmonique."
+  },
+  "mf.limits": {
+    "title": "Limites et continuité",
+    "description": "Limites intuitives et epsilon-delta, limites à gauche et à droite, lois des limites, continuité et définition de la dérivée par une limite."
+  },
+  "mx.complex": {
+    "title": "Nombres complexes : formes cartésienne et polaire",
+    "description": "L'unité imaginaire, le plan complexe, module et argument, et la multiplication vue comme rotation plus homothétie."
+  },
+  "mx.euler": {
+    "title": "Formule d'Euler",
+    "description": "e^{i theta} = cos theta + i sin theta dérivée à partir des séries de Taylor ; les exponentielles complexes comme points en rotation."
+  },
+  "mx.roots-unity": {
+    "title": "Racines de l'unité et valeurs propres complexes des rotations",
+    "description": "Les racines n-ièmes de l'unité comme sommets d'un polygone régulier, leur somme, et les matrices de rotation dont les valeurs propres sont e^{+-i theta}."
+  },
+  "mx.dft": {
+    "title": "Transformée de Fourier discrète et FFT",
+    "description": "La DFT comme changement de base vers la base des racines de l'unité, sa dérivation, son inverse, et la FFT par diviser pour régner."
+  },
+  "mx.sampling": {
+    "title": "Résolution fréquentielle, repliement et Nyquist",
+    "description": "Espacement des bins fs/N, pourquoi un échantillonnage en dessous du double de la fréquence maximale replie les fréquences, et fuite spectrale (leakage)."
+  },
+  "mx.conv-theorem": {
+    "title": "Théorème de convolution et spectrogrammes",
+    "description": "La convolution circulaire devient une multiplication terme à terme dans le domaine fréquentiel ; les transformées à court terme donnent les spectrogrammes."
+  },
+  "mx.graph": {
+    "title": "Graphes, matrices d'adjacence et de degré",
+    "description": "Nœuds et arêtes sous forme de matrices, chemins via les puissances de la matrice d'adjacence, composantes connexes."
+  },
+  "mx.laplacian": {
+    "title": "Laplacien de graphe et clustering spectral",
+    "description": "L = D - A, la forme quadratique comme somme des carrés des différences le long des arêtes, les valeurs propres nulles qui comptent les composantes, le vecteur de Fiedler."
+  },
+  "mx.pagerank": {
+    "title": "Marches aléatoires sur les graphes et PageRank",
+    "description": "La matrice d'adjacence normalisée par ligne, l'amortissement (damping), et PageRank comme vecteur propre dominant de la matrice de Google."
+  },
+  "mx.markov": {
+    "title": "Chaînes de Markov et matrices de transition",
+    "description": "La propriété de Markov, les matrices stochastiques en ligne, les probabilités à n pas comme puissances de matrice."
+  },
+  "mx.stationary": {
+    "title": "Distributions stationnaires, ergodicité et MCMC",
+    "description": "La distribution stationnaire comme vecteur propre à gauche de valeur propre 1, convergence des chaînes ergodiques, bilan détaillé et lien avec Metropolis-Hastings."
+  },
+  "mx.integral": {
+    "title": "Intégrales définies et théorème fondamental de l'analyse",
+    "description": "L'aire comme limite de sommes, primitives, changement de variable et intégration par parties."
+  },
+  "mx.expect-integral": {
+    "title": "Espérances comme intégrales ; l'intégrale gaussienne",
+    "description": "Les densités s'intègrent à un, E[g(x)] = intégrale de g p, intégrales multiples, et valeur de l'intégrale de exp(-x^2/2)."
+  },
+  "mx.numint": {
+    "title": "Intégration numérique : trapèzes, Simpson, Monte Carlo",
+    "description": "Formules de quadrature avec leurs ordres d'erreur, et pourquoi Monte Carlo l'emporte en grande dimension."
+  },
+  "nlp.text-preprocessing": {
+    "title": "Normalisation du texte, tokenisation, racinisation et lemmatisation",
+    "description": "Transformer des chaînes brutes en tokens propres ; racines (stems) contre lemmes ; ce qui est perdu à chaque étape."
+  },
+  "nlp.tfidf": {
+    "title": "Sac de mots, n-grammes et TF-IDF",
+    "description": "Vecteurs de comptage creux, pondération par fréquence inverse de document, normalisation L2 et similarité cosinus."
+  },
+  "nlp.text-classification": {
+    "title": "Classification de texte avec Naive Bayes et régression logistique",
+    "description": "Naive Bayes multinomial avec lissage, modèles linéaires sur TF-IDF, précision/rappel/F1 sur du texte, analyse d'erreurs et déséquilibre des classes."
+  },
+  "nlp.hmm-viterbi": {
+    "title": "Étiquetage de séquences : HMM et algorithme de Viterbi",
+    "description": "Étiquetage morpho-syntaxique (POS) et étiquetage BIO d'entités nommées avec un modèle de Markov caché, décodage exact par programmation dynamique, et l'idée des CRF."
+  },
+  "nlp.ngram-lm": {
+    "title": "Modèles de langage n-grammes, lissage et perplexité",
+    "description": "Modèles du mot suivant fondés sur des comptages, add-k, interpolation et backoff, et perplexité comme entropie croisée exponentiée."
+  },
+  "nlp.topic-models": {
+    "title": "Modélisation de thèmes avec LDA",
+    "description": "Le modèle génératif de LDA, a priori de Dirichlet, échantillonnage de Gibbs collapsé, évaluation des thèmes et thèmes fondés sur des embeddings."
+  },
+  "nlp.seq-eval": {
+    "title": "Évaluation de la traduction, du résumé et de la question-réponse",
+    "description": "BLEU, ROUGE, prédiction d'empans extractive et pièges des métriques de recouvrement."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "sys.04.ex2",
+  "title": "Évaluation par tranches et paradoxe de Simpson",
+  "prompt": "La précision globale peut cacher, voire inverser, ce qui se passe dans les tranches de ton jeu d'évaluation. Les nombres ci-dessous sont l'exemple des calculs rénaux reproduit dans *Designing Machine Learning Systems* (tableau 6-4) : deux modèles, deux groupes, exactitude `0/1` par élément.\n\nImplémente `overall_accuracy`, `slice_accuracy(correct, groups)` (dict groupe -> précision), et `simpson_reversal(cA, cB, groups_A, groups_B)` qui renvoie `True` quand un modèle gagne dans chaque tranche tandis que l'autre gagne globalement.",
+  "hints": [
+    "slice_accuracy : pour chaque étiquette de groupe distincte, moyenne l'exactitude 0/1 des éléments de ce groupe (utilise un masque booléen).",
+    "Un renversement signifie : le modèle X a la meilleure précision dans chaque tranche, mais la moins bonne précision globale.",
+    "Le piège est que les tranches ont des tailles différentes pour les deux modèles : construis les tableaux avec np.repeat."
+  ]
+}

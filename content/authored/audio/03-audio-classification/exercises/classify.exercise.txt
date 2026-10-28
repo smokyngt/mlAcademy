@@ -1,0 +1,138 @@
+#@@ meta
+{"id": "aud.03.ex1", "title": "Cosine k-NN, confusion matrix and macro F1 on noisy audio clips", "difficulty": 3, "runtime": "pyodide", "concepts": ["aud.classify"], "hints": ["Normalise the rows of Xtr and Xte to unit length; the cosine similarity matrix is Xte_n @ Xtr_n.T with shape (N_test, N_train).", "For each test row take np.argsort(-row)[:k], then np.bincount(ytr[idx]).argmax() is the majority vote.", "confusion_matrix: C[true, pred] += 1. recall = diag / row sums, precision = diag / column sums (use np.maximum(.., 1) to avoid dividing by zero), F1 = 2PR/(P+R), macro = mean over classes."]}
+#@@ prompt
+Clip-level audio classification, from features to metrics. The starter gives you a synthetic data generator (`make_clip`: 440 Hz tone, 520 Hz tone, rising sweep, white noise, all buried in noise) and `clip_features` (log band power, mean and standard deviation over time = 32 numbers per clip). Implement:
+
+- `knn_predict(Xtr, ytr, Xte, k=3)` -> predicted labels using **cosine similarity** and majority vote.
+- `confusion_matrix(y, p, K)` -> `(K, K)` integer matrix, rows = true class, columns = predicted.
+- `per_class_recall(C)` and `per_class_precision(C)` -> arrays of length `K` (zero when a denominator is zero).
+- `macro_f1(C)` -> unweighted mean of the per-class F1 scores (F1 = 0 when precision + recall = 0).
+- `accuracy(C)`.
+#@@ starter
+import numpy as np
+
+def make_clip(label, rng, sr=8000, n=2000):
+    t = np.arange(n) / sr
+    if label == 0:
+        x = np.sin(2 * np.pi * 440 * t)
+    elif label == 1:
+        x = np.sin(2 * np.pi * 520 * t)
+    elif label == 2:
+        x = np.sin(2 * np.pi * (300 * t + 2000 * t ** 2))
+    else:
+        x = 0.7 * rng.normal(size=n)
+    return x + 3.0 * rng.normal(size=n)
+
+def clip_features(x, frame=200, hop=100, bands=16):
+    # given: frames -> Hann -> rfft power -> 16 equal bands -> log -> mean and std over time
+    n = 1 + (len(x) - frame) // hop
+    idx = np.arange(frame)[None, :] + hop * np.arange(n)[:, None]
+    fr = x[idx] * (0.5 - 0.5 * np.cos(2 * np.pi * np.arange(frame) / frame))
+    P = np.abs(np.fft.rfft(fr, axis=1)) ** 2
+    P = P[:, :bands * 6].reshape(n, bands, 6).sum(2)
+    L = np.log(P + 1e-8)
+    return np.concatenate([L.mean(0), L.std(0)])
+
+def knn_predict(Xtr, ytr, Xte, k=3):
+    raise NotImplementedError
+
+def confusion_matrix(y, p, K):
+    raise NotImplementedError
+
+def per_class_recall(C):
+    raise NotImplementedError
+
+def per_class_precision(C):
+    raise NotImplementedError
+
+def macro_f1(C):
+    raise NotImplementedError
+
+def accuracy(C):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+C = np.array([[8, 1, 1], [2, 6, 2], [0, 1, 9]])
+check("per-class recall", lambda: np.allclose(per_class_recall(C), [0.8, 0.6, 0.9]))
+check("per-class precision", lambda: np.allclose(per_class_precision(C), [0.8, 0.75, 0.75]))
+check("macro F1 of the worked example is 0.7616", lambda: abs(macro_f1(C) - 0.7616161616) < 1e-6)
+check("accuracy 23/30", lambda: abs(accuracy(C) - 23 / 30) < 1e-12)
+Cb = np.array([[95, 0], [5, 0]])
+check("always-negative model: accuracy 0.95 but macro F1 0.487", lambda: abs(accuracy(Cb) - 0.95) < 1e-12 and abs(macro_f1(Cb) - 0.4872) < 1e-3)
+check("confusion matrix rows are true classes", lambda: np.array_equal(confusion_matrix(np.array([0, 0, 1, 2, 2]), np.array([0, 1, 1, 2, 0]), 3), np.array([[1, 1, 0], [0, 1, 0], [1, 0, 1]])))
+
+rng = np.random.default_rng(0)
+X, y = [], []
+for lab in range(4):
+    for _ in range(30):
+        X.append(clip_features(make_clip(lab, rng)))
+        y.append(lab)
+X = np.array(X)
+y = np.array(y)
+idx = rng.permutation(len(y))
+tr, te = idx[:80], idx[80:]
+check("training split has 80 clips, test 40", lambda: len(tr) == 80 and len(te) == 40 and X.shape == (120, 32))
+p3 = knn_predict(X[tr], y[tr], X[te], 3)
+check("predictions are labels of the right length", lambda: p3.shape == (40,) and set(np.unique(p3)) <= {0, 1, 2, 3})
+check("k=3 accuracy on noisy clips is high (about 0.90)", lambda: (p3 == y[te]).mean() >= 0.85)
+check("k=1 on the training set itself is perfect", lambda: (knn_predict(X[tr], y[tr], X[tr], 1) == y[tr]).all())
+Ck = confusion_matrix(y[te], p3, 4)
+check("confusion matrix sums to the test size", lambda: Ck.sum() == 40 and Ck.shape == (4, 4))
+check("noise class is never confused with a tone", lambda: Ck[3, :3].sum() == 0 and Ck[:3, 3].sum() == 0)
+check("macro F1 is close to accuracy here and in [0,1]", lambda: 0.8 <= macro_f1(Ck) <= 1.0)
+scaled = X[te] * 10.0
+check("cosine similarity ignores the scale of the query", lambda: (knn_predict(X[tr], y[tr], scaled, 3) == p3).all())
+#@@ solution
+import numpy as np
+
+def make_clip(label, rng, sr=8000, n=2000):
+    t = np.arange(n) / sr
+    if label == 0:
+        x = np.sin(2 * np.pi * 440 * t)
+    elif label == 1:
+        x = np.sin(2 * np.pi * 520 * t)
+    elif label == 2:
+        x = np.sin(2 * np.pi * (300 * t + 2000 * t ** 2))
+    else:
+        x = 0.7 * rng.normal(size=n)
+    return x + 3.0 * rng.normal(size=n)
+
+def clip_features(x, frame=200, hop=100, bands=16):
+    n = 1 + (len(x) - frame) // hop
+    idx = np.arange(frame)[None, :] + hop * np.arange(n)[:, None]
+    fr = x[idx] * (0.5 - 0.5 * np.cos(2 * np.pi * np.arange(frame) / frame))
+    P = np.abs(np.fft.rfft(fr, axis=1)) ** 2
+    P = P[:, :bands * 6].reshape(n, bands, 6).sum(2)
+    L = np.log(P + 1e-8)
+    return np.concatenate([L.mean(0), L.std(0)])
+
+def knn_predict(Xtr, ytr, Xte, k=3):
+    a = Xtr / np.linalg.norm(Xtr, axis=1, keepdims=True)
+    b = Xte / np.linalg.norm(Xte, axis=1, keepdims=True)
+    sim = b @ a.T
+    out = []
+    for row in sim:
+        nn = np.argsort(-row)[:k]
+        out.append(np.bincount(ytr[nn]).argmax())
+    return np.array(out)
+
+def confusion_matrix(y, p, K):
+    C = np.zeros((K, K), dtype=int)
+    for a, b in zip(y, p):
+        C[a, b] += 1
+    return C
+
+def per_class_recall(C):
+    return np.diag(C) / np.maximum(C.sum(1), 1)
+
+def per_class_precision(C):
+    return np.diag(C) / np.maximum(C.sum(0), 1)
+
+def macro_f1(C):
+    p = per_class_precision(C)
+    r = per_class_recall(C)
+    f1 = np.where(p + r > 0, 2 * p * r / np.maximum(p + r, 1e-12), 0.0)
+    return float(f1.mean())
+
+def accuracy(C):
+    return float(np.trace(C) / C.sum())

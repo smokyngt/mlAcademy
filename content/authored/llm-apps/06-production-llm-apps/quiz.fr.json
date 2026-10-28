@@ -1,0 +1,91 @@
+[
+ {
+  "id": "app.06.q1",
+  "prompt": "Pourquoi la longueur de sortie est-elle généralement le plus grand levier sur la latence ?",
+  "options": [
+   "les jetons de sortie sont gratuits",
+   "le temps de génération vaut à peu près jetons divisés par vitesse, donc 400 jetons à 80 jetons/s font 5 s",
+   "les jetons d'entrée sont plus lents",
+   "les réseaux sont lents"
+  ],
+  "explanation": "Le décodage est séquentiel : le temps croît linéairement avec le nombre de jetons générés."
+ },
+ {
+  "id": "app.06.q2",
+  "prompt": "Chaque tentative échoue avec la probabilité 0,5 ; jusqu'à 3 tentatives, les tentatives échouées sont facturées. Coût espéré relativement à une seule tentative ?",
+  "options": [],
+  "explanation": "1 + 0,5 + 0,25 = (1 - 0,5^3)/(1 - 0,5) = 1,75."
+ },
+ {
+  "id": "app.06.q3",
+  "prompt": "L'appel principal du modèle coûte 0,015 sur une requête de 0,015226 dollar. Quelle est la part de l'appel principal dans le coût (en pourcentage, une décimale) ?",
+  "options": [],
+  "explanation": "0,015 / 0,015226 = 0,985."
+ },
+ {
+  "id": "app.06.q4",
+  "prompt": "Quelle pratique améliore la latence PERÇUE sans changer le temps total de génération ?",
+  "options": [
+   "des prompts plus longs",
+   "réessayer deux fois",
+   "journaliser davantage",
+   "diffuser les jetons au fur et à mesure de leur production"
+  ],
+  "explanation": "Les utilisateurs voient la sortie après le délai du premier jeton au lieu d'attendre toute la réponse."
+ },
+ {
+  "id": "app.06.q5",
+  "prompt": "Dans un exécuteur de graphe, que fait un réducteur sur le champ messages ?",
+  "options": [
+   "il supprime les anciens messages",
+   "il valide le JSON",
+   "il définit comment une mise à jour est fusionnée dans la valeur existante (par exemple ajouter)",
+   "il choisit le nœud suivant"
+  ],
+  "explanation": "Sans lui, le défaut est d'écraser, et l'historique est perdu silencieusement."
+ },
+ {
+  "id": "app.06.q6",
+  "prompt": "Une interruption avant le nœud « tools » sert à...",
+  "options": [
+   "accélérer l'exécution",
+   "faire une pause pour l'approbation humaine avant une action risquée et reprendre plus tard depuis l'état enregistré",
+   "sauter le nœud",
+   "réessayer le modèle"
+  ],
+  "explanation": "L'état persiste à travers l'interruption, donc l'exécution peut reprendre exactement là où elle s'est arrêtée."
+ },
+ {
+  "id": "app.06.q7",
+  "prompt": "Pourquoi fixer max_steps sur un graphe d'agent ?",
+  "options": [
+   "pour borner le coût et le temps quand le modèle continue de demander des outils",
+   "pour réduire les prix des jetons",
+   "parce que JSON l'exige",
+   "pour activer le streaming"
+  ],
+  "explanation": "Une boucle sans plafond peut tourner indéfiniment ; le plafond rend le pire cas fini."
+ },
+ {
+  "id": "app.06.q8",
+  "prompt": "Que standardise MCP ?",
+  "options": [
+   "quel outil le modèle doit choisir",
+   "les poids du modèle",
+   "la formulation des prompts",
+   "la façon dont les hôtes découvrent et appellent les outils, ressources et prompts des serveurs via JSON-RPC"
+  ],
+  "explanation": "C'est un protocole de communication ; il ne décide pas du choix d'outil et ne rend pas le contenu non fiable sûr."
+ },
+ {
+  "id": "app.06.q9",
+  "prompt": "Un serveur MCP tiers renvoie un texte contenant des instructions. Comment l'hôte doit-il le traiter ?",
+  "options": [
+   "comme des instructions système de confiance",
+   "comme déjà assaini par le protocole",
+   "comme des données non fiables, soumises aux mêmes garde-fous et approbations que toute sortie d'outil",
+   "comme un prompt de priorité supérieure"
+  ],
+  "explanation": "MCP n'assainit pas le contenu ; les résultats d'outils peuvent porter une injection."
+ }
+]

@@ -1,0 +1,257 @@
+[
+  {
+    "id": "pairs",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From text to training pairs: a window of size m around each centre word gives (centre, context) positive pairs; embedding lookup is just selecting a row of V (one-hot times V).",
+      "fr": "Du texte aux paires d'entraînement : une fenêtre de taille m autour de chaque mot central donne des paires positives (centre, contexte) ; la recherche d'embedding revient à sélectionner une ligne de V (one-hot fois V)."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"the cat sat on the mat\"] --> WN[\"window m = 1\\ncentre = sat\"]\n  WN --> P1[\"pair (sat, cat)\"]\n  WN --> P2[\"pair (sat, on)\"]\n  P1 --> LK[\"centre id c → v_c = V[c]\\none-hot (n,) · V (n, d) = row (d,)\"]\n  P2 --> LK\n  LK --> CT[\"context id o → u_o = U[o]  (d,)\"]",
+      "fr": "flowchart LR\n  T[\"the cat sat on the mat\"] --> WN[\"fenêtre m = 1\\ncentre = sat\"]\n  WN --> P1[\"paire (sat, cat)\"]\n  WN --> P2[\"paire (sat, on)\"]\n  P1 --> LK[\"id du centre c → v_c = V[c]\\none-hot (n,) · V (n, d) = ligne (d,)\"]\n  P2 --> LK\n  LK --> CT[\"id du contexte o → u_o = U[o]  (d,)\"]"
+    }
+  },
+  {
+    "id": "sgns",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Skip-gram with negative sampling for one pair: one centre vector, one true context and k noise words give k+1 sigmoid scores; only 1+k rows of U and one row of V receive gradient.",
+      "fr": "Skip-gram avec échantillonnage négatif pour une paire : un vecteur central, un vrai contexte et k mots de bruit donnent k+1 scores sigmoïdes ; seules 1+k lignes de U et une ligne de V reçoivent du gradient."
+    },
+    "code": {
+      "en": "flowchart TB\n  C[\"centre c → v_c = V[c]  (d,)\"] --> SO[\"s_o = u_o · v_c\"]\n  O[\"true context o → u_o = U[o]  (d,)\"] --> SO\n  NG[\"k noise words w_j ~ unigram^(3/4)\\nU[negs]  (k, d)\"] --> SJ[\"s_j = u_wj · v_c  (k,)\"]\n  C --> SJ\n  SO --> L[\"loss = -log σ(s_o) - Σ_j log σ(-s_j)\"]\n  SJ --> L\n  L --> G[\"g_o = σ(s_o) - 1,  g_j = σ(s_j)\"]\n  G --> UPV[\"∂ℓ/∂v_c = g_o u_o + Σ g_j u_wj  (d,)\"]\n  G --> UPO[\"∂ℓ/∂u_o = g_o v_c  (pulled toward v_c)\"]\n  G --> UPN[\"∂ℓ/∂u_wj = g_j v_c  (k, d)  (pushed away)\"]",
+      "fr": "flowchart TB\n  C[\"centre c → v_c = V[c]  (d,)\"] --> SO[\"s_o = u_o · v_c\"]\n  O[\"vrai contexte o → u_o = U[o]  (d,)\"] --> SO\n  NG[\"k mots de bruit w_j ~ unigramme^(3/4)\\nU[negs]  (k, d)\"] --> SJ[\"s_j = u_wj · v_c  (k,)\"]\n  C --> SJ\n  SO --> L[\"perte = -log σ(s_o) - Σ_j log σ(-s_j)\"]\n  SJ --> L\n  L --> G[\"g_o = σ(s_o) - 1,  g_j = σ(s_j)\"]\n  G --> UPV[\"∂ℓ/∂v_c = g_o u_o + Σ g_j u_wj  (d,)\"]\n  G --> UPO[\"∂ℓ/∂u_o = g_o v_c  (attiré vers v_c)\"]\n  G --> UPN[\"∂ℓ/∂u_wj = g_j v_c  (k, d)  (repoussé)\"]"
+    }
+  },
+  {
+    "id": "sgns-loss",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The two loss terms as functions of the score s: the positive term -log σ(s) = log(1 + e^(-s)) (blue) is large when a real pair scores low; the negative term -log σ(-s) = log(1 + e^s) (orange) is large when a noise pair scores high. At s = 0 both equal ln 2 = 0.693.",
+      "fr": "Les deux termes de perte en fonction du score s : le terme positif -log σ(s) = log(1 + e^(-s)) (bleu) est grand quand une vraie paire a un score bas ; le terme négatif -log σ(-s) = log(1 + e^s) (orange) est grand quand une paire de bruit a un score haut. En s = 0 les deux valent ln 2 = 0,693."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        0,
+        6.5
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "log(1 + exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "log(1 + exp(x))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "sgns-grad",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The error factors of the gradients: g_o = σ(s_o) - 1 (blue, in (-1, 0), pulls the true context closer) and g_j = σ(s_j) (orange, in (0, 1), pushes a noise word away). A noise word that already scores very low has g_j ≈ 0 and is left alone.",
+      "fr": "Les facteurs d'erreur des gradients : g_o = σ(s_o) - 1 (bleu, dans (-1, 0), rapproche le vrai contexte) et g_j = σ(s_j) (orange, dans (0, 1), repousse un mot de bruit). Un mot de bruit qui a déjà un score très bas a g_j ≈ 0 et n'est pas touché."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -1.1,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+exp(-x)) - 1",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0,
+          "text": "no gradient"
+        }
+      ]
+    }
+  },
+  {
+    "id": "analogy",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "Schematic 2-D picture of the analogy king - man + woman ≈ queen: the 'royalty' offset (blue arrows, man→king and woman→queen) and the 'gender' offset (orange arrows, man→woman and king→queen) form a parallelogram. Illustrative coordinates, not trained vectors.",
+      "fr": "Image schématique 2-D de l'analogie roi - homme + femme ≈ reine : le décalage « royauté » (flèches bleues, homme→roi et femme→reine) et le décalage « genre » (flèches orange, homme→femme et roi→reine) forment un parallélogramme. Coordonnées illustratives, pas de vrais vecteurs."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        0,
+        4
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fnType": "vector",
+          "vector": [
+            2.5,
+            0.3
+          ],
+          "offset": [
+            0.5,
+            0.5
+          ],
+          "graphType": "polyline",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            2.5,
+            0.3
+          ],
+          "offset": [
+            1,
+            2.2
+          ],
+          "graphType": "polyline",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.5,
+            1.7
+          ],
+          "offset": [
+            0.5,
+            0.5
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.5,
+            1.7
+          ],
+          "offset": [
+            3,
+            0.8
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#7c3aed",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.5,
+              0.5
+            ],
+            [
+              1,
+              2.2
+            ],
+            [
+              3,
+              0.8
+            ],
+            [
+              3.5,
+              2.5
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0.5,
+          "text": "man"
+        },
+        {
+          "x": 1,
+          "text": "woman"
+        },
+        {
+          "x": 3,
+          "text": "king"
+        },
+        {
+          "x": 3.5,
+          "text": "queen"
+        }
+      ]
+    }
+  },
+  {
+    "id": "glove-weight",
+    "after": 10,
+    "kind": "plot",
+    "caption": {
+      "en": "The GloVe weighting f(x) = min((x/x_max)^0.75, 1) with x_max = 100: rare pairs are down-weighted, very frequent pairs (the, and) are capped at 1 so they do not dominate the least-squares fit.",
+      "fr": "La pondération GloVe f(x) = min((x/x_max)^0,75 ; 1) avec x_max = 100 : les paires rares sont sous-pondérées, les paires très fréquentes (the, and) sont plafonnées à 1 pour ne pas dominer l'ajustement des moindres carrés."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        300
+      ],
+      "yDomain": [
+        0,
+        1.15
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "min(exp(0.75*log(max(x, 0.0001)/100)), 1)",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 100,
+          "text": "x_max"
+        }
+      ]
+    }
+  },
+  {
+    "id": "fasttext",
+    "after": 11,
+    "kind": "mermaid",
+    "caption": {
+      "en": "fastText: a word is the sum of the vectors of its character n-grams (and the word itself), so an unseen word that shares n-grams with a known one gets a nearby vector.",
+      "fr": "fastText : un mot est la somme des vecteurs de ses n-grammes de caractères (et du mot lui-même), si bien qu'un mot inconnu qui partage des n-grammes avec un mot connu reçoit un vecteur proche."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"where\"] --> NG[\"n = 3 with boundaries\\n‹wh  whe  her  ere  re›\"]\n  NG --> S[\"sum of n-gram vectors + word vector → (d,)\"]\n  U[\"whereupon (unseen)\"] --> NG2[\"‹wh  whe  her  ere  ... shares 4 of the n-grams\"]\n  NG2 --> S2[\"nearby vector (d,)\"]\n  S -.- S2",
+      "fr": "flowchart LR\n  W[\"where\"] --> NG[\"n = 3 avec bornes\\n‹wh  whe  her  ere  re›\"]\n  NG --> S[\"somme des vecteurs des n-grammes + vecteur du mot → (d,)\"]\n  U[\"whereupon (inconnu)\"] --> NG2[\"‹wh  whe  her  ere  ... partage 4 des n-grammes\"]\n  NG2 --> S2[\"vecteur proche (d,)\"]\n  S -.- S2"
+    }
+  }
+]

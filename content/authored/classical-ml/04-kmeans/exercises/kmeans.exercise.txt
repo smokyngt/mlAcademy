@@ -1,0 +1,91 @@
+#@@ meta
+{"id": "cml.04.ex1", "title": "Lloyd's algorithm with restarts", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.kmeans"], "hints": ["assign: squared distances (N,k) = ((X[:,None,:] - centers[None,:,:])**2).sum(-1); labels = argmin over axis 1.", "update: for each j, new[j] = X[labels == j].mean(axis=0) if that cluster is non-empty else keep the old centre.", "kmeans: for each restart pick k distinct rows of X as initial centres with rng.choice(len(X), k, replace=False); run lloyd; keep the run with the smallest final inertia."]}
+#@@ prompt
+Implement:
+
+- `assign(X, centers)` -> labels `(N,)`.
+- `update(X, labels, centers)` -> new centres (an empty cluster keeps its old centre).
+- `inertia(X, labels, centers)` -> $J$.
+- `lloyd(X, centers, iters=100)` -> `(centers, labels, history)` where `history` lists the inertia after each iteration; stop early when assignments no longer change.
+- `kmeans(X, k, n_init=10, seed=0)` -> the best `(centers, labels, inertia)` over `n_init` random initialisations.
+#@@ starter
+import numpy as np
+
+def assign(X, centers):
+    raise NotImplementedError
+
+def update(X, labels, centers):
+    raise NotImplementedError
+
+def inertia(X, labels, centers):
+    raise NotImplementedError
+
+def lloyd(X, centers, iters=100):
+    raise NotImplementedError
+
+def kmeans(X, k, n_init=10, seed=0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([[0.], [1.], [2.], [10.], [11.], [12.]])
+c0 = np.array([[0.], [1.]])
+l0 = assign(x, c0)
+check("first assignment: 0 -> c0, others -> c1", lambda: l0.tolist() == [0, 1, 1, 1, 1, 1])
+check("first update gives centres 0 and 7.2", lambda: np.allclose(update(x, l0, c0).ravel(), [0, 7.2]))
+cs, ls, hist = lloyd(x, c0)
+check("worked example converges to centres 1 and 11", lambda: np.allclose(np.sort(cs.ravel()), [1, 11]))
+check("worked example inertia = 4", lambda: abs(inertia(x, ls, cs) - 4) < 1e-12)
+check("inertia history never increases", lambda: all(b <= a + 1e-12 for a, b in zip(hist, hist[1:])))
+check("empty cluster keeps the old centre", lambda: np.allclose(update(x, np.zeros(6, dtype=int), np.array([[5.], [99.]])).ravel(), [x.mean(), 99.]))
+rng = np.random.default_rng(0)
+true = np.array([[0, 0], [8, 0], [0, 8]], float)
+X = np.vstack([true[i] + rng.normal(0, 0.6, (40, 2)) for i in range(3)]); truth = np.repeat(np.arange(3), 40)
+cs, ls, J = kmeans(X, 3, n_init=10, seed=0)
+def pure():
+    return all(len(set(ls[truth == t].tolist())) == 1 for t in range(3)) and len(set(ls.tolist())) == 3
+check("recovers three separated blobs", pure)
+check("deterministic for a given seed", lambda: np.allclose(kmeans(X, 3, 10, 0)[0], cs))
+check("restarts never do worse than a single run", lambda: kmeans(X, 3, 10, 5)[2] <= kmeans(X, 3, 1, 5)[2] + 1e-9)
+check("inertia matches the definition", lambda: abs(J - np.sum((X - cs[ls]) ** 2)) < 1e-9)
+#@@ solution
+import numpy as np
+
+def assign(X, centers):
+    d2 = ((X[:, None, :] - centers[None, :, :]) ** 2).sum(-1)
+    return d2.argmin(axis=1)
+
+def update(X, labels, centers):
+    new = centers.astype(float).copy()
+    for j in range(len(centers)):
+        pts = X[labels == j]
+        if len(pts):
+            new[j] = pts.mean(axis=0)
+    return new
+
+def inertia(X, labels, centers):
+    return float(np.sum((X - centers[labels]) ** 2))
+
+def lloyd(X, centers, iters=100):
+    centers = centers.astype(float).copy()
+    labels = assign(X, centers)
+    history = []
+    for _ in range(iters):
+        centers = update(X, labels, centers)
+        new_labels = assign(X, centers)
+        history.append(inertia(X, new_labels, centers))
+        if np.array_equal(new_labels, labels):
+            labels = new_labels
+            break
+        labels = new_labels
+    return centers, labels, history
+
+def kmeans(X, k, n_init=10, seed=0):
+    rng = np.random.default_rng(seed)
+    best = None
+    for _ in range(n_init):
+        init = X[rng.choice(len(X), k, replace=False)]
+        centers, labels, hist = lloyd(X, init)
+        J = inertia(X, labels, centers)
+        if best is None or J < best[2]:
+            best = (centers, labels, J)
+    return best

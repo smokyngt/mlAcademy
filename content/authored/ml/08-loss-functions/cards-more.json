@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.08.c14",
+  "concept": "ml.loss",
+  "front": "Negative log-likelihood",
+  "back": "$-\\sum_i\\ln p_\\theta(y_i\\mid x_i)$; minimising it is maximum likelihood."
+ },
+ {
+  "id": "f2n.08.c15",
+  "concept": "ml.loss",
+  "front": "Softmax",
+  "back": "$p_k=e^{z_k}/\\sum_je^{z_j}$: positive, sums to 1, shift-invariant."
+ },
+ {
+  "id": "f2n.08.c16",
+  "concept": "ml.loss",
+  "front": "Categorical cross-entropy",
+  "back": "$-\\ln p_y=-z_y+\\operatorname{logsumexp}(z)$."
+ },
+ {
+  "id": "f2n.08.c17",
+  "concept": "ml.loss",
+  "front": "Gradient of softmax + CE",
+  "back": "$p-\\text{onehot}(y)$ (divide by $B$ for a batch mean)."
+ },
+ {
+  "id": "f2n.08.c18",
+  "concept": "ml.loss",
+  "front": "Why not MSE for classification?",
+  "back": "With a sigmoid the gradient carries $p(1-p)$ and vanishes when confidently wrong."
+ },
+ {
+  "id": "f2n.08.c19",
+  "concept": "ml.loss",
+  "front": "Initial loss of a random 10-class model",
+  "back": "$\\ln10\\approx2.30$."
+ },
+ {
+  "id": "f2n.08.c20",
+  "concept": "ml.loss",
+  "front": "Stable log-softmax",
+  "back": "$z_k-\\operatorname{logsumexp}(z)$."
+ },
+ {
+  "id": "f2n.08.c21",
+  "concept": "ml.loss",
+  "front": "Effect of outliers on MSE",
+  "back": "Squared error is dominated by the largest errors."
+ },
+ {
+  "id": "f2n.08.c22",
+  "concept": "ml.loss",
+  "front": "Bernoulli likelihood",
+  "back": "$p^y(1-p)^{1-y}$."
+ }
+]

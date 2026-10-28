@@ -1,0 +1,60 @@
+#@@ meta
+{"id": "f2n.08.ex1", "title": "Stable softmax and cross-entropy with gradient", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.loss", "alg.exp-log"], "hints": ["softmax: subtract Z.max(axis=1, keepdims=True), exponentiate, divide by the row sums.", "cross_entropy: loss = mean over b of ( logsumexp(Z[b]) - Z[b, y[b]] ).", "cross_entropy_grad: P = softmax(Z); P[np.arange(B), y] -= 1; return P / B."]}
+#@@ prompt
+Implement, for logits `Z` of shape `(B, K)` and integer labels `y` of shape `(B,)`:
+
+- `softmax(Z)` row-wise and numerically stable.
+- `cross_entropy(Z, y)` - mean loss, computed with log-sum-exp (never `log(softmax)`).
+- `cross_entropy_grad(Z, y)` - gradient with respect to `Z`, shape `(B, K)`, including the `1/B` factor.
+
+The tests include logits of 1000 and a finite-difference gradient check.
+#@@ starter
+import numpy as np
+
+def softmax(Z):
+    raise NotImplementedError
+
+def cross_entropy(Z, y):
+    raise NotImplementedError
+
+def cross_entropy_grad(Z, y):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+Z = np.array([[2.0, 1.0, 0.1]]); y = np.array([0])
+check("softmax rows sum to 1", lambda: np.allclose(softmax(np.random.default_rng(0).normal(size=(4, 5))).sum(axis=1), 1))
+check("softmax worked example", lambda: np.allclose(softmax(Z), [[0.659, 0.242, 0.099]], atol=1e-3))
+check("softmax is shift-invariant", lambda: np.allclose(softmax(Z), softmax(Z + 123.0)))
+check("softmax does not overflow at logits 1000", lambda: np.all(np.isfinite(softmax(np.array([[1000.0, 0.0]])))))
+check("cross_entropy worked example = 0.417", lambda: abs(cross_entropy(Z, y) - 0.4170) < 1e-3)
+check("uniform logits give ln K", lambda: abs(cross_entropy(np.zeros((3, 10)), np.array([0, 4, 9])) - np.log(10)) < 1e-12)
+check("cross_entropy finite at logits [1000, 0]", lambda: np.isfinite(cross_entropy(np.array([[1000.0, 0.0]]), np.array([1]))) and abs(cross_entropy(np.array([[1000.0, 0.0]]), np.array([1])) - 1000) < 1e-6, "Use the log-sum-exp form")
+rng = np.random.default_rng(5)
+Zr = rng.normal(size=(6, 4)); yr = rng.integers(0, 4, size=6)
+def numgrad():
+    g = np.zeros_like(Zr); h = 1e-5
+    for i in range(Zr.shape[0]):
+        for j in range(Zr.shape[1]):
+            Zp = Zr.copy(); Zm = Zr.copy(); Zp[i, j] += h; Zm[i, j] -= h
+            g[i, j] = (cross_entropy(Zp, yr) - cross_entropy(Zm, yr)) / (2 * h)
+    return g
+check("gradient has shape (B, K)", lambda: cross_entropy_grad(Zr, yr).shape == (6, 4))
+check("gradient matches finite differences", lambda: np.allclose(cross_entropy_grad(Zr, yr), numgrad(), atol=1e-7))
+check("each gradient row sums to 0", lambda: np.allclose(cross_entropy_grad(Zr, yr).sum(axis=1), 0, atol=1e-12))
+#@@ solution
+import numpy as np
+
+def softmax(Z):
+    Z = Z - Z.max(axis=1, keepdims=True)
+    E = np.exp(Z)
+    return E / E.sum(axis=1, keepdims=True)
+
+def cross_entropy(Z, y):
+    m = Z.max(axis=1, keepdims=True)
+    lse = (m + np.log(np.exp(Z - m).sum(axis=1, keepdims=True))).ravel()
+    return float(np.mean(lse - Z[np.arange(len(y)), y]))
+
+def cross_entropy_grad(Z, y):
+    P = softmax(Z)
+    P[np.arange(len(y)), y] -= 1.0
+    return P / len(y)

@@ -1,0 +1,111 @@
+[
+  {
+    "id": "sequence-ratio",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why GSPO length-normalises the sequence ratio. If every token's probability changes by only 0.005 nats, the raw sequence ratio exp(0.005 L) (orange) leaves the clip range [0.8, 1.2] (grey) once L passes about 36 tokens and reaches 1.65 at L = 100, whereas the length-normalised ratio is exp(0.005) = 1.005 for every length (blue).",
+      "fr": "Pourquoi GSPO normalise le rapport de séquence par la longueur. Si la probabilité de chaque jeton ne change que de 0,005 nat, le rapport de séquence brut exp(0,005 L) (orange) sort de la plage de troncature [0,8 ; 1,2] (gris) dès que L dépasse environ 36 jetons et atteint 1,65 pour L = 100, alors que le rapport normalisé par la longueur vaut exp(0,005) = 1,005 quelle que soit la longueur (bleu)."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        1,
+        200
+      ],
+      "yDomain": [
+        0.7,
+        2.8
+      ],
+      "title": "L",
+      "data": [
+        {
+          "fn": "exp(0.005*x)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(0.005)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1.2",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "0.8",
+          "color": "#9ca3af"
+        }
+      ]
+    }
+  },
+  {
+    "id": "kl-length",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why a KL penalty on summed log-probabilities destabilised the book's run: with a per-token drift of 0.05 nats and beta = 0.02 the penalty grows linearly with length, 0.001 L (red), reaching 0.1 at 100 tokens and 1.0 at 1000, versus a constant 0.001 if log-probabilities are averaged (blue). It rewards the optimiser for pushing length.",
+      "fr": "Pourquoi une pénalité KL sur des log-probabilités sommées a déstabilisé l'exécution du livre : avec une dérive de 0,05 nat par jeton et beta = 0,02 la pénalité croît linéairement avec la longueur, 0,001 L (rouge), atteignant 0,1 à 100 jetons et 1,0 à 1000, contre une constante de 0,001 si les log-probabilités sont moyennées (bleu). Elle incite l'optimiseur à allonger."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "title": "L",
+      "data": [
+        {
+          "fn": "0.001*x",
+          "color": "#dc2626"
+        },
+        {
+          "fn": "0.001",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "distillation-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Hard distillation of reasoning traces: generate teacher traces for the training problems, format them with think tags, tokenise and filter by length (and optionally by verified correctness), then fine-tune the student with cross-entropy on the answer tokens only.",
+      "fr": "Distillation dure de traces de raisonnement : générer des traces du professeur pour les problèmes d'entraînement, les formater avec des balises think, tokeniser et filtrer par longueur (et éventuellement par justesse vérifiée), puis affiner l'élève avec l'entropie croisée sur les seuls jetons de réponse."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"teacher generates traces<br/>for training problems\"] --> FM[\"format: think tags + final answer\"]\n  FM --> TK[\"tokenise with chat template,<br/>append EOS, remember prompt_len\"]\n  TK --> FL[\"filter: length budget,<br/>verified correct (optional)\"]\n  FL --> FT[\"fine-tune student: CE on answer tokens,<br/>AdamW, clip 1.0\"]\n  FT --> ST[\"reasoning student\"]",
+      "fr": "flowchart LR\n  T[\"le professeur génère des traces<br/>pour les problèmes d'entraînement\"] --> FM[\"formater : balises think + réponse finale\"]\n  FM --> TK[\"tokeniser avec le gabarit de chat,<br/>ajouter EOS, retenir prompt_len\"]\n  TK --> FL[\"filtrer : budget de longueur,<br/>justesse vérifiée (optionnel)\"]\n  FL --> FT[\"affiner l'élève : CE sur les jetons de réponse,<br/>AdamW, écrêtage 1,0\"]\n  FT --> ST[\"élève raisonneur\"]"
+    }
+  },
+  {
+    "id": "results-bars",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "MATH-500 accuracy (%) of a Qwen3 0.6B student under different recipes: base model 15.2, official reasoning variant 48.2, GRPO for 50 steps 47.4, distilled on DeepSeek-R1 traces (epoch 3) 33.6, distilled on Qwen3-235B traces (epoch 3) 44.2. The choice of teacher moved accuracy by more than 10 points.",
+      "fr": "Précision MATH-500 (%) d'un élève Qwen3 0,6B selon la recette : modèle de base 15,2, variante de raisonnement officielle 48,2, GRPO sur 50 pas 47,4, distillé sur des traces de DeepSeek-R1 (époque 3) 33,6, distillé sur des traces de Qwen3-235B (époque 3) 44,2. Le choix du professeur a déplacé la précision de plus de 10 points."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"MATH-500 accuracy (%)\"\n  x-axis [\"base\", \"reasoning\", \"GRPO\", \"R1 distill\", \"Qwen235B distill\"]\n  y-axis \"%\" 0 --> 60\n  bar [15.2, 48.2, 47.4, 33.6, 44.2]",
+      "fr": "xychart-beta\n  title \"Précision MATH-500 (%)\"\n  x-axis [\"base\", \"reasoning\", \"GRPO\", \"R1 distill\", \"Qwen235B distill\"]\n  y-axis \"%\" 0 --> 60\n  bar [15.2, 48.2, 47.4, 33.6, 44.2]"
+    }
+  },
+  {
+    "id": "left-padding",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Batching for generation pads on the left so that every sequence's last real token sits at the same final position where generation continues; an attention mask marks the padding. Sorting by length first cuts wasted cells (lengths 10, 200, 12, 190, 11, 210: waste 0.4725 unsorted, 0.2299 sorted).",
+      "fr": "Le traitement par lots pour la génération remplit à gauche afin que le dernier vrai jeton de chaque séquence soit à la même position finale où la génération continue ; un masque d'attention marque le remplissage. Trier d'abord par longueur réduit les cellules perdues (longueurs 10, 200, 12, 190, 11, 210 : perte de 0,4725 sans tri, 0,2299 avec tri)."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompts of different lengths\"] --> SO[\"sort / bucket by length\"]\n  SO --> LP[\"left-pad to a rectangle<br/>+ attention mask\"]\n  LP --> GN[\"generate in parallel<br/>from the same final position\"]",
+      "fr": "flowchart LR\n  P[\"prompts de longueurs différentes\"] --> SO[\"trier / regrouper par longueur\"]\n  SO --> LP[\"remplir à gauche en rectangle<br/>+ masque d'attention\"]\n  LP --> GN[\"générer en parallèle<br/>depuis la même position finale\"]"
+    }
+  }
+]

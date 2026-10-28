@@ -1,0 +1,111 @@
+#@@ meta
+{"id": "seq.05.ex1", "title": "Additive attention: weights, context and backward", "difficulty": 4, "runtime": "pyodide", "concepts": ["seq.attention", "nn.backprop"], "hints": ["Z = s @ Wa.T + H @ Ua.T has shape (T, A) (the (A,) decoder term broadcasts). u = tanh(Z), e = u @ v has shape (T,). Masked positions get e = -1e9 before the softmax. alpha = softmax(e), ctx = alpha @ H.", "Backward: dalpha = H @ dctx; dH = outer(alpha, dctx); de = alpha * (dalpha - alpha @ dalpha) (softmax backward); dv = u.T @ de; du = outer(de, v); dZ = du * (1 - u**2).", "Then dWa = outer(dZ.sum(0), s), ds = Wa.T @ dZ.sum(0), dUa = dZ.T @ H, and dH += dZ @ Ua."]}
+#@@ prompt
+Implement Bahdanau (additive) attention for one decoder step.
+
+- `additive_attention(s, H, Wa, Ua, v, mask=None)` with decoder state `s (d_s,)`, encoder states `H (T, d_h)`, `Wa (A, d_s)`, `Ua (A, d_h)`, `v (A,)`. Scores $e_i=v^\top\tanh(W_as+U_ah_i)$, weights $\alpha=\operatorname{softmax}(e)$ and context $c=\sum_i\alpha_ih_i$. If `mask` (boolean, `True` = real token) is given, padded positions must get weight exactly 0. Return `(ctx, alpha, cache)`.
+- `additive_attention_backward(dctx, cache)` returns `(ds, dH, dWa, dUa, dv)`.
+- `scaled_dot_attention(Q, K, Vv)`: $\operatorname{softmax}(QK^\top/\sqrt d)\,V$ row-wise, with `Q (Tq, d)`, `K (Tk, d)`, `Vv (Tk, dv)`; return `(out, weights)`. This is the form used in self-attention: with `Q = K = Vv = X` it relates each position to all positions of the same sequence.
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def additive_attention(s, H, Wa, Ua, v, mask=None):
+    raise NotImplementedError
+
+def additive_attention_backward(dctx, cache):
+    raise NotImplementedError
+
+def scaled_dot_attention(Q, K, Vv):
+    raise NotImplementedError
+
+# lesson worked example
+H = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+s = np.array([0.5, -0.5])
+ctx, alpha, _ = additive_attention(s, H, np.eye(2), np.eye(2), np.array([1.0, 1.0]))
+print(alpha.round(4), ctx.round(4))
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+T, ds, dh, A = 5, 3, 4, 6
+Hh = rng.normal(size=(T, dh)); s = rng.normal(size=ds)
+Wa = rng.normal(0, 0.5, (A, ds)); Ua = rng.normal(0, 0.5, (A, dh)); v = rng.normal(size=A)
+ctx, alpha, cache = additive_attention(s, Hh, Wa, Ua, v)
+check("shapes: ctx (d_h,), alpha (T,)", lambda: ctx.shape == (dh,) and alpha.shape == (T,))
+check("alpha is a distribution", lambda: abs(alpha.sum() - 1) < 1e-12 and (alpha > 0).all())
+check("ctx is the alpha-weighted average of the encoder states", lambda: np.allclose(ctx, alpha @ Hh))
+Hw = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+_, aw, _ = additive_attention(np.array([0.5, -0.5]), Hw, np.eye(2), np.eye(2), np.array([1.0, 1.0]))
+check("lesson worked example weights", lambda: np.allclose(aw, [0.1946, 0.3149, 0.4905], atol=2e-4))
+mask = np.array([True, True, True, False, False])
+ctx_m, alpha_m, _ = additive_attention(s, Hh, Wa, Ua, v, mask)
+check("masked positions get weight 0 and the rest still sum to 1", lambda: np.all(alpha_m[3:] == 0) and abs(alpha_m.sum() - 1) < 1e-12)
+_, alpha_short, _ = additive_attention(s, Hh[:3], Wa, Ua, v)
+check("masking equals dropping the padded states", lambda: np.allclose(alpha_m[:3], alpha_short))
+dctx = rng.normal(size=dh)
+ds_, dH_, dWa_, dUa_, dv_ = additive_attention_backward(dctx, cache)
+def f(s, Hh, Wa, Ua, v):
+    return float(dctx @ additive_attention(s, Hh, Wa, Ua, v)[0])
+args0 = [s, Hh, Wa, Ua, v]
+def num(k):
+    g = np.zeros(args0[k].shape)
+    for idx in np.ndindex(*args0[k].shape):
+        a = [x.copy() for x in args0]; c = [x.copy() for x in args0]
+        a[k][idx] += 1e-6; c[k][idx] -= 1e-6
+        g[idx] = (f(*a) - f(*c)) / 2e-6
+    return g
+for k, (nm, val) in enumerate(zip(["ds", "dH", "dWa", "dUa", "dv"], [ds_, dH_, dWa_, dUa_, dv_])):
+    check(nm + " matches finite differences", lambda k=k, val=val: val.shape == args0[k].shape and np.allclose(val, num(k), atol=1e-7, rtol=1e-5), "dH has two parts: alpha_i * dctx (value path) and dZ @ Ua (key path through the score)")
+Q = rng.normal(size=(4, 8)); K = rng.normal(size=(6, 8)); Vv = rng.normal(size=(6, 5))
+out, W = scaled_dot_attention(Q, K, Vv)
+check("scaled dot attention shapes", lambda: out.shape == (4, 5) and W.shape == (4, 6))
+check("each row of weights sums to 1", lambda: np.allclose(W.sum(axis=1), 1))
+check("uses 1/sqrt(d) scaling", lambda: np.allclose(W, softmax(Q @ K.T / np.sqrt(8))))
+X = rng.normal(size=(5, 8))
+perm = rng.permutation(5)
+o1, _ = scaled_dot_attention(X, X, X)
+o2, _ = scaled_dot_attention(X[perm], X[perm], X[perm])
+check("self-attention without positions is permutation-equivariant", lambda: np.allclose(o1[perm], o2))
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def additive_attention(s, H, Wa, Ua, v, mask=None):
+    Z = s @ Wa.T + H @ Ua.T
+    u = np.tanh(Z)
+    e = u @ v
+    if mask is not None:
+        e = np.where(mask, e, -1e9)
+    alpha = softmax(e)
+    ctx = alpha @ H
+    return ctx, alpha, (s, H, Wa, Ua, v, u, alpha)
+
+def additive_attention_backward(dctx, cache):
+    s, H, Wa, Ua, v, u, alpha = cache
+    dalpha = H @ dctx
+    dH = np.outer(alpha, dctx)
+    de = alpha * (dalpha - alpha @ dalpha)
+    dv = u.T @ de
+    dZ = np.outer(de, v) * (1.0 - u ** 2)
+    dWa = np.outer(dZ.sum(axis=0), s)
+    ds = Wa.T @ dZ.sum(axis=0)
+    dUa = dZ.T @ H
+    dH = dH + dZ @ Ua
+    return ds, dH, dWa, dUa, dv
+
+def scaled_dot_attention(Q, K, Vv):
+    W = softmax(Q @ K.T / np.sqrt(Q.shape[-1]))
+    return W @ Vv, W
+
+H = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+s = np.array([0.5, -0.5])
+ctx, alpha, _ = additive_attention(s, H, np.eye(2), np.eye(2), np.array([1.0, 1.0]))
+print(alpha.round(4), ctx.round(4))

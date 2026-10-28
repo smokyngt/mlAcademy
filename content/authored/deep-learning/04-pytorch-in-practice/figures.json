@@ -1,0 +1,67 @@
+[
+  {
+    "id": "numpy-to-torch",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The from-scratch pieces and the PyTorch object that replaces each of them.",
+      "fr": "Les pièces écrites à la main et l'objet PyTorch qui remplace chacune."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph NP[\"From scratch\"]\n    n1[\"X @ W + b\"]\n    n2[\"softmax + cross-entropy\"]\n    n3[\"forward_backward\"]\n    n4[\"sgd_step, Adam class\"]\n    n5[\"manual shuffle and slicing\"]\n    n6[\"list of arrays params\"]\n  end\n  subgraph PT[\"PyTorch\"]\n    t1[\"nn.Linear\"]\n    t2[\"F.cross_entropy on logits\"]\n    t3[\"loss.backward()\"]\n    t4[\"torch.optim.SGD, AdamW\"]\n    t5[\"DataLoader\"]\n    t6[\"model.parameters()\"]\n  end\n  n1 --> t1\n  n2 --> t2\n  n3 --> t3\n  n4 --> t4\n  n5 --> t5\n  n6 --> t6",
+      "fr": "flowchart LR\n  subgraph NP[\"À la main\"]\n    n1[\"X @ W + b\"]\n    n2[\"softmax + entropie croisée\"]\n    n3[\"forward_backward\"]\n    n4[\"sgd_step, classe Adam\"]\n    n5[\"mélange et découpage manuels\"]\n    n6[\"liste de tableaux params\"]\n  end\n  subgraph PT[\"PyTorch\"]\n    t1[\"nn.Linear\"]\n    t2[\"F.cross_entropy sur les logits\"]\n    t3[\"loss.backward()\"]\n    t4[\"torch.optim.SGD, AdamW\"]\n    t5[\"DataLoader\"]\n    t6[\"model.parameters()\"]\n  end\n  n1 --> t1\n  n2 --> t2\n  n3 --> t3\n  n4 --> t4\n  n5 --> t5\n  n6 --> t6"
+    }
+  },
+  {
+    "id": "autograd-tape",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The autograd tape on the book's example (x = 1.1, w = 2.2, b = 0, y = 1). Forward ops are recorded; backward() replays them in reverse and accumulates into the leaves' .grad.",
+      "fr": "La bande d'autograd sur l'exemple du livre (x = 1,1, w = 2,2, b = 0, y = 1). Les opérations avant sont enregistrées ; backward() les rejoue en sens inverse et accumule dans le .grad des feuilles."
+    },
+    "code": {
+      "en": "flowchart LR\n  w[\"w leaf, 2.2\"] --> mul[\"w * x\"]\n  x[\"x = 1.1\"] --> mul\n  mul --> add[\"+ b\"]\n  b[\"b leaf, 0\"] --> add\n  add -->|\"z = 2.42\"| sg[\"sigmoid\"]\n  sg -->|\"a = 0.9183\"| bce[\"BCE with y = 1\"]\n  bce --> L[\"loss = 0.08519\"]\n  L -. \"backward: dz = a - y = -0.08166\" .-> add\n  add -. \"w.grad = x * dz = -0.08983\" .-> w\n  add -. \"b.grad = dz = -0.08166\" .-> b",
+      "fr": "flowchart LR\n  w[\"w feuille, 2,2\"] --> mul[\"w * x\"]\n  x[\"x = 1,1\"] --> mul\n  mul --> add[\"+ b\"]\n  b[\"b feuille, 0\"] --> add\n  add -->|\"z = 2,42\"| sg[\"sigmoïde\"]\n  sg -->|\"a = 0,9183\"| bce[\"BCE avec y = 1\"]\n  bce --> L[\"loss = 0,08519\"]\n  L -. \"arrière : dz = a - y = -0,08166\" .-> add\n  add -. \"w.grad = x * dz = -0,08983\" .-> w\n  add -. \"b.grad = dz = -0,08166\" .-> b"
+    }
+  },
+  {
+    "id": "module-shapes",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The NeuralNetwork(50, 3) module from the lesson with the tensor shape after each layer and its parameter count; the total is 2213.",
+      "fr": "Le module NeuralNetwork(50, 3) de la leçon, avec la forme du tenseur après chaque couche et son nombre de paramètres ; le total est 2213."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (B,50)\"] --> L1[\"Linear 50 to 30, 1530 params\"]\n  L1 --> R1[\"ReLU\"]\n  R1 -->|\"(B,30)\"| L2[\"Linear 30 to 20, 620 params\"]\n  L2 --> R2[\"ReLU\"]\n  R2 -->|\"(B,20)\"| L3[\"Linear 20 to 3, 63 params\"]\n  L3 -->|\"logits (B,3)\"| Out[\"F.cross_entropy\"]",
+      "fr": "flowchart LR\n  X[\"x (B,50)\"] --> L1[\"Linear 50 vers 30, 1530 params\"]\n  L1 --> R1[\"ReLU\"]\n  R1 -->|\"(B,30)\"| L2[\"Linear 30 vers 20, 620 params\"]\n  L2 --> R2[\"ReLU\"]\n  R2 -->|\"(B,20)\"| L3[\"Linear 20 vers 3, 63 params\"]\n  L3 -->|\"logits (B,3)\"| Out[\"F.cross_entropy\"]"
+    }
+  },
+  {
+    "id": "loop-sequence",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One iteration of the standard PyTorch training loop as a sequence of calls between the objects involved.",
+      "fr": "Une itération de la boucle d'entraînement PyTorch standard, vue comme une suite d'appels entre les objets concernés."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant DL as DataLoader\n  participant M as Model\n  participant F as F.cross_entropy\n  participant O as Optimizer\n  DL->>M: xb (B,2)\n  M->>F: logits (B,2) and yb (B) long\n  F-->>M: loss, a scalar\n  O->>M: zero_grad() clears old .grad\n  F->>M: loss.backward() fills .grad\n  O->>M: step() updates parameters\n  Note over DL,O: repeat for every batch, model.eval() and no_grad for testing",
+      "fr": "sequenceDiagram\n  participant DL as DataLoader\n  participant M as Modèle\n  participant F as F.cross_entropy\n  participant O as Optimiseur\n  DL->>M: xb (B,2)\n  M->>F: logits (B,2) et yb (B) long\n  F-->>M: loss, un scalaire\n  O->>M: zero_grad() efface les anciens .grad\n  F->>M: loss.backward() remplit .grad\n  O->>M: step() met à jour les paramètres\n  Note over DL,O: répéter pour chaque lot, model.eval() et no_grad pour le test"
+    }
+  },
+  {
+    "id": "mixed-precision",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Mixed precision: float32 master weights are cast to 16 bits for the forward and backward pass; float16 needs loss scaling against underflow, bfloat16 does not. The update is applied to the float32 weights.",
+      "fr": "Précision mixte : les poids maîtres float32 sont convertis en 16 bits pour les passes avant et arrière ; float16 nécessite une mise à l'échelle de la perte contre le soupassement, bfloat16 non. La mise à jour s'applique aux poids float32."
+    },
+    "code": {
+      "en": "flowchart LR\n  Mw[\"master weights, float32\"] -->|\"autocast to 16 bit\"| Fw[\"forward and loss, matmuls in 16 bit\"]\n  Fw --> Sc[\"float16 only: loss times scale factor\"]\n  Sc --> Bw[\"backward in 16 bit\"]\n  Bw --> Un[\"unscale gradients to float32\"]\n  Un --> St[\"optimizer step on float32 weights\"]\n  St --> Mw",
+      "fr": "flowchart LR\n  Mw[\"poids maîtres, float32\"] -->|\"autocast en 16 bits\"| Fw[\"avant et perte, matmuls en 16 bits\"]\n  Fw --> Sc[\"float16 seulement : perte fois facteur d'échelle\"]\n  Sc --> Bw[\"arrière en 16 bits\"]\n  Bw --> Un[\"remettre les gradients à l'échelle en float32\"]\n  Un --> St[\"pas d'optimiseur sur les poids float32\"]\n  St --> Mw"
+    }
+  }
+]

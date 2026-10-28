@@ -1,0 +1,37 @@
+[
+  {
+    "id": "inverse-transform", "after": 3, "kind": "plot",
+    "caption": { "en": "Inverse transform sampling for the exponential (λ = 2). A uniform u on the vertical axis is pushed through the inverse of the cdf F(x) = 1 − e^(−2x): u = 0.5 gives x = 0.3466 and u = 0.9 gives x = 1.1513. Flat parts of the cdf catch many u values, which is why dense regions get more samples.", "fr": "Échantillonnage par inversion pour l'exponentielle (λ = 2). Un u uniforme sur l'axe vertical est transporté par l'inverse de la fonction de répartition F(x) = 1 − e^(−2x) : u = 0,5 donne x = 0,3466 et u = 0,9 donne x = 1,1513. Les zones où la F monte vite correspondent à beaucoup de masse." },
+    "spec": { "xDomain": [0, 3], "yDomain": [0, 1.05], "height": 320,
+      "data": [
+        { "fn": "1 - exp(-2*x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[0, 0.5], [0.3466, 0.5], [0.3466, 0]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#d97706", "points": [[0, 0.9], [1.1513, 0.9], [1.1513, 0]] }
+      ] }
+  },
+  {
+    "id": "rejection-envelope", "after": 4, "kind": "plot",
+    "caption": { "en": "Rejection sampling for p(x) = 6x(1 − x) with a uniform proposal and M = 1.5. Draw x uniformly and u under the flat envelope M·q = 1.5 (orange); keep the point only if it falls under p (shaded blue). The accepted fraction is the area ratio 1/M = 0.667.", "fr": "Échantillonnage par rejet pour p(x) = 6x(1 − x) avec une proposition uniforme et M = 1,5. On tire x uniformément et un point sous l'enveloppe plate M·q = 1,5 (orange) ; on le garde seulement s'il tombe sous p (bleu ombré). La fraction acceptée est le rapport d'aires 1/M = 0,667." },
+    "spec": { "xDomain": [-0.1, 1.1], "yDomain": [0, 1.8], "height": 320,
+      "data": [
+        { "fn": "6*x*(1-x)", "color": "#2563eb", "range": [0, 1], "closed": true },
+        { "fn": "1.5", "color": "#d97706", "range": [0, 1] }
+      ] }
+  },
+  {
+    "id": "importance-sampling", "after": 5, "kind": "mermaid",
+    "caption": { "en": "Importance sampling: sample from an easy proposal q, correct each sample with the weight p/q, and average. The estimator is unbiased when q covers the support of p.", "fr": "Échantillonnage préférentiel : on tire d'une proposition facile q, on corrige chaque échantillon avec le poids p/q, puis on moyenne. L'estimateur est sans biais si q couvre le support de p." },
+    "code": {
+      "en": "flowchart LR\n  Q[\"sample x_i ~ q\"] --> W[\"weight w_i = p(x_i) / q(x_i)\"] --> F[\"evaluate f(x_i)\"] --> A[\"average of w_i f(x_i)\"] --> E[\"estimate of E_p[f]\"]",
+      "fr": "flowchart LR\n  Q[\"tirer x_i ~ q\"] --> W[\"poids w_i = p(x_i) / q(x_i)\"] --> F[\"évaluer f(x_i)\"] --> A[\"moyenne des w_i f(x_i)\"] --> E[\"estimation de E_p[f]\"]"
+    }
+  },
+  {
+    "id": "metropolis-loop", "after": 6, "kind": "mermaid",
+    "caption": { "en": "One iteration of Metropolis-Hastings: propose a move, accept it with probability min(1, p(x')/p(x)) (symmetric proposal), otherwise stay. The chain of states converges to samples from p.", "fr": "Une itération de Metropolis-Hastings : proposer un déplacement, l'accepter avec la probabilité min(1, p(x')/p(x)) (proposition symétrique), sinon rester. La chaîne d'états converge vers des échantillons de p." },
+    "code": {
+      "en": "flowchart TD\n  S[\"current state x\"] --> P[\"propose x' ~ q(x' | x)\"] --> A[\"a = min(1, p(x') / p(x))\"] --> U{\"u < a ?\"}\n  U -->|\"yes\"| N[\"move: x = x'\"]\n  U -->|\"no\"| K[\"stay: x unchanged\"]\n  N --> R[\"record x\"]\n  K --> R\n  R --> S",
+      "fr": "flowchart TD\n  S[\"état courant x\"] --> P[\"proposer x' ~ q(x' | x)\"] --> A[\"a = min(1, p(x') / p(x))\"] --> U{\"u < a ?\"}\n  U -->|\"oui\"| N[\"se déplacer : x = x'\"]\n  U -->|\"non\"| K[\"rester : x inchangé\"]\n  N --> R[\"enregistrer x\"]\n  K --> R\n  R --> S"
+    }
+  }
+]

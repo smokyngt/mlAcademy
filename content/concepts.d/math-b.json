@@ -1,0 +1,16 @@
+[
+  {
+    "id": "la.linear-systems",
+    "title": "Linear systems, Gaussian elimination and rank",
+    "description": "Solving Ax = b by elimination, rank, null space, existence and uniqueness, least squares and conditioning.",
+    "stage": "I",
+    "prereqs": ["la.matrix", "la.linear-map"]
+  },
+  {
+    "id": "opt.convex",
+    "title": "Convexity, the Hessian and Lagrange multipliers",
+    "description": "Second derivatives and curvature, convex sets and functions, Newton's method, constrained optimisation and duality.",
+    "stage": "II",
+    "prereqs": ["calc.gradient", "opt.gradient-descent", "la.eigen"]
+  }
+]

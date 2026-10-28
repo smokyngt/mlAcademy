@@ -1,0 +1,10 @@
+{
+  "id": "rsn.04.ex1",
+  "title": "Récompenses et avantages relatifs au groupe",
+  "prompt": "L'apprentissage par renforcement avec récompenses vérifiables a besoin (1) d'une récompense par rollout et (2) d'un **avantage** qui dit si un rollout était meilleur ou pire que ses frères. Implémente les deux avec la bibliothèque standard et NumPy. Les fonctions `get_last_boxed` et `grade_answer` (un vérificateur simplifié pour les nombres et fractions simples) sont fournies.\n\n- `reward_correct(text, gt)` : `1.0` si la **dernière réponse encadrée** existe et vaut `gt`, sinon `0.0`. (Pas d'encadrement, pas de récompense, même si le texte contient le bon nombre.)\n- `reward_format(text)` : `1.0` si `<think>` apparaît et que `</think>` apparaît après, sinon `0.0`.\n- `total_reward(text, gt, format_weight=1.0, conditional=False)` : `correct + format_weight * format` ; quand `conditional=True`, le terme de format est multiplié par la récompense de correction, de sorte que le formatage ne paie que si la réponse est juste.\n- `group_advantages(rewards, eps=1e-4, std_norm=True)` : `(r - mean) / (std + eps)` avec l'écart type **d'échantillon** (`ddof=1`) ; avec `std_norm=False`, simplement `r - mean`.\n- `binary_advantages(k, G)` : forme fermée (prends `eps = 0`) des avantages pour `k` rollouts corrects sur `G` (`0 < k < G`) : renvoie `(avantage_d_un_correct, avantage_d_un_faux)`.\n- `zero_signal_prob(p, G)` : probabilité que les `G` rollouts indépendants d'un problème de probabilité de succès `p` obtiennent tous la même récompense (donc chaque avantage vaut 0 et le problème n'apprend rien).",
+  "hints": [
+    "advantage_i = (r_i - mean(r)) / (std(r, ddof=1) + eps). Avec ddof=1, l'écart type divise par G - 1, comme le torch.std du livre. Si toutes les récompenses sont égales, le numérateur vaut 0 pour tout i.",
+    "Pour k corrects sur G, la variance d'échantillon (ddof=1) vaut k(G-k) / (G(G-1)). Les rollouts corrects ont l'avantage (1 - k/G) / sigma et les faux -(k/G) / sigma.",
+    "P(les G échantillons sont tous égaux) = p^G + (1-p)^G pour des échantillons indépendants de probabilité de succès p."
+  ]
+}

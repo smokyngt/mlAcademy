@@ -1,0 +1,125 @@
+[
+ {
+  "id": "cml.15.q1",
+  "concept": "ml.tuning",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which of these is a hyper-parameter?",
+  "options": [
+   "The ridge penalty $\\lambda$",
+   "The weights of a linear model",
+   "The fitted split thresholds of a tree",
+   "The learned mean of a scaler"
+  ],
+  "answer": 0,
+  "explanation": "Hyper-parameters are fixed before training and steer learning; weights, thresholds and scaler means are learned parameters."
+ },
+ {
+  "id": "cml.15.q2",
+  "concept": "ml.tuning",
+  "kind": "mcq",
+  "prompt": "Only one of two hyper-parameters really affects the score. With 9 trials, random search is usually better than a $3\\times3$ grid because...",
+  "options": [
+   "It uses a smarter model",
+   "It avoids the validation set",
+   "It tries 9 distinct values of the important parameter instead of 3",
+   "Grids cannot be run in parallel"
+  ],
+  "answer": 2,
+  "explanation": "Each grid axis only has 3 values; random search gets a fresh value on every axis in every trial."
+ },
+ {
+  "id": "cml.15.q3",
+  "concept": "ml.tuning",
+  "kind": "numeric",
+  "prompt": "A grid with 5 values for each of 6 hyper-parameters needs how many runs?",
+  "options": [],
+  "answer": {
+   "value": 15625,
+   "tol": 0
+  },
+  "explanation": "$5^6=15625$."
+ },
+ {
+  "id": "cml.15.q4",
+  "concept": "ml.tuning",
+  "kind": "numeric",
+  "prompt": "Successive halving with 27 configurations, $\\eta=3$ and initial budget 1 runs rungs $(27,1),(9,3),(3,9),(1,27)$. What is the total cost $\\sum n\\cdot b$?",
+  "options": [],
+  "answer": {
+   "value": 108,
+   "tol": 0
+  },
+  "explanation": "$27+27+27+27=108$, versus $27\\times27=729$ for full runs."
+ },
+ {
+  "id": "cml.15.q5",
+  "concept": "ml.bayesopt",
+  "kind": "mcq",
+  "prompt": "In a Gaussian-process posterior, the predictive standard deviation far from all training points is close to...",
+  "options": [
+   "0",
+   "The prior standard deviation $\\sigma$",
+   "The noise level",
+   "Infinity"
+  ],
+  "answer": 1,
+  "explanation": "Without nearby data the conditioning removes nothing: $s^2\\to k(x_*,x_*)=\\sigma^2$."
+ },
+ {
+  "id": "cml.15.q6",
+  "concept": "ml.bayesopt",
+  "kind": "mcq",
+  "prompt": "The GP predictive mean is $\\mu(x_*)=\\mathbf k_*^\\top C^{-1}\\mathbf t$. What is $C$?",
+  "options": [
+   "The identity",
+   "The covariance of the features",
+   "The Hessian of the loss",
+   "The kernel matrix plus the noise variance on the diagonal"
+  ],
+  "answer": 3,
+  "explanation": "$C=K+\\beta^{-1}I$ is the covariance of the noisy targets."
+ },
+ {
+  "id": "cml.15.q7",
+  "concept": "ml.bayesopt",
+  "kind": "mcq",
+  "prompt": "Expected improvement $(\\mu-f^+)\\Phi(z)+s\\varphi(z)$ is large when...",
+  "options": [
+   "$\\mu$ is high or $s$ is large",
+   "Only when $\\mu$ is high",
+   "Only when $s=0$",
+   "The point was already evaluated"
+  ],
+  "answer": 0,
+  "explanation": "The first term rewards exploitation, the second exploration; both can create improvement."
+ },
+ {
+  "id": "cml.15.q8",
+  "concept": "ml.pipeline",
+  "kind": "mcq",
+  "prompt": "Why does a Pipeline protect against leakage during cross-validation?",
+  "options": [
+   "It makes the model simpler",
+   "It shuffles the data",
+   "Every transformer is refitted on the training part of each fold only",
+   "It removes the validation set"
+  ],
+  "answer": 2,
+  "explanation": "No statistic is ever computed from the held-out rows because fit is called inside each fold."
+ },
+ {
+  "id": "cml.15.q9",
+  "concept": "ml.pipeline",
+  "kind": "mcq",
+  "prompt": "You pick the 5 best-correlated features on the whole dataset and then cross-validate a model on those 5. On pure-noise data the CV score is...",
+  "options": [
+   "Exactly zero",
+   "Optimistically positive, because the selection saw the held-out labels",
+   "Negative",
+   "Undefined"
+  ],
+  "answer": 1,
+  "explanation": "With 200 noise columns, some correlate with $y$ by chance; selecting them with all labels visible fabricates apparent signal (R-squared about 0.39 in the example)."
+ }
+]

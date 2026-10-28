@@ -1,0 +1,123 @@
+[
+ {
+  "id": "gpu.01.q1",
+  "concept": "gpu.simt",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "On an NVIDIA GPU, a warp is...",
+  "options": [
+   "a group of 32 threads that execute the same instruction in lock-step",
+   "a block of up to 1024 threads that share memory",
+   "the part of HBM a kernel can address",
+   "one streaming multiprocessor"
+  ],
+  "answer": 0,
+  "explanation": "The SM issues one instruction for 32 consecutive threads (a warp). Blocks are made of whole warps; an SM hosts many blocks."
+ },
+ {
+  "id": "gpu.01.q2",
+  "concept": "gpu.simt",
+  "kind": "mcq",
+  "prompt": "In a kernel launched with 128 threads per block, a branch is `if (threadIdx.x % 2 == 0) A(); else B();`. How many passes does one warp need?",
+  "options": [
+   "1",
+   "16",
+   "2",
+   "32"
+  ],
+  "answer": 2,
+  "explanation": "Even and odd lanes of every warp disagree, so the warp runs A with the odd lanes masked, then B with the even lanes masked: two passes. Branching on `threadIdx.x / 32` would cost one."
+ },
+ {
+  "id": "gpu.01.q3",
+  "concept": "gpu.coalescing",
+  "kind": "mcq",
+  "prompt": "Each of the 32 lanes of a warp loads one float32 at index `2 * lane`, starting at an aligned address. With 128-byte lines, how many transactions?",
+  "options": [
+   "1",
+   "16",
+   "32",
+   "2"
+  ],
+  "answer": 3,
+  "explanation": "The 32 lanes span 32 * 2 * 4 = 256 bytes, which is two 128-byte lines. Stride 1 would be one line; stride 32 would be 32."
+ },
+ {
+  "id": "gpu.01.q4",
+  "concept": "gpu.coalescing",
+  "kind": "numeric",
+  "prompt": "A warp reads 32 words from shared memory at word indices `32 * lane`. What is the bank-conflict degree (cycles needed)?",
+  "options": [],
+  "answer": {
+   "value": 32,
+   "tol": 0.1
+  },
+  "explanation": "Word w is in bank w mod 32, so every lane hits bank 0 with a different word: a 32-way conflict. Padding to stride 33 would make it conflict-free."
+ },
+ {
+  "id": "gpu.01.q5",
+  "concept": "gpu.occupancy",
+  "kind": "numeric",
+  "prompt": "An SM allows 2048 threads, 64 warps and 65,536 registers. A block has 256 threads and each thread uses 64 registers. What occupancy (fraction of the 64 warps) do you get, assuming no other limit applies?",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "Registers per block = 64 * 256 = 16,384, so 65,536 // 16,384 = 4 blocks = 32 warps, and 32/64 = 0.5. The thread limit alone would allow 8 blocks."
+ },
+ {
+  "id": "gpu.01.q6",
+  "concept": "gpu.memory-hierarchy",
+  "kind": "mcq",
+  "prompt": "Which ordering of GPU memories from fastest/smallest to slowest/largest is right?",
+  "options": [
+   "registers, shared memory, L2, HBM",
+   "HBM, L2, shared memory, registers",
+   "shared memory, registers, HBM, L2",
+   "registers, L2, shared memory, HBM"
+  ],
+  "answer": 0,
+  "explanation": "Registers belong to a thread, shared memory to a block on one SM, L2 to the whole chip, and HBM is the large off-chip stack."
+ },
+ {
+  "id": "gpu.01.q7",
+  "concept": "gpu.tiling",
+  "kind": "numeric",
+  "prompt": "A naive matmul loads 2MNK elements from global memory. Using 32 x 32 tiles in shared memory, by what factor does the number of loads fall (ignoring the stores of C)?",
+  "options": [],
+  "answer": {
+   "value": 32,
+   "tol": 0.1
+  },
+  "explanation": "Each element of A is loaded N/T times instead of N times, and each element of B M/T times instead of M times: loads = 2MNK/T, a factor T = 32."
+ },
+ {
+  "id": "gpu.01.q8",
+  "concept": "gpu.tiling",
+  "kind": "mcq",
+  "prompt": "In the tiled matmul kernel, why is the second `__syncthreads()` (after the inner loop) needed?",
+  "options": [
+   "to make the global loads coalesced",
+   "so no thread overwrites the shared tile in the next iteration while others still read it",
+   "to flush registers to HBM",
+   "to finish the kernel launch"
+  ],
+  "answer": 1,
+  "explanation": "The first barrier makes the freshly written tile visible; the second protects the tile from being overwritten before all threads finished using it."
+ },
+ {
+  "id": "gpu.01.q9",
+  "concept": "gpu.occupancy",
+  "kind": "mcq",
+  "prompt": "Which statement about occupancy is correct?",
+  "options": [
+   "100% occupancy always gives the fastest kernel",
+   "It counts the number of SMs a kernel uses",
+   "It is the ratio of resident warps to the SM maximum, and it is limited by the scarcest of threads, registers, shared memory and block slots",
+   "It is determined only by the grid size"
+  ],
+  "answer": 2,
+  "explanation": "Occupancy helps hide latency but a kernel with more registers per thread can be faster at lower occupancy; it is a min over several resource limits."
+ }
+]

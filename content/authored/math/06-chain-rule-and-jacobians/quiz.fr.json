@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.06.q1",
+    "prompt": "Si $y=(3x+1)^2$, que vaut $dy/dx$ en $x=1$ ?",
+    "options": [],
+    "explanation": "Posons $u=3x+1$. Alors $dy/du=2u=8$ en $x=1$ ($u=4$) et $du/dx=3$, donc $dy/dx=8\\cdot3=24$."
+  },
+  {
+    "id": "f2n.06.q2",
+    "prompt": "$f:\\mathbb{R}^5\\to\\mathbb{R}^3$. Quelle est la forme de sa jacobienne ?",
+    "options": ["$5\\times3$", "$3\\times5$", "$3\\times3$", "$15\\times1$"],
+    "explanation": "$(J_f)_{ij}=\\partial f_i/\\partial x_j$ a une ligne par sortie ($m=3$) et une colonne par entrée ($n=5$)."
+  },
+  {
+    "id": "f2n.06.q3",
+    "prompt": "Pour $h=g\\circ f$ avec $f:\\mathbb{R}^n\\to\\mathbb{R}^m$ et $g:\\mathbb{R}^m\\to\\mathbb{R}^k$, la jacobienne de $h$ est...",
+    "options": ["$J_f J_g$", "$J_g J_f$ (évaluée en $f(x)$)", "$J_g+J_f$", "$J_g\\odot J_f$"],
+    "explanation": "Linéarise chaque application et compose : $(k\\times m)(m\\times n)=(k\\times n)$. L'autre ordre n'a même pas de formes compatibles en général."
+  },
+  {
+    "id": "f2n.06.q4",
+    "prompt": "$y=Wx$, $W\\in\\mathbb{R}^{m\\times n}$, gradient amont $g=\\nabla_yL\\in\\mathbb{R}^m$. Que vaut $\\nabla_xL$ ?",
+    "options": ["$Wg$", "$W^\\top g$", "$g x^\\top$", "$x g^\\top$"],
+    "explanation": "$J=W$ et le produit vecteur-jacobienne est $J^\\top g=W^\\top g\\in\\mathbb{R}^n$. $gx^\\top$ est $\\nabla_WL$, pas $\\nabla_xL$. $Wg$ n'est même pas défini sauf si $m=n$."
+  },
+  {
+    "id": "f2n.06.q5",
+    "prompt": "Même contexte. Quelle est la forme de $\\nabla_WL=g x^\\top$ ?",
+    "options": ["$n\\times m$", "$m\\times n$", "$m$", "$n$"],
+    "explanation": "$g$ est $m\\times1$ et $x^\\top$ est $1\\times n$, donc le produit extérieur est $m\\times n$ : la même forme que $W$, comme tout gradient doit l'avoir."
+  },
+  {
+    "id": "f2n.06.q6",
+    "prompt": "Terme à terme $y=\\phi(z)$ avec gradient amont $g$. Lequel est $\\nabla_zL$ ?",
+    "options": ["$\\phi'(z)\\,g$ comme produit matrice-vecteur avec une jacobienne pleine", "$g\\odot\\phi'(z)$", "$g/\\phi'(z)$", "$\\phi(g)$"],
+    "explanation": "La jacobienne est diagonale, $\\operatorname{diag}(\\phi'(z))$, donc la multiplier par elle revient à un produit terme à terme. L'option A est équivalente en valeur mais coûteuse : elle construirait une matrice $m\\times m$."
+  }
+]

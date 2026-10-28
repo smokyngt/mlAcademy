@@ -1,0 +1,153 @@
+#@@ meta
+{"id": "adv.04.ex1", "title": "Attention masks, GQA, differential attention and KV memory", "difficulty": 4, "runtime": "pyodide", "concepts": ["adv.attn-variants", "adv.kv-sharing"], "hints": ["Sliding window: allowed[i, j] is True iff j <= i and i - j < window. Strided = sliding OR (j <= i and j % stride == 0).", "GQA: with H query heads and G key/value heads, query head h uses KV head h // (H // G). Apply the mask by setting disallowed scores to -inf before the softmax.", "KV bytes = 2 * layers * kv_heads * head_dim * tokens_kept * bytes; sliding-window layers keep min(N, window) tokens. MLA stores latent + rope_dim numbers per token per layer (no factor 2, K and V come from one latent)."]}
+#@@ prompt
+Implement attention masks and memory counters with NumPy. A boolean mask has `True` where a query (row) may attend to a key (column).
+
+1. `causal_mask(n)`, `sliding_mask(n, window)` (query `i` sees keys `j` with `i-window < j <= i`), `strided_mask(n, window, stride)` (sliding window plus every key `j <= i` with `j % stride == 0`), `global_local_mask(n, window, global_idx)` (sliding window, plus every query may see the keys in `global_idx` that are `<= i`, plus the global positions themselves see all keys `<= their own index`; the result stays causal).
+2. `n_entries(mask)` -> number of allowed pairs.
+3. `gqa_attention(Q, K, V, mask)`: `Q` is `(H, N, d)`, `K` and `V` are `(G, N, d)` with `H % G == 0`; query head `h` uses KV head `h // (H // G)`. Return `(H, N, d)`. (G = H is multi-head, G = 1 is multi-query.)
+4. `diff_attention(Q1, K1, Q2, K2, V, lam, mask)`: single head, `(N, d)` inputs. Return `(softmax(Q1 K1^T/sqrt(d)) - lam * softmax(Q2 K2^T/sqrt(d))) @ V` with the mask applied inside each softmax.
+5. `kv_gib(layers, kv_heads, head_dim, n_tokens, window=None, bytes_per_value=2)`: KV cache in GiB; if `window` is given each layer keeps only `min(n_tokens, window)` tokens.
+6. `mla_kv_gib(layers, latent_dim, n_tokens, rope_dim=0, bytes_per_value=2)`: MLA cache in GiB: per token per layer `latent_dim + rope_dim` values.
+7. `hybrid_kv_gib(layers, global_every, n_tokens, window, kv_heads, head_dim, bytes_per_value=2)`: every `global_every`-th layer (count `layers // global_every`) is full attention, all others sliding-window.
+8. `receptive_field(window, layers)` -> how many positions back information can travel through `layers` stacked sliding-window layers: `layers*(window-1)+1`.
+#@@ starter
+import numpy as np
+
+def causal_mask(n):
+    raise NotImplementedError
+
+def sliding_mask(n, window):
+    raise NotImplementedError
+
+def strided_mask(n, window, stride):
+    raise NotImplementedError
+
+def global_local_mask(n, window, global_idx):
+    raise NotImplementedError
+
+def n_entries(mask):
+    raise NotImplementedError
+
+def gqa_attention(Q, K, V, mask):
+    raise NotImplementedError
+
+def diff_attention(Q1, K1, Q2, K2, V, lam, mask):
+    raise NotImplementedError
+
+def kv_gib(layers, kv_heads, head_dim, n_tokens, window=None, bytes_per_value=2):
+    raise NotImplementedError
+
+def mla_kv_gib(layers, latent_dim, n_tokens, rope_dim=0, bytes_per_value=2):
+    raise NotImplementedError
+
+def hybrid_kv_gib(layers, global_every, n_tokens, window, kv_heads, head_dim, bytes_per_value=2):
+    raise NotImplementedError
+
+def receptive_field(window, layers):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("causal has n(n+1)/2 entries", lambda: n_entries(causal_mask(8)) == 36)
+check("sliding window 4 on 8 tokens has 26 entries", lambda: n_entries(sliding_mask(8, 4)) == 26)
+check("window >= n recovers causal", lambda: np.array_equal(sliding_mask(8, 8), causal_mask(8)))
+check("window 1 is the identity", lambda: np.array_equal(sliding_mask(6, 1), np.eye(6, dtype=bool)))
+check("long sequence: window 1024 on 8192", lambda: n_entries(sliding_mask(8192, 1024)) == 7864832 and n_entries(causal_mask(8192)) == 33558528)
+check("strided mask n=10, w=3, s=4 has 37 entries", lambda: n_entries(strided_mask(10, 3, 4)) == 37)
+check("strided is a causal superset of sliding", lambda: (strided_mask(12, 3, 4) | causal_mask(12) == causal_mask(12)).all() and (strided_mask(12, 3, 4) | sliding_mask(12, 3) == strided_mask(12, 3, 4)).all())
+G = global_local_mask(10, 2, [0, 5])
+check("global-local stays causal", lambda: (G & ~causal_mask(10)).sum() == 0)
+check("every token after position 5 sees keys 0 and 5", lambda: G[9, 0] and G[9, 5] and not G[9, 3])
+check("global position 5 sees all earlier keys", lambda: G[5, :6].all())
+rng = np.random.default_rng(0)
+H, N, d = 4, 6, 5
+Q = rng.normal(size=(H, N, d)); K = rng.normal(size=(4, N, d)); V = rng.normal(size=(4, N, d))
+m = causal_mask(N)
+def ref(q, k, v, mask):
+    s = q @ k.T / np.sqrt(q.shape[1]); s = np.where(mask, s, -np.inf); s = s - s.max(1, keepdims=True)
+    a = np.exp(s); a /= a.sum(1, keepdims=True); return a @ v
+out = gqa_attention(Q, K, V, m)
+check("MHA (G=H) equals per-head attention", lambda: out.shape == (4, N, d) and all(np.allclose(out[h], ref(Q[h], K[h], V[h], m)) for h in range(4)))
+K2, V2 = K[:2], V[:2]
+out2 = gqa_attention(Q, K2, V2, m)
+check("GQA groups of 2 heads share a KV head", lambda: all(np.allclose(out2[h], ref(Q[h], K2[h // 2], V2[h // 2], m)) for h in range(4)))
+out1 = gqa_attention(Q, K[:1], V[:1], m)
+check("MQA: all heads share the single KV head", lambda: all(np.allclose(out1[h], ref(Q[h], K[0], V[0], m)) for h in range(4)))
+check("first token only sees itself", lambda: np.allclose(out1[2, 0], V[0, 0]))
+q1, k1, q2, k2, v = [rng.normal(size=(N, d)) for _ in range(5)]
+check("lam = 0 reduces to ordinary attention", lambda: np.allclose(diff_attention(q1, k1, q2, k2, v, 0.0, m), ref(q1, k1, v, m)))
+check("identical maps with lam = 1 cancel exactly", lambda: np.allclose(diff_attention(q1, k1, q1, k1, v, 1.0, m), 0.0))
+check("with V = ones the output equals 1 - lam", lambda: np.allclose(diff_attention(q1, k1, q2, k2, np.ones((N, d)), 0.7, m), 0.3))
+check("MHA 32L, 32 heads, d=128, 128k tokens = 64 GiB", lambda: abs(kv_gib(32, 32, 128, 131072) - 64.0) < 1e-9)
+check("GQA with 8 KV heads = 16 GiB, MQA = 2 GiB", lambda: abs(kv_gib(32, 8, 128, 131072) - 16.0) < 1e-9 and abs(kv_gib(32, 1, 128, 131072) - 2.0) < 1e-9)
+check("window 4096 with 8 KV heads = 0.5 GiB", lambda: abs(kv_gib(32, 8, 128, 131072, window=4096) - 0.5) < 1e-9)
+check("window larger than n changes nothing", lambda: abs(kv_gib(32, 8, 128, 1000, window=4096) - kv_gib(32, 8, 128, 1000)) < 1e-12)
+check("MLA latent 512, 61 layers, 128k = 7.625 GiB", lambda: abs(mla_kv_gib(61, 512, 131072) - 7.625) < 1e-9)
+check("MLA with a 64-dim decoupled rope key = 8.578125 GiB", lambda: abs(mla_kv_gib(61, 512, 131072, rope_dim=64) - 8.578125) < 1e-9)
+check("GQA baseline for 61 layers = 30.5 GiB", lambda: abs(kv_gib(61, 8, 128, 131072) - 30.5) < 1e-9)
+check("hybrid 5:1 layout, 30 layers", lambda: abs(hybrid_kv_gib(30, 6, 131072, 1024, 8, 128) - 2.59765625) < 1e-9)
+check("receptive field", lambda: receptive_field(4096, 32) == 32 * 4095 + 1 and receptive_field(1, 10) == 1)
+#@@ solution
+import numpy as np
+
+def causal_mask(n):
+    return np.tril(np.ones((n, n), dtype=bool))
+
+def sliding_mask(n, window):
+    i = np.arange(n)[:, None]
+    j = np.arange(n)[None, :]
+    return (j <= i) & (i - j < window)
+
+def strided_mask(n, window, stride):
+    i = np.arange(n)[:, None]
+    j = np.arange(n)[None, :]
+    return sliding_mask(n, window) | ((j <= i) & (j % stride == 0))
+
+def global_local_mask(n, window, global_idx):
+    m = sliding_mask(n, window)
+    c = causal_mask(n)
+    for g in global_idx:
+        m[:, g] = True
+        m[g, :] = True
+    return m & c
+
+def n_entries(mask):
+    return int(mask.sum())
+
+def _softmax(s):
+    s = s - s.max(axis=-1, keepdims=True)
+    e = np.exp(s)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def gqa_attention(Q, K, V, mask):
+    H, N, d = Q.shape
+    G = K.shape[0]
+    out = np.zeros_like(Q)
+    for h in range(H):
+        g = h // (H // G)
+        s = Q[h] @ K[g].T / np.sqrt(d)
+        s = np.where(mask, s, -np.inf)
+        out[h] = _softmax(s) @ V[g]
+    return out
+
+def diff_attention(Q1, K1, Q2, K2, V, lam, mask):
+    d = Q1.shape[1]
+    a1 = _softmax(np.where(mask, Q1 @ K1.T / np.sqrt(d), -np.inf))
+    a2 = _softmax(np.where(mask, Q2 @ K2.T / np.sqrt(d), -np.inf))
+    return (a1 - lam * a2) @ V
+
+def kv_gib(layers, kv_heads, head_dim, n_tokens, window=None, bytes_per_value=2):
+    kept = n_tokens if window is None else min(n_tokens, window)
+    return 2 * layers * kv_heads * head_dim * kept * bytes_per_value / 2 ** 30
+
+def mla_kv_gib(layers, latent_dim, n_tokens, rope_dim=0, bytes_per_value=2):
+    return layers * (latent_dim + rope_dim) * n_tokens * bytes_per_value / 2 ** 30
+
+def hybrid_kv_gib(layers, global_every, n_tokens, window, kv_heads, head_dim, bytes_per_value=2):
+    n_global = layers // global_every
+    n_local = layers - n_global
+    return (kv_gib(n_global, kv_heads, head_dim, n_tokens, None, bytes_per_value)
+            + kv_gib(n_local, kv_heads, head_dim, n_tokens, window, bytes_per_value))
+
+def receptive_field(window, layers):
+    return layers * (window - 1) + 1

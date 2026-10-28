@@ -1,0 +1,234 @@
+[
+  {
+    "id": "mel-curve",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The mel scale m(f) = 2595 log10(1 + f/700) in blue, against its straight-line tangent at the origin (slope 1.61 mel/Hz, orange). The curve is nearly linear below 700 Hz and logarithmic above, which compresses high frequencies.",
+      "fr": "L'échelle mel m(f) = 2595 log10(1 + f/700) en bleu, contre sa tangente rectiligne à l'origine (pente 1,61 mel/Hz, orange). La courbe est presque linéaire sous 700 Hz et logarithmique au-dessus, ce qui comprime les hautes fréquences."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        8000
+      ],
+      "yDomain": [
+        0,
+        3000
+      ],
+      "title": "f (Hz)",
+      "data": [
+        {
+          "fn": "2595*log(1 + x/700)/log(10)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1.61*x",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "mel-filterbank",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The 8-filter mel filterbank of the worked example (N = 512, fs = 16 kHz, 0-8 kHz): triangles whose boundaries are 0, 226.2, 525.5, 921.5, 1445.4, 2138.6, 3055.9, 4269.5, 5875.3 and 8000 Hz. They are narrow at low pitch and wide at high pitch, and neighbours overlap by half.",
+      "fr": "La banque de 8 filtres mel de l'exemple (N = 512, fs = 16 kHz, 0-8 kHz) : des triangles aux frontières 0, 226,2, 525,5, 921,5, 1445,4, 2138,6, 3055,9, 4269,5, 5875,3 et 8000 Hz. Ils sont étroits dans les graves, larges dans les aigus, et voisins se recouvrent de moitié."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        8000
+      ],
+      "yDomain": [
+        0,
+        1.15
+      ],
+      "title": "f (Hz)",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              226.2,
+              1
+            ],
+            [
+              525.5,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              226.2,
+              0
+            ],
+            [
+              525.5,
+              1
+            ],
+            [
+              921.5,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#16a34a",
+          "points": [
+            [
+              525.5,
+              0
+            ],
+            [
+              921.5,
+              1
+            ],
+            [
+              1445.4,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              921.5,
+              0
+            ],
+            [
+              1445.4,
+              1
+            ],
+            [
+              2138.6,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#7c3aed",
+          "points": [
+            [
+              1445.4,
+              0
+            ],
+            [
+              2138.6,
+              1
+            ],
+            [
+              3055.9,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#0891b2",
+          "points": [
+            [
+              2138.6,
+              0
+            ],
+            [
+              3055.9,
+              1
+            ],
+            [
+              4269.5,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#db2777",
+          "points": [
+            [
+              3055.9,
+              0
+            ],
+            [
+              4269.5,
+              1
+            ],
+            [
+              5875.3,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#65a30d",
+          "points": [
+            [
+              4269.5,
+              0
+            ],
+            [
+              5875.3,
+              1
+            ],
+            [
+              8000,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "mel-matrix",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The mel spectrogram is one matrix product: the power spectrogram P (T x (N/2+1)) times the transposed filterbank H^T ((N/2+1) x M) gives (T x M); the log makes it a log-mel spectrogram.",
+      "fr": "Le spectrogramme mel est un seul produit matriciel : le spectrogramme de puissance P (T x (N/2+1)) fois la banque de filtres transposée H^T ((N/2+1) x M) donne (T x M) ; le log en fait un spectrogramme log-mel."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"power P<br/>(T, N/2+1)\"] --> MM[\"P x H^T\"]\n  H[\"filterbank H^T<br/>(N/2+1, M)\"] --> MM\n  MM --> MS[\"mel spectrogram<br/>(T, M)\"]\n  MS --> LG[\"log(. + eps)\"]\n  LG --> LM[\"log-mel (T, M)\"]",
+      "fr": "flowchart LR\n  P[\"puissance P<br/>(T, N/2+1)\"] --> MM[\"P x H^T\"]\n  H[\"banque de filtres H^T<br/>(N/2+1, M)\"] --> MM\n  MM --> MS[\"spectrogramme mel<br/>(T, M)\"]\n  MS --> LG[\"log(. + eps)\"]\n  LG --> LM[\"log-mel (T, M)\"]"
+    }
+  },
+  {
+    "id": "mfcc-pipeline",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From waveform to MFCCs: each step throws away something (phase, fine frequency detail, correlation between neighbouring bands) to leave a compact, decorrelated description of the spectral envelope.",
+      "fr": "De la forme d'onde aux MFCC : chaque étape jette quelque chose (la phase, le détail fin en fréquence, la corrélation entre bandes voisines) pour laisser une description compacte et décorrélée de l'enveloppe spectrale."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"waveform\"] --> S[\"STFT power\"]\n  S --> M[\"mel filterbank\"]\n  M --> L[\"log\"]\n  L --> D[\"DCT, keep first K\"]\n  D --> C[\"MFCC (T, K)\"]",
+      "fr": "flowchart LR\n  W[\"signal\"] --> S[\"puissance STFT\"]\n  S --> M[\"banque de filtres mel\"]\n  M --> L[\"log\"]\n  L --> D[\"DCT, garder les K premiers\"]\n  D --> C[\"MFCC (T, K)\"]"
+    }
+  }
+]

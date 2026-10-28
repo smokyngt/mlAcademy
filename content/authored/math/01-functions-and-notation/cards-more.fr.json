@@ -1,0 +1,12 @@
+[
+  { "id": "f2n.01.c14", "front": "Quel est le domaine de départ d'une fonction ?", "back": "L'ensemble des entrées qu'elle accepte ; le codomaine est l'ensemble dans lequel vivent ses sorties." },
+  { "id": "f2n.01.c15", "front": "La composition est-elle commutative ?", "back": "Non : $g\\circ f\\ne f\\circ g$ en général. On applique d'abord la fonction de droite." },
+  { "id": "f2n.01.c16", "front": "Développe $\\sum_{i=1}^{3}i^2$", "back": "$1+4+9=14$." },
+  { "id": "f2n.01.c17", "front": "$\\sum_{i=1}^{n}c$ vaut...", "back": "$nc$ (une constante ajoutée $n$ fois)." },
+  { "id": "f2n.01.c18", "front": "A-t-on $\\sum a_ib_i=(\\sum a_i)(\\sum b_i)$ ?", "back": "Non : le produit de sommes a $n^2$ termes croisés." },
+  { "id": "f2n.01.c19", "front": "$\\ln(a/b)$", "back": "$\\ln a-\\ln b$." },
+  { "id": "f2n.01.c20", "front": "$\\ln(a^p)$", "back": "$p\\ln a$." },
+  { "id": "f2n.01.c21", "front": "$\\exp(\\ln y)$ et $\\ln(\\exp x)$", "back": "Les deux renvoient l'argument : $\\exp$ et $\\ln$ sont réciproques (pour $y>0$)." },
+  { "id": "f2n.01.c22", "front": "A-t-on $\\ln(a+b)=\\ln a+\\ln b$ ?", "back": "Non. Le logarithme transforme les produits en sommes, pas les sommes en sommes." },
+  { "id": "f2n.01.c23", "front": "Plus petit float64 strictement positif (environ)", "back": "Environ $2.2\\times10^{-308}$ : un produit de nombreuses petites probabilités passe sous ce seuil et vaut 0." }
+]

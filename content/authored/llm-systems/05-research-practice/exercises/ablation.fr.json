@@ -1,0 +1,10 @@
+{
+  "id": "sys.05.ex1",
+  "title": "Un harnais d'ablation : graines, moyenne +- écart-type, comparaison appariée",
+  "prompt": "Tu vas construire le harnais d'une petite expérience contrôlée sur le classifieur des deux lunes (MLP tanh 2-16-1, SGD par minibatch, 300 pas) : l'**échauffement du taux d'apprentissage** ou l'**échelle d'initialisation** comptent-ils ?\n\nImplémente :\n\n- `lr_at(step, lr, warmup)` : calendrier d'échauffement linéaire.\n- `train_mlp(...)` : une exécution d'entraînement, entièrement déterminée par `seed`, qui renvoie la précision de test.\n- `run_seeds(cfg, seeds)` : précisions d'une configuration sur plusieurs graines.\n- `summarize(accs)` : moyenne et écart-type empirique (`ddof=1`).\n- `paired_stats(a, b)` : pour deux configurations lancées avec les **mêmes** graines : différence moyenne, écart-type des différences, statistique t appariée et nombre de graines où `a` gagne.\n- `welch_t(a, b)` : la statistique t non appariée, pour voir combien de puissance l'appariement apporte.\n\nLa même graine signifie les mêmes poids initiaux et le même ordre de minibatchs pour les deux configurations (nombres aléatoires communs), ce qui rend la comparaison appariée précise.",
+  "hints": [
+    "lr_at : avec un échauffement w > 0, le taux d'apprentissage croît linéairement, lr * min(1, (step+1)/w) ; avec w = 0 il est constant.",
+    "Ordre des tirages aléatoires de train_mlp (pour que les résultats soient reproductibles) : rng = default_rng(seed) ; W1 = rng.normal(0, init_scale/sqrt(d), (d,h)) ; W2 = rng.normal(0, init_scale/sqrt(h), (h,1)) ; puis à chaque pas idx = rng.integers(0, n, batch). Rétropropagation : p = sigmoid(h@W2+b2), g = (p-y)/batch, gW2 = h.T@g, gh = (g@W2.T)*(1-h**2), gW1 = x.T@gh.",
+    "paired_stats : d = a - b ; mean = d.mean() ; sd = d.std(ddof=1) ; t = mean / (sd / sqrt(n)) ; wins = nombre de graines avec d > 0. welch_t utilise la variance propre à chaque groupe : (mean_a - mean_b) / sqrt(var_a/n + var_b/n) avec ddof=1."
+  ]
+}

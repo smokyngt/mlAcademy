@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.02.c1", "front": "Deux formules du produit scalaire", "back": "$a\\cdot b=\\sum_i a_ib_i=\\|a\\|\\|b\\|\\cos\\theta$ (égales d'après la loi des cosinus)." },
+  { "id": "f2n.02.c2", "front": "Projection de $a$ sur $b$", "back": "$\\dfrac{a\\cdot b}{b\\cdot b}\\,b$. Le résidu $a-\\operatorname{proj}_b a$ est orthogonal à $b$." },
+  { "id": "f2n.02.c3", "front": "Similarité cosinus : qu'ignore-t-elle ?", "back": "La longueur des vecteurs. $\\cos\\theta=\\dfrac{a\\cdot b}{\\|a\\|\\|b\\|}$ ne dépend que de la direction." },
+  { "id": "f2n.02.c4", "front": "Cauchy–Schwarz", "back": "$|a\\cdot b|\\le\\|a\\|\\|b\\|$, avec égalité si et seulement si un vecteur est un multiple scalaire de l'autre." },
+  { "id": "f2n.02.c5", "front": "`a * b` contre `a @ b` pour des vecteurs", "back": "`*` est terme à terme (résultat de longueur $n$) ; `@` est le produit scalaire (un scalaire)." }
+]

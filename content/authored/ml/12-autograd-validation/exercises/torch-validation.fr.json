@@ -1,0 +1,10 @@
+{
+  "id": "f2n.12.ex2",
+  "title": "Valider la rétropropagation contre l'autograd de PyTorch",
+  "prompt": "Cet exercice nécessite PyTorch, donc il s'exécute dans le bac à sable Docker (voir la page Lab pour l'état du runner).\n\n`numpy_loss_and_grads` (ton implémentation de la leçon 10) est fournie. Écris :\n\n1. `torch_loss_and_grads(params, X, y)` - le même réseau et la même perte avec des tenseurs PyTorch en **float64**, renvoyant `(loss_float, [tableaux de gradients dans l'ordre des paramètres])` issus de l'autograd.\n2. `accumulated_after_two_backwards(w0)` - crée un tenseur `w = torch.tensor(w0, requires_grad=True)`, calcule `loss = (w ** 2).sum()`, appelle `backward()` deux fois (la première avec `retain_graph=True`), et renvoie `w.grad` sous forme de tableau NumPy. Observe qu'il vaut le double du gradient d'une seule passe.",
+  "hints": [
+    "Enveloppe chaque tableau NumPy : torch.tensor(a, dtype=torch.float64, requires_grad=True). Garde-les dans une liste pour pouvoir lire .grad ensuite.",
+    "logits = torch.relu(X @ W1 + b1) @ W2 + b2 ; loss = F.cross_entropy(logits, y) où y est un LongTensor.",
+    "Après loss.backward(), renvoie [p.grad.numpy() for p in tensors]. Pour la démonstration de l'accumulation, appelle backward deux fois avec retain_graph=True au premier appel."
+  ]
+}

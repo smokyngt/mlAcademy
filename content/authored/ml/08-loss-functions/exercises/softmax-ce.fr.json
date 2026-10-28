@@ -1,0 +1,10 @@
+{
+  "id": "f2n.08.ex1",
+  "title": "Softmax et entropie croisée stables avec gradient",
+  "prompt": "Implémente, pour des logits `Z` de forme `(B, K)` et des étiquettes entières `y` de forme `(B,)` :\n\n- `softmax(Z)` ligne par ligne et numériquement stable.\n- `cross_entropy(Z, y)` - perte moyenne, calculée avec le log-sum-exp (jamais `log(softmax)`).\n- `cross_entropy_grad(Z, y)` - gradient par rapport à `Z`, de forme `(B, K)`, avec le facteur `1/B`.\n\nLes tests incluent des logits de 1000 et une vérification du gradient par différences finies.",
+  "hints": [
+    "softmax : soustrais Z.max(axis=1, keepdims=True), passe à l'exponentielle, divise par les sommes de lignes.",
+    "cross_entropy : perte = moyenne sur b de ( logsumexp(Z[b]) - Z[b, y[b]] ).",
+    "cross_entropy_grad : P = softmax(Z) ; P[np.arange(B), y] -= 1 ; renvoie P / B."
+  ]
+}

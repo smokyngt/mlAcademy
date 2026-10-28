@@ -1,0 +1,61 @@
+#@@ meta
+{"id": "f2n.04.ex1", "title": "Finite differences and the best step size", "difficulty": 2, "runtime": "pyodide", "concepts": ["calc.numerical-diff", "calc.derivative"], "hints": ["forward_diff(f, x, h) = (f(x + h) - f(x)) / h.", "central_diff(f, x, h) = (f(x + h) - f(x - h)) / (2 * h).", "best_step: loop over hs, compute abs(central_diff(f, x, h) - true_derivative) for each and return the h with the smallest error (np.argmin)."]}
+#@@ prompt
+Implement:
+
+- `forward_diff(f, x, h)` and `central_diff(f, x, h)`.
+- `sigmoid_prime(x)` using the closed form $\sigma(x)(1-\sigma(x))$.
+- `best_step(f, true_derivative, x, hs)` which returns the value in `hs` (a NumPy array of candidate step sizes) with the smallest central-difference error. Run it on `np.sin` at `x = 1` with `hs = np.logspace(-12, 0, 49)` and print the winner: it should be near $10^{-5}$ to $10^{-6}$, not the smallest `h`.
+#@@ starter
+import numpy as np
+
+def forward_diff(f, x, h):
+    raise NotImplementedError
+
+def central_diff(f, x, h):
+    raise NotImplementedError
+
+def sigmoid(x):
+    return 1.0 / (1.0 + np.exp(-x))
+
+def sigmoid_prime(x):
+    raise NotImplementedError
+
+def best_step(f, true_derivative, x, hs):
+    raise NotImplementedError
+
+hs = np.logspace(-12, 0, 49)
+print("best h for sin at 1:", best_step(np.sin, np.cos(1.0), 1.0, hs))
+#@@ tests
+import numpy as np
+cube = lambda x: x ** 3
+check("forward diff of x^3 at 2, h=0.1 is 12.61", lambda: abs(forward_diff(cube, 2.0, 0.1) - 12.61) < 1e-9)
+check("central diff of x^3 at 2, h=0.1 is 12.01", lambda: abs(central_diff(cube, 2.0, 0.1) - 12.01) < 1e-9)
+check("central is more accurate than forward", lambda: abs(central_diff(cube, 2.0, 0.1) - 12) < abs(forward_diff(cube, 2.0, 0.1) - 12))
+check("sigmoid_prime(0) = 0.25", lambda: abs(sigmoid_prime(0.0) - 0.25) < 1e-12)
+check("sigmoid_prime agrees with central diff", lambda: abs(sigmoid_prime(0.7) - central_diff(sigmoid, 0.7, 1e-5)) < 1e-9)
+hs2 = np.logspace(-12, 0, 49)
+bh = lambda: best_step(np.sin, np.cos(1.0), 1.0, hs2)
+check("best step is an interior value (1e-8 .. 1e-3)", lambda: 1e-8 <= bh() <= 1e-3, "Round-off should punish tiny h, truncation should punish large h")
+#@@ solution
+import numpy as np
+
+def forward_diff(f, x, h):
+    return (f(x + h) - f(x)) / h
+
+def central_diff(f, x, h):
+    return (f(x + h) - f(x - h)) / (2 * h)
+
+def sigmoid(x):
+    return 1.0 / (1.0 + np.exp(-x))
+
+def sigmoid_prime(x):
+    s = sigmoid(x)
+    return s * (1.0 - s)
+
+def best_step(f, true_derivative, x, hs):
+    errs = np.array([abs(central_diff(f, x, h) - true_derivative) for h in hs])
+    return hs[int(np.argmin(errs))]
+
+hs = np.logspace(-12, 0, 49)
+print("best h for sin at 1:", best_step(np.sin, np.cos(1.0), 1.0, hs))

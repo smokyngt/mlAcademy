@@ -1,0 +1,167 @@
+#@@ meta
+{"id": "rsn.05.ex1", "title": "GRPO variants: normalisation, filtering, clipping and entropy", "difficulty": 4, "runtime": "pyodide", "concepts": ["rsn.grpo-fixes"], "hints": ["token_weights: the loss is -sum_i w_i * logp_i-style; the weight of EACH TOKEN of rollout i is A_i/G for 'seq_sum', A_i/(G*L_i) for 'seq_mean' and A_i/sum_j(L_j) for 'token_mean'. The total push on a whole rollout is that weight times its length.", "A group has a learning signal only if its rewards are not all equal: np.std(rewards) > 0 (or max != min). Dynamic filtering keeps just those groups.", "Entropy of one step is -sum_v p_v log p_v with p = softmax(logits); average the steps. The maximum for V tokens is log V (uniform)."]}
+#@@ prompt
+Chapter 7 of the book lists many modifications of GRPO. Implement the core mechanics and see their effect numerically.
+
+- `group_advantages(rewards, eps=1e-4, std_norm=True)`: as in the previous lesson (`ddof=1`; `std_norm=False` only centres).
+- `abs_advantage_mass(k, G, std_norm)`: the total absolute advantage `sum_i |A_i|` of a group with `k` correct rollouts out of `G` (use `eps = 0`), a measure of how much "push" the problem gets.
+- `token_weights(adv, lengths, mode)`: the weight of every **token** of each rollout in the loss `-sum_tokens weight * logp_token`, for `mode` in `"seq_sum"` (`A_i/G`, the book's loss), `"seq_mean"` (`A_i/(G L_i)`, each sequence's log-prob averaged over its tokens) and `"token_mean"` (`A_i / sum_j L_j`, one average over all tokens in the group).
+- `sequence_push(adv, lengths, mode)`: the total weight on each rollout (`token weight * L_i`).
+- `filter_groups(groups)`: keep only the groups (lists of rewards) with a non-zero spread (dynamic filtering of zero-signal prompts).
+- `clip_objective(ratio, adv, eps_low, eps_high)`: elementwise `min(ratio * adv, clip(ratio, 1-eps_low, 1+eps_high) * adv)`; a larger `eps_high` ("clip higher") lets likelier tokens keep growing.
+- `sequence_ratio(logp_new, logp_old, length, mode)`: the sequence-level importance ratio, `exp(logp_new - logp_old)` for `"seq"` and its length-normalised version `exp((logp_new - logp_old) / length)` for `"length_norm"`.
+- `kl_term(logratios, mode, beta)`: `beta` times the **sum** (`"sum"`) or **mean** (`"mean"`) of the per-token log-ratios `log pi - log pi_ref` of one rollout.
+- `mean_entropy(logits)`: mean over rows of the entropy of `softmax(row)`; `logits` has shape `(steps, vocab)`.
+#@@ starter
+import numpy as np
+
+
+def group_advantages(rewards, eps=1e-4, std_norm=True):
+    raise NotImplementedError
+
+
+def abs_advantage_mass(k, G, std_norm):
+    raise NotImplementedError
+
+
+def token_weights(adv, lengths, mode):
+    raise NotImplementedError
+
+
+def sequence_push(adv, lengths, mode):
+    raise NotImplementedError
+
+
+def filter_groups(groups):
+    raise NotImplementedError
+
+
+def clip_objective(ratio, adv, eps_low, eps_high):
+    raise NotImplementedError
+
+
+def sequence_ratio(logp_new, logp_old, length, mode):
+    raise NotImplementedError
+
+
+def kl_term(logratios, mode, beta):
+    raise NotImplementedError
+
+
+def mean_entropy(logits):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+r = [1.0, 1.0, 0.0, 0.0]
+check("std-normalised advantages", lambda: np.allclose(group_advantages(r), [0.86587543, 0.86587543, -0.86587543, -0.86587543], atol=1e-7))
+check("centred only (Dr. GRPO style)", lambda: np.allclose(group_advantages(r, std_norm=False), [0.5, 0.5, -0.5, -0.5]))
+check("all-equal rewards -> zeros in both modes", lambda: np.all(group_advantages([1, 1, 1]) == 0) and np.all(group_advantages([0, 0], std_norm=False) == 0))
+
+check("mass with std norm: k=1, G=8 -> 4.948; k=4 -> 7.482", lambda: abs(abs_advantage_mass(1, 8, True) - 4.948) < 2e-3 and abs(abs_advantage_mass(4, 8, True) - 7.482) < 2e-3)
+check("mass without std norm: k=1 -> 1.75; k=4 -> 4.0", lambda: abs(abs_advantage_mass(1, 8, False) - 1.75) < 1e-9 and abs(abs_advantage_mass(4, 8, False) - 4.0) < 1e-9)
+check("std norm flattens the weight across difficulty (ratio k=1 : k=4)", lambda: abs_advantage_mass(1, 8, True) / abs_advantage_mass(4, 8, True) > abs_advantage_mass(1, 8, False) / abs_advantage_mass(4, 8, False))
+check("k=1 and k=7 are mirror images", lambda: abs(abs_advantage_mass(1, 8, True) - abs_advantage_mass(7, 8, True)) < 1e-9)
+
+adv = group_advantages(r)
+L = [100, 100, 50, 400]
+w_sum = token_weights(adv, L, "seq_sum")
+w_mean = token_weights(adv, L, "seq_mean")
+w_tok = token_weights(adv, L, "token_mean")
+check("seq_sum: every token carries A/G", lambda: np.allclose(w_sum, adv / 4))
+check("seq_mean: shorter rollouts get larger per-token weight", lambda: np.allclose(w_mean, adv / (4 * np.array(L))) and abs(w_mean[2]) > abs(w_mean[3]) * 7.9)
+check("token_mean: all tokens of the group share one scale (650 tokens)", lambda: np.allclose(w_tok, adv / 650))
+p_sum = sequence_push(adv, L, "seq_sum")
+p_mean = sequence_push(adv, L, "seq_mean")
+p_tok = sequence_push(adv, L, "token_mean")
+check("seq_sum: the long wrong rollout gets 8x the total push of the short wrong one (-86.59 vs -10.82)", lambda: abs(p_sum[3] + 86.5875) < 1e-3 and abs(p_sum[2] + 10.8234) < 1e-3)
+check("seq_mean: total push is the same for every wrong rollout (-0.2165) whatever its length", lambda: abs(p_mean[2] - p_mean[3]) < 1e-12 and abs(p_mean[2] + 0.21646886) < 1e-7)
+check("token_mean: total push proportional to length", lambda: abs(p_tok[3] / p_tok[2] - 8.0) < 1e-9)
+
+groups = [[0, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 1], [1, 1, 0, 0]]
+check("filter keeps only the groups with a spread", lambda: filter_groups(groups) == [[1, 0, 0, 0], [1, 1, 0, 0]])
+check("filter of nothing", lambda: filter_groups([[1, 1], [0, 0]]) == [])
+
+rho = np.array([1.25, 1.25, 0.7, 0.7])
+A = np.array([1.0, -1.0, 1.0, -1.0])
+sym = clip_objective(rho, A, 0.2, 0.2)
+check("symmetric PPO clip", lambda: np.allclose(sym, [1.2, -1.25, 0.7, -0.8]))
+high = clip_objective(rho, A, 0.2, 0.28)
+check("clip-higher lets a likelier positive token keep its full ratio", lambda: abs(high[0] - 1.25) < 1e-12 and abs(sym[0] - 1.2) < 1e-12)
+check("clip-higher does not change the other cases", lambda: np.allclose(high[1:], sym[1:]))
+
+check("sequence ratio grows with length", lambda: abs(sequence_ratio(-10.0, -10.5, 100, "seq") - 1.6487213) < 1e-6)
+check("length-normalised ratio stays near 1", lambda: abs(sequence_ratio(-10.0, -10.5, 100, "length_norm") - 1.0050125) < 1e-6)
+check("ratio is 1 when nothing changed", lambda: sequence_ratio(-3.0, -3.0, 7, "seq") == 1.0 and sequence_ratio(-3.0, -3.0, 7, "length_norm") == 1.0)
+
+lr = np.full(100, 0.05)
+check("KL on summed log-ratios scales with length (beta=0.02: 0.1 at 100 tokens, 1.0 at 1000)", lambda: abs(kl_term(lr, "sum", 0.02) - 0.1) < 1e-9 and abs(kl_term(np.full(1000, 0.05), "sum", 0.02) - 1.0) < 1e-9)
+check("KL on mean log-ratios does not", lambda: abs(kl_term(lr, "mean", 0.02) - 0.001) < 1e-9 and abs(kl_term(np.full(1000, 0.05), "mean", 0.02) - 0.001) < 1e-9)
+
+toy = np.array([[0.6667, -2.0, 1.3333, 0.0, -0.6667, 2.0, -1.3333]])
+check("book's toy logits have entropy 1.3700", lambda: abs(mean_entropy(toy) - 1.37003) < 1e-4)
+check("uniform logits have the maximum entropy log(7) = 1.9459", lambda: abs(mean_entropy(np.zeros((3, 7))) - np.log(7)) < 1e-12)
+check("a nearly deterministic row has entropy ~0", lambda: mean_entropy(np.array([[50.0, 0.0, 0.0]])) < 1e-10)
+check("averages over steps", lambda: abs(mean_entropy(np.vstack([toy, np.zeros((1, 7))])) - (1.37003 + np.log(7)) / 2) < 1e-4)
+#@@ solution
+import numpy as np
+
+
+def group_advantages(rewards, eps=1e-4, std_norm=True):
+    r = np.asarray(rewards, float)
+    d = r - r.mean()
+    if not std_norm:
+        return d
+    return d / (r.std(ddof=1) + eps)
+
+
+def abs_advantage_mass(k, G, std_norm):
+    r = np.array([1.0] * k + [0.0] * (G - k))
+    return float(np.abs(group_advantages(r, eps=0.0, std_norm=std_norm)).sum())
+
+
+def token_weights(adv, lengths, mode):
+    adv = np.asarray(adv, float)
+    L = np.asarray(lengths, float)
+    G = len(adv)
+    if mode == "seq_sum":
+        return adv / G
+    if mode == "seq_mean":
+        return adv / (G * L)
+    if mode == "token_mean":
+        return adv / L.sum()
+    raise ValueError(mode)
+
+
+def sequence_push(adv, lengths, mode):
+    return token_weights(adv, lengths, mode) * np.asarray(lengths, float)
+
+
+def filter_groups(groups):
+    return [g for g in groups if max(g) != min(g)]
+
+
+def clip_objective(ratio, adv, eps_low, eps_high):
+    ratio = np.asarray(ratio, float)
+    adv = np.asarray(adv, float)
+    return np.minimum(ratio * adv, np.clip(ratio, 1 - eps_low, 1 + eps_high) * adv)
+
+
+def sequence_ratio(logp_new, logp_old, length, mode):
+    d = logp_new - logp_old
+    if mode == "length_norm":
+        d = d / length
+    return float(np.exp(d))
+
+
+def kl_term(logratios, mode, beta):
+    lr = np.asarray(logratios, float)
+    return float(beta * (lr.sum() if mode == "sum" else lr.mean()))
+
+
+def mean_entropy(logits):
+    z = np.asarray(logits, float)
+    z = z - z.max(axis=-1, keepdims=True)
+    lp = z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+    p = np.exp(lp)
+    return float(np.mean(-(p * lp).sum(axis=-1)))

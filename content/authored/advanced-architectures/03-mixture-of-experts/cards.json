@@ -1,0 +1,16 @@
+[
+  { "id": "adv.03.c1", "concept": "adv.moe", "front": "MoE layer output", "back": "$y_t=\\sum_{e\\in S_t}g_{t,e}\\,\\mathrm{Expert}_e(x_t)$ with $S_t$ the top-$k$ experts and $g$ a softmax over their logits." },
+  { "id": "adv.03.c2", "concept": "adv.moe", "front": "Total vs active parameters", "back": "Total scales with $E$ (plus shared), active with $k$ (plus shared)." },
+  { "id": "adv.03.c3", "concept": "adv.moe", "front": "Shared experts", "back": "Experts every token passes through; capture common knowledge so routed experts can specialise." },
+  { "id": "adv.03.c4", "concept": "adv.moe", "front": "Fine-grained experts", "back": "Many small experts with larger top-k (e.g. 256, top-8): many more expert combinations at similar active cost." },
+  { "id": "adv.03.c5", "concept": "adv.moe", "front": "The memory catch of MoE", "back": "All experts must be stored even though few are used per token; needs expert parallelism for big models." },
+  { "id": "adv.03.c6", "concept": "adv.moe-balance", "front": "Switch-style balance loss", "back": "$\\alpha E\\sum_i f_iP_i$ with $f_i$ the fraction of assignments and $P_i$ the mean router probability." },
+  { "id": "adv.03.c7", "concept": "adv.moe-balance", "front": "Value of the balance loss at uniform routing and at collapse", "back": "$\\alpha$ at uniform; $\\alpha E$ at total collapse." },
+  { "id": "adv.03.c8", "concept": "adv.moe-balance", "front": "Gradient of the balance loss on a logit", "back": "$\\frac{\\alpha E}{N}p_{t,j}\\big(f_j-\\sum_if_ip_{t,i}\\big)$: overloaded experts are pushed down." },
+  { "id": "adv.03.c9", "concept": "adv.moe-balance", "front": "Why do routers collapse without balancing?", "back": "Rich-get-richer: an expert that gets more tokens trains more, improves and attracts still more." },
+  { "id": "adv.03.c10", "concept": "adv.moe-balance", "front": "Expert capacity", "back": "$C=\\lceil\\text{cf}\\cdot Nk/E\\rceil$; overflow assignments are dropped (token skips the expert, residual only)." },
+  { "id": "adv.03.c11", "concept": "adv.moe-balance", "front": "Trade-off of the capacity factor", "back": "Large cf: fewer drops but more padding waste; small cf: cheaper, more dropping and quality loss." },
+  { "id": "adv.03.c12", "concept": "adv.moe-balance", "front": "Auxiliary-loss-free balancing", "back": "Bias added to scores for selection only; $b_e\\leftarrow b_e-\\gamma\\,\\mathrm{sign}(c_e-\\bar c)$ after each step." },
+  { "id": "adv.03.c13", "concept": "adv.moe-balance", "front": "Expert parallelism communication", "back": "Two all-to-alls per MoE layer (dispatch tokens to experts, combine outputs); can dominate latency." },
+  { "id": "adv.03.c14", "concept": "adv.moe", "front": "When not to use MoE", "back": "Edge deployment, latency-critical single-user serving, small models: you still pay full storage and routing overhead." }
+]

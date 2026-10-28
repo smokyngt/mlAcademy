@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.02.c1","concept":"nlp.text-classification","front":"Naive Bayes decision rule","back":"$\\hat c=\\arg\\max_c\\,[\\log P(c)+\\sum_i\\log\\theta_{c,w_i}]$."},
+ {"id":"nlp.02.c2","concept":"nlp.text-classification","front":"Naive independence assumption","back":"Tokens are conditionally independent given the class, so $P(x\\mid c)=\\prod_i\\theta_{c,w_i}$."},
+ {"id":"nlp.02.c3","concept":"nlp.text-classification","front":"Smoothed multinomial estimate","back":"$\\theta_{c,j}=\\frac{n_{c,j}+\\alpha}{\\sum_k n_{c,k}+\\alpha|V|}$."},
+ {"id":"nlp.02.c4","concept":"nlp.text-classification","front":"Why add-alpha smoothing?","back":"An unseen word would give $\\theta=0$ and zero out the class; pseudo-counts keep every probability positive. It equals a symmetric Dirichlet prior."},
+ {"id":"nlp.02.c5","concept":"nlp.text-classification","front":"Why work in log space?","back":"Products of many probabilities underflow; logs turn them into sums without changing the arg max."},
+ {"id":"nlp.02.c6","concept":"nlp.text-classification","front":"Shape of Naive Bayes parameters","back":"log_prior $(C,)$, log_theta $(C,V)$; scores for a count matrix: X @ log_theta.T + log_prior, shape $(N,C)$."},
+ {"id":"nlp.02.c7","concept":"nlp.text-classification","front":"Naive Bayes vs logistic regression on text","back":"NB: counting, fast, good with little data, over-confident probabilities. LR: gradient training, one weight per feature, better with more data and correlated features."},
+ {"id":"nlp.02.c8","concept":"nlp.text-classification","front":"Precision, recall, F1","back":"$P=TP/(TP+FP)$, $R=TP/(TP+FN)$, $F_1=2PR/(P+R)$."},
+ {"id":"nlp.02.c9","concept":"nlp.text-classification","front":"Macro vs micro F1","back":"Macro averages per-class F1 (rare classes count equally); micro pools counts (frequent classes dominate)."},
+ {"id":"nlp.02.c10","concept":"nlp.text-classification","front":"Why is accuracy misleading on imbalanced text data?","back":"Predicting the majority class already scores high; check minority-class precision and recall."},
+ {"id":"nlp.02.c11","concept":"nlp.text-classification","front":"Remedies for class imbalance","back":"Per-class metrics, threshold or prior shift, class weights, resampling (train split only), more minority data."},
+ {"id":"nlp.02.c12","concept":"nlp.text-classification","front":"Negation handling in bag-of-words","back":"Use bigrams, or prefix NOT_ to tokens after a negator until the next punctuation."},
+ {"id":"nlp.02.c13","concept":"nlp.text-classification","front":"What is error analysis?","back":"Reading validation mistakes, grouping them by cause (negation, sarcasm, domain shift, label noise) and fixing the largest group first."},
+ {"id":"nlp.02.c14","concept":"nlp.text-classification","front":"Why are NB probabilities poorly calibrated?","back":"Treating correlated words as independent counts the same evidence repeatedly, pushing probabilities towards 0 and 1."}
+]

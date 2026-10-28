@@ -1,0 +1,10 @@
+{
+  "id": "seq.02.ex1",
+  "title": "Skip-gram à échantillonnage négatif : perte et gradients",
+  "prompt": "Implémente `sgns_loss_grads(V, U, c, o, negs)` pour une paire d'entraînement de skip-gram à échantillonnage négatif.\n\n- `V` : `(n, d)` table des mots centraux, `U` : `(n, d)` table des mots de contexte, `c` : indice central, `o` : indice du vrai contexte, `negs` : tableau d'entiers de `k` indices de bruit (peut contenir des répétitions).\n- Perte : $-\\log\\sigma(u_o\\cdot v_c)-\\sum_{k}\\log\\sigma(-u_k\\cdot v_c)$.\n- Renvoie `(loss, dV, dU)` où `dV` et `dU` sont des tableaux denses de mêmes formes que `V` et `U` (toutes les lignes nulles sauf celles qui ont été utilisées).",
+  "hints": [
+    "Scores : s_pos = U[o] @ V[c] et s_neg = U[negs] @ V[c] (forme (k,)). Perte = -log sigmoid(s_pos) - sum log sigmoid(-s_neg). Utilise -np.logaddexp(0, -s) pour log sigmoid.",
+    "Soit g_pos = sigmoid(s_pos) - 1 et g_neg = sigmoid(s_neg) (forme (k,)). Alors dV[c] = g_pos*U[o] + g_neg @ U[negs], dU[o] += g_pos*V[c], et chaque négatif k ajoute g_neg[k]*V[c] à dU[negs[k]].",
+    "Les négatifs peuvent se répéter (ou être égaux à o) : utilise np.add.at(dU, negs, np.outer(g_neg, V[c])) pour que les lignes répétées s'accumulent."
+  ]
+}

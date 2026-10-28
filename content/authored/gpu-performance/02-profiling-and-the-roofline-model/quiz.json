@@ -1,0 +1,109 @@
+[
+ {
+  "id": "gpu.02.q1",
+  "concept": "gpu.arith-intensity",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Arithmetic intensity is...",
+  "options": [
+   "FLOPs divided by bytes moved to and from memory",
+   "FLOP/s divided by the number of SMs",
+   "bytes per second divided by FLOP/s",
+   "the fraction of time the GPU is busy"
+  ],
+  "answer": 0,
+  "explanation": "I = FLOPs / bytes, measured in FLOP/byte. It is a property of the operation (and its implementation), not of the chip."
+ },
+ {
+  "id": "gpu.02.q2",
+  "concept": "gpu.roofline",
+  "kind": "numeric",
+  "prompt": "A chip has a peak of 312 TFLOP/s and 2.0 TB/s of memory bandwidth. What is its ridge point in FLOP/byte?",
+  "options": [],
+  "answer": {
+   "value": 156,
+   "tol": 0.5
+  },
+  "explanation": "Ridge = P / bandwidth = 312e12 / 2e12 = 156 FLOP/byte. Operations below it are memory-bound."
+ },
+ {
+  "id": "gpu.02.q3",
+  "concept": "gpu.roofline",
+  "kind": "mcq",
+  "prompt": "Which of these is the most compute-bound on a GPU?",
+  "options": [
+   "softmax over a 4096 x 4096 matrix",
+   "layer norm over a 4096 x 4096 matrix",
+   "adding two large vectors",
+   "a 4096 x 4096 by 4096 x 4096 fp16 matmul"
+  ],
+  "answer": 3,
+  "explanation": "Square matmul has intensity 2n/(3e), about 1365 FLOP/byte for n=4096 and fp16, far above the ridge; the others are at 1-2 FLOP/byte."
+ },
+ {
+  "id": "gpu.02.q4",
+  "concept": "gpu.roofline",
+  "kind": "mcq",
+  "prompt": "Why is single-token (batch 1) decoding with a large linear layer memory-bound?",
+  "options": [
+   "the layer needs more FLOPs than a big batch",
+   "each weight is read once from HBM to do about one multiply-add, so intensity is about 1 FLOP/byte",
+   "tensor cores cannot run at batch 1",
+   "softmax dominates the layer"
+  ],
+  "answer": 1,
+  "explanation": "A linear layer with batch B has intensity of roughly B (fp16, d much larger than B). At B=1 the chip streams the whole weight matrix for a single multiply-add per weight."
+ },
+ {
+  "id": "gpu.02.q5",
+  "concept": "gpu.flash-io",
+  "kind": "mcq",
+  "prompt": "What makes standard attention memory-bound at long sequence length?",
+  "options": [
+   "the QK^T matmul has too few FLOPs",
+   "the value matrix is too large",
+   "the N x N score and probability matrices are written to and read from HBM",
+   "the softmax uses exp"
+  ],
+  "answer": 2,
+  "explanation": "Four N^2 passes (write S, read S, write P, read P) dominate the traffic, giving intensity near d/e regardless of N."
+ },
+ {
+  "id": "gpu.02.q6",
+  "concept": "gpu.flash-io",
+  "kind": "numeric",
+  "prompt": "Standard attention for one head with d = 64 in fp16 (e = 2 bytes) has intensity approximately d/e. What is it, in FLOP/byte?",
+  "options": [],
+  "answer": {
+   "value": 32,
+   "tol": 0.5
+  },
+  "explanation": "4N^2 d FLOPs over e * 4N^2 bytes (the N^2 terms dominate) is d/e = 64/2 = 32."
+ },
+ {
+  "id": "gpu.02.q7",
+  "concept": "gpu.amdahl",
+  "kind": "numeric",
+  "prompt": "A training step is 40% data loading and 60% compute. You make the compute 10 times faster. What overall speed-up (to 2 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 2.17,
+   "tol": 0.02
+  },
+  "explanation": "New time = 40 + 6 = 46 per 100, speed-up = 100/46 = 2.17."
+ },
+ {
+  "id": "gpu.02.q8",
+  "concept": "gpu.profiling",
+  "kind": "mcq",
+  "prompt": "A profiler timeline shows the GPU row mostly empty while the CPU row is busy loading and augmenting data. The best first action is...",
+  "options": [
+   "buy a faster GPU",
+   "use more data-loader workers and prefetching",
+   "switch the model to fp8",
+   "increase occupancy"
+  ],
+  "answer": 1,
+  "explanation": "The step is input-bound: GPU idle gaps while the host prepares data. A faster GPU cannot help (Amdahl); overlapping loading with compute can."
+ }
+]

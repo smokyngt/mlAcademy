@@ -1,0 +1,35 @@
+[
+  {
+    "id": "level-curves-gradient", "after": 6, "kind": "plot",
+    "caption": { "en": "Level curves of f(x, y) = x² + 3y² (f = 1, 4, 9) and the gradient at (1, 1), ∇f = (2, 6), drawn at 0.4 scale. It is perpendicular to the level curve through the point and points uphill.", "fr": "Courbes de niveau de f(x, y) = x² + 3y² (f = 1, 4, 9) et gradient en (1, 1), ∇f = (2, 6), tracé à l'échelle 0,4. Il est perpendiculaire à la courbe de niveau passant par le point et pointe vers le haut." },
+    "spec": { "xDomain": [-3.5, 3.5], "yDomain": [-2.5, 3.5], "height": 380,
+      "data": [
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 1", "color": "#93c5fd" },
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 4", "color": "#2563eb" },
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 9", "color": "#1e3a8a" },
+        { "fnType": "vector", "vector": [0.8, 2.4], "offset": [1, 1], "graphType": "polyline", "color": "#dc2626" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[1, 1]] }
+      ] }
+  },
+  {
+    "id": "gradient-descent-path", "after": 8, "kind": "plot",
+    "caption": { "en": "Gradient descent on f = x² + 3y² with step 0.1 from (1.5, 1): each step moves against the gradient, perpendicular to the level curves, towards the minimum at the origin.", "fr": "Descente de gradient sur f = x² + 3y² avec un pas de 0,1 depuis (1,5 ; 1) : chaque pas va à l'opposé du gradient, perpendiculairement aux courbes de niveau, vers le minimum à l'origine." },
+    "spec": { "xDomain": [-2, 2], "yDomain": [-1.5, 1.5], "height": 340,
+      "data": [
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 0.5", "color": "#bfdbfe" },
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 1.5", "color": "#93c5fd" },
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 3.75", "color": "#60a5fa" },
+        { "fnType": "implicit", "fn": "x*x + 3*y*y - 5.25", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[1.5,1],[1.2,0.4],[0.96,0.16],[0.768,0.064],[0.6144,0.0256],[0.4915,0.0102],[0.3932,0.0041]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 3 }, "points": [[1.5,1],[1.2,0.4],[0.96,0.16],[0.768,0.064],[0.6144,0.0256],[0.4915,0.0102],[0.3932,0.0041]] }
+      ] }
+  },
+  {
+    "id": "mse-gradient-flow", "after": 9, "kind": "mermaid",
+    "caption": { "en": "Computing the MSE gradient with the shapes of each tensor: the result has the same shape as w.", "fr": "Calcul du gradient de la MSE avec les formes de chaque tenseur : le résultat a la même forme que w." },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N, d)\"] --> P[\"y_hat = Xw (N,)\"]\n  W[\"w (d,)\"] --> P\n  P --> R[\"r = y_hat - y (N,)\"]\n  Y[\"y (N,)\"] --> R\n  R --> G[\"grad = 2/N * X^T r\"]\n  X --> G\n  G --> O[\"grad (d,)\"]",
+      "fr": "flowchart LR\n  X[\"X (N, d)\"] --> P[\"y_chap = Xw (N,)\"]\n  W[\"w (d,)\"] --> P\n  P --> R[\"r = y_chap - y (N,)\"]\n  Y[\"y (N,)\"] --> R\n  R --> G[\"grad = 2/N * X^T r\"]\n  X --> G\n  G --> O[\"grad (d,)\"]"
+    }
+  }
+]

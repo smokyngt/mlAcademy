@@ -1,0 +1,77 @@
+[
+ {
+  "id": "cml.17.c1",
+  "front": "Affinité en grande dimension de t-SNE",
+  "back": "$p_{j|i}\\propto\\exp(-\\|x_i-x_j\\|^2/2\\sigma_i^2)$, $\\sigma_i$ fixé par bissection pour atteindre la perplexité ; $p_{ij}=(p_{j|i}+p_{i|j})/2N$."
+ },
+ {
+  "id": "cml.17.c2",
+  "front": "Perplexité",
+  "back": "$\\exp(H(P_i))$ : le nombre effectif de voisins ; valeurs typiques 5-50."
+ },
+ {
+  "id": "cml.17.c3",
+  "front": "Affinité en basse dimension de t-SNE",
+  "back": "$q_{ij}=w_{ij}/\\sum_{k\\ne l}w_{kl}$ avec $w_{ij}=(1+\\|y_i-y_j\\|^2)^{-1}$."
+ },
+ {
+  "id": "cml.17.c4",
+  "front": "Objectif de t-SNE",
+  "back": "$\\mathrm{KL}(P\\|Q)=\\sum p_{ij}\\ln(p_{ij}/q_{ij})$."
+ },
+ {
+  "id": "cml.17.c5",
+  "front": "Gradient de t-SNE",
+  "back": "$\\partial C/\\partial y_i=4\\sum_j(p_{ij}-q_{ij})w_{ij}(y_i-y_j)$ ; forme matricielle $4(\\mathrm{diag}(M\\mathbf1)-M)Y$ avec $M=(P-Q)\\odot W$."
+ },
+ {
+  "id": "cml.17.c6",
+  "front": "Ce que t-SNE ne préserve pas",
+  "back": "Les distances entre amas, les tailles d'amas et les densités ; les dispositions varient avec la graine et la perplexité ; pas de projection hors échantillon."
+ },
+ {
+  "id": "cml.17.c7",
+  "front": "Recette de l'ACP à noyau",
+  "back": "Noyau RBF $K$, centrer $JKJ$ avec $J=I-\\frac1N\\mathbf1\\mathbf1^\\top$, diagonaliser ; coordonnées $u_i\\sqrt{\\mu_i}$."
+ },
+ {
+  "id": "cml.17.c8",
+  "front": "Inconvénients de l'ACP à noyau",
+  "back": "Matrice $N\\times N$ (mémoire $O(N^2)$, temps $O(N^3)$), pas de reconstruction directe (problème de la pré-image), réglage du paramètre du noyau."
+ },
+ {
+  "id": "cml.17.c9",
+  "front": "Importance par permutation",
+  "back": "Augmentation moyenne de l'erreur après avoir mélangé une colonne sur des données mises de côté ; indépendante du modèle."
+ },
+ {
+  "id": "cml.17.c10",
+  "front": "Pièges de l'importance par permutation",
+  "back": "Les variables corrélées se masquent mutuellement ; le mélange crée des lignes irréalistes ; elle mesure la dépendance du modèle, pas la pertinence causale."
+ },
+ {
+  "id": "cml.17.c11",
+  "front": "Dépendance partielle",
+  "back": "$\\frac1N\\sum_nf(x_n$ avec la variable $j$ fixée à $g)$ ; l'effet moyen, exact quand le modèle est additif en $j$."
+ },
+ {
+  "id": "cml.17.c12",
+  "front": "Courbes ICE",
+  "back": "Espérance conditionnelle individuelle : une courbe par ligne ; révèle des effets que la PD moyenne fait disparaître."
+ },
+ {
+  "id": "cml.17.c13",
+  "front": "Valeur de Shapley",
+  "back": "$\\phi_j=\\sum_S\\frac{|S|!(d-|S|-1)!}{d!}[v(S\\cup j)-v(S)]$ : contribution marginale moyenne sur les coalitions."
+ },
+ {
+  "id": "cml.17.c14",
+  "front": "Efficience de Shapley",
+  "back": "$\\sum_j\\phi_j=f(x)-\\mathbb E[f]$ ; pour les modèles linéaires $\\phi_j=w_j(x_j-\\mathbb E x_j)$."
+ },
+ {
+  "id": "cml.17.c15",
+  "front": "Pourquoi SHAP a besoin d'approximations",
+  "back": "Les valeurs de Shapley exactes demandent $2^d$ coalitions ; KernelSHAP échantillonne, TreeSHAP exploite la structure des arbres."
+ }
+]

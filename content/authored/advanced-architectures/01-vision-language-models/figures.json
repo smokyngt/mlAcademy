@@ -1,0 +1,135 @@
+[
+  {
+    "id": "visual-tokens",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Visual tokens for a square image as the side grows, N = floor(H/p) * floor(W/p): patch 14 (blue), patch 16 (orange), patch 32 (green). Quadrupling is automatic: doubling the side or halving the patch gives 4x the tokens (patch 14 at 336 px gives 576).",
+      "fr": "Tokens visuels d'une image carrée quand le côté croît, N = floor(H/p) * floor(W/p) : patch 14 (bleu), patch 16 (orange), patch 32 (vert). Le facteur 4 est automatique : doubler le côté ou diviser le patch par deux donne 4x plus de tokens (patch 14 à 336 px donne 576)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1024
+      ],
+      "yDomain": [
+        0,
+        5500
+      ],
+      "height": 330,
+      "title": "visual tokens vs image side (pixels)",
+      "data": [
+        {
+          "fn": "(x/14)^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(x/16)^2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "(x/32)^2",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              336,
+              576
+            ],
+            [
+              224,
+              256
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "mlp-projector",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The MLP (LLaVA) connector with shapes: the same two-layer network is applied to every patch independently, so N patches become N LLM-sized tokens (about 21 M parameters for 1024 to 4096 to 4096).",
+      "fr": "Le connecteur MLP (LLaVA) avec les formes : le même réseau à deux couches est appliqué à chaque patch indépendamment, donc N patches deviennent N tokens à la taille du LLM (environ 21 M de paramètres pour 1024 vers 4096 vers 4096)."
+    },
+    "code": {
+      "en": "flowchart LR\n  F[\"patch features F<br/>(N, d_vis = 1024)\"] --> L1[\"Linear W1<br/>1024 to 4096\"]\n  L1 --> GE[\"GELU\"]\n  GE --> L2[\"Linear W2<br/>4096 to 4096\"]\n  L2 --> Z[\"visual tokens Z<br/>(N, d_llm = 4096)\"]\n  Z --> SP[\"splice into the prompt<br/>(T + N, d_llm)\"]",
+      "fr": "flowchart LR\n  F[\"caractéristiques de patchs F<br/>(N, d_vis = 1024)\"] --> L1[\"Linéaire W1<br/>1024 vers 4096\"]\n  L1 --> GE[\"GELU\"]\n  GE --> L2[\"Linéaire W2<br/>4096 vers 4096\"]\n  L2 --> Z[\"tokens visuels Z<br/>(N, d_llm = 4096)\"]\n  Z --> SP[\"insérés dans le prompt<br/>(T + N, d_llm)\"]"
+    }
+  },
+  {
+    "id": "qformer",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Q-Former: n_q learnable queries (the same for every image) cross-attend to the N patch features. Each row of A is a distribution over patches, so the output has n_q tokens whatever N is.",
+      "fr": "Le Q-Former : n_q requêtes apprenables (les mêmes pour toute image) font de l'attention croisée sur les N caractéristiques de patchs. Chaque ligne de A est une distribution sur les patchs, donc la sortie a n_q tokens quel que soit N."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q0[\"learnable queries Q0<br/>(n_q = 32, d)\"] --> WQ[\"Q = Q0 Wq<br/>(32, d_k)\"]\n  F[\"patch features F<br/>(N, d_vis)\"] --> WK[\"K = F Wk<br/>(N, d_k)\"]\n  F --> WV[\"V = F Wv<br/>(N, d_v)\"]\n  WQ --> A[\"A = softmax(Q K^T / sqrt d_k)<br/>(32, N), rows sum to 1\"]\n  WK --> A\n  A --> O[\"out = A V<br/>(32, d_v)\"]\n  WV --> O\n  O --> LIN[\"linear map<br/>(32, d_llm)\"]",
+      "fr": "flowchart LR\n  Q0[\"requêtes apprenables Q0<br/>(n_q = 32, d)\"] --> WQ[\"Q = Q0 Wq<br/>(32, d_k)\"]\n  F[\"caractéristiques de patchs F<br/>(N, d_vis)\"] --> WK[\"K = F Wk<br/>(N, d_k)\"]\n  F --> WV[\"V = F Wv<br/>(N, d_v)\"]\n  WQ --> A[\"A = softmax(Q K^T / sqrt d_k)<br/>(32, N), lignes de somme 1\"]\n  WK --> A\n  A --> O[\"sortie = A V<br/>(32, d_v)\"]\n  WV --> O\n  O --> LIN[\"application linéaire<br/>(32, d_llm)\"]"
+    }
+  },
+  {
+    "id": "llava-stages",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The two LLaVA training stages and what is frozen. Stage 1 trains only the projector on image-caption pairs; stage 2 trains the projector and fine-tunes the LLM on visual instructions. The prompt has T + N positions: text before, N image tokens, text after.",
+      "fr": "Les deux étapes d'entraînement de LLaVA et ce qui est gelé. L'étape 1 n'entraîne que le projecteur sur des paires image-légende ; l'étape 2 entraîne le projecteur et affine le LLM sur des instructions visuelles. Le prompt a T + N positions : texte avant, N tokens image, texte après."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph S1[\"Stage 1: alignment (about 558k image-caption pairs)\"]\n    direction LR\n    V1[\"vision encoder<br/>FROZEN\"] --> P1[\"projector<br/>TRAINED\"] --> L1[\"LLM<br/>FROZEN\"]\n  end\n  subgraph S2[\"Stage 2: visual instruction tuning (about 158k conversations)\"]\n    direction LR\n    V2[\"vision encoder<br/>FROZEN\"] --> P2[\"projector<br/>TRAINED\"] --> L2[\"LLM<br/>TRAINED (full or LoRA)\"]\n  end\n  S1 --> S2\n  S2 --> SEQ[\"sequence: text before | N image tokens | text after<br/>length T + N, next-token loss on the answer only\"]",
+      "fr": "flowchart TB\n  subgraph S1[\"Étape 1 : alignement (environ 558k paires image-légende)\"]\n    direction LR\n    V1[\"encodeur visuel<br/>GELÉ\"] --> P1[\"projecteur<br/>ENTRAÎNÉ\"] --> L1[\"LLM<br/>GELÉ\"]\n  end\n  subgraph S2[\"Étape 2 : réglage sur instructions visuelles (environ 158k conversations)\"]\n    direction LR\n    V2[\"encodeur visuel<br/>GELÉ\"] --> P2[\"projecteur<br/>ENTRAÎNÉ\"] --> L2[\"LLM<br/>ENTRAÎNÉ (complet ou LoRA)\"]\n  end\n  S1 --> S2\n  S2 --> SEQ[\"séquence : texte avant | N tokens image | texte après<br/>longueur T + N, perte next-token sur la réponse seulement\"]"
+    }
+  },
+  {
+    "id": "token-cost-ratio",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Cost ratio of keeping N = 576 visual tokens against compressing to N = 32, as a function of the text length T. Attention (blue) is ((T+576)/(T+32))^2, the feed-forward block (orange) is (T+576)/(T+32). At T = 0 they are 324 and 18; as the text grows the saving shrinks, which is why the claim '18x cheaper attention' is wrong.",
+      "fr": "Rapport de coût entre garder N = 576 tokens visuels et compresser à N = 32, selon la longueur de texte T. L'attention (bleu) vaut ((T+576)/(T+32))^2, le bloc feed-forward (orange) vaut (T+576)/(T+32). À T = 0 on a 324 et 18 ; quand le texte grandit le gain diminue, d'où l'erreur de l'affirmation « attention 18x moins chère »."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        4096
+      ],
+      "yDomain": [
+        0,
+        340
+      ],
+      "height": 320,
+      "title": "cost(N = 576) / cost(N = 32) vs text tokens T",
+      "data": [
+        {
+          "fn": "((x+576)/(x+32))^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(x+576)/(x+32)",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 324,
+          "text": "324 (attention, T = 0)"
+        },
+        {
+          "y": 18,
+          "text": "18 (FFN, T = 0)"
+        }
+      ]
+    }
+  }
+]

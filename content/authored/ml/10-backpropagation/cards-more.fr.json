@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.10.c14", "front": "Gradient du biais pour un batch", "back": "Somme de $\\bar Z$ sur l'axe du batch." },
+  { "id": "f2n.10.c15", "front": "Gradient d'entrée de $Z=XW$", "back": "$\\bar X=\\bar ZW^\\top$." },
+  { "id": "f2n.10.c16", "front": "Gradient des poids de $Z=XW$", "back": "$\\bar W=X^\\top\\bar Z$." },
+  { "id": "f2n.10.c17", "front": "Passe arrière de ReLU", "back": "$\\bar Z=\\bar A\\odot\\mathbb 1[Z>0]$." },
+  { "id": "f2n.10.c18", "front": "Pourquoi mettre $Z_1$ en cache ?", "back": "Le masque ReLU $\\mathbb 1[Z_1>0]$ est nécessaire au retour." },
+  { "id": "f2n.10.c19", "front": "Gradient faux d'exactement $B$", "back": "$1/B$ manquant (ou en trop) venant de la moyenne sur le batch." },
+  { "id": "f2n.10.c20", "front": "Les gradients traversent-ils toutes les couches de façon égale ?", "back": "Non : chaque dérivée locale multiplie ; les facteurs $<1$ s'évanouissent, ceux $>1$ explosent." },
+  { "id": "f2n.10.c21", "front": "Moment de la mise à jour", "back": "Calcule d'abord tous les gradients, puis mets à jour ; jamais en cours de passe arrière." },
+  { "id": "f2n.10.c22", "front": "Coût de la passe arrière", "back": "À peu près celui d'une ou deux passes avant." }
+]

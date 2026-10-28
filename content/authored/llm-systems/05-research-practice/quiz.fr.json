@@ -1,0 +1,91 @@
+[
+ {
+  "id": "sys.05.q1",
+  "prompt": "Tu changes le calendrier du taux d'apprentissage ET l'initialisation, et la précision s'améliore. Que peux-tu conclure sur le calendrier ?",
+  "options": [
+   "Les deux ont contribué à parts égales",
+   "Rien séparément : les deux changements sont confondus",
+   "Le calendrier l'a causé",
+   "L'initialisation l'a causé"
+  ],
+  "explanation": "Une ablation change un facteur à la fois ; sinon le crédit ne peut pas être attribué."
+ },
+ {
+  "id": "sys.05.q2",
+  "prompt": "Pourquoi lancer le même modèle avec plusieurs graines aléatoires ?",
+  "options": [
+   "Parce que la perte n'est pas dérivable",
+   "Pour éviter d'avoir besoin d'un jeu de test",
+   "Une exécution est un tirage aléatoire ; la dispersion d'une graine à l'autre peut dépasser l'effet",
+   "Pour utiliser plus de temps GPU"
+  ],
+  "explanation": "L'initialisation et l'ordre des données changent les résultats d'une exécution à l'autre."
+ },
+ {
+  "id": "sys.05.q3",
+  "prompt": "Précisions sur 3 graines : 0.9, 0.8, 0.7. Écart-type empirique (ddof=1) ?",
+  "options": [],
+  "explanation": "Les écarts sont 0.1, 0, -0.1 ; somme des carrés 0.02 ; divisée par n-1 = 2 donne 0.01 ; racine = 0.1."
+ },
+ {
+  "id": "sys.05.q4",
+  "prompt": "Les différences appariées sur 5 graines ont pour moyenne 0.006 et écart-type 0.00367. La statistique t appariée (2 décimales) ?",
+  "options": [],
+  "explanation": "t = 0.006 / (0.00367 / sqrt(5)) = 3.65."
+ },
+ {
+  "id": "sys.05.q5",
+  "prompt": "Deux bras sont lancés avec les MÊMES graines. Le t apparié vaut 3.65 tandis que le t de Welch non apparié vaut 0.43. Pourquoi cette différence ?",
+  "options": [
+   "L'appariement augmente l'effet",
+   "L'appariement annule le bruit partagé entre graines, laissant une petite différence cohérente",
+   "Le test de Welch est faux",
+   "Les données sont différentes"
+  ],
+  "explanation": "Les poids initiaux et l'ordre des batchs partagés rendent les différences par graine bien moins variables que les précisions brutes."
+ },
+ {
+  "id": "sys.05.q6",
+  "prompt": "Le test apparié favorise « sans échauffement » de 0.5 point de précision sur un MLP tanh peu profond. Quelle affirmation est la mieux soutenue ?",
+  "options": [
+   "L'échauffement nuit toujours",
+   "L'échauffement est essentiel pour les MLP",
+   "À ce taux d'apprentissage et ce budget, l'échauffement n'aide pas et coûte environ 0.5 point",
+   "L'échauffement est inutile en général"
+  ],
+  "explanation": "L'expérience teste un régime étroit ; généraliser à d'autres modèles et taux d'apprentissage ne serait pas soutenu."
+ },
+ {
+  "id": "sys.05.q7",
+  "prompt": "Après 3000 pas d'entraînement, un réseau d'échelle d'initialisation 0.1 est encore à 0.867 contre 0.953 pour l'échelle 1. Que montre cela ?",
+  "options": [
+   "Une petite initialisation gagne toujours",
+   "Entraîner plus longtemps aide toujours",
+   "Le jeu de test est trop petit",
+   "L'écart n'est pas seulement un entraînement plus lent à ce taux d'apprentissage"
+  ],
+  "explanation": "Une exécution 10 fois plus longue n'a pas comblé l'écart, ce qui écarte ici l'explication la plus simple « juste plus lent »."
+ },
+ {
+  "id": "sys.05.q8",
+  "prompt": "Un tableau montre 29.6 % (n=3 votes), 27.8 % (n=5), 31.6 % (n=10) sur 500 problèmes à partir d'exécutions uniques. Quelle est la meilleure lecture ?",
+  "options": [
+   "La différence n=3 contre n=5 est dans le bruit (ES d'environ 2 points)",
+   "n=5 est sûrement moins bon que n=3",
+   "La précision doit être monotone en n",
+   "Le benchmark est contaminé"
+  ],
+  "explanation": "ES = sqrt(0.3*0.7/500) vaut environ 0.02, donc des différences de 1 à 2 points issues d'exécutions uniques ne sont pas fiables."
+ },
+ {
+  "id": "sys.05.q9",
+  "prompt": "Dans un test A/B de deux modèles déployés, quelle exigence le livre sur les systèmes souligne-t-il ?",
+  "options": [
+   "Une seule métrique peut être journalisée",
+   "L'affectation du trafic doit être réellement aléatoire et la taille d'échantillon suffisante",
+   "Les deux modèles doivent partager les mêmes poids",
+   "Les utilisateurs doivent être informés du modèle qu'ils voient"
+  ],
+  "explanation": "Un biais de sélection dans l'acheminement ou trop peu d'échantillons invalident le test."
+ }
+]

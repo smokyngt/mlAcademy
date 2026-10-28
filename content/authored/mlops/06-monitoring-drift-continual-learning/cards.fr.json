@@ -1,0 +1,17 @@
+[
+  { "id": "ops.06.c1", "front": "Décalage de covariables", "back": "$P(X)$ change tandis que $P(Y\\mid X)$ reste identique." },
+  { "id": "ops.06.c2", "front": "Décalage d'étiquettes", "back": "$P(Y)$ change tandis que $P(X\\mid Y)$ reste identique." },
+  { "id": "ops.06.c3", "front": "Dérive de concept", "back": "$P(Y\\mid X)$ change tandis que $P(X)$ reste identique : même entrée, sortie différente." },
+  { "id": "ops.06.c4", "front": "Trois causes d'échec propres au ML", "back": "Données de production différentes des données d'entraînement, cas limites, et boucles de rétroaction dégénérées." },
+  { "id": "ops.06.c5", "front": "Boucle de rétroaction dégénérée", "back": "Les prédictions du système façonnent les données dont il apprend ensuite (biais de popularité, bulles de filtres)." },
+  { "id": "ops.06.c6", "front": "Statistique KS", "back": "$D=\\max_x|F_a(x)-F_b(x)|$, le plus grand écart entre fonctions de répartition empiriques ; non paramétrique, unidimensionnelle." },
+  { "id": "ops.06.c7", "front": "Formule du PSI", "back": "$\\sum_j (q_j-p_j)\\ln(q_j/p_j)$ sur des intervalles issus des quantiles de référence ; nul si et seulement si les histogrammes coïncident ; symétrique." },
+  { "id": "ops.06.c8", "front": "Monitoring contre observabilité", "back": "Le monitoring suit des métriques pour détecter les problèmes ; l'observabilité (instrumentation) permet d'enquêter sur leurs causes." },
+  { "id": "ops.06.c9", "front": "Quatre artefacts de ML à surveiller", "back": "Entrées brutes, features, prédictions et métriques liées à la précision." },
+  { "id": "ops.06.c10", "front": "Parties d'une alerte", "back": "Politique d'alerte (condition), canaux de notification, et une description." },
+  { "id": "ops.06.c11", "front": "Réentraînement sans état contre entraînement avec état", "back": "À partir de zéro sur une fenêtre de données contre poursuite depuis le dernier checkpoint sur les nouvelles données." },
+  { "id": "ops.06.c12", "front": "Quatre stades vers l'apprentissage continu", "back": "Manuel sans état ; réentraînement automatisé ; entraînement avec état automatisé ; apprentissage continu déclenché par les décalages." },
+  { "id": "ops.06.c13", "front": "Shadow, canary, A/B, interleaving, bandit", "back": "Shadow : candidat non servi. Canary : petite part du trafic, montée progressive. A/B : répartition aléatoire. Interleaving : listes mélangées. Bandit : routage adaptatif." },
+  { "id": "ops.06.c14", "front": "Le problème du peeking", "back": "S'arrêter à la première consultation significative d'un test A/B gonfle les faux positifs bien au-delà de 5 % ; fixer la taille d'échantillon ou utiliser des méthodes séquentielles." },
+  { "id": "ops.06.c15", "front": "Échantillonnage de Thompson", "back": "Tirer un taux de succès plausible pour chaque modèle à partir de sa loi a posteriori Beta et jouer le plus grand ; explore et exploite." }
+]

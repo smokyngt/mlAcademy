@@ -1,0 +1,86 @@
+[
+ {
+  "id": "aud.03.q1",
+  "prompt": "Un classifieur a besoin d'une entrée de taille fixe mais les extraits ont des longueurs différentes. Quelle option résout cela ?",
+  "options": [
+   "compléter chaque extrait par des zéros jusqu'à la longueur du plus long et ignorer le problème du silence",
+   "résumer les caractéristiques des trames dans le temps (par ex. moyenne et écart type) ou utiliser un pooling global",
+   "utiliser une fréquence d'échantillonnage différente par extrait",
+   "écarter tous les extraits plus courts que la moyenne"
+  ],
+  "explanation": "La moyenne/écart type dans le temps ou le pooling global donne un vecteur dont la taille ne dépend pas du nombre de trames."
+ },
+ {
+  "id": "aud.03.q2",
+  "prompt": "Le k-NN cosinus prédit l'étiquette en...",
+  "options": [
+   "faisant la moyenne des étiquettes de tous les extraits d'entraînement",
+   "ajustant une frontière linéaire par descente de gradient",
+   "faisant un vote à la majorité parmi les $k$ extraits d'entraînement de plus grande similarité cosinus",
+   "choisissant la classe de plus grande caractéristique moyenne"
+  ],
+  "explanation": "Le k-NN n'a pas d'entraînement : il stocke des exemples, les classe par similarité à la requête et vote."
+ },
+ {
+  "id": "aud.03.q3",
+  "prompt": "Une convolution 3x3 avec remplissage 1 et pas 1 est appliquée à une entrée de longueur 100. Quelle est la longueur de sortie ?",
+  "options": [],
+  "explanation": "$\\lfloor(100+2-3)/1\\rfloor+1=100$."
+ },
+ {
+  "id": "aud.03.q4",
+  "prompt": "Combien de paramètres a une couche Conv2d avec 32 canaux d'entrée, 64 canaux de sortie et un noyau 3x3 (biais compris) ?",
+  "options": [],
+  "explanation": "$32\\cdot64\\cdot9+64=18432+64=18496$."
+ },
+ {
+  "id": "aud.03.q5",
+  "prompt": "Un modèle répond « négatif » pour chaque extrait d'un jeu de test contenant 95 négatifs et 5 positifs. Quelle affirmation est vraie ?",
+  "options": [
+   "exactitude 0,95 et F1 macro d'environ 0,49",
+   "exactitude 0,50 et F1 macro 0,50",
+   "exactitude 0,95 et F1 macro 0,95",
+   "exactitude 1,0 et F1 macro 1,0"
+  ],
+  "explanation": "L'exactitude vaut $95/100$. Le F1 est de $0.974$ pour la classe négative et de $0$ pour la classe positive, donc le F1 macro $=0.487$."
+ },
+ {
+  "id": "aud.03.q6",
+  "prompt": "Une classe a 10 vrais extraits ; le modèle en trouve 6 et étiquette aussi 2 extraits d'autres classes comme appartenant à cette classe. Quelle est sa précision ? (Donne un décimal.)",
+  "options": [],
+  "explanation": "Précision $=6/(6+2)=0.75$ ; le rappel serait $6/10=0.6$."
+ },
+ {
+  "id": "aud.03.q7",
+  "prompt": "Que fait SpecAugment ?",
+  "options": [
+   "il décale la hauteur de la forme d'onde de demi-tons aléatoires",
+   "il masque des bandes aléatoires de temps et de fréquence du spectrogramme log-mel",
+   "il ajoute un second canal de microphone",
+   "il rééchantillonne l'audio à une fréquence aléatoire"
+  ],
+  "explanation": "Des bandes de fréquence et des intervalles de temps aléatoires sont remplacés par une constante, de sorte que le réseau ne doit dépendre d'aucune zone unique."
+ },
+ {
+  "id": "aud.03.q8",
+  "prompt": "Quelle augmentation est le pire choix pour identifier une chanson à partir d'un court enregistrement (à la Shazam) ?",
+  "options": [
+   "ajouter du bruit de fond",
+   "un décalage temporel",
+   "un changement de volume",
+   "un changement de hauteur"
+  ],
+  "explanation": "Le motif de hauteur est l'information d'identification ; une augmentation ne doit pas changer l'information utilisée pour la supervision."
+ },
+ {
+  "id": "aud.03.q9",
+  "prompt": "Des extraits découpés dans le même long enregistrement apparaissent à la fois dans les jeux d'entraînement et de test. La conséquence habituelle est...",
+  "options": [
+   "un score de test trop optimiste parce que le modèle peut reconnaître l'enregistrement",
+   "un score de test trop pessimiste",
+   "aucun effet, puisque les extraits sont différents",
+   "un plantage pendant l'entraînement"
+  ],
+  "explanation": "Les extraits de test ne sont pas indépendants des extraits d'entraînement, donc le score n'estime plus la performance sur de nouveaux enregistrements."
+ }
+]

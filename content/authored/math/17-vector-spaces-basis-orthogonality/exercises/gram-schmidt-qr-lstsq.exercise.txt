@@ -1,0 +1,88 @@
+#@@ meta
+{"id": "math.17.ex1", "title": "Gram-Schmidt, QR and least squares on an ill-conditioned problem", "difficulty": 4, "runtime": "pyodide", "concepts": ["la.qr", "la.projection"], "hints": ["Modified Gram-Schmidt: copy A into V; for k in range(m): R[k,k] = norm(V[:,k]); Q[:,k] = V[:,k]/R[k,k]; for j > k: R[k,j] = Q[:,k] @ V[:,j]; V[:,j] -= R[k,j]*Q[:,k].", "back_substitute: loop i from m-1 down to 0: x[i] = (b[i] - R[i, i+1:] @ x[i+1:]) / R[i, i].", "lstsq_qr: plain Q.T @ b loses accuracy with Gram-Schmidt (Q is only orthogonal to ~1e-12). Instead run gram_schmidt on the augmented matrix [A | b]: the last column of R gives Q^T b in a stable way. Then back_substitute(R[:m,:m], R[:m,m]).", "lstsq_normal: np.linalg.solve(A.T @ A, A.T @ b)."]}
+#@@ prompt
+Implement, without calling `np.linalg.qr` or `np.linalg.lstsq` in your own code:
+
+- `gram_schmidt(A)` - modified Gram-Schmidt for an `(n, m)` matrix with independent columns. Return `Q` `(n, m)` with orthonormal columns and upper-triangular `R` `(m, m)` with a positive diagonal, so `A = Q @ R`.
+- `back_substitute(R, b)` - solve `R x = b` for upper-triangular `R`.
+- `lstsq_qr(A, b)` - least squares through `R x = Q^T b`. Caveat: with Gram-Schmidt the loss of orthogonality makes `Q.T @ b` noticeably inaccurate here (error about `1e-7`). The standard remedy is to run Gram-Schmidt on the augmented matrix `[A | b]`; the last column of the resulting `R` is then `Q^T b` computed stably (this is the textbook modified-Gram-Schmidt least-squares trick). `np.linalg.qr` avoids the issue with Householder reflections.
+- `lstsq_normal(A, b)` - least squares through the normal equations `A^T A x = A^T b` (use `np.linalg.solve`, not an explicit inverse).
+
+The tests compare your `Q`, `R` with `np.linalg.qr` up to signs, then fit a degree-7 polynomial to 40 points on `[0, 1]` (Vandermonde matrix, condition number about `1e5`) and compare the accuracy of the two routes.
+#@@ starter
+import numpy as np
+
+def gram_schmidt(A):
+    raise NotImplementedError
+
+def back_substitute(R, b):
+    raise NotImplementedError
+
+def lstsq_qr(A, b):
+    raise NotImplementedError
+
+def lstsq_normal(A, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+A = np.array([[1, 1, 0], [1, 0, 1], [0, 1, 1.]])
+Q, R = gram_schmidt(A)
+check("Q has shape (3,3) and R is (3,3)", lambda: Q.shape == (3, 3) and R.shape == (3, 3))
+check("A = Q R", lambda: np.allclose(Q @ R, A))
+check("Q^T Q = I", lambda: np.allclose(Q.T @ Q, np.eye(3)))
+check("R is upper triangular with positive diagonal", lambda: np.allclose(R, np.triu(R)) and np.all(np.diag(R) > 0))
+check("worked example: R diagonal = sqrt2, sqrt1.5, 1.1547", lambda: np.allclose(np.diag(R), [np.sqrt(2), np.sqrt(1.5), 1.1547005], atol=1e-6))
+check("worked example: R12 = R13 = 0.7071, R23 = 0.4082", lambda: np.allclose([R[0, 1], R[0, 2], R[1, 2]], [0.70710678, 0.70710678, 0.40824829], atol=1e-6))
+Qn, Rn = np.linalg.qr(A)
+s = np.sign(np.diag(Rn))
+check("matches np.linalg.qr up to signs", lambda: np.allclose(Q, Qn * s) and np.allclose(R, (Rn.T * s).T))
+rng = np.random.default_rng(1)
+T = rng.normal(size=(30, 5))
+Qt, Rt = gram_schmidt(T)
+check("tall random matrix: Q is (30,5), A = QR, orthonormal", lambda: Qt.shape == (30, 5) and np.allclose(Qt @ Rt, T) and np.allclose(Qt.T @ Qt, np.eye(5)))
+Rb = np.array([[2., 1., 1.], [0., 3., 2.], [0., 0., 4.]])
+xb = np.array([1., -2., 3.])
+check("back substitution", lambda: np.allclose(back_substitute(Rb, Rb @ xb), xb))
+t = np.linspace(0, 1, 40)
+V = np.vander(t, 8, increasing=True)
+w_true = np.ones(8)
+y = V @ w_true
+check("condition numbers: kappa(V) ~ 1e5, kappa(V^T V) = kappa(V)^2", lambda: 5e4 < np.linalg.cond(V) < 3e5 and abs(np.log10(np.linalg.cond(V.T @ V)) - 2 * np.log10(np.linalg.cond(V))) < 0.1)
+e_qr = np.max(np.abs(lstsq_qr(V, y) - w_true))
+e_ne = np.max(np.abs(lstsq_normal(V, y) - w_true))
+check("QR recovers the coefficients to 1e-9", lambda: e_qr < 1e-9)
+check("normal equations are visibly worse (error > 1e-8)", lambda: e_ne > 1e-8)
+check("QR is at least 1000x more accurate than the normal equations", lambda: e_qr * 1000 < e_ne)
+A2 = rng.normal(size=(20, 3)); b2 = rng.normal(size=20)
+check("on a well-conditioned problem both agree with np.linalg.lstsq", lambda: np.allclose(lstsq_qr(A2, b2), np.linalg.lstsq(A2, b2, rcond=None)[0]) and np.allclose(lstsq_normal(A2, b2), np.linalg.lstsq(A2, b2, rcond=None)[0]))
+#@@ solution
+import numpy as np
+
+def gram_schmidt(A):
+    A = np.asarray(A, dtype=float)
+    n, m = A.shape
+    Q = np.zeros((n, m))
+    R = np.zeros((m, m))
+    V = A.copy()
+    for k in range(m):
+        R[k, k] = np.linalg.norm(V[:, k])
+        Q[:, k] = V[:, k] / R[k, k]
+        for j in range(k + 1, m):
+            R[k, j] = Q[:, k] @ V[:, j]
+            V[:, j] -= R[k, j] * Q[:, k]
+    return Q, R
+
+def back_substitute(R, b):
+    m = R.shape[0]
+    x = np.zeros(m)
+    for i in range(m - 1, -1, -1):
+        x[i] = (b[i] - R[i, i + 1:] @ x[i + 1:]) / R[i, i]
+    return x
+
+def lstsq_qr(A, b):
+    m = A.shape[1]
+    _, R = gram_schmidt(np.column_stack([A, b]))
+    return back_substitute(R[:m, :m], R[:m, m])
+
+def lstsq_normal(A, b):
+    return np.linalg.solve(A.T @ A, A.T @ b)

@@ -1,0 +1,10 @@
+{
+  "id": "f2n.04.ex1",
+  "title": "Différences finies et meilleur pas",
+  "prompt": "Implémente :\n\n- `forward_diff(f, x, h)` et `central_diff(f, x, h)`.\n- `sigmoid_prime(x)` en utilisant la forme close $\\sigma(x)(1-\\sigma(x))$.\n- `best_step(f, true_derivative, x, hs)` qui renvoie la valeur de `hs` (un tableau NumPy de pas candidats) donnant la plus petite erreur de différence centrée. Exécute-la sur `np.sin` en `x = 1` avec `hs = np.logspace(-12, 0, 49)` et affiche le gagnant : il doit être proche de $10^{-5}$ à $10^{-6}$, pas le plus petit `h`.",
+  "hints": [
+    "forward_diff(f, x, h) = (f(x + h) - f(x)) / h.",
+    "central_diff(f, x, h) = (f(x + h) - f(x - h)) / (2 * h).",
+    "best_step : parcours hs, calcule abs(central_diff(f, x, h) - true_derivative) pour chaque h et renvoie le h d'erreur minimale (np.argmin)."
+  ]
+}

@@ -1,0 +1,16 @@
+[
+  { "id": "rl.01.c1", "front": "Exploration vs exploitation", "back": "Exploiter : prendre l'action qui semble actuellement la meilleure. Explorer : prendre d'autres actions pour améliorer les estimations. Trop peu d'exploration t'enferme dans un mauvais choix ; trop en gaspille de la récompense." },
+  { "id": "rl.01.c2", "front": "Mise à jour de la moyenne incrémentale", "back": "$Q_n=Q_{n-1}+\\frac1n(r_n-Q_{n-1})$ : nouveau = ancien + pas x (cible - ancien)." },
+  { "id": "rl.01.c3", "front": "Règle epsilon-greedy", "back": "Avec une probabilité $\\varepsilon$, choisir un bras uniformément au hasard, sinon $\\arg\\max_a Q(a)$." },
+  { "id": "rl.01.c4", "front": "Règle d'action UCB", "back": "$a_t=\\arg\\max_a\\big[Q(a)+c\\sqrt{\\ln t/N(a)}\\big]$ ; les bras non visités sont essayés en premier." },
+  { "id": "rl.01.c5", "front": "Regret", "back": "$T q_*(a^*)-\\sum_t\\mathbb{E}[r_t]$ : récompense perdue par rapport à celle obtenue en jouant toujours le meilleur bras." },
+  { "id": "rl.01.c6", "front": "Pourquoi le bonus d'UCB utilise-t-il $\\ln t$ et $N(a)$ ?", "back": "Hoeffding : l'écart d'une moyenne de $N$ échantillons est d'environ $\\sqrt{\\ln(1/\\delta)/(2N)}$ ; faire décroître $\\delta$ avec $t$ donne $\\ln t$. Le bonus diminue à mesure qu'un bras est échantillonné." },
+  { "id": "rl.01.c7", "front": "Les cinq parties d'un MDP", "back": "États $\\mathcal S$, actions $\\mathcal A$, transitions $P(s'|s,a)$, récompenses $R(s,a,s')$, facteur d'actualisation $\\gamma$." },
+  { "id": "rl.01.c8", "front": "Propriété de Markov", "back": "L'état suivant ne dépend que de l'état et de l'action courants : $P(s_{t+1}|s_t,a_t)=P(s_{t+1}|\\text{history})$." },
+  { "id": "rl.01.c9", "front": "Retour $G_t$", "back": "$\\sum_{k\\ge0}\\gamma^k r_{t+k+1}$, la somme actualisée des récompenses futures." },
+  { "id": "rl.01.c10", "front": "Récursion du retour", "back": "$G_t=r_{t+1}+\\gamma G_{t+1}$." },
+  { "id": "rl.01.c11", "front": "Valeur d'état et valeur d'action", "back": "$V^\\pi(s)=\\mathbb{E}_\\pi[G_t|s_t=s]$ ; $Q^\\pi(s,a)=\\mathbb{E}_\\pi[G_t|s_t=s,a_t=a]$." },
+  { "id": "rl.01.c12", "front": "Horizon effectif d'un facteur d'actualisation", "back": "Environ $1/(1-\\gamma)$ étapes : $\\gamma=0.9$ vaut à peu près 10 étapes, $0.99$ à peu près 100." },
+  { "id": "rl.01.c13", "front": "Politique", "back": "Une application $\\pi(a|s)$ des états vers une distribution sur les actions ; ce que le RL cherche à améliorer." },
+  { "id": "rl.01.c14", "front": "Relation entre un bandit et un MDP", "back": "Un bandit est un MDP à un seul état : les choix ne changent pas la situation, seulement la récompense obtenue." }
+]

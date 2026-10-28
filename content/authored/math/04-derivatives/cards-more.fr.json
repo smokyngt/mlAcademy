@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.04.c14", "front": "Règle de la puissance", "back": "$(x^n)'=nx^{n-1}$." },
+  { "id": "f2n.04.c15", "front": "Dérivée de $e^x$ et de $\\ln x$", "back": "$e^x$ et $1/x$." },
+  { "id": "f2n.04.c16", "front": "Règle de la somme", "back": "$(f+g)'=f'+g'$." },
+  { "id": "f2n.04.c17", "front": "Approximation au premier ordre", "back": "$f(x+h)\\approx f(x)+f'(x)h$." },
+  { "id": "f2n.04.c18", "front": "Différence avant", "back": "$\\dfrac{f(x+h)-f(x)}h$, erreur $O(h)$." },
+  { "id": "f2n.04.c19", "front": "Meilleur $h$ pour les différences centrées (float64)", "back": "Environ $10^{-5}$ ($\\varepsilon^{1/3}$)." },
+  { "id": "f2n.04.c20", "front": "Source de l'erreur supplémentaire pour $h$ minuscule", "back": "L'arrondi, d'environ $\\varepsilon/h$." },
+  { "id": "f2n.04.c21", "front": "Valeur de $\\sigma(0)$ et $\\sigma'(0)$", "back": "$0.5$ et $0.25$." },
+  { "id": "f2n.04.c22", "front": "Dérivée de ReLU", "back": "$1$ pour $z>0$, $0$ pour $z<0$ ; non définie en $0$ (on utilise une convention)." }
+]

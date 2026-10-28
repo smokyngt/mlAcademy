@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.03.c1",
+  "front": "Objectif minimax du GAN",
+  "back": "$\\min_G\\max_D\\ \\mathbb E_{p_\\text{data}}\\log D(x)+\\mathbb E_{p_g}\\log(1-D(x))$."
+ },
+ {
+  "id": "gen.03.c2",
+  "front": "Discriminateur optimal",
+  "back": "$D^*(x)=p_\\text{data}(x)/(p_\\text{data}(x)+p_g(x))$."
+ },
+ {
+  "id": "gen.03.c3",
+  "front": "Valeur au discriminateur optimal",
+  "back": "$V(D^*,G)=-\\log4+2\\,\\mathrm{JS}(p_\\text{data}\\|p_g)$."
+ },
+ {
+  "id": "gen.03.c4",
+  "front": "Divergence de Jensen-Shannon",
+  "back": "$\\tfrac12\\mathrm{KL}(p\\|m)+\\tfrac12\\mathrm{KL}(q\\|m)$, $m=\\frac{p+q}2$ ; symétrique, dans $[0,\\log2]$."
+ },
+ {
+  "id": "gen.03.c5",
+  "front": "Équilibre du jeu",
+  "back": "$p_g=p_\\text{data}$ et $D^*\\equiv1/2$."
+ },
+ {
+  "id": "gen.03.c6",
+  "front": "Perte non saturante du générateur",
+  "back": "$-\\log D(G(z))$ au lieu de $\\log(1-D(G(z)))$ ; évite les gradients évanescents au début."
+ },
+ {
+  "id": "gen.03.c7",
+  "front": "Pourquoi la perte originale du générateur sature",
+  "back": "Avec $D=\\sigma(s)$, $\\partial\\log(1-D)/\\partial s=-D\\to0$ quand $D\\approx0$."
+ },
+ {
+  "id": "gen.03.c8",
+  "front": "Effondrement de modes",
+  "back": "Le générateur couvre peu de modes ; la perte ne récompense pas la diversité."
+ },
+ {
+  "id": "gen.03.c9",
+  "front": "Pourquoi la JS échoue pour des supports disjoints",
+  "back": "JS $=\\log2$ quelle que soit la séparation, donc le gradient n'est pas informatif."
+ },
+ {
+  "id": "gen.03.c10",
+  "front": "Distance de Wasserstein-1 (échantillons 1-D)",
+  "back": "Différence absolue moyenne des échantillons triés."
+ },
+ {
+  "id": "gen.03.c11",
+  "front": "Critique du WGAN",
+  "back": "Fonction $f$ à valeurs réelles 1-lipschitzienne maximisant $\\mathbb E_{p_\\text{data}}f-\\mathbb E_{p_g}f$ ; Lipschitz via écrêtage, pénalité de gradient ou normalisation spectrale."
+ },
+ {
+  "id": "gen.03.c12",
+  "front": "GAN conditionnel",
+  "back": "La condition $c$ est fournie à $G(c,z)$ et à $D(c,x)$."
+ },
+ {
+  "id": "gen.03.c13",
+  "front": "Perte de Pix2Pix",
+  "back": "$-\\log D(x,G(x))+\\lambda\\|y-G(x)\\|_1$ avec générateur U-Net et discriminateur PatchGAN."
+ },
+ {
+  "id": "gen.03.c14",
+  "front": "Idée de CycleGAN",
+  "back": "Traduction non appariée grâce à la cohérence cyclique : $F(G(x))\\approx x$."
+ }
+]

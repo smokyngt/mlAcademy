@@ -1,0 +1,10 @@
+{
+  "id": "mx.02.ex1",
+  "title": "DFT, DFT inverse, FFT récursive, repliement spectral et convolution par FFT",
+  "prompt": "Implémente, sans appeler `np.fft` dans ton propre code (les tests, eux, le font) :\n\n- `dft(x)` - la transformée de Fourier discrète en O(N^2) via la matrice DFT.\n- `idft(X)` - la DFT inverse.\n- `fft(x)` - FFT récursive de Cooley-Tukey en base 2 pour des longueurs qui sont des puissances de deux.\n- `bin_frequencies(N, fs)` - la fréquence physique en Hz de chaque case `k = 0..N-1`.\n- `alias_frequency(f, fs)` - la fréquence apparente (dans `[0, fs/2]`) à laquelle apparaît un son réel de fréquence `f` échantillonné à `fs`.\n- `peak_frequency(x, fs)` - la fréquence de la case la plus forte dans la première moitié du spectre d'un signal réel, en utilisant ta `fft`.\n- `circular_convolve(a, b)` - convolution circulaire de deux signaux de même longueur (puissance de deux) calculée via ta `fft` (renvoie des valeurs réelles).",
+  "hints": [
+    "dft : construis F[k, n] = exp(-2j*pi*k*n/N) avec np.outer(np.arange(N), np.arange(N)) et calcule F @ x. L'inverse utilise le signe opposé et un facteur 1/N.",
+    "fft : si N == 1 renvoie x. E = fft(x[0::2]), O = fft(x[1::2]), t = exp(-2j*pi*arange(N//2)/N) * O, résultat = concatenate([E + t, E - t]).",
+    "alias_frequency : réduis f modulo fs, puis si le résultat dépasse fs/2 renvoie fs moins ce résultat. circular_convolve : multiplie ta fft des deux entrées et inverse avec ta propre ifft (astuce du conjugué : ifft(X) = conj(fft(conj(X))) / N)."
+  ]
+}

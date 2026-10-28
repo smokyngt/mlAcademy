@@ -1,0 +1,36 @@
+[
+  {
+    "id": "surprise-curve", "after": 3, "kind": "plot",
+    "caption": { "en": "Information content (surprise) −log₂ p: rare events carry many bits (p = 1/1000 gives 9.97 bits), certain events carry none.", "fr": "Contenu en information (surprise) −log₂ p : les événements rares portent beaucoup de bits (p = 1/1000 donne 9,97 bits), les événements certains n'en portent aucun." },
+    "spec": { "xDomain": [0, 1], "yDomain": [-0.5, 8], "height": 300,
+      "data": [
+        { "fn": "-log(x)/log(2)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0.5, 1], [0.1667, 2.585]] }
+      ] }
+  },
+  {
+    "id": "binary-entropy", "after": 3, "kind": "plot",
+    "caption": { "en": "Entropy of a coin with P(heads) = p, in bits. It is 0 for a certain outcome, maximal (1 bit) at p = 0.5, and 0.0808 bits at p = 0.99.", "fr": "Entropie d'une pièce avec P(face) = p, en bits. Elle vaut 0 pour une issue certaine, est maximale (1 bit) en p = 0,5, et vaut 0,0808 bit en p = 0,99." },
+    "spec": { "xDomain": [0, 1], "yDomain": [0, 1.1], "height": 300,
+      "data": [
+        { "fn": "-(x*log(x)+(1-x)*log(1-x))/log(2)", "color": "#d97706" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0.5, 1], [0.99, 0.0808]] }
+      ] }
+  },
+  {
+    "id": "ce-kl-decomposition", "after": 3, "kind": "mermaid",
+    "caption": { "en": "Cross-entropy = entropy + KL. Coding data from p with a code built for q costs H(p) bits (unavoidable) plus KL(p‖q) wasted bits. Example: H = 1.75, KL = 0.25, so H(p, q) = 2 bits.", "fr": "Entropie croisée = entropie + KL. Coder des données de loi p avec un code construit pour q coûte H(p) bits (incompressibles) plus KL(p‖q) bits gaspillés. Exemple : H = 1,75, KL = 0,25, donc H(p, q) = 2 bits." },
+    "code": {
+      "en": "flowchart LR\n  H[\"H(p) = 1.75 bits\\nunavoidable\"] --> CE[\"H(p, q) = 2 bits\\ncost with the wrong code\"]\n  K[\"KL(p || q) = 0.25 bits\\nwasted\"] --> CE",
+      "fr": "flowchart LR\n  H[\"H(p) = 1,75 bits\\nincompressible\"] --> CE[\"H(p, q) = 2 bits\\ncoût avec le mauvais code\"]\n  K[\"KL(p || q) = 0,25 bit\\ngaspillé\"] --> CE"
+    }
+  },
+  {
+    "id": "softmax-ce-pipeline", "after": 3, "kind": "mermaid",
+    "caption": { "en": "From logits to the classification loss: softmax gives probabilities, the cross-entropy keeps only −ln of the true class probability.", "fr": "Des logits à la perte de classification : le softmax donne des probabilités, l'entropie croisée ne garde que −ln de la probabilité de la vraie classe." },
+    "code": {
+      "en": "flowchart LR\n  Z[\"logits z = (2, 1, 0.1)\"] -->|\"softmax (shift by max)\"| P[\"p = (0.659, 0.242, 0.099)\"]\n  T[\"true class = 0 (one-hot)\"] --> L\n  P --> L[\"loss = -ln p_true\"] --> V[\"0.417 nats = 0.602 bits\"]",
+      "fr": "flowchart LR\n  Z[\"logits z = (2, 1, 0,1)\"] -->|\"softmax (décalage par le max)\"| P[\"p = (0,659 ; 0,242 ; 0,099)\"]\n  T[\"vraie classe = 0 (one-hot)\"] --> L\n  P --> L[\"perte = -ln p_vrai\"] --> V[\"0,417 nat = 0,602 bit\"]"
+    }
+  }
+]

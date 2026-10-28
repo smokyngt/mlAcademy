@@ -1,0 +1,144 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The worked example graph: two triangles {0,1,2} and {3,4,5} joined by a single bridge edge (2,3). Degrees: 2, 2, 3, 3, 2, 2.",
+      "fr": "Le graphe de l'exemple : deux triangles {0,1,2} et {3,4,5} reliés par une seule arête pont (2,3). Degrés : 2, 2, 3, 3, 2, 2."
+    },
+    "code": {
+      "en": "flowchart LR\n  n0((0)) --- n1((1))\n  n1 --- n2((2))\n  n0 --- n2\n  n2 ---|\"bridge\"| n3((3))\n  n3 --- n4((4))\n  n4 --- n5((5))\n  n3 --- n5",
+      "fr": "flowchart LR\n  n0((0)) --- n1((1))\n  n1 --- n2((2))\n  n0 --- n2\n  n2 ---|\"pont\"| n3((3))\n  n3 --- n4((4))\n  n4 --- n5((5))\n  n3 --- n5"
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The Fiedler vector (second Laplacian eigenvector) per node: its sign splits {0,1,2} from {3,4,5}, recovering the two triangles; the bridge endpoints 2 and 3 have the smallest magnitude.",
+      "fr": "Le vecteur de Fiedler (deuxième vecteur propre du laplacien) par nœud : son signe sépare {0,1,2} de {3,4,5}, retrouvant les deux triangles ; les extrémités du pont 2 et 3 ont la plus petite amplitude."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        6
+      ],
+      "yDomain": [
+        -0.8,
+        0.8
+      ],
+      "height": 260,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0,
+              -0.465
+            ],
+            [
+              1,
+              -0.465
+            ],
+            [
+              2,
+              -0.261
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              3,
+              0.261
+            ],
+            [
+              4,
+              0.465
+            ],
+            [
+              5,
+              0.465
+            ]
+          ]
+        },
+        {
+          "fn": "0",
+          "color": "#9ca3af"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0,
+          "text": "cut at 0"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f3",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "PageRank on 4 pages (links 0->1, 0->2, 1->2, 2->0, 2->3, 3->2, damping 0.85); node labels show the stationary ranks. Page 2 wins because three pages feed it.",
+      "fr": "PageRank sur 4 pages (liens 0->1, 0->2, 1->2, 2->0, 2->3, 3->2, amortissement 0,85) ; les étiquettes montrent les rangs stationnaires. La page 2 gagne car trois pages pointent vers elle."
+    },
+    "code": {
+      "en": "flowchart LR\n  p0[\"page 0: 0.2199\"] --> p1[\"page 1: 0.1310\"]\n  p0 --> p2[\"page 2: 0.4292\"]\n  p1 --> p2\n  p2 --> p0\n  p2 --> p3[\"page 3: 0.2199\"]\n  p3 --> p2",
+      "fr": "flowchart LR\n  p0[\"page 0 : 0,2199\"] --> p1[\"page 1 : 0,1310\"]\n  p0 --> p2[\"page 2 : 0,4292\"]\n  p1 --> p2\n  p2 --> p0\n  p2 --> p3[\"page 3 : 0,2199\"]\n  p3 --> p2"
+    }
+  },
+  {
+    "id": "f4",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Power iteration for PageRank: the error shrinks at least like d^t = 0.85^t; after 50 steps it is about 3e-4.",
+      "fr": "Itération de puissance pour PageRank : l'erreur décroît au moins comme d^t = 0,85^t ; après 50 pas elle vaut environ 3e-4."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        50
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "height": 260,
+      "data": [
+        {
+          "fn": "0.85^x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              50,
+              0.0003
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

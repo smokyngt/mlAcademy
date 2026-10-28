@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.08.c1", "concept": "ml.loss", "front": "MSE as maximum likelihood", "back": "Gaussian noise $\\Rightarrow$ NLL $=\\sum(y-f)^2/2\\sigma^2+\\text{const}$." },
+  { "id": "f2n.08.c2", "concept": "ml.loss", "front": "Binary cross-entropy", "back": "$-[y\\ln p+(1-y)\\ln(1-p)]$ with $p=\\sigma(z)$; $\\partial L/\\partial z=p-y$." },
+  { "id": "f2n.08.c3", "concept": "ml.loss", "front": "Softmax + cross-entropy gradient", "back": "$\\nabla_zL=p-\\text{onehot}(y)$; for a batch mean, divide by $B$." },
+  { "id": "f2n.08.c4", "concept": "ml.loss", "front": "Expected loss at initialisation for $K$ classes", "back": "$\\ln K$ (uniform predictions). Binary: $\\ln2\\approx0.693$." },
+  { "id": "f2n.08.c5", "concept": "ml.loss", "front": "Stable log-softmax", "back": "$\\ln p_k=z_k-\\operatorname{logsumexp}(z)$, with logsumexp computed after subtracting the max." }
+]

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.03.q1",
+  "prompt": "Que compte l'entrée $(A^k)_{ij}$ de la $k$-ième puissance d'une matrice d'adjacence ?",
+  "options": [
+   "Les plus courts chemins de longueur $k$",
+   "Les marches de longueur exactement $k$ de $i$ à $j$",
+   "Les nœuds à distance $k$",
+   "Les arêtes ajoutées après $k$ étapes"
+  ],
+  "explanation": "Récurrence : $(A^{k+1})_{ij}=\\sum_m(A^k)_{im}A_{mj}$."
+ },
+ {
+  "id": "mx.03.q2",
+  "prompt": "Un graphe triangle a $\\operatorname{trace}(A^3)=$ ?",
+  "options": [],
+  "explanation": "$6\\times$ le nombre de triangles : 3 nœuds de départ fois 2 sens."
+ },
+ {
+  "id": "mx.03.q3",
+  "prompt": "$x^\\top Lx$ est égal à...",
+  "options": [
+   "$\\sum_i d_ix_i$",
+   "$\\sum_{\\text{edges}}(x_i-x_j)^2$",
+   "$\\sum_{\\text{edges}}(x_i+x_j)^2$",
+   "$\\|Ax\\|^2$"
+  ],
+  "explanation": "Développer $D-A$ donne la somme des différences au carré sur les arêtes, donc $L$ est semi-définie positive."
+ },
+ {
+  "id": "mx.03.q4",
+  "prompt": "Un graphe a 3 composantes connexes. Combien de valeurs propres nulles son laplacien a-t-il ?",
+  "options": [],
+  "explanation": "L'espace propre de 0 est engendré par les 3 vecteurs indicateurs des composantes."
+ },
+ {
+  "id": "mx.03.q5",
+  "prompt": "Quel vecteur propre de $L$ est utilisé pour la bissection spectrale ?",
+  "options": [
+   "Celui de la plus grande valeur propre",
+   "Le vecteur constant",
+   "Celui de la deuxième plus petite valeur propre (vecteur de Fiedler)",
+   "Celui de la plus petite valeur propre"
+  ],
+  "explanation": "Le plus petit vecteur propre est le vecteur constant (trivial). Le suivant minimise la rugosité sous la contrainte d'être orthogonal à lui."
+ },
+ {
+  "id": "mx.03.q6",
+  "prompt": "Un petit $\\lambda_2$ du laplacien suggère...",
+  "options": [
+   "un goulot d'étranglement : le graphe se scinde presque en deux",
+   "un graphe complet",
+   "un graphe orienté",
+   "beaucoup de triangles"
+  ],
+  "explanation": "$\\lambda_2=0$ si et seulement si le graphe est déconnecté ; une petite valeur signifie un graphe presque déconnecté."
+ },
+ {
+  "id": "mx.03.q7",
+  "prompt": "Pourquoi PageRank ajoute-t-il la téléportation ?",
+  "options": [
+   "Pour rendre le graphe non orienté",
+   "Pour réduire la taille de la matrice",
+   "Pour corriger les impasses et faire converger la chaîne vers un unique vecteur positif",
+   "Pour rendre $P$ symétrique"
+  ],
+  "explanation": "Les nœuds pendants et les groupes piégés brisent l'unicité ; $G=dP+\\frac{1-d}{n}\\mathbf 1\\mathbf 1^\\top$ est strictement positive."
+ },
+ {
+  "id": "mx.03.q8",
+  "prompt": "PageRank est mathématiquement...",
+  "options": [
+   "le vecteur propre à gauche dominant de la matrice de Google, de valeur propre 1",
+   "le degré de chaque nœud",
+   "le plus petit vecteur propre du laplacien",
+   "le nombre de liens entrants"
+  ],
+  "explanation": "$r=rG$ avec $\\sum r_i=1$."
+ },
+ {
+  "id": "mx.03.q9",
+  "prompt": "Pour $d=0.85$, après environ combien d'étapes d'itération de puissance la borne d'erreur $d^t$ est-elle passée sous $0.001$ ? (arrondis au supérieur)",
+  "options": [],
+  "explanation": "$0.85^t<10^{-3}\\Rightarrow t>\\ln(10^{-3})/\\ln0.85\\approx42.5$, donc 43."
+ }
+]

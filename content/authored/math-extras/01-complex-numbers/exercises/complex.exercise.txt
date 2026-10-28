@@ -1,0 +1,85 @@
+#@@ meta
+{"id": "mx.01.ex1", "title": "Polar form, Euler series, roots of unity and rotation eigenvalues", "difficulty": 2, "runtime": "pyodide", "concepts": ["mx.complex", "mx.euler", "mx.roots-unity"], "hints": ["to_polar: modulus is abs(z), angle is np.arctan2(z.imag, z.real). from_polar: r * np.exp(1j * theta).", "euler_series: keep a running term; start term = 1 and for k = 0,1,... add it, then term = term * (1j*theta) / (k+1).", "rotation_eigenvalues: trace = 2cos(theta), det = 1, the discriminant tr^2 - 4 det is negative so take sqrt of a complex number; return the root with positive imaginary part first."]}
+#@@ prompt
+Implement, using plain Python/NumPy arithmetic (do not call `np.linalg.eig` or `np.roots` in your own code):
+
+- `to_polar(z)` returns `(r, theta)` with `theta` from `arctan2`; `from_polar(r, theta)` is the inverse.
+- `mul_polar(p1, p2)` multiplies two numbers given as `(r, theta)` pairs by multiplying lengths and adding angles; return a `(r, theta)` pair.
+- `euler_series(theta, terms)` returns the partial sum of the Taylor series of `exp(i*theta)` with `terms` terms (the terms for k = 0 .. terms-1).
+- `roots_of_unity(n)` returns the `n` complex numbers `exp(2*pi*i*k/n)`, k = 0..n-1.
+- `rotation_eigenvalues(theta)` returns the two eigenvalues of the 2x2 rotation matrix as a tuple `(lam_plus, lam_minus)` with `lam_plus` having non-negative imaginary part, obtained from the characteristic polynomial.
+#@@ starter
+import numpy as np
+
+def to_polar(z):
+    raise NotImplementedError
+
+def from_polar(r, theta):
+    raise NotImplementedError
+
+def mul_polar(p1, p2):
+    raise NotImplementedError
+
+def euler_series(theta, terms):
+    raise NotImplementedError
+
+def roots_of_unity(n):
+    raise NotImplementedError
+
+def rotation_eigenvalues(theta):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+r, th = to_polar(3 + 4j)
+check("3+4i has modulus 5", lambda: abs(r - 5) < 1e-12)
+check("3+4i has angle 0.9273", lambda: abs(th - 0.9272952180016122) < 1e-9)
+check("from_polar inverts to_polar", lambda: abs(from_polar(r, th) - (3 + 4j)) < 1e-12)
+p = mul_polar(to_polar(1 + 2j), to_polar(3 - 1j))
+check("product lengths multiply: sqrt(50)", lambda: abs(p[0] - np.sqrt(50)) < 1e-9)
+check("product angles add: 45 degrees", lambda: abs(p[1] - np.pi / 4) < 1e-9)
+check("polar product equals (1+2i)(3-i) = 5+5i", lambda: abs(from_polar(*p) - (5 + 5j)) < 1e-9)
+check("i times (1+i) = -1+i", lambda: abs(from_polar(*mul_polar((1.0, np.pi / 2), to_polar(1 + 1j))) - (-1 + 1j)) < 1e-9)
+th0 = np.pi / 3
+check("Taylor series with 10 terms is accurate to 1e-6", lambda: abs(euler_series(th0, 10) - np.exp(1j * th0)) < 1e-6)
+check("Taylor series with 4 terms error is about 0.0494", lambda: abs(abs(euler_series(th0, 4) - np.exp(1j * th0)) - 0.04938147) < 1e-6)
+check("Taylor series with 2 terms is 1 + i*theta", lambda: abs(euler_series(th0, 2) - (1 + 1j * th0)) < 1e-12)
+check("e^{i pi} is -1 (series, 30 terms)", lambda: abs(euler_series(np.pi, 30) + 1) < 1e-9)
+w4 = roots_of_unity(4)
+check("fourth roots of unity are 1, i, -1, -i", lambda: np.allclose(w4, [1, 1j, -1, -1j]))
+w7 = roots_of_unity(7)
+check("roots of unity sum to zero", lambda: abs(w7.sum()) < 1e-12)
+check("every root satisfies z^n = 1", lambda: np.allclose(w7 ** 7, 1))
+check("roots of unity are orthogonal (conjugate inner product)", lambda: abs(np.vdot(w7, w7 ** 2)) < 1e-12 and abs(np.vdot(w7, w7) - 7) < 1e-12)
+lp, lm = rotation_eigenvalues(np.pi / 2)
+check("90 degree rotation has eigenvalues +i and -i", lambda: abs(lp - 1j) < 1e-12 and abs(lm + 1j) < 1e-12)
+lp, lm = rotation_eigenvalues(np.pi / 3)
+check("60 degree rotation has eigenvalues e^{+-i pi/3}", lambda: abs(lp - np.exp(1j * np.pi / 3)) < 1e-12 and abs(lm - np.exp(-1j * np.pi / 3)) < 1e-12)
+R = np.array([[np.cos(0.7), -np.sin(0.7)], [np.sin(0.7), np.cos(0.7)]])
+check("matches numpy eigenvalues", lambda: np.allclose(sorted(rotation_eigenvalues(0.7), key=lambda c: c.imag), sorted(np.linalg.eigvals(R), key=lambda c: c.imag)))
+#@@ solution
+import numpy as np
+
+def to_polar(z):
+    return float(abs(z)), float(np.arctan2(z.imag, z.real))
+
+def from_polar(r, theta):
+    return r * np.exp(1j * theta)
+
+def mul_polar(p1, p2):
+    return p1[0] * p2[0], p1[1] + p2[1]
+
+def euler_series(theta, terms):
+    total, term = 0j, 1 + 0j
+    for k in range(terms):
+        total += term
+        term = term * (1j * theta) / (k + 1)
+    return total
+
+def roots_of_unity(n):
+    return np.exp(2j * np.pi * np.arange(n) / n)
+
+def rotation_eigenvalues(theta):
+    tr, det = 2 * np.cos(theta), 1.0
+    disc = np.sqrt(complex(tr * tr - 4 * det))
+    a, b = (tr + disc) / 2, (tr - disc) / 2
+    return (a, b) if a.imag >= b.imag else (b, a)

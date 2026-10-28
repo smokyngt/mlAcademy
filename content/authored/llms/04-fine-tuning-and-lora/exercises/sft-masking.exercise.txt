@@ -1,0 +1,109 @@
+#@@ meta
+{"id": "llm.04.ex1", "title": "SFT examples: prompt masking and masked cross-entropy", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.sft", "ml.loss", "nn.backprop"], "hints": ["An example is prompt + response + [eos]. Labels are the same sequence with IGNORE (-100) on the prompt positions. Inputs are ids[:-1] and targets are labels[1:] (shift by one).", "Collate: pad inputs with pad_id and targets with IGNORE to the longest sequence in the batch, so padding never contributes to the loss.", "Masked cross-entropy: softmax over the last axis, average -log p[target] ONLY over positions where target != IGNORE (divide by the number of valid positions). The gradient is (p - onehot)/n_valid at valid positions and exactly 0 elsewhere."]}
+#@@ prompt
+Implement the data side and the loss of supervised fine-tuning (SFT) with **loss masking on the prompt**.
+
+- `build_example(prompt_ids, response_ids, eos)` returns `(ids, labels)`: `ids = prompt + response + [eos]`; `labels` equals `ids` except that prompt positions hold `IGNORE = -100`.
+- `to_xy(ids, labels)` returns `(x, y)` for next-token prediction: `x = ids[:-1]`, `y = labels[1:]`.
+- `collate(pairs, pad_id)` pads a list of `(x, y)` to a common length `T` and returns arrays `X, Y` of shape `(B, T)` (inputs padded with `pad_id`, targets with `IGNORE`).
+- `masked_ce(logits, Y)` for logits `(B, T, V)` and targets `(B, T)` returns `(loss, dlogits)`: the mean cross-entropy over positions with `Y != IGNORE`, and its gradient with respect to the logits (same shape; zero at ignored positions).
+#@@ starter
+import numpy as np
+
+IGNORE = -100
+
+def build_example(prompt_ids, response_ids, eos):
+    # TODO
+    raise NotImplementedError
+
+def to_xy(ids, labels):
+    # TODO
+    raise NotImplementedError
+
+def collate(pairs, pad_id):
+    # TODO
+    raise NotImplementedError
+
+def masked_ce(logits, Y):
+    # TODO: return (loss, dlogits)
+    raise NotImplementedError
+
+ids, labels = build_example([5, 6, 7], [8, 9], eos=1)
+print(ids, labels)
+print(to_xy(ids, labels))
+#@@ tests
+import numpy as np
+ids, labels = build_example([5, 6, 7], [8, 9], eos=1)
+check("ids = prompt + response + eos", lambda: list(ids) == [5, 6, 7, 8, 9, 1])
+check("labels mask the prompt", lambda: list(labels) == [-100, -100, -100, 8, 9, 1])
+x, y = to_xy(ids, labels)
+check("x, y are shifted by one", lambda: list(x) == [5, 6, 7, 8, 9] and list(y) == [-100, -100, 8, 9, 1], "the last prompt token (7) is the first input whose target (8) is supervised")
+x2, y2 = to_xy(*build_example([3], [4], eos=1))
+X, Y = collate([(x, y), (x2, y2)], pad_id=0)
+check("collate shapes", lambda: X.shape == (2, 5) and Y.shape == (2, 5))
+check("collate pads inputs with pad_id and targets with IGNORE", lambda: list(X[1]) == [3, 4, 0, 0, 0] and list(Y[1]) == [4, 1, -100, -100, -100])
+rng = np.random.default_rng(0)
+V = 11
+logits = rng.normal(size=(2, 5, V))
+loss, g = masked_ce(logits, Y)
+def manual():
+    tot, n = 0.0, 0
+    for b in range(2):
+        for t in range(5):
+            if Y[b, t] != -100:
+                z = logits[b, t]; lp = z - np.log(np.exp(z).sum())
+                tot += -lp[Y[b, t]]; n += 1
+    return tot / n
+check("loss averages over the 5 supervised positions only", lambda: abs(loss - manual()) < 1e-12)
+check("changing logits at ignored positions does not change the loss", lambda: abs(masked_ce(np.where((Y == -100)[..., None], rng.normal(size=logits.shape), logits), Y)[0] - loss) < 1e-12)
+check("gradient is zero at ignored positions", lambda: np.all(g[Y == -100] == 0))
+check("gradient rows sum to zero at valid positions", lambda: np.allclose(g[Y != -100].sum(axis=-1), 0, atol=1e-12))
+def fd():
+    worst = 0.0
+    for idx in np.ndindex(*logits.shape):
+        a = logits.copy(); b = logits.copy(); a[idx] += 1e-6; b[idx] -= 1e-6
+        worst = max(worst, abs((masked_ce(a, Y)[0] - masked_ce(b, Y)[0]) / 2e-6 - g[idx]))
+    return worst
+check("gradient matches finite differences", lambda: fd() < 1e-7, "(p - onehot) / n_valid")
+check("a prompt-only pair would give zero valid targets: loss is guarded", lambda: np.isfinite(masked_ce(logits[:1], np.full((1, 5), -100))[0]), "return 0.0 when there are no valid positions")
+#@@ solution
+import numpy as np
+
+IGNORE = -100
+
+def build_example(prompt_ids, response_ids, eos):
+    ids = list(prompt_ids) + list(response_ids) + [eos]
+    labels = [IGNORE] * len(prompt_ids) + list(response_ids) + [eos]
+    return ids, labels
+
+def to_xy(ids, labels):
+    return list(ids[:-1]), list(labels[1:])
+
+def collate(pairs, pad_id):
+    T = max(len(x) for x, _ in pairs)
+    X = np.full((len(pairs), T), pad_id, dtype=int)
+    Y = np.full((len(pairs), T), IGNORE, dtype=int)
+    for i, (x, y) in enumerate(pairs):
+        X[i, :len(x)] = x
+        Y[i, :len(y)] = y
+    return X, Y
+
+def masked_ce(logits, Y):
+    z = logits - logits.max(axis=-1, keepdims=True)
+    p = np.exp(z)
+    p /= p.sum(axis=-1, keepdims=True)
+    valid = Y != IGNORE
+    n = int(valid.sum())
+    if n == 0:
+        return 0.0, np.zeros_like(logits)
+    b, t = np.nonzero(valid)
+    loss = float(-np.mean(np.log(p[b, t, Y[b, t]])))
+    g = np.zeros_like(logits)
+    g[b, t] = p[b, t]
+    g[b, t, Y[b, t]] -= 1.0
+    g /= n
+    return loss, g
+
+ids, labels = build_example([5, 6, 7], [8, 9], eos=1)
+print(ids, labels)
+print(to_xy(ids, labels))

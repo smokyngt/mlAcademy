@@ -1,0 +1,76 @@
+[
+ {
+  "id": "mf.06.q1",
+  "prompt": "Que vaut $1+2+3+\\dots+100$ ?",
+  "options": [],
+  "explanation": "Apparie le premier avec le dernier : 50 paires de somme 101, donc $50\\cdot101=5050$ (formule $n(n+1)/2$)."
+ },
+ {
+  "id": "mf.06.q2",
+  "prompt": "Suite arithmétique de premier terme 5 et de raison 3. Quel est le 10e terme ?",
+  "options": [],
+  "explanation": "$a_n=a+(n-1)d=5+9\\cdot3=32$."
+ },
+ {
+  "id": "mf.06.q3",
+  "prompt": "La somme des $n$ premiers termes d'une série géométrique $a+ar+\\dots+ar^{n-1}$ (avec $r\\neq1$) est...",
+  "options": [
+   "$a\\frac{1-r^n}{1-r}$",
+   "$a\\frac{r^n}{1-r}$",
+   "$an r$",
+   "$\\frac{a}{1-r^n}$"
+  ],
+  "explanation": "Multiplie $S$ par $r$, soustrais, et presque tout s'annule : $S(1-r)=a(1-r^n)$."
+ },
+ {
+  "id": "mf.06.q4",
+  "prompt": "À quoi est égal $1+\\frac12+\\frac14+\\frac18+\\dots$ (à l'infini) ?",
+  "options": [],
+  "explanation": "Série géométrique infinie avec $|r|<1$ : $a/(1-r)=1/(1-\\frac12)=2$."
+ },
+ {
+  "id": "mf.06.q5",
+  "prompt": "Pour quelle raison $r$ la série $\\sum_{k\\ge0}ar^k$ converge-t-elle (avec $a\\neq0$) ?",
+  "options": [
+   "$|r|\\le1$",
+   "$|r|<1$",
+   "$r>1$",
+   "tout $r$"
+  ],
+  "explanation": "Les termes doivent rétrécir vers 0, ce qui exige $|r|<1$. En $r=1$ la somme croît sans borne ; en $r=-1$ les sommes partielles oscillent entre $a$ et 0."
+ },
+ {
+  "id": "mf.06.q6",
+  "prompt": "La série harmonique $1+\\frac12+\\frac13+\\dots$...",
+  "options": [
+   "converge vers $\\ln 2$",
+   "converge vers 2",
+   "diverge, mais très lentement",
+   "est égale à $\\pi$"
+  ],
+  "explanation": "Bien que ses termes tendent vers 0, la somme dépasse toute borne (il faut environ 12 367 termes pour dépasser 10)."
+ },
+ {
+  "id": "mf.06.q7",
+  "prompt": "À quoi est égal $\\prod_{k=1}^{5}k$ ?",
+  "options": [],
+  "explanation": "La notation produit multiplie : $1\\cdot2\\cdot3\\cdot4\\cdot5=120=5!$."
+ },
+ {
+  "id": "mf.06.q8",
+  "prompt": "$\\sum_{k=1}^{4}k^2$ est égal à...",
+  "options": [],
+  "explanation": "$1+4+9+16=30$ ; formule $4\\cdot5\\cdot9/6=30$."
+ },
+ {
+  "id": "mf.06.q9",
+  "prompt": "Pourquoi une forme close peut-elle être meilleure qu'une boucle pour une somme ?",
+  "options": [
+   "elle est toujours moins précise",
+   "elle demande une opération au lieu de $n$ additions",
+   "les boucles ne sont pas permises en Python",
+   "elle évite d'utiliser des nombres"
+  ],
+  "explanation": "$\\sum_{k=1}^nk=n(n+1)/2$ coûte une poignée d'opérations quel que soit $n$ ; la boucle en coûte $n$."
+ }
+]

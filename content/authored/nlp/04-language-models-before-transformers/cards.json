@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.04.c1","concept":"nlp.ngram-lm","front":"What is a language model?","back":"A model of $P(w_1,\\dots,w_m)$, factorised by the chain rule into next-word predictions $P(w_i\\mid w_{<i})$."},
+ {"id":"nlp.04.c2","concept":"nlp.ngram-lm","front":"Bigram MLE","back":"$P(w\\mid v)=c(v,w)/c(v)$."},
+ {"id":"nlp.04.c3","concept":"nlp.ngram-lm","front":"Why pad with <s> and </s>?","back":"So the model learns sentence starts and ends and the chain rule covers the first word and the stopping decision."},
+ {"id":"nlp.04.c4","concept":"nlp.ngram-lm","front":"Zero-count problem","back":"Unseen n-grams get probability 0, so a sentence containing one gets 0 and perplexity infinity; solved by smoothing."},
+ {"id":"nlp.04.c5","concept":"nlp.ngram-lm","front":"Add-k smoothing","back":"$P=\\frac{c(v,w)+k}{c(v)+k|V|}$. With k=1 (Laplace) it takes too much mass from seen events on large vocabularies."},
+ {"id":"nlp.04.c6","concept":"nlp.ngram-lm","front":"Linear interpolation","back":"$\\lambda P_{n}+(1-\\lambda)P_{n-1}$ mixes orders; tune $\\lambda$ on held-out data."},
+ {"id":"nlp.04.c7","concept":"nlp.ngram-lm","front":"Backoff","back":"Use the highest-order estimate with positive count; otherwise fall back to a lower order (Katz discounts to keep normalisation; stupid backoff just multiplies by ~0.4)."},
+ {"id":"nlp.04.c8","concept":"nlp.ngram-lm","front":"Kneser-Ney intuition","back":"Lower-order probability should reflect in how many different contexts a word appears, not its raw frequency (Francisco almost only follows San)."},
+ {"id":"nlp.04.c9","concept":"nlp.ngram-lm","front":"Perplexity formula","back":"$\\mathrm{PP}=\\exp\\big(-\\frac1N\\sum_i\\ln P(w_i\\mid\\text{ctx}_i)\\big)=e^{H}$."},
+ {"id":"nlp.04.c10","concept":"nlp.ngram-lm","front":"Interpretation of perplexity","back":"The effective branching factor: a uniform choice among $b$ words has perplexity $b$. Lower is better."},
+ {"id":"nlp.04.c11","concept":"nlp.ngram-lm","front":"Perplexity caveats","back":"Only comparable with the same vocabulary and tokenisation; needs unseen test data; infinite if any probability is 0."},
+ {"id":"nlp.04.c12","concept":"nlp.ngram-lm","front":"Size of an n-gram table","back":"Up to $|V|^n$ cells; most are empty, which is why counts get sparse as n grows."},
+ {"id":"nlp.04.c13","concept":"nlp.ngram-lm","front":"Idea of a neural language model","back":"Embed the previous words, pass through a network, softmax over the vocabulary; similar words share statistics, no smoothing needed."},
+ {"id":"nlp.04.c14","concept":"nlp.ngram-lm","front":"Link between LM loss and perplexity","back":"Training minimises the average cross-entropy $H$; perplexity is $e^{H}$ (or $2^{H}$ with bits)."}
+]

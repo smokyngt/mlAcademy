@@ -1,0 +1,133 @@
+[
+ {
+  "id": "ops.04.q1",
+  "concept": "ops.offline-eval",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "The positive class is 90% of the labels and a model has $F_1=0.90$. What must you check first?",
+  "options": [
+   "How it compares with a random or zero-rule baseline",
+   "The learning rate",
+   "The number of layers",
+   "Nothing; 0.90 is high"
+  ],
+  "answer": 0,
+  "explanation": "A model predicting positive 90% of the time at random also scores about $F_1=0.9$ here; a metric alone means little."
+ },
+ {
+  "id": "ops.04.q2",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Three independent classifiers are each correct with probability 0.7. What is the accuracy of their majority vote?",
+  "options": [],
+  "answer": {
+   "value": 0.784,
+   "tol": 0.001
+  },
+  "explanation": "$3(0.7)^2(0.3)+(0.7)^3=0.441+0.343=0.784$."
+ },
+ {
+  "id": "ops.04.q3",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "When does a majority-vote ensemble give no gain over one model?",
+  "options": [
+   "When the models have different architectures",
+   "When there are an odd number of models",
+   "When all base learners make identical predictions",
+   "When accuracy exceeds 50%"
+  ],
+  "answer": 2,
+  "explanation": "The gain comes from independent errors; perfectly correlated models are as good as one."
+ },
+ {
+  "id": "ops.04.q4",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Boosting differs from bagging because...",
+  "options": [
+   "it trains models independently on bootstrap samples",
+   "it trains learners sequentially, re-weighting examples so later learners focus on earlier mistakes",
+   "it needs no base learners",
+   "it averages predictions only for regression"
+  ],
+  "answer": 1,
+  "explanation": "Bagging trains independent models on bootstrap samples and reduces variance; boosting is sequential and focuses on errors."
+ },
+ {
+  "id": "ops.04.q5",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In synchronous data-parallel SGD, which problem grows as you add workers?",
+  "options": [
+   "Stale gradients",
+   "Model not fitting in memory",
+   "Higher learning rates",
+   "Stragglers slowing every step"
+  ],
+  "answer": 3,
+  "explanation": "The step waits for the slowest worker, and with more workers it is more likely that someone is slow. Stale gradients belong to asynchronous SGD."
+ },
+ {
+  "id": "ops.04.q6",
+  "concept": "ops.slice-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Model A beats model B in every slice but loses overall. This phenomenon is called...",
+  "options": [
+   "overfitting",
+   "covariate shift",
+   "Simpson's paradox",
+   "label leakage"
+  ],
+  "answer": 2,
+  "explanation": "The slices contribute with different weights to the two totals, so aggregates can reverse the per-slice ordering."
+ },
+ {
+  "id": "ops.04.q7",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Changing the applicant's name in a resume and seeing the model's score change is a failure of which test?",
+  "options": [
+   "Invariance test",
+   "Perturbation test (noise)",
+   "Directional expectation test",
+   "Slice finder"
+  ],
+  "answer": 0,
+  "explanation": "Some changes must not change the output; the fraction of flipped predictions measures the violation."
+ },
+ {
+  "id": "ops.04.q8",
+  "concept": "ops.offline-eval",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Prevalence of the positive class is 0.1 and a model guesses positive with probability 0.1 independently of the input. What is its accuracy?",
+  "options": [],
+  "answer": {
+   "value": 0.82,
+   "tol": 0.001
+  },
+  "explanation": "$pq+(1-p)(1-q)=0.01+0.81=0.82$."
+ },
+ {
+  "id": "ops.04.q9",
+  "concept": "ops.slice-eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which is a way to find critical slices?",
+  "options": [
+   "Only look at aggregate accuracy",
+   "Random shuffling",
+   "Increase the batch size",
+   "Heuristics from domain knowledge, error analysis, or automatic slice finders"
+  ],
+  "answer": 3,
+  "explanation": "Slicing is more art than science: use domain splits (mobile vs desktop), read errors, or search for subsets automatically."
+ }
+]

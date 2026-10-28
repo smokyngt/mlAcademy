@@ -1,0 +1,14 @@
+[
+  { "id": "math.08.c1", "front": "Règle de la somme", "back": "$p(x)=\\sum_y p(x,y)$ (ou $\\int p(x,y)\\,dy$) : marginaliser $y$." },
+  { "id": "math.08.c2", "front": "Règle du produit", "back": "$p(x,y)=p(y\\mid x)\\,p(x)=p(x\\mid y)\\,p(y)$." },
+  { "id": "math.08.c3", "front": "Probabilité conditionnelle", "back": "$p(y\\mid x)=p(x,y)/p(x)$ : une fraction au sein de la sous-population où $x$ est vrai." },
+  { "id": "math.08.c4", "front": "Théorème de Bayes", "back": "$p(x\\mid y)=\\dfrac{p(y\\mid x)\\,p(x)}{p(y)}$ : a posteriori = vraisemblance × a priori / évidence." },
+  { "id": "math.08.c5", "front": "Évidence (vraisemblance marginale)", "back": "$p(y)=\\sum_x p(y\\mid x)p(x)$ : normalise l'a posteriori." },
+  { "id": "math.08.c6", "front": "Indépendance", "back": "$p(x,y)=p(x)p(y)$, c'est-à-dire $p(y\\mid x)=p(y)$." },
+  { "id": "math.08.c7", "front": "Négligence du taux de base", "back": "Ignorer un a priori faible : même un test fiable donne surtout des faux positifs pour une condition rare." },
+  { "id": "math.08.c8", "front": "La vraisemblance est-elle une distribution sur l'hypothèse ?", "back": "Non : $p(y\\mid x)$ somme à 1 sur les données $y$, pas sur $x$." },
+  { "id": "math.08.c9", "front": "A priori égal à 0", "back": "Cette hypothèse ne peut jamais être ranimée par les observations ; donne un a priori non nul aux hypothèses plausibles." },
+  { "id": "math.08.c10", "front": "Mise à jour bayésienne séquentielle", "back": "L'a posteriori d'aujourd'hui est l'a priori de demain ; pour des données indépendantes, l'ordre n'a pas d'importance." },
+  { "id": "math.08.c11", "front": "pmf contre pdf contre cdf", "back": "pmf $P(X=x)$ discrète ; pdf $p(x)$ continue (peut dépasser 1) ; cdf $P(X\\le x)$." },
+  { "id": "math.08.c12", "front": "Formes d'un tableau conjoint stocké", "back": "$P:(n,m)$ ; $p(x)=P.\\text{sum}(1)$, $p(y)=P.\\text{sum}(0)$, $p(y\\mid x)=P/P.\\text{sum}(1,\\text{keepdims})$." }
+]

@@ -1,0 +1,61 @@
+#@@ meta
+{"id": "cml.01.ex1", "title": "Least squares and ridge from the normal equations", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.linreg", "ml.ridge"], "hints": ["add_intercept: np.column_stack([np.ones(len(X)), X]).", "fit_ols: np.linalg.solve(X.T @ X, X.T @ y). Do not use np.linalg.inv.", "fit_ridge: same, but solve (X.T @ X + lam * np.eye(d)) w = X.T @ y."]}
+#@@ prompt
+Implement:
+
+- `add_intercept(X)` - prepend a column of ones.
+- `fit_ols(X, y)` - solve the normal equations with `np.linalg.solve`.
+- `fit_ridge(X, y, lam)` - the ridge solution (penalise every weight; the caller decides about the intercept).
+- `predict(X, w)` and `r2(y, y_hat)` = $1-\sum(y-\hat y)^2/\sum(y-\bar y)^2$.
+#@@ starter
+import numpy as np
+
+def add_intercept(X):
+    raise NotImplementedError
+
+def fit_ols(X, y):
+    raise NotImplementedError
+
+def fit_ridge(X, y, lam):
+    raise NotImplementedError
+
+def predict(X, w):
+    raise NotImplementedError
+
+def r2(y, y_hat):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+X = np.array([[0.], [1.], [2.]]); y = np.array([1., 2., 2.])
+Xi = add_intercept(X)
+check("add_intercept shape and first column", lambda: Xi.shape == (3, 2) and np.all(Xi[:, 0] == 1))
+check("worked example: w = (7/6, 1/2)", lambda: np.allclose(fit_ols(Xi, y), [7 / 6, 0.5]))
+w = fit_ols(Xi, y)
+check("residual is orthogonal to the columns", lambda: np.allclose(Xi.T @ (y - predict(Xi, w)), 0, atol=1e-10))
+rng = np.random.default_rng(0)
+Xr = rng.normal(size=(50, 4)); wt = np.array([1., -2., 0.5, 3.]); yr = Xr @ wt + 0.1 * rng.normal(size=50)
+check("matches np.linalg.lstsq", lambda: np.allclose(fit_ols(Xr, yr), np.linalg.lstsq(Xr, yr, rcond=None)[0]))
+check("ridge with lam=0 equals OLS", lambda: np.allclose(fit_ridge(Xr, yr, 0.0), fit_ols(Xr, yr)))
+check("ridge shrinks the weight norm", lambda: np.linalg.norm(fit_ridge(Xr, yr, 10.0)) < np.linalg.norm(fit_ols(Xr, yr)))
+dup = np.column_stack([Xr[:, 0], Xr[:, 0]])
+check("ridge handles duplicated columns (singular X^T X)", lambda: np.all(np.isfinite(fit_ridge(dup, yr, 1.0))))
+check("r2 is 1 for a perfect fit and 0 for the mean predictor", lambda: abs(r2(yr, yr) - 1) < 1e-12 and abs(r2(yr, np.full_like(yr, yr.mean()))) < 1e-12)
+check("r2 of a good fit is high", lambda: r2(yr, predict(Xr, fit_ols(Xr, yr))) > 0.99)
+#@@ solution
+import numpy as np
+
+def add_intercept(X):
+    return np.column_stack([np.ones(len(X)), X])
+
+def fit_ols(X, y):
+    return np.linalg.solve(X.T @ X, X.T @ y)
+
+def fit_ridge(X, y, lam):
+    d = X.shape[1]
+    return np.linalg.solve(X.T @ X + lam * np.eye(d), X.T @ y)
+
+def predict(X, w):
+    return X @ w
+
+def r2(y, y_hat):
+    return 1.0 - np.sum((y - y_hat) ** 2) / np.sum((y - np.mean(y)) ** 2)

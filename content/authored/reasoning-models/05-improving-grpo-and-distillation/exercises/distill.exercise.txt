@@ -1,0 +1,251 @@
+#@@ meta
+{"id": "rsn.05.ex2", "title": "Distillation data, SFT loss and batching", "difficulty": 4, "runtime": "pyodide", "concepts": ["rsn.distill", "rsn.batching"], "hints": ["The logits have one row per input position: row t predicts token_ids[t+1]. The answer starts at token index prompt_len, so it is predicted by rows prompt_len-1 ... L-2. Cross-entropy is the mean over those rows of -log softmax(row)[target].", "KL(p||q) = sum_v p_v (log p_v - log q_v) per row; average the rows. Compute log-probabilities with a stable log-softmax.", "Left padding puts the pad ids BEFORE the tokens: row i is [pad] * (max_len - len_i) + seq_i, and the mask is True exactly on pad cells."]}
+#@@ prompt
+Hard distillation is supervised fine-tuning on a teacher's traces. Implement the data and loss pieces on a toy vocabulary (no real model). Provided: `ToyTokenizer` (a whitespace tokenizer with growing vocabulary; id 0 is the end-of-sequence token) and `is_correct(content, gt)` (last boxed answer compared as a number or text).
+
+- `format_trace(thinking, content)` -> `"<think>" + thinking.strip() + "</think>\n\n" + content.strip()`; raise `ValueError` if `content` is empty after stripping.
+- `keep_trace(entry, tok, max_len)`: keep a teacher trace only if (1) its `message_content` is non-empty, (2) `is_correct(entry["message_content"], entry["gtruth_answer"])`, and (3) the total token count of prompt + formatted answer + 1 end token is at most `max_len`. `entry` has keys `problem`, `message_thinking`, `message_content`, `gtruth_answer`.
+- `build_example(entry, tok)` -> `{"token_ids": prompt_ids + answer_ids + [tok.eos_id], "prompt_len": len(prompt_ids)}` where the prompt is `entry["problem"]` and the answer is `format_trace(...)`.
+- `sft_loss(logits, token_ids, prompt_len)`: mean cross-entropy over the **answer** tokens only; `logits` has shape `(L-1, V)` for `L = len(token_ids)`.
+- `kl_div(teacher_logits, student_logits)`: mean over rows of `KL(softmax(teacher) || softmax(student))` (soft distillation).
+- `distill_loss(student_logits, teacher_logits, token_ids, prompt_len, lam)`: `sft_loss + lam * KL`, with the KL averaged over the **answer** rows only.
+- `left_pad(seqs, pad_id)` -> `(ids, pad_mask)`: arrays of shape `(B, max_len)`; `pad_mask` is True on pad cells.
+- `batched_padding_waste(lengths, batch_size, sort=False)`: fraction of cells that are padding when the sequences are cut into consecutive batches of `batch_size` (optionally after sorting by length), each batch padded to its longest member.
+- `speedup(t_single, t_batched)`: ratio of run times.
+#@@ starter
+import re
+import numpy as np
+import random
+from fractions import Fraction
+
+
+class ToyTokenizer:
+    eos_id = 0
+
+    def __init__(self):
+        self.vocab = {}
+
+    def encode(self, text):
+        ids = []
+        for w in text.split():
+            if w not in self.vocab:
+                self.vocab[w] = len(self.vocab) + 1
+            ids.append(self.vocab[w])
+        return ids
+
+
+def is_correct(content, gt):
+    m = re.findall(r"\\boxed\{([^{}]*)\}", content)
+    if not m:
+        return False
+    def val(s):
+        s = s.strip()
+        try:
+            return Fraction(s)
+        except (ValueError, ZeroDivisionError):
+            return s
+    return val(m[-1]) == val(gt)
+
+
+def format_trace(thinking, content):
+    raise NotImplementedError
+
+
+def keep_trace(entry, tok, max_len):
+    raise NotImplementedError
+
+
+def build_example(entry, tok):
+    raise NotImplementedError
+
+
+def sft_loss(logits, token_ids, prompt_len):
+    raise NotImplementedError
+
+
+def kl_div(teacher_logits, student_logits):
+    raise NotImplementedError
+
+
+def distill_loss(student_logits, teacher_logits, token_ids, prompt_len, lam):
+    raise NotImplementedError
+
+
+def left_pad(seqs, pad_id):
+    raise NotImplementedError
+
+
+def batched_padding_waste(lengths, batch_size, sort=False):
+    raise NotImplementedError
+
+
+def speedup(t_single, t_batched):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+check("format with think tags", lambda: format_trace(" step one ", " \\boxed{4} ") == "<think>step one</think>\n\n\\boxed{4}")
+def raises():
+    try:
+        format_trace("x", "   ")
+    except ValueError:
+        return True
+    return False
+check("empty content raises", raises)
+
+good = {"problem": "What is 2 + 2 ?", "message_thinking": "two plus two is four", "message_content": "So \\boxed{4}", "gtruth_answer": "4"}
+wrong = dict(good, message_content="So \\boxed{5}")
+empty = dict(good, message_content="")
+unboxed = dict(good, message_content="So 4")
+longer = dict(good, message_thinking="hmm " * 50)
+tok = ToyTokenizer()
+check("a correct short trace is kept", lambda: keep_trace(good, tok, 100))
+check("a wrong final answer is dropped", lambda: not keep_trace(wrong, tok, 100))
+check("an empty answer is dropped", lambda: not keep_trace(empty, tok, 100))
+check("an unboxed answer is dropped", lambda: not keep_trace(unboxed, tok, 100))
+check("a trace longer than max_len is dropped", lambda: not keep_trace(longer, tok, 40) and keep_trace(longer, tok, 500))
+tok2 = ToyTokenizer()
+ex = build_example(good, tok2)
+n_prompt = len("What is 2 + 2 ?".split())
+n_answer = len(format_trace(good["message_thinking"], good["message_content"]).split())
+check("prompt_len is the number of prompt tokens", lambda: ex["prompt_len"] == n_prompt)
+check("token_ids = prompt + answer + eos", lambda: len(ex["token_ids"]) == n_prompt + n_answer + 1 and ex["token_ids"][-1] == 0)
+check("the boundary: max_len equal to the length keeps the trace, one less drops it", lambda: keep_trace(good, ToyTokenizer(), len(ex["token_ids"])) and not keep_trace(good, ToyTokenizer(), len(ex["token_ids"]) - 1))
+
+rng = np.random.default_rng(0)
+V = 6
+ids = [1, 2, 3, 4, 5, 2, 0]          # L = 7, prompt_len 3 -> answer tokens are ids[3:], predicted by rows 2..5
+logits = rng.normal(size=(6, V))
+def lsm(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+lp = lsm(logits)
+manual = -np.mean([lp[2, 4], lp[3, 5], lp[4, 2], lp[5, 0]])
+check("SFT loss is the mean cross-entropy over the four answer tokens", lambda: abs(sft_loss(logits, ids, 3) - manual) < 1e-12)
+lg2 = logits.copy()
+lg2[:2] = rng.normal(size=(2, V))
+check("prompt rows do not affect the loss", lambda: abs(sft_loss(lg2, ids, 3) - manual) < 1e-12)
+check("uniform logits give log V", lambda: abs(sft_loss(np.zeros((6, V)), ids, 3) - np.log(V)) < 1e-12)
+check("mean CE equals minus the sequence log-prob divided by the number of answer tokens", lambda: abs(sft_loss(logits, ids, 3) - (-(lp[2, 4] + lp[3, 5] + lp[4, 2] + lp[5, 0]) / 4)) < 1e-12)
+check("prompt_len=1 scores everything after the first token", lambda: abs(sft_loss(logits, ids, 1) + np.mean(lp[np.arange(6), ids[1:]])) < 1e-12)
+
+p = np.log(np.array([[0.5, 0.5]]))
+q = np.log(np.array([[0.9, 0.1]]))
+check("KL(0.5,0.5 || 0.9,0.1) = 0.5108", lambda: abs(kl_div(p, q) - 0.510826) < 1e-5)
+check("KL of identical distributions is 0 and KL is not symmetric", lambda: abs(kl_div(p, p)) < 1e-12 and abs(kl_div(p, q) - kl_div(q, p)) > 0.01)
+check("KL is non-negative", lambda: kl_div(rng.normal(size=(5, V)), rng.normal(size=(5, V))) >= 0)
+teacher = rng.normal(size=(6, V))
+check("lam=0 reduces to SFT", lambda: abs(distill_loss(logits, teacher, ids, 3, 0.0) - sft_loss(logits, ids, 3)) < 1e-12)
+check("student == teacher: KL term vanishes", lambda: abs(distill_loss(logits, logits, ids, 3, 5.0) - sft_loss(logits, ids, 3)) < 1e-12)
+expected = sft_loss(logits, ids, 3) + 2.0 * kl_div(teacher[2:], logits[2:])
+check("KL restricted to answer rows", lambda: abs(distill_loss(logits, teacher, ids, 3, 2.0) - expected) < 1e-12)
+
+pad, mask = left_pad([[1, 2, 3], [4]], 0)
+check("left padding", lambda: pad.tolist() == [[1, 2, 3], [0, 0, 4]] and mask.tolist() == [[False, False, False], [True, True, False]])
+check("shapes", lambda: left_pad([[1], [2, 3], [4, 5, 6]], 9)[0].shape == (3, 3))
+
+lens = [10, 200, 12, 190, 11, 210]
+check("padding waste, consecutive pairs: 0.4725", lambda: abs(batched_padding_waste(lens, 2) - 0.4725) < 1e-9)
+check("sorting by length first cuts the waste to 0.2299", lambda: abs(batched_padding_waste(lens, 2, sort=True) - 189 / 822) < 1e-9)
+check("equal lengths waste nothing; batch size 1 wastes nothing", lambda: batched_padding_waste([5, 5, 5], 3) == 0.0 and batched_padding_waste(lens, 1) == 0.0)
+check("speedups from the appendix table (H100): 5.6, 1.95, 3.58, 1.20", lambda: [round(speedup(a, b), 2) for a, b in [(90.0, 16.0), (252.0, 129.0), (68.0, 19.0), (10.9, 9.1)]] == [5.62, 1.95, 3.58, 1.2])
+#@@ solution
+import re
+import numpy as np
+import random
+from fractions import Fraction
+
+
+class ToyTokenizer:
+    eos_id = 0
+
+    def __init__(self):
+        self.vocab = {}
+
+    def encode(self, text):
+        ids = []
+        for w in text.split():
+            if w not in self.vocab:
+                self.vocab[w] = len(self.vocab) + 1
+            ids.append(self.vocab[w])
+        return ids
+
+
+def is_correct(content, gt):
+    m = re.findall(r"\\boxed\{([^{}]*)\}", content)
+    if not m:
+        return False
+    def val(s):
+        s = s.strip()
+        try:
+            return Fraction(s)
+        except (ValueError, ZeroDivisionError):
+            return s
+    return val(m[-1]) == val(gt)
+
+
+def format_trace(thinking, content):
+    content = str(content).strip()
+    if not content:
+        raise ValueError("empty content")
+    return "<think>" + str(thinking).strip() + "</think>\n\n" + content
+
+
+def build_example(entry, tok):
+    prompt_ids = tok.encode(entry["problem"])
+    answer_ids = tok.encode(format_trace(entry["message_thinking"], entry["message_content"]))
+    return {"token_ids": prompt_ids + answer_ids + [tok.eos_id], "prompt_len": len(prompt_ids)}
+
+
+def keep_trace(entry, tok, max_len):
+    content = str(entry.get("message_content", "")).strip()
+    if not content:
+        return False
+    if not is_correct(content, entry["gtruth_answer"]):
+        return False
+    return len(build_example(entry, tok)["token_ids"]) <= max_len
+
+
+def _log_softmax(z):
+    z = np.asarray(z, float)
+    z = z - z.max(axis=-1, keepdims=True)
+    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+
+
+def sft_loss(logits, token_ids, prompt_len):
+    lp = _log_softmax(logits)
+    ids = np.asarray(token_ids)
+    rows = np.arange(max(prompt_len - 1, 0), len(ids) - 1)
+    return float(-np.mean(lp[rows, ids[rows + 1]]))
+
+
+def kl_div(teacher_logits, student_logits):
+    lt, ls = _log_softmax(teacher_logits), _log_softmax(student_logits)
+    return float(np.mean(np.sum(np.exp(lt) * (lt - ls), axis=-1)))
+
+
+def distill_loss(student_logits, teacher_logits, token_ids, prompt_len, lam):
+    start = max(prompt_len - 1, 0)
+    kl = kl_div(np.asarray(teacher_logits)[start:], np.asarray(student_logits)[start:])
+    return sft_loss(student_logits, token_ids, prompt_len) + lam * kl
+
+
+def left_pad(seqs, pad_id):
+    m = max(len(s) for s in seqs)
+    ids = np.array([[pad_id] * (m - len(s)) + list(s) for s in seqs])
+    mask = np.array([[True] * (m - len(s)) + [False] * len(s) for s in seqs])
+    return ids, mask
+
+
+def batched_padding_waste(lengths, batch_size, sort=False):
+    lengths = sorted(lengths) if sort else list(lengths)
+    cells = real = 0
+    for i in range(0, len(lengths), batch_size):
+        b = lengths[i:i + batch_size]
+        cells += max(b) * len(b)
+        real += sum(b)
+    return (cells - real) / cells
+
+
+def speedup(t_single, t_batched):
+    return t_single / t_batched

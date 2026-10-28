@@ -1,0 +1,117 @@
+[
+ {
+  "id": "mf.05.q1",
+  "concept": "mf.trig",
+  "stage": "pre",
+  "prompt": "How many radians is 180 degrees?",
+  "options": [
+   "$\\pi/2$",
+   "$\\pi$",
+   "$2\\pi$",
+   "$180$"
+  ],
+  "answer": 1,
+  "explanation": "Half a turn is $\\pi$ radians (a full turn is $2\\pi$)."
+ },
+ {
+  "id": "mf.05.q2",
+  "concept": "mf.trig",
+  "kind": "numeric",
+  "prompt": "What is $\\sin(\\pi/6)$?",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "In a 30-60-90 triangle the side opposite 30 degrees is half the hypotenuse."
+ },
+ {
+  "id": "mf.05.q3",
+  "concept": "mf.trig",
+  "prompt": "On the unit circle, the point at angle $\\theta$ has coordinates...",
+  "options": [
+   "$(\\sin\\theta,\\cos\\theta)$",
+   "$(\\cos\\theta,\\sin\\theta)$",
+   "$(\\tan\\theta,1)$",
+   "$(\\theta,\\theta)$"
+  ],
+  "answer": 1,
+  "explanation": "By definition $\\cos\\theta$ is the horizontal coordinate and $\\sin\\theta$ the vertical one."
+ },
+ {
+  "id": "mf.05.q4",
+  "concept": "mf.trig",
+  "kind": "numeric",
+  "prompt": "$\\sin^2\\theta+\\cos^2\\theta$ equals...",
+  "options": [],
+  "answer": {
+   "value": 1,
+   "tol": 0.001
+  },
+  "explanation": "The point $(\\cos\\theta,\\sin\\theta)$ lies on the unit circle, so by Pythagoras its squared coordinates add to 1."
+ },
+ {
+  "id": "mf.05.q5",
+  "concept": "mf.trig",
+  "prompt": "The period of $\\sin(3x)$ is...",
+  "options": [
+   "$2\\pi$",
+   "$3\\cdot2\\pi$",
+   "$2\\pi/3$",
+   "$\\pi/3$"
+  ],
+  "answer": 2,
+  "explanation": "$\\sin(3x)$ repeats when $3x$ advances by $2\\pi$, i.e. when $x$ advances by $2\\pi/3$."
+ },
+ {
+  "id": "mf.05.q6",
+  "concept": "mf.trig",
+  "prompt": "The rotation matrix by $\\theta$ is $\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$. Where does the point $(1,0)$ go for $\\theta=\\pi/2$?",
+  "options": [
+   "$(1,0)$",
+   "$(0,1)$",
+   "$(-1,0)$",
+   "$(0,-1)$"
+  ],
+  "answer": 1,
+  "explanation": "The first column gives the image of $(1,0)$: $(\\cos\\frac\\pi2,\\sin\\frac\\pi2)=(0,1)$."
+ },
+ {
+  "id": "mf.05.q7",
+  "concept": "mf.trig",
+  "prompt": "$\\tan\\theta$ is defined as...",
+  "options": [
+   "$\\cos\\theta/\\sin\\theta$",
+   "$\\sin\\theta/\\cos\\theta$",
+   "$\\sin\\theta\\cos\\theta$",
+   "$1/\\sin\\theta$"
+  ],
+  "answer": 1,
+  "explanation": "Slope of the radius: vertical over horizontal, so $\\tan\\theta=\\sin\\theta/\\cos\\theta$; undefined where $\\cos\\theta=0$."
+ },
+ {
+  "id": "mf.05.q8",
+  "concept": "mf.trig",
+  "prompt": "Which identity is the angle-addition formula for sine?",
+  "options": [
+   "$\\sin(a+b)=\\sin a+\\sin b$",
+   "$\\sin(a+b)=\\sin a\\cos b+\\cos a\\sin b$",
+   "$\\sin(a+b)=\\cos a\\cos b-\\sin a\\sin b$",
+   "$\\sin(a+b)=\\sin a\\sin b$"
+  ],
+  "answer": 1,
+  "explanation": "This is the identity that makes two rotations compose into one rotation by $a+b$."
+ },
+ {
+  "id": "mf.05.q9",
+  "concept": "mf.trig",
+  "kind": "numeric",
+  "prompt": "A wave $A\\sin(2\\pi ft)$ with $f=5$ completes how many cycles in one unit of time?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "Frequency is cycles per unit time; the period is $1/5$."
+ }
+]

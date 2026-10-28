@@ -1,0 +1,10 @@
+{
+  "id": "f2n.12.ex1",
+  "title": "Construire un moteur d'autodiff scalaire",
+  "prompt": "Complète la classe `Value` : un scalaire qui se souvient de la façon dont il a été calculé. Implémente `__add__`, `__mul__`, `__pow__` (exposant constant), `relu`, `tanh`, `exp` et `backward()`. La soustraction, la négation et la division sont dérivées de celles-ci et déjà fournies.\n\nN'oublie pas : les contributions au gradient doivent être **accumulées** avec `+=`.",
+  "hints": [
+    "Dans __mul__ : out = Value(self.data * other.data, (self, other)) ; définis _backward de sorte que self.grad += other.data * out.grad et other.grad += self.data * out.grad.",
+    "Pour backward() : fais un parcours en profondeur pour construire `topo` (enfants après parents), pose self.grad = 1.0, puis appelle node._backward() pour node dans reversed(topo).",
+    "tanh : t = math.tanh(x) ; dérivée locale 1 - t*t. relu : la dérivée locale vaut 1.0 si self.data > 0 sinon 0.0."
+  ]
+}

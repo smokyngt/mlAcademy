@@ -1,0 +1,175 @@
+#@@ meta
+{"id": "rsn.04.ex1", "title": "Rewards and group-relative advantages", "difficulty": 3, "runtime": "pyodide", "concepts": ["rsn.grpo", "rsn.reward-design"], "hints": ["advantage_i = (r_i - mean(r)) / (std(r, ddof=1) + eps). With ddof=1 the standard deviation divides by G - 1, like the book's torch.std. If all rewards are equal the numerator is 0 for every i.", "For k correct out of G the sample variance (ddof=1) is k(G-k) / (G(G-1)). The correct rollouts have advantage (1 - k/G) / sigma and the wrong ones -(k/G) / sigma.", "P(all G samples equal) = p^G + (1-p)^G for independent samples with success probability p."]}
+#@@ prompt
+Reinforcement learning with verifiable rewards needs (1) a reward per rollout and (2) an **advantage** that says whether a rollout was better or worse than its siblings. Implement both with the standard library and NumPy. The helpers `get_last_boxed` and `grade_answer` (a simplified checker for plain numbers and fractions) are provided.
+
+- `reward_correct(text, gt)`: `1.0` if the **last boxed** answer exists and equals `gt`, else `0.0`. (No box means no reward, even if the text contains the right number.)
+- `reward_format(text)`: `1.0` if `<think>` occurs and `</think>` occurs after it, else `0.0`.
+- `total_reward(text, gt, format_weight=1.0, conditional=False)`: `correct + format_weight * format`; when `conditional=True` the format term is multiplied by the correctness reward, so formatting only pays when the answer is right.
+- `group_advantages(rewards, eps=1e-4, std_norm=True)`: `(r - mean) / (std + eps)` with the **sample** standard deviation (`ddof=1`); with `std_norm=False` just `r - mean`.
+- `binary_advantages(k, G)`: closed form (take `eps = 0`) of the advantages for `k` correct rollouts out of `G` (`0 < k < G`): return `(advantage_of_a_correct_one, advantage_of_a_wrong_one)`.
+- `zero_signal_prob(p, G)`: probability that all `G` independent rollouts of a problem with success probability `p` get the same reward (so every advantage is 0 and the problem teaches nothing).
+#@@ starter
+import numpy as np
+from fractions import Fraction
+
+
+def get_last_boxed(text):
+    start = text.rfind("\\boxed")
+    if start == -1:
+        return None
+    i = start + len("\\boxed")
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i >= len(text) or text[i] != "{":
+        return None
+    i += 1
+    depth, begin = 1, i
+    while i < len(text) and depth > 0:
+        depth += (text[i] == "{") - (text[i] == "}")
+        i += 1
+    return text[begin:i - 1] if depth == 0 else None
+
+
+def grade_answer(pred, gt):
+    def val(s):
+        s = s.strip().strip("$ ").rstrip(".")
+        try:
+            return Fraction(s)
+        except (ValueError, ZeroDivisionError):
+            return s
+    return val(pred) == val(gt)
+
+
+def reward_correct(text, gt):
+    raise NotImplementedError
+
+
+def reward_format(text):
+    raise NotImplementedError
+
+
+def total_reward(text, gt, format_weight=1.0, conditional=False):
+    raise NotImplementedError
+
+
+def group_advantages(rewards, eps=1e-4, std_norm=True):
+    raise NotImplementedError
+
+
+def binary_advantages(k, G):
+    raise NotImplementedError
+
+
+def zero_signal_prob(p, G):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+outs = [r"\boxed{83}", r"The correct answer is \boxed{83}", r"The final answer is 83", r"We get \boxed{38}"]
+rw = [reward_correct(o, "83") for o in outs]
+check("correctness rewards on the four sample rollouts are [1, 1, 0, 0]", lambda: rw == [1.0, 1.0, 0.0, 0.0])
+check("an unboxed right number earns nothing", lambda: reward_correct("so x = 83", "83") == 0.0)
+check("the LAST box counts", lambda: reward_correct(r"\boxed{1} no wait \boxed{83}", "83") == 1.0 and reward_correct(r"\boxed{83} no wait \boxed{1}", "83") == 0.0)
+check("fractions are compared by value", lambda: reward_correct(r"\boxed{6/4}", "3/2") == 1.0)
+
+check("format reward needs both tags in order", lambda: reward_format("<think>a</think> b") == 1.0 and reward_format("</think> a <think>") == 0.0 and reward_format("<think> only") == 0.0 and reward_format("nothing") == 0.0)
+
+A = "<think>work</think> \\boxed{83}"
+B = "<think>work</think> \\boxed{38}"
+C = "\\boxed{83}"
+check("unconditional: right + tags = 2", lambda: total_reward(A, "83") == 2.0)
+check("unconditional: wrong but tagged gets 1, same as right without tags", lambda: total_reward(B, "83") == 1.0 and total_reward(C, "83") == 1.0)
+check("conditional: wrong answer gets 0 even with tags", lambda: total_reward(B, "83", conditional=True) == 0.0)
+check("conditional: right + tags = 2, right alone = 1", lambda: total_reward(A, "83", conditional=True) == 2.0 and total_reward(C, "83", conditional=True) == 1.0)
+check("smaller format weight", lambda: abs(total_reward(A, "83", format_weight=0.1) - 1.1) < 1e-12)
+
+adv = group_advantages(rw)
+check("advantages of [1,1,0,0] are +-0.86587543", lambda: np.allclose(adv, [0.86587543, 0.86587543, -0.86587543, -0.86587543], atol=1e-7))
+check("advantages sum to zero", lambda: abs(adv.sum()) < 1e-12)
+check("all equal rewards give all-zero advantages", lambda: np.all(group_advantages([0.0, 0.0, 0.0, 0.0]) == 0) and np.all(group_advantages([1.0, 1.0, 1.0]) == 0))
+check("std_norm=False is just the centred reward", lambda: np.allclose(group_advantages([1, 1, 0, 0], std_norm=False), [0.5, 0.5, -0.5, -0.5]))
+check("uses the sample std (ddof=1)", lambda: abs(group_advantages([1.0, 0.0], eps=0.0)[0] - 0.5 / np.std([1.0, 0.0], ddof=1)) < 1e-12)
+ac, aw = binary_advantages(2, 4)
+check("closed form for k=2, G=4", lambda: abs(ac - 0.8660254) < 1e-6 and abs(aw + 0.8660254) < 1e-6)
+ok = True
+for G in (4, 8, 16):
+    for k in range(1, G):
+        r = np.array([1.0] * k + [0.0] * (G - k))
+        a = group_advantages(r, eps=0.0)
+        c, w = binary_advantages(k, G)
+        ok = ok and abs(a[0] - c) < 1e-9 and abs(a[-1] - w) < 1e-9
+check("closed form matches group_advantages for all k and G", lambda: ok)
+check("rare success gets a large positive advantage (k=1, G=8: 2.4742 / -0.3536)", lambda: abs(binary_advantages(1, 8)[0] - 2.4742) < 1e-3 and abs(binary_advantages(1, 8)[1] + 0.3536) < 1e-3)
+check("zero-signal probabilities", lambda: abs(zero_signal_prob(0.2, 8) - 0.1678) < 1e-4 and abs(zero_signal_prob(0.5, 4) - 0.125) < 1e-12 and abs(zero_signal_prob(0.05, 4) - 0.8145) < 1e-4)
+check("more rollouts make zero-signal groups rarer", lambda: zero_signal_prob(0.3, 16) < zero_signal_prob(0.3, 8) < zero_signal_prob(0.3, 4))
+#@@ solution
+import numpy as np
+from fractions import Fraction
+
+
+def get_last_boxed(text):
+    start = text.rfind("\\boxed")
+    if start == -1:
+        return None
+    i = start + len("\\boxed")
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i >= len(text) or text[i] != "{":
+        return None
+    i += 1
+    depth, begin = 1, i
+    while i < len(text) and depth > 0:
+        depth += (text[i] == "{") - (text[i] == "}")
+        i += 1
+    return text[begin:i - 1] if depth == 0 else None
+
+
+def grade_answer(pred, gt):
+    def val(s):
+        s = s.strip().strip("$ ").rstrip(".")
+        try:
+            return Fraction(s)
+        except (ValueError, ZeroDivisionError):
+            return s
+    return val(pred) == val(gt)
+
+
+def reward_correct(text, gt):
+    boxed = get_last_boxed(text)
+    if not boxed:
+        return 0.0
+    return float(grade_answer(boxed, gt))
+
+
+def reward_format(text):
+    a = text.find("<think>")
+    if a == -1:
+        return 0.0
+    b = text.find("</think>", a)
+    return 1.0 if b != -1 else 0.0
+
+
+def total_reward(text, gt, format_weight=1.0, conditional=False):
+    c = reward_correct(text, gt)
+    f = reward_format(text)
+    if conditional:
+        f *= c
+    return c + format_weight * f
+
+
+def group_advantages(rewards, eps=1e-4, std_norm=True):
+    r = np.asarray(rewards, float)
+    d = r - r.mean()
+    if not std_norm:
+        return d
+    return d / (r.std(ddof=1) + eps)
+
+
+def binary_advantages(k, G):
+    sigma = np.sqrt(k * (G - k) / (G * (G - 1)))
+    return (1 - k / G) / sigma, -(k / G) / sigma
+
+
+def zero_signal_prob(p, G):
+    return p ** G + (1 - p) ** G

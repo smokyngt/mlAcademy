@@ -1,0 +1,10 @@
+{
+ "id": "cml.18.ex2",
+ "title": "Prédiction conforme fractionnée et couverture empirique",
+ "prompt": "Implémente la prédiction conforme fractionnée pour des scores en résidu absolu.\n\n- `conformal_q(scores, alpha)` : le `k`-ième plus petit score avec `k = ceil((n+1)(1-alpha))` ; renvoie `np.inf` si `k > n`.\n- `conformal_interval(pred, q)` -> tableaux `(lower, upper)`.\n- `coverage_trials(n_train, n_cal, alpha, trials, seed)` : pour chaque essai, tire de nouvelles données avec `make_data` (fourni), ajuste une droite `y = a + b x` par moindres carrés sur la partie d'entraînement, calcule `q` sur une partie de calibration séparée, et mesure la couverture de l'intervalle sur 2000 nouveaux points de test. Renvoie le tableau des `trials` couvertures.\n\n`make_data(m, rng)` est volontairement à queues lourdes (bruit de Student-t avec une échelle dépendant de l'entrée) : la prédiction conforme s'en moque.",
+ "hints": [
+  "k = ceil((n + 1) * (1 - alpha)) ; si k > n renvoie np.inf ; sinon np.sort(scores)[k - 1].",
+  "Dans un essai : ajuste les moindres carrés sur la partie d'entraînement, calcule |y - pred| sur la partie de calibration, prends q, puis mesure à quelle fréquence |y_test - pred_test| <= q sur de nouvelles données de test.",
+  "Fais la moyenne des couvertures par essai. La moyenne devrait se situer entre 1 - alpha et 1 - alpha + 1/(n + 1), au bruit de simulation près."
+ ]
+}

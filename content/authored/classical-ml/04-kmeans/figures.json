@@ -1,0 +1,42 @@
+[
+  {
+    "id": "assign-update-loop",
+    "after": 2,
+    "kind": "mermaid",
+    "caption": { "en": "The k-means loop: assign each point to its nearest centre, move each centre to the mean of its points, repeat until no assignment changes. Each step can only lower the objective J.", "fr": "La boucle k-means : affecter chaque point à son centre le plus proche, déplacer chaque centre à la moyenne de ses points, répéter jusqu'à ce qu'aucune affectation ne change. Chaque étape ne peut que faire baisser l'objectif J." },
+    "code": {
+      "en": "flowchart TD\n  I[\"Initialise k centres (k-means++ or random)\"] --> A[\"Assign: c(i) = nearest centre\\n(J cannot increase)\"]\n  A --> U[\"Update: mu_j = mean of cluster j\\n(J cannot increase)\"]\n  U --> Q{\"Any assignment changed?\"}\n  Q -->|\"yes\"| A\n  Q -->|\"no\"| D[\"Converged: a local minimum of J\"]",
+      "fr": "flowchart TD\n  I[\"Initialiser k centres (k-means++ ou aléatoire)\"] --> A[\"Affecter : c(i) = centre le plus proche\\n(J ne peut pas augmenter)\"]\n  A --> U[\"Mettre à jour : mu_j = moyenne du groupe j\\n(J ne peut pas augmenter)\"]\n  U --> Q{\"Une affectation a-t-elle changé ?\"}\n  Q -->|\"oui\"| A\n  Q -->|\"non\"| D[\"Convergence : un minimum local de J\"]"
+    }
+  },
+  {
+    "id": "kmeans-iteration",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "One k-means iteration in 2-D (k = 2). Red and blue dots are the two natural groups. The two centres start at (3, 2) and (5, 3) (open markers) and move along the lines to the means of the points assigned to them, (1.43, 1.60) and (6.68, 5.38) (the update step: μ = mean of the cluster).", "fr": "Une itération de k-means en 2-D (k = 2). Les points rouges et bleus sont les deux groupes naturels. Les deux centres partent de (3, 2) et (5, 3) (marqueurs initiaux) et se déplacent le long des droites vers les moyennes des points qui leur sont affectés, (1,43 ; 1,60) et (6,68 ; 5,38) (étape de mise à jour : μ = moyenne du groupe)." },
+    "spec": {
+      "xDomain": [0, 8], "yDomain": [0, 7], "height": 340,
+      "data": [
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[1, 1], [1.5, 2], [2, 1.2], [1.2, 2.2]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[6, 5], [7, 6], [6.5, 5.5], [7.2, 5]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[3, 2], [1.425, 1.6]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[5, 3], [6.675, 5.375]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#9ca3af", "attr": { "r": 7 }, "points": [[3, 2], [5, 3]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 7 }, "points": [[1.425, 1.6], [6.675, 5.375]] }
+      ]
+    }
+  },
+  {
+    "id": "elbow",
+    "after": 6,
+    "kind": "plot",
+    "caption": { "en": "Schematic elbow plot (illustrative values, not measured): the objective J always falls as k grows, so the useful signal is where the drop flattens, not the minimum. x-axis: k.", "fr": "Courbe du coude schématique (valeurs illustratives, non mesurées) : l'objectif J baisse toujours quand k croît, donc le signal utile est l'endroit où la baisse s'aplatit, pas le minimum. Axe x : k." },
+    "spec": {
+      "xDomain": [1, 10], "yDomain": [0, 12], "height": 280,
+      "data": [
+        { "fn": "10/x + 0.8", "color": "#2563eb" }
+      ],
+      "annotations": [{ "x": 3, "text": "elbow" }]
+    }
+  }
+]

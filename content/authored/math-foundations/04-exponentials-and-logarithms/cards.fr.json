@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.04.c1",
+  "front": "Puissance comme multiplication répétée",
+  "back": "$a^n=a\\cdot a\\cdots a$ ($n$ facteurs)."
+ },
+ {
+  "id": "mf.04.c2",
+  "front": "Lois des exposants",
+  "back": "$a^ma^n=a^{m+n}$, $(a^m)^n=a^{mn}$, $a^m/a^n=a^{m-n}$, $(ab)^n=a^nb^n$."
+ },
+ {
+  "id": "mf.04.c3",
+  "front": "Exposants nul, négatif, fractionnaire",
+  "back": "$a^0=1$, $a^{-n}=1/a^n$, $a^{1/n}=\\sqrt[n]{a}$."
+ },
+ {
+  "id": "mf.04.c4",
+  "front": "Croissance composée",
+  "back": "Quantité après $t$ étapes au taux $r$ : $P(1+r)^t$. La croissance est multiplicative, non additive."
+ },
+ {
+  "id": "mf.04.c5",
+  "front": "Le nombre $e$",
+  "back": "$e=\\lim_{n\\to\\infty}(1+1/n)^n\\approx2.71828=\\sum_k 1/k!$ ; la base de la croissance continue."
+ },
+ {
+  "id": "mf.04.c6",
+  "front": "Capitalisation continue",
+  "back": "$P\\,e^{rt}$ : la limite d'une capitalisation de plus en plus fréquente."
+ },
+ {
+  "id": "mf.04.c7",
+  "front": "Définition du logarithme",
+  "back": "$\\log_b x=y$ signifie $b^y=x$ : « l'exposant qui transforme $b$ en $x$ »."
+ },
+ {
+  "id": "mf.04.c8",
+  "front": "Log naturel",
+  "back": "$\\ln x=\\log_e x$ ; la réciproque de $e^x$ ; $\\ln(e^x)=x$ et $e^{\\ln x}=x$."
+ },
+ {
+  "id": "mf.04.c9",
+  "front": "Lois des logs",
+  "back": "$\\log(ab)=\\log a+\\log b$, $\\log(a/b)=\\log a-\\log b$, $\\log(a^k)=k\\log a$."
+ },
+ {
+  "id": "mf.04.c10",
+  "front": "Changement de base",
+  "back": "$\\log_b x=\\ln x/\\ln b$."
+ },
+ {
+  "id": "mf.04.c11",
+  "front": "Temps de doublement",
+  "back": "Une croissance $r$ par étape double en $\\ln2/\\ln(1+r)$ étapes (environ $70/r\\%$ pour $r$ petit)."
+ },
+ {
+  "id": "mf.04.c12",
+  "front": "Entropie croisée",
+  "back": "$-\\sum_i p_i\\ln q_i$ : avec un $p$ one-hot, c'est $-\\ln q_{\\text{true class}}$, le coût d'une faible confiance dans la bonne réponse."
+ },
+ {
+  "id": "mf.04.c13",
+  "front": "Log-vraisemblance",
+  "back": "Données indépendantes : $\\ln\\prod_i p_i=\\sum_i\\ln p_i$ ; les sommes sont stables et les maximiser est équivalent."
+ },
+ {
+  "id": "mf.04.c14",
+  "front": "Astuce log-sum-exp",
+  "back": "$\\ln\\sum_i e^{z_i}=m+\\ln\\sum_i e^{z_i-m}$ avec $m=\\max z$ évite le débordement."
+ }
+]

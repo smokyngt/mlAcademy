@@ -1,0 +1,10 @@
+{
+  "id": "seq.05.ex2",
+  "title": "Minuscule seq2seq avec attention : passe avant et décodage glouton",
+  "prompt": "Construis la passe avant d'un petit encodeur-décodeur avec attention de Bahdanau (pas d'entraînement, juste le calcul).\n\n- Encodeur : plongement + RNN tanh, renvoie tous les états `Henc (Ts, H)`.\n- Décodeur : une cellule RNN tanh dont l'entrée est `[embedding(previous token); context]`. Le contexte vient de l'attention additive avec l'état précédent du décodeur comme requête (`attention` est fournie). Avec `use_attention=False`, le contexte est le dernier état de l'encodeur à chaque pas (le goulot d'étranglement classique).\n- `decode_step` renvoie `(s, logits, alpha)` ; `decode(P, Henc, tgt_in)` exécute le teacher forcing et renvoie `(logits (Tt, Vt), alphas (Tt, Ts) ou None)`.\n- `seq2seq_loss(P, src, tgt_in, tgt_out, use_attention)` renvoie l'entropie croisée moyenne.\n- `greedy_decode(P, src, bos, max_len)` réinjecte ses propres prédictions arg-max (inférence, sans teacher forcing).",
+  "hints": [
+    "encode : pour chaque token source, plonge-le, h = tanh(Wxh @ e + Whh @ h + bh), rassemble tous les h dans un tableau de forme (Ts, H).",
+    "decode_step(P, Henc, s_prev, y_prev, use_attention) : ctx, alpha = attention(s_prev, Henc, ...) (l'état PRÉCÉDENT du décodeur est la requête) ; s = tanh(Wd @ concat([Et[y_prev], ctx]) + Ud @ s_prev + bd) ; logits = Wo @ concat([s, ctx]) + bo. Sans attention, utilise ctx = Henc[-1] à chaque pas.",
+    "Démarre le décodeur avec s_0 = Henc[-1]. Teacher forcing : fournis le token précédent de RÉFÉRENCE (tgt_in) à chaque pas. Perte : entropie croisée moyenne -log softmax(logits)[cible]."
+  ]
+}

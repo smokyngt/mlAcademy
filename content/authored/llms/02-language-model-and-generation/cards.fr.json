@@ -1,0 +1,17 @@
+[
+  {"id": "llm.02.c1", "front": "Factorisation par la règle de la chaîne de la probabilité d'un texte", "back": "$p(x_1..x_T)=\\prod_t p(x_t\\mid x_{<t})$ ; une identité, le modèle paramètre chaque facteur."},
+  {"id": "llm.02.c2", "front": "Perte de pré-entraînement", "back": "$\\mathcal L=-\\frac1N\\sum_t\\ln p_\\theta(x_t\\mid x_{<t})$ : entropie croisée du vrai token suivant, moyennée sur toutes les positions."},
+  {"id": "llm.02.c3", "front": "Gradient de l'entropie croisée softmax par rapport aux logits", "back": "$p-\\text{onehot}(y)$ : probabilités moins la vérité en one-hot. Forme $(V)$ par position."},
+  {"id": "llm.02.c4", "front": "Perplexité", "back": "$\\exp(\\text{cross-entropy})$ : le nombre effectif de tokens équiprobables entre lesquels le modèle hésite. Modèle uniforme : $V$. Parfait : 1."},
+  {"id": "llm.02.c5", "front": "Quand peut-on comparer deux perplexités ?", "back": "Seulement pour le même tokeniseur et le même texte ; sinon les unités prédites diffèrent."},
+  {"id": "llm.02.c6", "front": "Cibles pour l'entraînement au token suivant", "back": "Les entrées décalées d'une position vers la droite ; une fenêtre de longueur $T$ donne $T$ exemples."},
+  {"id": "llm.02.c7", "front": "Formes à travers un modèle de type GPT", "back": "ids $(B,T)$ -> embeddings $(B,T,d)$ -> blocs $(B,T,d)$ -> logits $(B,T,V)$."},
+  {"id": "llm.02.c8", "front": "Rôle du masque causal", "back": "La position $t$ ne peut porter son attention que sur les positions $\\le t$, donc une passe sur une fenêtre entraîne toutes les prédictions du token suivant sans tricher."},
+  {"id": "llm.02.c9", "front": "Partage de poids (weight tying)", "back": "Réutiliser la matrice d'embedding de tokens comme tête de sortie. Pour GPT-2 small, cela supprime environ 38.6M de paramètres (163M -> 124M)."},
+  {"id": "llm.02.c10", "front": "Échantillonnage par température", "back": "Échantillonner à partir de $\\operatorname{softmax}(z/T)$. $T\\to0$ : glouton ; $T=1$ : distribution du modèle ; $T\\to\\infty$ : uniforme."},
+  {"id": "llm.02.c11", "front": "Échantillonnage top-k", "back": "Garder les $k$ tokens les plus probables, renormaliser. Coupe la queue mais $k$ est fixe quelle que soit la confiance du modèle."},
+  {"id": "llm.02.c12", "front": "Échantillonnage top-p (nucleus)", "back": "Garder le plus petit ensemble de tokens de tête dont la probabilité cumulée $\\ge p$, renormaliser. La taille de l'ensemble s'adapte à la confiance."},
+  {"id": "llm.02.c13", "front": "Ordre habituel des filtres de décodage", "back": "Température, puis top-k, puis top-p, puis tirage dans la distribution renormalisée."},
+  {"id": "llm.02.c14", "front": "Pourquoi compter est-il l'optimum pour un modèle bigramme ?", "back": "Pour chaque ligne de contexte, minimiser l'entropie croisée sur le simplexe donne les fréquences empiriques (inégalité de Gibbs). La descente de gradient atteint le même point de façon itérative."},
+  {"id": "llm.02.c15", "front": "Pourquoi les simples tables de n-grammes ne passent-elles pas à l'échelle ?", "back": "Elles demandent $V^n$ cellules et la plupart des contextes ne sont jamais vus ; les modèles neuronaux partagent les paramètres entre des contextes similaires."}
+]

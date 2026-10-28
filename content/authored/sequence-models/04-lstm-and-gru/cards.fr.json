@@ -1,0 +1,17 @@
+[
+  { "id": "seq.04.c1", "front": "Équations des portes du LSTM", "back": "$i,f,o=\\sigma(Wx+Uh_{t-1}+b)$, $g=\\tanh(\\cdot)$ ; $c_t=f\\odot c_{t-1}+i\\odot g$ ; $h_t=o\\odot\\tanh(c_t)$." },
+  { "id": "seq.04.c2", "front": "Dimensions d'une couche LSTM empilée", "back": "$W:(4H,n)$, $U:(4H,H)$, $b:(4H)$ ; $a=Wx+Uh+b\\in\\mathbb{R}^{4H}$ découpé en $i,f,g,o$, chacun $(H)$." },
+  { "id": "seq.04.c3", "front": "Rôles des trois portes du LSTM", "back": "Oubli : quelle part de l'ancienne cellule garder. Entrée : quelle part du nouveau candidat écrire. Sortie : quelle part de la cellule exposer sous la forme $h_t$." },
+  { "id": "seq.04.c4", "front": "Pourquoi le LSTM combat-il les gradients évanescents ?", "back": "Mise à jour additive de la cellule : $\\partial c_t/\\partial c_{t-1}$ contient $\\operatorname{diag}(f_t)$ sans matrice de poids ni écrasement, donc les gradients survivent quand $f\\approx1$." },
+  { "id": "seq.04.c5", "front": "Initialisation du biais de la porte d'oubli", "back": "Mettre $b_f$ à une valeur positive (1 à 5) : $f\\approx$ grand au départ, donc la cellule mémorise par défaut." },
+  { "id": "seq.04.c6", "front": "Passe arrière du LSTM : gradient de la cellule", "back": "$\\bar c^{tot}=\\bar c_t+\\bar h_t\\odot o\\odot(1-\\tanh^2c_t)$ ; $\\bar f=\\bar c^{tot}\\odot c_{t-1}$, $\\bar i=\\bar c^{tot}\\odot g$, $\\bar g=\\bar c^{tot}\\odot i$, $\\bar c_{t-1}=\\bar c^{tot}\\odot f$." },
+  { "id": "seq.04.c7", "front": "Passe arrière du LSTM : des portes aux paramètres", "back": "$\\bar a_i=\\bar i\\,i(1-i)$, $\\bar a_f=\\bar f f(1-f)$, $\\bar a_g=\\bar g(1-g^2)$, $\\bar a_o=\\bar o\\,o(1-o)$ ; $\\bar W=\\bar a x^\\top$, $\\bar U=\\bar a h_{t-1}^\\top$, $\\bar h_{t-1}=U^\\top\\bar a$." },
+  { "id": "seq.04.c8", "front": "Équations du GRU", "back": "$r,z=\\sigma(\\cdot)$ ; $\\tilde h=\\tanh(W_nx+r\\odot(U_nh_{t-1})+b_n)$ ; $h_t=(1-z)\\odot\\tilde h+z\\odot h_{t-1}$." },
+  { "id": "seq.04.c9", "front": "Porte de mise à jour du GRU $z\\to1$", "back": "$h_t=h_{t-1}$ : l'état est copié, $\\partial h_t/\\partial h_{t-1}\\to I$ (chemin d'identité)." },
+  { "id": "seq.04.c10", "front": "Porte de réinitialisation du GRU $r\\to0$", "back": "Le candidat ignore $h_{t-1}$ et ne dépend que de $x_t$ (repartir de zéro)." },
+  { "id": "seq.04.c11", "front": "Nombres de paramètres par couche", "back": "RNN $H(n+H+1)$ ; GRU $3H(n+H+1)$ ; LSTM $4H(n+H+1)$. GRU = 3/4 du LSTM." },
+  { "id": "seq.04.c12", "front": "LSTM n=128, H=256 : paramètres", "back": "$4\\cdot256\\cdot(128+256+1)=394{,}240$ (PyTorch en rapporte 395,264 car il a deux vecteurs de biais par porte)." },
+  { "id": "seq.04.c13", "front": "Ordre des portes dans PyTorch", "back": "LSTM : $i,f,g,o$. GRU : $r,z,n$ avec $h=(1-z)n+z\\,h_{prev}$." },
+  { "id": "seq.04.c14", "front": "Ce que LSTM/GRU ne corrigent pas", "back": "Le calcul séquentiel, le goulot d'étranglement de l'état de taille fixe, les gradients explosifs (écrêter quand même), les dépendances très longues (1000+)." },
+  { "id": "seq.04.c15", "front": "Lien avec les réseaux résiduels", "back": "La mise à jour de cellule $c_t=f\\odot c_{t-1}+\\dots$ et le GRU $z\\odot h_{t-1}+\\dots$ sont des versions à portes apprenables de $y=x+F(x)$ : un chemin d'identité additif pour les gradients." }
+]

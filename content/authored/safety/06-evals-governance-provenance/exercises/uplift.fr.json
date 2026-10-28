@@ -1,0 +1,10 @@
+{
+  "id": "saf.06.ex2",
+  "title": "Évaluations de capacités : rapports d'apport et décisions à seuil",
+  "prompt": "Les évaluations de capacités alimentent la décision de savoir si des garde-fous supplémentaires sont nécessaires. Toutes les données ci-dessous sont des comptages abstraits (succès sur essais) ; aucun contenu sensible n'est impliqué.\n\nImplémente :\n\n- `risk_ratio(k1, n1, k0, n0)` : taux de réussite du bras assisté divisé par celui du bras témoin (un rapport d'**apport**).\n- `risk_ratio_ci(k1, n1, k0, n0, z=1.96)` : intervalle de confiance à l'échelle logarithmique pour le rapport.\n- `wilson_upper(k, n, z=1.96)` : extrémité supérieure de l'intervalle de Wilson.\n- `cannot_rule_out(k, n, threshold)` : `True` quand la borne supérieure de Wilson est au moins égale à `threshold` (la règle conservatrice : si tu ne peux pas montrer que le modèle est sous le seuil, traite-le comme possiblement au seuil).\n- `above_chance_z(k, n, chance)` : z-score d'un score à choix multiples par rapport au tirage au hasard.\n- `unlearning_report(target_before, target_after, general_before, general_after, chance)` -> dict avec `target_drop`, `near_chance` (target_after <= chance + 0.05) et `general_loss`.",
+  "hints": [
+    "Rapport de risques = (k1/n1)/(k0/n0). À l'échelle logarithmique son erreur standard est sqrt(1/k1 - 1/n1 + 1/k0 - 1/n0) ; l'intervalle est exp(log RR +- z*se).",
+    "Une règle de seuil conservatrice utilise la borne SUPÉRIEURE de Wilson : si la borne supérieure atteint le seuil, tu ne peux pas exclure la capacité.",
+    "z au-dessus du hasard : (k - n*chance) / sqrt(n*chance*(1-chance))."
+  ]
+}

@@ -1,0 +1,73 @@
+#@@ meta
+{"id": "nlp.06.ex2", "title": "Extractive QA: best span, exact match and token F1", "difficulty": 2, "runtime": "pyodide", "concepts": ["nlp.seq-eval"], "hints": ["Loop over all i and all j in [i, min(i+max_len-1, T-1)] and keep the pair with the largest start[i] + end[j]. Return the (i, j) with j inclusive.", "normalize: lowercase, remove punctuation, drop the tokens a / an / the, split on whitespace.", "Token F1: overlap = sum((Counter(pred) & Counter(gold)).values()); P = overlap/len(pred), R = overlap/len(gold); 0 if overlap is 0."]}
+#@@ prompt
+- `best_span(start, end, max_len)` -> `(i, j, score)` with `i <= j < i + max_len` maximising `start[i] + end[j]` (`j` inclusive). Ties: the earliest `i`, then the earliest `j`.
+- `normalize(text)` -> list of tokens: lowercase, replace punctuation characters with spaces, drop the articles `a`, `an`, `the`, split on whitespace.
+- `exact_match(pred, gold)` -> 1.0 if the normalised token lists are equal else 0.0.
+- `token_f1(pred, gold)` -> F1 of the multiset overlap of normalised tokens (1.0 if both are empty, 0.0 if only one is).
+#@@ starter
+import re
+import numpy as np
+from collections import Counter
+
+def best_span(start, end, max_len):
+    raise NotImplementedError
+
+def normalize(text):
+    raise NotImplementedError
+
+def exact_match(pred, gold):
+    raise NotImplementedError
+
+def token_f1(pred, gold):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+toks = "the iphone launched on june 29 , 2007 .".split()
+start = np.array([0, 0, 0, 0, 3.0, 0.5, 0, 0, 0])
+end = np.array([0, 0, 0, 0, 0.5, 0, 0, 2.5, 0])
+i, j, s = best_span(start, end, 5)
+check("max_len 5 selects june .. 2007", lambda: (i, j) == (4, 7) and abs(s - 5.5) < 1e-9)
+i3, j3, s3 = best_span(start, end, 3)
+check("max_len 3 selects june only", lambda: (i3, j3) == (4, 4) and abs(s3 - 3.5) < 1e-9)
+check("span words", lambda: " ".join(toks[i:j + 1]) == "june 29 , 2007")
+check("end never before start", lambda: best_span(np.array([0., 5.]), np.array([5., 0.]), 2)[0:2] == (1, 1) or best_span(np.array([0., 5.]), np.array([5., 0.]), 2)[0] <= best_span(np.array([0., 5.]), np.array([5., 0.]), 2)[1])
+check("single token", lambda: best_span(np.array([1.0]), np.array([2.0]), 4) == (0, 0, 3.0))
+check("normalize", lambda: normalize("The  Answer, is: 42!") == ["answer", "is", "42"])
+check("exact match ignores case, articles, punctuation", lambda: exact_match("The June 29, 2007", "june 29 2007") == 1.0)
+check("exact match fails on partial", lambda: exact_match("June 29", "June 29, 2007") == 0.0)
+check("token F1 = 0.8", lambda: abs(token_f1("June 29", "June 29, 2007") - 0.8) < 1e-9)
+check("token F1 = 1 on equal", lambda: token_f1("an apple", "the apple") == 1.0)
+check("token F1 = 0 on disjoint", lambda: token_f1("cat", "dog") == 0.0)
+check("empty handling", lambda: token_f1("", "") == 1.0 and token_f1("", "x") == 0.0)
+#@@ solution
+import re
+import numpy as np
+from collections import Counter
+
+def best_span(start, end, max_len):
+    T = len(start)
+    best = (0, 0, -np.inf)
+    for i in range(T):
+        for j in range(i, min(i + max_len, T)):
+            sc = start[i] + end[j]
+            if sc > best[2]:
+                best = (i, j, float(sc))
+    return best
+
+def normalize(text):
+    text = re.sub(r"[^\w\s]", " ", text.lower())
+    return [t for t in text.split() if t not in ("a", "an", "the")]
+
+def exact_match(pred, gold):
+    return 1.0 if normalize(pred) == normalize(gold) else 0.0
+
+def token_f1(pred, gold):
+    p, g = normalize(pred), normalize(gold)
+    if not p and not g:
+        return 1.0
+    o = sum((Counter(p) & Counter(g)).values())
+    if o == 0:
+        return 0.0
+    P, R = o / len(p), o / len(g)
+    return 2 * P * R / (P + R)

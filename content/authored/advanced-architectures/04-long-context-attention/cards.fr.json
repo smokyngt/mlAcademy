@@ -1,0 +1,16 @@
+[
+ {"id": "adv.04.c1", "front": "Coût de l'attention causale complète", "back": "$N(N+1)/2$ paires de scores par tête et par couche ; cache KV linéaire en $N$."},
+ {"id": "adv.04.c2", "front": "Attention à fenêtre glissante", "back": "La requête $i$ voit les clés $i-W<j\\le i$ : environ $NW$ paires et $W$ tokens en cache par couche."},
+ {"id": "adv.04.c3", "front": "Champ réceptif de fenêtres empilées", "back": "$L(W-1)+1$ positions après $L$ couches."},
+ {"id": "adv.04.c4", "front": "Dispositions global-local", "back": "Surtout des couches à fenêtre plus une couche globale toutes les quelques-unes (p. ex. 5:1) ou quelques tokens globaux."},
+ {"id": "adv.04.c5", "front": "Branches de l'attention creuse native", "back": "Résumés de blocs compressés, blocs fins sélectionnés (choisis par les scores compressés), fenêtre glissante ; mélangés par une porte apprise."},
+ {"id": "adv.04.c6", "front": "Pourquoi un masque seul n'économise pas de calcul", "back": "Le noyau doit sauter les blocs masqués (creux par blocs de FlashAttention/FlexAttention) ; un noyau dense les calcule quand même."},
+ {"id": "adv.04.c7", "front": "Attention différentielle", "back": "$(\\mathrm{softmax}(Q_1K_1^\\top/\\sqrt d)-\\lambda\\,\\mathrm{softmax}(Q_2K_2^\\top/\\sqrt d))V$ ; annule le plancher de bruit commun du softmax."},
+ {"id": "adv.04.c8", "front": "Octets du cache KV", "back": "$2\\,L\\,h_{kv}\\,d_h\\,N_{\\text{kept}}\\,b$."},
+ {"id": "adv.04.c9", "front": "MQA contre GQA contre MHA", "back": "Têtes KV : 1, G, h. Le cache rétrécit respectivement de h, h/G, 1."},
+ {"id": "adv.04.c10", "front": "Quelle tête KV la tête de requête j utilise-t-elle en GQA ?", "back": "$\\lfloor j/(h/G)\\rfloor$."},
+ {"id": "adv.04.c11", "front": "Idée de MLA", "back": "Mettre en cache un latent de bas rang $c_t$ (rang $r$) ; reconstruire K et V par tête avec des projections ascendantes, absorbables dans les matrices de requête/sortie."},
+ {"id": "adv.04.c12", "front": "Cache DeepSeek-V3 à 128K : MLA contre GQA de référence", "back": "7.625 GiB (r=512, 61 couches) contre 30.5 GiB (8 têtes KV, d=128) : 4 fois plus petit, avant la petite clé rotative."},
+ {"id": "adv.04.c13", "front": "Effet d'une fenêtre glissante sur le cache", "back": "Chaque couche à fenêtre ne garde que $\\min(N,W)$ tokens, donc le cache cesse de croître avec le contexte."},
+ {"id": "adv.04.c14", "front": "Puits d'attention (attention sink)", "back": "Les lignes de softmax doivent sommer à 1, donc les requêtes qui n'ont rien à regarder déversent leur poids sur les premiers tokens ; l'attention différentielle réduit cela."}
+]

@@ -1,0 +1,10 @@
+{
+  "id": "ops.05.ex1",
+  "title": "Latence et débit : files d'attente et batching dynamique",
+  "prompt": "Simule un serveur de modèle. Les temps sont en secondes. `arrivals` est un tableau NumPy trié des instants d'arrivée des requêtes.\n\n- `fifo_latencies(arrivals, service)` -> tableau des latences (attente + service) pour un serveur unique qui traite une requête à la fois ; `service` est un tableau de temps de service, un par requête.\n- `batched_latencies(arrivals, max_batch, max_wait, a, b)` -> `(latencies, batch_sizes)` pour un serveur qui traite les requêtes par lots. Un lot prend `a + b * size` secondes. Le serveur forme un lot à partir de la plus ancienne requête en attente et des suivantes : il démarre quand le lot est plein (`max_batch` requêtes sont arrivées) ou quand la plus ancienne requête a attendu `max_wait`, selon ce qui arrive en premier, mais jamais avant que le serveur soit libre. Toutes les requêtes parmi les `max_batch` suivantes qui sont arrivées à l'instant de démarrage rejoignent le lot.\n- `mm1_mean_latency(lam, mu)` -> latence moyenne théorique `1 / (mu - lam)` d'une file M/M/1 (arrivées de Poisson au taux `lam`, service exponentiel au taux `mu`, `lam < mu`).",
+  "hints": [
+    "Serveur unique, FIFO : start_i = max(arrival_i, finish_{i-1}) ; finish_i = start_i + service_i ; latency_i = finish_i - arrival_i.",
+    "Batching : prends la plus ancienne requête en attente i. Le lot démarre à s = max(server_free, min(arrival_i + max_wait, arrival_{i+B-1})) (utilise la dernière requête s'il en reste moins de B). Toute requête parmi les B suivantes avec arrival <= s rejoint le lot. Le temps de service est a + b * batch_size.",
+    "Avec max_batch = 1 et max_wait = 0, le batcher doit reproduire la simple file FIFO avec un temps de service a + b."
+  ]
+}

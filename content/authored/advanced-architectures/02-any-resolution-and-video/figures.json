@@ -1,0 +1,137 @@
+[
+  {
+    "id": "anyres-tiling",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "AnyRes tiling (LLaVA-NeXT) for a 672 x 672 image with a 336 encoder and patch 14: a 2 x 2 grid of 336 tiles plus one downscaled thumbnail, five encodings of 24 x 24 = 576 tokens each.",
+      "fr": "Découpage AnyRes (LLaVA-NeXT) d'une image 672 x 672 avec un encodeur 336 et patch 14 : une grille 2 x 2 de tuiles 336 plus une vignette réduite, soit cinq encodages de 24 x 24 = 576 tokens."
+    },
+    "code": {
+      "en": "flowchart LR\n  IM[\"image 672 x 672\"] --> GR[\"choose grid by aspect ratio<br/>2 x 2\"]\n  GR --> T1[\"tile 1 (336, 336)\"]\n  GR --> T2[\"tile 2 (336, 336)\"]\n  GR --> T3[\"tile 3 (336, 336)\"]\n  GR --> T4[\"tile 4 (336, 336)\"]\n  IM --> TH[\"thumbnail<br/>downscaled to (336, 336)\"]\n  T1 --> EN[\"vision encoder 336<br/>5 x (576, d_vis)\"]\n  T2 --> EN\n  T3 --> EN\n  T4 --> EN\n  TH --> EN\n  EN --> PR[\"projector\"]\n  PR --> TOK[\"5 x 576 = 2880 tokens<br/>+ 40 text = 2920\"]",
+      "fr": "flowchart LR\n  IM[\"image 672 x 672\"] --> GR[\"choisir la grille selon le rapport d'aspect<br/>2 x 2\"]\n  GR --> T1[\"tuile 1 (336, 336)\"]\n  GR --> T2[\"tuile 2 (336, 336)\"]\n  GR --> T3[\"tuile 3 (336, 336)\"]\n  GR --> T4[\"tuile 4 (336, 336)\"]\n  IM --> TH[\"vignette<br/>réduite à (336, 336)\"]\n  T1 --> EN[\"encodeur visuel 336<br/>5 x (576, d_vis)\"]\n  T2 --> EN\n  T3 --> EN\n  T4 --> EN\n  TH --> EN\n  EN --> PR[\"projecteur\"]\n  PR --> TOK[\"5 x 576 = 2880 tokens<br/>+ 40 de texte = 2920\"]"
+    }
+  },
+  {
+    "id": "packing-mask",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Patch-n-pack: four images of 256, 576, 729 and 1024 patches are concatenated into one sequence of S = 2585 with no padding. A block-diagonal mask keeps the images apart, so the score matrix has 1,977,329 live entries instead of 4,194,304 (padded) or 6,682,225 (undivided).",
+      "fr": "Patch-n-pack : quatre images de 256, 576, 729 et 1024 patchs sont concaténées en une séquence de S = 2585 sans remplissage. Un masque bloc-diagonal sépare les images, donc la matrice de scores a 1 977 329 entrées utiles au lieu de 4 194 304 (avec padding) ou 6 682 225 (séquence non divisée)."
+    },
+    "code": {
+      "en": "flowchart LR\n  I1[\"image 1: 256 patches\"] --> CAT[\"concatenate<br/>S = 2585, X (S, d)\"]\n  I2[\"image 2: 576 patches\"] --> CAT\n  I3[\"image 3: 729 patches\"] --> CAT\n  I4[\"image 4: 1024 patches\"] --> CAT\n  CAT --> MK[\"block-diagonal mask (S, S)<br/>M_ij = 1 iff same image\"]\n  MK --> AT[\"attention<br/>sum of n_b^2 = 1,977,329 entries\"]",
+      "fr": "flowchart LR\n  I1[\"image 1 : 256 patchs\"] --> CAT[\"concaténer<br/>S = 2585, X (S, d)\"]\n  I2[\"image 2 : 576 patchs\"] --> CAT\n  I3[\"image 3 : 729 patchs\"] --> CAT\n  I4[\"image 4 : 1024 patchs\"] --> CAT\n  CAT --> MK[\"masque bloc-diagonal (S, S)<br/>M_ij = 1 ssi même image\"]\n  MK --> AT[\"attention<br/>somme des n_b^2 = 1 977 329 entrées\"]"
+    }
+  },
+  {
+    "id": "packing-entries",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Score-matrix entries for the four-image batch under three strategies: packed with a block mask, padded to the longest image, and one undivided sequence.",
+      "fr": "Entrées de la matrice de scores pour le lot de quatre images selon trois stratégies : empaqueté avec masque par blocs, rempli jusqu'à la plus longue image, et séquence unique non divisée."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Attention score entries, images of 256, 576, 729, 1024 patches\"\n  x-axis [\"packed + block mask\", \"padded to 1024\", \"one sequence 2585\"]\n  y-axis \"entries (millions)\" 0 --> 7\n  bar [1.98, 4.19, 6.68]"
+    }
+  },
+  {
+    "id": "native-tokens",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Tokens of a square image against its side. Native resolution with patch 14 and 2 x 2 merge (u = 28): N = (side/28)^2 (blue); without merging, patch 14: (side/14)^2 (orange); a fixed square resize to 336 always costs 576 (green). Native tokens scale with pixels, so a cap is needed.",
+      "fr": "Tokens d'une image carrée selon son côté. Résolution native avec patch 14 et fusion 2 x 2 (u = 28) : N = (côté/28)^2 (bleu) ; sans fusion, patch 14 : (côté/14)^2 (orange) ; un redimensionnement carré fixe à 336 coûte toujours 576 (vert). Les tokens natifs croissent avec les pixels, d'où le besoin d'un plafond."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1400
+      ],
+      "yDomain": [
+        0,
+        3000
+      ],
+      "height": 330,
+      "title": "tokens vs image side (pixels)",
+      "data": [
+        {
+          "fn": "(x/28)^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(x/14)^2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "576",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "video-pipeline",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Video token pipeline and its three levers (fewer frames, fewer tokens per frame, a learned compressor). Example: 3 x 3 average pooling turns a 24 x 24 = 576 grid into 8 x 8 = 64 tokens per frame.",
+      "fr": "Pipeline de tokens vidéo et ses trois leviers (moins d'images, moins de tokens par image, un compresseur appris). Exemple : un pooling moyen 3 x 3 transforme une grille 24 x 24 = 576 en 8 x 8 = 64 tokens par image."
+    },
+    "code": {
+      "en": "flowchart LR\n  V[\"video of D seconds\"] --> SA[\"sample f frames per second<br/>lever 1: lower or dynamic f\"]\n  SA --> EN[\"vision encoder per frame<br/>(24 x 24 = 576 tokens)\"]\n  EN --> PO[\"average pool by s per side<br/>lever 2: s = 3 gives (8 x 8 = 64)\"]\n  PO --> CP[\"optional compressor<br/>lever 3: Q-Former per clip\"]\n  CP --> TP[\"add temporal position<br/>absolute timestamps\"]\n  TP --> LLM[\"LLM<br/>N = D f tau tokens\"]\n  LLM --> KV[\"KV cache = 2 L h_kv d_h N b bytes\"]",
+      "fr": "flowchart LR\n  V[\"vidéo de D secondes\"] --> SA[\"échantillonner f images par seconde<br/>levier 1 : f plus bas ou dynamique\"]\n  SA --> EN[\"encodeur visuel par image<br/>(24 x 24 = 576 tokens)\"]\n  EN --> PO[\"pooling moyen de s par côté<br/>levier 2 : s = 3 donne (8 x 8 = 64)\"]\n  PO --> CP[\"compresseur optionnel<br/>levier 3 : Q-Former par clip\"]\n  CP --> TP[\"ajouter la position temporelle<br/>horodatages absolus\"]\n  TP --> LLM[\"LLM<br/>N = D f tau tokens\"]\n  LLM --> KV[\"cache KV = 2 L h_kv d_h N b octets\"]"
+    }
+  },
+  {
+    "id": "video-kv",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "KV cache in GiB against video length at 1 frame per second, for the model with 32 layers, 8 KV heads, d_h = 128 in BF16 (128 KiB per token). 576 tokens per frame (blue), 81 (orange), 64 after 3 x 3 pooling (green). The red line is an 80 GB card: raw frames overflow it after about 19 minutes.",
+      "fr": "Cache KV en GiB selon la durée de la vidéo à 1 image par seconde, pour le modèle à 32 couches, 8 têtes KV, d_h = 128 en BF16 (128 KiB par token). 576 tokens par image (bleu), 81 (orange), 64 après pooling 3 x 3 (vert). La droite rouge représente une carte de 80 Go : les images brutes la saturent après environ 19 minutes."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        120
+      ],
+      "yDomain": [
+        0,
+        90
+      ],
+      "height": 330,
+      "title": "KV cache GiB vs video minutes (1 fps)",
+      "data": [
+        {
+          "fn": "x*60*576*131072/2^30",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x*60*81*131072/2^30",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x*60*64*131072/2^30",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "80",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 5,
+          "text": "5 min x 576: 21.1 GiB"
+        },
+        {
+          "x": 120,
+          "text": "2 h x 81: 71.2 GiB"
+        }
+      ]
+    }
+  }
+]

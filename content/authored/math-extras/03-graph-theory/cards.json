@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.03.c1",
+  "concept": "mx.graph",
+  "front": "Adjacency matrix",
+  "back": "$A_{ij}=1$ if there is an edge $i\\to j$; symmetric for undirected graphs."
+ },
+ {
+  "id": "mx.03.c2",
+  "concept": "mx.graph",
+  "front": "Degree matrix",
+  "back": "$D=\\operatorname{diag}(d_i)$ with $d_i=\\sum_jA_{ij}$."
+ },
+ {
+  "id": "mx.03.c3",
+  "concept": "mx.graph",
+  "front": "Counting walks",
+  "back": "$(A^k)_{ij}$ = number of walks of length $k$ from $i$ to $j$."
+ },
+ {
+  "id": "mx.03.c4",
+  "concept": "mx.graph",
+  "front": "Triangles from the trace",
+  "back": "$\\operatorname{trace}(A^3)=6\\times$ number of triangles (undirected simple graph)."
+ },
+ {
+  "id": "mx.03.c5",
+  "concept": "mx.laplacian",
+  "front": "Graph Laplacian",
+  "back": "$L=D-A$, symmetric, rows sum to 0, $L\\mathbf 1=0$."
+ },
+ {
+  "id": "mx.03.c6",
+  "concept": "mx.laplacian",
+  "front": "Quadratic form of L",
+  "back": "$x^\\top Lx=\\sum_{\\text{edges}}(x_i-x_j)^2\\ge0$: roughness of $x$ over the graph."
+ },
+ {
+  "id": "mx.03.c7",
+  "concept": "mx.laplacian",
+  "front": "Zero eigenvalues of L",
+  "back": "Their number = number of connected components; eigenvectors = component indicators."
+ },
+ {
+  "id": "mx.03.c8",
+  "concept": "mx.laplacian",
+  "front": "Fiedler vector",
+  "back": "Eigenvector of the second smallest eigenvalue $\\lambda_2$; its sign pattern gives a relaxed minimum cut."
+ },
+ {
+  "id": "mx.03.c9",
+  "concept": "mx.laplacian",
+  "front": "Cut size from labels",
+  "back": "With $s_i=\\pm1$: cut $=\\frac14s^\\top Ls$."
+ },
+ {
+  "id": "mx.03.c10",
+  "concept": "mx.laplacian",
+  "front": "Spectral clustering recipe",
+  "back": "Take the first $k$ Laplacian eigenvectors, stack as an $n\\times k$ matrix, run $k$-means on its rows."
+ },
+ {
+  "id": "mx.03.c11",
+  "concept": "mx.pagerank",
+  "front": "Random-walk matrix",
+  "back": "$P=D_{\\text{out}}^{-1}A$; rows sum to 1; distribution evolves as $r\\leftarrow rP$."
+ },
+ {
+  "id": "mx.03.c12",
+  "concept": "mx.pagerank",
+  "front": "Google matrix",
+  "back": "$G=dP+\\frac{1-d}{n}\\mathbf 1\\mathbf 1^\\top$ with $d\\approx0.85$; dangling rows become uniform."
+ },
+ {
+  "id": "mx.03.c13",
+  "concept": "mx.pagerank",
+  "front": "PageRank as eigenvector",
+  "back": "$r=rG$, $\\sum r_i=1$; found by power iteration, error shrinking like $d^t$."
+ },
+ {
+  "id": "mx.03.c14",
+  "concept": "mx.laplacian",
+  "front": "Ring graph and Fourier",
+  "back": "On a ring of $n$ nodes, Laplacian eigenvectors are the DFT waves."
+ }
+]

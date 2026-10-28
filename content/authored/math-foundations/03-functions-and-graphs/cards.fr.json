@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.03.c1",
+  "front": "Fonction",
+  "back": "Une règle donnant exactement une sortie $f(x)$ pour chaque entrée permise $x$."
+ },
+ {
+  "id": "mf.03.c2",
+  "front": "Domaine et image",
+  "back": "Domaine : les entrées permises. Image (range) : les sorties réellement produites."
+ },
+ {
+  "id": "mf.03.c3",
+  "front": "Fonction linéaire",
+  "back": "$f(x)=mx+b$ : pente $m$ (variation de la sortie par unité d'entrée), ordonnée à l'origine $b=f(0)$. Le graphe est une droite."
+ },
+ {
+  "id": "mf.03.c4",
+  "front": "Pente à partir de deux points",
+  "back": "$m=\\frac{y_2-y_1}{x_2-x_1}$."
+ },
+ {
+  "id": "mf.03.c5",
+  "front": "Fonction quadratique",
+  "back": "$f(x)=ax^2+bx+c$, $a\\ne0$ : une parabole de sommet en $x=-\\frac{b}{2a}$."
+ },
+ {
+  "id": "mf.03.c6",
+  "front": "Formule quadratique",
+  "back": "Racines de $ax^2+bx+c=0$ : $x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$. Le discriminant $b^2-4ac$ dit : >0 deux racines, =0 une, <0 aucune (réelle)."
+ },
+ {
+  "id": "mf.03.c7",
+  "front": "Polynôme",
+  "back": "$a_nx^n+\\dots+a_1x+a_0$ ; le degré $n$ est la plus grande puissance. Au plus $n$ racines réelles."
+ },
+ {
+  "id": "mf.03.c8",
+  "front": "Translation",
+  "back": "$f(x-h)$ déplace le graphe de $h$ vers la droite ; $f(x)+k$ le déplace de $k$ vers le haut."
+ },
+ {
+  "id": "mf.03.c9",
+  "front": "Changement d'échelle",
+  "back": "$c\\,f(x)$ étire verticalement d'un facteur $c$ ; $f(x/c)$ étire horizontalement d'un facteur $c$."
+ },
+ {
+  "id": "mf.03.c10",
+  "front": "Réflexion",
+  "back": "$-f(x)$ retourne par rapport à l'axe des $x$ ; $f(-x)$ retourne par rapport à l'axe des $y$."
+ },
+ {
+  "id": "mf.03.c11",
+  "front": "Composition",
+  "back": "$(f\\circ g)(x)=f(g(x))$ : applique d'abord $g$, puis $f$. L'ordre compte."
+ },
+ {
+  "id": "mf.03.c12",
+  "front": "Fonction inverse",
+  "back": "$f^{-1}$ défait $f$ : $f^{-1}(f(x))=x$. Existe quand chaque sortie vient d'exactement une entrée ; son graphe est le miroir de celui de $f$ par rapport à $y=x$."
+ },
+ {
+  "id": "mf.03.c13",
+  "front": "Trouver un inverse",
+  "back": "Écris $y=f(x)$, résous pour $x$, puis renomme."
+ },
+ {
+  "id": "mf.03.c14",
+  "front": "Pourquoi le ML s'y intéresse",
+  "back": "Un modèle est une fonction à constantes ajustables ; une perte est une fonction de ces constantes ; une couche est une composition de fonctions simples."
+ }
+]

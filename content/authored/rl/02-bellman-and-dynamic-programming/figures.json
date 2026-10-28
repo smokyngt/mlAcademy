@@ -1,0 +1,76 @@
+[
+  {
+    "id": "backup-tree",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Bellman expectation backup as a tree: V(s) averages over actions with weights pi(a|s), each Q(s,a) averages over next states with weights P(s'|s,a) of the reward plus gamma times V(s').",
+      "fr": "La mise à jour de Bellman (espérance) en arbre : V(s) fait la moyenne sur les actions avec les poids pi(a|s), chaque Q(s,a) fait la moyenne sur les états suivants avec les poids P(s'|s,a) de la récompense plus gamma fois V(s')."
+    },
+    "code": {
+      "en": "flowchart TB\n  V[\"V(s)\"] -->|\"pi(a1 given s)\"| Q1[\"Q(s,a1)\"]\n  V -->|\"pi(a2 given s)\"| Q2[\"Q(s,a2)\"]\n  Q1 -->|\"P(s1' given s,a1)<br/>R + gamma V(s1')\"| N1[\"V(s1')\"]\n  Q1 -->|\"P(s2' given s,a1)<br/>R + gamma V(s2')\"| N2[\"V(s2')\"]\n  Q2 -->|\"P(s3' given s,a2)<br/>R + gamma V(s3')\"| N3[\"V(s3')\"]",
+      "fr": "flowchart TB\n  V[\"V(s)\"] -->|\"pi(a1 given s)\"| Q1[\"Q(s,a1)\"]\n  V -->|\"pi(a2 given s)\"| Q2[\"Q(s,a2)\"]\n  Q1 -->|\"P(s1' given s,a1)<br/>R + gamma V(s1')\"| N1[\"V(s1')\"]\n  Q1 -->|\"P(s2' given s,a1)<br/>R + gamma V(s2')\"| N2[\"V(s2')\"]\n  Q2 -->|\"P(s3' given s,a2)<br/>R + gamma V(s3')\"| N3[\"V(s3')\"]"
+    }
+  },
+  {
+    "id": "optimality-backup",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Bellman optimality replaces the average over actions by a max: the tree is the same but the top node keeps only the best branch.",
+      "fr": "L'optimalité de Bellman remplace la moyenne sur les actions par un max : l'arbre est le même mais le noeud du haut ne garde que la meilleure branche."
+    },
+    "code": {
+      "en": "flowchart TB\n  V[\"V*(s) = max over a\"] -->|\"max\"| Q1[\"Q*(s,a1)\"]\n  V -.->|\"not chosen\"| Q2[\"Q*(s,a2)\"]\n  Q1 -->|\"P(s' given s,a1)\"| N1[\"R + gamma V*(s')\"]",
+      "fr": "flowchart TB\n  V[\"V*(s) = max over a\"] -->|\"max\"| Q1[\"Q*(s,a1)\"]\n  V -.->|\"non choisie\"| Q2[\"Q*(s,a2)\"]\n  Q1 -->|\"P(s' given s,a1)\"| N1[\"R + gamma V*(s')\"]"
+    }
+  },
+  {
+    "id": "contraction",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Why the sweeps converge: the Bellman operator is a gamma-contraction, so the worst-case error after k sweeps is at most gamma^k times the initial error. gamma = 0.5 (blue), 0.9 (orange), 0.99 (purple).",
+      "fr": "Pourquoi les balayages convergent : l'opérateur de Bellman est une gamma-contraction, donc l'erreur dans le pire cas après k balayages est au plus gamma^k fois l'erreur initiale. gamma = 0,5 (bleu), 0,9 (orange), 0,99 (violet)."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        60
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "gamma^k",
+      "data": [
+        {
+          "fn": "0.5^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.9^x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.99^x",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "pi-vs-vi",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Policy iteration (evaluate to convergence, then improve) versus value iteration (one sweep with the max inside).",
+      "fr": "Itération de politique (évaluer jusqu'à convergence, puis améliorer) contre itération de valeur (un balayage avec le max à l'intérieur)."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph PI[\"Policy iteration\"]\n    P0[\"pi0\"] --> E[\"evaluate: V <- T_pi V until tol\"]\n    E --> I[\"improve: pi' = greedy(Q)\"]\n    I --> C{\"pi changed?\"}\n    C -->|\"yes\"| E\n    C -->|\"no\"| D1[\"pi*\"]\n  end\n  subgraph VI[\"Value iteration\"]\n    V0[\"V = 0\"] --> S[\"sweep: V <- T* V\"]\n    S --> T{\"change < tol?\"}\n    T -->|\"no\"| S\n    T -->|\"yes\"| D2[\"greedy policy for V\"]\n  end",
+      "fr": "flowchart LR\n  subgraph PI[\"Itération de politique\"]\n    P0[\"pi0\"] --> E[\"évaluer : V <- T_pi V jusqu'à tol\"]\n    E --> I[\"améliorer : pi' = gloutonne(Q)\"]\n    I --> C{\"pi a changé ?\"}\n    C -->|\"oui\"| E\n    C -->|\"non\"| D1[\"pi*\"]\n  end\n  subgraph VI[\"Itération de valeur\"]\n    V0[\"V = 0\"] --> S[\"balayage : V <- T* V\"]\n    S --> T{\"changement < tol ?\"}\n    T -->|\"non\"| S\n    T -->|\"oui\"| D2[\"politique gloutonne pour V\"]\n  end"
+    }
+  }
+]

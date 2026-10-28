@@ -1,0 +1,17 @@
+[
+  { "id": "saf.02.c1", "front": "Perte DPO", "back": "$-\\log\\sigma\\big(\\beta[\\log\\frac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)}-\\log\\frac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)}]\\big)$." },
+  { "id": "saf.02.c2", "front": "Récompense implicite dans le DPO", "back": "$\\hat r=\\beta\\log(\\pi_\\theta/\\pi_{ref})$, identifiée seulement à une constante par prompt près $\\beta\\log Z(x)$." },
+  { "id": "saf.02.c3", "front": "Point de départ de la dérivation du DPO", "back": "L'optimum RLHF $\\pi^*\\propto\\pi_{ref}e^{r/\\beta}$, réarrangé en $r=\\beta\\log(\\pi^*/\\pi_{ref})+\\beta\\log Z$." },
+  { "id": "saf.02.c4", "front": "Poids du gradient DPO", "back": "$\\sigma(-m)$ avec $m$ la marge : les paires que le modèle classe mal dominent." },
+  { "id": "saf.02.c5", "front": "IPO en une ligne", "back": "Erreur quadratique entre la différence de log-rapports et $1/(2\\beta)$ : une marge bornée liée à la force de la préférence." },
+  { "id": "saf.02.c6", "front": "KTO en une ligne", "back": "Sorties isolées avec un indicateur désirable/indésirable ; une utilité de type théorie des perspectives du log-rapport, donc pas de paires nécessaires." },
+  { "id": "saf.02.c7", "front": "SimPO en une ligne", "back": "Pas de modèle de référence ; log-probabilités normalisées par la longueur avec une marge $\\gamma$ dans la sigmoïde." },
+  { "id": "saf.02.c8", "front": "ORPO en une ligne", "back": "NLL supervisée sur la réponse choisie plus un terme de préférence par rapport de cotes : une étape, pas de modèle de référence." },
+  { "id": "saf.02.c9", "front": "Réponse choisie dégradée", "back": "Le DPO peut baisser la log-probabilité absolue de la réponse choisie tant que celle de la rejetée baisse plus vite ; le BPO ajoute une correction." },
+  { "id": "saf.02.c10", "front": "Les algorithmes d'alignement direct échappent-ils à la sur-optimisation ?", "back": "Non : la récompense implicite est interrogée hors distribution et la même courbe or montée-sommet-descente apparaît." },
+  { "id": "saf.02.c11", "front": "Biais de longueur dans le DPO", "back": "Les log-rapports de séquence sont des sommes sur les tokens, donc les réponses plus longues donnent des marges de plus grande magnitude ; SimPO normalise par la longueur." },
+  { "id": "saf.02.c12", "front": "Deux phases de l'IA constitutionnelle", "back": "(1) Critique et révision avec des principes échantillonnés, puis fine-tuning supervisé ; (2) RL à partir de retour d'IA avec des préférences générées par une IA." },
+  { "id": "saf.02.c13", "front": "Pourquoi le RLAIF n'est pas simplement du RLHF moins cher", "back": "L'erreur devient systématique et uniforme (une inclinaison cohérente) au lieu d'un bruit aléatoire par annotateur, et le signal devient lisible." },
+  { "id": "saf.02.c14", "front": "Classifieurs constitutionnels", "back": "Classifieurs légers entraînés sur des principes qui filtrent entrées/sorties ; superposés au post-entraînement plutôt que de le remplacer." },
+  { "id": "saf.02.c15", "front": "Pourquoi traiter avec prudence les chiffres rapportés par les laboratoires ?", "back": "Les surcoûts, taux d'attaque et gains sur benchmarks sont rapportés par les développeurs ou issus de pré-prints, et résumés de seconde main dans la leçon du dépôt ; vérifie les sources primaires." }
+]

@@ -1,0 +1,90 @@
+#@@ meta
+{"id": "adv.01.ex1", "title": "Visual token budget, MLP projector and a tiny Q-Former", "difficulty": 3, "runtime": "pyodide", "concepts": ["adv.visual-tokens", "adv.vlm"], "hints": ["n_patches uses integer division: (h // patch) * (w // patch). AnyRes = rows*cols*tokens_per_tile, plus one tile for the thumbnail.", "The projector is Linear -> GELU -> Linear on the last axis. Use the tanh approximation of GELU given in the prompt.", "Cross-attention: scores = Q @ K.T / sqrt(d_k) with Q = queries @ Wq, K = feats @ Wk, V = feats @ Wv. Softmax over the PATCH axis (axis=1), subtracting the row max first."]}
+#@@ prompt
+Implement the building blocks of a vision-language model with NumPy.
+
+1. `n_patches(h, w, patch)` -> number of non-overlapping `patch x patch` patches that fit in an `h x w` image (ignore the remainder pixels).
+2. `anyres_tokens(rows, cols, tokens_per_tile, thumbnail=True)` -> visual tokens for a LLaVA-NeXT style AnyRes layout: `rows*cols` tiles, plus one extra global thumbnail of the same token count when `thumbnail` is true.
+3. `gelu(x)` with the tanh approximation `0.5 x (1 + tanh(sqrt(2/pi) (x + 0.044715 x^3)))`.
+4. `mlp_projector(F, W1, b1, W2, b2)` -> `gelu(F @ W1 + b1) @ W2 + b2`. `F` has shape `(N, d_vis)`, result `(N, d_llm)`.
+5. `qformer_cross_attention(queries, F, Wq, Wk, Wv)` -> `(out, attn)`. `queries` is `(n_q, d)`, `F` is `(N, d_vis)`, `Wq` is `(d, d_k)`, `Wk` is `(d_vis, d_k)`, `Wv` is `(d_vis, d_v)`. `attn` is `(n_q, N)` with rows summing to 1, `out = attn @ V` has shape `(n_q, d_v)`.
+6. `splice_image_tokens(text_emb, image_tok, position)` -> the text embedding sequence `(T, d)` with the image tokens `(M, d)` inserted before row `position`; result `(T + M, d)`.
+#@@ starter
+import numpy as np
+
+def n_patches(h, w, patch):
+    raise NotImplementedError
+
+def anyres_tokens(rows, cols, tokens_per_tile, thumbnail=True):
+    raise NotImplementedError
+
+def gelu(x):
+    raise NotImplementedError
+
+def mlp_projector(F, W1, b1, W2, b2):
+    raise NotImplementedError
+
+def qformer_cross_attention(queries, F, Wq, Wk, Wv):
+    raise NotImplementedError
+
+def splice_image_tokens(text_emb, image_tok, position):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("ViT-L/14 at 336 gives 576 patches", lambda: n_patches(336, 336, 14) == 576)
+check("ViT-L/14 at 224 gives 256 patches", lambda: n_patches(224, 224, 14) == 256)
+check("patch 16 at 224 gives 196", lambda: n_patches(224, 224, 16) == 196)
+check("non-multiple sizes drop the remainder (1024x768, patch 14)", lambda: n_patches(1024, 768, 14) == 73 * 54)
+check("2x2 AnyRes + thumbnail = 2880 tokens", lambda: anyres_tokens(2, 2, 576) == 2880)
+check("4x4 grid of 336 tiles + thumbnail = 9792", lambda: anyres_tokens(4, 4, 576) == 9792)
+check("no thumbnail", lambda: anyres_tokens(1, 3, 576, thumbnail=False) == 1728)
+check("gelu(0)=0 and gelu is ~x for large x", lambda: abs(gelu(np.array(0.0))) < 1e-12 and abs(gelu(np.array(10.0)) - 10) < 1e-6)
+check("gelu(1) ~ 0.8412", lambda: abs(float(gelu(np.array(1.0))) - 0.8412) < 1e-3)
+rng = np.random.default_rng(0)
+F = rng.normal(size=(576, 16))
+W1, b1 = rng.normal(size=(16, 32)) * 0.1, np.zeros(32)
+W2, b2 = rng.normal(size=(32, 24)) * 0.1, np.zeros(24)
+P = mlp_projector(F, W1, b1, W2, b2)
+check("projector keeps one token per patch and maps to d_llm", lambda: P.shape == (576, 24))
+check("projector acts on each patch independently", lambda: np.allclose(mlp_projector(F[:1], W1, b1, W2, b2), P[:1]))
+Qs = rng.normal(size=(32, 8))
+Wq, Wk, Wv = rng.normal(size=(8, 12)), rng.normal(size=(16, 12)), rng.normal(size=(16, 20))
+out, attn = qformer_cross_attention(Qs, F, Wq, Wk, Wv)
+check("Q-Former emits n_q tokens whatever the number of patches", lambda: out.shape == (32, 20) and attn.shape == (32, 576))
+check("attention rows sum to 1", lambda: np.allclose(attn.sum(axis=1), 1.0))
+out2, _ = qformer_cross_attention(Qs, F[:100], Wq, Wk, Wv)
+check("still 32 tokens with 100 patches", lambda: out2.shape == (32, 20))
+perm = rng.permutation(576)
+out3, _ = qformer_cross_attention(Qs, F[perm], Wq, Wk, Wv)
+check("cross-attention without positions ignores patch order", lambda: np.allclose(out, out3))
+T = rng.normal(size=(10, 24))
+S = splice_image_tokens(T, P[:5], 3)
+check("splice shape", lambda: S.shape == (15, 24))
+check("splice order: text, image, text", lambda: np.allclose(S[:3], T[:3]) and np.allclose(S[3:8], P[:5]) and np.allclose(S[8:], T[3:]))
+#@@ solution
+import numpy as np
+
+def n_patches(h, w, patch):
+    return (h // patch) * (w // patch)
+
+def anyres_tokens(rows, cols, tokens_per_tile, thumbnail=True):
+    return (rows * cols + (1 if thumbnail else 0)) * tokens_per_tile
+
+def gelu(x):
+    return 0.5 * x * (1.0 + np.tanh(np.sqrt(2.0 / np.pi) * (x + 0.044715 * x ** 3)))
+
+def mlp_projector(F, W1, b1, W2, b2):
+    return gelu(F @ W1 + b1) @ W2 + b2
+
+def qformer_cross_attention(queries, F, Wq, Wk, Wv):
+    Q = queries @ Wq
+    K = F @ Wk
+    V = F @ Wv
+    s = Q @ K.T / np.sqrt(K.shape[1])
+    s = s - s.max(axis=1, keepdims=True)
+    e = np.exp(s)
+    attn = e / e.sum(axis=1, keepdims=True)
+    return attn @ V, attn
+
+def splice_image_tokens(text_emb, image_tok, position):
+    return np.concatenate([text_emb[:position], image_tok, text_emb[position:]], axis=0)

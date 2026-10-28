@@ -1,0 +1,10 @@
+[
+ {"id":"gen.taxonomy","title":"Generative models: taxonomy, likelihood and sampling","description":"Discriminative vs generative models, maximum likelihood as KL minimisation, families of generative models.","stage":"V","prereqs":["prob.rv","info.entropy"]},
+ {"id":"gen.vae","title":"Autoencoders, VAEs and the ELBO","description":"Bottleneck and denoising autoencoders, the evidence lower bound, Gaussian KL, reparameterisation, posterior collapse.","stage":"V","prereqs":["gen.taxonomy","nn.backprop","info.entropy"]},
+ {"id":"gen.gan","title":"Generative adversarial networks","description":"Minimax game, optimal discriminator, Jensen-Shannon divergence, instability, mode collapse, WGAN.","stage":"V","prereqs":["gen.taxonomy","ml.logreg","nn.training"]},
+ {"id":"gen.diffusion","title":"Denoising diffusion models (DDPM)","description":"Forward noising with closed form, noise-prediction loss, reverse sampling loop.","stage":"V","prereqs":["gen.vae","prob.rv"]},
+ {"id":"gen.latent-diffusion","title":"Latent diffusion and conditioning","description":"Diffusion in a learned latent space, cross-attention conditioning, ControlNet and LoRA adapters.","stage":"V","prereqs":["gen.diffusion","trf.attention"]},
+ {"id":"gen.cfg","title":"Classifier-free guidance","description":"Combining conditional and unconditional noise predictions to sharpen conditioning.","stage":"V","prereqs":["gen.diffusion"]},
+ {"id":"gen.flow-matching","title":"Flow matching and rectified flows","description":"Regressing a velocity field along straight paths and sampling by integrating an ODE.","stage":"V","prereqs":["gen.diffusion"]},
+ {"id":"gen.eval","title":"Evaluating generators: FID, precision/recall, human evaluation","description":"Frechet distance between Gaussians, k-NN precision and recall, preference ratings.","stage":"V","prereqs":["gen.taxonomy","prob.rv","la.eigen"]}
+]

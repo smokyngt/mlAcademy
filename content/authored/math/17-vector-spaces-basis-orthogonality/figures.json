@@ -1,0 +1,59 @@
+[
+  {
+    "id": "rank-nullity", "after": 4, "kind": "mermaid",
+    "caption": { "en": "Rank-nullity for A: R^n → R^m: the dimension of the input space splits into the part the map keeps (rank) and the part it crushes to zero (nullity). Example: n = 5, rank 3, nullity 2.", "fr": "Rang-noyau pour A : R^n → R^m : la dimension de l'espace d'entrée se partage entre la partie que l'application conserve (rang) et celle qu'elle écrase en zéro (noyau). Exemple : n = 5, rang 3, nullité 2." },
+    "code": {
+      "en": "flowchart LR\n  D[\"input space R^5\\ndim 5\"] --> K[\"null space\\ndim 2 (sent to 0)\"]\n  D --> I[\"row space part\\ndim 3 (maps one-to-one)\"]\n  I --> Im[\"column space (image)\\ndim 3 = rank\"]",
+      "fr": "flowchart LR\n  D[\"espace d'entrée R^5\\ndim 5\"] --> K[\"noyau\\ndim 2 (envoyé sur 0)\"]\n  D --> I[\"partie espace des lignes\\ndim 3 (appliquée injectivement)\"]\n  I --> Im[\"espace des colonnes (image)\\ndim 3 = rang\"]"
+    }
+  },
+  {
+    "id": "orthonormal-coordinates", "after": 6, "kind": "plot",
+    "caption": { "en": "In an orthonormal basis, coordinates are just dot products. For q1 = (0.8, 0.6), q2 = (−0.6, 0.8) (orange, green) the vector v = (2, 1) (blue) has coordinates (q1·v, q2·v) = (2.2, −0.4): v = 2.2 q1 − 0.4 q2.", "fr": "Dans une base orthonormée, les coordonnées sont de simples produits scalaires. Pour q1 = (0,8 ; 0,6), q2 = (−0,6 ; 0,8) (orange, vert) le vecteur v = (2, 1) (bleu) a pour coordonnées (q1·v, q2·v) = (2,2 ; −0,4) : v = 2,2 q1 − 0,4 q2." },
+    "spec": { "xDomain": [-2, 3], "yDomain": [-2, 3], "height": 340,
+      "data": [
+        { "fnType": "vector", "vector": [2, 1], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [0.8, 0.6], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" },
+        { "fnType": "vector", "vector": [-0.6, 0.8], "offset": [0, 0], "graphType": "polyline", "color": "#16a34a" },
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[0, 0], [1.76, 1.32], [2, 1]] }
+      ] }
+  },
+  {
+    "id": "projection-line", "after": 7, "kind": "plot",
+    "caption": { "en": "Projection onto the line spanned by b = (2, 1): x = (1, 3) (blue) has projection p = (x·b / b·b) b = (2, 1) (red) and error x − p = (−1, 2) (orange), perpendicular to the line. The projection is the closest point of the subspace to x.", "fr": "Projection sur la droite engendrée par b = (2, 1) : x = (1, 3) (bleu) a pour projection p = (x·b / b·b) b = (2, 1) (rouge) et pour erreur x − p = (−1, 2) (orange), perpendiculaire à la droite. La projection est le point du sous-espace le plus proche de x." },
+    "spec": { "xDomain": [-2, 5], "yDomain": [-1, 5], "height": 340,
+      "data": [
+        { "fn": "x/2", "color": "#9ca3af" },
+        { "fnType": "vector", "vector": [1, 3], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [2, 1], "offset": [0, 0], "graphType": "polyline", "color": "#dc2626" },
+        { "fnType": "vector", "vector": [-1, 2], "offset": [2, 1], "graphType": "polyline", "color": "#d97706" }
+      ] }
+  },
+  {
+    "id": "projection-pipeline", "after": 8, "kind": "mermaid",
+    "caption": { "en": "Projecting onto the column space of A: solve the normal equations AᵀAλ = Aᵀx, then p = Aλ. For the worked example λ = (5, −3), p = (5, 2, −1), error (1, −2, 1).", "fr": "Projection sur l'espace des colonnes de A : résoudre les équations normales AᵀAλ = Aᵀx, puis p = Aλ. Pour l'exemple, λ = (5, −3), p = (5, 2, −1), erreur (1, −2, 1)." },
+    "code": {
+      "en": "flowchart LR\n  A[\"A (3, 2), x = (6, 0, 0)\"] --> N[\"normal equations\\nA^T A lambda = A^T x\"] --> L[\"lambda = (5, -3)\"] --> P[\"p = A lambda = (5, 2, -1)\"] --> E[\"error x - p = (1, -2, 1)\\nA^T error = 0\"]",
+      "fr": "flowchart LR\n  A[\"A (3, 2), x = (6, 0, 0)\"] --> N[\"équations normales\\nA^T A lambda = A^T x\"] --> L[\"lambda = (5, -3)\"] --> P[\"p = A lambda = (5, 2, -1)\"] --> E[\"erreur x - p = (1, -2, 1)\\nA^T erreur = 0\"]"
+    }
+  },
+  {
+    "id": "gram-schmidt-2d", "after": 9, "kind": "plot",
+    "caption": { "en": "One Gram-Schmidt step in the plane. Start with a1 = (3, 1) and a2 = (1, 2). Remove from a2 its component along a1, (1.5, 0.5) (grey), to get v2 = (−0.5, 1.5) (green), perpendicular to a1. Normalising gives q1 and q2.", "fr": "Une étape de Gram-Schmidt dans le plan. On part de a1 = (3, 1) et a2 = (1, 2). On retire de a2 sa composante le long de a1, (1,5 ; 0,5) (gris), pour obtenir v2 = (−0,5 ; 1,5) (vert), perpendiculaire à a1. La normalisation donne q1 et q2." },
+    "spec": { "xDomain": [-2, 4], "yDomain": [-1, 3], "height": 340,
+      "data": [
+        { "fnType": "vector", "vector": [3, 1], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [1, 2], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" },
+        { "fnType": "vector", "vector": [1.5, 0.5], "offset": [0, 0], "graphType": "polyline", "color": "#9ca3af" },
+        { "fnType": "vector", "vector": [-0.5, 1.5], "offset": [1.5, 0.5], "graphType": "polyline", "color": "#16a34a" }
+      ] }
+  },
+  {
+    "id": "qr-least-squares", "after": 10, "kind": "mermaid",
+    "caption": { "en": "Least squares via QR: factor A = QR, then solve the triangular system Rx = Qᵀb by back substitution. This avoids forming AᵀA, which squares the condition number.", "fr": "Moindres carrés par QR : factoriser A = QR, puis résoudre le système triangulaire Rx = Qᵀb par remontée. Cela évite de former AᵀA, qui élève le conditionnement au carré." },
+    "code": {
+      "en": "flowchart LR\n  A[\"A (n, m)\"] -->|\"QR\"| QR[\"Q (n, m) orthonormal\\nR (m, m) upper triangular\"]\n  B[\"b (n)\"] --> T[\"Q^T b (m)\"]\n  QR --> T\n  QR --> S[\"solve R x = Q^T b\\n(back substitution)\"]\n  T --> S --> X[\"x (m)\"]",
+      "fr": "flowchart LR\n  A[\"A (n, m)\"] -->|\"QR\"| QR[\"Q (n, m) orthonormale\\nR (m, m) triangulaire supérieure\"]\n  B[\"b (n)\"] --> T[\"Q^T b (m)\"]\n  QR --> T\n  QR --> S[\"résoudre R x = Q^T b\\n(remontée)\"]\n  T --> S --> X[\"x (m)\"]"
+    }
+  }
+]

@@ -1,0 +1,17 @@
+[
+  { "id": "math.14.c1", "concept": "prob.sampling", "front": "Inverse transform sampling", "back": "Draw $U\\sim\\text{Uniform}(0,1)$ and return $F^{-1}(U)$; it has cdf $F$ because $P(F^{-1}(U)\\le x)=P(U\\le F(x))=F(x)$." },
+  { "id": "math.14.c2", "concept": "prob.sampling", "front": "Inverse transform for the exponential", "back": "$F(x)=1-e^{-\\lambda x}$, so $x=-\\ln(1-u)/\\lambda$ (or $-\\ln u/\\lambda$)." },
+  { "id": "math.14.c3", "concept": "prob.sampling", "front": "When does inverse transform not work directly?", "back": "When $F^{-1}$ has no closed form (the Gaussian): use Box-Muller, or other methods." },
+  { "id": "math.14.c4", "concept": "prob.sampling", "front": "Sampling a multivariate Gaussian", "back": "$y=\\mu+Lz$ with $\\Sigma=LL^\\top$ (Cholesky) and $z$ with independent standard normal entries: $\\text{Cov}(y)=\\Sigma$." },
+  { "id": "math.14.c5", "concept": "prob.sampling", "front": "Rejection sampling algorithm", "back": "Need $p\\le Mq$. Draw $x\\sim q$, $u\\sim U(0,1)$; accept if $u<p(x)/(Mq(x))$. Acceptance rate $1/M$." },
+  { "id": "math.14.c6", "concept": "prob.sampling", "front": "Why rejection sampling fails in high dimensions", "back": "The bound $M$ grows exponentially with $D$ (e.g. $(\\sigma_q/\\sigma_p)^D$), so the acceptance rate $1/M$ collapses." },
+  { "id": "math.14.c7", "concept": "prob.montecarlo", "front": "Importance sampling estimator", "back": "$\\mathbb E_p[f]\\approx\\frac1L\\sum_l \\frac{p(x_l)}{q(x_l)}f(x_l)$ with $x_l\\sim q$. Self-normalised: divide by $\\sum_l p(x_l)/q(x_l)$ (needs $p$ only up to a constant)." },
+  { "id": "math.14.c8", "concept": "prob.montecarlo", "front": "When is importance sampling bad?", "back": "When $q$ has little mass where $|f|p$ is large: a few huge weights dominate and the variance is large or infinite." },
+  { "id": "math.14.c9", "concept": "prob.montecarlo", "front": "Monte Carlo error rate", "back": "$\\text{Var}(\\hat I)=\\text{Var}(f)/N$, error $\\sim\\sigma_f/\\sqrt N$, independent of dimension. 100x samples for 10x accuracy." },
+  { "id": "math.14.c10", "concept": "prob.montecarlo", "front": "Monte Carlo estimate of $\\pi$", "back": "Fraction of uniform points in the unit square with $x^2+y^2\\le1$, times 4. Standard deviation $1.642/\\sqrt N$." },
+  { "id": "math.14.c11", "concept": "prob.sampling", "front": "Markov chain", "back": "A sequence where $p(z^{(m+1)}\\mid z^{(1)},\\dots,z^{(m)})=p(z^{(m+1)}\\mid z^{(m)})$: the next state depends only on the current one." },
+  { "id": "math.14.c12", "concept": "prob.sampling", "front": "Metropolis algorithm", "back": "Propose $z'=z+\\text{noise}$; accept with probability $\\min(1,\\tilde p(z')/\\tilde p(z))$; if rejected, repeat the old state. $\\tilde p$ may be unnormalised." },
+  { "id": "math.14.c13", "concept": "prob.sampling", "front": "Why MCMC works (detailed balance)", "back": "The acceptance rule makes flow $z\\to z'$ equal flow $z'\\to z$ under $p$, so $p$ is the stationary distribution of the chain." },
+  { "id": "math.14.c14", "concept": "prob.sampling", "front": "MCMC practical pitfalls", "back": "Burn-in, step-size tuning (too small crawls, too large rejects), and autocorrelation: the effective sample size is less than the chain length." },
+  { "id": "math.14.c15", "concept": "prob.sampling", "front": "Gibbs sampling", "back": "Update each variable from its conditional given all others, cycling and using the newest values. Always accepted; slow when variables are strongly correlated." }
+]

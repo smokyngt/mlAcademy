@@ -1,0 +1,17 @@
+[
+  {"id": "vis.07.c1", "concept": "tal.captioning", "front": "Captioning architecture (Show and Tell)", "back": "CNN encodes the image; an RNN decoder emits one word per step with softmax over the vocabulary; trained with cross-entropy."},
+  {"id": "vis.07.c2", "concept": "tal.captioning", "front": "Decoder input at step t in the practical session", "back": "Concatenation of the previous word embedding and the image feature vector."},
+  {"id": "vis.07.c3", "concept": "tal.captioning", "front": "Why teacher forcing, padding and masking?", "back": "Train on next-word cross-entropy with the true previous words; pad to batch captions and mask padded positions out of the loss."},
+  {"id": "vis.07.c4", "concept": "tal.captioning", "front": "Soft attention formulas", "back": "$e_i=a_i^\\top W h_{t-1}$, $\\alpha=\\operatorname{softmax}(e)$, $\\hat z=\\sum_i\\alpha_i a_i$. Shapes $(R,)$, $(R,)$, $(D,)$."},
+  {"id": "vis.07.c5", "concept": "tal.captioning", "front": "Soft vs hard attention", "back": "Soft: weighted average, differentiable. Hard: pick one region, non-differentiable, trained with REINFORCE."},
+  {"id": "vis.07.c6", "concept": "tal.captioning", "front": "Why attention over regions?", "back": "Avoids squeezing the image into one vector; each word can look at the relevant region."},
+  {"id": "vis.07.c7", "concept": "tal.captioning", "front": "Temperature sampling", "back": "$p'_i=p_i^{1/t}/\\sum_j p_j^{1/t}$. $t<1$ sharpens, $t>1$ flattens, $t=1$ is unchanged."},
+  {"id": "vis.07.c8", "concept": "tal.captioning", "front": "Beam search vs sampling", "back": "Sampling draws words at random; beam search keeps the best few partial captions. The deck lists beam search as an improvement."},
+  {"id": "vis.07.c9", "concept": "tal.captioning", "front": "BLEU-1", "back": "Clipped unigram precision times brevity penalty $\\min(1,e^{1-\\rho/|c|})$ with $\\rho$ the closest reference length."},
+  {"id": "vis.07.c10", "concept": "tal.captioning", "front": "Why clip counts in BLEU?", "back": "So that repeating a matching word ('the the the') cannot inflate precision."},
+  {"id": "vis.07.c11", "concept": "tal.captioning", "front": "Limits of BLEU for captions", "back": "No synonyms, no word order, no check that relations between objects are right."},
+  {"id": "vis.07.c12", "concept": "tal.vqa", "front": "Visual question answering", "back": "Input: image and question; output: answer. Needs image model, text model, their interaction and some reasoning."},
+  {"id": "vis.07.c13", "concept": "tal.vqa", "front": "Typical VQA architecture", "back": "CNN features of the image and RNN encoding of the question, fused, then a classifier over frequent answers (or a generator)."},
+  {"id": "vis.07.c14", "concept": "tal.vqa", "front": "VQA dataset bias", "back": "Priors such as 'tennis' 41% for 'what sport'. VQA 2.0 balances answers across images; VQA-CP shifts priors between train and test."},
+  {"id": "vis.07.c15", "concept": "tal.vqa", "front": "Answer-prior baseline", "back": "Always answer the most frequent training answer; a model close to it is not using the image."}
+]

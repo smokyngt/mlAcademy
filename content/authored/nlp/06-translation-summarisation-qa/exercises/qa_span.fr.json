@@ -1,0 +1,10 @@
+{
+ "id": "nlp.06.ex2",
+ "title": "QA extractive : meilleur segment, correspondance exacte et F1 par token",
+ "prompt": "- `best_span(start, end, max_len)` -> `(i, j, score)` avec `i <= j < i + max_len` maximisant `start[i] + end[j]` (`j` inclus). Égalités : le plus petit `i`, puis le plus petit `j`.\n- `normalize(text)` -> liste de tokens : minuscules, remplace les caractères de ponctuation par des espaces, retire les articles `a`, `an`, `the`, sépare sur les espaces.\n- `exact_match(pred, gold)` -> 1.0 si les listes de tokens normalisées sont égales sinon 0.0.\n- `token_f1(pred, gold)` -> F1 du recouvrement de multi-ensembles de tokens normalisés (1.0 si les deux sont vides, 0.0 si un seul l'est).",
+ "hints": [
+  "Boucle sur tous les i et tous les j dans [i, min(i+max_len-1, T-1)] et garde la paire avec le plus grand start[i] + end[j]. Renvoie le (i, j) avec j inclus.",
+  "normalize : minuscules, retire la ponctuation, écarte les tokens a / an / the, sépare sur les espaces.",
+  "F1 par token : overlap = sum((Counter(pred) & Counter(gold)).values()) ; P = overlap/len(pred), R = overlap/len(gold) ; 0 si overlap vaut 0."
+ ]
+}

@@ -1,0 +1,135 @@
+[
+ {
+  "id": "ops.02.q1",
+  "concept": "ops.sampling",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "You must read 4 columns out of 1,000 from a huge table. Which storage layout is faster?",
+  "options": [
+   "Column-major (Parquet)",
+   "Row-major (CSV)",
+   "They are identical",
+   "Whichever file is larger"
+  ],
+  "answer": 0,
+  "explanation": "Column-major stores each column contiguously, so you read only the columns you need."
+ },
+ {
+  "id": "ops.02.q2",
+  "concept": "ops.sampling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Reservoir sampling with reservoir size $k$ guarantees that after $n$ items each item has been kept with probability...",
+  "options": [
+   "$1/n$",
+   "$1/k$",
+   "$k/n$",
+   "$k/(n+k)$"
+  ],
+  "answer": 2,
+  "explanation": "By induction: the new item enters with $k/(n+1)$; an old item survives with $n/(n+1)$; $\\frac{k}{n}\\cdot\\frac{n}{n+1}=\\frac{k}{n+1}$."
+ },
+ {
+  "id": "ops.02.q3",
+  "concept": "ops.sampling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A 10% stratified sample of 900/90/10 items per class contains how many items of the rarest class?",
+  "options": [
+   "0, 1 or more at random",
+   "Exactly 1",
+   "10",
+   "9"
+  ],
+  "answer": 1,
+  "explanation": "Stratified sampling takes $\\mathrm{round}(0.1\\cdot10)=1$ from each stratum, so the rare class is always present."
+ },
+ {
+  "id": "ops.02.q4",
+  "concept": "ops.sampling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Importance sampling draws $x$ from an easy distribution $Q$ to estimate something under $P$. Each sample is weighted by...",
+  "options": [
+   "$Q(x)/P(x)$",
+   "$P(x)\\,Q(x)$",
+   "$1/n$ only",
+   "$P(x)/Q(x)$"
+  ],
+  "answer": 3,
+  "explanation": "The weight $P(x)/Q(x)$ corrects the mismatch; it requires $Q(x)>0$ wherever $P(x)\\neq0$."
+ },
+ {
+  "id": "ops.02.q5",
+  "concept": "ops.labelling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A recommendation that was not clicked within ten minutes is treated as a negative example. This is an example of...",
+  "options": [
+   "a hand label",
+   "weak supervision with a regex",
+   "a behavioural (natural) label with a feedback loop",
+   "active learning"
+  ],
+  "answer": 2,
+  "explanation": "Labels derived from user behaviour arrive automatically but after a delay (the feedback loop length)."
+ },
+ {
+  "id": "ops.02.q6",
+  "concept": "ops.labelling",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Four labelling functions vote on a row: 1, 0, 0, abstain. Using plain majority vote among non-abstaining LFs, what label is returned (use -1 for a tie or no votes)?",
+  "options": [],
+  "answer": {
+   "value": 0,
+   "tol": 0.01
+  },
+  "explanation": "Two votes for 0 beat one vote for 1, so the label is 0."
+ },
+ {
+  "id": "ops.02.q7",
+  "concept": "ops.labelling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In the weighted vote, a labelling function with estimated accuracy exactly 0.5 gets weight...",
+  "options": [
+   "0",
+   "1",
+   "$\\log 2$",
+   "$-1$"
+  ],
+  "answer": 0,
+  "explanation": "$w=\\log\\frac{a}{1-a}=\\log1=0$: a coin-flip function carries no information."
+ },
+ {
+  "id": "ops.02.q8",
+  "concept": "ops.labelling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which statement about data augmentation is correct?",
+  "options": [
+   "Augment train and test sets alike",
+   "Augment before splitting to get more test data",
+   "Augmentation changes labels freely",
+   "Augment the training split only with label-preserving changes"
+  ],
+  "answer": 3,
+  "explanation": "Augmenting before splitting can place near-copies of test items in training; the test set must reflect real data."
+ },
+ {
+  "id": "ops.02.q9",
+  "concept": "ops.labelling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is stream processing well suited to a 30-day engagement feature?",
+  "options": [
+   "It avoids storing any data",
+   "It can keep a running state and update it with new events instead of recomputing 30 days each time",
+   "It is always faster than batch for every job",
+   "It needs no infrastructure"
+  ],
+  "answer": 1,
+  "explanation": "Stateful computation combines the new day with the stored aggregate, avoiding redundant recomputation."
+ }
+]

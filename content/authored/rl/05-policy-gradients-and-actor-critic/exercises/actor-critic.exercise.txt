@@ -1,0 +1,129 @@
+#@@ meta
+{"id": "rl.05.ex2", "title": "REINFORCE with a baseline and one-step actor-critic on a chain", "difficulty": 4, "runtime": "pyodide", "concepts": ["rl.policy-gradient", "rl.actor-critic"], "hints": ["returns_to_go: G_t = r_t + gamma * G_{t+1}, computed from the end.", "Both methods use an advantage: adv = G_t - V[s] for REINFORCE, adv = r + gamma*V[s2]*(1-done) - V[s] for the actor-critic. Update V[s] += lr_v * adv and theta[s] += lr_pi * adv * grad_log_pi(theta[s], a).", "Compute adv once, before changing V[s] or theta[s]."]}
+#@@ prompt
+A 5-state chain (states 0..4, state 4 terminal): action 1 moves right, action 0 left (clamped at 0), reward 1 on reaching state 4, $\gamma=0.95$. The policy is tabular softmax: `theta` has shape `(5, 2)`; the critic `V` has shape `(5,)`.
+
+`softmax`, `grad_log_pi` and the training loops are given. Implement:
+
+- `returns_to_go(rewards, gamma)` -> list of $G_t$.
+- `reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v)`: `traj` is a list of `(s, a, r, s2, done)`. For each step in order, with advantage $G_t-V(s_t)$, update `V[s]` and `theta[s]` in place.
+- `a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v)`: one-step actor-critic with advantage $\delta=r+\gamma(1-d)V(s')-V(s)$; update in place and return $\delta$.
+#@@ starter
+import numpy as np
+
+def softmax(z):
+    e = np.exp(z - np.max(z))
+    return e / e.sum()
+
+def grad_log_pi(th_s, a):
+    g = -softmax(th_s)
+    g[a] += 1.0
+    return g
+
+def returns_to_go(rewards, gamma):
+    raise NotImplementedError
+
+def reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v):
+    raise NotImplementedError
+
+def a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v):
+    raise NotImplementedError
+
+N = 5
+
+def run(mode, seed, episodes=400, lr_pi=0.5, lr_v=0.2, gamma=0.95):
+    rng = np.random.default_rng(seed)
+    theta = np.zeros((N, 2)); V = np.zeros(N)
+    for _ in range(episodes):
+        s = 0; traj = []
+        for _ in range(30):
+            a = int(rng.choice(2, p=softmax(theta[s])))
+            s2 = min(max(s + (1 if a == 1 else -1), 0), N - 1)
+            done = s2 == N - 1
+            r = 1.0 if done else 0.0
+            traj.append((s, a, r, s2, done))
+            if mode == "a2c":
+                a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v)
+            s = s2
+            if done:
+                break
+        if mode == "reinforce":
+            reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v)
+    return theta, V
+#@@ tests
+import numpy as np
+check("returns_to_go", lambda: np.allclose(returns_to_go([0.0, 0.0, 1.0], 0.5), [0.25, 0.5, 1.0]))
+th = np.zeros((5, 2)); V = np.zeros(5)
+d = a2c_update(th, V, 2, 1, 1.0, 4, True, 0.95, 0.5, 0.2)
+check("terminal TD error is r - V = 1", lambda: abs(d - 1.0) < 1e-12)
+check("critic moved by lr_v * delta", lambda: abs(V[2] - 0.2) < 1e-12)
+check("actor moved by lr_pi * delta * grad log pi = 0.5*[-0.5, 0.5]", lambda: np.allclose(th[2], [-0.25, 0.25]) and np.allclose(th[[0, 1, 3, 4]], 0))
+th2 = np.zeros((5, 2)); V2 = np.array([0.0, 0.0, 0.0, 0.8, 0.0])
+d2 = a2c_update(th2, V2, 2, 0, 0.0, 3, False, 0.9, 0.5, 0.2)
+check("non-terminal TD error bootstraps: 0.9*0.8 = 0.72", lambda: abs(d2 - 0.72) < 1e-12)
+th3 = np.zeros((5, 2)); V3 = np.zeros(5)
+reinforce_baseline_update(th3, V3, [(3, 1, 1.0, 4, True)], 0.95, 0.5, 0.2)
+check("one-step REINFORCE episode behaves like the actor-critic one", lambda: np.allclose(th3[3], [-0.25, 0.25]) and abs(V3[3] - 0.2) < 1e-12)
+th4 = np.zeros((5, 2)); V4 = np.zeros(5)
+reinforce_baseline_update(th4, V4, [(0, 1, 0.0, 1, False), (1, 1, 1.0, 2, True)], 1.0, 0.1, 0.5)
+check("uses the return-to-go G=1 for both steps", lambda: abs(V4[0] - 0.5) < 1e-12 and abs(V4[1] - 0.5) < 1e-12)
+for mode in ["reinforce", "a2c"]:
+    th_, V_ = run(mode, 0)
+    pr = [softmax(th_[s])[1] for s in range(4)]
+    check(mode + ": learned policy goes right with probability > 0.9 in every state", lambda: min(pr) > 0.9)
+    check(mode + ": critic is close to gamma^(3-s)", lambda: np.max(np.abs(V_[:4] - 0.95 ** (3 - np.arange(4)))) < 0.1)
+#@@ solution
+import numpy as np
+
+def softmax(z):
+    e = np.exp(z - np.max(z))
+    return e / e.sum()
+
+def grad_log_pi(th_s, a):
+    g = -softmax(th_s)
+    g[a] += 1.0
+    return g
+
+def returns_to_go(rewards, gamma):
+    out = [0.0] * len(rewards)
+    G = 0.0
+    for t in reversed(range(len(rewards))):
+        G = rewards[t] + gamma * G
+        out[t] = G
+    return out
+
+def reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v):
+    G = returns_to_go([step[2] for step in traj], gamma)
+    for (s, a, r, s2, done), g in zip(traj, G):
+        adv = g - V[s]
+        V[s] += lr_v * adv
+        theta[s] += lr_pi * adv * grad_log_pi(theta[s], a)
+
+def a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v):
+    target = r + (0.0 if done else gamma * V[s2])
+    delta = target - V[s]
+    V[s] += lr_v * delta
+    theta[s] += lr_pi * delta * grad_log_pi(theta[s], a)
+    return delta
+
+N = 5
+
+def run(mode, seed, episodes=400, lr_pi=0.5, lr_v=0.2, gamma=0.95):
+    rng = np.random.default_rng(seed)
+    theta = np.zeros((N, 2)); V = np.zeros(N)
+    for _ in range(episodes):
+        s = 0; traj = []
+        for _ in range(30):
+            a = int(rng.choice(2, p=softmax(theta[s])))
+            s2 = min(max(s + (1 if a == 1 else -1), 0), N - 1)
+            done = s2 == N - 1
+            r = 1.0 if done else 0.0
+            traj.append((s, a, r, s2, done))
+            if mode == "a2c":
+                a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v)
+            s = s2
+            if done:
+                break
+        if mode == "reinforce":
+            reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v)
+    return theta, V

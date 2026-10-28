@@ -1,0 +1,86 @@
+[
+ {
+  "id": "app.02.c1",
+  "concept": "app.structured-output",
+  "front": "Four strengths of structured output",
+  "back": "Prompt-only; JSON mode (parses); schema mode (matches schema); constrained decoding (invalid tokens unreachable)."
+ },
+ {
+  "id": "app.02.c2",
+  "concept": "app.structured-output",
+  "front": "What does JSON mode guarantee?",
+  "back": "That the output is syntactically valid JSON; not that it has your keys or types."
+ },
+ {
+  "id": "app.02.c3",
+  "concept": "app.structured-output",
+  "front": "JSON Schema keywords to know",
+  "back": "type, properties, required, additionalProperties, enum, minimum/maximum, minLength, items."
+ },
+ {
+  "id": "app.02.c4",
+  "concept": "app.structured-output",
+  "front": "Pitfall: bool vs number",
+  "back": "In Python True is an int, but JSON Schema treats booleans as a separate type; check bool before int/number."
+ },
+ {
+  "id": "app.02.c5",
+  "concept": "app.structured-output",
+  "front": "Logit processor",
+  "back": "Code between model and sampler that sets logits of illegal tokens to $-\\infty$ given the grammar state."
+ },
+ {
+  "id": "app.02.c6",
+  "concept": "app.structured-output",
+  "front": "Masked distribution",
+  "back": "$p_c(t\\mid s)=e^{z_t}/\\sum_{u\\in A(s)}e^{z_u}$ for allowed tokens, 0 otherwise."
+ },
+ {
+  "id": "app.02.c7",
+  "concept": "app.structured-output",
+  "front": "Why check a token's every character?",
+  "back": "Tokens span several characters; a token is legal iff its characters can be fed through the automaton in order."
+ },
+ {
+  "id": "app.02.c8",
+  "concept": "app.structured-output",
+  "front": "Dead end in constrained decoding",
+  "back": "A state where no vocabulary token is legal; compile the grammar against the real tokenizer to avoid it."
+ },
+ {
+  "id": "app.02.c9",
+  "concept": "app.structured-output",
+  "front": "Constrained decoding limit",
+  "back": "Guarantees shape, not truth; it also renormalises probabilities, which can push the model to unnatural values."
+ },
+ {
+  "id": "app.02.c10",
+  "concept": "app.structured-output",
+  "front": "Why can constrained decoding be faster?",
+  "back": "Forced scaffolding tokens need no sampling, and the search space shrinks."
+ },
+ {
+  "id": "app.02.c11",
+  "concept": "app.structured-output",
+  "front": "Validate-and-repair loop",
+  "back": "Extract JSON, parse, validate, send path-specific errors back, retry up to a cap; track the retry rate."
+ },
+ {
+  "id": "app.02.c12",
+  "concept": "app.tool-calling",
+  "front": "Function-calling loop",
+  "back": "Send messages + tool schemas; model emits a call; app validates and executes; result goes back; model answers or calls again."
+ },
+ {
+  "id": "app.02.c13",
+  "concept": "app.tool-calling",
+  "front": "Role of a tool description",
+  "back": "It is a prompt for tool selection: vague descriptions cause wrong or missed calls."
+ },
+ {
+  "id": "app.02.c14",
+  "concept": "app.tool-calling",
+  "front": "Safety rules for tool loops",
+  "back": "Validate arguments, return errors as data, cap the number of rounds, least privilege, approval for destructive actions."
+ }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "cml.12.ex2",
+  "title": "EM pour un mélange gaussien multivarié",
+  "prompt": "Implémente l'EM pour un mélange gaussien de dimension $d$ à covariances pleines.\n\n- `log_gauss(X, mu, S)` -> vecteur `(N,)` $\\log\\mathcal N(x_n\\mid\\mu,\\Sigma)$ pour `X` de forme `(N, d)`, `mu` `(d,)`, `S` `(d, d)`.\n- `em_gmm(X, K, iters=100, seed=0, reg=1e-6)` -> `(pi, mu, S, r, history)`.\n  - Initialisation : `rng = np.random.default_rng(seed)` ; les `K` moyennes sont `K` lignes aléatoires distinctes de `X` (`rng.choice(N, K, replace=False)`) ; chaque covariance vaut `np.cov(X.T) + reg*I` ; les poids valent `1/K`.\n  - À chaque itération : log-vraisemblance (ajoutée à `history` **avant** la mise à jour), étape E (utilise log-sum-exp), étape M ; ajoute `reg*I` à chaque nouvelle covariance pour éviter les singularités.\n  - Formes : `pi (K,)`, `mu (K, d)`, `S (K, d, d)`, `r (N, K)`.",
+  "hints": [
+    "log_gauss : avec Sigma = L L^T (np.linalg.cholesky), z = solve(L, (X - mu).T), alors log N = -0.5*sum(z**2, axis=0) - sum(log(diag(L))) - 0.5*d*log(2*pi).",
+    "Travaille en logs : log_w[:, k] = log(pi[k]) + log_gauss(X, mu[k], S[k]) ; la log-vraisemblance des données est la somme sur les lignes de logsumexp(log_w) ; r = exp(log_w - logsumexp[:, None]).",
+    "Étape M par composante : Nk = r[:, k].sum() ; mu_k = r[:, k] @ X / Nk ; D = X - mu_k ; S_k = (r[:, k, None] * D).T @ D / Nk + reg * I ; pi_k = Nk / N."
+  ]
+}

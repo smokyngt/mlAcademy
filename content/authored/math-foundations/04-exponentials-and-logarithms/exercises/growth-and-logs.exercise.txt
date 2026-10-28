@@ -1,0 +1,86 @@
+#@@ meta
+{"title": "Exponentials and logarithms in code", "difficulty": 2, "concepts": ["mf.explog"], "hints": ["compound: P * (1 + r) ** t. Doubling time: log(2) / log(1 + r) with math.log.", "log_base(x, b) = np.log(x) / np.log(b).", "exp_series(x, terms): add x**k / factorial(k) for k in range(terms).", "log_sum_exp: m = max(z); return m + log(sum(exp(z - m))). Cross entropy for one-hot: -log(q[true_index])."], "id": "mf.04.ex1", "runtime": "pyodide"}
+#@@ prompt
+Explore growth and logarithms numerically.
+
+- `compound(P, r, t)`: value of `P` after `t` periods at rate `r` per period (e.g. `r = 0.05`).
+- `doubling_time(r)`: periods needed to double at rate `r` (a float).
+- `log_base(x, b)`: $\log_b x$ using only natural logarithms (`np.log`).
+- `exp_series(x, terms)`: approximate $e^x$ by $\sum_{k=0}^{terms-1} x^k/k!$.
+- `e_approx(n)`: $(1+1/n)^n$.
+- `cross_entropy(p, q)`: $-\sum_i p_i\ln q_i$ for NumPy arrays (treat terms with $p_i=0$ as 0 contribution).
+- `log_sum_exp(z)`: $\ln\sum_i e^{z_i}$ computed so it does not overflow when entries are around 1000.
+#@@ starter
+import math
+import numpy as np
+
+def compound(P, r, t):
+    raise NotImplementedError
+
+def doubling_time(r):
+    raise NotImplementedError
+
+def log_base(x, b):
+    raise NotImplementedError
+
+def exp_series(x, terms):
+    raise NotImplementedError
+
+def e_approx(n):
+    raise NotImplementedError
+
+def cross_entropy(p, q):
+    raise NotImplementedError
+
+def log_sum_exp(z):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+check("1000 at 5% for 10 years", lambda: abs(compound(1000, 0.05, 10) - 1628.894626777442) < 1e-6)
+check("doubling at 7% is about 10.245", lambda: abs(doubling_time(0.07) - 10.244768351) < 1e-6)
+check("doubling at 100% is 1", lambda: abs(doubling_time(1.0) - 1) < 1e-12)
+check("log2(8) = 3", lambda: abs(log_base(8, 2) - 3) < 1e-12)
+check("log10(1000) = 3", lambda: abs(log_base(1000, 10) - 3) < 1e-12)
+check("log2(10) = 3.3219", lambda: abs(log_base(10, 2) - 3.3219280949) < 1e-9)
+check("exp series for e (11 terms)", lambda: abs(exp_series(1.0, 11) - 2.7182818011463845) < 1e-12)
+check("exp series close to math.exp(2)", lambda: abs(exp_series(2.0, 30) - math.exp(2)) < 1e-12)
+check("(1+1/10)^10", lambda: abs(e_approx(10) - 2.5937424601) < 1e-9)
+check("e_approx tends to e", lambda: abs(e_approx(10**6) - math.e) < 1e-5)
+p = np.array([0., 1., 0.]); q = np.array([0.2, 0.7, 0.1])
+check("one-hot cross entropy = -ln 0.7", lambda: abs(cross_entropy(p, q) - 0.35667494393873245) < 1e-12)
+check("zero-probability terms are skipped", lambda: np.isfinite(cross_entropy(np.array([0., 1.]), np.array([0., 1.]))))
+check("lse([1,2,3]) = 3.4076", lambda: abs(log_sum_exp(np.array([1., 2., 3.])) - 3.40760596444438) < 1e-12)
+check("lse does not overflow at 1000", lambda: abs(log_sum_exp(np.array([1000., 1001., 1002.])) - 1002.4076059644444) < 1e-9)
+#@@ solution
+import math
+import numpy as np
+
+def compound(P, r, t):
+    return P * (1 + r) ** t
+
+def doubling_time(r):
+    return math.log(2) / math.log(1 + r)
+
+def log_base(x, b):
+    return np.log(x) / np.log(b)
+
+def exp_series(x, terms):
+    total = 0.0
+    for k in range(terms):
+        total += x ** k / math.factorial(k)
+    return total
+
+def e_approx(n):
+    return (1 + 1 / n) ** n
+
+def cross_entropy(p, q):
+    p = np.asarray(p, dtype=float)
+    q = np.asarray(q, dtype=float)
+    mask = p > 0
+    return float(-np.sum(p[mask] * np.log(q[mask])))
+
+def log_sum_exp(z):
+    z = np.asarray(z, dtype=float)
+    m = z.max()
+    return float(m + np.log(np.sum(np.exp(z - m))))

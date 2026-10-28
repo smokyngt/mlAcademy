@@ -1,0 +1,17 @@
+[
+  { "id": "math.10.c1", "concept": "info.entropy", "front": "Information content of an event", "back": "$h(x)=-\\log p(x)$: rare events carry more; independent events add because logs turn products into sums." },
+  { "id": "math.10.c2", "concept": "info.entropy", "front": "Entropy", "back": "$H[p]=-\\sum_xp(x)\\log p(x)$: average surprise = minimal average code length. $0\\le H\\le\\log M$." },
+  { "id": "math.10.c3", "concept": "info.entropy", "front": "Bits versus nats", "back": "Bits use $\\log_2$, nats use $\\ln$; $1$ nat $=1.443$ bits. ML libraries use nats." },
+  { "id": "math.10.c4", "concept": "info.entropy", "front": "Entropy of a uniform distribution over $M$ states", "back": "$\\log M$, the maximum. A point mass has entropy 0." },
+  { "id": "math.10.c5", "concept": "info.entropy", "front": "The 8-state example", "back": "Probabilities $\\frac12,\\frac14,\\frac18,\\frac1{16},4\\times\\frac1{64}$: entropy 2 bits; code lengths $1,2,3,4,6,6,6,6$ give average 2 bits versus 3 for a flat code." },
+  { "id": "math.10.c6", "concept": "info.entropy", "front": "Cross-entropy", "back": "$H(p,q)=-\\sum_xp(x)\\log q(x)$: average code length when the truth is $p$ and the code is built for $q$." },
+  { "id": "math.10.c7", "concept": "info.entropy", "front": "KL divergence and its decomposition", "back": "$\\mathrm{KL}(p\\|q)=\\sum p\\log\\frac pq=H(p,q)-H(p)$." },
+  { "id": "math.10.c8", "concept": "info.entropy", "front": "Proof that $\\mathrm{KL}\\ge0$", "back": "Use $\\ln x\\le x-1$ with $x=q/p$: $-\\mathrm{KL}=\\sum p\\ln\\frac qp\\le\\sum(q-p)\\le0$. Equality iff $q=p$." },
+  { "id": "math.10.c9", "concept": "info.entropy", "front": "Why is $\\ln x\\le x-1$?", "back": "$g(x)=x-1-\\ln x$ has $g'=1-1/x$, a unique minimum at $x=1$ with $g(1)=0$." },
+  { "id": "math.10.c10", "concept": "info.entropy", "front": "Is KL symmetric?", "back": "No. $\\mathrm{KL}(p\\|q)\\ne\\mathrm{KL}(q\\|p)$ in general (e.g. $0.531$ vs $0.737$ bits for $(0.9,0.1)$ vs $(0.5,0.5)$)." },
+  { "id": "math.10.c11", "concept": "info.entropy", "front": "Cross-entropy loss with a one-hot label", "back": "$-\\ln q_c$, the negative log-probability of the true class. Over a dataset: the negative log-likelihood." },
+  { "id": "math.10.c12", "concept": "info.entropy", "front": "KL minimisation and maximum likelihood", "back": "$\\mathrm{KL}(p\\|q_\\theta)=\\text{const}-\\mathbb E_p[\\ln q_\\theta]\\approx\\text{const}+\\mathrm{NLL}/N$, so both have the same minimiser." },
+  { "id": "math.10.c13", "concept": "info.entropy", "front": "Mutual information", "back": "$I[x,y]=\\mathrm{KL}(p(x,y)\\|p(x)p(y))=H[x]-H[x|y]\\ge0$; zero iff independent." },
+  { "id": "math.10.c14", "concept": "info.entropy", "front": "Perplexity", "back": "$\\exp$ of the average cross-entropy (nats). Uniform over $K$ options gives exactly $K$." },
+  { "id": "math.10.c15", "concept": "info.entropy", "front": "Stable softmax cross-entropy", "back": "Subtract $\\max z$ from the logits, then $-(z_c-\\log\\sum e^{z_k})$ (log-sum-exp); never take $\\log$ of a probability that may be 0." }
+]

@@ -1,0 +1,16 @@
+[
+  { "id": "rl.03.c1", "concept": "rl.mc", "front": "Monte Carlo value estimate", "back": "Average the returns observed after visits to $s$: $V(s)\\leftarrow V(s)+\\alpha(G_t-V(s))$." },
+  { "id": "rl.03.c2", "concept": "rl.mc", "front": "First-visit vs every-visit MC", "back": "First-visit uses only the first visit to $s$ per episode; every-visit uses all visits. Both converge to $V^\\pi$." },
+  { "id": "rl.03.c3", "concept": "rl.mc", "front": "Limits of Monte Carlo", "back": "Needs terminating episodes, updates only at the end, high variance, and states that are never visited are never learned." },
+  { "id": "rl.03.c4", "concept": "rl.td", "front": "TD(0) update", "back": "$V(s_t)\\leftarrow V(s_t)+\\alpha[r_{t+1}+\\gamma V(s_{t+1})-V(s_t)]$." },
+  { "id": "rl.03.c5", "concept": "rl.td", "front": "TD error $\\delta_t$", "back": "$r_{t+1}+\\gamma V(s_{t+1})-V(s_t)$: zero in expectation at the true value function." },
+  { "id": "rl.03.c6", "concept": "rl.td", "front": "Bootstrapping", "back": "Updating an estimate using another estimate (the next state's value) rather than a complete observed return." },
+  { "id": "rl.03.c7", "concept": "rl.td", "front": "Bias-variance of MC vs TD", "back": "MC target: unbiased, high variance. TD target: lower variance, biased by the current estimate (bias shrinks as learning proceeds)." },
+  { "id": "rl.03.c8", "concept": "rl.td", "front": "MC error as TD errors", "back": "With $V$ fixed, $G_t-V(s_t)=\\sum_{k\\ge0}\\gamma^k\\delta_{t+k}$." },
+  { "id": "rl.03.c9", "concept": "rl.td", "front": "SARSA update", "back": "$Q(s,a)\\leftarrow Q+\\alpha[r+\\gamma Q(s',a')-Q(s,a)]$ with $a'$ the action actually taken; on-policy." },
+  { "id": "rl.03.c10", "concept": "rl.td", "front": "Q-learning update", "back": "$Q(s,a)\\leftarrow Q+\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]$; off-policy, learns $Q^*$." },
+  { "id": "rl.03.c11", "concept": "rl.td", "front": "On-policy vs off-policy", "back": "On-policy: learn the value of the policy that generates the data. Off-policy: learn about a target policy (e.g. greedy) from data of a different behaviour policy." },
+  { "id": "rl.03.c12", "concept": "rl.td", "front": "Cliff walking result", "back": "Q-learning learns the shortest path along the cliff edge but falls during exploration; SARSA learns a safer longer path and earns more online reward." },
+  { "id": "rl.03.c13", "concept": "rl.td", "front": "What to do at a terminal transition", "back": "Drop the bootstrap term: target $=r$ (the value of a terminal state is 0)." },
+  { "id": "rl.03.c14", "concept": "rl.td", "front": "Robbins-Monro step sizes", "back": "$\\sum\\alpha_t=\\infty$ and $\\sum\\alpha_t^2<\\infty$ guarantee convergence of tabular TD; constant small $\\alpha$ is used in practice." }
+]

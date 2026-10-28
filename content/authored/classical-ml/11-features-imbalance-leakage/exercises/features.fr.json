@@ -1,0 +1,10 @@
+{
+  "id": "cml.11.ex1",
+  "title": "Transformations de variables ajustées sur le découpage d'entraînement uniquement",
+  "prompt": "Implémente une minuscule boîte à outils de prétraitement. Chaque objet a `fit` (apprendre les statistiques à partir des données d'**entraînement** uniquement) et `transform` (les appliquer à n'importe quelles données), de sorte que les données de test n'influencent jamais les statistiques.\n\n- `Standardizer` : `fit(X)` stocke la moyenne et l'écart-type par colonne (écart-type de population, un écart-type nul devient 1) ; `transform(X)` renvoie $(X-\\mu)/\\sigma$.\n- `OneHot` : `fit(values)` apprend la liste triée des catégories ; `transform(values)` renvoie une matrice flottante 0/1 de forme `(n, n_categories)`. Les catégories jamais vues donnent une ligne de zéros.\n- `MedianImputer` : `fit(X)` stocke les médianes de colonnes en ignorant les NaN ; `transform(X)` renvoie la matrice avec les NaN remplacés par la médiane d'entraînement, suivie d'une colonne indicatrice par colonne d'origine (1 si elle manquait).\n- `cross(a, b)` : liste de chaînes `\"a_i|b_i\"` (un croisement de variables de deux variables catégorielles).\n- `hash_index(s, n_buckets)` : astuce du hachage déterministe, $\\left(\\sum_i \\mathrm{ord}(s_i)\\,31^{\\,i}\\right) \\bmod n_{\\text{buckets}}$ en utilisant des entiers Python.",
+  "hints": [
+    "Standardizer.fit stocke la moyenne et l'écart-type calculés sur le tableau d'ENTRAÎNEMENT uniquement ; transform les applique à n'importe quel tableau. Remplace un écart-type nul par 1 pour que les colonnes constantes ne divisent pas par zéro.",
+    "OneHot.fit stocke les catégories uniques triées des valeurs d'entraînement. transform construit une matrice 0/1 (n, n_categories) ; une catégorie non vue dans fit donne une ligne de zéros.",
+    "MedianImputer.fit : médiane de chaque colonne en ignorant les NaN (np.nanmedian). transform : remplace les NaN par cette médiane d'entraînement et ajoute une colonne 0/1 par variable disant « manquait ». cross(a, b) : joins les deux étiquettes avec '|'."
+  ]
+}

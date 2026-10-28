@@ -1,0 +1,133 @@
+[
+ {
+  "id": "app.03.q1",
+  "concept": "app.context",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which of these must be included when budgeting the context window?",
+  "options": [
+   "only the prompt text",
+   "the input parts and the headroom reserved for the model's output",
+   "only the retrieved documents",
+   "only the conversation history"
+  ],
+  "answer": 1,
+  "explanation": "The window holds input plus the generated output, so output headroom is part of the sum."
+ },
+ {
+  "id": "app.03.q2",
+  "concept": "app.context",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Components: system 500, tools 8,000, retrieved docs 4,000, history 6,000, query 200, output budget 4,000 tokens. What percentage of a 128,000-token window is used (nearest tenth)?",
+  "options": [],
+  "answer": {
+   "value": 17.7,
+   "tol": 0.1
+  },
+  "explanation": "The total is 22,700 and 22,700/128,000 = 0.1773, i.e. 17.7 percent."
+ },
+ {
+  "id": "app.03.q3",
+  "concept": "app.context",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Where should the most relevant retrieved evidence and the current question go, given lost-in-the-middle effects?",
+  "options": [
+   "near the end, close to the generation point",
+   "in the middle of the context",
+   "anywhere, position is irrelevant",
+   "at the very start, before the system prompt"
+  ],
+  "answer": 0,
+  "explanation": "Many models use the beginning and end more reliably than the middle; the question and key evidence go last. Verify on your model."
+ },
+ {
+  "id": "app.03.q4",
+  "concept": "app.context",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which compaction strategy risks silently dropping early facts with no trace?",
+  "options": [
+   "structured memory with a schema",
+   "retrieval from an external store",
+   "keeping a pointer to the source",
+   "truncating the oldest turns"
+  ],
+  "answer": 3,
+  "explanation": "Plain truncation discards content without any summary or pointer."
+ },
+ {
+  "id": "app.03.q5",
+  "concept": "app.prompt-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A provider caches prompt PREFIXES. You put a timestamp at the top of the system prompt. What happens?",
+  "options": [
+   "nothing, caches ignore timestamps",
+   "only the timestamp is re-read",
+   "the first differing token ends the match, so nearly all tokens miss",
+   "the cache stores both versions for free"
+  ],
+  "answer": 2,
+  "explanation": "The match breaks at the first differing token, so everything after the timestamp is a miss."
+ },
+ {
+  "id": "app.03.q6",
+  "concept": "app.prompt-cache",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Write multiplier 1.25, read multiplier 0.1. Average cost per use relative to no caching for 1 write + 10 reads (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.205,
+   "tol": 0.0006
+  },
+  "explanation": "(1.25 + 0.1*10)/(10+1) = 2.25/11 = 0.2045."
+ },
+ {
+  "id": "app.03.q7",
+  "concept": "app.prompt-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "With a 2x write premium and half-price reads, how many reads are needed before caching beats no caching?",
+  "options": [
+   "1",
+   "3",
+   "2",
+   "caching never pays"
+  ],
+  "answer": 1,
+  "explanation": "(2 + 0.5n)/(n+1) < 1 gives n > 2, so 3 reads."
+ },
+ {
+  "id": "app.03.q8",
+  "concept": "app.prompt-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In the 10-turn chat example the hit rate is 49,500 / 59,500. What does the 49,500 represent?",
+  "options": [
+   "tokens read from the cache over turns 2 to 10",
+   "tokens written to the cache",
+   "the output tokens",
+   "tokens in the last turn"
+  ],
+  "answer": 0,
+  "explanation": "Each later turn re-reads the previous prefix; the read tokens sum to 49,500."
+ },
+ {
+  "id": "app.03.q9",
+  "concept": "app.context",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "When is long context preferable to retrieval?",
+  "options": [
+   "for huge, rapidly changing corpora",
+   "never",
+   "only when the model is small",
+   "for a bounded known document set queried many times, ideally with caching"
+  ],
+  "answer": 3,
+  "explanation": "A bounded, stable document set can be placed in context once and cached; large changing corpora need retrieval."
+ }
+]

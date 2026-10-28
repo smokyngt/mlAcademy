@@ -1,0 +1,91 @@
+[
+ {
+  "id": "cml.16.q1",
+  "prompt": "Quelle famille entraîne un modèle sur des sous-ensembles candidats pour les noter ?",
+  "options": [
+   "Les méthodes wrapper",
+   "Les méthodes filtre",
+   "Les méthodes intégrées",
+   "Aucune d'entre elles"
+  ],
+  "explanation": "Les wrappers (sélection ascendante, RFE) évaluent des sous-ensembles en ajustant des modèles, ce qui est précis mais coûteux."
+ },
+ {
+  "id": "cml.16.q2",
+  "prompt": "Une variable $x$ est symétrique autour de 0 et $y=x^2$. La corrélation de Pearson est d'environ 0 mais l'information mutuelle est grande. Qu'est-ce que cela montre ?",
+  "options": [
+   "La MI est défectueuse",
+   "x n'est pas pertinente",
+   "La MI détecte une dépendance non linéaire que la corrélation rate",
+   "Les données sont trop petites"
+  ],
+  "explanation": "La corrélation ne mesure que l'association linéaire ; la MI mesure toute dépendance statistique."
+ },
+ {
+  "id": "cml.16.q3",
+  "prompt": "Pourquoi la pénalité L1 produit-elle des zéros exacts alors que L2 non ?",
+  "options": [
+   "L1 n'est pas convexe",
+   "La boule L1 a des coins sur les axes, et la mise à jour par seuillage doux tronque les petits coefficients exactement à 0",
+   "L2 ignore les grands poids",
+   "L1 utilise moins de variables par définition"
+  ],
+  "explanation": "$w_j=S(\\rho_j,\\lambda)/z_j$ est nul dès que $|\\rho_j|\\le\\lambda$ ; la mise à jour ridge $\\rho_j/(z_j+\\lambda)$ n'est qu'un redimensionnement."
+ },
+ {
+  "id": "cml.16.q4",
+  "prompt": "Calcule le seuillage doux $S(\\rho,\\lambda)$ pour $\\rho=-3$ et $\\lambda=1$.",
+  "options": [],
+  "explanation": "$\\operatorname{sign}(-3)\\max(3-1,0)=-2$."
+ },
+ {
+  "id": "cml.16.q5",
+  "prompt": "Avec des colonnes standardisées, $n=4$, $X_{:1}^\\top y=6$ et $X_{:2}^\\top y=-10$ (les autres colonnes plus petites en valeur absolue). Que vaut $\\lambda_{\\max}$ pour l'objectif $\\frac1{2n}\\|y-Xw\\|^2+\\lambda\\|w\\|_1$ ?",
+  "options": [],
+  "explanation": "$\\lambda_{\\max}=\\max_j|X_{:j}^\\top y|/n=10/4=2.5$."
+ },
+ {
+  "id": "cml.16.q6",
+  "prompt": "Quand $\\lambda$ diminue de $\\lambda_{\\max}$ à 0 le long du chemin...",
+  "options": [
+   "Toutes les variables entrent en même temps",
+   "Les coefficients croissent sans borne",
+   "La solution devient le vecteur nul",
+   "Les variables entrent une à une, pour finir près de la solution des moindres carrés"
+  ],
+  "explanation": "À $\\lambda_{\\max}$ le modèle est vide ; des pénalités plus petites permettent à davantage de coefficients de devenir non nuls."
+ },
+ {
+  "id": "cml.16.q7",
+  "prompt": "On compare les coefficients du lasso sur les variables sélectionnées aux moindres carrés ordinaires sur les mêmes variables. Typiquement, ils sont...",
+  "options": [
+   "Rétrécis (biaisés) vers zéro",
+   "Plus grands en magnitude",
+   "Identiques",
+   "Aléatoires"
+  ],
+  "explanation": "La pénalité soustrait $\\lambda$ de chaque corrélation, donc la sélection coûte du biais."
+ },
+ {
+  "id": "cml.16.q8",
+  "prompt": "Deux variables informatives fortement corrélées sont données au lasso. Quel est le comportement typique ?",
+  "options": [
+   "Les deux reçoivent toujours le même poids",
+   "Les deux sont toujours écartées",
+   "L'une peut être choisie arbitrairement et le choix peut changer d'un sous-échantillon à l'autre",
+   "L'algorithme ne converge pas"
+  ],
+  "explanation": "La pénalité peut être satisfaite aussi bien par l'une ou l'autre ; cette instabilité est ce que mesure la sélection par stabilité."
+ },
+ {
+  "id": "cml.16.q9",
+  "prompt": "Tu fais la sélection de variables sur tout le jeu de données puis tu valides le modèle par validation croisée sur les colonnes sélectionnées. Le problème est...",
+  "options": [
+   "Aucun ; la sélection est non supervisée",
+   "Une fuite : la sélection a utilisé les étiquettes mises de côté, gonflant le score de validation croisée",
+   "Le modèle sous-apprendra",
+   "La validation croisée ne peut pas être utilisée avec moins de colonnes"
+  ],
+  "explanation": "Une sélection qui utilise $y$ est une étape ajustée et doit être répétée à l'intérieur de chaque pli d'entraînement."
+ }
+]

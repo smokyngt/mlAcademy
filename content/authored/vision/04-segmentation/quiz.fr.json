@@ -1,0 +1,81 @@
+[
+ {
+  "id": "vis.04.q1",
+  "prompt": "Deux voitures se touchent sur une photo. Quelle tâche leur donne des masques séparés ?",
+  "options": [
+   "La segmentation d'instances",
+   "L'égalisation d'histogramme",
+   "La classification d'images",
+   "La segmentation sémantique"
+  ],
+  "explanation": "La segmentation sémantique étiquette des classes, donc des voitures qui se touchent fusionnent en une tache ; la segmentation d'instances donne à chaque objet son propre masque."
+ },
+ {
+  "id": "vis.04.q2",
+  "prompt": "Quel est le but des connexions de saut dans un U-Net ?",
+  "options": [
+   "Réduire le nombre de classes",
+   "Normaliser le lot",
+   "Donner au décodeur les caractéristiques haute résolution de l'encodeur pour qu'il localise précisément les contours",
+   "Remplacer la fonction de perte"
+  ],
+  "explanation": "Le goulot d'étranglement a perdu le détail spatial fin ; les sauts le restituent à chaque résolution."
+ },
+ {
+  "id": "vis.04.q3",
+  "prompt": "Un U-Net à 4 étages de sous-échantillonnage prend une entrée $256\\times256$. Quelle est la longueur du côté spatial au goulot d'étranglement ?",
+  "options": [],
+  "explanation": "$256/2^4=16$."
+ },
+ {
+  "id": "vis.04.q4",
+  "prompt": "Un masque prédit a 4 pixels, la vérité terrain 4 pixels, et ils en partagent 3. Quel est le score de Dice ?",
+  "options": [],
+  "explanation": "$2\\cdot3/(4+4)=0.75$ (l'IoU serait $3/5=0.6$)."
+ },
+ {
+  "id": "vis.04.q5",
+  "prompt": "Si un masque a une IoU $=0.5$, son score de Dice est...",
+  "options": [
+   "0.5",
+   "0.75",
+   "2/3",
+   "1"
+  ],
+  "explanation": "$2\\cdot0.5/(1+0.5)=2/3$."
+ },
+ {
+  "id": "vis.04.q6",
+  "prompt": "Pourquoi la perte Dice est-elle préférée à la seule entropie croisée par pixel quand le premier plan représente 1 % des pixels ?",
+  "options": [
+   "Elle mesure le recouvrement, donc l'énorme nombre de pixels d'arrière-plan ne domine pas",
+   "Elle n'a pas besoin de gradients",
+   "Elle est moins chère à calculer",
+   "Elle converge toujours plus vite"
+  ],
+  "explanation": "Le numérateur et le dénominateur sont des sommes sur toute l'image ; une minuscule région compte autant qu'une grande."
+ },
+ {
+  "id": "vis.04.q7",
+  "prompt": "Matrice de confusion (lignes = vraie classe) $[[1,0,1],[1,2,0],[0,0,1]]$. Quelle est l'IoU de la classe 1 (arrondie à 3 décimales) ?",
+  "options": [],
+  "explanation": "Diagonale 2 ; somme de la ligne 3 ; somme de la colonne 2 ; IoU $=2/(3+2-2)=2/3$."
+ },
+ {
+  "id": "vis.04.q8",
+  "prompt": "Quel problème RoIAlign corrige-t-il par rapport à RoIPool ?",
+  "options": [
+   "Une NMS lente",
+   "L'arrondi des coordonnées de boîte à des entiers, qui désaligne les caractéristiques et les masques",
+   "Le déséquilibre des classes",
+   "Trop de propositions"
+  ],
+  "explanation": "RoIAlign échantillonne à des positions réelles exactes avec une interpolation bilinéaire, sans quantification."
+ },
+ {
+  "id": "vis.04.q9",
+  "prompt": "Sur la carte de caractéristiques $f(y,x)=5y+x$, que renvoie l'interpolation bilinéaire en $(y,x)=(1.5,2.25)$ ?",
+  "options": [],
+  "explanation": "L'interpolation bilinéaire reproduit exactement les fonctions linéaires : $5\\cdot1.5+2.25=9.75$."
+ }
+]

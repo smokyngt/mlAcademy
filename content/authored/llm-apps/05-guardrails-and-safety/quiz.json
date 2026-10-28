@@ -1,0 +1,137 @@
+[
+ {
+  "id": "app.05.q1",
+  "concept": "app.guardrails",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What is the root cause that makes prompt injection possible?",
+  "options": [
+   "models are too small",
+   "instructions and data are both just text in the same context window",
+   "JSON is ambiguous",
+   "API keys leak"
+  ],
+  "answer": 1,
+  "explanation": "The model cannot reliably tell your instructions from instructions embedded in data it reads."
+ },
+ {
+  "id": "app.05.q2",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A web page the agent summarises contains hidden text telling it to email the user's files elsewhere. This is...",
+  "options": [
+   "indirect injection",
+   "a jailbreak",
+   "direct injection",
+   "a rate-limit failure"
+  ],
+  "answer": 0,
+  "explanation": "The malicious instruction arrives through content the model processes, not through the user's message."
+ },
+ {
+  "id": "app.05.q3",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which control still helps when the injection filter is bypassed?",
+  "options": [
+   "a longer system prompt",
+   "a lower temperature",
+   "more few-shot examples",
+   "least-privilege tools with human approval for irreversible actions"
+  ],
+  "answer": 3,
+  "explanation": "Limit what a compromised model can do; do not rely on a single filter."
+ },
+ {
+  "id": "app.05.q4",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Is 4111 1111 1111 1112 flagged as a card number by a regex + Luhn detector?",
+  "options": [
+   "yes, it has 16 digits",
+   "only if it contains a dash",
+   "no, it fails the Luhn checksum",
+   "only on output"
+  ],
+  "answer": 2,
+  "explanation": "The valid test number ends in ...1111; changing one digit breaks the checksum, so the validator rejects it."
+ },
+ {
+  "id": "app.05.q5",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why does Luhn detect every single-digit substitution?",
+  "options": [
+   "it checks the length",
+   "the doubling map is a permutation of 0-9, so a change alters the sum by a non-zero amount below 10 in absolute value",
+   "it uses a secret key",
+   "it compares with a database"
+  ],
+  "answer": 1,
+  "explanation": "Doubling-with-subtraction permutes the digits, so one different digit shifts the sum by 1-9 in absolute value, never a multiple of 10."
+ },
+ {
+  "id": "app.05.q6",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Injection filter at threshold 3 on the lesson's set: 1 of 8 benign blocked, 5 of 8 attacks missed. Raising the threshold to 4 will...",
+  "options": [
+   "lower the false-positive rate and raise the false-negative rate",
+   "lower both",
+   "raise both",
+   "change nothing"
+  ],
+  "answer": 0,
+  "explanation": "A stricter bar blocks fewer legitimate prompts (1/8 down to 0) and lets more attacks through (5/8 up to 6/8)."
+ },
+ {
+  "id": "app.05.q7",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Token bucket: capacity 3, refill 1 token/s, starts full. Three requests at t=0 pass. A request at t=1.5 (after one at t=1 that passed) is...",
+  "options": [
+   "admitted",
+   "admitted with a delay",
+   "rejected forever",
+   "rejected, only half a token has refilled"
+  ],
+  "answer": 3,
+  "explanation": "After the admission at t=1 the bucket is 0; by t=1.5 it holds 0.5 token, less than the cost 1."
+ },
+ {
+  "id": "app.05.q8",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What is the purpose of a fallback chain?",
+  "options": [
+   "to raise accuracy",
+   "to hide errors from logs",
+   "to keep the service answering when a model or layer fails, and to signal trouble through the fallback rate",
+   "to increase latency"
+  ],
+  "answer": 2,
+  "explanation": "Primary, backup, cached or canned reply, polite error; track which tier answered."
+ },
+ {
+  "id": "app.05.q9",
+  "concept": "app.guardrails",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "An IBAN passes the mod-97 check. What can you conclude?",
+  "options": [
+   "the account exists",
+   "it is well-formed (random strings pass with probability about 1/97)",
+   "the owner is verified",
+   "nothing at all"
+  ],
+  "answer": 1,
+  "explanation": "Checksums prove structure, not existence or ownership."
+ }
+]

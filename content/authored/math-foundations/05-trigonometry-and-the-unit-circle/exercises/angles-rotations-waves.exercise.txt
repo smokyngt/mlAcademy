@@ -1,0 +1,89 @@
+#@@ meta
+{"title": "Angles, rotations and waves in code", "difficulty": 2, "concepts": ["mf.trig"], "hints": ["deg2rad(d) = d * pi / 180. polar: r = np.hypot(x, y), theta = np.arctan2(y, x).", "rotate(points, theta): build R = [[c, -s], [s, c]] and compute points @ R.T for an (n, 2) array.", "wave(t, A, f, phi) = A * np.sin(2*np.pi*f*t + phi).", "fourier_amplitude(x, k): t = np.arange(N); c = x @ cos(2 pi k t / N); s = x @ sin(2 pi k t / N); return 2/N * sqrt(c**2 + s**2).", "pos_encoding: index 2i gets sin(pos / 10000**(2i/d)), index 2i+1 gets cos(same angle)."], "id": "mf.05.ex1", "runtime": "pyodide"}
+#@@ prompt
+Work with angles, rotations and waves.
+
+- `deg2rad(d)`: convert degrees to radians.
+- `polar(x, y)`: return `(r, theta)` with `theta` in $(-\pi,\pi]$ (use `arctan2`).
+- `rotate(points, theta)`: rotate an `(n, 2)` array of points counter-clockwise by `theta` radians using the rotation matrix; return shape `(n, 2)`.
+- `wave(t, A, f, phi)`: $A\sin(2\pi f t+\varphi)$ for an array `t`.
+- `fourier_amplitude(x, k)`: for `N` equally spaced samples `x[n]` covering one unit of time, the amplitude of the frequency-`k` sine/cosine content: $\frac2N\sqrt{(\sum x_n\cos\frac{2\pi kn}N)^2+(\sum x_n\sin\frac{2\pi kn}N)^2}$.
+- `pos_encoding(pos, d)`: length-`d` vector (even `d`) with entry `2i` equal to $\sin(pos/10000^{2i/d})$ and entry `2i+1` equal to the cosine of the same angle.
+#@@ starter
+import numpy as np
+
+def deg2rad(d):
+    raise NotImplementedError
+
+def polar(x, y):
+    raise NotImplementedError
+
+def rotate(points, theta):
+    raise NotImplementedError
+
+def wave(t, A, f, phi):
+    raise NotImplementedError
+
+def fourier_amplitude(x, k):
+    raise NotImplementedError
+
+def pos_encoding(pos, d):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("180 degrees is pi", lambda: abs(deg2rad(180) - np.pi) < 1e-12)
+check("90 degrees is pi/2", lambda: abs(deg2rad(90) - np.pi / 2) < 1e-12)
+r, th = polar(3, 4)
+check("polar(3,4) radius is 5", lambda: abs(r - 5) < 1e-12)
+check("polar(3,4) angle", lambda: abs(th - 0.9272952180016122) < 1e-12)
+check("polar(-1,-1) angle is -3pi/4", lambda: abs(polar(-1, -1)[1] - (-3 * np.pi / 4)) < 1e-12)
+P = np.array([[1., 0.], [0., 2.]])
+Q = rotate(P, np.pi / 2)
+check("rotate keeps shape", lambda: Q.shape == (2, 2))
+check("rotate (1,0) by 90 degrees gives (0,1)", lambda: np.allclose(Q[0], [0, 1], atol=1e-12))
+check("rotate (0,2) by 90 degrees gives (-2,0)", lambda: np.allclose(Q[1], [-2, 0], atol=1e-12))
+check("rotation preserves lengths", lambda: np.allclose(np.linalg.norm(rotate(P, 0.7), axis=1), [1, 2]))
+check("two rotations add their angles", lambda: np.allclose(rotate(rotate(P, 0.3), 0.4), rotate(P, 0.7)))
+t = np.linspace(0, 1, 5)
+check("wave with f=1 at t=0.25 is the amplitude", lambda: abs(wave(t, 3.0, 1.0, 0.0)[1] - 3.0) < 1e-12)
+check("wave has period 1/f", lambda: np.allclose(wave(t, 1.0, 2.0, 0.3), wave(t + 0.5, 1.0, 2.0, 0.3)))
+N = 256
+tt = np.arange(N) / N
+x = 1.0 * np.sin(2 * np.pi * 5 * tt) + 0.5 * np.sin(2 * np.pi * 3 * tt)
+check("amplitude at frequency 5 is 1", lambda: abs(fourier_amplitude(x, 5) - 1.0) < 1e-9)
+check("amplitude at frequency 3 is 0.5", lambda: abs(fourier_amplitude(x, 3) - 0.5) < 1e-9)
+check("amplitude at frequency 4 is 0", lambda: abs(fourier_amplitude(x, 4)) < 1e-9)
+pe0 = pos_encoding(0, 4)
+check("position 0 encoding is [0,1,0,1]", lambda: np.allclose(pe0, [0, 1, 0, 1]))
+pe1 = pos_encoding(1, 4)
+check("position 1 encoding", lambda: np.allclose(pe1, [np.sin(1), np.cos(1), np.sin(0.01), np.cos(0.01)]))
+#@@ solution
+import numpy as np
+
+def deg2rad(d):
+    return d * np.pi / 180
+
+def polar(x, y):
+    return float(np.hypot(x, y)), float(np.arctan2(y, x))
+
+def rotate(points, theta):
+    c, s = np.cos(theta), np.sin(theta)
+    R = np.array([[c, -s], [s, c]])
+    return points @ R.T
+
+def wave(t, A, f, phi):
+    return A * np.sin(2 * np.pi * f * t + phi)
+
+def fourier_amplitude(x, k):
+    N = len(x)
+    n = np.arange(N)
+    ang = 2 * np.pi * k * n / N
+    return float(2 / N * np.sqrt((x @ np.cos(ang)) ** 2 + (x @ np.sin(ang)) ** 2))
+
+def pos_encoding(pos, d):
+    out = np.zeros(d)
+    for i in range(d // 2):
+        angle = pos / 10000 ** (2 * i / d)
+        out[2 * i] = np.sin(angle)
+        out[2 * i + 1] = np.cos(angle)
+    return out

@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.06.c14",
+  "concept": "calc.chain",
+  "front": "Chain rule with several paths",
+  "back": "Sum the product of local derivatives along each path."
+ },
+ {
+  "id": "f2n.06.c15",
+  "concept": "calc.jacobian",
+  "front": "Jacobian entry",
+  "back": "$(J_f)_{ij}=\\partial f_i/\\partial x_j$."
+ },
+ {
+  "id": "f2n.06.c16",
+  "concept": "calc.jacobian",
+  "front": "First-order picture with a Jacobian",
+  "back": "$f(x+\\delta)\\approx f(x)+J_f(x)\\delta$."
+ },
+ {
+  "id": "f2n.06.c17",
+  "concept": "calc.jacobian",
+  "front": "Vector-Jacobian product",
+  "back": "$\\nabla_xL=J_f^\\top g$ with $g=\\nabla_yL$."
+ },
+ {
+  "id": "f2n.06.c18",
+  "concept": "calc.jacobian",
+  "front": "Backward of $y=Wx$ w.r.t. $W$",
+  "back": "$gx^\\top$, shape of $W$."
+ },
+ {
+  "id": "f2n.06.c19",
+  "concept": "calc.jacobian",
+  "front": "Backward of $y=z+b$",
+  "back": "$\\nabla_zL=\\nabla_bL=g$ (Jacobian is $I$)."
+ },
+ {
+  "id": "f2n.06.c20",
+  "concept": "calc.jacobian",
+  "front": "Jacobian of an elementwise map",
+  "back": "Diagonal: $\\operatorname{diag}(\\phi'(z))$."
+ },
+ {
+  "id": "f2n.06.c21",
+  "concept": "calc.chain",
+  "front": "Chain rule: $y=\\sigma(wx+b)$, $dy/dw$",
+  "back": "$\\sigma'(z)\\,x$ with $z=wx+b$."
+ },
+ {
+  "id": "f2n.06.c22",
+  "concept": "calc.jacobian",
+  "front": "Why reverse order is cheap for a scalar loss",
+  "back": "One backward sweep gives the gradient for all parameters."
+ }
+]

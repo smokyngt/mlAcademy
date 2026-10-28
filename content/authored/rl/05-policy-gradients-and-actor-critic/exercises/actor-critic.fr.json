@@ -1,0 +1,10 @@
+{
+ "id": "rl.05.ex2",
+ "title": "REINFORCE avec référence et acteur-critique à un pas sur une chaîne",
+ "prompt": "Une chaîne de 5 états (états 0..4, l'état 4 est terminal) : l'action 1 va à droite, l'action 0 à gauche (bornée à 0), récompense 1 en atteignant l'état 4, $\\gamma=0.95$. La politique est un softmax tabulaire : `theta` a la forme `(5, 2)` ; le critique `V` a la forme `(5,)`.\n\n`softmax`, `grad_log_pi` et les boucles d'entraînement sont fournis. Implémente :\n\n- `returns_to_go(rewards, gamma)` -> liste des $G_t$.\n- `reinforce_baseline_update(theta, V, traj, gamma, lr_pi, lr_v)` : `traj` est une liste de `(s, a, r, s2, done)`. Pour chaque pas dans l'ordre, avec l'avantage $G_t-V(s_t)$, mets à jour `V[s]` et `theta[s]` sur place.\n- `a2c_update(theta, V, s, a, r, s2, done, gamma, lr_pi, lr_v)` : acteur-critique à un pas avec l'avantage $\\delta=r+\\gamma(1-d)V(s')-V(s)$ ; mets à jour sur place et renvoie $\\delta$.",
+ "hints": [
+  "returns_to_go : G_t = r_t + gamma * G_{t+1}, calculé à partir de la fin.",
+  "Les deux méthodes utilisent un avantage : adv = G_t - V[s] pour REINFORCE, adv = r + gamma*V[s2]*(1-done) - V[s] pour l'acteur-critique. Mets à jour V[s] += lr_v * adv et theta[s] += lr_pi * adv * grad_log_pi(theta[s], a).",
+  "Calcule adv une seule fois, avant de modifier V[s] ou theta[s]."
+ ]
+}

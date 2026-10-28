@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.02.q1",
+    "prompt": "Calcule $(1,2,3)\\cdot(4,5,6)$.",
+    "options": [],
+    "explanation": "$1\\cdot4+2\\cdot5+3\\cdot6=4+10+18=32$. Le résultat d'un produit scalaire est un seul nombre."
+  },
+  {
+    "id": "f2n.02.q2",
+    "prompt": "Quelle paire de vecteurs est orthogonale ?",
+    "options": ["$(1,1)$ et $(1,2)$", "$(2,3)$ et $(3,-2)$", "$(1,0)$ et $(2,0)$", "$(3,4)$ et $(4,3)$"],
+    "explanation": "$(2,3)\\cdot(3,-2)=6-6=0$. Les autres ne sont pas nuls : $(1,1)\\cdot(1,2)=3$, $(1,0)\\cdot(2,0)=2$, $(3,4)\\cdot(4,3)=24$."
+  },
+  {
+    "id": "f2n.02.q3",
+    "prompt": "$a$ et $b$ ont $\\|a\\|=2$, $\\|b\\|=5$ et l'angle entre eux est de $60^\\circ$. Que vaut $a\\cdot b$ ?",
+    "options": [],
+    "explanation": "$a\\cdot b=\\|a\\|\\|b\\|\\cos 60^\\circ=2\\cdot5\\cdot0.5=5$."
+  },
+  {
+    "id": "f2n.02.q4",
+    "prompt": "La similarité cosinus de $(1,1)$ et $(100,100)$ vaut...",
+    "options": ["0", "environ 0,01", "1", "indéfinie"],
+    "explanation": "Les vecteurs pointent dans la même direction, donc $\\cos\\theta=1$. La similarité cosinus ignore la longueur ; la distance euclidienne entre eux est grande."
+  },
+  {
+    "id": "f2n.02.q5",
+    "prompt": "En NumPy, `a * b` pour deux tableaux de longueur $n$ renvoie...",
+    "options": ["le produit scalaire (un scalaire)", "un tableau de longueur $n$ avec les produits terme à terme", "un produit extérieur $n\\times n$", "une erreur sauf si $n=1$"],
+    "explanation": "`*` est un produit terme à terme (de Hadamard). Le produit scalaire est `a @ b` ou `np.sum(a*b)` ; le produit extérieur est `np.outer(a, b)`."
+  },
+  {
+    "id": "f2n.02.q6",
+    "prompt": "La projection de $a$ sur $b$ est $\\lambda b$ avec $\\lambda=$ ...",
+    "options": ["$a\\cdot b$", "$(a\\cdot b)/(a\\cdot a)$", "$(a\\cdot b)/(b\\cdot b)$", "$\\|a\\|/\\|b\\|$"],
+    "explanation": "On veut $(a-\\lambda b)\\cdot b=0$, donc $a\\cdot b=\\lambda\\, b\\cdot b$ et $\\lambda=(a\\cdot b)/(b\\cdot b)$."
+  }
+]

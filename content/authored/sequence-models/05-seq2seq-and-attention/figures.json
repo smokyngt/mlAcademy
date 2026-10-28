@@ -1,0 +1,123 @@
+[
+  {
+    "id": "enc-dec",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The encoder-decoder (Sutskever, Cho). The encoder compresses the source into a state; the decoder starts from it and, during training, receives the GOLD previous token (teacher forcing); at inference it receives its own previous output.",
+      "fr": "L'encodeur-décodeur (Sutskever, Cho). L'encodeur compresse la source en un état ; le décodeur part de cet état et, à l'entraînement, reçoit le jeton précédent DE RÉFÉRENCE (teacher forcing) ; à l'inférence il reçoit sa propre sortie précédente."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph ENC[\"encoder (RNN / LSTM / GRU)\"]\n    direction LR\n    x1[\"x_1\"] --> e1[\"h_1\"] --> e2[\"h_2\"] --> e3[\"h_Ts (H,)\"]\n    x2[\"x_2\"] --> e2\n    x3[\"x_Ts\"] --> e3\n  end\n  e3 ==>|\"initial state\"| d1\n  subgraph DEC[\"decoder\"]\n    direction LR\n    s0[\"‹start›\"] --> d1[\"s_1\"] --> p1[\"softmax (|V|,) → y_1\"]\n    p1 -.->|\"train: gold y_1 / test: own y_1\"| d2[\"s_2\"] --> p2[\"softmax → y_2\"]\n    p2 -.-> d3[\"... until ‹end›\"]\n  end\n  p1 --> LS[\"loss = -Σ_k log P(y_k | x, y_<k)\"]\n  p2 --> LS",
+      "fr": "flowchart LR\n  subgraph ENC[\"encodeur (RNN / LSTM / GRU)\"]\n    direction LR\n    x1[\"x_1\"] --> e1[\"h_1\"] --> e2[\"h_2\"] --> e3[\"h_Ts (H,)\"]\n    x2[\"x_2\"] --> e2\n    x3[\"x_Ts\"] --> e3\n  end\n  e3 ==>|\"état initial\"| d1\n  subgraph DEC[\"décodeur\"]\n    direction LR\n    s0[\"‹début›\"] --> d1[\"s_1\"] --> p1[\"softmax (|V|,) → y_1\"]\n    p1 -.->|\"entraînement : y_1 de référence / test : son propre y_1\"| d2[\"s_2\"] --> p2[\"softmax → y_2\"]\n    p2 -.-> d3[\"... jusqu'à ‹fin›\"]\n  end\n  p1 --> LS[\"perte = -Σ_k log P(y_k | x, y_<k)\"]\n  p2 --> LS"
+    }
+  },
+  {
+    "id": "beam",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Beam search with width b: keep the b best partial hypotheses by summed log-probability, extend each with candidate next words, keep the b best of the b x b candidates; b = 1 is greedy decoding.",
+      "fr": "Recherche en faisceau de largeur b : garder les b meilleures hypothèses partielles selon la somme des log-probabilités, prolonger chacune par des mots suivants candidats, garder les b meilleures parmi les b x b candidats ; b = 1 est le décodage glouton."
+    },
+    "code": {
+      "en": "flowchart TB\n  S[\"beam = { ‹start› }\"] --> EXP[\"extend every hypothesis with its b best next words\\nscore = old score + log P(word | prefix)\"]\n  EXP --> CAND[\"b x b candidates\"]\n  CAND --> TOP[\"keep the b highest scores\"]\n  TOP --> FIN{\"ends with ‹end› ?\"}\n  FIN -->|\"yes\"| DONE[\"move to finished list\"]\n  FIN -->|\"no\"| EXP\n  DONE --> BEST[\"return best finished hypothesis\\n(heuristic, no optimality guarantee)\"]",
+      "fr": "flowchart TB\n  S[\"faisceau = { ‹début› }\"] --> EXP[\"prolonger chaque hypothèse par ses b meilleurs mots suivants\\nscore = ancien score + log P(mot | préfixe)\"]\n  EXP --> CAND[\"b x b candidats\"]\n  CAND --> TOP[\"garder les b meilleurs scores\"]\n  TOP --> FIN{\"se termine par ‹fin› ?\"}\n  FIN -->|\"oui\"| DONE[\"déplacer vers la liste des terminées\"]\n  FIN -->|\"non\"| EXP\n  DONE --> BEST[\"renvoyer la meilleure hypothèse terminée\\n(heuristique, sans garantie d'optimalité)\"]"
+    }
+  },
+  {
+    "id": "bottleneck",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The bottleneck: with a single context vector c = h_Ts the decoder sees the whole source through (H,) numbers at every step, and late target words send gradients back along the long recurrent chain. Attention gives each step its own direct line to every source state.",
+      "fr": "Le goulot d'étranglement : avec un unique vecteur de contexte c = h_Ts, le décodeur voit toute la source à travers (H,) nombres à chaque pas, et les mots cibles tardifs renvoient leurs gradients le long de la longue chaîne récurrente. L'attention donne à chaque pas sa propre ligne directe vers chaque état source."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph PLAIN[\"no attention\"]\n    direction LR\n    pe[\"h_1 ... h_Ts\"] -->|\"only the last\"| pc[\"c = h_Ts (H,)\"]\n    pc --> pd1[\"s_1\"]\n    pc --> pd2[\"s_2\"]\n    pc --> pd3[\"s_Tt\"]\n  end\n  subgraph ATT[\"with attention\"]\n    direction LR\n    ae[\"h_1 ... h_Ts (Ts, H)\"] -->|\"weights α_t\"| ac1[\"c_1\"]\n    ae --> ac2[\"c_2\"]\n    ae --> ac3[\"c_Tt\"]\n    ac1 --> ad1[\"s_1\"]\n    ac2 --> ad2[\"s_2\"]\n    ac3 --> ad3[\"s_Tt\"]\n  end",
+      "fr": "flowchart LR\n  subgraph PLAIN[\"sans attention\"]\n    direction LR\n    pe[\"h_1 ... h_Ts\"] -->|\"seulement le dernier\"| pc[\"c = h_Ts (H,)\"]\n    pc --> pd1[\"s_1\"]\n    pc --> pd2[\"s_2\"]\n    pc --> pd3[\"s_Tt\"]\n  end\n  subgraph ATT[\"avec attention\"]\n    direction LR\n    ae[\"h_1 ... h_Ts (Ts, H)\"] -->|\"poids α_t\"| ac1[\"c_1\"]\n    ae --> ac2[\"c_2\"]\n    ae --> ac3[\"c_Tt\"]\n    ac1 --> ad1[\"s_1\"]\n    ac2 --> ad2[\"s_2\"]\n    ac3 --> ad3[\"s_Tt\"]\n  end"
+    }
+  },
+  {
+    "id": "bahdanau",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Bahdanau additive attention at decoder step t, with shapes: score every source state against the previous decoder state, softmax into weights, take the weighted average as the context, then decode.",
+      "fr": "L'attention additive de Bahdanau au pas t du décodeur, avec les formes : noter chaque état source par rapport à l'état précédent du décodeur, softmax en poids, prendre la moyenne pondérée comme contexte, puis décoder."
+    },
+    "code": {
+      "en": "flowchart TB\n  S[\"query s_(t-1) (d_s,)\"] --> Z[\"Z = s W_aᵀ + H U_aᵀ  (Ts, A)\"]\n  H[\"encoder states H (Ts, H)\"] --> Z\n  Z --> U[\"u = tanh(Z)  (Ts, A)\"]\n  U --> E[\"scores e = u v  (Ts,)\"]\n  E --> M[\"mask padded positions: e = -1e9\"]\n  M --> A[\"α = softmax(e)  (Ts,)  sums to 1\"]\n  A --> C[\"context c_t = α H  (H,)\"]\n  H --> C\n  C --> D[\"s_t = tanh(W_d [emb(y_(t-1)); c_t] + U_d s_(t-1) + b_d)\"]\n  D --> LG[\"logits = W_o [s_t; c_t] + b_o  (|V|,)\"]",
+      "fr": "flowchart TB\n  S[\"requête s_(t-1) (d_s,)\"] --> Z[\"Z = s W_aᵀ + H U_aᵀ  (Ts, A)\"]\n  H[\"états de l'encodeur H (Ts, H)\"] --> Z\n  Z --> U[\"u = tanh(Z)  (Ts, A)\"]\n  U --> E[\"scores e = u v  (Ts,)\"]\n  E --> M[\"masquer les positions de bourrage : e = -1e9\"]\n  M --> A[\"α = softmax(e)  (Ts,)  somme 1\"]\n  A --> C[\"contexte c_t = α H  (H,)\"]\n  H --> C\n  C --> D[\"s_t = tanh(W_d [emb(y_(t-1)); c_t] + U_d s_(t-1) + b_d)\"]\n  D --> LG[\"logits = W_o [s_t; c_t] + b_o  (|V|,)\"]"
+    }
+  },
+  {
+    "id": "attn-seq",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One decoding step with attention as a sequence of messages between the decoder, the attention block and the stored encoder states.",
+      "fr": "Un pas de décodage avec attention, sous forme de messages entre le décodeur, le bloc d'attention et les états stockés de l'encodeur."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant D as Decoder\n  participant A as Attention block\n  participant E as Encoder states H\n  D->>A: query s_(t-1)\n  A->>E: read all h_i, i = 1..Ts\n  E-->>A: H (Ts, H)\n  A->>A: e_i = v tanh(Wa s + Ua h_i), alpha = softmax(e)\n  A-->>D: context c_t = sum alpha_i h_i\n  D->>D: s_t from emb(y_(t-1)), c_t, s_(t-1)\n  D-->>D: softmax gives y_t",
+      "fr": "sequenceDiagram\n  participant D as Décodeur\n  participant A as Bloc d'attention\n  participant E as États de l'encodeur H\n  D->>A: requête s_(t-1)\n  A->>E: lire tous les h_i, i = 1..Ts\n  E-->>A: H (Ts, H)\n  A->>A: e_i = v tanh(Wa s + Ua h_i), alpha = softmax(e)\n  A-->>D: contexte c_t = somme alpha_i h_i\n  D->>D: s_t à partir de emb(y_(t-1)), c_t, s_(t-1)\n  D-->>D: le softmax donne y_t"
+    }
+  },
+  {
+    "id": "weights",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Attention weights of the worked example: the third source state ('le'), whose key fits the query best, gets 49% of the weight; the context is c = (0.6851, 0.8054).",
+      "fr": "Poids d'attention de l'exemple : le troisième état source (« le »), dont la clé correspond le mieux à la requête, reçoit 49 % du poids ; le contexte est c = (0,6851 ; 0,8054)."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Attention weights alpha over the source\"\n  x-axis [\"chat\", \"noir\", \"le\"]\n  y-axis \"alpha\" 0 --> 0.6\n  bar [0.1946, 0.3149, 0.4905]",
+      "fr": "xychart-beta\n  title \"Poids d'attention alpha sur la source\"\n  x-axis [\"chat\", \"noir\", \"le\"]\n  y-axis \"alpha\" 0 --> 0.6\n  bar [0.1946, 0.3149, 0.4905]"
+    }
+  },
+  {
+    "id": "qkv",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From Bahdanau attention to self-attention: queries, keys and values come from the same sequence through learned projections; scores QK^T/sqrt(d) are softmaxed and used to average the values.",
+      "fr": "De l'attention de Bahdanau à l'auto-attention : requêtes, clés et valeurs viennent de la même séquence via des projections apprises ; les scores QK^T/sqrt(d) passent par un softmax et servent à moyenner les valeurs."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (T, d_model)\"] --> Q[\"Q = X W_Q  (T, d)\"]\n  X --> K[\"K = X W_K  (T, d)\"]\n  X --> V[\"V = X W_V  (T, d_v)\"]\n  Q --> S[\"scores Q Kᵀ / √d  (T, T)\"]\n  K --> S\n  S --> SM[\"softmax per row  (T, T)\"]\n  SM --> O[\"Attn = softmax(...) V  (T, d_v)\"]\n  V --> O",
+      "fr": "flowchart LR\n  X[\"X (T, d_model)\"] --> Q[\"Q = X W_Q  (T, d)\"]\n  X --> K[\"K = X W_K  (T, d)\"]\n  X --> V[\"V = X W_V  (T, d_v)\"]\n  Q --> S[\"scores Q Kᵀ / √d  (T, T)\"]\n  K --> S\n  S --> SM[\"softmax par ligne  (T, T)\"]\n  SM --> O[\"Attn = softmax(...) V  (T, d_v)\"]\n  V --> O"
+    }
+  },
+  {
+    "id": "sqrt-d",
+    "after": 10,
+    "kind": "plot",
+    "caption": {
+      "en": "Why divide by sqrt(d): for unit-variance entries the dot product q·k has standard deviation sqrt(d) (blue), so large d saturates the softmax; scaling by 1/sqrt(d) restores a standard deviation of 1 (orange).",
+      "fr": "Pourquoi diviser par sqrt(d) : pour des entrées de variance 1, le produit scalaire q·k a un écart-type sqrt(d) (bleu), donc un grand d sature le softmax ; la mise à l'échelle par 1/sqrt(d) ramène l'écart-type à 1 (orange)."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        512
+      ],
+      "yDomain": [
+        0,
+        24
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "sqrt(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "color": "#d97706"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,59 @@
+#@@ meta
+{"id": "f2n.06.ex1", "title": "Backward formulas for linear, bias and ReLU", "difficulty": 3, "runtime": "pyodide", "concepts": ["calc.jacobian", "calc.chain"], "hints": ["dx = W.T @ g has shape (n,). dW = np.outer(g, x) has shape (m, n).", "ReLU: phi'(z) = 1 where z > 0 else 0, so dz = g * (z > 0).", "numerical_jacobian(f, x): column j is (f(x + h e_j) - f(x - h e_j)) / (2h) - it has shape (m, n)."]}
+#@@ prompt
+Implement:
+
+- `linear_backward(W, x, g)` returning `(dx, dW)` for $y=Wx$ given upstream gradient $g=\nabla_yL$.
+- `relu_backward(z, g)` for $y=\max(0,z)$.
+- `numerical_jacobian(f, x, h=1e-5)` returning the $m\times n$ Jacobian of a vector function by central differences.
+
+The tests check your formulas against the numerical Jacobian and against the worked example in the lesson.
+#@@ starter
+import numpy as np
+
+def linear_backward(W, x, g):
+    # return dx (shape of x) and dW (shape of W)
+    raise NotImplementedError
+
+def relu_backward(z, g):
+    raise NotImplementedError
+
+def numerical_jacobian(f, x, h=1e-5):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+W = np.array([[1., 2.], [3., 4.]]); x = np.array([1., 1.]); g = np.array([1., -1.])
+dx, dW = linear_backward(W, x, g)
+check("worked example: dx = (-2,-2)", lambda: np.allclose(dx, [-2, -2]))
+check("worked example: dW = [[1,1],[-1,-1]]", lambda: np.allclose(dW, [[1, 1], [-1, -1]]))
+rng = np.random.default_rng(3)
+W2 = rng.normal(size=(4, 3)); x2 = rng.normal(size=3); g2 = rng.normal(size=4)
+dx2, dW2 = linear_backward(W2, x2, g2)
+check("dx has shape (3,)", lambda: dx2.shape == (3,))
+check("dW has shape (4,3)", lambda: dW2.shape == (4, 3), "dW must have the shape of W")
+check("numerical_jacobian of Wx is W", lambda: np.allclose(numerical_jacobian(lambda v: W2 @ v, x2), W2, atol=1e-6))
+check("dx equals J^T g from the numerical Jacobian", lambda: np.allclose(dx2, numerical_jacobian(lambda v: W2 @ v, x2).T @ g2, atol=1e-6))
+z = np.array([-1.0, 0.5, 2.0, -0.1]); gg = np.array([1.0, 2.0, 3.0, 4.0])
+check("relu_backward masks gradients where z <= 0", lambda: np.allclose(relu_backward(z, gg), [0, 2, 3, 0]))
+relu = lambda v: np.maximum(0, v)
+check("relu_backward agrees with numerical Jacobian", lambda: np.allclose(relu_backward(z, gg), numerical_jacobian(relu, z).T @ gg, atol=1e-6))
+#@@ solution
+import numpy as np
+
+def linear_backward(W, x, g):
+    dx = W.T @ g
+    dW = np.outer(g, x)
+    return dx, dW
+
+def relu_backward(z, g):
+    return g * (z > 0)
+
+def numerical_jacobian(f, x, h=1e-5):
+    x = np.asarray(x, dtype=float)
+    m = np.asarray(f(x)).size
+    J = np.zeros((m, x.size))
+    for j in range(x.size):
+        xp = x.copy(); xm = x.copy()
+        xp[j] += h; xm[j] -= h
+        J[:, j] = (np.asarray(f(xp)) - np.asarray(f(xm))) / (2 * h)
+    return J

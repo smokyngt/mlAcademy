@@ -1,0 +1,10 @@
+{
+  "id": "cml.17.ex2",
+  "title": "Importance par permutation, dépendance partielle et valeurs de Shapley exactes",
+  "prompt": "On te donne un modèle ajusté sous la forme d'une fonction `predict(X) -> (N,)`.\n\n- `permutation_importance(predict, X, y, n_repeats, rng)` -> `(baseline_mse, importances)` ; `importances[j]` est l'augmentation moyenne de l'erreur quadratique moyenne après permutation de la colonne `j` avec `rng.permutation`, sur `n_repeats` répétitions (boucle sur les colonnes, puis sur les répétitions).\n- `partial_dependence(predict, X, j, grid)` -> prédiction moyenne pour chaque valeur de la grille de la variable `j`, toutes les autres colonnes gardant leurs valeurs observées.\n- `shapley_values(predict, x, background)` -> valeurs de Shapley exactes `phi` de forme `(d,)` pour une instance `x` avec la fonction de valeur interventionnelle `v(S) = mean(predict(B))` où `B = background` avec les colonnes de `S` remplacées par `x[S]`. Utilise `itertools.combinations` et `math.factorial`.",
+  "hints": [
+    "permutation_importance : EQM de base, puis pour chaque colonne mélange-la avec rng.permutation (n_repeats fois), moyenne (EQM mélangée - EQM de base).",
+    "partial_dependence : pour chaque valeur g de la grille, copie X, écrase la colonne j avec g, moyenne les prédictions.",
+    "shapley_values : la valeur d'une coalition S est la prédiction moyenne quand les colonnes de S sont fixées à x et que le reste vient des lignes de fond. phi_j somme sur chaque sous-ensemble S des autres variables, avec le poids |S|!(d-|S|-1)!/d!, de v(S+{j}) - v(S)."
+  ]
+}

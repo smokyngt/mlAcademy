@@ -1,0 +1,103 @@
+#@@ meta
+{"id": "aud.04.ex2", "title": "Word error rate from the edit-distance table", "difficulty": 3, "runtime": "pyodide", "concepts": ["aud.wer", "aud.asr"], "hints": ["Table d of shape (n+1, m+1): d[i,0]=i, d[0,j]=j, d[i,j] = min(d[i-1,j]+1, d[i,j-1]+1, d[i-1,j-1] + (ref[i-1] != hyp[j-1])).", "edit_ops: start at (n, m) and walk back. If the diagonal move explains d[i,j] it is a match/substitution; elif d[i,j] == d[i-1,j]+1 it is a deletion; else an insertion.", "normalize: lower-case and keep only letters, digits and spaces (remove punctuation), then split on whitespace. wer = distance / number of reference words."]}
+#@@ prompt
+Implement the standard ASR metrics with NumPy/plain Python:
+
+- `edit_distance_table(ref, hyp)` -> integer array `(len(ref)+1, len(hyp)+1)` (works on lists of words or strings of characters).
+- `edit_ops(ref, hyp)` -> `(S, D, I)` found by back-tracing the table; prefer the diagonal move first, then deletion, then insertion. Only the total `S+D+I` is unique; the tests check the split only on unambiguous cases.
+- `normalize(text)` -> list of words: lower-case, punctuation removed.
+- `wer(ref, hyp)` -> `(S + D + I) / N` on normalised word lists (`N` = number of reference words, at least 1).
+- `cer(ref, hyp)` -> the same on characters of the normalised text with spaces removed.
+- `rnnt_lattice_floats(T, U, V1)` and `ctc_matrix_floats(T, V1)` -> number of values in a transducer lattice `T x (U+1) x V1` and in a CTC probability matrix `T x V1`.
+#@@ starter
+import numpy as np
+
+def edit_distance_table(ref, hyp):
+    raise NotImplementedError
+
+def edit_ops(ref, hyp):
+    raise NotImplementedError
+
+def normalize(text):
+    raise NotImplementedError
+
+def wer(ref, hyp):
+    raise NotImplementedError
+
+def cer(ref, hyp):
+    raise NotImplementedError
+
+def rnnt_lattice_floats(T, U, V1):
+    raise NotImplementedError
+
+def ctc_matrix_floats(T, V1):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+r = "the cat sat on mat".split()
+h = "the cat on a mat".split()
+d = edit_distance_table(r, h)
+check("table shape (6, 6)", lambda: d.shape == (6, 6))
+check("table of the worked example", lambda: d.tolist() == [[0, 1, 2, 3, 4, 5], [1, 0, 1, 2, 3, 4], [2, 1, 0, 1, 2, 3], [3, 2, 1, 1, 2, 3], [4, 3, 2, 1, 2, 3], [5, 4, 3, 2, 2, 2]])
+check("distance 2 and WER 0.4", lambda: d[5, 5] == 2 and abs(wer("the cat sat on mat", "the cat on a mat") - 0.4) < 1e-12)
+check("kitten/sitting classic distance 3 on characters", lambda: edit_distance_table("kitten", "sitting")[6, 7] == 3)
+ro, ho = "please turn on the kitchen lights".split(), "please turn the kitchen light on now".split()
+check("second example: distance 4, WER 0.667", lambda: edit_distance_table(ro, ho)[6, 7] == 4 and abs(wer("please turn on the kitchen lights", "please turn the kitchen light on now") - 4 / 6) < 1e-12)
+check("S+D+I equals the distance", lambda: sum(edit_ops(ro, ho)) == 4)
+check("single substitution", lambda: edit_ops("a b c".split(), "a x c".split()) == (1, 0, 0))
+check("single deletion", lambda: edit_ops("a b c".split(), "a c".split()) == (0, 1, 0))
+check("single insertion", lambda: edit_ops("a c".split(), "a b c".split()) == (0, 0, 1))
+check("normalisation fixes the repo example: 0.2, not 0.17", lambda: abs(wer("Please turn on the lights.", "please turn on the light") - 0.2) < 1e-12)
+check("WER can exceed 1", lambda: wer("hi", "oh no what is this") == 5.0)
+check("identical sentences give 0", lambda: wer("Hello, World!", "hello world") == 0.0)
+check("empty hypothesis deletes everything", lambda: wer("a b c d", "") == 1.0)
+check("CER ignores spaces and case", lambda: abs(cer("abcd", "abxd") - 0.25) < 1e-12 and cer("A B", "ab") == 0.0)
+check("transducer lattice vs CTC matrix sizes", lambda: rnnt_lattice_floats(1500, 100, 1000) == 151500000 and ctc_matrix_floats(1500, 1000) == 1500000)
+#@@ solution
+import numpy as np
+
+def edit_distance_table(ref, hyp):
+    n, m = len(ref), len(hyp)
+    d = np.zeros((n + 1, m + 1), dtype=int)
+    d[:, 0] = np.arange(n + 1)
+    d[0, :] = np.arange(m + 1)
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            d[i, j] = min(d[i - 1, j] + 1, d[i, j - 1] + 1, d[i - 1, j - 1] + (ref[i - 1] != hyp[j - 1]))
+    return d
+
+def edit_ops(ref, hyp):
+    d = edit_distance_table(ref, hyp)
+    i, j = len(ref), len(hyp)
+    S = D = I = 0
+    while i > 0 or j > 0:
+        if i > 0 and j > 0 and d[i, j] == d[i - 1, j - 1] + (ref[i - 1] != hyp[j - 1]):
+            S += int(ref[i - 1] != hyp[j - 1])
+            i -= 1
+            j -= 1
+        elif i > 0 and d[i, j] == d[i - 1, j] + 1:
+            D += 1
+            i -= 1
+        else:
+            I += 1
+            j -= 1
+    return S, D, I
+
+def normalize(text):
+    keep = "".join(ch if (ch.isalnum() or ch.isspace()) else " " for ch in text.lower())
+    return keep.split()
+
+def wer(ref, hyp):
+    r, h = normalize(ref), normalize(hyp)
+    return float(edit_distance_table(r, h)[len(r), len(h)] / max(1, len(r)))
+
+def cer(ref, hyp):
+    r = "".join(normalize(ref))
+    h = "".join(normalize(hyp))
+    return float(edit_distance_table(r, h)[len(r), len(h)] / max(1, len(r)))
+
+def rnnt_lattice_floats(T, U, V1):
+    return T * (U + 1) * V1
+
+def ctc_matrix_floats(T, V1):
+    return T * V1

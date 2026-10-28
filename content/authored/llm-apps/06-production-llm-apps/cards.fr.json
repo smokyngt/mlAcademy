@@ -1,0 +1,77 @@
+[
+ {
+  "id": "app.06.c1",
+  "front": "Prototype vs production",
+  "back": "Le modèle n'est qu'une petite partie ; l'écart, ce sont la passerelle, les garde-fous, le cache, les réessais, les replis, le streaming, l'observabilité et les budgets."
+ },
+ {
+  "id": "app.06.c2",
+  "front": "Flux d'une requête dans le pipeline",
+  "back": "Passerelle, garde-fous d'entrée, routeur de prompts, cache, récupération/outils et appel du modèle, garde-fous de sortie, journalisation et suivi des coûts, réponse diffusée."
+ },
+ {
+  "id": "app.06.c3",
+  "front": "Coût et latence d'une étape",
+  "back": "$\\text{cost}=(n_{in}c_{in}+n_{out}c_{out})/10^6$ ; $\\text{latency}=\\tau+n_{out}/v$."
+ },
+ {
+  "id": "app.06.c4",
+  "front": "Étapes parallèles",
+  "back": "Le coût s'additionne ; la latence est le maximum du groupe. Les étapes séquentielles additionnent leur latence."
+ },
+ {
+  "id": "app.06.c5",
+  "front": "Pourquoi les jetons de sortie dominent",
+  "back": "La latence est linéaire en jetons générés et les jetons de sortie coûtent plus cher que ceux d'entrée."
+ },
+ {
+  "id": "app.06.c6",
+  "front": "Coût espéré avec réessais",
+  "back": "$\\text{cost}\\,(1-p^k)/(1-p)$ pour une probabilité d'échec p et k tentatives (tentatives échouées facturées)."
+ },
+ {
+  "id": "app.06.c7",
+  "front": "Boîte à outils de fiabilité",
+  "back": "Délais d'attente, réessais plafonnés avec recul et jitter sur les appels idempotents, replis, streaming, budgets, identifiants de requête."
+ },
+ {
+  "id": "app.06.c8",
+  "front": "Ce qu'enregistre une trace",
+  "back": "Des spans par étape avec version du prompt, modèle, jetons, succès du cache, identifiants de récupération, appels d'outils, verdicts des garde-fous, latence, coût."
+ },
+ {
+  "id": "app.06.c9",
+  "front": "Parties d'un graphe d'agent",
+  "back": "État, nœuds (état vers mise à jour partielle), arêtes (statiques ou conditionnelles), réducteurs (comment les mises à jour fusionnent)."
+ },
+ {
+  "id": "app.06.c10",
+  "front": "ReAct comme graphe",
+  "back": "Nœuds agent et tools ; arête conditionnelle agent -> tools si un appel d'outil est en attente, sinon fin ; arête tools -> agent."
+ },
+ {
+  "id": "app.06.c11",
+  "front": "Piège du réducteur",
+  "back": "Sans réducteur d'ajout sur messages, la mise à jour suivante écrase silencieusement l'historique."
+ },
+ {
+  "id": "app.06.c12",
+  "front": "Quatre capacités d'un graphe",
+  "back": "Checkpointing, interruptions (humain dans la boucle), streaming d'événements, voyage dans le temps depuis des points de contrôle passés."
+ },
+ {
+  "id": "app.06.c13",
+  "front": "Pourquoi plafonner les étapes",
+  "back": "Une boucle incontrôlée serait sinon non bornée en coût et en temps ; renvoyer le statut max_steps."
+ },
+ {
+  "id": "app.06.c14",
+  "front": "Primitives de MCP",
+  "back": "Outils (actions), ressources (contenu adressé par URI), prompts (gabarits), exposés par les serveurs aux clients d'un hôte via JSON-RPC."
+ },
+ {
+  "id": "app.06.c15",
+  "front": "Ce que MCP ne fait pas",
+  "back": "Choisir les outils, rendre le contenu non fiable sûr, ou remplacer les approbations et le moindre privilège."
+ }
+]

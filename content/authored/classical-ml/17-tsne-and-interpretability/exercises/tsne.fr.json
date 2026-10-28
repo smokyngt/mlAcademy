@@ -1,0 +1,10 @@
+{
+  "id": "cml.17.ex1",
+  "title": "Affinités de t-SNE, un pas de gradient et ACP à noyau",
+  "prompt": "Implémente les composants de t-SNE et de l'ACP à noyau avec NumPy.\n\n- `sq_dists(X)` -> matrice `(N, N)` des distances euclidiennes au carré avec une diagonale exactement nulle.\n- `conditional_p(D, perplexity)` -> matrice `(N, N)` stochastique par lignes `p_{j|i}` à diagonale nulle. Pour chaque ligne, lance 60 pas de bissection sur `beta` (départ 1 ; `lo=0`, `hi=inf` ; si l'entropie est au-dessus de `log(perplexity)`, pose `lo=beta` et double `beta` tant que `hi` est infini, sinon fais la moyenne avec `hi` ; si l'entropie est en dessous, pose `hi=beta` et fais la moyenne avec `lo`). La ligne renvoyée est celle du dernier `beta` calculé à la dernière itération.\n- `joint_p(X, perplexity)` -> `P = (P_cond + P_cond.T) / (2N)` symétrisée.\n- `q_matrix(Y)` -> `(Q, W)` avec les poids de Student `W = 1/(1+D_Y)`, diagonale nulle, `Q = W / W.sum()`.\n- `kl_divergence(P, Q)` sur les entrées avec `P > 0`.\n- `tsne_grad(P, Y)` -> gradient de KL(P||Q) par rapport aux points en basse dimension `Y`, de forme `(N, 2)`.\n- `tsne_step(P, Y, lr)` -> `Y - lr * grad`.\n- `kernel_pca(X, gamma, k)` -> `(scores, eigenvalues)` de l'ACP à noyau RBF : `scores` a la forme `(N, k)`.",
+  "hints": [
+    "sq_dists : ||xi||^2 + ||xj||^2 - 2 xi.xj ; tronque les minuscules négatifs à 0 et mets la diagonale à 0.",
+    "conditional_p : pour chaque ligne i, fais une bissection sur beta = 1/(2 sigma_i^2) : p_j|i est proportionnel à exp(-beta * d_ij) sur j != i ; si l'entropie H = -sum p log p est au-dessus de log(perplexity), le noyau est trop large, donc augmente beta, sinon diminue-le. Soustraire le minimum de la ligne dans l'exponentielle évite le sous-dépassement (underflow).",
+    "tsne_grad : avec W = 1/(1+D_Y) (diagonale nulle), Q = W / W.sum(), PQ = (P - Q) * W, gradient = 4 * (diag(PQ.sum(1)) - PQ) @ Y. Pour l'ACP à noyau : K = exp(-gamma D), centre avec J K J, J = I - 1/n, eigh, scores = vecteurs propres * sqrt(valeurs propres)."
+  ]
+}

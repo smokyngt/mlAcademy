@@ -1,0 +1,280 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The complex plane: z1 = 1 + 2i (blue) times z2 = 3 - i (orange) gives 5 + 5i (green). Lengths multiply (sqrt5 * sqrt10 = sqrt50) and angles add (63.4 - 18.4 = 45 degrees).",
+      "fr": "Le plan complexe : z1 = 1 + 2i (bleu) fois z2 = 3 - i (orange) donne 5 + 5i (vert). Les modules se multiplient (sqrt5 * sqrt10 = sqrt50) et les angles s'additionnent (63,4 - 18,4 = 45 degrés)."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        6
+      ],
+      "yDomain": [
+        -3,
+        6
+      ],
+      "height": 360,
+      "data": [
+        {
+          "fnType": "vector",
+          "vector": [
+            1,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            3,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            5,
+            5
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Taylor partial sums of cos built from Euler's formula: 1 - x^2/2 (orange), plus x^4/24 (green), minus x^6/720 (purple) hug cos x (blue) over wider and wider ranges.",
+      "fr": "Sommes partielles de Taylor de cos issues de la formule d'Euler : 1 - x^2/2 (orange), plus x^4/24 (vert), moins x^6/720 (violet) épousent cos x (bleu) sur des intervalles de plus en plus larges."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -2,
+        2
+      ],
+      "data": [
+        {
+          "fn": "cos(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1-x^2/2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1-x^2/2+x^4/24",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "1-x^2/2+x^4/24-x^6/720",
+          "color": "#7c3aed"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Euler's formula: e^(i*theta) = cos(theta) + i sin(theta) walks around the unit circle. Marked: e^(i*pi/3) = 0.5 + 0.866i and e^(i*pi) = -1.",
+      "fr": "La formule d'Euler : e^(i*theta) = cos(theta) + i sin(theta) parcourt le cercle unité. Marqués : e^(i*pi/3) = 0,5 + 0,866i et e^(i*pi) = -1."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        1.6
+      ],
+      "yDomain": [
+        -1.6,
+        1.6
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "parametric",
+          "graphType": "polyline",
+          "x": "cos(t)",
+          "y": "sin(t)",
+          "range": [
+            0,
+            6.2832
+          ],
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.5,
+              0.866
+            ],
+            [
+              -1,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.5,
+            0.866
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f4",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The 6th roots of unity e^(2*pi*i*k/6), k = 0..5, are the vertices of a regular hexagon on the unit circle; they sum to zero.",
+      "fr": "Les racines 6-ièmes de l'unité e^(2*pi*i*k/6), k = 0..5, sont les sommets d'un hexagone régulier sur le cercle unité ; leur somme est nulle."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        1.6
+      ],
+      "yDomain": [
+        -1.6,
+        1.6
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "parametric",
+          "graphType": "polyline",
+          "x": "cos(t)",
+          "y": "sin(t)",
+          "range": [
+            0,
+            6.2832
+          ],
+          "color": "#d1d5db"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.5,
+              0.866
+            ],
+            [
+              -0.5,
+              0.866
+            ],
+            [
+              -1.0,
+              0.0
+            ],
+            [
+              -0.5,
+              -0.866
+            ],
+            [
+              0.5,
+              -0.866
+            ],
+            [
+              1.0,
+              -0.0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              0.5,
+              0.866
+            ],
+            [
+              -0.5,
+              0.866
+            ],
+            [
+              -1.0,
+              0.0
+            ],
+            [
+              -0.5,
+              -0.866
+            ],
+            [
+              0.5,
+              -0.866
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "f5",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Eigenvalues of a real matrix decide the dynamics of h(t+1) = W h(t): modulus 1 rotates, below 1 spirals in (vanishing), above 1 spirals out (exploding).",
+      "fr": "Les valeurs propres d'une matrice réelle décident de la dynamique de h(t+1) = W h(t) : module 1 = rotation, inférieur à 1 = spirale rentrante (disparition), supérieur à 1 = spirale sortante (explosion)."
+    },
+    "code": {
+      "en": "flowchart TD\n  W[\"Real matrix W\"] --> L[\"Eigenvalues: conjugate pair lambda = r e^(+/- i theta)\"]\n  L --> Q{\"modulus r\"}\n  Q -->|\"r = 1\"| A[\"Pure rotation by theta\"]\n  Q -->|\"r < 1\"| B[\"Spiral in: signal vanishes\"]\n  Q -->|\"r > 1\"| C[\"Spiral out: signal explodes\"]",
+      "fr": "flowchart TD\n  W[\"Matrice réelle W\"] --> L[\"Valeurs propres : paire conjuguée lambda = r e^(+/- i theta)\"]\n  L --> Q{\"module r\"}\n  Q -->|\"r = 1\"| A[\"Rotation pure d'angle theta\"]\n  Q -->|\"r < 1\"| B[\"Spirale rentrante : le signal disparaît\"]\n  Q -->|\"r > 1\"| C[\"Spirale sortante : le signal explose\"]"
+    }
+  }
+]

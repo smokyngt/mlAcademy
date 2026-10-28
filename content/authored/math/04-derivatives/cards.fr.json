@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.04.c1", "front": "Définition de $f'(x)$ par une limite", "back": "$f'(x)=\\lim_{h\\to0}\\dfrac{f(x+h)-f(x)}{h}$ ; de façon équivalente $f(x+h)\\approx f(x)+f'(x)h$." },
+  { "id": "f2n.04.c2", "front": "Règle du produit", "back": "$(fg)'=f'g+fg'$" },
+  { "id": "f2n.04.c3", "front": "Dérivée de la sigmoïde", "back": "$\\sigma'(x)=\\sigma(x)(1-\\sigma(x))$, maximum $0.25$ en $x=0$." },
+  { "id": "f2n.04.c4", "front": "Différence centrée et son erreur", "back": "$\\dfrac{f(x+h)-f(x-h)}{2h}$ avec une erreur $O(h^2)$ ; utilise $h\\approx10^{-5}$ en float64." },
+  { "id": "f2n.04.c5", "front": "Pourquoi ne pas prendre $h$ le plus petit possible ?", "back": "L'erreur d'arrondi $\\sim\\varepsilon/h$ croît quand $h$ rétrécit ; l'erreur totale a un minimum pour un $h$ intermédiaire." }
+]

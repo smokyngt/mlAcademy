@@ -1,0 +1,217 @@
+#@@ meta
+{"id": "llm.08.ex2", "title": "Near-duplicate detection (shingles, MinHash, LSH) and n-gram decontamination", "difficulty": 4, "runtime": "pyodide", "concepts": ["llm.dedup", "llm.decontamination"], "hints": ["shingles: w = normalize(text).split(' '); the set of ' '.join(w[i:i+k]) for i in range(len(w)-k+1). Jaccard = |A and B| / |A or B|.", "minhash_signature: x = np.array([zlib.crc32(s.encode()) % P for s in sh], dtype=np.uint64); then ((A[:,None]*x[None,:] + B[:,None]) % np.uint64(P)).min(axis=1). The fraction of equal entries of two signatures estimates the Jaccard similarity. LSH: for each band, bucket documents by tuple(sig[b*rows:(b+1)*rows]) and pair up everything sharing a bucket.", "Two documents with similarity s collide in a given band with probability s^rows, so they become candidates with probability 1-(1-s^rows)^bands. For decontamination, score = |item n-grams in training set| / |item n-grams|; flag if score >= tau."]}
+#@@ prompt
+Implement the machinery of web-scale deduplication and benchmark decontamination, and measure how well it works.
+
+- `normalize`, `shingles(text, k)` (word k-shingles), `jaccard`.
+- `minhash_signature(shingle_set, hashes)`: each shingle is hashed with `zlib.crc32(...) % P`, then through `n` universal hashes `(A*x + B) mod P`; the signature keeps the minimum per hash. `estimate_jaccard` is the fraction of equal signature positions.
+- `lsh_candidates(sigs, bands, rows)`: split each signature into `bands` bands of `rows` rows; two documents are candidates if some band is identical. `lsh_prob(s, bands, rows)` gives the theoretical collision probability.
+- `exact_dedup(docs)`: indices of the first copy of each distinct normalised document.
+- `ngram_set`, `contamination_score(item, train_ngrams, n)` and `decontaminate(train_docs, items, n, tau)`: flag a benchmark item when at least a fraction `tau` of its word n-grams occur in the training text.
+
+The tests print recall and precision of near-duplicate detection for several band layouts, and the flag rates of verbatim leaks, paraphrases, clean items and items that merely share boilerplate wording.
+#@@ starter
+import re, zlib
+import numpy as np
+
+def normalize(text):
+    """Lowercase and collapse whitespace."""
+    raise NotImplementedError
+
+def shingles(text, k=5):
+    """Set of word k-shingles (strings joined by a space) of the normalised text."""
+    raise NotImplementedError
+
+def jaccard(a, b):
+    raise NotImplementedError
+
+P = 2**31 - 1
+
+def make_hashes(n, seed=0):
+    """n universal hash functions h(x) = (A*x + B) mod P, returned as (A, B) uint64 arrays."""
+    rng = np.random.default_rng(seed)
+    return (rng.integers(1, P, size=n, dtype=np.uint64), rng.integers(0, P, size=n, dtype=np.uint64))
+
+def minhash_signature(sh, hashes):
+    """Length-n signature: for each hash function, the minimum over crc32(shingle) % P."""
+    raise NotImplementedError
+
+def estimate_jaccard(s1, s2):
+    raise NotImplementedError
+
+def lsh_candidates(sigs, bands, rows):
+    """Pairs (i, j), i < j, whose signatures agree on ALL rows of at least one band."""
+    raise NotImplementedError
+
+def lsh_prob(s, bands, rows):
+    """Probability that two documents of Jaccard similarity s become candidates."""
+    raise NotImplementedError
+
+def ngram_set(text, n):
+    raise NotImplementedError
+
+def contamination_score(item, train_ngrams, n):
+    """Fraction of the item's word n-grams that occur in the training n-gram set."""
+    raise NotImplementedError
+
+def exact_dedup(docs):
+    raise NotImplementedError
+
+def decontaminate(train_docs, items, n, tau):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("normalize lowercases and collapses whitespace", lambda: normalize("  The  CAT\nsat ") == "the cat sat")
+check("shingles of a short text", lambda: shingles("a b c d", 2) == {"a b", "b c", "c d"})
+check("jaccard of the worked example is 1/3", lambda: abs(jaccard({"a", "b"}, {"b", "c"}) - 1 / 3) < 1e-12)
+check("exact_dedup keeps the first copy, ignoring case and spacing", lambda: exact_dedup(["Hello  world", "x", "hello world", "x ", "y"]) == [0, 1, 4])
+
+# synthetic corpus: 40 base documents, each with 4 variants (0%, 2%, 5%, 10% of words replaced) + 60 unrelated
+rng = np.random.default_rng(0)
+V = 2000
+zipf = 1 / np.arange(1, V + 1); zipf /= zipf.sum()
+def rand_doc(n): return " ".join(f"w{i}" for i in rng.choice(V, size=n, p=zipf))
+def perturb(doc, frac):
+    w = doc.split(); k = int(frac * len(w))
+    for i in rng.choice(len(w), size=k, replace=False): w[i] = f"x{rng.integers(10**6)}"
+    return " ".join(w)
+docs = []
+for g in range(40):
+    base = rand_doc(120); docs.append(base)
+    for frac in (0.0, 0.02, 0.05, 0.1): docs.append(perturb(base, frac))
+for g in range(60): docs.append(rand_doc(120))
+n = len(docs)
+SH = [shingles(d, 5) for d in docs]
+hashes = make_hashes(128)
+sigs = np.array([minhash_signature(s, hashes) for s in SH])
+check("signature shape (docs, 128)", lambda: sigs.shape == (n, 128))
+check("identical documents have identical signatures", lambda: np.array_equal(sigs[0], sigs[1]))
+J = {(i, j): jaccard(SH[i], SH[j]) for i in range(n) for j in range(i + 1, n)}
+true05 = [p for p, v in J.items() if v >= 0.5]
+err = np.mean([abs(estimate_jaccard(sigs[i], sigs[j]) - J[(i, j)]) for i, j in true05])
+print("pairs with J >= 0.5:", len(true05), " mean |estimate - J|:", round(err, 4))
+check("MinHash estimate is within 0.05 of true Jaccard on average (128 hashes)", lambda: err < 0.05)
+check("unrelated documents have a tiny estimated similarity", lambda: estimate_jaccard(sigs[-1], sigs[-2]) < 0.05)
+check("lsh_prob at s=0.5 and s=0.9 for 16 bands x 8 rows", lambda: abs(lsh_prob(0.5, 16, 8) - 0.0607) < 1e-3 and abs(lsh_prob(0.9, 16, 8) - 0.9999) < 1e-3)
+for bands, rows in [(16, 8), (32, 4), (8, 16)]:
+    cand = lsh_candidates(sigs, bands, rows)
+    T = {p for p, v in J.items() if v >= 0.8}
+    tp = len(cand & T)
+    print(f"{bands}x{rows}: candidates {len(cand)}  recall@0.8 {tp / len(T):.3f}  precision@0.8 {tp / len(cand):.3f}")
+c16 = lsh_candidates(sigs, 16, 8)
+T8 = {p for p, v in J.items() if v >= 0.8}
+check("16x8 finds >= 95% of the pairs with J >= 0.8", lambda: len(c16 & T8) / len(T8) >= 0.95)
+check("candidates are ordered pairs i < j", lambda: all(i < j for i, j in c16))
+c8 = lsh_candidates(sigs, 8, 16)
+check("fewer, longer bands: fewer candidates and lower recall", lambda: len(c8) < len(c16) and len(c8 & T8) < len(c16 & T8))
+c32 = lsh_candidates(sigs, 32, 4)
+check("more, shorter bands: more candidates (precision drops)", lambda: len(c32) > len(c16))
+verified = {p for p in c16 if J[p] >= 0.8}
+check("verifying candidates with exact Jaccard gives precision 1", lambda: verified <= T8 and len(verified) / len(T8) >= 0.95)
+
+# decontamination
+rng = np.random.default_rng(1)
+def words(k): return [f"w{i}" for i in rng.choice(V, size=k, p=zipf)]
+BOIL = "which of the following statements is true about the"
+train = []
+for i in range(300):
+    w = words(150)
+    if i % 5 == 0: w = w[:50] + BOIL.split() + w[50:]
+    train.append(" ".join(w))
+leak, para, clean, boil = [], [], [], []
+for k in range(40):
+    d = train[rng.integers(300)].split(); s = int(rng.integers(0, len(d) - 40)); seg = d[s:s + 40]
+    leak.append(" ".join(seg))
+    seg2 = list(seg)
+    for i in rng.choice(40, size=8, replace=False): seg2[i] = f"p{rng.integers(10**6)}"
+    para.append(" ".join(seg2))
+    clean.append(" ".join(words(40)))
+    boil.append(BOIL + " " + " ".join(words(35)))
+items = leak + para + clean + boil
+def rate(flags, lo): return float(np.mean(flags[lo:lo + 40]))
+f_any = decontaminate(train, items, 8, 1e-9)
+f_half = decontaminate(train, items, 8, 0.5)
+f_n4 = decontaminate(train, items, 4, 0.5)
+print("8-gram, any match  : leak %.2f para %.2f clean %.2f boilerplate %.2f" % tuple(rate(f_any, i * 40) for i in range(4)))
+print("8-gram, overlap>=.5: leak %.2f para %.2f clean %.2f boilerplate %.2f" % tuple(rate(f_half, i * 40) for i in range(4)))
+print("4-gram, overlap>=.5: leak %.2f para %.2f clean %.2f boilerplate %.2f" % tuple(rate(f_n4, i * 40) for i in range(4)))
+check("contamination_score of a verbatim copy is 1", lambda: contamination_score(leak[0], set().union(*[ngram_set(d, 8) for d in train]), 8) == 1.0)
+check("verbatim leaks are all caught", lambda: rate(f_half, 0) == 1.0)
+check("clean items are never flagged", lambda: rate(f_any, 80) == 0.0 and rate(f_half, 80) == 0.0)
+check("'any n-gram matches' flags every boilerplate-sharing question (false positives)", lambda: rate(f_any, 120) == 1.0)
+check("an overlap-fraction threshold removes those false positives", lambda: rate(f_half, 120) == 0.0)
+check("8-gram matching misses all paraphrases that change 20% of the words at tau=0.5", lambda: rate(f_half, 40) == 0.0)
+check("shorter n-grams recover more paraphrases than longer ones", lambda: rate(f_n4, 40) > rate(f_half, 40))
+#@@ solution
+import re, zlib
+import numpy as np
+
+def normalize(text):
+    return re.sub(r"\s+", " ", text.lower()).strip()
+
+def shingles(text, k=5):
+    w = normalize(text).split(" ")
+    if len(w) < k:
+        return {" ".join(w)} if w and w != [""] else set()
+    return {" ".join(w[i:i + k]) for i in range(len(w) - k + 1)}
+
+def jaccard(a, b):
+    if not a and not b:
+        return 1.0
+    return len(a & b) / len(a | b)
+
+P = 2**31 - 1
+
+def make_hashes(n, seed=0):
+    rng = np.random.default_rng(seed)
+    return (rng.integers(1, P, size=n, dtype=np.uint64), rng.integers(0, P, size=n, dtype=np.uint64))
+
+def minhash_signature(sh, hashes):
+    A, B = hashes
+    x = np.array([zlib.crc32(s.encode()) % P for s in sh], dtype=np.uint64)
+    return ((A[:, None] * x[None, :] + B[:, None]) % np.uint64(P)).min(axis=1)
+
+def estimate_jaccard(s1, s2):
+    return float(np.mean(s1 == s2))
+
+def lsh_candidates(sigs, bands, rows):
+    assert sigs.shape[1] == bands * rows
+    pairs = set()
+    for b in range(bands):
+        buckets = {}
+        for i, s in enumerate(sigs):
+            buckets.setdefault(tuple(s[b * rows:(b + 1) * rows].tolist()), []).append(i)
+        for members in buckets.values():
+            for x in range(len(members)):
+                for y in range(x + 1, len(members)):
+                    pairs.add((members[x], members[y]))
+    return pairs
+
+def lsh_prob(s, bands, rows):
+    return 1 - (1 - s ** rows) ** bands
+
+def ngram_set(text, n):
+    w = normalize(text).split(" ")
+    return {" ".join(w[i:i + n]) for i in range(len(w) - n + 1)}
+
+def contamination_score(item, train_ngrams, n):
+    g = ngram_set(item, n)
+    return len(g & train_ngrams) / len(g) if g else 0.0
+
+
+def exact_dedup(docs):
+    """Indices of the first occurrence of each distinct normalised document."""
+    seen, keep = set(), []
+    for i, d in enumerate(docs):
+        key = normalize(d)
+        if key not in seen:
+            seen.add(key)
+            keep.append(i)
+    return keep
+
+def decontaminate(train_docs, items, n, tau):
+    """Flag benchmark items whose n-gram overlap with the training text is >= tau."""
+    train_ngrams = set()
+    for d in train_docs:
+        train_ngrams |= ngram_set(d, n)
+    return [contamination_score(it, train_ngrams, n) >= tau for it in items]

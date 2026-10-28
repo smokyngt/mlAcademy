@@ -1,0 +1,10 @@
+{
+  "id": "app.05.ex1",
+  "title": "Détection de PII : candidats regex plus validateurs par somme de contrôle",
+  "prompt": "Une regex seule trouve tout ce qui *ressemble* à un numéro de carte, ce qui produit de nombreuses fausses alarmes (numéros de commande, numéros de téléphone). Les vrais filtres de PII ajoutent un **validateur** qui vérifie une somme de contrôle intégrée ou une règle de structure, de sorte que les chaînes de chiffres aléatoires sont rejetées. Implémente-le, hors ligne :\n\n- `luhn_valid(s)` -> bool : la somme de contrôle de Luhn sur les chiffres de `s` (ignore les espaces et les tirets ; au moins 2 chiffres requis).\n- `iban_valid(s)` -> bool : structure `2 lettres + 2 chiffres + 11..30 alphanumériques` (espaces ignorés, insensible à la casse) et règle mod-97.\n- `ssn_valid(s)` -> bool : SSN américain de la forme `AAA-GG-SSSS` où `AAA` n'est pas `000`, pas `666` et ne commence pas par `9`, `GG` n'est pas `00`, et `SSSS` n'est pas `0000`.\n- `find_pii(text)` -> liste de `(type, matched_text)` par ordre de position, en utilisant `PATTERNS` (donné : une regex et un validateur par type). Un candidat ne compte que si son validateur réussit ; un candidat chevauchant un intervalle déjà accepté est ignoré (cela empêche les chiffres à l'intérieur d'un IBAN d'être relus comme une carte).\n- `redact(text)` -> le texte où chaque intervalle accepté est remplacé par `[TYPE]`.",
+  "hints": [
+    "Luhn : à partir du chiffre le plus à droite, double un chiffre sur deux (positions 1, 3, 5, ... en comptant 0 à droite) ; si la valeur doublée dépasse 9 soustrais 9 ; la somme doit être divisible par 10.",
+    "IBAN : retire les espaces, mets en majuscules, déplace les quatre premiers caractères à la fin, remplace chaque lettre par sa valeur en base 36 (A=10 ... Z=35) et lis toute la chaîne comme un grand entier : il doit valoir 1 modulo 97. Les entiers Python sont non bornés.",
+    "find_pii : exécute les motifs dans l'ordre donné par PATTERNS, ignore toute correspondance regex qui chevauche un intervalle déjà réservé, et ne garde que les correspondances dont le validateur renvoie True. Trie le résultat par position."
+  ]
+}

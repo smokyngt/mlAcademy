@@ -1,0 +1,72 @@
+[
+ {
+  "id": "app.03.c1",
+  "front": "Inégalité du budget de contexte",
+  "back": "$W \\ge T_{sys}+T_{tools}+T_{retrieved}+T_{history}+T_{examples}+T_{query}+T_{output}$."
+ },
+ {
+  "id": "app.03.c2",
+  "front": "Densité de signal",
+  "back": "La part des jetons de contexte qui aident la tâche ; le bruit coûte de l'argent et de la qualité même quand la fenêtre n'est pas pleine."
+ },
+ {
+  "id": "app.03.c3",
+  "front": "Lost-in-the-middle",
+  "back": "Beaucoup de modèles utilisent l'information au début et à la fin d'un long contexte plus fiablement qu'au milieu ; vérifie sur ton modèle."
+ },
+ {
+  "id": "app.03.c4",
+  "front": "Règle de disposition pour la récence",
+  "back": "Règles permanentes d'abord, preuves et question en dernier ; répéter un fait critique du milieu près de la fin."
+ },
+ {
+  "id": "app.03.c5",
+  "front": "Tronquer vs résumer vs mémoire structurée",
+  "back": "La troncature perd silencieusement ; les résumés sont avec perte et peuvent halluciner ; la mémoire structurée exige un schéma mais garde les faits durables."
+ },
+ {
+  "id": "app.03.c6",
+  "front": "Pourquoi compacter par lots ?",
+  "back": "Réécrire l'historique à chaque tour change le préfixe et casse le cache de préfixes ; compacter quand un budget est dépassé."
+ },
+ {
+  "id": "app.03.c7",
+  "front": "Récupération vs long contexte",
+  "back": "Récupération : peu chère, ciblée, peut rater. Long contexte : pas de raté de récupération, cher, milieu faible ; convient aux ensembles de documents bornés."
+ },
+ {
+  "id": "app.03.c8",
+  "front": "Invariant du cache de préfixes",
+  "back": "Seul un préfixe est mis en cache : le premier jeton qui diffère met fin à la correspondance."
+ },
+ {
+  "id": "app.03.c9",
+  "front": "Disposition favorable au cache",
+  "back": "Système, outils, exemples, documents réutilisés, historique jusqu'au dernier tour, puis le nouveau message utilisateur."
+ },
+ {
+  "id": "app.03.c10",
+  "front": "Prime d'écriture et remise en lecture",
+  "back": "Une écriture coûte w fois le prix de base, une lecture r fois (par ex. 1,25 et 0,1 dans le schéma à marqueurs explicites de la source ; vérifie les prix actuels)."
+ },
+ {
+  "id": "app.03.c11",
+  "front": "Coût moyen de 1 écriture + n lectures",
+  "back": "$(w+rn)/(n+1)$ relativement à l'absence de cache ; rentable quand $n>(w-1)/(1-r)$."
+ },
+ {
+  "id": "app.03.c12",
+  "front": "Manières dont un cache échoue silencieusement",
+  "back": "Changement des premiers jetons (horodatages, identifiants), outils réordonnés, expiration du TTL entre les requêtes, préfixe sous la taille minimale."
+ },
+ {
+  "id": "app.03.c13",
+  "front": "Cache exact vs sémantique",
+  "back": "Exact : hachage du prompt complet, sûr à la température 0. Sémantique : seuil de similarité d'embeddings ; risque de questions proches mais différentes."
+ },
+ {
+  "id": "app.03.c14",
+  "front": "Comment vérifier que le cache fonctionne",
+  "back": "Contrôler les compteurs de jetons lus depuis le cache dans les champs d'utilisation ; alerter quand ils sont à zéro."
+ }
+]

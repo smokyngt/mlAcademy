@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.12.q1",
+    "prompt": "Pour $f(a,b)=ab+a^2$ en $a=3,b=2$, que vaut $\\partial f/\\partial a$ ?",
+    "options": [],
+    "explanation": "$\\partial f/\\partial a=b+2a=2+6=8$. En mode inverse, $a$ a deux chemins sortants (par $ab$ et par $a^2$) dont les contributions s'additionnent : $2+6$."
+  },
+  {
+    "id": "f2n.12.q2",
+    "prompt": "Pourquoi l'apprentissage profond utilise-t-il l'autodiff en mode inverse plutôt qu'en mode direct ?",
+    "options": ["Le mode inverse est plus précis", "La perte est un scalaire ($m=1$) avec des millions d'entrées ; une seule passe inverse donne tout le gradient", "Le mode direct ne sait pas gérer ReLU", "Le mode inverse n'a pas besoin de mémoire"],
+    "explanation": "Le mode direct coûte environ une passe par entrée, le mode inverse une passe par sortie. Avec $m=1$ et un $n$ énorme, le mode inverse l'emporte - au prix du stockage des activations de la passe avant."
+  },
+  {
+    "id": "f2n.12.q3",
+    "prompt": "Dans un moteur d'autodiff scalaire, le `_backward` de `c = a * b` doit faire...",
+    "options": ["`a.grad = b.data * c.grad; b.grad = a.data * c.grad`", "`a.grad += b.data * c.grad; b.grad += a.data * c.grad`", "`a.grad += c.grad; b.grad += c.grad`", "`c.grad = a.data * b.data`"],
+    "explanation": "Les dérivées locales d'un produit sont l'autre facteur, et le `+=` est essentiel : si `a` est aussi utilisé ailleurs, une affectation écraserait la contribution de ce chemin."
+  },
+  {
+    "id": "f2n.12.q4",
+    "prompt": "Tu appelles `loss.backward()` deux fois de suite sans remettre les gradients à zéro. Qu'arrive-t-il à `w.grad` ?",
+    "options": ["Il est inchangé", "Il est exactement doublé (les gradients s'accumulent)", "PyTorch lève une erreur dans tous les cas", "Il est remis à zéro"],
+    "explanation": "PyTorch accumule dans `.grad` (avec `retain_graph=True`, le second backward est autorisé). Les boucles d'entraînement appellent donc `zero_grad()` à chaque itération."
+  },
+  {
+    "id": "f2n.12.q5",
+    "prompt": "Pour valider une passe arrière écrite à la main contre PyTorch, tu dois calculer en...",
+    "options": ["float16", "float32 uniquement", "float64, en attendant un accord proche de 1e-10", "int64"],
+    "explanation": "float32 n'est d'accord qu'à environ 1e-6 d'erreur relative, ce qui peut masquer de vraies erreurs. float64 donne une comparaison serrée et discriminante."
+  },
+  {
+    "id": "f2n.12.q6",
+    "prompt": "`torch.no_grad()` autour d'une boucle d'évaluation...",
+    "options": ["rend le modèle moins précis", "arrête l'enregistrement du graphe, donc aucun gradient n'est suivi et de la mémoire est économisée", "met tous les poids à zéro", "est requis pour backward()"],
+    "explanation": "Dans `no_grad`, les opérations ne sont pas enregistrées, donc l'évaluation utilise moins de mémoire et ne peut pas produire de gradients."
+  }
+]

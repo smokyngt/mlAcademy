@@ -1,0 +1,17 @@
+[
+  { "id": "math.12.c1", "front": "Hessienne", "back": "$H_{ij}=\\partial^2f/\\partial x_i\\partial x_j$, une matrice symétrique $(n,n)$ de courbures (les dérivées partielles mixtes commutent)." },
+  { "id": "math.12.c2", "front": "Développement de Taylor d'ordre deux", "back": "$f(\\mathbf x_0+\\boldsymbol\\delta)\\approx f+\\nabla f^\\top\\boldsymbol\\delta+\\frac12\\boldsymbol\\delta^\\top H\\boldsymbol\\delta$." },
+  { "id": "math.12.c3", "front": "Classer un point stationnaire", "back": "Valeurs propres de $H$ : toutes $>0$ minimum ; toutes $<0$ maximum ; signes mélangés selle ; des zéros non concluant." },
+  { "id": "math.12.c4", "front": "Pourquoi les valeurs propres et pas la diagonale ?", "back": "$\\boldsymbol\\delta^\\top H\\boldsymbol\\delta=\\sum\\lambda_ic_i^2$ dans la base propre. $x^2+3xy+y^2$ a pour valeurs propres $5,-1$ : une selle." },
+  { "id": "math.12.c5", "front": "Ensemble convexe", "back": "$\\theta\\mathbf x+(1-\\theta)\\mathbf y\\in C$ pour tous $\\mathbf x,\\mathbf y\\in C$, $\\theta\\in[0,1]$ : les segments restent à l'intérieur." },
+  { "id": "math.12.c6", "front": "Fonction convexe (définition)", "back": "$f(\\theta\\mathbf x+(1-\\theta)\\mathbf y)\\le\\theta f(\\mathbf x)+(1-\\theta)f(\\mathbf y)$ : la corde est au-dessus du graphe." },
+  { "id": "math.12.c7", "front": "Condition de convexité d'ordre un", "back": "$f(\\mathbf y)\\ge f(\\mathbf x)+\\nabla f(\\mathbf x)^\\top(\\mathbf y-\\mathbf x)$ : le graphe est au-dessus de chaque plan tangent." },
+  { "id": "math.12.c8", "front": "Condition de convexité d'ordre deux", "back": "$H(\\mathbf x)\\succeq0$ pour tout $\\mathbf x$ du domaine (convexe) ; en 1-D, $f''\\ge0$." },
+  { "id": "math.12.c9", "front": "Propriétés de stabilité de la convexité", "back": "$\\alpha f_1+\\beta f_2$ avec $\\alpha,\\beta\\ge0$ est convexe ; donc perte convexe + pénalité ridge ou lasso reste convexe." },
+  { "id": "math.12.c10", "front": "Théorème principal de la minimisation convexe", "back": "Tout minimum local est un minimum global ; un point stationnaire est un minimum global. La descente de gradient ne peut pas être piégée." },
+  { "id": "math.12.c11", "front": "Méthode de Newton", "back": "$\\mathbf x\\leftarrow\\mathbf x-H^{-1}\\nabla f$, c.-à-d. résoudre $H\\boldsymbol\\delta=-\\nabla f$. Exacte sur les quadratiques, convergence quadratique près d'un minimum, mémoire $O(n^2)$ et temps $O(n^3)$." },
+  { "id": "math.12.c12", "front": "Lagrangien pour $g(\\mathbf x)=0$", "back": "$\\mathcal L=f+\\lambda g$ ; stationnarité $\\nabla f=-\\lambda\\nabla g$ plus $g=0$ ($n+1$ équations, $n+1$ inconnues)." },
+  { "id": "math.12.c13", "front": "Pourquoi $\\nabla f$ et $\\nabla g$ sont-ils parallèles à un optimum contraint ?", "back": "$\\nabla g$ est normal à la surface de contrainte ; $\\nabla f$ doit l'être aussi, sinon glisser le long de la surface améliorerait $f$." },
+  { "id": "math.12.c14", "front": "Contraintes d'inégalité $g_i\\le0$", "back": "Multiplicateurs $\\lambda_i\\ge0$ ; complémentarité $\\lambda_ig_i=0$ (contrainte active ou multiplicateur nul)." },
+  { "id": "math.12.c15", "front": "Fonction duale et dualité faible", "back": "$D(\\boldsymbol\\lambda)=\\min_{\\mathbf x}\\mathcal L$ est concave et minore l'optimum primal ; pour les problèmes convexes le maximum de $D$ égale l'optimum primal (dualité forte)." }
+]

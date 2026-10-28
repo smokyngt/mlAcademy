@@ -1,0 +1,10 @@
+{
+ "id": "vis.02.ex1",
+ "title": "Précision top-k, sonde linéaire et taux d'apprentissage par couche",
+ "prompt": "Tu vas implémenter l'évaluation et la logique d'apprentissage par transfert d'un classifieur, sur des **caractéristiques gelées** (le backbone est simulé par une matrice de caractéristiques fixe).\n\n- `topk_accuracy(logits, y, k)` : fraction des lignes dont la vraie étiquette figure parmi les `k` plus grands logits.\n- `fit_linear_probe(X, y, n_classes, lr, steps)` : entraîne une régression softmax `softmax(X @ W + b)` par descente de gradient sur lot complet à partir de zéros ; renvoie `(W, b)` avec `W` de forme `(d, n_classes)`. Les caractéristiques `X` ne sont jamais modifiées (elles sont gelées).\n- `layerwise_lrs(base_lr, decay, n_layers)` : liste de `n_layers + 1` taux d'apprentissage, l'indice `0` = couche du backbone la plus précoce, l'indice `n_layers` = la tête, avec `lr_k = base_lr * decay ** (n_layers - k)`.\n- `trainable_layers(epoch, n_layers)` : ensemble des indices de couches entraînables à une époque donnée avec dégel progressif : l'époque 0 n'entraîne que la tête (indice `n_layers`), l'époque 1 aussi la dernière couche du backbone (indice `n_layers - 1`), et ainsi de suite, sans jamais descendre sous l'indice 0.",
+ "hints": [
+  "topk_accuracy : np.argsort(-logits, axis=1)[:, :k] donne les k meilleures classes par ligne ; un échantillon compte si son étiquette en fait partie.",
+  "Gradient de la régression softmax : P = softmax(X @ W + b) ; dW = X.T @ (P - Y_onehot) / N et db = (P - Y_onehot).mean(0). Soustrais le maximum de la ligne avant exp pour la stabilité.",
+  "layerwise_lrs : la couche k (0 = la plus précoce, L = la tête) reçoit base_lr * decay ** (L - k). trainable_layers(epoch, n_layers) : la tête (indice n_layers) est toujours entraînable ; chaque époque dégèle une couche de plus en remontant depuis la fin."
+ ]
+}

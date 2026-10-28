@@ -1,0 +1,104 @@
+#@@ meta
+{"id": "rl.03.ex1", "title": "Monte Carlo versus TD(0) on the random walk", "difficulty": 3, "runtime": "pyodide", "concepts": ["rl.mc", "rl.td"], "hints": ["mc_returns: walk backwards with G = r + gamma * G and store G at each step.", "td0_update: target = r if s_next is None else r + gamma * V[s_next]; return V[s] + alpha * (target - V[s]).", "In both predictors use the SAME episode generator and the same initial values 0.5. MC updates every visited state toward its return, TD updates after each step."]}
+#@@ prompt
+A random walk has 5 states (0..4); you start in the middle (state 2) and move left or right with probability 1/2 each. Stepping off the left end ends the episode with reward 0, stepping off the right end ends it with reward 1; all other rewards are 0 and $\gamma=1$. The true values are $(1,2,3,4,5)/6$. `walk_episode` (given) returns the visited states `traj` (ending with `None`) and the rewards `rew`.
+
+Implement:
+
+- `mc_returns(rewards, gamma)` -> list with the return $G_t$ for every step.
+- `td0_update(V, s, r, s_next, alpha, gamma)` -> the new value for `V[s]` (`s_next is None` means terminal, so the bootstrap term is 0). Do not modify `V`.
+- `mc_prediction(episodes, alpha, seed)` and `td0_prediction(episodes, alpha, seed)` -> value vector (5,) learned with constant step size, initial values 0.5.
+#@@ starter
+import numpy as np
+
+def walk_episode(rng, n=5):
+    s = n // 2
+    traj, rew = [s], []
+    while True:
+        s2 = s + (1 if rng.random() < 0.5 else -1)
+        if s2 < 0:
+            rew.append(0.0); traj.append(None); break
+        if s2 >= n:
+            rew.append(1.0); traj.append(None); break
+        rew.append(0.0); traj.append(s2); s = s2
+    return traj, rew
+
+def mc_returns(rewards, gamma):
+    raise NotImplementedError
+
+def td0_update(V, s, r, s_next, alpha, gamma):
+    raise NotImplementedError
+
+def mc_prediction(episodes, alpha, seed, n=5):
+    raise NotImplementedError
+
+def td0_prediction(episodes, alpha, seed, n=5):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+true = np.arange(1, 6) / 6.0
+check("mc_returns with gamma=0.5", lambda: np.allclose(mc_returns([1.0, 0.0, 2.0], 0.5), [1.5, 1.0, 2.0]))
+check("mc_returns of a single reward", lambda: np.allclose(mc_returns([1.0], 0.9), [1.0]))
+V = np.array([0.5, 0.5, 0.5, 0.5, 0.5])
+check("TD update to a non-terminal state", lambda: abs(td0_update(V, 1, 0.0, 2, 0.1, 1.0) - 0.5) < 1e-12)
+V2 = np.array([0.0, 0.0, 0.0, 0.8, 0.0])
+check("TD update with bootstrap: 0 + 0.5*(0 + 0.9*0.8 - 0)", lambda: abs(td0_update(V2, 2, 0.0, 3, 0.5, 0.9) - 0.36) < 1e-12)
+check("TD update into the terminal state ignores V", lambda: abs(td0_update(V, 4, 1.0, None, 0.1, 1.0) - 0.55) < 1e-12)
+check("td0_update does not modify V", lambda: V[1] == 0.5)
+
+def rms(f, alpha, seeds=20):
+    return float(np.mean([np.sqrt(np.mean((f(100, alpha, s) - true) ** 2)) for s in range(seeds)]))
+
+e_td = rms(td0_prediction, 0.05)
+e_mc = rms(mc_prediction, 0.05)
+check("TD(0) error after 100 episodes is small (< 0.07)", lambda: e_td < 0.07)
+check("TD(0) beats MC at the same step size", lambda: e_td < e_mc)
+check("MC at alpha=0.05 is noticeably worse (> 0.08)", lambda: e_mc > 0.08)
+check("estimates are reproducible", lambda: np.allclose(td0_prediction(50, 0.1, 3), td0_prediction(50, 0.1, 3)))
+long_td = td0_prediction(5000, 0.01, 1)
+check("with many episodes and small alpha TD finds the true values", lambda: np.max(np.abs(long_td - true)) < 0.06)
+#@@ solution
+import numpy as np
+
+def walk_episode(rng, n=5):
+    s = n // 2
+    traj, rew = [s], []
+    while True:
+        s2 = s + (1 if rng.random() < 0.5 else -1)
+        if s2 < 0:
+            rew.append(0.0); traj.append(None); break
+        if s2 >= n:
+            rew.append(1.0); traj.append(None); break
+        rew.append(0.0); traj.append(s2); s = s2
+    return traj, rew
+
+def mc_returns(rewards, gamma):
+    out = [0.0] * len(rewards)
+    G = 0.0
+    for t in reversed(range(len(rewards))):
+        G = rewards[t] + gamma * G
+        out[t] = G
+    return out
+
+def td0_update(V, s, r, s_next, alpha, gamma):
+    target = r if s_next is None else r + gamma * V[s_next]
+    return V[s] + alpha * (target - V[s])
+
+def mc_prediction(episodes, alpha, seed, n=5):
+    rng = np.random.default_rng(seed)
+    V = np.full(n, 0.5)
+    for _ in range(episodes):
+        traj, rew = walk_episode(rng)
+        G = mc_returns(rew, 1.0)
+        for t in range(len(rew)):
+            V[traj[t]] += alpha * (G[t] - V[traj[t]])
+    return V
+
+def td0_prediction(episodes, alpha, seed, n=5):
+    rng = np.random.default_rng(seed)
+    V = np.full(n, 0.5)
+    for _ in range(episodes):
+        traj, rew = walk_episode(rng)
+        for t in range(len(rew)):
+            V[traj[t]] = td0_update(V, traj[t], rew[t], traj[t + 1], alpha, 1.0)
+    return V

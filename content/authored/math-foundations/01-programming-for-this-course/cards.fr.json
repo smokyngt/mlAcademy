@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.01.c1",
+  "front": "Variable",
+  "back": "Un nom attaché à une valeur : `x = 5`. `=` signifie « affecter », pas « égale »."
+ },
+ {
+  "id": "mf.01.c2",
+  "front": "Liste et indice",
+  "back": "`xs = [10,20,30]` ; `xs[0]` vaut 10 (on compte à partir de 0) ; `xs[-1]` est le dernier élément ; `len(xs)` vaut 3."
+ },
+ {
+  "id": "mf.01.c3",
+  "front": "Boucle `for`",
+  "back": "`for x in xs:` exécute le bloc indenté une fois par élément. `range(n)` donne 0..n-1."
+ },
+ {
+  "id": "mf.01.c4",
+  "front": "Fonction",
+  "back": "`def f(a, b): return a + b` met une recette en paquet ; `return` renvoie le résultat."
+ },
+ {
+  "id": "mf.01.c5",
+  "front": "Conditionnelle",
+  "back": "`if cond: ... elif cond2: ... else: ...` exécute exactement une branche."
+ },
+ {
+  "id": "mf.01.c6",
+  "front": "ndarray",
+  "back": "Une grille de nombres d'un seul type avec une `shape` fixe ; créée avec `np.array`, `np.zeros`, `np.arange`, `np.linspace`."
+ },
+ {
+  "id": "mf.01.c7",
+  "front": "Forme (shape)",
+  "back": "Un tuple donnant la taille le long de chaque axe. Un tableau de 3 lignes et 4 colonnes a pour forme (3, 4)."
+ },
+ {
+  "id": "mf.01.c8",
+  "front": "Tranches (slicing)",
+  "back": "`a[start:stop:step]` inclut start, exclut stop. En 2D, `A[rows, cols]`, par ex. `A[:, 0]` est la première colonne."
+ },
+ {
+  "id": "mf.01.c9",
+  "front": "Arithmétique vectorisée",
+  "back": "`a + b`, `a * b`, `a ** 2` agissent élément par élément, sans boucle Python. Bien plus rapide et plus court."
+ },
+ {
+  "id": "mf.01.c10",
+  "front": "Règle du broadcasting",
+  "back": "Compare les formes à partir de la droite ; deux tailles sont compatibles si elles sont égales ou si l'une vaut 1. Le 1 est étiré."
+ },
+ {
+  "id": "mf.01.c11",
+  "front": "Argument `axis`",
+  "back": "`A.sum(axis=0)` écrase l'axe 0 (les lignes) et donne une valeur par colonne ; `axis=1` donne une valeur par ligne."
+ },
+ {
+  "id": "mf.01.c12",
+  "front": "`reshape`",
+  "back": "Ré-étiquette les mêmes nombres avec une nouvelle forme ; le nombre total doit correspondre. `-1` signifie « calcule cette taille toi-même »."
+ },
+ {
+  "id": "mf.01.c13",
+  "front": "Lire une erreur",
+  "back": "Lis d'abord la dernière ligne (le type d'erreur), puis le numéro de ligne indiqué. Les erreurs de forme nomment les formes concernées."
+ },
+ {
+  "id": "mf.01.c14",
+  "front": "Habitude de débogage",
+  "back": "Quand quelque chose ne va pas, affiche d'abord `x.shape` et `x.dtype` ; la plupart des bugs NumPy sont des bugs de forme."
+ }
+]

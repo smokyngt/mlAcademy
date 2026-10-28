@@ -1,0 +1,16 @@
+[
+  { "id": "ops.03.c1", "front": "Décalage entraînement/serving (train/serve skew)", "back": "Différence systématique entre les features de l'entraînement et celles du serving ; silencieux, car rien ne plante." },
+  { "id": "ops.03.c2", "front": "Causes courantes de skew", "back": "Chemins de code séparés, unités différentes, statistiques périmées, données amont manquantes, catégories inconnues, sémantiques temporelles différentes." },
+  { "id": "ops.03.c3", "front": "Règle pour les statistiques ajustées (mise à l'échelle, imputation, vocabulaires)", "back": "Ajuster sur la partition d'entraînement uniquement ; stocker et réutiliser à la validation, au test et au serving." },
+  { "id": "ops.03.c4", "front": "Fuite de données (data leakage)", "back": "Information sur l'étiquette ou sur le futur présente dans les features à l'entraînement mais indisponible au serving." },
+  { "id": "ops.03.c5", "front": "Remède pour les données corrélées dans le temps", "back": "Séparer par le temps : entraîner sur le passé, valider et tester sur le futur." },
+  { "id": "ops.03.c6", "front": "Fuite de groupe", "back": "Lignes corrélées d'une même entité (patient, objet) réparties entre entraînement et test ; garder les groupes ensemble." },
+  { "id": "ops.03.c7", "front": "Règle sur les doublons", "back": "Dédupliquer avant de séparer, revérifier après, et ne suréchantillonner qu'après la séparation." },
+  { "id": "ops.03.c8", "front": "Comment détecter une fuite", "back": "Inspecter les features suspectement fortes, faire des études d'ablation, scruter les nouvelles features qui font bondir la métrique, et n'utiliser le jeu de test qu'une seule fois." },
+  { "id": "ops.03.c9", "front": "Hashing trick", "back": "Indice = hash(catégorie) modulo une taille fixe ; gère les catégories inconnues sans vocabulaire ; les collisions sont aléatoires et coûtent généralement peu." },
+  { "id": "ops.03.c10", "front": "Pourquoi une tranche UNKNOWN peut échouer silencieusement", "back": "Le modèle n'a jamais vu UNKNOWN à l'entraînement, donc il ignore ces éléments." },
+  { "id": "ops.03.c11", "front": "Deux axes d'une bonne feature", "back": "Importance pour le modèle et généralisation à des données jamais vues (couverture et distribution des valeurs)." },
+  { "id": "ops.03.c12", "front": "Couverture d'une feature", "back": "Part des lignes qui ont une valeur pour la feature ; de grandes différences entre partitions signalent des distributions différentes." },
+  { "id": "ops.03.c13", "front": "Trois contrôles de skew sans étiquettes", "back": "Différence de taux de manquants, décalage de moyenne en écarts-types d'entraînement, et part des valeurs de serving hors de la plage d'entraînement." },
+  { "id": "ops.03.c14", "front": "Principe du feature store", "back": "Une définition par feature, consommée à la fois par l'entraînement hors ligne et le serving en ligne." }
+]

@@ -1,0 +1,117 @@
+[
+ {
+  "id": "mf.07.q1",
+  "concept": "mf.limits",
+  "stage": "pre",
+  "kind": "numeric",
+  "prompt": "What is $\\lim_{x\\to1}\\frac{x^2-1}{x-1}$?",
+  "options": [],
+  "answer": {
+   "value": 2,
+   "tol": 0.001
+  },
+  "explanation": "For $x\\ne1$ the fraction equals $x+1$ (cancel $x-1$), which tends to 2. The function is undefined at 1 but the limit exists."
+ },
+ {
+  "id": "mf.07.q2",
+  "concept": "mf.limits",
+  "prompt": "Does the value of $f(a)$ matter for $\\lim_{x\\to a}f(x)$?",
+  "options": [
+   "Yes, the limit always equals $f(a)$",
+   "No, the limit only depends on values near $a$, not at $a$",
+   "Yes, if $f(a)$ is undefined the limit does not exist",
+   "Only for polynomials"
+  ],
+  "answer": 1,
+  "explanation": "The limit asks what $f$ approaches, ignoring what happens exactly at $a$. Equality with $f(a)$ is precisely continuity."
+ },
+ {
+  "id": "mf.07.q3",
+  "concept": "mf.limits",
+  "prompt": "For $f(x)=|x|/x$, what are the one-sided limits at 0?",
+  "options": [
+   "both 0",
+   "left $-1$, right $+1$, so the two-sided limit does not exist",
+   "both 1",
+   "left $+1$, right $-1$"
+  ],
+  "answer": 1,
+  "explanation": "For $x<0$ the ratio is $-1$; for $x>0$ it is $+1$. When the sides disagree, the limit does not exist."
+ },
+ {
+  "id": "mf.07.q4",
+  "concept": "mf.limits",
+  "kind": "numeric",
+  "prompt": "If $\\lim_{x\\to a}f=3$ and $\\lim_{x\\to a}g=4$, what is $\\lim_{x\\to a}(f\\cdot g)$?",
+  "options": [],
+  "answer": {
+   "value": 12,
+   "tol": 0.001
+  },
+  "explanation": "Limit laws: the limit of a product is the product of limits (when both exist)."
+ },
+ {
+  "id": "mf.07.q5",
+  "concept": "mf.limits",
+  "prompt": "A function $f$ is continuous at $a$ when...",
+  "options": [
+   "$f(a)$ exists",
+   "the limit exists",
+   "$f(a)$ exists, the limit exists, and they are equal",
+   "its graph has a corner at $a$"
+  ],
+  "answer": 2,
+  "explanation": "All three conditions together. A corner (like $|x|$ at 0) is still continuous."
+ },
+ {
+  "id": "mf.07.q6",
+  "concept": "mf.limits",
+  "prompt": "In the epsilon-delta idea, for $f(x)=2x+1$ near $a=3$ with limit $7$, which $\\delta$ guarantees $|f(x)-7|<\\varepsilon$?",
+  "options": [
+   "$\\delta=\\varepsilon$",
+   "$\\delta=\\varepsilon/2$",
+   "$\\delta=2\\varepsilon$",
+   "$\\delta=7\\varepsilon$"
+  ],
+  "answer": 1,
+  "explanation": "$|f(x)-7|=2|x-3|<\\varepsilon$ exactly when $|x-3|<\\varepsilon/2$."
+ },
+ {
+  "id": "mf.07.q7",
+  "concept": "mf.limits",
+  "prompt": "Why do derivatives need limits?",
+  "options": [
+   "The slope at one point needs a ratio $\\frac{\\Delta y}{\\Delta x}$ with $\\Delta x\\to0$, which would be $0/0$ if we simply set $\\Delta x=0$",
+   "Derivatives avoid ratios",
+   "Limits make functions continuous",
+   "Limits are only for sequences"
+  ],
+  "answer": 0,
+  "explanation": "The difference quotient $(f(x+h)-f(x))/h$ is undefined at $h=0$; the derivative is its limit as $h\\to0$."
+ },
+ {
+  "id": "mf.07.q8",
+  "concept": "mf.limits",
+  "kind": "numeric",
+  "prompt": "$\\lim_{x\\to0}\\frac{\\sin x}{x}$ (radians) equals...",
+  "options": [],
+  "answer": {
+   "value": 1,
+   "tol": 0.001
+  },
+  "explanation": "Numerically $\\sin(0.001)/0.001=0.99999983$; the limit is 1."
+ },
+ {
+  "id": "mf.07.q9",
+  "concept": "mf.limits",
+  "prompt": "You estimate a limit by evaluating $(1-\\cos h)/h^2$ at $h=10^{-8}$ in floating point and get 0, though the limit is $1/2$. Why?",
+  "options": [
+   "The limit really is 0",
+   "Rounding: $\\cos h$ rounds to 1.0 and the subtraction cancels all digits",
+   "Python cannot take limits",
+   "$h$ is too large"
+  ],
+  "answer": 1,
+  "explanation": "Catastrophic cancellation. Numeric limit exploration must stop at moderately small $h$ and be compared with the algebra."
+ }
+]

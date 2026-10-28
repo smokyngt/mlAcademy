@@ -1,0 +1,96 @@
+[
+ {
+  "id": "ops.02.q1",
+  "prompt": "Tu dois lire 4 colonnes parmi 1 000 dans une énorme table. Quelle disposition de stockage est la plus rapide ?",
+  "options": [
+   "Column-major (Parquet)",
+   "Row-major (CSV)",
+   "Elles sont identiques",
+   "Celle du fichier le plus gros"
+  ],
+  "explanation": "Le column-major stocke chaque colonne de façon contiguë, donc tu ne lis que les colonnes dont tu as besoin."
+ },
+ {
+  "id": "ops.02.q2",
+  "prompt": "L'échantillonnage par réservoir de taille $k$ garantit qu'après $n$ éléments, chaque élément a été conservé avec la probabilité...",
+  "options": [
+   "$1/n$",
+   "$1/k$",
+   "$k/n$",
+   "$k/(n+k)$"
+  ],
+  "explanation": "Par récurrence : le nouvel élément entre avec $k/(n+1)$ ; un ancien élément survit avec $n/(n+1)$ ; $\\frac{k}{n}\\cdot\\frac{n}{n+1}=\\frac{k}{n+1}$."
+ },
+ {
+  "id": "ops.02.q3",
+  "prompt": "Un échantillon stratifié de 10 % de 900/90/10 éléments par classe contient combien d'éléments de la classe la plus rare ?",
+  "options": [
+   "0, 1 ou plus au hasard",
+   "Exactement 1",
+   "10",
+   "9"
+  ],
+  "explanation": "L'échantillonnage stratifié prend $\\mathrm{round}(0.1\\cdot10)=1$ dans chaque strate, donc la classe rare est toujours présente."
+ },
+ {
+  "id": "ops.02.q4",
+  "prompt": "L'échantillonnage préférentiel tire $x$ d'une distribution facile $Q$ pour estimer une quantité sous $P$. Chaque échantillon est pondéré par...",
+  "options": [
+   "$Q(x)/P(x)$",
+   "$P(x)\\,Q(x)$",
+   "$1/n$ seulement",
+   "$P(x)/Q(x)$"
+  ],
+  "explanation": "Le poids $P(x)/Q(x)$ corrige le décalage ; il exige $Q(x)>0$ partout où $P(x)\\neq0$."
+ },
+ {
+  "id": "ops.02.q5",
+  "prompt": "Une recommandation sur laquelle on n'a pas cliqué dans les dix minutes est traitée comme un exemple négatif. C'est un exemple de...",
+  "options": [
+   "étiquette manuelle",
+   "supervision faible avec une regex",
+   "étiquette comportementale (naturelle) avec une boucle de rétroaction",
+   "apprentissage actif"
+  ],
+  "explanation": "Les étiquettes dérivées du comportement des utilisateurs arrivent automatiquement mais avec un délai (la longueur de la boucle de rétroaction)."
+ },
+ {
+  "id": "ops.02.q6",
+  "prompt": "Quatre fonctions d'étiquetage votent sur une ligne : 1, 0, 0, abstention. Avec un simple vote majoritaire parmi les LFs qui ne s'abstiennent pas, quelle étiquette est retournée (utilise -1 pour une égalité ou l'absence de votes) ?",
+  "options": [],
+  "explanation": "Deux votes pour 0 l'emportent sur un vote pour 1, donc l'étiquette est 0."
+ },
+ {
+  "id": "ops.02.q7",
+  "prompt": "Dans le vote pondéré, une fonction d'étiquetage de précision estimée exactement 0,5 reçoit le poids...",
+  "options": [
+   "0",
+   "1",
+   "$\\log 2$",
+   "$-1$"
+  ],
+  "explanation": "$w=\\log\\frac{a}{1-a}=\\log1=0$ : une fonction qui revient à lancer une pièce ne porte aucune information."
+ },
+ {
+  "id": "ops.02.q8",
+  "prompt": "Quelle affirmation sur l'augmentation de données est correcte ?",
+  "options": [
+   "Augmenter aussi bien les jeux d'entraînement que de test",
+   "Augmenter avant de séparer pour obtenir plus de données de test",
+   "L'augmentation change les étiquettes librement",
+   "N'augmenter que la partition d'entraînement avec des changements préservant l'étiquette"
+  ],
+  "explanation": "Augmenter avant de séparer peut placer des quasi-copies d'éléments de test dans l'entraînement ; le jeu de test doit refléter les données réelles."
+ },
+ {
+  "id": "ops.02.q9",
+  "prompt": "Pourquoi le traitement en flux est-il bien adapté à une feature d'engagement sur 30 jours ?",
+  "options": [
+   "Il évite de stocker toute donnée",
+   "Il peut garder un état courant et le mettre à jour avec les nouveaux événements au lieu de recalculer 30 jours à chaque fois",
+   "Il est toujours plus rapide que le batch pour n'importe quel job",
+   "Il ne nécessite aucune infrastructure"
+  ],
+  "explanation": "Le calcul avec état combine le nouveau jour avec l'agrégat stocké, évitant un recalcul redondant."
+ }
+]

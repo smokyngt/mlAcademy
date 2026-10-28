@@ -1,0 +1,17 @@
+[
+  { "id": "gpu.02.c1", "front": "Intensité arithmétique", "back": "I = FLOPs / octets déplacés (FLOP/octet). Une propriété de l'opération et de son implémentation." },
+  { "id": "gpu.02.c2", "front": "FLOPs d'un matmul (M,K)x(K,N) et ses octets minimaux", "back": "FLOPs = 2MNK. Octets = e (MK + KN + MN) avec e la taille d'un élément, si chaque matrice traverse la mémoire une seule fois." },
+  { "id": "gpu.02.c3", "front": "La formule du roofline", "back": "Débit atteignable = min(P, bande passante * I). Issue de t >= max(F/P, B/bande passante)." },
+  { "id": "gpu.02.c4", "front": "Point de crête", "back": "I* = P / bande passante, l'intensité où l'on passe de limité par la mémoire à limité par le calcul (environ 156 FLOP/octet pour 312 TFLOP/s et 2 To/s)." },
+  { "id": "gpu.02.c5", "front": "Que faire pour une opération limitée par la mémoire ?", "back": "Déplacer moins d'octets : réutiliser les données (tiling), fusionner les noyaux, utiliser des formats numériques plus petits, augmenter la taille de batch. Une unité arithmétique plus rapide n'aide pas." },
+  { "id": "gpu.02.c6", "front": "Pourquoi softmax et layer norm sont-ils limités par la mémoire ?", "back": "Une poignée de FLOPs par élément mais chaque élément est lu et écrit une fois : intensité d'environ 1-2 FLOP/octet, très en dessous du point de crête." },
+  { "id": "gpu.02.c7", "front": "Intensité d'une couche linéaire en fonction de la taille de batch", "back": "Environ B FLOP/octet pour un batch B en fp16 quand d >> B : 2Bd^2 FLOPs sur environ 2d^2 octets. Les petits batchs sont limités par la mémoire." },
+  { "id": "gpu.02.c8", "front": "Octets et FLOPs de l'attention standard (une tête)", "back": "FLOPs = 4N^2 d + 5N^2. Octets = e (4Nd + 4N^2) ; l'intensité tend vers d/e pour N grand." },
+  { "id": "gpu.02.c9", "front": "Octets de l'attention par tuiles (Flash)", "back": "Environ e (2Nd + 2Nd N/Br) : Q une fois, K et V une fois par bloc de requêtes de Br lignes, O une fois. Intensité d'environ 2Br/e." },
+  { "id": "gpu.02.c10", "front": "Comment le softmax courant reste-t-il exact ?", "back": "Garder un max courant m et une somme s par ligne ; quand une tuile relève le max, rééchelonner l'ancienne somme et la sortie partielle par exp(m_old - m_new). La division finale par s est exacte." },
+  { "id": "gpu.02.c11", "front": "Qu'est-ce qui limite la taille de bloc de requêtes Br dans FlashAttention ?", "back": "La tuile (Q, K, V, scores, sortie) doit tenir dans la mémoire rapide sur puce, donc Br vaut environ M/d pour M éléments de SRAM." },
+  { "id": "gpu.02.c12", "front": "Loi d'Amdahl", "back": "Accélération = 1 / ((1 - p) + p / s) quand une fraction p du temps est accélérée d'un facteur s. Plafond 1/(1 - p)." },
+  { "id": "gpu.02.c13", "front": "Amdahl pour plusieurs étapes", "back": "Accélération = somme(t_i) / somme(t_i / s_i)." },
+  { "id": "gpu.02.c14", "front": "Limité par l'entrée, par le lancement, par le calcul : à quoi cela ressemble-t-il sur une timeline ?", "back": "Limité par l'entrée : plages d'inactivité du GPU pendant que le CPU charge les données. Limité par le lancement : beaucoup de petits noyaux avec des écarts. Limité par le calcul : noyaux matmul denses et longs." },
+  { "id": "gpu.02.c15", "front": "Pourquoi nvidia-smi peut-il afficher 100% d'utilisation pour un job inefficace ?", "back": "Il indique qu'un noyau tournait, pas quelle part des FLOP/s crête ou de la bande passante a été utilisée." }
+]

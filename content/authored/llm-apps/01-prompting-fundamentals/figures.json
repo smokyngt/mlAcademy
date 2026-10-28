@@ -1,0 +1,63 @@
+[
+  {
+    "id": "prompt-anatomy",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Anatomy of a chat call: stable material first (system rules, few-shot examples), variable material last (the user's data, delimited), and optionally an assistant prefill that forces the format of the first words of the reply.",
+      "fr": "Anatomie d'un appel de chat : le contenu stable d'abord (règles système, exemples), le contenu variable ensuite (les données de l'utilisateur, délimitées), et éventuellement un début de réponse imposé qui force le format des premiers mots."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph REQ[\"Request\"]\n    SYS[\"System: rules, identity, output format\"]\n    EX[\"Few-shot examples (3 to 5)\"]\n    USR[\"User: task + delimited data\"]\n    PRE[\"Assistant prefill, e.g. an opening brace\"]\n  end\n  SYS --> EX --> USR --> PRE\n  PRE --> M[\"Model continues\"]",
+      "fr": "flowchart TB\n  subgraph REQ[\"Requête\"]\n    SYS[\"Système : règles, identité, format de sortie\"]\n    EX[\"Exemples (3 à 5)\"]\n    USR[\"Utilisateur : tâche + données délimitées\"]\n    PRE[\"Début de réponse imposé, p. ex. une accolade\"]\n  end\n  SYS --> EX --> USR --> PRE\n  PRE --> M[\"Le modèle continue\"]"
+    }
+  },
+  {
+    "id": "self-consistency-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Self-consistency: sample n independent chains of thought at temperature above zero, extract each final answer, and return the most frequent one.",
+      "fr": "Auto-cohérence : échantillonner n chaînes de raisonnement indépendantes à température non nulle, extraire chaque réponse finale et renvoyer la plus fréquente."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q[\"question + 'think step by step'\"] --> S1[\"chain 1 -> 42\"]\n  Q --> S2[\"chain 2 -> 42\"]\n  Q --> S3[\"chain 3 -> 17\"]\n  S1 --> V[\"majority vote\"]\n  S2 --> V\n  S3 --> V\n  V --> A[\"answer: 42\"]",
+      "fr": "flowchart LR\n  Q[\"question + 'réfléchis pas à pas'\"] --> S1[\"chaîne 1 -> 42\"]\n  Q --> S2[\"chaîne 2 -> 42\"]\n  Q --> S3[\"chaîne 3 -> 17\"]\n  S1 --> V[\"vote majoritaire\"]\n  S2 --> V\n  S3 --> V\n  V --> A[\"réponse : 42\"]"
+    }
+  },
+  {
+    "id": "vote-accuracy",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Accuracy A(p, n) of a majority vote over n independent samples that are each correct with probability p: n = 1 is the diagonal (grey), n = 3 (blue) and n = 5 (orange) cross it at p = 1/2. Above 1/2 voting helps, below 1/2 it hurts. At p = 0.6: 0.6, 0.648, 0.6826.",
+      "fr": "Précision A(p, n) d'un vote majoritaire sur n échantillons indépendants, chacun correct avec probabilité p : n = 1 est la diagonale (gris), n = 3 (bleu) et n = 5 (orange) la croisent en p = 1/2. Au-dessus de 1/2 le vote aide, en dessous il nuit. Pour p = 0,6 : 0,6, 0,648, 0,6826."
+    },
+    "spec": {
+      "height": 320,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "p",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "3*x^2 - 2*x^3",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "10*x^3 - 15*x^4 + 6*x^5",
+          "color": "#d97706"
+        }
+      ]
+    }
+  }
+]

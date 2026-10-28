@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.02.c1", "front": "Mise à l'échelle à l'inférence", "back": "Améliorer les réponses en dépensant plus de calcul à l'inférence (échantillons plus nombreux ou plus longs, évaluateurs, raffinement), les poids du modèle restant inchangés." },
+  { "id": "rsn.02.c2", "front": "Mise à l'échelle par la température", "back": "Diviser les logits par T avant le softmax : T<1 affine, T>1 aplatit ; T doit être positif." },
+  { "id": "rsn.02.c3", "front": "Règle du top-p (noyau) dans le livre", "back": "Trier les probabilités par ordre décroissant, garder un token tant que la masse cumulée avant lui est < top_p (garder toujours le premier), mettre le reste à zéro, renormaliser." },
+  { "id": "rsn.02.c4", "front": "Auto-cohérence", "back": "Échantillonner n chaînes de pensée, extraire chaque réponse finale, renvoyer la plus fréquente." },
+  { "id": "rsn.02.c5", "front": "Pluralité contre majorité", "back": "La pluralité exige le plus grand décompte ; la majorité exige plus de la moitié. L'auto-cohérence est un vote à la pluralité." },
+  { "id": "rsn.02.c6", "front": "Gestion des égalités dans le vote", "back": "Ne renvoyer aucune réponse (règle du livre), choisir au hasard, ou départager avec un évaluateur comme la log-probabilité moyenne ; chaque choix est une politique." },
+  { "id": "rsn.02.c7", "front": "Best-of-n", "back": "Noter les n réponses et garder la meilleure. Avec un vérificateur parfait il est égal à pass@n ; avec un évaluateur substitut il hérite de ses erreurs." },
+  { "id": "rsn.02.c8", "front": "Précision binomiale du vote", "back": "A(n,p) = sum_{c>n/2} C(n,c) p^c (1-p)^(n-c) quand tous les mauvais échantillons donnent la même mauvaise réponse." },
+  { "id": "rsn.02.c9", "front": "Seuil pour le vote", "back": "Avec une seule mauvaise réponse, le vote aide si et seulement si p > 1/2 (vers 1), nuit si p < 1/2 (vers 0), reste à 1/2 pour p = 1/2." },
+  { "id": "rsn.02.c10", "front": "Borne de Hoeffding pour le vote", "back": "1 - A(n,p) <= exp(-2n(p-1/2)^2) : exponentielle en n, contrôlée par l'écart p - 1/2, mais lâche." },
+  { "id": "rsn.02.c11", "front": "Pourquoi des mauvaises réponses dispersées aident le vote", "back": "La bonne réponse n'a besoin que du plus grand décompte, donc elle peut gagner avec p < 1/2. Des erreurs corrélées et répétées suppriment ce bénéfice." },
+  { "id": "rsn.02.c12", "front": "Rendements décroissants de plus d'échantillons", "back": "Dans la table CoT du livre, la précision par minute supplémentaire passe d'environ 0,107 à 0,024 puis 0,0098 points/min quand n va de 1 à 3, 5, 10." },
+  { "id": "rsn.02.c13", "front": "Budget de réflexion", "back": "Un plafond sur les tokens générés. Couper une chaîne avant sa boîte finale ne donne généralement aucune réponse extractible ; le budget forcing prolonge aussi les chaînes courtes (contexte général, non implémenté dans les chapitres lus)." },
+  { "id": "rsn.02.c14", "front": "Pourquoi échantillonner n réponses à un prompt se batche bien", "back": "Toutes les lignes partent de la même longueur de prompt, donc aucun remplissage n'est nécessaire ; le débit s'améliore avec la taille de lot au prix de la mémoire (annexe E.5)." }
+]

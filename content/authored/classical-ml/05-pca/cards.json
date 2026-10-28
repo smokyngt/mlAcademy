@@ -1,0 +1,15 @@
+[
+  { "id": "cml.05.c1", "concept": "ml.pca", "front": "Covariance matrix of centred data", "back": "$C=\\frac1{N-1}X^\\top X$, shape $(d,d)$, symmetric positive semi-definite." },
+  { "id": "cml.05.c2", "concept": "ml.pca", "front": "Variance along a unit direction $w$", "back": "$w^\\top Cw$." },
+  { "id": "cml.05.c3", "concept": "ml.pca", "front": "PCA as an optimisation problem", "back": "Maximise $w^\\top Cw$ subject to $\\|w\\|=1$; the Lagrangian gradient gives $Cw=\\lambda w$." },
+  { "id": "cml.05.c4", "concept": "ml.pca", "front": "Meaning of the eigenvalue", "back": "$\\lambda_i$ is the variance of the data along principal direction $i$." },
+  { "id": "cml.05.c5", "concept": "ml.pca", "front": "Explained variance ratio of the top $k$", "back": "$(\\lambda_1+\\dots+\\lambda_k)/(\\lambda_1+\\dots+\\lambda_d)$." },
+  { "id": "cml.05.c6", "concept": "ml.pca", "front": "Reconstruction error with $k$ components", "back": "$\\|X-\\hat X\\|_F^2=(N-1)(\\lambda_{k+1}+\\dots+\\lambda_d)$." },
+  { "id": "cml.05.c7", "concept": "ml.pca", "front": "Relation to SVD", "back": "$X=U\\Sigma V^\\top$: principal directions are columns of $V$; $\\lambda_i=\\sigma_i^2/(N-1)$. SVD is more stable." },
+  { "id": "cml.05.c8", "concept": "ml.pca", "front": "Shapes of a PCA transform", "back": "$Z=X_c\\,W^\\top$ with components $W:(k,d)$ gives $Z:(N,k)$; reconstruction $ZW+\\text{mean}:(N,d)$." },
+  { "id": "cml.05.c9", "concept": "ml.pca", "front": "Why centre the data?", "back": "Otherwise the squared mean dominates and the first axis points at the mean." },
+  { "id": "cml.05.c10", "concept": "ml.pca", "front": "When must you standardise before PCA?", "back": "When features have different units or scales; otherwise the large-scale feature dominates." },
+  { "id": "cml.05.c11", "concept": "ml.pca", "front": "Are principal component signs meaningful?", "back": "No: $w$ and $-w$ describe the same direction." },
+  { "id": "cml.05.c12", "concept": "ml.pca", "front": "Lagrange multiplier idea", "back": "At a constrained optimum, $\\nabla f=\\lambda\\nabla g$: the objective's gradient is parallel to the constraint's." },
+  { "id": "cml.05.c13", "concept": "ml.pca", "front": "Limits of PCA", "back": "Linear, unsupervised, sensitive to scale; misses curved structure and label-relevant low-variance directions." }
+]

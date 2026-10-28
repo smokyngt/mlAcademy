@@ -1,0 +1,10 @@
+{
+ "id": "rl.06.ex1",
+ "title": "GAE et l'objectif écrêté de PPO",
+ "prompt": "Implémente deux éléments centraux de PPO.\n\n**1. Estimation généralisée de l'avantage.** `gae(rewards, values, last_value, gamma, lam, dones=None)` renvoie des avantages de forme `(T,)` à partir des résidus TD $\\delta_t=r_t+\\gamma(1-d_t)V_{t+1}-V_t$ (avec $V_T=$ `last_value`) par $A_t=\\delta_t+\\gamma\\lambda(1-d_t)A_{t+1}$, calculé à rebours. `dones` marque les pas après lesquels l'épisode s'est terminé (par défaut : aucun).\n\n**2. Le surrogate écrêté pour une politique softmax** sur des actions (cadre de type bandit : pas d'état, logits `theta` de forme `(A,)`). Avec les actions échantillonnées `acts` `(N,)`, les avantages `adv` `(N,)` et les anciennes log-probabilités `logp_old` `(N,)` :\n\n- `ppo_objective(theta, acts, adv, logp_old, eps)` -> $\\frac1N\\sum_i\\min\\big(\\rho_iA_i,\\;\\operatorname{clip}(\\rho_i,1-\\varepsilon,1+\\varepsilon)A_i\\big)$ avec $\\rho_i=\\pi_\\theta(a_i)/\\pi_{\\text{old}}(a_i)$.\n- `ppo_grad(theta, acts, adv, logp_old, eps)` -> son gradient par rapport à `theta` (analytique ; les échantillons écrêtés contribuent zéro).\n- `ppo_update(theta, acts, adv, logp_old, eps, lr, epochs, clip=True)` -> montée de gradient répétée sur le même batch. Avec `clip=False`, utilise le surrogate simple $\\rho_iA_i$ (sans écrêtage) pour voir pourquoi l'écrêtage compte.",
+ "hints": [
+  "GAE : delta_t = r_t + gamma*V_{t+1}*(1-done_t) - V_t, où V_T est last_value ; puis A_t = delta_t + gamma*lam*(1-done_t)*A_{t+1}, calculé à rebours à partir de t=T-1.",
+  "ppo_objective : ratio = exp(logp_new - logp_old) avec logp_new = log softmax(theta)[acts] ; par échantillon min(ratio*adv, clip(ratio,1-eps,1+eps)*adv) ; puis la moyenne.",
+  "ppo_grad : un échantillon contribue ratio*adv*(onehot(a) - pi) sauf s'il est écrêté, c'est-à-dire (adv > 0 et ratio > 1+eps) ou (adv < 0 et ratio < 1-eps) ; divise la somme par le nombre d'échantillons."
+ ]
+}

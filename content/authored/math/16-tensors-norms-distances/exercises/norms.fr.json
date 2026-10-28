@@ -1,0 +1,11 @@
+{
+  "id": "math.16.ex1",
+  "title": "Normes, distances deux à deux, Mahalanobis et concentration des distances",
+  "prompt": "NumPy uniquement. Implémente :\n\n- `lp_norm(x, p)` - la norme `p` d'un vecteur, avec `p = np.inf` donnant la norme max.\n- `frobenius(A)` et `spectral(A)` - normes matricielles (calcule la norme spectrale à partir des valeurs singulières, `np.linalg.svd(..., compute_uv=False)`).\n- `cosine(a, b)` - similarité cosinus.\n- `pairwise_sq_dists(X, Y)` - la matrice `(N, M)` des distances euclidiennes au carré entre les lignes de `X: (N, D)` et `Y: (M, D)` sans boucles Python, en développant `|x-y|^2` ; ramène à 0 les minuscules valeurs négatives.\n- `mahalanobis(x, mu, S)` - distance de Mahalanobis, en utilisant `np.linalg.solve` plutôt qu'une inverse explicite.\n- `distance_contrast(D, n, seed)` - tire `n` points uniformément dans le cube unité de dimension `D` et un point de requête (dans cet ordre, depuis un seul `default_rng(seed)`), renvoie `(dmax - dmin) / dmin` des distances euclidiennes entre la requête et les points.\n- `shell_fraction(eps, D)` - fraction du volume d'une `D`-boule située à moins de `eps` de sa surface.",
+  "hints": [
+    "lp_norm : pour p=inf utilise max(abs(x)) ; sinon (sum(abs(x)**p))**(1/p). Frobenius : racine de la somme des carrés de toutes les entrées ; spectrale : plus grande valeur singulière (np.linalg.svd(A, compute_uv=False)[0]).",
+    "pairwise_sq_dists : (X**2).sum(1)[:, None] + (Y**2).sum(1)[None, :] - 2 * X @ Y.T, puis borne à 0.",
+    "mahalanobis : d = x - mu ; sqrt(d @ np.linalg.solve(S, d)).",
+    "distance_contrast(D, n, seed) : rng = np.random.default_rng(seed) ; P = rng.random((n, D)) ; q = rng.random(D) dans cet ordre ; d = norme de P - q selon l'axe 1 ; renvoie (d.max() - d.min()) / d.min()."
+  ]
+}

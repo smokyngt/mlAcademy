@@ -1,0 +1,223 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "A hole: (x^2 - 1)/(x - 1) equals x + 1 for x != 1. The value at 1 is missing but both sides head to 2 (red point), so the limit is 2.",
+      "fr": "Un trou : (x^2 - 1)/(x - 1) vaut x + 1 pour x != 1. La valeur en 1 manque mais les deux côtés tendent vers 2 (point rouge), donc la limite vaut 2."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        3
+      ],
+      "yDomain": [
+        -0.5,
+        4
+      ],
+      "data": [
+        {
+          "fn": "(x^2-1)/(x-1)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1,
+          "text": "hole at x = 1"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f2",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Two discontinuities at 0: a jump (|x|/x equals -1 then +1, blue) and an infinite blow-up (1/x, orange).",
+      "fr": "Deux discontinuités en 0 : un saut (|x|/x vaut -1 puis +1, bleu) et une explosion infinie (1/x, orange)."
+    },
+    "spec": {
+      "xDomain": [
+        -3,
+        3
+      ],
+      "yDomain": [
+        -4,
+        4
+      ],
+      "data": [
+        {
+          "fn": "abs(x)/x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/x",
+          "color": "#d97706"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The epsilon-delta game for f(x) = 2x + 1 at a = 3, L = 7: for the band 6 < y < 8 (epsilon = 1), delta = epsilon/2 = 0.5 keeps x in (2.5, 3.5) and f(x) inside the band.",
+      "fr": "Le jeu epsilon-delta pour f(x) = 2x + 1 en a = 3, L = 7 : pour la bande 6 < y < 8 (epsilon = 1), delta = epsilon/2 = 0,5 garde x dans (2,5 ; 3,5) et f(x) dans la bande."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        5
+      ],
+      "yDomain": [
+        4,
+        10
+      ],
+      "data": [
+        {
+          "fn": "2*x+1",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "6",
+          "color": "#dc2626"
+        },
+        {
+          "fn": "8",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x-2.5)*(x-3.5)",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              3,
+              7
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "From secant to tangent: the secant through x = 3 and x = 3 + h has slope 6 + h (orange, h = 1, slope 7); as h goes to 0 it becomes the tangent of slope 6. Hover over the curve to move the tangent.",
+      "fr": "De la sécante à la tangente : la sécante entre x = 3 et x = 3 + h a pour pente 6 + h (orange, h = 1, pente 7) ; quand h tend vers 0 elle devient la tangente de pente 6. Survolez la courbe pour déplacer la tangente."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        -2,
+        20
+      ],
+      "data": [
+        {
+          "fn": "x^2",
+          "color": "#2563eb",
+          "derivative": {
+            "fn": "2*x",
+            "updateOnMouseMove": true
+          }
+        },
+        {
+          "fn": "7*x-12",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              3,
+              9
+            ],
+            [
+              4,
+              16
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f5",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Numerical limits: sin(x)/x tends to 1 (blue) and (1 - cos x)/x^2 tends to 1/2 (orange) as x goes to 0, although neither is defined at 0. In floating point, the second one breaks down for h around 1e-8.",
+      "fr": "Limites numériques : sin(x)/x tend vers 1 (bleu) et (1 - cos x)/x^2 tend vers 1/2 (orange) quand x tend vers 0, bien qu'aucune ne soit définie en 0. En virgule flottante, la seconde s'effondre pour h autour de 1e-8."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -0.4,
+        1.2
+      ],
+      "data": [
+        {
+          "fn": "sin(x)/x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(1-cos(x))/x^2",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "1"
+        },
+        {
+          "y": 0.5,
+          "text": "1/2"
+        }
+      ],
+      "height": 320
+    }
+  }
+]

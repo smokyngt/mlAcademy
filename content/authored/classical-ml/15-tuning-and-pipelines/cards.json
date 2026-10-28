@@ -1,0 +1,92 @@
+[
+ {
+  "id": "cml.15.c1",
+  "concept": "ml.tuning",
+  "front": "Parameter vs hyper-parameter",
+  "back": "Parameters are learned by training; hyper-parameters are set beforehand and control learning (learning rate, depth, $\\lambda$, $k$)."
+ },
+ {
+  "id": "cml.15.c2",
+  "concept": "ml.tuning",
+  "front": "Cost of grid search",
+  "back": "$m^d$ runs for $m$ values in $d$ dimensions; each axis has only $m$ distinct values."
+ },
+ {
+  "id": "cml.15.c3",
+  "concept": "ml.tuning",
+  "front": "Why random search beats grid search",
+  "back": "When few hyper-parameters matter, $n$ random trials give $n$ distinct values of each, a grid only $n^{1/d}$."
+ },
+ {
+  "id": "cml.15.c4",
+  "concept": "ml.tuning",
+  "front": "Which scale for a learning rate or $\\lambda$?",
+  "back": "A log scale: sample the exponent uniformly."
+ },
+ {
+  "id": "cml.15.c5",
+  "concept": "ml.tuning",
+  "front": "Successive halving",
+  "back": "Evaluate many configurations on a small budget, keep the best $1/\\eta$, multiply the budget by $\\eta$, repeat. Cheap elimination of bad runs."
+ },
+ {
+  "id": "cml.15.c6",
+  "concept": "ml.tuning",
+  "front": "Risk of successive halving",
+  "back": "Slow starters (e.g. small learning rate) are dropped early; Hyperband hedges with several schedules."
+ },
+ {
+  "id": "cml.15.c7",
+  "concept": "ml.tuning",
+  "front": "Nested cross-validation",
+  "back": "Inner loop tunes hyper-parameters, outer loop estimates performance; avoids the optimism of reporting the best tuning score."
+ },
+ {
+  "id": "cml.15.c8",
+  "concept": "ml.bayesopt",
+  "front": "Bayesian optimisation loop",
+  "back": "Fit a surrogate to past evaluations, maximise an acquisition function, evaluate there, update."
+ },
+ {
+  "id": "cml.15.c9",
+  "concept": "ml.bayesopt",
+  "front": "RBF kernel",
+  "back": "$k(x,x')=\\sigma^2\\exp(-(x-x')^2/(2\\ell^2))$: length scale $\\ell$ sets how far correlation reaches."
+ },
+ {
+  "id": "cml.15.c10",
+  "concept": "ml.bayesopt",
+  "front": "GP predictive mean and variance",
+  "back": "$\\mu=\\mathbf k_*^\\top C^{-1}\\mathbf t$, $s^2=k_{**}-\\mathbf k_*^\\top C^{-1}\\mathbf k_*$, with $C=K+\\beta^{-1}I$."
+ },
+ {
+  "id": "cml.15.c11",
+  "concept": "ml.bayesopt",
+  "front": "Computing a GP posterior stably",
+  "back": "Cholesky $C=LL^\\top$; solve for $\\boldsymbol\\alpha$; $\\mathbf v=L^{-1}\\mathbf k_*$; variance $=\\sigma^2-\\|\\mathbf v\\|^2$. Cost $O(N^3)$."
+ },
+ {
+  "id": "cml.15.c12",
+  "concept": "ml.bayesopt",
+  "front": "Expected improvement",
+  "back": "$(\\mu-f^+)\\Phi(z)+s\\varphi(z)$, $z=(\\mu-f^+)/s$; balances exploitation and exploration."
+ },
+ {
+  "id": "cml.15.c13",
+  "concept": "ml.pipeline",
+  "front": "Pipeline contract",
+  "back": "Transformers: fit/transform. Model: fit/predict. pipeline.fit fits each step in order; predict only transforms."
+ },
+ {
+  "id": "cml.15.c14",
+  "concept": "ml.pipeline",
+  "front": "Leakage through preprocessing",
+  "back": "Scaling, imputing, feature selection or encoding fitted on all rows lets validation rows influence training; fit inside each fold."
+ },
+ {
+  "id": "cml.15.c15",
+  "concept": "ml.pipeline",
+  "front": "Why is the final test set still needed?",
+  "back": "Trying many configurations overfits the validation score; an untouched test set gives an unbiased estimate."
+ }
+]

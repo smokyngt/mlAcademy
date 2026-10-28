@@ -1,0 +1,17 @@
+[
+  {"id": "trf.04.c1", "concept": "trf.block", "front": "Pre-norm transformer block", "back": "$x\\leftarrow x+\\operatorname{Attn}(\\operatorname{Norm}_1(x))$; $x\\leftarrow x+\\operatorname{FFN}(\\operatorname{Norm}_2(x))$. All tensors $(B,T,d)$."},
+  {"id": "trf.04.c2", "concept": "trf.block", "front": "Why residual connections?", "back": "$\\partial x_{l+1}/\\partial x_l=I+\\partial F/\\partial x$: an identity path lets gradients reach early layers without vanishing."},
+  {"id": "trf.04.c3", "concept": "trf.block", "front": "LayerNorm formula", "back": "$g\\odot(x-\\mu)/\\sqrt{\\sigma^2+\\varepsilon}+b$, statistics over the $d$ features of one token."},
+  {"id": "trf.04.c4", "concept": "trf.block", "front": "RMSNorm formula", "back": "$g\\odot x/\\sqrt{\\tfrac1d\\sum x_i^2+\\varepsilon}$; no mean subtraction, no shift."},
+  {"id": "trf.04.c5", "concept": "trf.block", "front": "Pre-norm vs post-norm", "back": "Pre: norm inside the residual branch (clean identity path, trains deep stacks easily). Post: norm after the add (original 2017, harder to train deep)."},
+  {"id": "trf.04.c6", "concept": "trf.block", "front": "Standard FFN and shapes", "back": "$\\phi(xW_1+b_1)W_2+b_2$, $W_1:(d,4d)$, $W_2:(4d,d)$; $(B,T,d)\\to(B,T,4d)\\to(B,T,d)$, per position."},
+  {"id": "trf.04.c7", "concept": "trf.block", "front": "SwiGLU", "back": "$(\\operatorname{SiLU}(xW_1)\\odot xW_3)W_2$ with $\\operatorname{SiLU}(z)=z\\sigma(z)$; hidden width $f\\approx8d/3$ keeps parameters equal to a $4d$ FFN."},
+  {"id": "trf.04.c8", "concept": "trf.block", "front": "Parameters per Llama-style block", "back": "$4d^2$ (attention) $+3df$ (SwiGLU) $+2d$ (two RMSNorm gains)."},
+  {"id": "trf.04.c9", "concept": "trf.block", "front": "Total parameters of a decoder-only model", "back": "$Vd+L(4d^2+3df+2d)+d+dV$ (untied head); with weight tying drop the $dV$."},
+  {"id": "trf.04.c10", "concept": "trf.architectures", "front": "Encoder-only (BERT)", "back": "Bidirectional attention, trained to predict masked tokens (about 15%: 80% [MASK], 10% random, 10% unchanged). For classification, tagging, embeddings."},
+  {"id": "trf.04.c11", "concept": "trf.architectures", "front": "Decoder-only (GPT)", "back": "Causal mask, next-token prediction; training is parallel over $T$ positions, generation is serial."},
+  {"id": "trf.04.c12", "concept": "trf.architectures", "front": "Encoder-decoder", "back": "Encoder reads source; decoder has causal self-attention plus cross-attention (Q from decoder, K,V from encoder); scores $(B,h,T_{tgt},T_{src})$."},
+  {"id": "trf.04.c13", "concept": "trf.block", "front": "Where are most block parameters?", "back": "In the FFN: $8d^2$ versus $4d^2$ in attention (for a $4d$ or SwiGLU-matched FFN)."},
+  {"id": "trf.04.c14", "concept": "trf.architectures", "front": "Weight tying", "back": "Reuse the token embedding matrix $(V,d)$ as the output head; GPT-2 124M: 163,009,536 untied vs 124,412,160 tied parameters."},
+  {"id": "trf.04.c15", "concept": "trf.block", "front": "Which sublayer mixes positions?", "back": "Only attention. FFN, norms and residual adds act on each position separately."}
+]

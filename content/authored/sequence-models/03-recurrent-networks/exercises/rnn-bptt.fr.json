@@ -1,0 +1,10 @@
+{
+  "id": "seq.03.ex1",
+  "title": "Passe avant d'un RNN et BPTT avec vérification de gradient",
+  "prompt": "Régression plusieurs-vers-un avec un RNN simple. Pour un batch `X` de forme `(B, T, n)` et des cibles `y` de forme `(B,)` :\n\n$$h_0=0,\\quad h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b),\\quad \\hat y=w_y^\\top h_T+b_y,\\quad L=\\tfrac1{2B}\\sum_b(\\hat y_b-y_b)^2 .$$\n\nParamètres (dans cet ordre) : `Wxh (H, n)`, `Whh (H, H)`, `b (H,)`, `Wy (H,)`, `by` (tableau scalaire de forme `()`).\n\nImplémente `rnn_loss_grads(params, X, y)` renvoyant `(loss, grads)`, avec les gradients dans le même ordre et avec les formes des paramètres (rétropropagation à travers le temps), et `grad_check(params, X, y)` renvoyant la plus grande erreur relative par rapport aux différences centrées.",
+  "hints": [
+    "Passe avant : h = zeros((B, H)) ; for t in range(T) : h = tanh(X[:, t] @ Wxh.T + h @ Whh.T + b). Stocke tous les h_t (y compris h_0 = 0) dans une liste.",
+    "Sortie : yhat = h_T @ Wy + by avec la perte 0.5 * mean((yhat - y)**2). Puis dy = (yhat - y)/B, dWy = h_T.T @ dy, dby = dy.sum(), dh = outer(dy, Wy).",
+    "Boucle arrière pour t = T..1 : da = dh * (1 - h_t**2) ; dWxh += da.T @ x_t ; dWhh += da.T @ h_{t-1} ; db += da.sum(0) ; dh = da @ Whh. La MÊME variable dh porte le gradient d'un pas en arrière."
+  ]
+}

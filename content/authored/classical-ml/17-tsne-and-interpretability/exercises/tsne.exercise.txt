@@ -1,0 +1,137 @@
+#@@ meta
+{"id": "cml.17.ex1", "title": "t-SNE affinities, one gradient step, and kernel PCA", "difficulty": 4, "runtime": "pyodide", "concepts": ["ml.tsne", "ml.kpca"], "hints": ["sq_dists: ||xi||^2 + ||xj||^2 - 2 xi.xj; clip tiny negatives to 0 and set the diagonal to 0.", "conditional_p: for each row i bisect on beta = 1/(2 sigma_i^2): p_j|i is proportional to exp(-beta * d_ij) over j != i; if the entropy H = -sum p log p is above log(perplexity) the kernel is too wide, so increase beta, else decrease it. Subtracting the row minimum inside the exponent avoids underflow.", "tsne_grad: with W = 1/(1+D_Y) (zero diagonal), Q = W / W.sum(), PQ = (P - Q) * W, gradient = 4 * (diag(PQ.sum(1)) - PQ) @ Y. For kernel PCA: K = exp(-gamma D), centre with J K J, J = I - 1/n, eigh, scores = eigenvectors * sqrt(eigenvalues)."]}
+#@@ prompt
+Implement the pieces of t-SNE and kernel PCA with NumPy.
+
+- `sq_dists(X)` -> `(N, N)` matrix of squared Euclidean distances with an exactly zero diagonal.
+- `conditional_p(D, perplexity)` -> `(N, N)` row-stochastic matrix `p_{j|i}` with zero diagonal. For each row run 60 bisection steps on `beta` (start 1; `lo=0`, `hi=inf`; if the entropy is above `log(perplexity)` set `lo=beta` and double `beta` while `hi` is infinite, otherwise average with `hi`; if the entropy is below set `hi=beta` and average with `lo`). The returned row is the one for the final `beta` computed in the last iteration.
+- `joint_p(X, perplexity)` -> symmetrised `P = (P_cond + P_cond.T) / (2N)`.
+- `q_matrix(Y)` -> `(Q, W)` with Student-t weights `W = 1/(1+D_Y)`, zero diagonal, `Q = W / W.sum()`.
+- `kl_divergence(P, Q)` over entries with `P > 0`.
+- `tsne_grad(P, Y)` -> gradient of KL(P||Q) with respect to the low-dimensional points `Y`, shape `(N, 2)`.
+- `tsne_step(P, Y, lr)` -> `Y - lr * grad`.
+- `kernel_pca(X, gamma, k)` -> `(scores, eigenvalues)` of RBF kernel PCA: `scores` has shape `(N, k)`.
+#@@ starter
+import numpy as np
+
+def sq_dists(X):
+    raise NotImplementedError
+
+def conditional_p(D, perplexity):
+    raise NotImplementedError
+
+def joint_p(X, perplexity):
+    raise NotImplementedError
+
+def q_matrix(Y):
+    raise NotImplementedError
+
+def kl_divergence(P, Q):
+    raise NotImplementedError
+
+def tsne_grad(P, Y):
+    raise NotImplementedError
+
+def tsne_step(P, Y, lr):
+    raise NotImplementedError
+
+def kernel_pca(X, gamma, k):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+rng = np.random.default_rng(0)
+X = np.vstack([rng.normal(0, .3, (10, 5)), rng.normal(3, .3, (10, 5))])
+D = sq_dists(X)
+check("distances are symmetric with zero diagonal", lambda: np.allclose(D, D.T) and np.all(np.diag(D) == 0))
+check("distance value check", lambda: abs(D[0, 1] - np.sum((X[0] - X[1]) ** 2)) < 1e-9)
+Pc = conditional_p(D, 5)
+check("rows of p(j|i) sum to 1 and the diagonal is 0", lambda: np.allclose(Pc.sum(1), 1) and np.all(np.diag(Pc) == 0))
+check("every row has perplexity 5", lambda: all(abs(np.exp(-np.sum(r[r > 0] * np.log(r[r > 0]))) - 5) < 1e-3 for r in Pc))
+P = joint_p(X, 5)
+check("P is symmetric and sums to 1", lambda: np.allclose(P, P.T) and abs(P.sum() - 1) < 1e-12)
+check("each of the two clusters holds mass 0.5 and cross-cluster mass is ~0", lambda: abs(P[:10, :10].sum() - 0.5) < 1e-6 and P[:10, 10:].sum() < 1e-6)
+Y = np.random.default_rng(1).normal(0, 1e-2, (20, 2))
+Q, W = q_matrix(Y)
+check("Q sums to 1 with zero diagonal", lambda: abs(Q.sum() - 1) < 1e-12 and np.all(np.diag(Q) == 0))
+check("KL(P||Q) is nonnegative and zero for P=Q", lambda: kl_divergence(P, Q) > 0 and abs(kl_divergence(Q, Q)) < 1e-12)
+g = tsne_grad(P, Y)
+def cost(Yflat):
+    return kl_divergence(P, q_matrix(Yflat.reshape(20, 2))[0])
+num = np.zeros(40)
+Yf = Y.ravel()
+for k in range(40):
+    e = np.zeros(40); e[k] = 1e-6
+    num[k] = (cost(Yf + e) - cost(Yf - e)) / 2e-6
+check("analytic gradient matches finite differences", lambda: g.shape == (20, 2) and np.abs(num - g.ravel()).max() < 1e-7)
+check("gradient rows sum to zero (translation invariance)", lambda: np.allclose(g.sum(0), 0, atol=1e-12))
+Y2 = tsne_step(P, Y, 10.0)
+check("one gradient step lowers the KL divergence", lambda: kl_divergence(P, q_matrix(Y2)[0]) < kl_divergence(P, Q))
+t = np.linspace(0, 2 * np.pi, 40, endpoint=False)
+circ = np.vstack([np.c_[np.cos(t), np.sin(t)], 3 * np.c_[np.cos(t), np.sin(t)]])
+lab = np.r_[np.zeros(40), np.ones(40)]
+Z, w = kernel_pca(circ, 0.5, 2)
+check("kernel PCA shapes", lambda: Z.shape == (80, 2) and len(w) == 2)
+check("top eigenvalues are 10.70 and 8.64", lambda: abs(w[0] - 10.6989) < 1e-3 and abs(w[1] - 8.6364) < 1e-3)
+check("first kernel component separates the two circles (|corr| = 1)", lambda: abs(np.corrcoef(Z[:, 0], lab)[0, 1]) > 0.999)
+Zl = circ - circ.mean(0)
+u = np.linalg.svd(Zl, full_matrices=False)[2][0]
+check("linear PCA cannot: its first score is uncorrelated with the circle label", lambda: abs(np.corrcoef(Zl @ u, lab)[0, 1]) < 0.1)
+#@@ solution
+import numpy as np
+
+def sq_dists(X):
+    s = (X ** 2).sum(axis=1)
+    D = s[:, None] + s[None, :] - 2 * X @ X.T
+    D = np.maximum(D, 0)
+    np.fill_diagonal(D, 0)
+    return D
+
+def conditional_p(D, perplexity):
+    n = len(D)
+    P = np.zeros((n, n))
+    target = np.log(perplexity)
+    for i in range(n):
+        lo, hi, beta = 0.0, np.inf, 1.0
+        di = np.delete(D[i], i)
+        for _ in range(60):
+            p = np.exp(-(di - di.min()) * beta)
+            p /= p.sum()
+            H = -np.sum(p * np.log(p + 1e-300))
+            if H > target:
+                lo = beta
+                beta = beta * 2 if hi == np.inf else (beta + hi) / 2
+            else:
+                hi = beta
+                beta = (beta + lo) / 2
+        P[i, np.arange(n) != i] = p
+    return P
+
+def joint_p(X, perplexity):
+    Pc = conditional_p(sq_dists(X), perplexity)
+    return (Pc + Pc.T) / (2 * len(X))
+
+def q_matrix(Y):
+    W = 1.0 / (1.0 + sq_dists(Y))
+    np.fill_diagonal(W, 0)
+    return W / W.sum(), W
+
+def kl_divergence(P, Q):
+    m = P > 0
+    return float(np.sum(P[m] * np.log(P[m] / Q[m])))
+
+def tsne_grad(P, Y):
+    Q, W = q_matrix(Y)
+    PQ = (P - Q) * W
+    return 4 * (np.diag(PQ.sum(axis=1)) - PQ) @ Y
+
+def tsne_step(P, Y, lr):
+    return Y - lr * tsne_grad(P, Y)
+
+def kernel_pca(X, gamma, k):
+    n = len(X)
+    K = np.exp(-gamma * sq_dists(X))
+    J = np.eye(n) - np.ones((n, n)) / n
+    vals, vecs = np.linalg.eigh(J @ K @ J)
+    order = np.argsort(vals)[::-1][:k]
+    return vecs[:, order] * np.sqrt(np.maximum(vals[order], 0)), vals[order]

@@ -1,0 +1,89 @@
+[
+  {
+    "id": "nb-scoring",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Multinomial Naive Bayes at prediction time: for each class sum the log prior and the log smoothed word probabilities, then take the arg max (or a softmax of the scores for probabilities).",
+      "fr": "Naive Bayes multinomial à la prédiction : pour chaque classe on somme le log du prior et les log des probabilités lissées des mots, puis on prend l'arg max (ou un softmax des scores pour des probabilités)."
+    },
+    "code": {
+      "en": "flowchart LR\n  DOC[\"document tokens<br/>w_1 ... w_m\"] --> SC\n  PR[\"log_prior (C,)\"] --> SC\n  TH[\"log_theta (C,V)<br/>theta = (n + alpha) / (sum n + alpha V)\"] --> SC\n  SC[\"score_c = log P(c) + sum_i log theta_(c, w_i)<br/>(C,)\"]\n  SC --> AM[\"argmax_c\"]\n  SC --> SM[\"softmax (over-confident)\"]\n  AM --> Y[\"predicted class\"]",
+      "fr": "flowchart LR\n  DOC[\"tokens du document<br/>w_1 ... w_m\"] --> SC\n  PR[\"log_prior (C,)\"] --> SC\n  TH[\"log_theta (C,V)<br/>theta = (n + alpha) / (sum n + alpha V)\"] --> SC\n  SC[\"score_c = log P(c) + sum_i log theta_(c, w_i)<br/>(C,)\"]\n  SC --> AM[\"argmax_c\"]\n  SC --> SM[\"softmax (trop confiant)\"]\n  AM --> Y[\"classe prédite\"]"
+    }
+  },
+  {
+    "id": "smoothing-alpha",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Effect of the smoothing pseudo-count alpha on the positive-class word probabilities of the worked example (11 tokens, |V| = 12): a word seen 3 times (blue) and a word never seen (orange). At alpha = 1 they are 4/23 and 1/23. Without smoothing (alpha = 0) the unseen word has probability 0 and zeroes the whole class score.",
+      "fr": "Effet du pseudo-comptage de lissage alpha sur les probabilités de mots de la classe positive de l'exemple travaillé (11 tokens, |V| = 12) : un mot vu 3 fois (bleu) et un mot jamais vu (orange). À alpha = 1 elles valent 4/23 et 1/23. Sans lissage (alpha = 0) le mot inconnu a probabilité 0 et annule tout le score de la classe."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3
+      ],
+      "yDomain": [
+        0,
+        0.35
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "(3+x)/(11+12*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x/(11+12*x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              0.1739
+            ],
+            [
+              1,
+              0.0435
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "confusion-matrix",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Confusion matrix of the imbalanced example (10 reviews, 3 positive): TP = 2, FP = 2, FN = 1, TN = 5. Precision 0.5, recall 0.667, F1 0.571, accuracy 0.7, the same accuracy as always answering negative.",
+      "fr": "Matrice de confusion de l'exemple déséquilibré (10 avis, 3 positifs) : TP = 2, FP = 2, FN = 1, TN = 5. Précision 0,5, rappel 0,667, F1 0,571, exactitude 0,7, la même que répondre toujours négatif."
+    },
+    "code": {
+      "en": "block-beta\n  columns 3\n  h0[\" \"] h1[\"predicted +\"] h2[\"predicted -\"]\n  r1[\"actual +\"] tp[\"TP = 2\"] fn[\"FN = 1\"]\n  r2[\"actual -\"] fp[\"FP = 2\"] tn[\"TN = 5\"]\n  style tp fill:#dcfce7,stroke:#16a34a\n  style tn fill:#dcfce7,stroke:#16a34a\n  style fp fill:#fee2e2,stroke:#dc2626\n  style fn fill:#fee2e2,stroke:#dc2626",
+      "fr": "block-beta\n  columns 3\n  h0[\" \"] h1[\"prédit +\"] h2[\"prédit -\"]\n  r1[\"réel +\"] tp[\"TP = 2\"] fn[\"FN = 1\"]\n  r2[\"réel -\"] fp[\"FP = 2\"] tn[\"TN = 5\"]\n  style tp fill:#dcfce7,stroke:#16a34a\n  style tn fill:#dcfce7,stroke:#16a34a\n  style fp fill:#fee2e2,stroke:#dc2626\n  style fn fill:#fee2e2,stroke:#dc2626"
+    }
+  },
+  {
+    "id": "imbalance-remedies",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Handling class imbalance, from the cheapest remedy to the costliest. Re-sampling touches the training set only, never the test set.",
+      "fr": "Gérer le déséquilibre de classes, du remède le moins coûteux au plus coûteux. Le rééchantillonnage ne touche que le jeu d'entraînement, jamais le test."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"report P, R, F1 of the minority class\"] --> B[\"move the decision threshold\"]\n  B --> C[\"class weights in the loss\"]\n  C --> D[\"re-sample the TRAIN set only\"]\n  D --> E[\"collect more minority examples\"]",
+      "fr": "flowchart LR\n  A[\"rapporter P, R, F1 de la classe minoritaire\"] --> B[\"déplacer le seuil de décision\"]\n  B --> C[\"poids de classe dans la perte\"]\n  C --> D[\"rééchantillonner le jeu d'ENTRAÎNEMENT seulement\"]\n  D --> E[\"collecter plus d'exemples minoritaires\"]"
+    }
+  }
+]

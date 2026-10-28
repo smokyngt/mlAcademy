@@ -1,0 +1,192 @@
+[
+  {
+    "id": "gan-game",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The GAN game. The generator maps noise to a fake; the discriminator scores real and fake samples. D is trained with binary cross-entropy (real = 1, fake = 0); G is trained through D (non-saturating loss) and never sees real data.",
+      "fr": "Le jeu du GAN. Le générateur transforme du bruit en faux ; le discriminateur note échantillons réels et faux. D est entraîné par entropie croisée binaire (réel = 1, faux = 0) ; G est entraîné à travers D (perte non saturante) et ne voit jamais de données réelles."
+    },
+    "code": {
+      "en": "flowchart LR\n  Z[\"z ~ N(0,I)<br/>(B,k)\"] --> G[\"Generator G\"]\n  G --> F[\"fake G(z) (B,d)\"]\n  RD[\"real data x (B,d)\"] --> D[\"Discriminator D\"]\n  F --> D\n  D --> P[\"D(x) in (0,1)<br/>(B,)\"]\n  P --> LD[\"L_D = -log D(x_r) - log(1 - D(x_f))\"]\n  P --> LG[\"L_G = -log D(G(z))\"]\n  LD -. \"update D\" .-> D\n  LG -. \"gradient through D, update G\" .-> G",
+      "fr": "flowchart LR\n  Z[\"z ~ N(0,I)<br/>(B,k)\"] --> G[\"Générateur G\"]\n  G --> F[\"faux G(z) (B,d)\"]\n  RD[\"données réelles x (B,d)\"] --> D[\"Discriminateur D\"]\n  F --> D\n  D --> P[\"D(x) in (0,1)<br/>(B,)\"]\n  P --> LD[\"L_D = -log D(x_r) - log(1 - D(x_f))\"]\n  P --> LG[\"L_G = -log D(G(z))\"]\n  LD -. \"mise à jour de D\" .-> D\n  LG -. \"gradient à travers D, mise à jour de G\" .-> G"
+    }
+  },
+  {
+    "id": "optimal-d",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "For a single point x with p_data(x) = a = 0.4 and p_g(x) = b = 0.1, the discriminator objective f(y) = a ln y + b ln(1 - y) peaks at y = a/(a+b) = 0.8, which is D*(x). This is the pointwise maximisation behind D* = p_data/(p_data + p_g).",
+      "fr": "Pour un point x avec p_data(x) = a = 0,4 et p_g(x) = b = 0,1, l'objectif du discriminateur f(y) = a ln y + b ln(1 - y) culmine en y = a/(a+b) = 0,8, soit D*(x). C'est la maximisation point par point derrière D* = p_data/(p_data + p_g)."
+    },
+    "spec": {
+      "xDomain": [
+        0.02,
+        0.98
+      ],
+      "yDomain": [
+        -1.7,
+        0.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "0.4*log(x)+0.1*log(1-x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.8,
+              -0.2503
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0.8,
+          "text": "D* = 0.8"
+        }
+      ]
+    }
+  },
+  {
+    "id": "saturating-gradient",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient of the generator loss with respect to the discriminator logit s, with D = sigmoid(s). Saturating loss log(1 - D): gradient -sigma(s) (orange), which vanishes for s very negative. Non-saturating loss -log D: gradient -(1 - sigma(s)) (blue), close to -1 there. At s = -6 they are -0.0025 and -0.9975.",
+      "fr": "Gradient de la perte du générateur par rapport au logit s du discriminateur, avec D = sigmoïde(s). Perte saturante log(1 - D) : gradient -sigma(s) (orange), qui s'annule pour s très négatif. Perte non saturante -log D : gradient -(1 - sigma(s)) (bleu), proche de -1 là. En s = -6 ils valent -0,0025 et -0,9975."
+    },
+    "spec": {
+      "xDomain": [
+        -8,
+        8
+      ],
+      "yDomain": [
+        -1.1,
+        0.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "-exp(-x)/(1+exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "-1/(1+exp(-x))",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              -6,
+              -0.9975
+            ],
+            [
+              -6,
+              -0.0025
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "js-vs-wasserstein",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Two point masses at distance theta. The Jensen-Shannon divergence (orange) is stuck at log 2 = 0.693 for every theta different from 0, so it gives no gradient about how far apart they are; the Wasserstein-1 distance |theta| (blue) grows smoothly with the distance. This is the motivation for the WGAN critic.",
+      "fr": "Deux masses ponctuelles à distance theta. La divergence de Jensen-Shannon (orange) reste bloquée à log 2 = 0,693 pour tout theta différent de 0, donc ne donne aucun gradient sur l'éloignement ; la distance de Wasserstein-1 |theta| (bleu) croît régulièrement avec la distance. C'est la motivation du critique WGAN."
+    },
+    "spec": {
+      "xDomain": [
+        -5.5,
+        5.5
+      ],
+      "yDomain": [
+        0,
+        5.5
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "abs(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              -5.5,
+              0.6931
+            ],
+            [
+              -0.05,
+              0.6931
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0.05,
+              0.6931
+            ],
+            [
+              5.5,
+              0.6931
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "pix2pix",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Pix2Pix: a conditional GAN with a U-Net generator and a PatchGAN discriminator that scores overlapping local patches, giving a (B,1,H',W') map of real/fake scores. The generator loss adds an L1 term to the adversarial one.",
+      "fr": "Pix2Pix : un GAN conditionnel avec un générateur U-Net et un discriminateur PatchGAN qui note des patchs locaux qui se recouvrent, donnant une carte de scores réel/faux (B,1,H',W'). La perte du générateur ajoute un terme L1 au terme adversarial."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"input x (sketch)\"] --> G[\"U-Net generator\"]\n  G --> GX[\"G(x)\"]\n  X --> D[\"PatchGAN D\"]\n  GX --> D\n  Y[\"target y (real pair)\"] --> D\n  D --> PM[\"patch scores (B,1,H',W')\"]\n  PM --> L[\"L_G = -log D(x, G(x)) + lambda * ||y - G(x)||_1\"]",
+      "fr": "flowchart LR\n  X[\"entrée x (esquisse)\"] --> G[\"générateur U-Net\"]\n  G --> GX[\"G(x)\"]\n  X --> D[\"PatchGAN D\"]\n  GX --> D\n  Y[\"cible y (paire réelle)\"] --> D\n  D --> PM[\"scores par patch (B,1,H',W')\"]\n  PM --> L[\"L_G = -log D(x, G(x)) + lambda * ||y - G(x)||_1\"]"
+    }
+  }
+]

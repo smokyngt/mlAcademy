@@ -1,0 +1,96 @@
+[
+ {
+  "id": "ops.03.q1",
+  "prompt": "Qu'est-ce que le décalage entraînement/serving (train/serve skew) ?",
+  "options": [
+   "Une différence systématique entre les features utilisées à l'entraînement et celles reçues au serving",
+   "Un entraînement plus lent que le serving",
+   "Un déséquilibre de classes dans le jeu d'entraînement",
+   "L'utilisation de deux modèles différents"
+  ],
+  "explanation": "Le modèle est évalué hors ligne sur une distribution de features et exécuté sur une autre ; rien ne plante, mais la précision baisse."
+ },
+ {
+  "id": "ops.03.q2",
+  "prompt": "Où faut-il calculer la moyenne et l'écart-type pour la mise à l'échelle des features ?",
+  "options": [
+   "Sur tout le jeu de données avant la séparation",
+   "Séparément sur chaque partition",
+   "Sur la partition d'entraînement uniquement, puis réutilisés pour la validation, le test et le serving",
+   "Sur la partition de test"
+  ],
+  "explanation": "Les statistiques de la partition de test font fuir de l'information ; utiliser les statistiques propres à chaque partition rend la transformation différente d'une partition à l'autre."
+ },
+ {
+  "id": "ops.03.q3",
+  "prompt": "Tu as cinq semaines de données de clics dont le taux de clic dépend des tendances du jour. Quelle séparation évite la fuite ?",
+  "options": [
+   "Séparation aléatoire 80/20 de toutes les lignes",
+   "Entraîner sur les semaines 1-4, tester sur la semaine 5",
+   "Tester sur un jour aléatoire de chaque semaine",
+   "Entraîner sur la semaine 5, tester sur les semaines 1-4"
+  ],
+  "explanation": "Une séparation temporelle empêche l'information du futur d'entrer dans l'entraînement."
+ },
+ {
+  "id": "ops.03.q4",
+  "prompt": "Deux scanners du même patient, à une semaine d'intervalle, se retrouvent l'un dans l'entraînement et l'autre dans le test. C'est...",
+  "options": [
+   "un croisement de features",
+   "un covariate shift",
+   "une mise à l'échelle avant la séparation",
+   "une fuite de groupe"
+  ],
+  "explanation": "Les lignes fortement corrélées d'un même groupe doivent rester dans la même partition."
+ },
+ {
+  "id": "ops.03.q5",
+  "prompt": "L'âge à l'entraînement a pour moyenne 30 et pour écart-type 5. Au serving, la feature d'âge est envoyée par erreur en mois (moyenne d'environ 360). De combien d'écarts-types d'entraînement la moyenne a-t-elle bougé ?",
+  "options": [],
+  "explanation": "$(360-30)/5=66$ ; un contrôle de décalage avec un seuil de 0,5 le signale immédiatement."
+ },
+ {
+  "id": "ops.03.q6",
+  "prompt": "Quel problème le hashing trick résout-il pour les features catégorielles ?",
+  "options": [
+   "Il supprime le besoin de mise à l'échelle",
+   "Il élimine toutes les collisions",
+   "Il associe les catégories inconnues à un espace d'indices de taille fixe sans vocabulaire",
+   "Il rend les catégories ordinales"
+  ],
+  "explanation": "L'indice est hash(catégorie) modulo une taille fixe, donc les nouvelles catégories sont encodées sans faire grandir le modèle ; les collisions sont aléatoires et généralement sans gravité."
+ },
+ {
+  "id": "ops.03.q7",
+  "prompt": "Une feature nouvellement ajoutée fait passer l'AUC de validation de 0,70 à 0,99. La première réaction la plus sensée est...",
+  "options": [
+   "soupçonner une fuite et enquêter sur la manière dont la feature est générée, p. ex. avec une ablation",
+   "la livrer",
+   "ajouter d'autres features de ce type",
+   "baisser le taux d'apprentissage"
+  ],
+  "explanation": "Un énorme saut dû à une seule feature est plus souvent de l'information d'étiquette qui a fui qu'un miracle."
+ },
+ {
+  "id": "ops.03.q8",
+  "prompt": "Une feature a 90 % de couverture à l'entraînement mais 20 % au test. Cela indique très probablement...",
+  "options": [
+   "une excellente feature",
+   "que la feature est catégorielle",
+   "rien ; la couverture est sans importance",
+   "que les partitions ne proviennent pas de la même distribution ou que la feature est générée différemment"
+  ],
+  "explanation": "Un grand écart de couverture entre partitions signale des distributions différentes ou une feature qui fuit ou qui est incohérente."
+ },
+ {
+  "id": "ops.03.q9",
+  "prompt": "Le principe central d'un feature store est...",
+  "options": [
+   "ne stocker que les étiquettes",
+   "une seule définition de chaque feature, servie à la fois à l'entraînement hors ligne et à l'inférence en ligne",
+   "des GPU plus rapides",
+   "le réglage automatique des hyperparamètres"
+  ],
+  "explanation": "Une définition unique évite deux implémentations divergentes de la même feature."
+ }
+]

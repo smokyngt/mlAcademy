@@ -1,0 +1,110 @@
+#@@ meta
+{"id": "math.15.ex1", "title": "Stable softmax, log-sum-exp, Welford, Kahan and bfloat16 rounding", "difficulty": 3, "runtime": "pyodide", "concepts": ["num.floatingpoint", "num.stability"], "hints": ["softmax_stable: e = np.exp(z - z.max()); return e / e.sum().", "welford(xs): loop with n, m, M2: d = x - m; m += d / n; M2 += d * (x - m). Return (mean, M2 / n, M2 / (n - 1)).", "kahan_sum(v): s = c = float32(0); for each t: y = float32(t - c); tt = float32(s + y); c = float32((tt - s) - y); s = tt.", "to_bfloat16(x): b = np.float32(x).view(np.uint32); round to nearest even: b = (b + 0x7FFF + ((b >> 16) & 1)) & 0xFFFF0000; view back as float32."]}
+#@@ prompt
+NumPy only. Implement:
+
+- `softmax_naive(z)` - the textbook formula `exp(z) / sum(exp(z))`; `softmax_stable(z)` - the max-shifted version.
+- `logsumexp_stable(z)` - `c + log(sum(exp(z - c)))` with `c = max(z)`.
+- `var_raw(x)` - population variance by `mean(x**2) - mean(x)**2`.
+- `welford(xs)` - one pass over an iterable, returning `(mean, population_variance, sample_variance)`.
+- `kahan_sum(v)` - Kahan compensated sum of a float32 array, computed in float32.
+- `central_diff_error(h)` - absolute error of the central difference of `exp` at `x=1` with step `h` (compare with `np.e`).
+- `to_bfloat16(x)` - round a float32 value to the nearest bfloat16 (keep the top 16 bits of the float32 pattern, round to nearest even) and return it as a float32.
+#@@ starter
+import numpy as np
+
+def softmax_naive(z):
+    raise NotImplementedError
+
+def softmax_stable(z):
+    raise NotImplementedError
+
+def logsumexp_stable(z):
+    raise NotImplementedError
+
+def var_raw(x):
+    raise NotImplementedError
+
+def welford(xs):
+    raise NotImplementedError
+
+def kahan_sum(v):
+    raise NotImplementedError
+
+def central_diff_error(h):
+    raise NotImplementedError
+
+def to_bfloat16(x):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+z = np.array([1000., 1001., 1002.])
+with np.errstate(all="ignore"):
+    check("naive softmax breaks on large logits", lambda: np.isnan(softmax_naive(z)).all())
+check("stable softmax = [0.09003, 0.24473, 0.66524]", lambda: np.allclose(softmax_stable(z), [0.09003057, 0.24472847, 0.66524096], atol=1e-7))
+check("stable softmax sums to 1", lambda: abs(softmax_stable(z).sum() - 1) < 1e-12)
+check("stable softmax agrees with naive on small logits", lambda: np.allclose(softmax_stable(np.array([0.5, -1., 2.])), softmax_naive(np.array([0.5, -1., 2.]))))
+check("logsumexp([1000,1001,1002]) = 1002.4076", lambda: abs(logsumexp_stable(z) - 1002.4076059644) < 1e-8)
+check("logsumexp([-1000,-1000]) = -1000 + ln 2", lambda: abs(logsumexp_stable(np.array([-1000., -1000.])) - (-1000 + np.log(2))) < 1e-10)
+x = 1e9 + np.array([4., 7., 13., 16.])
+check("raw-score variance is wrong (negative) here", lambda: var_raw(x) < 0)
+m, vp, vs = welford(x)
+check("Welford mean is 1000000010", lambda: abs(m - 1000000010.0) < 1e-6)
+check("Welford population variance is 22.5", lambda: abs(vp - 22.5) < 1e-9)
+check("Welford sample variance is 30", lambda: abs(vs - 30.0) < 1e-9)
+check("Welford matches np.var on random data", lambda: abs(welford(np.random.default_rng(0).normal(5, 2, 1000))[1] - np.random.default_rng(0).normal(5, 2, 1000).var()) < 1e-9)
+v = np.full(100000, 0.1, dtype=np.float32)
+seq = np.cumsum(v)[-1]
+check("sequential float32 sum drifts (about 9998.56)", lambda: abs(seq - 9998.557) < 0.01)
+check("Kahan sum of 1e5 copies of 0.1 is 10000", lambda: abs(float(kahan_sum(v)) - 10000.0) < 0.01)
+check("central difference error at h=1e-5 is tiny", lambda: central_diff_error(1e-5) < 1e-9)
+check("h=1e-12 is much worse than h=1e-5", lambda: central_diff_error(1e-12) > 1000 * central_diff_error(1e-5))
+check("h=1e-15 is catastrophic", lambda: central_diff_error(1e-15) > 0.01)
+check("bfloat16(0.1) = 0.10009765625", lambda: float(to_bfloat16(0.1)) == 0.10009765625)
+check("bfloat16(1.0) = 1.0", lambda: float(to_bfloat16(1.0)) == 1.0)
+check("bfloat16 keeps float32 range (1e38 stays finite)", lambda: np.isfinite(to_bfloat16(1e38)))
+check("bfloat16 relative error is at most 2^-8", lambda: abs(float(to_bfloat16(3.14159)) - 3.14159) / 3.14159 <= 2 ** -8 + 1e-9)
+#@@ solution
+import numpy as np
+
+def softmax_naive(z):
+    e = np.exp(z)
+    return e / e.sum()
+
+def softmax_stable(z):
+    e = np.exp(z - np.max(z))
+    return e / e.sum()
+
+def logsumexp_stable(z):
+    c = np.max(z)
+    return c + np.log(np.sum(np.exp(z - c)))
+
+def var_raw(x):
+    return np.mean(x ** 2) - np.mean(x) ** 2
+
+def welford(xs):
+    n, m, M2 = 0, 0.0, 0.0
+    for x in xs:
+        n += 1
+        d = x - m
+        m += d / n
+        M2 += d * (x - m)
+    return m, M2 / n, M2 / (n - 1)
+
+def kahan_sum(v):
+    s = np.float32(0)
+    c = np.float32(0)
+    for t in v:
+        y = np.float32(t - c)
+        tt = np.float32(s + y)
+        c = np.float32((tt - s) - y)
+        s = tt
+    return s
+
+def central_diff_error(h):
+    return abs((np.exp(1.0 + h) - np.exp(1.0 - h)) / (2 * h) - np.e)
+
+def to_bfloat16(x):
+    b = np.array([x], dtype=np.float32).view(np.uint32)
+    b = (b + np.uint32(0x7FFF) + ((b >> np.uint32(16)) & np.uint32(1))) & np.uint32(0xFFFF0000)
+    return b.view(np.float32)[0]

@@ -1,0 +1,91 @@
+[
+  {
+    "id": "clip-towers",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "CLIP: two separate towers project to the same dimension d; the (N,N) logit matrix S = U V^T / tau is classified row-wise (image to text) and column-wise (text to image) with the identity as target.",
+      "fr": "CLIP : deux tours séparées projettent dans la même dimension d ; la matrice de logits (N,N) S = U V^T / tau est classée par ligne (image vers texte) et par colonne (texte vers image) avec l'identité pour cible."
+    },
+    "code": {
+      "en": "flowchart LR\n  IM[\"images<br/>(N,3,H,W)\"] --> F[\"image encoder f\"] --> U[\"U (N,d)<br/>L2-normalised\"]\n  TX[\"captions<br/>(N,Tmax)\"] --> G[\"text encoder g\"] --> V[\"V (N,d)<br/>L2-normalised\"]\n  U --> S[\"S = U V^T / tau<br/>(N,N)\"]\n  V --> S\n  S --> R[\"rows: image to text<br/>CE, target = I\"]\n  S --> C[\"columns: text to image<br/>CE, target = I\"]\n  R --> L[\"L = (1/2)(i2t + t2i)\"]\n  C --> L",
+      "fr": "flowchart LR\n  IM[\"images<br/>(N,3,H,W)\"] --> F[\"encodeur d'images f\"] --> U[\"U (N,d)<br/>L2-normalisé\"]\n  TX[\"légendes<br/>(N,Tmax)\"] --> G[\"encodeur de texte g\"] --> V[\"V (N,d)<br/>L2-normalisé\"]\n  U --> S[\"S = U V^T / tau<br/>(N,N)\"]\n  V --> S\n  S --> R[\"lignes : image vers texte<br/>CE, target = I\"]\n  S --> C[\"colonnes : texte vers image<br/>CE, target = I\"]\n  R --> L[\"L = (1/2)(i2t + t2i)\"]\n  C --> L"
+    }
+  },
+  {
+    "id": "sim-matrix",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The logit matrix for the perfect-alignment example (N = 3, tau = 0.5, U = V = I): the matching pairs on the diagonal have logit 2, every other pair has 0. Each row softmax gives the correct caption 0.787.",
+      "fr": "La matrice de logits de l'exemple d'alignement parfait (N = 3, tau = 0,5, U = V = I) : les paires correctes sur la diagonale ont un logit 2, toutes les autres 0. Le softmax de chaque ligne donne 0,787 à la bonne légende."
+    },
+    "code": {
+      "en": "block-beta\n  columns 4\n  h0[\" \"] h1[\"caption 1\"] h2[\"caption 2\"] h3[\"caption 3\"]\n  r1[\"image 1\"] a11[\"2\"] a12[\"0\"] a13[\"0\"]\n  r2[\"image 2\"] a21[\"0\"] a22[\"2\"] a23[\"0\"]\n  r3[\"image 3\"] a31[\"0\"] a32[\"0\"] a33[\"2\"]\n  style a11 fill:#dcfce7,stroke:#16a34a\n  style a22 fill:#dcfce7,stroke:#16a34a\n  style a33 fill:#dcfce7,stroke:#16a34a",
+      "fr": "block-beta\n  columns 4\n  h0[\" \"] h1[\"légende 1\"] h2[\"légende 2\"] h3[\"légende 3\"]\n  r1[\"image 1\"] a11[\"2\"] a12[\"0\"] a13[\"0\"]\n  r2[\"image 2\"] a21[\"0\"] a22[\"2\"] a23[\"0\"]\n  r3[\"image 3\"] a31[\"0\"] a32[\"0\"] a33[\"2\"]\n  style a11 fill:#dcfce7,stroke:#16a34a\n  style a22 fill:#dcfce7,stroke:#16a34a\n  style a33 fill:#dcfce7,stroke:#16a34a"
+    }
+  },
+  {
+    "id": "temperature-loss",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Effect of the temperature on the two-pair example (cosines 0.8 on the diagonal, 0.6 off it): the loss is log(1 + exp(-0.2/tau)). tau = 0.1 gives 0.1269, tau = 1 gives 0.5981, and as tau grows the loss tends to log N = 0.693.",
+      "fr": "Effet de la température sur l'exemple à deux paires (cosinus 0,8 sur la diagonale, 0,6 ailleurs) : la perte vaut log(1 + exp(-0,2/tau)). tau = 0,1 donne 0,1269, tau = 1 donne 0,5981, et pour tau grand la perte tend vers log N = 0,693."
+    },
+    "spec": {
+      "xDomain": [
+        0.02,
+        3
+      ],
+      "yDomain": [
+        0,
+        0.8
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "log(1+exp(-0.2/x))",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.1,
+              0.1269
+            ],
+            [
+              1,
+              0.5981
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.6931,
+          "text": "log N"
+        }
+      ]
+    }
+  },
+  {
+    "id": "zero-shot",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Zero-shot classification: no parameter is trained on the target classes. Prompts become class embeddings once; the image embedding is compared by cosine and the arg max wins.",
+      "fr": "Classification zero-shot : aucun paramètre n'est entraîné sur les classes cibles. Les prompts deviennent une fois pour toutes des embeddings de classe ; l'embedding de l'image est comparé par cosinus et l'arg max l'emporte."
+    },
+    "code": {
+      "en": "flowchart LR\n  PR[\"prompts<br/>a photo of a cat / dog / car\"] --> TE[\"text encoder\"] --> T1[\"T (K,d)<br/>L2-normalised\"]\n  IM[\"test image\"] --> IE[\"image encoder\"] --> UU[\"u (d,)<br/>L2-normalised\"]\n  T1 --> SC[\"s = T u<br/>(K,)\"]\n  UU --> SC\n  SC --> AM[\"argmax\"]\n  AM --> CL[\"predicted class\"]",
+      "fr": "flowchart LR\n  PR[\"prompts<br/>a photo of a cat / dog / car\"] --> TE[\"encodeur de texte\"] --> T1[\"T (K,d)<br/>L2-normalisé\"]\n  IM[\"image de test\"] --> IE[\"encodeur d'images\"] --> UU[\"u (d,)<br/>L2-normalisé\"]\n  T1 --> SC[\"s = T u<br/>(K,)\"]\n  UU --> SC\n  SC --> AM[\"argmax\"]\n  AM --> CL[\"classe prédite\"]"
+    }
+  }
+]

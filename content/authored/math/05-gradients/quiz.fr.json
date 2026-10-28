@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.05.q1",
+    "prompt": "Pour $f(x,y)=x^2y+3y$, que vaut $\\partial f/\\partial x$ en $(x,y)=(2,5)$ ?",
+    "options": [],
+    "explanation": "Traite $y$ comme une constante : $\\partial f/\\partial x=2xy=2\\cdot2\\cdot5=20$. Le terme $3y$ ne contient pas $x$ et disparaît."
+  },
+  {
+    "id": "f2n.05.q2",
+    "prompt": "$f:\\mathbb{R}^{10}\\to\\mathbb{R}$. Quelle est la forme de $\\nabla f(x)$ ?",
+    "options": ["un scalaire", "un vecteur de longueur 10", "une matrice $10\\times10$", "un vecteur de longueur 1"],
+    "explanation": "Une dérivée partielle par coordonnée d'entrée. Le gradient d'une fonction scalaire a toujours la forme de son entrée."
+  },
+  {
+    "id": "f2n.05.q3",
+    "prompt": "$f(x,y)=x^2+3y^2$. Quel est le carré de la norme $\\|\\nabla f(1,1)\\|^2$ ?",
+    "options": [],
+    "explanation": "$\\nabla f=(2x,6y)=(2,6)$ en $(1,1)$, donc $\\|\\nabla f\\|^2=4+36=40$."
+  },
+  {
+    "id": "f2n.05.q4",
+    "prompt": "Pourquoi $\\nabla f$ pointe-t-il dans la direction de plus forte montée ?",
+    "options": ["Parce que $\\nabla f$ est le plus grand vecteur disponible", "Parce que $D_uf=\\nabla f\\cdot u=\\|\\nabla f\\|\\cos\\theta$ est maximal quand $u$ est parallèle à $\\nabla f$", "Parce que $f$ est toujours convexe", "Parce que $\\nabla f=0$ au maximum"],
+    "explanation": "Le taux de variation le long d'une direction unitaire est un produit scalaire avec le gradient, et le produit scalaire avec un vecteur unitaire est maximal quand les vecteurs sont alignés (Cauchy-Schwarz)."
+  },
+  {
+    "id": "f2n.05.q5",
+    "prompt": "Pour $L(w)=\\frac1N\\|Xw-y\\|^2$ avec $X\\in\\mathbb{R}^{N\\times d}$, quelle expression est $\\nabla_wL$ ?",
+    "options": ["$\\frac2N (Xw-y)X^\\top$", "$\\frac2N X(Xw-y)$", "$\\frac2N X^\\top(Xw-y)$", "$\\frac1N X^\\top X w$"],
+    "explanation": "Les formes tranchent : $X^\\top$ est $d\\times N$ et $(Xw-y)$ est $N$, ce qui donne un vecteur de longueur $d$ comme $w$. L'option B a des formes incompatibles."
+  },
+  {
+    "id": "f2n.05.q6",
+    "prompt": "En un point où $\\nabla f=0$, qu'est-ce qui est garanti ?",
+    "options": ["un minimum global", "un minimum local", "un point stationnaire : minimum, maximum ou point selle", "un maximum global"],
+    "explanation": "Un gradient nul dit seulement que la variation au premier ordre s'annule dans toutes les directions. L'information du second ordre (la hessienne) détermine le type."
+  }
+]

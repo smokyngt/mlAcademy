@@ -1,0 +1,91 @@
+[
+ {
+  "id": "vis.01.q1",
+  "prompt": "Une photo RGB décodée avec PIL a la forme (480, 640, 3). Quelle affirmation est correcte ?",
+  "options": [
+   "Elle est en disposition HWC : hauteur 480, largeur 640, 3 canaux",
+   "Elle a 480 canaux",
+   "C'est un lot de 480 images",
+   "Elle est en disposition CHW"
+  ],
+  "explanation": "Les fichiers et PIL utilisent hauteur-largeur-canaux ; les convolutions PyTorch attendent (3, 480, 640) par image."
+ },
+ {
+  "id": "vis.01.q2",
+  "prompt": "Quelle opération sur tableau convertit un tableau HWC en CHW ?",
+  "options": [
+   "img.reshape(3, H, W)",
+   "img[::-1]",
+   "img.transpose(2, 0, 1)",
+   "img.T"
+  ],
+  "explanation": "transpose(2,0,1) place l'axe des canaux en premier sans changer l'ordre des données dans chaque plan ; reshape mélangerait les pixels entre les canaux."
+ },
+ {
+  "id": "vis.01.q3",
+  "prompt": "Valeur de pixel 210 dans le canal rouge, moyenne ImageNet 0.485 et écart-type 0.229. Quelle est la valeur standardisée $(210/255-0.485)/0.229$ ? (3 décimales)",
+  "options": [],
+  "explanation": "$210/255=0.8235$ ; $(0.8235-0.485)/0.229=1.478$."
+ },
+ {
+  "id": "vis.01.q4",
+  "prompt": "Pourquoi le gris se calcule-t-il comme $0.299R+0.587G+0.114B$ plutôt qu'avec la simple moyenne ?",
+  "options": [
+   "Les poids rendent le résultat entier",
+   "Les pixels bleus sont plus bruités",
+   "C'est plus rapide à calculer",
+   "L'œil est le plus sensible au vert, donc le vert est le plus pondéré"
+  ],
+  "explanation": "Les poids approximent la perception humaine de la luminance."
+ },
+ {
+  "id": "vis.01.q5",
+  "prompt": "Un filtre $3\\times3$ valid (sans remplissage, pas de 1) est appliqué à une image $28\\times28$. Combien de lignes la sortie a-t-elle ?",
+  "options": [],
+  "explanation": "$H-k_h+1=28-3+1=26$."
+ },
+ {
+  "id": "vis.01.q6",
+  "prompt": "Pourquoi le noyau Sobel-x donne-t-il zéro sur une région de luminosité constante ?",
+  "options": [
+   "Ses poids ont une somme nulle, donc une fenêtre constante s'annule",
+   "Il ne lit que la colonne de gauche",
+   "Il ignore la ligne du milieu",
+   "Il est normalisé par la variance locale"
+  ],
+  "explanation": "Une fenêtre de valeur constante $c$ donne $c\\cdot\\sum K=0$ ; une marche de contour brise la symétrie entre les colonnes gauche et droite."
+ },
+ {
+  "id": "vis.01.q7",
+  "prompt": "Les couches de « convolution » du deep learning calculent en réalité...",
+  "options": [
+   "un maximum sur la fenêtre",
+   "une transformée de Fourier",
+   "une vraie convolution avec un noyau retourné",
+   "une intercorrélation (sans retournement du noyau)"
+  ],
+  "explanation": "Le noyau n'est pas retourné ; comme il est appris, le réseau apprend simplement la version retournée si besoin."
+ },
+ {
+  "id": "vis.01.q8",
+  "prompt": "Tu dois redimensionner une image d'étiquettes de segmentation dont les valeurs de pixels sont des identifiants de classe. Quelle interpolation est appropriée ?",
+  "options": [
+   "Bicubique",
+   "Plus proche voisin",
+   "Bilinéaire",
+   "Lanczos"
+  ],
+  "explanation": "Toute interpolation par mélange invente des valeurs (par exemple la classe 1.5) qui ne sont pas des identifiants valides ; le plus proche voisin copie des identifiants existants."
+ },
+ {
+  "id": "vis.01.q9",
+  "prompt": "Quelle augmentation risque le plus de casser les étiquettes d'un jeu de données de chiffres manuscrits ?",
+  "options": [
+   "Petite translation aléatoire",
+   "Ajout d'un bruit léger",
+   "Rotation de 180 degrés",
+   "Léger changement de luminosité"
+  ],
+  "explanation": "Un 6 pivoté de 180 degrés ressemble à un 9 ; les augmentations doivent préserver l'étiquette."
+ }
+]

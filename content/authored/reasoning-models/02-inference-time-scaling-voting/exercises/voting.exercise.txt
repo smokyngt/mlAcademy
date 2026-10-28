@@ -1,0 +1,190 @@
+#@@ meta
+{"id": "rsn.02.ex2", "title": "Voting, best-of-n and the expected-accuracy curve", "difficulty": 4, "runtime": "pyodide", "concepts": ["rsn.vote"], "hints": ["plurality_vote: use collections.Counter; the winners are the answers whose count equals the maximum. Return None when there is more than one winner.", "Binary model: P(correct wins) = sum over c of Binom(c; n, p) times (1 if 2c > n, tie_value if 2c == n, else 0). With tie='random' a tie is worth 1/2; with tie='none' it is worth 0.", "Spread model: loop over c = number of correct samples, then over all ways to distribute the n-c wrong samples among m wrong answers (compositions). The probability of a composition is the multinomial coefficient (n-c)! / prod(w_j!) times (1/m)^(n-c). The correct answer wins outright if c > max(w), and ties with t wrong answers when c == max(w) and t of them equal c: worth 1/(1+t) under random tie-breaking."]}
+#@@ prompt
+Inference-time scaling spends more compute per question. Implement its basic tools on canned data (no model needed):
+
+- `plurality_vote(answers)` -> `(winner, counts)`: the most frequent answer string, or `None` for the winner if there is a tie for the top count (as in the book's self-consistency); `counts` is a `Counter`.
+- `vote_with_tiebreak(answers, scores)`: plurality vote; among tied answers pick the one with the highest **mean** score of its samples (score = for example average log-probability of that sample); if still tied, the alphabetically first.
+- `best_of_n(answers, scores)`: the answer of the highest-scoring sample (first one on ties).
+- `majority_acc_binary(n, p, tie="random")`: exact probability that the correct answer wins a vote of `n` independent samples when every sample is either correct (prob `p`) or the same single wrong answer. A tie is worth 0.5 for `tie="random"` and 0 for `tie="none"`.
+- `plurality_acc(n, p, m, tie="random")`: the same when wrong samples are spread **uniformly** over `m` distinct wrong answers; the correct answer wins if it has the strictly largest count, and ties are shared (`1/(1+t)` for `t` wrong answers tying) or worth 0.
+- `mixture_curve(ps, ns, m, tie="random")`: for a list of per-problem success probabilities `ps`, the mean plurality accuracy for each `n` in `ns` (use `majority_acc_binary` when `m == 1`).
+- `accuracy_under_budget(lengths, correct, budget)`: fraction of attempts that are correct **and** finished within `budget` tokens (cut-off attempts have no final answer).
+- `marginal_gain(accs, costs)`: accuracy gained per unit of extra cost between consecutive settings.
+#@@ starter
+import numpy as np
+from collections import Counter
+from math import comb, factorial
+
+
+def plurality_vote(answers):
+    raise NotImplementedError
+
+
+def vote_with_tiebreak(answers, scores):
+    raise NotImplementedError
+
+
+def best_of_n(answers, scores):
+    raise NotImplementedError
+
+
+def majority_acc_binary(n, p, tie="random"):
+    raise NotImplementedError
+
+
+def plurality_acc(n, p, m, tie="random"):
+    raise NotImplementedError
+
+
+def mixture_curve(ps, ns, m, tie="random"):
+    raise NotImplementedError
+
+
+def accuracy_under_budget(lengths, correct, budget):
+    raise NotImplementedError
+
+
+def marginal_gain(accs, costs):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+from math import comb
+
+w, c = plurality_vote(["83", "83", "38", "83", "5"])
+check("plurality winner and counts", lambda: w == "83" and c["83"] == 3 and c["38"] == 1)
+check("a tie gives no winner", lambda: plurality_vote(["83", "38"])[0] is None)
+check("single sample wins", lambda: plurality_vote(["7"])[0] == "7")
+check("tie-break by mean score picks b", lambda: vote_with_tiebreak(["a", "b", "a", "b"], [-1.0, -0.2, -3.0, -0.5]) == "b")
+check("tie-break not needed for a clear winner", lambda: vote_with_tiebreak(["a", "a", "b"], [-9.0, -9.0, -0.1]) == "a")
+check("tie-break falls back to alphabetical", lambda: vote_with_tiebreak(["b", "a"], [-1.0, -1.0]) == "a")
+check("best-of-n takes the best scorer even if rare", lambda: best_of_n(["a", "a", "b"], [-9.0, -8.0, -0.1]) == "b")
+check("best-of-n first on ties", lambda: best_of_n(["x", "y"], [1.0, 1.0]) == "x")
+
+check("n=1 equals p", lambda: abs(majority_acc_binary(1, 0.6) - 0.6) < 1e-12)
+check("n=3, p=0.6 -> 0.648", lambda: abs(majority_acc_binary(3, 0.6) - 0.648) < 1e-12)
+check("n=5, p=0.6 -> 0.68256", lambda: abs(majority_acc_binary(5, 0.6) - 0.68256) < 1e-12)
+check("two samples gain nothing with random ties (0.6)", lambda: abs(majority_acc_binary(2, 0.6) - 0.6) < 1e-12)
+check("two samples with tie='none' (0.36)", lambda: abs(majority_acc_binary(2, 0.6, "none") - 0.36) < 1e-12)
+check("binary vote hurts when p < 0.5", lambda: majority_acc_binary(9, 0.4) < 0.4 and majority_acc_binary(21, 0.45) < majority_acc_binary(5, 0.45))
+check("p = 0.5 is a fixed point for odd n", lambda: abs(majority_acc_binary(7, 0.5) - 0.5) < 1e-12)
+check("approaches 1 for p=0.7", lambda: majority_acc_binary(21, 0.7) > 0.97)
+
+check("n=1 spread model equals p", lambda: abs(plurality_acc(1, 0.3, 4) - 0.3) < 1e-12)
+check("m=1 reduces to the binary model", lambda: abs(plurality_acc(5, 0.4, 1) - majority_acc_binary(5, 0.4)) < 1e-12)
+check("spread model: p=0.3, n=9, m=4 -> 0.4339", lambda: abs(plurality_acc(9, 0.3, 4) - 0.4339) < 5e-5)
+check("spread model beats binary when p<0.5", lambda: plurality_acc(9, 0.3, 4) > 0.4 > majority_acc_binary(9, 0.3))
+check("spread model p=0.3, n=5, m=3 -> 0.33458", lambda: abs(plurality_acc(5, 0.3, 3) - 0.33458) < 1e-5)
+check("tie='none' is never larger", lambda: plurality_acc(6, 0.4, 3, "none") <= plurality_acc(6, 0.4, 3, "random"))
+
+ps = [0.95, 0.8, 0.6, 0.4, 0.2, 0.05]
+cur_bin = mixture_curve(ps, [1, 3, 9], 1)
+check("binary mixture: symmetric difficulties stay at 0.5", lambda: all(abs(x - 0.5) < 1e-9 for x in cur_bin))
+cur = mixture_curve(ps, [1, 3, 5, 9], 3)
+check("spread mixture curve 0.5, 0.5497, 0.5791, 0.6113", lambda: np.allclose(cur, [0.5, 0.5497, 0.5791, 0.6113], atol=5e-5))
+check("spread mixture with tie='none' at n=9 -> 0.5827", lambda: abs(mixture_curve(ps, [9], 3, "none")[0] - 0.5827) < 5e-5)
+
+L = [120, 350, 900, 1500, 2600, 4000]
+ok = [1, 1, 0, 1, 1, 1]
+check("budget 1000 keeps two correct", lambda: abs(accuracy_under_budget(L, ok, 1000) - 2 / 6) < 1e-12)
+check("budget 2048 keeps three", lambda: abs(accuracy_under_budget(L, ok, 2048) - 3 / 6) < 1e-12)
+check("budget 5000 keeps five", lambda: abs(accuracy_under_budget(L, ok, 5000) - 5 / 6) < 1e-12)
+check("budget 100 keeps none", lambda: accuracy_under_budget(L, ok, 100) == 0.0)
+
+accs = [33.4, 42.2, 48.0, 52.0]
+costs = [129.2, 211.6, 452.9, 862.6]
+mg = marginal_gain(accs, costs)
+check("marginal gain per minute shrinks (0.1068, 0.0240, 0.0098)", lambda: len(mg) == 3 and np.allclose(mg, [0.10680, 0.02404, 0.00976], atol=2e-4))
+check("marginal gain is decreasing", lambda: mg[0] > mg[1] > mg[2])
+#@@ solution
+import numpy as np
+from collections import Counter
+from math import comb, factorial
+
+
+def plurality_vote(answers):
+    counts = Counter(answers)
+    top = max(counts.values())
+    winners = [a for a, k in counts.items() if k == top]
+    return (winners[0] if len(winners) == 1 else None), counts
+
+
+def vote_with_tiebreak(answers, scores):
+    _, counts = plurality_vote(answers)
+    top = max(counts.values())
+    tied = sorted(a for a, k in counts.items() if k == top)
+    if len(tied) == 1:
+        return tied[0]
+    def mean_score(a):
+        s = [sc for ans, sc in zip(answers, scores) if ans == a]
+        return sum(s) / len(s)
+    best = max(mean_score(a) for a in tied)
+    return [a for a in tied if mean_score(a) == best][0]
+
+
+def best_of_n(answers, scores):
+    best = 0
+    for i, s in enumerate(scores):
+        if s > scores[best]:
+            best = i
+    return answers[best]
+
+
+def majority_acc_binary(n, p, tie="random"):
+    total = 0.0
+    for c in range(n + 1):
+        pr = comb(n, c) * p ** c * (1 - p) ** (n - c)
+        if 2 * c > n:
+            total += pr
+        elif 2 * c == n:
+            total += pr * (0.5 if tie == "random" else 0.0)
+    return total
+
+
+def _compositions(total, parts):
+    if parts == 1:
+        yield (total,)
+        return
+    for first in range(total + 1):
+        for rest in _compositions(total - first, parts - 1):
+            yield (first,) + rest
+
+
+def plurality_acc(n, p, m, tie="random"):
+    total = 0.0
+    for c in range(n + 1):
+        pc = comb(n, c) * p ** c * (1 - p) ** (n - c)
+        wrong = n - c
+        for comp in _compositions(wrong, m):
+            coef = factorial(wrong)
+            for x in comp:
+                coef //= factorial(x)
+            pr = pc * coef * (1.0 / m) ** wrong
+            wmax = max(comp)
+            if c > wmax:
+                win = 1.0
+            elif c == wmax:
+                t = sum(1 for x in comp if x == c)
+                win = 1.0 / (1 + t) if tie == "random" else 0.0
+            else:
+                win = 0.0
+            total += pr * win
+    return total
+
+
+def mixture_curve(ps, ns, m, tie="random"):
+    out = []
+    for n in ns:
+        if m == 1:
+            out.append(float(np.mean([majority_acc_binary(n, p, tie) for p in ps])))
+        else:
+            out.append(float(np.mean([plurality_acc(n, p, m, tie) for p in ps])))
+    return out
+
+
+def accuracy_under_budget(lengths, correct, budget):
+    return sum(1 for L, c in zip(lengths, correct) if c and L <= budget) / len(lengths)
+
+
+def marginal_gain(accs, costs):
+    return [(accs[i + 1] - accs[i]) / (costs[i + 1] - costs[i]) for i in range(len(accs) - 1)]

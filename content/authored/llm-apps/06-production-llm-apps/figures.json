@@ -1,0 +1,74 @@
+[
+  {
+    "id": "request-trace",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One request through the production stack as a sequence: guardrails and cache first, then retrieval and the model, with every stage emitting a span into the trace.",
+      "fr": "Une requête à travers la pile de production en séquence : garde-fous et cache d'abord, puis récupération et modèle, chaque étape émettant un span dans la trace."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant C as Client\n  participant G as Gateway and guardrails\n  participant K as Cache\n  participant O as Orchestrator\n  participant L as LLM\n  participant T as Trace\n  C->>G: request\n  G->>K: lookup\n  K-->>G: miss\n  G->>O: checked request\n  O->>L: prompt + retrieved evidence\n  L-->>O: stream tokens\n  O->>G: draft answer\n  G-->>C: answer after output checks\n  G->>T: spans, tokens, cost, verdicts",
+      "fr": "sequenceDiagram\n  participant C as Client\n  participant G as Passerelle et garde-fous\n  participant K as Cache\n  participant O as Orchestrateur\n  participant L as LLM\n  participant T as Trace\n  C->>G: requête\n  G->>K: recherche\n  K-->>G: absent\n  G->>O: requête vérifiée\n  O->>L: prompt + preuves récupérées\n  L-->>O: flux de jetons\n  O->>G: réponse provisoire\n  G-->>C: réponse après contrôles de sortie\n  G->>T: spans, jetons, coût, verdicts"
+    }
+  },
+  {
+    "id": "retry-cost",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Retries are billed: with failure probability p per attempt and up to k attempts, expected spend is cost x (1 - p^k)/(1 - p). Here k = 3 as a function of p; at p = 0.5 it is 1.75 times the cost of one call.",
+      "fr": "Les nouvelles tentatives sont facturées : avec une probabilité d'échec p par essai et jusqu'à k essais, la dépense attendue est coût x (1 - p^k)/(1 - p). Ici k = 3 en fonction de p ; pour p = 0,5 elle vaut 1,75 fois le coût d'un appel."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        0.9
+      ],
+      "yDomain": [
+        1,
+        3
+      ],
+      "title": "p",
+      "data": [
+        {
+          "fn": "(1 - x^3)/(1 - x)",
+          "color": "#2563eb"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0.5,
+          "text": "1.75x"
+        }
+      ]
+    }
+  },
+  {
+    "id": "agent-checkpoint",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The agent runner as a sequence with an interrupt: after the first agent step the run stops before the tools node for human approval, the state is checkpointed, and resuming gives exactly the same final state as an uninterrupted run.",
+      "fr": "Le moteur d'agent en séquence avec une interruption : après la première étape de l'agent, l'exécution s'arrête avant le noeud d'outils pour une approbation humaine, l'état est sauvegardé, et la reprise donne exactement le même état final qu'une exécution sans interruption."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant R as Runner\n  participant A as agent node\n  participant H as Human\n  participant T as tools node\n  R->>A: state\n  A-->>R: tool call add(2, 3), append\n  R->>R: checkpoint saved\n  R-->>H: interrupt before tools\n  H->>R: approve, resume\n  R->>T: state\n  T-->>R: result 5, append\n  R->>A: state\n  A-->>R: final answer, status done",
+      "fr": "sequenceDiagram\n  participant R as Runner\n  participant A as noeud agent\n  participant H as Humain\n  participant T as noeud outils\n  R->>A: state\n  A-->>R: appel d'outil add(2, 3), ajout\n  R->>R: point de reprise sauvegardé\n  R-->>H: interruption avant les outils\n  H->>R: approuver, reprendre\n  R->>T: state\n  T-->>R: résultat 5, ajout\n  R->>A: state\n  A-->>R: réponse finale, statut done"
+    }
+  },
+  {
+    "id": "mcp-architecture",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "MCP: a host application contains clients, each speaking JSON-RPC over a transport to one server; each server exposes tools, resources and prompts. Server output is still untrusted data.",
+      "fr": "MCP : une application hôte contient des clients, chacun parlant JSON-RPC sur un transport à un serveur ; chaque serveur expose des outils, des ressources et des prompts. La sortie d'un serveur reste une donnée non fiable."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph HOST[\"Host (AI application)\"]\n    M[\"LLM\"] --- C1[\"client 1\"]\n    M --- C2[\"client 2\"]\n  end\n  C1 <-->|\"JSON-RPC\"| S1[\"server: database\"]\n  C2 <-->|\"JSON-RPC\"| S2[\"server: calendar\"]\n  S1 --> P1[\"tools, resources, prompts\"]\n  S2 --> P2[\"tools, resources, prompts\"]",
+      "fr": "flowchart LR\n  subgraph HOST[\"Hôte (application d'IA)\"]\n    M[\"LLM\"] --- C1[\"client 1\"]\n    M --- C2[\"client 2\"]\n  end\n  C1 <-->|\"JSON-RPC\"| S1[\"serveur : base de données\"]\n  C2 <-->|\"JSON-RPC\"| S2[\"serveur : calendrier\"]\n  S1 --> P1[\"outils, ressources, prompts\"]\n  S2 --> P2[\"outils, ressources, prompts\"]"
+    }
+  }
+]

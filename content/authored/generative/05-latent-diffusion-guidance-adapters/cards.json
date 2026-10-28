@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.05.c1",
+  "concept": "gen.latent-diffusion",
+  "front": "Two stages of latent diffusion",
+  "back": "1) train a VAE/autoencoder and freeze it; 2) train the diffusion model on the latents $z=E(x)$; decode with $D$."
+ },
+ {
+  "id": "gen.05.c2",
+  "concept": "gen.latent-diffusion",
+  "front": "Why diffuse in latent space?",
+  "back": "The tensor is far smaller (about 48x for 8x downsampling), so each denoising step is much cheaper; the loss is unchanged."
+ },
+ {
+  "id": "gen.05.c3",
+  "concept": "gen.latent-diffusion",
+  "front": "Cross-attention",
+  "back": "$\\mathrm{softmax}(QK^\\top/\\sqrt{d_k})V$ with $Q$ from image features, $K,V$ from text tokens."
+ },
+ {
+  "id": "gen.05.c4",
+  "concept": "gen.latent-diffusion",
+  "front": "Typical latent shape",
+  "back": "$(B,4,64,64)$ for a $512\\times512$ image with 8x downsampling."
+ },
+ {
+  "id": "gen.05.c5",
+  "concept": "gen.latent-diffusion",
+  "front": "ControlNet",
+  "back": "Frozen base + trainable encoder copy fed with a spatial condition, joined through zero-initialised convolutions."
+ },
+ {
+  "id": "gen.05.c6",
+  "concept": "gen.latent-diffusion",
+  "front": "LoRA update",
+  "back": "$W'=W+\\frac{\\alpha}{r}BA$, $A\\in\\mathbb R^{r\\times d_\\text{in}}$, $B\\in\\mathbb R^{d_\\text{out}\\times r}$, $B$ initialised to 0."
+ },
+ {
+  "id": "gen.05.c7",
+  "concept": "gen.latent-diffusion",
+  "front": "LoRA parameter count",
+  "back": "$r(d_\\text{out}+d_\\text{in})$ instead of $d_\\text{out}d_\\text{in}$."
+ },
+ {
+  "id": "gen.05.c8",
+  "concept": "gen.cfg",
+  "front": "Classifier-free guidance formula",
+  "back": "$\\tilde\\varepsilon=\\varepsilon_u+w(\\varepsilon_c-\\varepsilon_u)$."
+ },
+ {
+  "id": "gen.05.c9",
+  "concept": "gen.cfg",
+  "front": "Derivation of CFG",
+  "back": "$p_w(x|c)\\propto p(x)p(c|x)^w$; score $=\\nabla\\log p(x)+w(\\nabla\\log p(x|c)-\\nabla\\log p(x))$; multiply by $-\\sqrt{1-\\bar\\alpha_t}$."
+ },
+ {
+  "id": "gen.05.c10",
+  "concept": "gen.cfg",
+  "front": "How is one network used for both $\\varepsilon_c$ and $\\varepsilon_u$?",
+  "back": "The condition is randomly dropped (about 10%) during training."
+ },
+ {
+  "id": "gen.05.c11",
+  "concept": "gen.cfg",
+  "front": "Effect of large guidance scale",
+  "back": "Better prompt adherence but saturated, less diverse images; cost is two network passes per step."
+ },
+ {
+  "id": "gen.05.c12",
+  "concept": "gen.latent-diffusion",
+  "front": "Noise predictor vs score",
+  "back": "$\\varepsilon_\\theta=-\\sqrt{1-\\bar\\alpha_t}\\,\\nabla_{x_t}\\log p_t(x_t)$."
+ },
+ {
+  "id": "gen.05.c13",
+  "concept": "gen.latent-diffusion",
+  "front": "What does LoRA vs ControlNet teach?",
+  "back": "LoRA: new concepts/styles in the weights. ControlNet: a new spatial conditioning signal."
+ },
+ {
+  "id": "gen.05.c14",
+  "concept": "gen.latent-diffusion",
+  "front": "Can LoRA adapters be merged?",
+  "back": "Yes: $W'=W+\\Delta W$ adds no inference cost; several adapters add up."
+ }
+]

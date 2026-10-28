@@ -1,0 +1,17 @@
+[
+  { "id": "dl.04.c1", "concept": "dl.pytorch", "front": "Three properties of a tensor", "back": "Shape, dtype and device (plus whether it requires gradients)." },
+  { "id": "dl.04.c2", "concept": "dl.pytorch", "front": "`torch.tensor(a)` versus `torch.from_numpy(a)`", "back": "`tensor` copies the NumPy array; `from_numpy` shares its memory." },
+  { "id": "dl.04.c3", "concept": "dl.pytorch", "front": "Autograd in one sentence", "back": "Records operations in the forward pass and replays them backwards on `.backward()`, adding gradients into the leaves' `.grad`." },
+  { "id": "dl.04.c4", "concept": "dl.pytorch", "front": "Why call `zero_grad()` every step?", "back": "Gradients accumulate; three backward calls on $2p$ give `p.grad` = 6, not 2." },
+  { "id": "dl.04.c5", "concept": "dl.pytorch", "front": "The five-line loop", "back": "`zero_grad()`, forward, loss, `loss.backward()`, `opt.step()`." },
+  { "id": "dl.04.c6", "concept": "dl.pytorch", "front": "Shape of `nn.Linear(n_in, n_out).weight`", "back": "`(n_out, n_in)`; computes $xW^\\top+b$, the transpose of the NumPy `W`." },
+  { "id": "dl.04.c7", "concept": "dl.pytorch", "front": "What goes into `F.cross_entropy`?", "back": "Raw logits `(B,K)` and `long` labels `(B,)`; it averages over the batch like the hand-written $(P-Y)/B$." },
+  { "id": "dl.04.c8", "concept": "dl.pytorch", "front": "`eval()` versus `no_grad()`", "back": "`eval()` changes layer behaviour (dropout off, batch norm uses running stats); `no_grad()` stops graph recording. Use both for inference." },
+  { "id": "dl.04.c9", "concept": "dl.pytorch", "front": "DataLoader options", "back": "`shuffle=True` for training only, `drop_last=True` to avoid a short final batch, `num_workers` for background loading." },
+  { "id": "dl.04.c10", "concept": "dl.pytorch", "front": "Device placement rule", "back": "Move the model once with `model.to(device)` and every batch with `.to(device)`; all operands must share a device." },
+  { "id": "dl.04.c11", "concept": "dl.pytorch", "front": "float16 versus bfloat16", "back": "float16: max 65504, smallest normal $6\\times10^{-5}$, needs loss scaling. bfloat16: float32 range, about 3 decimal digits, no scaling needed." },
+  { "id": "dl.04.c12", "concept": "dl.pytorch", "front": "Mixed precision recipe", "back": "Low-precision forward/backward under `autocast`, float32 master weights; with float16 add `GradScaler`." },
+  { "id": "dl.04.c13", "concept": "dl.pytorch", "front": "Saving and loading", "back": "`torch.save(model.state_dict(), path)`; rebuild the same architecture, then `load_state_dict(torch.load(path, weights_only=True))`." },
+  { "id": "dl.04.c14", "concept": "dl.pytorch", "front": "What a resume checkpoint needs", "back": "Model state, optimiser state, epoch and scheduler state." },
+  { "id": "dl.04.c15", "concept": "dl.pytorch", "front": "Gradient clipping in PyTorch", "back": "`clip_grad_norm_(params, max_norm)` after `backward()` and before `step()`; a gradient of norm 5 clipped to 1 is scaled by 1/5." }
+]

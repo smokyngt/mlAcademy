@@ -1,0 +1,127 @@
+[
+  {
+    "id": "shift-types",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The joint distribution factors two ways, P(X,Y) = P(Y|X) P(X) = P(X|Y) P(Y), and each factor can change: covariate shift changes P(X), label shift changes P(Y), concept drift changes P(Y|X).",
+      "fr": "La loi jointe se factorise de deux façons, P(X,Y) = P(Y|X) P(X) = P(X|Y) P(Y), et chaque facteur peut changer : le décalage de covariables change P(X), le décalage d'étiquettes change P(Y), la dérive de concept change P(Y|X)."
+    },
+    "code": {
+      "en": "flowchart TB\n  J[\"P(X, Y)\"] --> A[\"P(Y given X) x P(X)\"]\n  J --> B[\"P(X given Y) x P(Y)\"]\n  A -->|\"P(X) changes\"| CS[\"covariate shift<br/>(more patients over 40)\"]\n  A -->|\"P(Y given X) changes\"| CD[\"concept drift<br/>(same input, different output)\"]\n  B -->|\"P(Y) changes\"| LS[\"label shift<br/>(disease more prevalent)\"]",
+      "fr": "flowchart TB\n  J[\"P(X, Y)\"] --> A[\"P(Y given X) x P(X)\"]\n  J --> B[\"P(X given Y) x P(Y)\"]\n  A -->|\"P(X) change\"| CS[\"décalage de covariables<br/>(plus de patients de plus de 40 ans)\"]\n  A -->|\"P(Y sachant X) change\"| CD[\"dérive de concept<br/>(même entrée, sortie différente)\"]\n  B -->|\"P(Y) change\"| LS[\"décalage d'étiquettes<br/>(maladie plus fréquente)\"]"
+    }
+  },
+  {
+    "id": "ks-gap",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The Kolmogorov-Smirnov statistic D = max |F_a(x) - F_b(x)| is the largest vertical gap (red) between the empirical CDFs of the reference window (blue) and the current window (orange). Illustrative logistic CDFs, gap about 0.245.",
+      "fr": "La statistique de Kolmogorov-Smirnov D = max |F_a(x) - F_b(x)| est le plus grand écart vertical (rouge) entre les fonctions de répartition empiriques de la fenêtre de référence (bleu) et de la fenêtre courante (orange). Fonctions de répartition logistiques illustratives, écart d'environ 0,245."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        -5,
+        6
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "x",
+      "data": [
+        {
+          "fn": "1/(1 + exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1 + exp(-(x - 1)))",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              0.5,
+              0.3775
+            ],
+            [
+              0.5,
+              0.6225
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "psi-term",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "One bin's contribution to the population stability index, (q - p) ln(q/p), when the reference proportion is p = 0.1. It is zero when q = p and always non-negative, growing as the new proportion q moves away in either direction.",
+      "fr": "La contribution d'une classe à l'indice de stabilité de population, (q - p) ln(q/p), quand la proportion de référence est p = 0,1. Elle est nulle pour q = p et toujours positive, croissante quand la nouvelle proportion q s'éloigne dans un sens ou dans l'autre."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0.01,
+        0.5
+      ],
+      "yDomain": [
+        0,
+        0.6
+      ],
+      "title": "q",
+      "data": [
+        {
+          "fn": "(x - 0.1)*log(x/0.1)",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "continual-loop",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Continual learning as infrastructure: monitoring triggers a stateful update (continue from yesterday's checkpoint on new data), the candidate is evaluated offline, then tested on live traffic before it replaces the incumbent.",
+      "fr": "L'apprentissage continu comme infrastructure : la surveillance déclenche une mise à jour avec état (reprise du point de contrôle d'hier sur les nouvelles données), le candidat est évalué hors ligne, puis testé sur le trafic réel avant de remplacer le modèle en place."
+    },
+    "code": {
+      "en": "flowchart LR\n  MON[\"monitor drift and metrics\"] -->|\"trigger\"| UPD[\"stateful update from checkpoint\"]\n  UPD --> OFF[\"offline evaluation, slices\"]\n  OFF --> TIP[\"test in production\"]\n  TIP -->|\"wins\"| DEP[\"deploy\"]\n  TIP -->|\"loses\"| ROLL[\"keep incumbent\"]\n  DEP --> MON",
+      "fr": "flowchart LR\n  MON[\"surveiller dérive et métriques\"] -->|\"déclencheur\"| UPD[\"mise à jour avec état depuis le point de contrôle\"]\n  UPD --> OFF[\"évaluation hors ligne, tranches\"]\n  OFF --> TIP[\"test en production\"]\n  TIP -->|\"gagne\"| DEP[\"déployer\"]\n  TIP -->|\"perd\"| ROLL[\"garder l'ancien modèle\"]\n  DEP --> MON"
+    }
+  },
+  {
+    "id": "canary-release",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A canary release: send a small share of traffic to the candidate, widen it while its metrics hold, and roll back at the first degradation. The percentages are examples. Shadow deployment, by contrast, mirrors all traffic but serves only the incumbent.",
+      "fr": "Une mise en production canari : envoyer une petite part du trafic au candidat, l'élargir tant que ses métriques tiennent et revenir en arrière dès la première dégradation. Les pourcentages sont des exemples. Le déploiement fantôme, lui, duplique tout le trafic mais ne sert que le modèle en place."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"traffic\"] --> S1[\"5% to candidate\"]\n  S1 --> G1{\"metrics hold?\"}\n  G1 -->|\"yes\"| S2[\"25%\"] --> G2{\"metrics hold?\"}\n  G2 -->|\"yes\"| S3[\"100%: promote\"]\n  G1 -->|\"no\"| RB[\"roll back\"]\n  G2 -->|\"no\"| RB",
+      "fr": "flowchart LR\n  T[\"trafic\"] --> S1[\"5 % vers le candidat\"]\n  S1 --> G1{\"les métriques tiennent ?\"}\n  G1 -->|\"oui\"| S2[\"25 %\"] --> G2{\"les métriques tiennent ?\"}\n  G2 -->|\"oui\"| S3[\"100 % : promouvoir\"]\n  G1 -->|\"non\"| RB[\"retour arrière\"]\n  G2 -->|\"non\"| RB"
+    }
+  },
+  {
+    "id": "peeking",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The peeking problem: checking an A/B test daily and stopping at the first significant result inflates false positives. In the lesson's A/A simulation (identical arms, ten looks) about 20% of experiments declare a winner instead of 5%.",
+      "fr": "Le problème du coup d'oeil : consulter un test A/B chaque jour et s'arrêter au premier résultat significatif gonfle les faux positifs. Dans la simulation A/A de la leçon (bras identiques, dix coups d'oeil) environ 20 % des expériences déclarent un gagnant au lieu de 5 %."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph OK[\"Fixed sample size, one look\"]\n    A1[\"run to planned n\"] --> A2[\"test once: 5% false positives\"]\n  end\n  subgraph BAD[\"Ten looks, stop at first significant\"]\n    B1[\"look 1\"] --> B2[\"look 2 ...\"] --> B3[\"look 10\"]\n    B3 --> B4[\"about 20% false positives\"]\n  end",
+      "fr": "flowchart LR\n  subgraph OK[\"Taille d'échantillon fixée, un seul coup d'oeil\"]\n    A1[\"aller jusqu'à n prévu\"] --> A2[\"un seul test : 5 % de faux positifs\"]\n  end\n  subgraph BAD[\"Dix coups d'oeil, arrêt au premier significatif\"]\n    B1[\"coup d'oeil 1\"] --> B2[\"coup d'oeil 2 ...\"] --> B3[\"coup d'oeil 10\"]\n    B3 --> B4[\"environ 20 % de faux positifs\"]\n  end"
+    }
+  }
+]

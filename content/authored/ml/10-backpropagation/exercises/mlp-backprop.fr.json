@@ -1,0 +1,10 @@
+{
+  "id": "f2n.10.ex1",
+  "title": "MLP à deux couches : passe avant, passe arrière, test de gradient",
+  "prompt": "Implémente `loss_and_grads(params, X, y)` pour le réseau de la leçon. `params = (W1, b1, W2, b2)`, `X` a la forme `(B, n)`, `y` contient des étiquettes entières. Renvoie `(loss, (dW1, db1, dW2, db2))`, où la perte est l'entropie croisée softmax moyenne.\n\nImplémente aussi `grad_check(params, X, y, h=1e-5)` qui renvoie l'**erreur relative maximale** entre tes gradients analytiques et les gradients par différences centrées sur tous les paramètres. Utilise-la pour tester ton propre code avant de soumettre : elle doit afficher une valeur inférieure à `1e-6`.",
+  "hints": [
+    "Passe avant : Z1 = X@W1 + b1 ; A1 = max(0, Z1) ; Z2 = A1@W2 + b2 ; P = softmax(Z2) (soustrais d'abord le maximum de chaque ligne).",
+    "dZ2 = (P - onehot(y)) / B. Puis dW2 = A1.T @ dZ2, db2 = dZ2.sum(0), dA1 = dZ2 @ W2.T.",
+    "dZ1 = dA1 * (Z1 > 0) ; dW1 = X.T @ dZ1 ; db1 = dZ1.sum(0). Renvoie les gradients dans le même ordre que les paramètres."
+  ]
+}

@@ -1,0 +1,91 @@
+[
+ {
+  "id": "app.03.q1",
+  "prompt": "Lesquels de ces éléments doivent être inclus dans le budget de la fenêtre de contexte ?",
+  "options": [
+   "seulement le texte du prompt",
+   "les parties d'entrée et la marge réservée à la sortie du modèle",
+   "seulement les documents récupérés",
+   "seulement l'historique de conversation"
+  ],
+  "explanation": "La fenêtre contient l'entrée plus la sortie générée, donc la marge de sortie fait partie de la somme."
+ },
+ {
+  "id": "app.03.q2",
+  "prompt": "Composants : système 500, outils 8 000, documents récupérés 4 000, historique 6 000, requête 200, budget de sortie 4 000 jetons. Quel pourcentage d'une fenêtre de 128 000 jetons est utilisé (au dixième près) ?",
+  "options": [],
+  "explanation": "Le total est de 22 700 et 22 700/128 000 = 0,1773, soit 17,7 pour cent."
+ },
+ {
+  "id": "app.03.q3",
+  "prompt": "Où placer les preuves récupérées les plus pertinentes et la question courante, compte tenu des effets de « lost-in-the-middle » ?",
+  "options": [
+   "près de la fin, proche du point de génération",
+   "au milieu du contexte",
+   "n'importe où, la position est sans importance",
+   "tout au début, avant le prompt système"
+  ],
+  "explanation": "Beaucoup de modèles utilisent le début et la fin plus fiablement que le milieu ; la question et les preuves clés vont en dernier. Vérifie sur ton modèle."
+ },
+ {
+  "id": "app.03.q4",
+  "prompt": "Quelle stratégie de compaction risque de perdre silencieusement des faits anciens sans aucune trace ?",
+  "options": [
+   "la mémoire structurée avec un schéma",
+   "la récupération depuis un magasin externe",
+   "garder un pointeur vers la source",
+   "tronquer les tours les plus anciens"
+  ],
+  "explanation": "La troncature simple écarte du contenu sans aucun résumé ni pointeur."
+ },
+ {
+  "id": "app.03.q5",
+  "prompt": "Un fournisseur met en cache des PRÉFIXES de prompt. Tu places un horodatage en haut du prompt système. Que se passe-t-il ?",
+  "options": [
+   "rien, les caches ignorent les horodatages",
+   "seul l'horodatage est relu",
+   "le premier jeton qui diffère met fin à la correspondance, donc presque tous les jetons ratent",
+   "le cache stocke les deux versions gratuitement"
+  ],
+  "explanation": "La correspondance se rompt au premier jeton différent, donc tout ce qui suit l'horodatage est un raté."
+ },
+ {
+  "id": "app.03.q6",
+  "prompt": "Multiplicateur d'écriture 1,25, multiplicateur de lecture 0,1. Coût moyen par utilisation relativement à l'absence de cache pour 1 écriture + 10 lectures (3 décimales) ?",
+  "options": [],
+  "explanation": "(1,25 + 0,1*10)/(10+1) = 2,25/11 = 0,2045."
+ },
+ {
+  "id": "app.03.q7",
+  "prompt": "Avec une prime d'écriture de 2x et des lectures à moitié prix, combien de lectures faut-il avant que le cache batte l'absence de cache ?",
+  "options": [
+   "1",
+   "3",
+   "2",
+   "le cache n'est jamais rentable"
+  ],
+  "explanation": "(2 + 0,5n)/(n+1) < 1 donne n > 2, donc 3 lectures."
+ },
+ {
+  "id": "app.03.q8",
+  "prompt": "Dans l'exemple de conversation de 10 tours, le taux de succès est 49 500 / 59 500. Que représente 49 500 ?",
+  "options": [
+   "les jetons lus depuis le cache sur les tours 2 à 10",
+   "les jetons écrits dans le cache",
+   "les jetons de sortie",
+   "les jetons du dernier tour"
+  ],
+  "explanation": "Chaque tour suivant relit le préfixe précédent ; les jetons lus totalisent 49 500."
+ },
+ {
+  "id": "app.03.q9",
+  "prompt": "Quand le long contexte est-il préférable à la récupération ?",
+  "options": [
+   "pour des corpus énormes qui changent rapidement",
+   "jamais",
+   "seulement quand le modèle est petit",
+   "pour un ensemble de documents borné et connu interrogé de nombreuses fois, idéalement avec du cache"
+  ],
+  "explanation": "Un ensemble de documents borné et stable peut être placé une fois en contexte et mis en cache ; les grands corpus changeants exigent de la récupération."
+ }
+]

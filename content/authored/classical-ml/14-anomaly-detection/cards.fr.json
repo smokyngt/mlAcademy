@@ -1,0 +1,72 @@
+[
+ {
+  "id": "cml.14.c1",
+  "front": "Anomalie ponctuelle, contextuelle et collective",
+  "back": "Ponctuelle : une valeur étrange. Contextuelle : étrange compte tenu de son contexte (saison, lieu). Collective : un groupe est étrange bien qu'aucun élément ne le soit."
+ },
+ {
+  "id": "cml.14.c2",
+  "front": "Pourquoi modéliser les données normales ?",
+  "back": "Les anomalies sont rares et toujours changeantes, donc les exemples étiquetés sont rares ; tout ce qui ne ressemble pas au normal est suspect, y compris les types jamais vus."
+ },
+ {
+  "id": "cml.14.c3",
+  "front": "Z-score",
+  "back": "$z=(x-\\mu)/\\sigma$ ; signaler $|z|>3$. Suppose des données à peu près gaussiennes et souffre du masquage."
+ },
+ {
+  "id": "cml.14.c4",
+  "front": "Masquage",
+  "back": "Les valeurs aberrantes gonflent la moyenne et l'écart-type, ce qui les cache du test. Remède : médiane et MAD."
+ },
+ {
+  "id": "cml.14.c5",
+  "front": "Z-score robuste",
+  "back": "$0.6745\\,(x-\\mathrm{median})/\\mathrm{MAD}$, avec $\\mathrm{MAD}=\\mathrm{median}|x_i-\\mathrm{median}|$."
+ },
+ {
+  "id": "cml.14.c6",
+  "front": "Distance de Mahalanobis",
+  "back": "$D(x)=\\sqrt{(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)}$ : distance euclidienne après blanchiment ; la moyenne de $D^2$ vaut environ $d$ pour des données gaussiennes."
+ },
+ {
+  "id": "cml.14.c7",
+  "front": "Faiblesses de Mahalanobis",
+  "back": "La moyenne et la covariance sont contaminées par les valeurs aberrantes, $\\Sigma$ peut être singulière ($d>N$ ou variables colinéaires), et elle suppose un seul amas elliptique."
+ },
+ {
+  "id": "cml.14.c8",
+  "front": "Idée de la forêt d'isolation",
+  "back": "Des coupes aléatoires isolent les anomalies en peu de divisions ; on note par la longueur moyenne de chemin sur de nombreux arbres."
+ },
+ {
+  "id": "cml.14.c9",
+  "front": "Construction d'un arbre d'isolation",
+  "back": "Variable aléatoire, seuil uniforme entre le min et le max du nœud, limite de profondeur $\\lceil\\log_2\\psi\\rceil$, sous-échantillon $\\psi$ (souvent 256)."
+ },
+ {
+  "id": "cml.14.c10",
+  "front": "Normalisateur $c(n)$",
+  "back": "$c(n)=2(\\ln(n-1)+0.5772)-2(n-1)/n$, la longueur moyenne de chemin d'une recherche infructueuse dans un arbre binaire de recherche ; $c(2)=1$."
+ },
+ {
+  "id": "cml.14.c11",
+  "front": "Score d'isolation",
+  "back": "$s(x)=2^{-E[h(x)]/c(\\psi)}$ : proche de 1 anormal, environ 0.5 moyen, bien en dessous de 0.5 très normal."
+ },
+ {
+  "id": "cml.14.c12",
+  "front": "Facteur local d'anomalie",
+  "back": "Rapport de la densité locale des voisins à la densité du point ; environ 1 normal, bien au-dessus de 1 une valeur aberrante dans une région localement dense."
+ },
+ {
+  "id": "cml.14.c13",
+  "front": "Que fait la contamination ?",
+  "back": "Elle ne fixe que le seuil (signaler la fraction supérieure) ; elle ne change pas les scores."
+ },
+ {
+  "id": "cml.14.c14",
+  "front": "Évaluer des détecteurs avec peu d'étiquettes",
+  "back": "Precision@k, AUC-PR, injections synthétiques, stabilité entre graines, accord de rang et retour humain ; évaluer sur des données plus tardives."
+ }
+]

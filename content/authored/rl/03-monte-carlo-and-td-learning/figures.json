@@ -1,0 +1,284 @@
+[
+  {
+    "id": "backup-diagrams",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "What each method looks at before updating V(s_t): Monte Carlo waits for the whole episode and uses the return G_t; TD(0) uses one reward and the current estimate of the next state.",
+      "fr": "Ce que chaque méthode regarde avant de mettre à jour V(s_t) : Monte Carlo attend la fin de l'épisode et utilise le retour G_t ; TD(0) utilise une récompense et l'estimation courante de l'état suivant."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph MC[\"Monte Carlo\"]\n    A1[\"s_t\"] --> A2[\"s_t+1\"] --> A3[\"...\"] --> A4[\"terminal\"]\n    A4 -.->|\"G_t\"| A1\n  end\n  subgraph TD[\"TD(0)\"]\n    B1[\"s_t\"] -->|\"r_t+1\"| B2[\"s_t+1\"]\n    B2 -.->|\"r + gamma V(s_t+1)\"| B1\n  end",
+      "fr": "flowchart LR\n  subgraph MC[\"Monte Carlo\"]\n    A1[\"s_t\"] --> A2[\"s_t+1\"] --> A3[\"...\"] --> A4[\"terminal\"]\n    A4 -.->|\"G_t\"| A1\n  end\n  subgraph TD[\"TD(0)\"]\n    B1[\"s_t\"] -->|\"r_t+1\"| B2[\"s_t+1\"]\n    B2 -.->|\"r + gamma V(s_t+1)\"| B1\n  end"
+    }
+  },
+  {
+    "id": "step-size",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The step size alpha. The sample mean uses 1/n (blue), which shrinks to zero; a constant alpha = 0.1 (orange) keeps adapting and tracks a changing world. Robbins-Monro needs sum(alpha) infinite and sum(alpha^2) finite, which 1/n satisfies.",
+      "fr": "Le pas alpha. La moyenne empirique utilise 1/n (bleu), qui tend vers zéro ; un alpha constant de 0,1 (orange) continue de s'adapter et suit un monde qui change. Robbins-Monro demande sum(alpha) infinie et sum(alpha^2) finie, ce que 1/n vérifie."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        1,
+        40
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "alpha(n)",
+      "data": [
+        {
+          "fn": "1/x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.1",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "td-update-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One TD(0) step: observe a transition, form the TD error delta, move the estimate by alpha times delta. The same shape (error times step size) as the incremental mean.",
+      "fr": "Un pas de TD(0) : observer une transition, former l'erreur TD delta, déplacer l'estimation de alpha fois delta. Même forme (erreur fois pas) que la moyenne incrémentale."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"transition (s, r, s')\"] --> TG[\"target = r + gamma V(s')\"]\n  TG --> D[\"delta = target - V(s)\"]\n  D --> U[\"V(s) <- V(s) + alpha delta\"]\n  U -->|\"next step\"| T",
+      "fr": "flowchart LR\n  T[\"transition (s, r, s')\"] --> TG[\"cible = r + gamma V(s')\"]\n  TG --> D[\"delta = target - V(s)\"]\n  D --> U[\"V(s) <- V(s) + alpha delta\"]\n  U -->|\"pas suivant\"| T"
+    }
+  },
+  {
+    "id": "cliff",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Cliff walking (schematic 4x12 grid, cliff in red along the bottom row). Q-learning learns the risky shortest path along the cliff edge (blue); SARSA, aware of its own exploration, takes a safer path with a margin (orange).",
+      "fr": "Marche au bord de la falaise (grille schématique 4x12, falaise en rouge sur la ligne du bas). Q-learning apprend le chemin le plus court mais risqué le long de la falaise (bleu) ; SARSA, conscient de sa propre exploration, prend un chemin plus sûr avec une marge (orange)."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        -1,
+        12
+      ],
+      "yDomain": [
+        -1,
+        4
+      ],
+      "grid": true,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              4,
+              0
+            ],
+            [
+              5,
+              0
+            ],
+            [
+              6,
+              0
+            ],
+            [
+              7,
+              0
+            ],
+            [
+              8,
+              0
+            ],
+            [
+              9,
+              0
+            ],
+            [
+              10,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              5,
+              1
+            ],
+            [
+              6,
+              1
+            ],
+            [
+              7,
+              1
+            ],
+            [
+              8,
+              1
+            ],
+            [
+              9,
+              1
+            ],
+            [
+              10,
+              1
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              11,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              2
+            ],
+            [
+              0,
+              3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              4,
+              3
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              6,
+              3
+            ],
+            [
+              7,
+              3
+            ],
+            [
+              8,
+              3
+            ],
+            [
+              9,
+              3
+            ],
+            [
+              10,
+              3
+            ],
+            [
+              11,
+              3
+            ],
+            [
+              11,
+              2
+            ],
+            [
+              11,
+              1
+            ],
+            [
+              11,
+              0
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0,
+          "text": "start"
+        },
+        {
+          "x": 11,
+          "text": "goal"
+        }
+      ]
+    }
+  }
+]

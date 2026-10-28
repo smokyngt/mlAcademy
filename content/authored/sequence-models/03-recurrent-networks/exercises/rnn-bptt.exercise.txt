@@ -1,0 +1,102 @@
+#@@ meta
+{"id": "seq.03.ex1", "title": "RNN forward and BPTT with a gradient check", "difficulty": 4, "runtime": "pyodide", "concepts": ["seq.rnn", "nn.backprop", "calc.chain"], "hints": ["Forward: h = zeros((B, H)); for t in range(T): h = tanh(X[:, t] @ Wxh.T + h @ Whh.T + b). Store all h_t (including h_0 = 0) in a list.", "Output: yhat = h_T @ Wy + by with loss 0.5 * mean((yhat - y)**2). Then dy = (yhat - y)/B, dWy = h_T.T @ dy, dby = dy.sum(), dh = outer(dy, Wy).", "Backward loop for t = T..1: da = dh * (1 - h_t**2); dWxh += da.T @ x_t; dWhh += da.T @ h_{t-1}; db += da.sum(0); dh = da @ Whh. The SAME dh variable carries the gradient back one step."]}
+#@@ prompt
+Many-to-one regression with a vanilla RNN. For a batch `X` of shape `(B, T, n)` and targets `y` of shape `(B,)`:
+
+$$h_0=0,\quad h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b),\quad \hat y=w_y^\top h_T+b_y,\quad L=\tfrac1{2B}\sum_b(\hat y_b-y_b)^2 .$$
+
+Parameters (in this order): `Wxh (H, n)`, `Whh (H, H)`, `b (H,)`, `Wy (H,)`, `by` (scalar array of shape `()`).
+
+Implement `rnn_loss_grads(params, X, y)` returning `(loss, grads)`, with grads in the same order and with the shapes of the parameters (backpropagation through time), and `grad_check(params, X, y)` returning the largest relative error against central differences.
+#@@ starter
+import numpy as np
+
+def rnn_loss_grads(params, X, y):
+    Wxh, Whh, b, Wy, by = params
+    # TODO: forward over time, keeping every h_t
+    # TODO: backward over time (BPTT), accumulating the gradients of the shared weights
+    raise NotImplementedError
+
+def grad_check(params, X, y, h=1e-6):
+    raise NotImplementedError
+
+rng = np.random.default_rng(0)
+B, T, n, H = 4, 6, 3, 5
+params = (rng.normal(0, 0.5, (H, n)), rng.normal(0, 0.5, (H, H)), np.zeros(H), rng.normal(0, 0.5, H), np.array(0.0))
+X = rng.normal(size=(B, T, n)); y = rng.normal(size=B)
+print("loss:", rnn_loss_grads(params, X, y)[0])
+print("grad check:", grad_check(params, X, y))
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(1)
+B, T, n, H = 4, 7, 3, 5
+P0 = [rng.normal(0, 0.5, (H, n)), rng.normal(0, 0.5, (H, H)), rng.normal(0, 0.1, H), rng.normal(0, 0.5, H), np.array(0.3)]
+X = rng.normal(size=(B, T, n)); y = rng.normal(size=B)
+loss, grads = rnn_loss_grads(tuple(P0), X, y)
+check("loss is a scalar", lambda: np.ndim(loss) == 0 and np.isfinite(loss))
+check("gradient shapes equal parameter shapes", lambda: [np.shape(g) for g in grads] == [np.shape(p) for p in P0])
+def ref_loss(ps):
+    Wxh, Whh, b, Wy, by = ps
+    h = np.zeros((B, H))
+    for t in range(T):
+        h = np.tanh(X[:, t] @ Wxh.T + h @ Whh.T + b)
+    return 0.5 * np.mean((h @ Wy + by - y) ** 2)
+check("loss matches reference forward pass", lambda: abs(loss - ref_loss(P0)) < 1e-12)
+names = ["dWxh", "dWhh", "db", "dWy", "dby"]
+for k in range(5):
+    def num(k=k):
+        g = np.zeros(np.shape(P0[k]))
+        for idx in np.ndindex(*np.shape(P0[k])):
+            a = [np.array(p, dtype=float) for p in P0]; c = [np.array(p, dtype=float) for p in P0]
+            a[k][idx] += 1e-6; c[k][idx] -= 1e-6
+            g[idx] = (ref_loss(a) - ref_loss(c)) / 2e-6
+        return g
+    check(names[k] + " matches finite differences", lambda k=k, num=num: np.allclose(grads[k], num(), atol=1e-7, rtol=1e-5), "BPTT: dh_{t-1} = (dh_t * (1 - h_t^2)) @ Whh, and shared weights accumulate over ALL time steps")
+check("grad_check passes on correct gradients", lambda: grad_check(tuple(P0), X, y) < 1e-5)
+# a single time step reduces to an ordinary tanh layer
+X1 = X[:, :1]
+l1, g1 = rnn_loss_grads(tuple(P0), X1, y)
+check("T=1: dWhh is zero because h_0 = 0", lambda: np.allclose(g1[1], 0))
+#@@ solution
+import numpy as np
+
+def rnn_loss_grads(params, X, y):
+    Wxh, Whh, b, Wy, by = params
+    B, T, n = X.shape
+    H = Whh.shape[0]
+    hs = [np.zeros((B, H))]
+    for t in range(T):
+        hs.append(np.tanh(X[:, t] @ Wxh.T + hs[-1] @ Whh.T + b))
+    yhat = hs[-1] @ Wy + by
+    loss = float(0.5 * np.mean((yhat - y) ** 2))
+    dy = (yhat - y) / B
+    dWy = hs[-1].T @ dy
+    dby = np.array(dy.sum())
+    dh = np.outer(dy, Wy)
+    dWxh = np.zeros_like(Wxh); dWhh = np.zeros_like(Whh); db = np.zeros_like(b)
+    for t in range(T, 0, -1):
+        da = dh * (1.0 - hs[t] ** 2)
+        dWxh += da.T @ X[:, t - 1]
+        dWhh += da.T @ hs[t - 1]
+        db += da.sum(axis=0)
+        dh = da @ Whh
+    return loss, (dWxh, dWhh, db, dWy, dby)
+
+def grad_check(params, X, y, h=1e-6):
+    _, grads = rnn_loss_grads(params, X, y)
+    worst = 0.0
+    for k, p in enumerate(params):
+        for idx in np.ndindex(*np.shape(p)):
+            a = [np.array(q, dtype=float) for q in params]; c = [np.array(q, dtype=float) for q in params]
+            a[k][idx] += h; c[k][idx] -= h
+            num = (rnn_loss_grads(tuple(a), X, y)[0] - rnn_loss_grads(tuple(c), X, y)[0]) / (2 * h)
+            ana = grads[k][idx]
+            worst = max(worst, abs(ana - num) / max(1e-8, abs(ana) + abs(num)))
+    return worst
+
+rng = np.random.default_rng(0)
+B, T, n, H = 4, 6, 3, 5
+params = (rng.normal(0, 0.5, (H, n)), rng.normal(0, 0.5, (H, H)), np.zeros(H), rng.normal(0, 0.5, H), np.array(0.0))
+X = rng.normal(size=(B, T, n)); y = rng.normal(size=B)
+print("loss:", rnn_loss_grads(params, X, y)[0])
+print("grad check:", grad_check(params, X, y))

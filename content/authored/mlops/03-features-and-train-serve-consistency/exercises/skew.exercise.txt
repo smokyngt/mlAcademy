@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "ops.03.ex1", "title": "A train/serve skew checker", "difficulty": 3, "runtime": "pyodide", "concepts": ["ops.skew", "ops.feature-pipelines"], "hints": ["Use np.isnan for missing values and np.nanmean / np.nanstd / np.nanmin / np.nanmax for the statistics.", "Standardise with TRAIN statistics only: (x - train_mean) / train_std. The shift of a feature is |serve_mean - train_mean| / train_std.", "For time_split sort by timestamp and cut the sorted order at the (1 - test_frac) position; both parts are index arrays into the original data."]}
+#@@ prompt
+Your model was trained on features produced by an offline pipeline and is served with features produced by an online pipeline. Write the checks that catch disagreement between the two.
+
+- `fit_scaler(X)` -> `(mean, std)` per column of the training matrix, ignoring NaN (`std` with `ddof=0`).
+- `apply_scaler(X, mean, std)` -> `(X - mean) / std`.
+- `time_split(timestamps, test_frac)` -> `(train_idx, test_idx)`: the earliest `1 - test_frac` of rows (by timestamp, `int(round(...))` rows) go to training, the rest to test. Both are integer index arrays; each part keeps rows in time order.
+- `skew_check(train, serve, names, mean_z=0.5, miss_tol=0.02, oor_tol=0.05)` -> dict `{feature_name: sorted list of issue strings}`; only features with issues appear. Issues: `"missing"` if the NaN rate differs by more than `miss_tol`; `"shift"` if `|serve_mean - train_mean| / train_std > mean_z` (NaN-aware); `"range"` if more than `oor_tol` of the non-NaN serving values fall outside `[train_min, train_max]`.
+- `unseen_category_rate(train_cats, serve_cats)` -> share of serving values that never appeared in training.
+#@@ starter
+import numpy as np
+
+def fit_scaler(X):
+    raise NotImplementedError
+
+def apply_scaler(X, mean, std):
+    raise NotImplementedError
+
+def time_split(timestamps, test_frac):
+    raise NotImplementedError
+
+def skew_check(train, serve, names, mean_z=0.5, miss_tol=0.02, oor_tol=0.05):
+    raise NotImplementedError
+
+def unseen_category_rate(train_cats, serve_cats):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+Xtr = np.column_stack([rng.normal(30, 5, 2000), rng.normal(100, 20, 2000), rng.normal(0, 1, 2000)])
+mean, std = fit_scaler(Xtr)
+check("scaler mean/std per column", lambda: np.allclose(mean, Xtr.mean(0)) and np.allclose(std, Xtr.std(0)))
+Z = apply_scaler(Xtr, mean, std)
+check("train data standardised: mean 0, std 1", lambda: np.allclose(Z.mean(0), 0, atol=1e-9) and np.allclose(Z.std(0), 1))
+Xnan = np.array([[1.0, np.nan], [3.0, 4.0], [np.nan, 8.0]])
+m2, s2 = fit_scaler(Xnan)
+check("scaler ignores NaN", lambda: np.allclose(m2, [2.0, 6.0]) and np.allclose(s2, [1.0, 2.0]))
+ts = np.array([5, 1, 4, 2, 3, 10, 9, 8, 7, 6])
+tr, te = time_split(ts, 0.3)
+check("time split: test holds the 3 latest timestamps", lambda: sorted(ts[te]) == [8, 9, 10] and sorted(ts[tr]) == list(range(1, 8)))
+check("time split: no train row is later than a test row", lambda: ts[tr].max() < ts[te].min())
+check("time split keeps time order inside each part", lambda: np.all(np.diff(ts[tr]) > 0) and np.all(np.diff(ts[te]) > 0))
+clean = np.column_stack([rng.normal(30, 5, 1500), rng.normal(100, 20, 1500), rng.normal(0, 1, 1500)])
+check("no skew -> empty report", lambda: skew_check(Xtr, clean, ["age", "income", "z"]) == {})
+bad = clean.copy()
+bad[:, 0] = bad[:, 0] * 12
+bad[:300, 1] = np.nan
+bad[:, 2] = bad[:, 2] + 3
+rep = skew_check(Xtr, bad, ["age", "income", "z"])
+check("age in months instead of years is flagged shift + range", lambda: rep.get("age") == ["range", "shift"])
+check("20% missing income is flagged missing only", lambda: rep.get("income") == ["missing"])
+check("mean moved by 3 sd is flagged shift and range", lambda: rep.get("z") == ["range", "shift"])
+check("unseen category rate", lambda: abs(unseen_category_rate(["a", "b", "c"], ["a", "z", "b", "q"]) - 0.5) < 1e-12)
+#@@ solution
+import numpy as np
+
+def fit_scaler(X):
+    X = np.asarray(X, dtype=float)
+    return np.nanmean(X, axis=0), np.nanstd(X, axis=0)
+
+def apply_scaler(X, mean, std):
+    return (np.asarray(X, dtype=float) - mean) / std
+
+def time_split(timestamps, test_frac):
+    order = np.argsort(timestamps, kind="stable")
+    n_train = int(round(len(order) * (1 - test_frac)))
+    return order[:n_train], order[n_train:]
+
+def skew_check(train, serve, names, mean_z=0.5, miss_tol=0.02, oor_tol=0.05):
+    train = np.asarray(train, dtype=float)
+    serve = np.asarray(serve, dtype=float)
+    report = {}
+    for j, name in enumerate(names):
+        a, b = train[:, j], serve[:, j]
+        issues = []
+        if abs(np.isnan(b).mean() - np.isnan(a).mean()) > miss_tol:
+            issues.append("missing")
+        a_ok, b_ok = a[~np.isnan(a)], b[~np.isnan(b)]
+        if len(b_ok):
+            sd = a_ok.std()
+            if sd > 0 and abs(b_ok.mean() - a_ok.mean()) / sd > mean_z:
+                issues.append("shift")
+            outside = np.mean((b_ok < a_ok.min()) | (b_ok > a_ok.max()))
+            if outside > oor_tol:
+                issues.append("range")
+        if issues:
+            report[name] = sorted(issues)
+    return report
+
+def unseen_category_rate(train_cats, serve_cats):
+    seen = set(train_cats)
+    return float(np.mean([c not in seen for c in serve_cats]))

@@ -1,0 +1,17 @@
+[
+  {"id": "llm.05.c1", "concept": "llm.reward-model", "front": "Why is SFT not enough?", "back": "SFT imitates single demonstrations and treats all acceptable answers as equally good; it has no signal for which of two answers is better."},
+  {"id": "llm.05.c2", "concept": "llm.reward-model", "front": "Bradley-Terry model", "back": "$P(a\\succ b)=e^{r_a}/(e^{r_a}+e^{r_b})=\\sigma(r_a-r_b)$. Depends only on the score difference."},
+  {"id": "llm.05.c3", "concept": "llm.reward-model", "front": "Reward model loss", "back": "$-\\ln\\sigma(r_w-r_l)=\\ln(1+e^{-d})$: logistic regression on the score gap. Equal scores give $\\ln2$."},
+  {"id": "llm.05.c4", "concept": "llm.reward-model", "front": "Gradient of the Bradley-Terry loss", "back": "$\\partial\\ell/\\partial r_w=-\\sigma(-d)$, $\\partial\\ell/\\partial r_l=+\\sigma(-d)$: equal and opposite, sized by the probability of getting the pair wrong."},
+  {"id": "llm.05.c5", "concept": "llm.reward-model", "front": "Reward model architecture", "back": "The SFT model with the vocabulary head replaced by a scalar head; input is prompt + response, output one number."},
+  {"id": "llm.05.c6", "concept": "llm.dpo", "front": "KL-regularised RLHF objective", "back": "$\\max_\\pi\\ \\mathbb E_{y\\sim\\pi}[r(x,y)]-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi_{\\rm ref})$."},
+  {"id": "llm.05.c7", "concept": "llm.dpo", "front": "Closed-form optimal policy", "back": "$\\pi^\\star(y|x)=\\pi_{\\rm ref}(y|x)\\,e^{r(x,y)/\\beta}/Z(x)$, $Z=\\sum_y\\pi_{\\rm ref}e^{r/\\beta}$. Maximum value $\\beta\\ln Z$."},
+  {"id": "llm.05.c8", "concept": "llm.dpo", "front": "Why is $\\pi^\\star$ the maximiser? (one line)", "back": "$J(\\pi)=-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi^\\star)+\\beta\\ln Z$, and KL is $\\ge0$ with equality only at $\\pi=\\pi^\\star$."},
+  {"id": "llm.05.c9", "concept": "llm.dpo", "front": "Reward in terms of the policy", "back": "$r(x,y)=\\beta\\ln\\frac{\\pi^\\star(y|x)}{\\pi_{\\rm ref}(y|x)}+\\beta\\ln Z(x)$."},
+  {"id": "llm.05.c10", "concept": "llm.dpo", "front": "DPO loss", "back": "$-\\ln\\sigma\\bigl(\\beta[(\\ln\\pi_w-\\ln\\pi^{\\rm ref}_w)-(\\ln\\pi_l-\\ln\\pi^{\\rm ref}_l)]\\bigr)$; $\\ln\\pi$ is the summed token log-probability of the response."},
+  {"id": "llm.05.c11", "concept": "llm.dpo", "front": "DPO gradient on the log-probabilities", "back": "$\\partial\\mathcal L/\\partial\\ln\\pi_w=-\\beta\\sigma(-z)$, $\\partial\\mathcal L/\\partial\\ln\\pi_l=+\\beta\\sigma(-z)$; large weight when the implicit reward ranks the pair wrongly."},
+  {"id": "llm.05.c12", "concept": "llm.dpo", "front": "Implicit reward", "back": "$\\hat r(y)=\\beta(\\ln\\pi(y|x)-\\ln\\pi_{\\rm ref}(y|x))$: the language model is secretly a reward model."},
+  {"id": "llm.05.c13", "concept": "llm.dpo", "front": "RLHF (PPO) vs DPO", "back": "PPO: policy + reference + reward model (+ value), three stages, online samples, finicky. DPO: policy + reference, fixed pairs, supervised-style training."},
+  {"id": "llm.05.c14", "concept": "llm.reward-model", "front": "Reward hacking", "back": "The policy exploits the imperfect proxy reward (Goodhart): verbosity, sycophancy, hedging, format gaming. Mitigate with KL penalty, adversarial reward data, several reward models."},
+  {"id": "llm.05.c15", "concept": "llm.dpo", "front": "Role of beta", "back": "Small beta: policy may move far from the reference to chase reward; large beta: stays close. Also scales DPO's implicit reward."}
+]

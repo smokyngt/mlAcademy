@@ -1,0 +1,161 @@
+[
+  {
+    "id": "unet-shapes",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A concrete U-Net, input 64x64 with base width 16 and depth 3, following the worked example. Each skip concatenates the encoder map at the same resolution, doubling the channels before the decoder convolution brings them back down.",
+      "fr": "Un U-Net concret, entrée 64x64, largeur de base 16 et profondeur 3, selon l'exemple travaillé. Chaque skip concatène la carte de l'encodeur à la même résolution, doublant les canaux avant que la convolution du décodeur les ramène."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"input<br/>(3,64,64)\"] --> E0[\"enc 0<br/>(16,64,64)\"]\n  E0 -->|\"pool\"| E1[\"enc 1<br/>(32,32,32)\"]\n  E1 -->|\"pool\"| E2[\"enc 2<br/>(64,16,16)\"]\n  E2 -->|\"pool\"| BN[\"bottleneck<br/>(128,8,8)\"]\n  BN -->|\"up x2\"| U2[\"up<br/>(64,16,16)\"]\n  U2 --> C2[\"concat<br/>(128,16,16)\"]\n  C2 --> D2[\"dec 2<br/>(64,16,16)\"]\n  D2 -->|\"up x2\"| U1[\"up<br/>(32,32,32)\"]\n  U1 --> C1[\"concat<br/>(64,32,32)\"]\n  C1 --> D1[\"dec 1<br/>(32,32,32)\"]\n  D1 -->|\"up x2\"| U0[\"up<br/>(16,64,64)\"]\n  U0 --> C0[\"concat<br/>(32,64,64)\"]\n  C0 --> D0[\"dec 0<br/>(16,64,64)\"]\n  D0 --> OUT[\"1x1 conv<br/>(C,64,64)\"]\n  E2 -. \"skip\" .-> C2\n  E1 -. \"skip\" .-> C1\n  E0 -. \"skip\" .-> C0",
+      "fr": "flowchart LR\n  X[\"entrée<br/>(3,64,64)\"] --> E0[\"enc 0<br/>(16,64,64)\"]\n  E0 -->|\"pool\"| E1[\"enc 1<br/>(32,32,32)\"]\n  E1 -->|\"pool\"| E2[\"enc 2<br/>(64,16,16)\"]\n  E2 -->|\"pool\"| BN[\"bottleneck<br/>(128,8,8)\"]\n  BN -->|\"up x2\"| U2[\"up<br/>(64,16,16)\"]\n  U2 --> C2[\"concat<br/>(128,16,16)\"]\n  C2 --> D2[\"dec 2<br/>(64,16,16)\"]\n  D2 -->|\"up x2\"| U1[\"up<br/>(32,32,32)\"]\n  U1 --> C1[\"concat<br/>(64,32,32)\"]\n  C1 --> D1[\"dec 1<br/>(32,32,32)\"]\n  D1 -->|\"up x2\"| U0[\"up<br/>(16,64,64)\"]\n  U0 --> C0[\"concat<br/>(32,64,64)\"]\n  C0 --> D0[\"dec 0<br/>(16,64,64)\"]\n  D0 --> OUT[\"1x1 conv<br/>(C,64,64)\"]\n  E2 -. \"skip\" .-> C2\n  E1 -. \"skip\" .-> C1\n  E0 -. \"skip\" .-> C0"
+    }
+  },
+  {
+    "id": "dice-iou",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Dice = 2 IoU / (1 + IoU) (blue) against the diagonal Dice = IoU (orange reference). The two are monotonically related, so they rank models identically. The worked example sits at IoU = 0.6, Dice = 0.75.",
+      "fr": "Dice = 2 IoU / (1 + IoU) (bleu) face à la diagonale Dice = IoU (référence orange). Les deux sont reliés de façon monotone, donc classent les modèles à l'identique. L'exemple travaillé est en IoU = 0,6, Dice = 0,75."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "2*x/(1+x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.6,
+              0.75
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "maskrcnn",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Mask R-CNN: a two-stage detector plus a mask branch. RoIAlign cuts a fixed-size patch per proposal using bilinear interpolation, and the mask head predicts one low-resolution mask per class.",
+      "fr": "Mask R-CNN : un détecteur à deux étages plus une branche de masque. RoIAlign découpe un patch de taille fixe par proposition par interpolation bilinéaire, et la tête de masque prédit un masque basse résolution par classe."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"image\"] --> BB[\"backbone + FPN<br/>multi-scale features\"]\n  BB --> RPN[\"RPN<br/>~1000 proposals after NMS\"]\n  RPN --> RA[\"RoIAlign<br/>(K,c,m,m)\"]\n  BB --> RA\n  RA --> BH[\"box head<br/>class + box refinement\"]\n  RA --> MH[\"mask head<br/>(K,C,28,28)\"]\n  BH --> OUT[\"boxes (K,4), labels (K,), scores (K,)\"]\n  MH --> M[\"paste back, threshold 0.5<br/>masks (K,1,H,W)\"]",
+      "fr": "flowchart LR\n  I[\"image\"] --> BB[\"backbone + FPN<br/>caractéristiques multi-échelles\"]\n  BB --> RPN[\"RPN<br/>~1000 propositions après NMS\"]\n  RPN --> RA[\"RoIAlign<br/>(K,c,m,m)\"]\n  BB --> RA\n  RA --> BH[\"tête de boîtes<br/>classe + raffinement\"]\n  RA --> MH[\"tête de masque<br/>(K,C,28,28)\"]\n  BH --> OUT[\"boxes (K,4), labels (K,), scores (K,)\"]\n  MH --> M[\"recoller, seuil 0,5<br/>masks (K,1,H,W)\"]"
+    }
+  },
+  {
+    "id": "roialign-bilinear",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Bilinear interpolation at (y, x) = (1.5, 2.25) on the ramp f(y,x) = 5y + x. The four neighbours (blue) hold f = 7, 8 (row y=1) and 12, 13 (row y=2); the sampled value (red) is 9.75, a weighted blend with w_y = 0.5 and w_x = 0.25. Axes: x horizontal, y vertical.",
+      "fr": "Interpolation bilinéaire en (y, x) = (1,5 ; 2,25) sur la rampe f(y,x) = 5y + x. Les quatre voisins (bleu) valent f = 7, 8 (ligne y=1) et 12, 13 (ligne y=2) ; la valeur échantillonnée (rouge) est 9,75, mélange pondéré avec w_y = 0,5 et w_x = 0,25. Axes : x horizontal, y vertical."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        4
+      ],
+      "yDomain": [
+        0,
+        3
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              3,
+              2
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              2.25,
+              1.5
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,111 @@
+[
+ {
+  "id": "gen.04.q1",
+  "concept": "gen.diffusion",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "In DDPM the forward (noising) process is...",
+  "options": [
+   "learned jointly with the reverse process",
+   "a fixed Markov chain adding Gaussian noise",
+   "a GAN generator",
+   "a deterministic blur"
+  ],
+  "answer": 1,
+  "explanation": "Only the reverse model is trained; the forward chain is fixed by the schedule."
+ },
+ {
+  "id": "gen.04.q2",
+  "concept": "gen.diffusion",
+  "kind": "mcq",
+  "prompt": "$q(x_t\\mid x_0)$ is...",
+  "options": [
+   "$\\mathcal N(x_0,\\beta_tI)$",
+   "$\\mathcal N(\\sqrt{\\bar\\alpha_t}x_0,(1-\\bar\\alpha_t)I)$",
+   "$\\mathcal N(0,I)$ for all $t$",
+   "$\\mathcal N(\\bar\\alpha_tx_0,\\bar\\alpha_tI)$"
+  ],
+  "answer": 1,
+  "explanation": "Independent Gaussian noises add; variances sum to $1-\\bar\\alpha_t$."
+ },
+ {
+  "id": "gen.04.q3",
+  "concept": "gen.diffusion",
+  "kind": "numeric",
+  "prompt": "With $\\beta_1=0.1$ and $\\beta_2=0.2$, what is $\\bar\\alpha_2$?",
+  "options": [],
+  "answer": {
+   "value": 0.72,
+   "tol": 0.001
+  },
+  "explanation": "$(1-0.1)(1-0.2)=0.9\\cdot0.8=0.72$."
+ },
+ {
+  "id": "gen.04.q4",
+  "concept": "gen.diffusion",
+  "kind": "mcq",
+  "prompt": "The network in DDPM is trained to predict...",
+  "options": [
+   "the next image $x_{t-1}$ exactly",
+   "the noise $\\varepsilon$ that was added to form $x_t$",
+   "the schedule $\\beta_t$",
+   "the class label"
+  ],
+  "answer": 1,
+  "explanation": "$L_\\text{simple}=\\|\\varepsilon-\\varepsilon_\\theta(x_t,t)\\|^2$."
+ },
+ {
+  "id": "gen.04.q5",
+  "concept": "gen.diffusion",
+  "kind": "mcq",
+  "prompt": "Why can training pick a random $t$ and skip simulating the chain?",
+  "options": [
+   "the loss ignores $t$",
+   "the closed form $x_t=\\sqrt{\\bar\\alpha_t}x_0+\\sqrt{1-\\bar\\alpha_t}\\varepsilon$ jumps to any step",
+   "the network is recurrent",
+   "the schedule is constant"
+  ],
+  "answer": 1,
+  "explanation": "Sums of independent Gaussians are Gaussian."
+ },
+ {
+  "id": "gen.04.q6",
+  "concept": "gen.diffusion",
+  "kind": "numeric",
+  "prompt": "For $x_0\\sim\\mathcal N(3,0.25)$ and $\\bar\\alpha_t=0.4$, what is the variance of $x_t$? (3 decimals)",
+  "options": [],
+  "answer": {
+   "value": 0.7,
+   "tol": 0.002
+  },
+  "explanation": "$\\bar\\alpha s_0^2+1-\\bar\\alpha=0.4\\cdot0.25+0.6=0.7$."
+ },
+ {
+  "id": "gen.04.q7",
+  "concept": "gen.diffusion",
+  "kind": "mcq",
+  "prompt": "The main cost of ancestral DDPM sampling is...",
+  "options": [
+   "computing the loss",
+   "$T$ sequential network evaluations",
+   "the size of the dataset",
+   "the Gaussian algebra"
+  ],
+  "answer": 1,
+  "explanation": "One network call per step, typically hundreds to a thousand."
+ },
+ {
+  "id": "gen.04.q8",
+  "concept": "gen.diffusion",
+  "kind": "mcq",
+  "prompt": "For Gaussian data the optimal noise predictor $\\varepsilon^*(x_t,t)$ equals...",
+  "options": [
+   "the conditional mean $\\mathbb E[\\varepsilon\\mid x_t]$",
+   "zero",
+   "a sample of $\\mathcal N(0,I)$",
+   "$x_t$"
+  ],
+  "answer": 0,
+  "explanation": "Squared error is minimised by the conditional expectation; it equals $(x_t-\\sqrt{\\bar\\alpha_t}\\mathbb E[x_0|x_t])/\\sqrt{1-\\bar\\alpha_t}$."
+ }
+]

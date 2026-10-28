@@ -1,0 +1,68 @@
+#@@ meta
+{"id": "f2n.09.ex1", "title": "Forward pass: activations, a dense layer, and XOR by hand", "difficulty": 2, "runtime": "pyodide", "concepts": ["nn.layer", "nn.activation"], "hints": ["relu = np.maximum(0, z); sigmoid = 1 / (1 + np.exp(-z)).", "mlp_forward: loop over layers; for all but the last apply relu to X @ W + b; the last layer stays linear.", "xor_params: W1 = [[1,1],[1,1]], b1 = [0,-1], W2 = [[1],[-2]], b2 = [0]."]}
+#@@ prompt
+1. Implement `relu`, `sigmoid`, `tanh_prime` (derivative of tanh, from $1-\tanh^2$).
+2. Implement `mlp_forward(X, params)` where `params` is a list of `(W, b)` pairs. Apply ReLU after every layer except the last (which is linear). Return the output.
+3. Return `xor_params()` - a list of two `(W, b)` pairs that makes `mlp_forward` compute XOR on the four binary inputs (see the lesson table).
+4. `count_params(params)` returns the total number of weights and biases.
+#@@ starter
+import numpy as np
+
+def relu(z):
+    raise NotImplementedError
+
+def sigmoid(z):
+    raise NotImplementedError
+
+def tanh_prime(z):
+    raise NotImplementedError
+
+def mlp_forward(X, params):
+    raise NotImplementedError
+
+def xor_params():
+    raise NotImplementedError
+
+def count_params(params):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("relu", lambda: np.array_equal(relu(np.array([-1.0, 0.0, 2.0])), [0, 0, 2]))
+check("sigmoid(0) = 0.5", lambda: abs(sigmoid(0.0) - 0.5) < 1e-12)
+check("sigmoid is stable-ish for moderate negatives", lambda: np.isfinite(sigmoid(np.array([-30.0, 30.0]))).all())
+check("tanh_prime(0) = 1", lambda: abs(tanh_prime(0.0) - 1.0) < 1e-12)
+check("tanh_prime matches finite difference", lambda: abs(tanh_prime(0.5) - (np.tanh(0.5 + 1e-6) - np.tanh(0.5 - 1e-6)) / 2e-6) < 1e-8)
+X = np.array([[0., 0.], [1., 0.], [0., 1.], [1., 1.]])
+check("XOR network outputs [0,1,1,0]", lambda: np.allclose(mlp_forward(X, xor_params()).ravel(), [0, 1, 1, 0]), "Use the weights from the lesson")
+rng = np.random.default_rng(0)
+params = [(rng.normal(size=(3, 5)), rng.normal(size=5)), (rng.normal(size=(5, 2)), rng.normal(size=2))]
+out = lambda: mlp_forward(rng.normal(size=(7, 3)), params)
+check("output shape (7, 2)", lambda: out().shape == (7, 2))
+check("last layer is linear (can output negatives)", lambda: (out() < 0).any())
+check("count_params for 784-128-10 is 101770", lambda: count_params([(np.zeros((784, 128)), np.zeros(128)), (np.zeros((128, 10)), np.zeros(10))]) == 101770)
+#@@ solution
+import numpy as np
+
+def relu(z):
+    return np.maximum(0, z)
+
+def sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+
+def tanh_prime(z):
+    return 1.0 - np.tanh(z) ** 2
+
+def mlp_forward(X, params):
+    A = X
+    for i, (W, b) in enumerate(params):
+        Z = A @ W + b
+        A = relu(Z) if i < len(params) - 1 else Z
+    return A
+
+def xor_params():
+    W1 = np.array([[1., 1.], [1., 1.]]); b1 = np.array([0., -1.])
+    W2 = np.array([[1.], [-2.]]); b2 = np.array([0.])
+    return [(W1, b1), (W2, b2)]
+
+def count_params(params):
+    return sum(W.size + b.size for W, b in params)

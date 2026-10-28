@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "saf.06.ex2", "title": "Capability evaluations: uplift ratios and threshold decisions", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.capability-evals"], "hints": ["Risk ratio = (k1/n1)/(k0/n0). On the log scale its standard error is sqrt(1/k1 - 1/n1 + 1/k0 - 1/n0); the interval is exp(log RR +- z*se).", "A conservative threshold rule uses the Wilson UPPER bound: if the upper bound reaches the threshold you cannot rule the capability out.", "above_chance z: (k - n*chance) / sqrt(n*chance*(1-chance))."]}
+#@@ prompt
+Capability evaluations feed the decision of whether extra safeguards are needed. All data below are abstract counts (successes out of trials); no sensitive content is involved.
+
+Implement:
+
+- `risk_ratio(k1, n1, k0, n0)`: success rate of the assisted arm divided by that of the control arm (an **uplift** ratio).
+- `risk_ratio_ci(k1, n1, k0, n0, z=1.96)`: log-scale confidence interval for the ratio.
+- `wilson_upper(k, n, z=1.96)`: upper end of the Wilson interval.
+- `cannot_rule_out(k, n, threshold)`: `True` when the Wilson upper bound is at least `threshold` (the conservative rule: if you cannot show the model is below the threshold, treat it as possibly at the threshold).
+- `above_chance_z(k, n, chance)`: z-score of a multiple-choice score against random guessing.
+- `unlearning_report(target_before, target_after, general_before, general_after, chance)` -> dict with `target_drop`, `near_chance` (target_after <= chance + 0.05) and `general_loss`.
+#@@ starter
+import math
+
+def risk_ratio(k1, n1, k0, n0):
+    raise NotImplementedError
+
+def risk_ratio_ci(k1, n1, k0, n0, z=1.96):
+    raise NotImplementedError
+
+def wilson_upper(k, n, z=1.96):
+    raise NotImplementedError
+
+def cannot_rule_out(k, n, threshold):
+    raise NotImplementedError
+
+def above_chance_z(k, n, chance):
+    raise NotImplementedError
+
+def unlearning_report(target_before, target_after, general_before, general_after, chance):
+    raise NotImplementedError
+#@@ tests
+import math
+check("risk ratio 30/50 vs 12/50 = 2.5", lambda: abs(risk_ratio(30, 50, 12, 50) - 2.5) < 1e-12)
+lo, hi = risk_ratio_ci(30, 50, 12, 50)
+check("95% CI for the ratio is [1.45, 4.30]", lambda: abs(lo - 1.453) < 5e-3 and abs(hi - 4.302) < 5e-3)
+check("small studies give wide ratio intervals: ratio of upper to lower bound is about 3", lambda: 2.8 < hi / lo < 3.2)
+check("Wilson upper bound for 3/100 = 0.0845", lambda: abs(wilson_upper(3, 100) - 0.08452) < 1e-4)
+check("Wilson upper bound for 8/100 = 0.150", lambda: abs(wilson_upper(8, 100) - 0.14998) < 1e-4)
+check("3/100 against a 10% threshold: can be ruled out", lambda: cannot_rule_out(3, 100, 0.10) is False)
+check("8/100 against a 10% threshold: cannot be ruled out", lambda: cannot_rule_out(8, 100, 0.10) is True)
+check("0/40 still allows up to 8.8%", lambda: abs(wilson_upper(0, 40) - 0.08762) < 1e-4)
+check("300/1000 on 4-way multiple choice is 3.65 sigma above chance", lambda: abs(above_chance_z(300, 1000, 0.25) - 3.6515) < 1e-3)
+check("520/1000 is 19.7 sigma above chance", lambda: abs(above_chance_z(520, 1000, 0.25) - 19.718) < 1e-2)
+r = unlearning_report(0.62, 0.27, 0.64, 0.61, 0.25)
+check("unlearning report: drop 0.35, near chance, general loss 0.03", lambda: abs(r["target_drop"] - 0.35) < 1e-9 and r["near_chance"] is True and abs(r["general_loss"] - 0.03) < 1e-9)
+r2 = unlearning_report(0.62, 0.45, 0.64, 0.64, 0.25)
+check("partial unlearning is not near chance", lambda: r2["near_chance"] is False)
+#@@ solution
+import math
+
+def risk_ratio(k1, n1, k0, n0):
+    return (k1 / n1) / (k0 / n0)
+
+def risk_ratio_ci(k1, n1, k0, n0, z=1.96):
+    rr = risk_ratio(k1, n1, k0, n0)
+    se = math.sqrt(1 / k1 - 1 / n1 + 1 / k0 - 1 / n0)
+    return math.exp(math.log(rr) - z * se), math.exp(math.log(rr) + z * se)
+
+def wilson_upper(k, n, z=1.96):
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return c + h
+
+def cannot_rule_out(k, n, threshold):
+    return wilson_upper(k, n) >= threshold
+
+def above_chance_z(k, n, chance):
+    return (k - n * chance) / math.sqrt(n * chance * (1 - chance))
+
+def unlearning_report(target_before, target_after, general_before, general_after, chance):
+    return {
+        "target_drop": target_before - target_after,
+        "near_chance": target_after <= chance + 0.05,
+        "general_loss": general_before - general_after,
+    }

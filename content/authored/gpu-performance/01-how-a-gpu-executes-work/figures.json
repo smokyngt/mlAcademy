@@ -1,0 +1,217 @@
+[
+  {
+    "id": "exec-hierarchy",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The execution hierarchy: a kernel launches a grid of independent blocks; a block (at most 1024 threads) lives on one SM and splits into warps of 32 lock-step threads; the SM switches between resident warps to hide memory latency.",
+      "fr": "La hiérarchie d'exécution : un noyau lance une grille de blocs indépendants ; un bloc (au plus 1024 threads) vit sur un seul SM et se découpe en warps de 32 threads en lock-step ; le SM bascule entre les warps résidents pour masquer la latence mémoire."
+    },
+    "code": {
+      "en": "flowchart TD\n  K[\"kernel launch = grid of blocks\"] --> B1[\"block 0<br/>at most 1024 threads\"]\n  K --> B2[\"block 1\"]\n  K --> BN[\"block ...<br/>independent, any order\"]\n  B1 --> W0[\"warp 0: threads 0..31\"]\n  B1 --> W1[\"warp 1: threads 32..63\"]\n  B1 --> W7[\"... warp 7<br/>(256 threads = 8 warps)\"]\n  B1 -.->|\"all threads on the same SM\"| SM[\"SM: register file, shared memory,<br/>warp schedulers, resident warps\"]",
+      "fr": "flowchart TD\n  K[\"lancement du noyau = grille de blocs\"] --> B1[\"bloc 0<br/>au plus 1024 threads\"]\n  K --> B2[\"bloc 1\"]\n  K --> BN[\"bloc ...<br/>indépendants, ordre quelconque\"]\n  B1 --> W0[\"warp 0 : threads 0..31\"]\n  B1 --> W1[\"warp 1 : threads 32..63\"]\n  B1 --> W7[\"... warp 7<br/>(256 threads = 8 warps)\"]\n  B1 -.->|\"tous les threads sur le même SM\"| SM[\"SM : registres, mémoire partagée,<br/>ordonnanceurs de warps, warps résidents\"]"
+    }
+  },
+  {
+    "id": "divergence",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Warp divergence: if all 32 lanes agree on a branch the warp runs one side; if they disagree the two sides run one after the other with the other lanes masked, doubling the passes.",
+      "fr": "Divergence de warp : si les 32 voies s'accordent sur une branche, le warp exécute un seul côté ; sinon les deux côtés s'exécutent l'un après l'autre avec les autres voies masquées, ce qui double les passes."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"warp of 32 lanes\"] --> C{\"if (cond)\"}\n  C -->|\"all lanes agree\"| ONE[\"1 pass<br/>efficiency 1.0\"]\n  C -->|\"lanes disagree, e.g. tid % 2 == 0\"| P1[\"pass A<br/>B-lanes masked\"]\n  P1 --> P2[\"pass B<br/>A-lanes masked\"]\n  P2 --> EFF[\"2 passes<br/>efficiency 0.5\"]",
+      "fr": "flowchart LR\n  W[\"warp de 32 voies\"] --> C{\"if (cond)\"}\n  C -->|\"toutes les voies s'accordent\"| ONE[\"1 passe<br/>efficacité 1,0\"]\n  C -->|\"voies en désaccord, p. ex. tid % 2 == 0\"| P1[\"passe A<br/>voies B masquées\"]\n  P1 --> P2[\"passe B<br/>voies A masquées\"]\n  P2 --> EFF[\"2 passes<br/>efficacité 0,5\"]"
+    }
+  },
+  {
+    "id": "mem-hierarchy",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The memory hierarchy with orders of magnitude (H100-class): each step down is roughly 10x less bandwidth and 10x or more latency, so fast kernels reuse data from registers and shared memory instead of fetching it from HBM.",
+      "fr": "La hiérarchie mémoire avec ordres de grandeur (classe H100) : chaque étage inférieur offre environ 10x moins de bande passante et 10x ou plus de latence, donc les noyaux rapides réutilisent des données en registres et en mémoire partagée au lieu de les chercher en HBM."
+    },
+    "code": {
+      "en": "flowchart TD\n  R[\"Registers<br/>per thread, about 1 cycle, highest bandwidth\"] --> SH[\"Shared memory / L1<br/>per SM, about 100-250 KB, about 30 TB/s aggregate\"]\n  SH --> L2[\"L2 cache<br/>whole chip, tens of MB, several TB/s\"]\n  L2 --> HBM[\"HBM global memory<br/>80 GB, about 3 TB/s, hundreds of cycles\"]\n  HBM --> HOST[\"Host RAM over PCIe / NVLink<br/>hundreds of GB, tens of GB/s\"]",
+      "fr": "flowchart TD\n  R[\"Registres<br/>par thread, environ 1 cycle, bande passante maximale\"] --> SH[\"Mémoire partagée / L1<br/>par SM, environ 100-250 Ko, environ 30 To/s cumulés\"]\n  SH --> L2[\"Cache L2<br/>toute la puce, dizaines de Mo, plusieurs To/s\"]\n  L2 --> HBM[\"HBM mémoire globale<br/>80 Go, environ 3 To/s, centaines de cycles\"]\n  HBM --> HOST[\"RAM hôte via PCIe / NVLink<br/>centaines de Go, dizaines de Go/s\"]"
+    }
+  },
+  {
+    "id": "coalescing",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Coalescing: memory transactions per warp for float32 reads at stride s (lane j reads base + s*j) grow like min(32, s) (blue). The simulator's points: stride 1 gives 1, stride 2 gives 2, stride 32 (a matrix column) gives 32.",
+      "fr": "Coalescence : transactions mémoire par warp pour des lectures float32 de pas s (la voie j lit base + s*j) croissant comme min(32, s) (bleu). Points du simulateur : pas 1 donne 1, pas 2 donne 2, pas 32 (une colonne de matrice) donne 32."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        36
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "min(32,x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              32,
+              32
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "occupancy",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Occupancy of 256-thread blocks (8 warps) against registers per thread on the illustrative SM (65,536 registers, 64 warps, 2048 threads): occupancy = min(8, floor(256/r))/8 (a staircase). 32 registers give 100%, 64 give 50%, 128 give 25%.",
+      "fr": "Occupation de blocs de 256 threads (8 warps) en fonction des registres par thread sur le SM illustratif (65 536 registres, 64 warps, 2048 threads) : occupation = min(8, floor(256/r))/8 (un escalier). 32 registres donnent 100 %, 64 donnent 50 %, 128 donnent 25 %."
+    },
+    "spec": {
+      "xDomain": [
+        16,
+        260
+      ],
+      "yDomain": [
+        0,
+        110
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              16,
+              100
+            ],
+            [
+              32,
+              100
+            ],
+            [
+              32,
+              87.5
+            ],
+            [
+              36,
+              87.5
+            ],
+            [
+              36,
+              75
+            ],
+            [
+              42,
+              75
+            ],
+            [
+              42,
+              62.5
+            ],
+            [
+              51,
+              62.5
+            ],
+            [
+              51,
+              50
+            ],
+            [
+              64,
+              50
+            ],
+            [
+              64,
+              37.5
+            ],
+            [
+              85,
+              37.5
+            ],
+            [
+              85,
+              25
+            ],
+            [
+              128,
+              25
+            ],
+            [
+              128,
+              12.5
+            ],
+            [
+              256,
+              12.5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              32,
+              100
+            ],
+            [
+              64,
+              50
+            ],
+            [
+              128,
+              25
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "tiled-matmul",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Tiled matrix multiplication: each block loads a TxT tile of A and of B into shared memory, synchronises, does T multiply-adds per thread from fast memory, synchronises again, and repeats K/T times. HBM loads fall by a factor T.",
+      "fr": "Multiplication matricielle par tuiles : chaque bloc charge une tuile TxT de A et de B en mémoire partagée, se synchronise, fait T multiplications-additions par thread depuis la mémoire rapide, se resynchronise, et recommence K/T fois. Les lectures HBM diminuent d'un facteur T."
+    },
+    "code": {
+      "en": "flowchart LR\n  GA[\"A in HBM\"] -->|\"load TxT tile\"| SA[\"As (shared memory)\"]\n  GB[\"B in HBM\"] -->|\"load TxT tile\"| SB[\"Bs (shared memory)\"]\n  SA --> S1[\"__syncthreads\"]\n  SB --> S1\n  S1 --> MAC[\"each thread: T multiply-adds<br/>into register acc\"]\n  MAC --> S2[\"__syncthreads\"]\n  S2 -->|\"next k tile, K/T times\"| GA\n  MAC -->|\"after the last tile\"| C[\"write C tile to HBM\"]",
+      "fr": "flowchart LR\n  GA[\"A en HBM\"] -->|\"charger la tuile TxT\"| SA[\"As (mémoire partagée)\"]\n  GB[\"B en HBM\"] -->|\"charger la tuile TxT\"| SB[\"Bs (mémoire partagée)\"]\n  SA --> S1[\"__syncthreads\"]\n  SB --> S1\n  S1 --> MAC[\"chaque thread : T multiplications-additions<br/>dans le registre acc\"]\n  MAC --> S2[\"__syncthreads\"]\n  S2 -->|\"tuile k suivante, K/T fois\"| GA\n  MAC -->|\"après la dernière tuile\"| C[\"écrire la tuile de C en HBM\"]"
+    }
+  }
+]

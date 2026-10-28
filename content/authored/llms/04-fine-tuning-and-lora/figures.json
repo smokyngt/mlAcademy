@@ -1,0 +1,81 @@
+[
+  {
+    "id": "sft-masking",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "SFT loss masking: prompt and response form one sequence, labels at prompt positions are set to -100, so only response and end-of-sequence tokens (3 of 5 positions here) carry loss, while the prompt still acts as context through attention.",
+      "fr": "Masquage de la perte en SFT : prompt et réponse forment une seule séquence, les étiquettes aux positions du prompt valent -100, donc seuls les jetons de réponse et de fin (3 positions sur 5 ici) portent la perte, tandis que le prompt reste du contexte via l'attention."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompt<br/>5 6 7\"] --> S[\"s = prompt + response + eos<br/>5 6 7 8 9 1\"]\n  R[\"response<br/>8 9\"] --> S\n  S --> IN[\"inputs<br/>5 6 7 8 9\"]\n  S --> TG[\"labels after the shift<br/>-100 -100 8 9 1\"]\n  IN --> M[\"model: logits (B,T,V)\"]\n  M --> L[\"cross-entropy ignoring -100<br/>loss on 3 of 5 positions\"]\n  TG --> L",
+      "fr": "flowchart LR\n  P[\"prompt<br/>5 6 7\"] --> S[\"s = prompt + réponse + eos<br/>5 6 7 8 9 1\"]\n  R[\"réponse<br/>8 9\"] --> S\n  S --> IN[\"entrées<br/>5 6 7 8 9\"]\n  S --> TG[\"étiquettes après décalage<br/>-100 -100 8 9 1\"]\n  IN --> M[\"modèle : logits (B,T,V)\"]\n  M --> L[\"entropie croisée ignorant -100<br/>perte sur 3 positions sur 5\"]\n  TG --> L"
+    }
+  },
+  {
+    "id": "lora-layer",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A LoRA layer: the frozen W is untouched, a trainable bottleneck x A^T (width r) then B^T is scaled by alpha/r and added. B starts at 0, so training starts from the pretrained model. Delta W = (alpha/r) B A is never formed.",
+      "fr": "Une couche LoRA : le W gelé est intact, un goulot entraînable x A^T (largeur r) puis B^T est mis à l'échelle par alpha/r et ajouté. B démarre à 0, donc l'entraînement part du modèle pré-entraîné. Delta W = (alpha/r) B A n'est jamais formé."
+    },
+    "code": {
+      "en": "flowchart LR\n  x[\"x (B,d_in)\"] --> W[\"frozen W (d_out,d_in)<br/>x W^T  (B,d_out)\"]\n  x --> A[\"A (r,d_in), trainable<br/>h = x A^T  (B,r)\"]\n  A --> Bm[\"B (d_out,r), trainable, init 0<br/>h B^T  (B,d_out)\"]\n  Bm --> SC[\"scale by alpha/r\"]\n  W --> ADD((\"+\"))\n  SC --> ADD\n  ADD --> y[\"y (B,d_out)\"]",
+      "fr": "flowchart LR\n  x[\"x (B,d_in)\"] --> W[\"W gelé (d_out,d_in)<br/>x W^T  (B,d_out)\"]\n  x --> A[\"A (r,d_in), entraînable<br/>h = x A^T  (B,r)\"]\n  A --> Bm[\"B (d_out,r), entraînable, init à 0<br/>h B^T  (B,d_out)\"]\n  Bm --> SC[\"multiplier par alpha/r\"]\n  W --> ADD((\"+\"))\n  SC --> ADD\n  ADD --> y[\"y (B,d_out)\"]"
+    }
+  },
+  {
+    "id": "lora-fraction",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Trainable share of a square 4096 x 4096 layer: r*(d_out+d_in) / (d_out*d_in) = 2r/4096, in percent, against the rank r. At r = 16 it is 0.78%.",
+      "fr": "Part entraînable d'une couche carrée 4096 x 4096 : r*(d_out+d_in) / (d_out*d_in) = 2r/4096, en pourcentage, en fonction du rang r. À r = 16 elle vaut 0,78 %."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        70
+      ],
+      "yDomain": [
+        0,
+        3.5
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "100*2*x/4096",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              16,
+              0.78125
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "lora-merge",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "After training, the adapter can be merged into W (no extra latency) or kept as a small per-task file next to one shared frozen base model.",
+      "fr": "Après l'entraînement, l'adaptateur peut être fusionné dans W (sans latence supplémentaire) ou gardé comme petit fichier par tâche à côté d'un modèle de base gelé partagé."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"base weights W (frozen)\"] --> MG[\"merge:<br/>W + (alpha/r) B A<br/>plain layer, no extra latency\"]\n  AB[\"adapter A, B<br/>small file per task\"] --> MG\n  W --> SW[\"or keep separate:<br/>swap A, B per task at run time\"]\n  AB --> SW",
+      "fr": "flowchart LR\n  W[\"poids de base W (gelés)\"] --> MG[\"fusion :<br/>W + (alpha/r) B A<br/>couche ordinaire, pas de latence en plus\"]\n  AB[\"adaptateur A, B<br/>petit fichier par tâche\"] --> MG\n  W --> SW[\"ou garder séparés :<br/>changer A, B par tâche à l'exécution\"]\n  AB --> SW"
+    }
+  }
+]

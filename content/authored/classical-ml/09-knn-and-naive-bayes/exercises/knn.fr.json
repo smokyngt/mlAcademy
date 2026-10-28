@@ -1,0 +1,10 @@
+{
+  "id": "cml.09.ex1",
+  "title": "kNN, mise à l'échelle des variables et fléau de la dimension",
+  "prompt": "Implémente :\n\n- `pairwise_d2(A, B)` distances euclidiennes au carré, de forme `(len(A), len(B))`.\n- `knn_predict(Xtr, ytr, Xte, k)` vote majoritaire parmi les `k` points d'entraînement les plus proches (étiquettes entières ; les égalités vont à la plus petite classe ; tri stable pour les distances égales).\n- `knn_regress(Xtr, ytr, Xte, k)` cible moyenne des `k` plus proches voisins.\n- `standardize(Xtr, Xte)` renvoie `(Ztr, Zte)` en utilisant uniquement la moyenne et l'écart-type d'**entraînement**.\n- `relative_contrast(d, n, seed)` tire `n` points uniformément dans $[0,1]^d$ et une requête uniformément dans $[0,1]^d$ (même `default_rng(seed)`, points d'abord), et renvoie $(d_{\\max}-d_{\\min})/d_{\\min}$ sur les distances euclidiennes.",
+  "hints": [
+    "distances au carré deux à deux : ((A[:, None, :] - B[None, :, :]) ** 2).sum(-1) a pour forme (len(A), len(B)).",
+    "knn_predict : nn = np.argsort(d2, axis=1)[:, :k] ; votes de classes avec np.bincount(ytr[row]) ; argmax renvoie la plus petite classe en cas d'égalité. Régression : ytr[nn].mean(axis=1).",
+    "standardize : mu = Xtr.mean(0), sd = Xtr.std(0) ; renvoie (Xtr - mu) / sd, (Xte - mu) / sd (statistiques d'entraînement uniquement)."
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  { "id": "math.11.c1", "front": "Vue par les lignes contre vue par les colonnes de $A\\mathbf x=\\mathbf b$", "back": "Lignes : chaque équation est un hyperplan, une solution se trouve sur tous. Colonnes : $\\mathbf b$ comme combinaison linéaire des colonnes de $A$ de coefficients $\\mathbf x$." },
+  { "id": "math.11.c2", "front": "Trois issues possibles d'un système linéaire", "back": "Aucune solution, exactement une, ou une infinité. Jamais exactement deux." },
+  { "id": "math.11.c3", "front": "Opérations élémentaires sur les lignes", "back": "Échanger deux lignes ; multiplier une ligne par une constante non nulle ; ajouter un multiple d'une ligne à une autre. Elles laissent l'ensemble des solutions inchangé." },
+  { "id": "math.11.c4", "front": "Forme échelonnée", "back": "Lignes nulles en bas ; chaque pivot (premier coefficient non nul) strictement à droite du pivot au-dessus : un escalier." },
+  { "id": "math.11.c5", "front": "Variables de base contre variables libres", "back": "De base : inconnues dans les colonnes de pivot. Libres : les autres ; elles peuvent être choisies arbitrairement et paramétrisent l'ensemble des solutions." },
+  { "id": "math.11.c6", "front": "Rang", "back": "Nombre de colonnes (= lignes) linéairement indépendantes = nombre de pivots = $\\dim\\operatorname{Im}(A)$. Rang plein : $\\min(m,n)$." },
+  { "id": "math.11.c7", "front": "Rang-nullité", "back": "$\\dim\\ker(A)=n-\\operatorname{rk}(A)$ pour $A\\in\\mathbb R^{m\\times n}$." },
+  { "id": "math.11.c8", "front": "Test de résolubilité", "back": "$A\\mathbf x=\\mathbf b$ est résoluble si et seulement si $\\operatorname{rk}(A)=\\operatorname{rk}(A|\\mathbf b)$ ; unique si en plus $\\operatorname{rk}(A)=n$." },
+  { "id": "math.11.c9", "front": "Structure de la solution générale", "back": "Solution particulière $+$ n'importe quel vecteur de $\\ker(A)$. Pour $\\mathbf b\\ne\\mathbf0$, l'ensemble des solutions n'est pas un sous-espace." },
+  { "id": "math.11.c10", "front": "Noyau et espace des colonnes (image)", "back": "$\\ker A=\\{\\mathbf x:A\\mathbf x=0\\}\\subseteq\\mathbb R^n$ ; $\\operatorname{Im}A=\\operatorname{span}$ des colonnes $\\subseteq\\mathbb R^m$." },
+  { "id": "math.11.c11", "front": "Pourquoi le pivotage partiel ?", "back": "Diviser par un pivot minuscule donne d'énormes multiplicateurs qui amplifient l'erreur d'arrondi ; on échange avec le plus grand coefficient de la colonne. Coût de l'élimination $\\sim n^3$." },
+  { "id": "math.11.c12", "front": "Avantage de la factorisation LU", "back": "$PA=LU$ coûte $\\sim n^3$ une fois ; chaque nouveau second membre ne coûte alors que $\\sim n^2$ (deux résolutions triangulaires)." },
+  { "id": "math.11.c13", "front": "Équations normales", "back": "$A^\\top A\\mathbf x=A^\\top\\mathbf b$, formes $(n,n)$ et $(n,)$ ; résidu $\\mathbf b-A\\mathbf x\\perp$ colonnes de $A$. C'est la régression linéaire." },
+  { "id": "math.11.c14", "front": "Conditionnement", "back": "$\\kappa=\\sigma_{\\max}/\\sigma_{\\min}$ ; on perd environ $\\log_{10}\\kappa$ chiffres. $\\kappa(A^\\top A)=\\kappa(A)^2$." },
+  { "id": "math.11.c15", "front": "solve contre inv", "back": "Appelle `np.linalg.solve(A, b)` (LU avec pivotage, sans inverse explicite) ou `lstsq` pour une $A$ rectangulaire ; jamais `inv(A) @ b`." }
+]

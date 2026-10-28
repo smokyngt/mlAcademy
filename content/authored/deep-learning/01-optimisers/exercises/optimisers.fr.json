@@ -1,0 +1,10 @@
+{
+  "id": "dl.01.ex1",
+  "title": "Momentum, Adam et un planning warmup-cosinus",
+  "prompt": "Une quadratique mal conditionnée `f(x) = 0.5 x^T A x - b^T x` (nombre de conditionnement 100, vallée tournée de 30 degrés) est fournie, ainsi que la `SGD` simple et un exécuteur `steps_to(opt)` qui compte les pas jusqu'à `f(x) - f(x*) < 1e-6`.\n\nÉcris :\n\n- `Momentum(lr, mu=0.9, nesterov=False)` avec `step(p, g)` renvoyant les nouveaux paramètres (ne modifie jamais `p` en place). Vitesse : `v = mu*v + g`. Nesterov utilise la direction `g + mu*v`.\n- `Adam(lr, b1=0.9, b2=0.999, eps=1e-8, wd=0.0)` avec correction de biais et décroissance des poids découplée (AdamW) : `p - lr*mhat/(sqrt(vhat)+eps) - lr*wd*p`.\n- `warmup_cosine(t, peak, warmup, total, lr_min=0.0)` renvoyant le taux d'apprentissage au pas `t`.\n\nPuis compare : avec les valeurs du manuel `lr=4/121, mu=(9/11)**2`, Momentum devrait nécessiter bien moins de pas que la SGD à son meilleur pas `2/101`. Vérifie aussi que le tout premier pas d'Adam déplace chaque coordonnée d'environ `lr`, quelle que soit l'échelle du gradient.",
+  "hints": [
+    "Momentum : v = mu*v + g ; la direction de mise à jour est v, ou g + mu*v quand nesterov=True. Renvoie p - lr*direction (un nouveau tableau).",
+    "Adam : incrémente d'abord t, puis mets à jour m et v, puis divise par 1 - b1**t et 1 - b2**t. AdamW soustrait lr*wd*p séparément, pas à travers le gradient.",
+    "warmup_cosine : pour t < warmup renvoie peak*t/warmup ; sinon progress = (t-warmup)/(total-warmup) et lr_min + 0.5*(peak-lr_min)*(1+cos(pi*progress))."
+  ]
+}

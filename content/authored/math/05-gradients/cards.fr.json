@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.05.c1", "front": "Forme de $\\nabla f$ pour $f:\\mathbb{R}^n\\to\\mathbb{R}$", "back": "$\\mathbb{R}^n$, la même que l'entrée. Pour un paramètre matriciel $W$, $\\nabla_WL$ a la forme de $W$." },
+  { "id": "f2n.05.c2", "front": "Pourquoi le gradient est-il la direction de plus forte montée ?", "back": "$D_uf=\\nabla f\\cdot u=\\|\\nabla f\\|\\cos\\theta$, maximal en $\\theta=0$ ; le taux maximal est $\\|\\nabla f\\|$." },
+  { "id": "f2n.05.c3", "front": "Comment calcule-t-on $\\partial f/\\partial x_i$ ?", "back": "On dérive par rapport à $x_i$ en traitant toutes les autres variables comme des constantes." },
+  { "id": "f2n.05.c4", "front": "Gradient de la MSE pour la régression linéaire", "back": "$\\nabla_w\\frac1N\\|Xw-y\\|^2=\\frac2N X^\\top(Xw-y)$" },
+  { "id": "f2n.05.c5", "front": "A-t-on un minimum quand $\\nabla f=0$ ?", "back": "Non : c'est un point stationnaire (min, max ou selle). Utilise l'information du second ordre pour les distinguer." }
+]

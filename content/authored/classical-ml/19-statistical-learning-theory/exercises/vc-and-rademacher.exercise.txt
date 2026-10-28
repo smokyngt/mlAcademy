@@ -1,0 +1,106 @@
+#@@ meta
+{"id": "cml.19.ex2", "title": "VC dimension by brute force and Rademacher complexity", "difficulty": 4, "runtime": "pyodide", "concepts": ["ml.vc"], "hints": ["For intervals: for every pair of cuts a <= b, label point x_i 1 if a < x_i < b. Collect the tuples in a set.", "For half-planes: for each angle theta take w = (cos, sin); sort projections P @ w; thresholds are midpoints plus one below and one above; label = (projection > t).", "Rademacher: signs has shape (reps, n); (signs @ H.T) has shape (reps, |H|); take the max over hypotheses, average over reps, divide by n."]}
+#@@ prompt
+Shattering, VC dimension by brute force, and Rademacher complexity.
+
+- `labelings_intervals(x)`: the set of all 0/1 labelings of the 1-D points `x` that some interval `(a, b)` can produce (a point inside gets label 1). Candidate endpoints: one below the smallest point, the midpoints between neighbours, one above the largest.
+- `shatters_intervals(x)`: true if all `2^n` labelings are produced.
+- `labelings_halfplanes(P, n_angles=720)`: the set of labelings of the points `P` (shape `(n, 2)`) produced by half-planes `{p : w.p > t}`; try 720 directions `w` and every threshold between neighbouring projections.
+- `shatters_halfplanes(P)`: true if all `2^n` labelings are produced.
+- `threshold_class(n)`: matrix of shape `(2n+2, n)` with entries `+-1` of all rules `h(x_i) = +1 if i >= k else -1` and their negations, `k = 0..n`, on `n` sorted points.
+- `rademacher(H, reps, seed)`: Monte-Carlo estimate of `E_sigma max_h (1/n) sum_i sigma_i h(x_i)` using `reps` random sign vectors `sigma` from `np.random.default_rng(seed).choice([-1, 1], size=(reps, n))`.
+- `massart(M, n)`: `sqrt(2 ln M / n)`, an upper bound on the Rademacher complexity of `M` hypotheses with values in `{-1, +1}`.
+#@@ starter
+import numpy as np
+
+def labelings_intervals(x):
+    raise NotImplementedError
+
+def shatters_intervals(x):
+    raise NotImplementedError
+
+def labelings_halfplanes(P, n_angles=720):
+    raise NotImplementedError
+
+def shatters_halfplanes(P):
+    raise NotImplementedError
+
+def threshold_class(n):
+    raise NotImplementedError
+
+def rademacher(H, reps, seed):
+    raise NotImplementedError
+
+def massart(M, n):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+check("2 random points are shattered by intervals", lambda: shatters_intervals(rng.uniform(size=2)))
+x3 = np.array([0.1, 0.4, 0.7])
+check("3 points: intervals give only 7 of 8 labelings", lambda: len(labelings_intervals(x3)) == 7)
+check("the missing labeling is (1,0,1)", lambda: (1, 0, 1) not in labelings_intervals(x3))
+check("so the VC dimension of intervals is 2", lambda: shatters_intervals(x3[:2]) and not shatters_intervals(x3))
+tri = [[0, 0], [1, 0], [0, 1]]
+sq = [[0, 0], [1, 0], [1, 1], [0, 1]]
+check("a triangle is shattered by half-planes (8 labelings)", lambda: len(labelings_halfplanes(tri)) == 8 and shatters_halfplanes(tri))
+check("collinear points are NOT shattered (VC needs a good arrangement)", lambda: not shatters_halfplanes([[0, 0], [1, 0], [2, 0]]))
+check("the square gives 14 of 16 labelings (XOR is missing)", lambda: len(labelings_halfplanes(sq)) == 14)
+check("(1,0,1,0)-style XOR labeling absent", lambda: (1, 0, 1, 0) not in labelings_halfplanes(sq) and (0, 1, 0, 1) not in labelings_halfplanes(sq))
+check("random 4-point sets are never shattered", lambda: not any(shatters_halfplanes(rng.normal(size=(4, 2))) for _ in range(8)))
+H = threshold_class(20)
+check("threshold class shape (42, 20)", lambda: H.shape == (42, 20))
+r20 = rademacher(H, 2000, 0)
+check("Rademacher of thresholds n=20 is about 0.391", lambda: abs(r20 - 0.3913) < 0.01)
+check("n=100 about 0.186 and n=400 about 0.095", lambda: abs(rademacher(threshold_class(100), 2000, 0) - 0.1857) < 0.01 and abs(rademacher(threshold_class(400), 2000, 0) - 0.0953) < 0.01)
+check("Rademacher is below the Massart bound", lambda: r20 < massart(len(H), 20))
+full = np.array([[1 if (i >> j) & 1 else -1 for j in range(6)] for i in range(64)])
+check("the class of ALL labelings has complexity 1 (it can fit any noise)", lambda: abs(rademacher(full, 2000, 0) - 1.0) < 1e-9)
+check("a single hypothesis has complexity near 0", lambda: abs(rademacher(full[:1], 4000, 0)) < 0.03)
+#@@ solution
+import numpy as np
+
+def labelings_intervals(x):
+    x = np.sort(np.asarray(x, dtype=float))
+    cuts = np.concatenate([[x[0] - 1], (x[:-1] + x[1:]) / 2, [x[-1] + 1]])
+    labs = set()
+    for a in cuts:
+        for b in cuts:
+            if a <= b:
+                labs.add(tuple(((x > a) & (x < b)).astype(int)))
+    return labs
+
+def shatters_intervals(x):
+    return len(labelings_intervals(x)) == 2 ** len(x)
+
+def labelings_halfplanes(P, n_angles=720):
+    P = np.asarray(P, dtype=float)
+    labs = set()
+    for th in np.linspace(0, 2 * np.pi, n_angles, endpoint=False):
+        w = np.array([np.cos(th), np.sin(th)])
+        pr = P @ w
+        s = np.sort(pr)
+        ts = np.concatenate([[s[0] - 1], (s[:-1] + s[1:]) / 2, [s[-1] + 1]])
+        for t in ts:
+            labs.add(tuple((pr > t).astype(int)))
+    return labs
+
+def shatters_halfplanes(P):
+    return len(labelings_halfplanes(P)) == 2 ** len(P)
+
+def threshold_class(n):
+    H = []
+    for k in range(n + 1):
+        h = np.where(np.arange(n) >= k, 1, -1)
+        H.append(h)
+        H.append(-h)
+    return np.array(H)
+
+def rademacher(H, reps, seed):
+    rng = np.random.default_rng(seed)
+    n = H.shape[1]
+    s = rng.choice([-1, 1], size=(reps, n))
+    return float((s @ H.T).max(axis=1).mean() / n)
+
+def massart(M, n):
+    return float(np.sqrt(2 * np.log(M) / n))

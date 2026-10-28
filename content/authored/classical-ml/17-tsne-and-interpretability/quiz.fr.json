@@ -1,0 +1,102 @@
+[
+ {
+  "id": "cml.17.q1",
+  "prompt": "Que cherche à préserver t-SNE ?",
+  "options": [
+   "Les probabilités de voisinage : qui est proche de qui",
+   "Les distances globales entre tous les points",
+   "Les directions de plus grande variance",
+   "Les étiquettes de classe"
+  ],
+  "explanation": "Il fait coïncider la distribution de voisinage $P$ dans l'espace d'origine avec $Q$ dans la carte en minimisant $\\mathrm{KL}(P\\|Q)$."
+ },
+ {
+  "id": "cml.17.q2",
+  "prompt": "La perplexité d'une distribution conditionnelle $P_i$ est $\\exp(H(P_i))$. Comment la lire ?",
+  "options": [
+   "Le nombre d'amas",
+   "Le taux d'apprentissage",
+   "Le nombre effectif de voisins du point $i$",
+   "Le nombre d'itérations"
+  ],
+  "explanation": "Une distribution uniforme sur $k$ points a pour entropie $\\ln k$, donc une perplexité de $k$."
+ },
+ {
+  "id": "cml.17.q3",
+  "prompt": "Une distribution conditionnelle est uniforme sur 8 voisins (tous les autres ont une probabilité 0). Quelle est sa perplexité $\\exp(H)$ ?",
+  "options": [],
+  "explanation": "$H=\\ln8$, donc $\\exp(H)=8$."
+ },
+ {
+  "id": "cml.17.q4",
+  "prompt": "Pourquoi la carte utilise-t-elle un noyau de Student plutôt qu'une gaussienne ?",
+  "options": [
+   "Il est moins coûteux à calculer",
+   "Les queues lourdes permettent à des points modérément éloignés de se placer loin l'un de l'autre en 2D, ce qui atténue le problème d'entassement",
+   "Il rend le coût convexe",
+   "Il supprime le besoin de perplexité"
+  ],
+  "explanation": "Il y a moins de place autour d'un point en 2D qu'en grande dimension ; les queues lourdes relâchent cette pression."
+ },
+ {
+  "id": "cml.17.q5",
+  "prompt": "L'ACP à noyau diagonalise quelle matrice ?",
+  "options": [
+   "La covariance $D\\times D$",
+   "L'identité",
+   "La matrice de données $X$",
+   "La matrice de Gram centrée $N\\times N$, $JKJ$"
+  ],
+  "explanation": "Seules des évaluations du noyau sont nécessaires ; la matrice de Gram doit être centrée car $\\phi$ est rarement de moyenne nulle."
+ },
+ {
+  "id": "cml.17.q6",
+  "prompt": "L'importance par permutation d'une variable vaut environ 0. La bonne conclusion est...",
+  "options": [
+   "Ce modèle ne s'appuie pas sur la variable (elle peut avoir un substitut corrélé)",
+   "La variable est inutile pour la cible",
+   "La variable a un effet négatif",
+   "Le modèle surapprend"
+  ],
+  "explanation": "L'importance mesure la dépendance du modèle ajusté, pas la pertinence intrinsèque."
+ },
+ {
+  "id": "cml.17.q7",
+  "prompt": "Une variable augmente les prédictions pour la moitié des lignes et les diminue pour l'autre moitié. Sa courbe de dépendance partielle est probablement...",
+  "options": [
+   "Fortement croissante",
+   "Indéfinie",
+   "Presque plate, cachant l'hétérogénéité",
+   "Parabolique"
+  ],
+  "explanation": "La PD moyenne sur les lignes ; les effets opposés s'annulent. Les courbes ICE les révèlent."
+ },
+ {
+  "id": "cml.17.q8",
+  "prompt": "Pour le modèle linéaire $f(x)=2x_1-3x_2$, l'instance $x=(4,1)$ et la moyenne de fond $(1,2)$, quelle est la valeur de Shapley $\\phi_1$ ?",
+  "options": [],
+  "explanation": "$\\phi_1=w_1(x_1-\\bar x_1)=2\\cdot3=6$."
+ },
+ {
+  "id": "cml.17.q9",
+  "prompt": "La propriété d'efficience des valeurs de Shapley dit que...",
+  "options": [
+   "Elles se calculent en temps linéaire",
+   "$\\sum_j\\phi_j=f(x)-\\mathbb E[f]$",
+   "Tous les $\\phi_j$ sont positifs",
+   "Les variables corrélées reçoivent des valeurs égales"
+  ],
+  "explanation": "Les attributions s'additionnent exactement à la prédiction moins la prédiction moyenne."
+ },
+ {
+  "id": "cml.17.q10",
+  "prompt": "Une variable a la plus grande valeur SHAP de ton modèle. Quelle affirmation est la plus sûre ?",
+  "options": [
+   "La modifier dans le monde réel changera le résultat",
+   "Elle est la cause de la cible",
+   "Il faut la retirer",
+   "La sortie du modèle en dépend fortement ; ce pourrait quand même être un proxy ou une fuite"
+  ],
+  "explanation": "Les attributions expliquent le modèle, pas la structure causale."
+ }
+]

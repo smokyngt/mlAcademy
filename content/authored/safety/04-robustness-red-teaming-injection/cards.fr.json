@@ -1,0 +1,17 @@
+[
+  { "id": "saf.04.c1", "front": "Taux de réussite d'attaque (ASR)", "back": "Fraction des comportements de test pour lesquels une attaque a obtenu une sortie contraire à la politique selon un juge ; dépend des comportements, de l'attaque, du budget de requêtes et du juge." },
+  { "id": "saf.04.c2", "front": "Intervalle de Wilson", "back": "Intervalle pour une proportion k/n : centre (p + z^2/2n)/(1+z^2/n), demi-largeur z/(1+z^2/n) * sqrt(p(1-p)/n + z^2/4n^2). Reste dans [0,1]." },
+  { "id": "saf.04.c3", "front": "Zéro succès observé", "back": "Pas zéro risque : avec 0 sur 50, la borne supérieure de Wilson à 95 % est d'environ 7,1 %." },
+  { "id": "saf.04.c4", "front": "ASR budgétée", "back": "Fraction des comportements brisés en au plus k requêtes ; croissante en k ; toujours rapporter le budget." },
+  { "id": "saf.04.c5", "front": "Évaluation statique contre adaptative", "back": "Statique : attaques fixes. Adaptative : l'attaquant connaît la défense et choisit la meilleure ; rapporter l'union sur les attaques." },
+  { "id": "saf.04.c6", "front": "Taille d'échantillon pour l'estimation d'un taux", "back": "n ~ z^2 p(1-p) / h^2 pour une demi-largeur h (385 pour p = 0.5, h = 0.05)." },
+  { "id": "saf.04.c7", "front": "Jailbreaking many-shot", "back": "Attaque en contexte long avec de nombreux exemples en contexte ; la réussite suit une loi de puissance du nombre d'exemples et partage un mécanisme avec l'apprentissage en contexte bénin." },
+  { "id": "saf.04.c8", "front": "Pourquoi les attaques par encodage marchent", "back": "Les filtres de sécurité opèrent sur les tokens ou le sens ; le modèle peut lire des formes ou encodages que le filtre ne reconnaît pas. La capacité de lecture et la vulnérabilité sont corrélées." },
+  { "id": "saf.04.c9", "front": "Red-teaming itératif en boîte noire", "back": "Un modèle attaquant propose des prompts, voit les réponses et le score d'un juge et affine ; ne nécessite qu'un accès par requêtes." },
+  { "id": "saf.04.c10", "front": "Classifieur de type Llama Guard", "back": "Modèle affiné qui étiquette entrées/sorties selon une taxonomie de dangers ; peut se placer avant, après ou autour du modèle ; nécessite des contrôles de faux positifs par déploiement." },
+  { "id": "saf.04.c11", "front": "Sondes, détecteurs, harnais (architecture d'un scanner)", "back": "Les sondes génèrent des entrées de test, les détecteurs notent les sorties, les harnais exécutent les paires et rapportent ; les sondes statiques vieillissent à mesure que les modèles sont corrigés." },
+  { "id": "saf.04.c12", "front": "Injection de prompt directe contre indirecte", "back": "Directe : l'utilisateur fournit le texte hostile. Indirecte : il se trouve dans un contenu récupéré ou d'outil que l'application donne au modèle." },
+  { "id": "saf.04.c13", "front": "Trois voies de livraison de l'injection indirecte", "back": "Récupération (RAG), flux de travail de boîte de réception/documents, et sorties d'outils." },
+  { "id": "saf.04.c14", "front": "Contrôle de flux d'information pour les agents", "back": "Étiqueter le contenu par sa fiabilité, propager les étiquettes, exiger une ratification avant les effets de bord déclenchés par un contenu non fiable ; endiguement plutôt que prévention." },
+  { "id": "saf.04.c15", "front": "Contrôle de risque à trois branches pour les agents", "back": "Accès aux données privées + exposition à du contenu non fiable + communication externe. En retirer une seule brise la chaîne d'exfiltration." }
+]

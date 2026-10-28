@@ -1,0 +1,212 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Amplitude spectrum of sin(2*pi*5t) + 0.5 sin(2*pi*3t): two spikes, at bin 5 (amplitude 1) and bin 3 (amplitude 0.5), and nothing elsewhere.",
+      "fr": "Spectre d'amplitude de sin(2*pi*5t) + 0,5 sin(2*pi*3t) : deux pics, au coefficient 5 (amplitude 1) et au coefficient 3 (amplitude 0,5), et rien ailleurs."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        1.3
+      ],
+      "height": 260,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              3,
+              0
+            ],
+            [
+              3,
+              0.5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              5,
+              0
+            ],
+            [
+              5,
+              1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              3,
+              0.5
+            ],
+            [
+              5,
+              1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#9ca3af",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              0
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 3,
+          "text": "k = 3"
+        },
+        {
+          "x": 5,
+          "text": "k = 5"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Cooley-Tukey FFT: one DFT of size N becomes two of size N/2 (even and odd samples) plus an O(N) butterfly with twiddle factors; recursing log2(N) levels gives O(N log N).",
+      "fr": "FFT de Cooley-Tukey : une DFT de taille N devient deux DFT de taille N/2 (échantillons pairs et impairs) plus un papillon en O(N) avec facteurs de rotation ; en récursant sur log2(N) niveaux on obtient O(N log N)."
+    },
+    "code": {
+      "en": "flowchart TD\n  X[\"x: N samples\"] --> E[\"x[2m]: even samples\"]\n  X --> Od[\"x[2m+1]: odd samples\"]\n  E --> DE[\"DFT size N/2 gives E[k]\"]\n  Od --> DO[\"DFT size N/2 gives O[k]\"]\n  DE --> BF[\"Butterfly with twiddle t_k = e^(-2 pi i k / N)\"]\n  DO --> BF\n  BF --> O1[\"X[k] = E[k] + t_k O[k]\"]\n  BF --> O2[\"X[k + N/2] = E[k] - t_k O[k]\"]",
+      "fr": "flowchart TD\n  X[\"x : N échantillons\"] --> E[\"x[2m] : échantillons pairs\"]\n  X --> Od[\"x[2m+1] : échantillons impairs\"]\n  E --> DE[\"DFT de taille N/2 donne E[k]\"]\n  Od --> DO[\"DFT de taille N/2 donne O[k]\"]\n  DE --> BF[\"Papillon avec facteur de rotation t_k = e^(-2 pi i k / N)\"]\n  DO --> BF\n  BF --> O1[\"X[k] = E[k] + t_k O[k]\"]\n  BF --> O2[\"X[k + N/2] = E[k] - t_k O[k]\"]"
+    }
+  },
+  {
+    "id": "f3",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Aliasing: sampled at fs = 8 Hz (red dots), a 7 Hz cosine (orange) is indistinguishable from a 1 Hz cosine (blue). The 7 Hz tone folds to fs - 7 = 1 Hz, above the Nyquist limit fs/2 = 4 Hz.",
+      "fr": "Repliement (aliasing) : échantillonné à fs = 8 Hz (points rouges), un cosinus à 7 Hz (orange) est indiscernable d'un cosinus à 1 Hz (bleu). Le son à 7 Hz se replie à fs - 7 = 1 Hz, au-dessus de la limite de Nyquist fs/2 = 4 Hz."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -1.4,
+        1.4
+      ],
+      "data": [
+        {
+          "fn": "cos(2*3.14159265*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "cos(2*3.14159265*7*x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              0.125,
+              0.7071
+            ],
+            [
+              0.25,
+              0.0
+            ],
+            [
+              0.375,
+              -0.7071
+            ],
+            [
+              0.5,
+              -1.0
+            ],
+            [
+              0.625,
+              -0.7071
+            ],
+            [
+              0.75,
+              -0.0
+            ],
+            [
+              0.875,
+              0.7071
+            ],
+            [
+              1.0,
+              1.0
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The convolution theorem: instead of an O(N^2) circular convolution, transform both signals, multiply pointwise, and transform back in O(N log N).",
+      "fr": "Le théorème de convolution : au lieu d'une convolution circulaire en O(N^2), on transforme les deux signaux, on multiplie terme à terme et on revient en O(N log N)."
+    },
+    "code": {
+      "en": "flowchart LR\n  a[\"signal a\"] --> FA[\"FFT\"] --> A[\"A[k]\"]\n  b[\"kernel b\"] --> FB[\"FFT\"] --> B[\"B[k]\"]\n  A --> P[\"pointwise product A[k] * B[k]\"]\n  B --> P\n  P --> I[\"inverse FFT\"] --> R[\"a circular-convolved with b\"]\n  a -.->|\"direct sum: O(N^2)\"| R",
+      "fr": "flowchart LR\n  a[\"signal a\"] --> FA[\"FFT\"] --> A[\"A[k]\"]\n  b[\"noyau b\"] --> FB[\"FFT\"] --> B[\"B[k]\"]\n  A --> P[\"produit terme à terme A[k] * B[k]\"]\n  B --> P\n  P --> I[\"FFT inverse\"] --> R[\"a convolué circulairement avec b\"]\n  a -.->|\"somme directe : O(N^2)\"| R"
+    }
+  },
+  {
+    "id": "f5",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From a waveform to a spectrogram: cut into overlapping windows, taper each one, take its FFT magnitude, and stack the columns: time on one axis, frequency on the other.",
+      "fr": "De la forme d'onde au spectrogramme : découper en fenêtres qui se chevauchent, pondérer chacune, prendre le module de sa FFT et empiler les colonnes : le temps sur un axe, la fréquence sur l'autre."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"waveform (T samples)\"] --> W[\"Overlapping windows, e.g. 25 ms\"] --> H[\"Multiply by Hann window\"] --> F[\"FFT of each frame\"] --> A[\"Magnitude |X[k]|\"] --> G[\"Spectrogram: frames x frequency bins\"]",
+      "fr": "flowchart LR\n  S[\"forme d'onde (T échantillons)\"] --> W[\"Fenêtres chevauchantes, p. ex. 25 ms\"] --> H[\"Multiplier par une fenêtre de Hann\"] --> F[\"FFT de chaque trame\"] --> A[\"Module |X[k]|\"] --> G[\"Spectrogramme : trames x fréquences\"]"
+    }
+  }
+]

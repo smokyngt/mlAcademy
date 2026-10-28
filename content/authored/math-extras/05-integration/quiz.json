@@ -1,0 +1,144 @@
+[
+ {
+  "id": "mx.05.q1",
+  "concept": "mx.integral",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The fundamental theorem of calculus says $\\int_a^bf(x)dx=$ ...",
+  "options": [
+   "$f(b)-f(a)$",
+   "$G(b)-G(a)$ for any antiderivative $G$ of $f$",
+   "$f'(b)-f'(a)$",
+   "$(b-a)f(a)$"
+  ],
+  "answer": 1,
+  "explanation": "Integration undoes differentiation: the area is the net change of an antiderivative."
+ },
+ {
+  "id": "mx.05.q2",
+  "concept": "mx.integral",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Evaluate $\\int_0^12x\\,e^{x^2}dx$ (substitute $u=x^2$). Give the numeric value.",
+  "options": [],
+  "answer": {
+   "value": 1.71828,
+   "tol": 0.001
+  },
+  "explanation": "$\\int_0^1e^udu=e-1$."
+ },
+ {
+  "id": "mx.05.q3",
+  "concept": "mx.integral",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Evaluate $\\int_0^1x\\,e^xdx$ using integration by parts.",
+  "options": [],
+  "answer": {
+   "value": 1,
+   "tol": 0.001
+  },
+  "explanation": "$[xe^x]_0^1-\\int_0^1e^x=e-(e-1)=1$."
+ },
+ {
+  "id": "mx.05.q4",
+  "concept": "mx.expect-integral",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A probability density $p(x)$ must satisfy...",
+  "options": [
+   "$p(x)\\le1$ everywhere",
+   "$p(x)\\ge0$ and $\\int p(x)dx=1$",
+   "$p(x)=P(X=x)$",
+   "$\\sum p=1$ over a grid"
+  ],
+  "answer": 1,
+  "explanation": "Non-negative with unit area; the height may exceed 1."
+ },
+ {
+  "id": "mx.05.q5",
+  "concept": "mx.expect-integral",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "For a continuous variable, $P(X=x)$ for one exact value $x$ is...",
+  "options": [
+   "equal to $p(x)$",
+   "positive but small",
+   "zero",
+   "undefined"
+  ],
+  "answer": 2,
+  "explanation": "A single point has zero width, hence zero area."
+ },
+ {
+  "id": "mx.05.q6",
+  "concept": "mx.expect-integral",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A uniform density on $[0.9,1.6]$ has what height?",
+  "options": [],
+  "answer": {
+   "value": 1.4286,
+   "tol": 0.001
+  },
+  "explanation": "$1/(1.6-0.9)=1/0.7$; a density can exceed 1."
+ },
+ {
+  "id": "mx.05.q7",
+  "concept": "mx.expect-integral",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The trick for computing $\\int e^{-x^2/2}dx$ is to...",
+  "options": [
+   "differentiate under the integral sign",
+   "square it, write it as a double integral and switch to polar coordinates",
+   "use integration by parts once",
+   "approximate it by a parabola"
+  ],
+  "answer": 1,
+  "explanation": "$I^2=\\iint e^{-(x^2+y^2)/2}=2\\pi\\int_0^\\infty e^{-r^2/2}r\\,dr=2\\pi$."
+ },
+ {
+  "id": "mx.05.q8",
+  "concept": "mx.numint",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Doubling the number of intervals in the trapezoid rule reduces the error by about...",
+  "options": [
+   "2",
+   "4",
+   "16",
+   "$\\sqrt2$"
+  ],
+  "answer": 1,
+  "explanation": "Error $O(h^2)$: halving $h$ divides the error by 4. Simpson ($O(h^4)$) gives 16."
+ },
+ {
+  "id": "mx.05.q9",
+  "concept": "mx.numint",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is Monte Carlo used for high-dimensional expectations?",
+  "options": [
+   "It is more accurate than Simpson in 1D",
+   "Its error $\\sim n^{-1/2}$ does not depend on the dimension, while grids need $m^d$ points",
+   "It needs no function evaluations",
+   "It is exact"
+  ],
+  "answer": 1,
+  "explanation": "Grid cost explodes with $d$; Monte Carlo keeps its rate."
+ },
+ {
+  "id": "mx.05.q10",
+  "concept": "mx.numint",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Monte Carlo with $n=100$ samples has standard error $0.1$. What standard error do you expect with $n=10000$ samples?",
+  "options": [],
+  "answer": {
+   "value": 0.01,
+   "tol": 0.0005
+  },
+  "explanation": "Error scales as $1/\\sqrt n$: 100x more samples, 10x smaller error."
+ }
+]

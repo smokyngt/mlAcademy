@@ -1,0 +1,10 @@
+{
+  "id": "res.02.ex1",
+  "title": "Puissance, taille d'échantillon et procédures de comparaisons multiples",
+  "prompt": "Planifier une expérience, c'est se demander combien d'exécutions il faut avant de dépenser le calcul. Les fonctions auxiliaires `norm_ppf`, `t_crit` et `welch_t` sont fournies.\n\n1. `n_per_group(delta, sigma, alpha=0.05, power=0.8)` -> plus petit entier `n` par groupe pour une comparaison bilatérale de moyennes à deux échantillons, d'après la formule d'approximation normale `n = 2 (z_{1-alpha/2} + z_{power})^2 sigma^2 / delta^2` (arrondi **au supérieur**).\n2. `simulated_power(delta, sigma, n, n_sims=2000, seed=0)` -> fraction d'expériences simulées dans lesquelles le test de Welch rejette au niveau de 5 %. Chaque simulation tire le groupe A de `N(0, sigma^2)` et le groupe B de `N(delta, sigma^2)`, `n` valeurs chacun ; rejette quand `abs(t) > t_crit(int(round(df)))`. Utilise `np.random.default_rng(seed)` une seule fois, hors de la boucle.\n3. `bonferroni(p, alpha=0.05)` -> tableau booléen : rejette `p_i <= alpha / m`.\n4. `benjamini_hochberg(p, q=0.05)` -> tableau booléen dans l'**ordre d'origine** : la procédure ascendante qui contrôle le taux de fausses découvertes à `q`.",
+  "hints": [
+    "n par groupe = ceil(2 * (z_{1-alpha/2} + z_{power})**2 * sigma**2 / delta**2) ; utilise norm_ppf(1 - alpha/2) et norm_ppf(power).",
+    "simulated_power : rng = np.random.default_rng(seed) ; dans chaque simulation tire a ~ N(0, sigma) et b ~ N(delta, sigma), n valeurs chacun, calcule welch_t, rejette si abs(t) > t_crit(round(df)) ; renvoie la fraction de rejets.",
+    "Benjamini-Hochberg : trie p par ordre croissant, trouve le PLUS GRAND rang k (base 1) avec p_(k) <= q*k/m, rejette les k plus petites p-valeurs, puis remets dans l'ordre d'origine."
+  ]
+}

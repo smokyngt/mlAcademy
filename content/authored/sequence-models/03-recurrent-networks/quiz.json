@@ -1,0 +1,63 @@
+[
+  {
+    "id": "seq.03.q1", "concept": "seq.rnn", "stage": "pre", "kind": "mcq",
+    "prompt": "What is the main reason an MLP is unsuited to variable-length text?",
+    "options": ["It cannot use nonlinearities", "Its number of inputs is fixed", "It has too few parameters", "It cannot be trained by backpropagation"],
+    "answer": 1,
+    "explanation": "An MLP expects a fixed-size input vector; a recurrent network reuses the same cell at every step and so handles any length."
+  },
+  {
+    "id": "seq.03.q2", "concept": "seq.rnn", "stage": "pre", "kind": "mcq",
+    "prompt": "For $h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b)$ with $x_t\\in\\mathbb{R}^n$ and hidden size $H$, the shape of $W_{hh}$ is...",
+    "options": ["$(H,n)$", "$(n,n)$", "$(H,H)$", "$(T,H)$"],
+    "answer": 2,
+    "explanation": "$W_{hh}$ maps a hidden state $(H)$ to a hidden state $(H)$, so $(H,H)$. $W_{xh}$ is $(H,n)$."
+  },
+  {
+    "id": "seq.03.q3", "concept": "seq.rnn", "kind": "mcq", "stage": "check",
+    "prompt": "Why is $\\bar W_{hh}$ a sum over time steps in BPTT?",
+    "options": ["Because the loss is summed over the batch", "Because the same $W_{hh}$ is used at every step, so each step contributes by the chain rule", "Because tanh is applied at every step", "Because the output layer has a bias"],
+    "answer": 1,
+    "explanation": "A parameter shared by $T$ copies of the cell receives the sum of its gradients from all copies: $\\bar W_{hh}=\\sum_t\\bar a_th_{t-1}^\\top$."
+  },
+  {
+    "id": "seq.03.q4", "concept": "seq.rnn", "kind": "mcq", "stage": "check",
+    "prompt": "In BPTT the gradient passed from step $t$ to step $t-1$ is...",
+    "options": ["$\\bar h_{t-1}=W_{hh}^\\top\\big(\\bar h_t\\odot(1-h_t^2)\\big)$", "$\\bar h_{t-1}=W_{hh}\\bar h_t$", "$\\bar h_{t-1}=\\bar h_t\\odot(1-h_{t-1}^2)$", "$\\bar h_{t-1}=W_{xh}^\\top\\bar a_t$"],
+    "answer": 0,
+    "explanation": "Through the tanh: $\\bar a_t=\\bar h_t\\odot(1-h_t^2)$; through the linear map $a_t=\\dots+W_{hh}h_{t-1}$: $\\bar h_{t-1}=W_{hh}^\\top\\bar a_t$."
+  },
+  {
+    "id": "seq.03.q5", "concept": "seq.rnn", "kind": "numeric", "stage": "check",
+    "prompt": "In the lesson's scalar example ($w_{xh}=0.5$, $w_{hh}=0.8$, $x=(1,-1)$, $w_y=2$, $y=0.5$), what is the loss $L$ (3 decimals)?",
+    "options": [], "answer": { "value": 0.288, "tol": 0.001 },
+    "explanation": "$h_1=\\tanh(0.5)=0.4621$, $h_2=\\tanh(-0.5+0.8\\cdot0.4621)=-0.1296$, $\\hat y=-0.2591$, $L=\\tfrac12(-0.2591-0.5)^2=0.288$."
+  },
+  {
+    "id": "seq.03.q6", "concept": "seq.rnn-gradients", "kind": "mcq", "stage": "check",
+    "prompt": "The Jacobian $\\partial h_t/\\partial h_{t-1}$ of a tanh RNN is...",
+    "options": ["$W_{hh}$", "$\\operatorname{diag}(1-h_t^2)\\,W_{hh}$", "$W_{hh}\\operatorname{diag}(1-h_{t-1}^2)$ transposed", "$\\tanh(W_{hh})$"],
+    "answer": 1,
+    "explanation": "$h_t=\\tanh(a_t)$ gives $\\operatorname{diag}(1-h_t^2)$, and $a_t=\\dots+W_{hh}h_{t-1}$ gives $W_{hh}$; chain rule multiplies them."
+  },
+  {
+    "id": "seq.03.q7", "concept": "seq.rnn-gradients", "kind": "numeric", "stage": "check",
+    "prompt": "In a linear RNN with $\\rho(W_{hh})=0.9$, roughly how large is the gradient factor over $T=100$ steps (use $\\rho^T$, give the exponent of 10, i.e. $\\log_{10}$, to 1 decimal)?",
+    "options": [], "answer": { "value": -4.6, "tol": 0.1 },
+    "explanation": "$0.9^{100}\\approx2.66\\times10^{-5}$, so $\\log_{10}\\approx-4.6$."
+  },
+  {
+    "id": "seq.03.q8", "concept": "seq.rnn-gradients", "kind": "mcq", "stage": "check",
+    "prompt": "Gradient clipping by global norm...",
+    "options": ["cures vanishing gradients", "caps the length of the gradient while preserving its direction, protecting against explosions", "changes the loss function", "removes the need for BPTT"],
+    "answer": 1,
+    "explanation": "The gradient is rescaled by $\\min(1,\\tau/\\lVert g\\rVert)$. It cannot restore a vanished signal."
+  },
+  {
+    "id": "seq.03.q9", "concept": "seq.rnn-gradients", "kind": "mcq", "stage": "check",
+    "prompt": "An orthogonal $W_{hh}$ in a linear RNN gives $\\lVert W_{hh}^T\\rVert_2=$...",
+    "options": ["$0$ for large $T$", "$T$", "$1$ for every $T$", "$\\infty$"],
+    "answer": 2,
+    "explanation": "Orthogonal matrices preserve norms, so all singular values are 1 and so are those of any power. With tanh, saturation changes this during training."
+  }
+]

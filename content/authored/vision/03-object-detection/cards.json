@@ -1,0 +1,17 @@
+[
+  {"id": "vis.03.c1", "concept": "vis.iou", "front": "Intersection over union", "back": "$\\mathrm{IoU}=|A\\cap B|/(|A|+|B|-|A\\cap B|)$; 1 = identical, 0 = disjoint or touching."},
+  {"id": "vis.03.c2", "concept": "vis.iou", "front": "Intersection width of two boxes", "back": "$\\max(0,\\min(x_2^A,x_2^B)-\\max(x_1^A,x_1^B))$; height likewise; area = product."},
+  {"id": "vis.03.c3", "concept": "vis.iou", "front": "Greedy NMS algorithm", "back": "Sort by score; keep the best; delete remaining boxes with IoU above the threshold to it; repeat. Typical threshold about 0.45-0.5."},
+  {"id": "vis.03.c4", "concept": "vis.iou", "front": "NMS threshold trade-off", "back": "Too low merges nearby real objects (crowds); too high leaves duplicates."},
+  {"id": "vis.03.c5", "concept": "vis.detection", "front": "Single-shot detection idea", "back": "One CNN pass predicts, for every grid cell and anchor, box offsets, objectness and class scores; NMS cleans the output."},
+  {"id": "vis.03.c6", "concept": "vis.detection", "front": "Output size of a YOLO-style head", "back": "$S\\times S$ cells, $B$ anchors each, $5+C$ numbers per anchor: $S\\cdot S\\cdot B(5+C)$."},
+  {"id": "vis.03.c7", "concept": "vis.detection", "front": "Why anchors?", "back": "Predicting a small nudge from a prior box shape is easier than regressing absolute size from a small receptive field."},
+  {"id": "vis.03.c8", "concept": "vis.detection", "front": "Box decoding formulas", "back": "$b_x=(\\sigma(t_x)+c_x)s$, $b_y=(\\sigma(t_y)+c_y)s$, $b_w=a_we^{t_w}$, $b_h=a_he^{t_h}$."},
+  {"id": "vis.03.c9", "concept": "vis.detection", "front": "Terms of the detection loss", "back": "Box regression (object slots), objectness for object slots, objectness for empty slots (small weight), classification (object slots)."},
+  {"id": "vis.03.c10", "concept": "vis.detection", "front": "Why down-weight the no-object term?", "back": "Empty slots hugely outnumber object slots and would dominate the loss."},
+  {"id": "vis.03.c11", "concept": "vis.map", "front": "True vs false positive in detection", "back": "TP: best-IoU ground truth has IoU $\\ge\\tau$ and is not yet claimed. Otherwise FP (including duplicates)."},
+  {"id": "vis.03.c12", "concept": "vis.map", "front": "Precision and recall at rank r", "back": "$P_r=\\mathrm{TP}_r/r$, $R_r=\\mathrm{TP}_r/G$ with $G$ ground-truth boxes."},
+  {"id": "vis.03.c13", "concept": "vis.map", "front": "Average precision", "back": "$\\sum_r(R_r-R_{r-1})\\tilde P_r$ with $\\tilde P_r=\\max_{r'\\ge r}P_{r'}$ (precision envelope)."},
+  {"id": "vis.03.c14", "concept": "vis.map", "front": "mAP@[.5:.95]", "back": "AP averaged over classes and over IoU thresholds 0.5, 0.55, ..., 0.95; rewards tight localisation."},
+  {"id": "vis.03.c15", "concept": "vis.map", "front": "High precision, low recall means...", "back": "A timid detector: lower the score threshold or raise the objectness weight."}
+]

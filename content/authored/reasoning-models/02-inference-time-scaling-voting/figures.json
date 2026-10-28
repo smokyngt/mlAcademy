@@ -1,0 +1,117 @@
+[
+  {
+    "id": "temperature-sharpen",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Temperature divides the logits before the softmax. For the lesson's ten-token toy logits, the probability of the top token as a function of T: 0.6947 at T = 0.5, 0.4538 at T = 1 and 0.1567 at T = 5. Low T sharpens (less diversity), high T flattens.",
+      "fr": "La température divise les logits avant le softmax. Pour les dix logits jouets de la leçon, la probabilité du meilleur jeton en fonction de T : 0,6947 pour T = 0,5, 0,4538 pour T = 1 et 0,1567 pour T = 5. Une faible T affûte (moins de diversité), une forte T aplatit."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0.2,
+        5
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "T",
+      "data": [
+        {
+          "fn": "1/(exp((-0.7-2)/x) + exp((-3-2)/x) + exp((0.1-2)/x) + exp((-1.2-2)/x) + 1 + exp((-1-2)/x) + exp((-0.5-2)/x) + exp((-2-2)/x) + exp((0.3-2)/x) + exp((1.5-2)/x))",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "vote-vs-best-of-n",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two ways to spend extra samples. Self-consistency extracts each final answer and takes the plurality; best-of-n scores each full response with a scorer (rule, verifier or average log-probability) and keeps the highest.",
+      "fr": "Deux façons de dépenser des échantillons supplémentaires. L'auto-cohérence extrait chaque réponse finale et prend la pluralité ; le best-of-n note chaque réponse complète avec un évaluateur (règle, vérificateur ou log-probabilité moyenne) et garde la meilleure."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q[\"problem\"] --> S[\"sample n responses<br/>temperature + top-p\"]\n  S --> X[\"extract final answers\"]\n  X --> PL[\"plurality vote\"] --> A1[\"answer (self-consistency)\"]\n  S --> SC[\"score each response\"]\n  SC --> AM[\"argmax score\"] --> A2[\"answer (best-of-n)\"]",
+      "fr": "flowchart LR\n  Q[\"problème\"] --> S[\"échantillonner n réponses<br/>température + top-p\"]\n  S --> X[\"extraire les réponses finales\"]\n  X --> PL[\"vote à la pluralité\"] --> A1[\"réponse (auto-cohérence)\"]\n  S --> SC[\"noter chaque réponse\"]\n  SC --> AM[\"argmax du score\"] --> A2[\"réponse (best-of-n)\"]"
+    }
+  },
+  {
+    "id": "vote-n9",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Accuracy of a plurality vote over n = 9 samples (blue) versus a single sample (grey diagonal), assuming a single repeated wrong answer. The curve crosses the diagonal at p = 1/2: above it voting amplifies success, below it voting makes a bad problem worse.",
+      "fr": "Précision d'un vote à la pluralité sur n = 9 échantillons (bleu) contre un seul échantillon (diagonale grise), en supposant une seule réponse erronée répétée. La courbe croise la diagonale en p = 1/2 : au-dessus le vote amplifie le succès, en dessous il aggrave un problème difficile."
+    },
+    "spec": {
+      "height": 320,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "p",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "126*x^5*(1-x)^4 + 84*x^6*(1-x)^3 + 36*x^7*(1-x)^2 + 9*x^8*(1-x) + x^9",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hoeffding",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Hoeffding's bound on the voting failure rate, 1 - A(n, p) <= exp(-2n(p - 1/2)^2), for p = 0.55 (orange) and p = 0.6 (blue). It is loose (n = 21, p = 0.55 gives 0.90 while the true failure is 0.32) but shows the exponential rate in n and that the gap p - 1/2 sets the speed.",
+      "fr": "Borne de Hoeffding sur le taux d'échec du vote, 1 - A(n, p) <= exp(-2n(p - 1/2)^2), pour p = 0,55 (orange) et p = 0,6 (bleu). Elle est lâche (n = 21, p = 0,55 donne 0,90 alors que l'échec réel vaut 0,32) mais montre la vitesse exponentielle en n et que l'écart p - 1/2 fixe la rapidité."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        1,
+        100
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "n",
+      "data": [
+        {
+          "fn": "exp(-2*x*0.0025)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(-2*x*0.01)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "compute-accuracy",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Test-time compute buys accuracy with diminishing returns (MATH-500, base model, CoT + top-p): 33.4% with one sample, 42.2% with 3, 48.0% with 5 and 52.0% with 10. Ten samples cost about 6.7 times the single-sample time for +18.6 points.",
+      "fr": "Le calcul à l'inférence achète de la précision avec des rendements décroissants (MATH-500, modèle de base, CoT + top-p) : 33,4 % avec un échantillon, 42,2 % avec 3, 48,0 % avec 5 et 52,0 % avec 10. Dix échantillons coûtent environ 6,7 fois le temps d'un seul pour +18,6 points."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"MATH-500 accuracy (%) vs number of samples\"\n  x-axis [\"n=1\", \"n=3\", \"n=5\", \"n=10\"]\n  y-axis \"%\" 30 --> 55\n  line [33.4, 42.2, 48.0, 52.0]",
+      "fr": "xychart-beta\n  title \"Précision MATH-500 (%) selon le nombre d'échantillons\"\n  x-axis [\"n=1\", \"n=3\", \"n=5\", \"n=10\"]\n  y-axis \"%\" 30 --> 55\n  line [33.4, 42.2, 48.0, 52.0]"
+    }
+  }
+]

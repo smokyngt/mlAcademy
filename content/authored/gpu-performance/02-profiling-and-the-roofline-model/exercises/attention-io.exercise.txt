@@ -1,0 +1,79 @@
+#@@ meta
+{"id": "gpu.02.ex2", "title": "Attention FLOPs and bytes, with and without tiling", "difficulty": 4, "runtime": "pyodide", "concepts": ["gpu.flash-io", "gpu.arith-intensity"], "hints": ["Standard attention writes S = QK^T (N*N) to memory, reads it back for softmax, writes P (N*N), reads P back for P@V. That is four N*N passes plus Q, K, V, O (4*N*d).", "Tiled attention: Q is read once, K and V are read once per Q block (N / Br blocks), O is written once: elements = N*d + 2*N*d*(N/Br) + N*d.", "FLOPs are the same either way: 4*N*N*d for the two matmuls plus 5*N*N for the softmax."]}
+#@@ prompt
+Model ONE attention head with sequence length `N`, head dimension `d`, `elem_bytes` per number (2 for fp16). Our convention: the two matmuls cost `2*N*N*d` FLOPs each, the softmax `5*N*N`.
+
+- `attn_flops(N, d)`: total FLOPs.
+- `attn_bytes_standard(N, d, elem_bytes)`: global-memory traffic when each step is a separate kernel: read Q and K, write S; read S, write P; read P and V, write O. Count it as `elem_bytes * (4*N*d + 4*N*N)`.
+- `attn_bytes_tiled(N, d, Br, elem_bytes)`: traffic of a FlashAttention-style kernel with query blocks of `Br` rows (`N` a multiple of `Br`): Q read once, every one of the `N/Br` query blocks streams all of K and V, O written once.
+- `tile_fits(Br, Bc, d, elem_bytes, sram_bytes)`: does one iteration fit in fast memory? Count the Q tile (`Br*d`), the K and V tiles (`2*Bc*d`), the score tile (`Br*Bc`) and the output accumulator (`Br*d`).
+- `intensity(flops, nbytes)` and `bound(intensity, ridge)` returning `"memory"` or `"compute"`.
+- `largest_br(N, d, elem_bytes, sram_bytes)`: the largest `Br` that is a power of two, divides `N`, and satisfies `tile_fits(Br, Br, ...)`.
+#@@ starter
+import numpy as np
+
+def attn_flops(N, d):
+    raise NotImplementedError
+
+def attn_bytes_standard(N, d, elem_bytes):
+    raise NotImplementedError
+
+def attn_bytes_tiled(N, d, Br, elem_bytes):
+    raise NotImplementedError
+
+def tile_fits(Br, Bc, d, elem_bytes, sram_bytes):
+    raise NotImplementedError
+
+def intensity(flops, nbytes):
+    raise NotImplementedError
+
+def bound(inten, ridge):
+    raise NotImplementedError
+
+def largest_br(N, d, elem_bytes, sram_bytes):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+N, d = 4096, 64
+check("flops for N=4096, d=64", lambda: attn_flops(N, d) == 4 * N * N * d + 5 * N * N)
+check("standard bytes (fp16)", lambda: attn_bytes_standard(N, d, 2) == 2 * (4 * N * d + 4 * N * N))
+check("tiled bytes, Br=128 (fp16)", lambda: attn_bytes_tiled(N, d, 128, 2) == 2 * (N * d + 2 * N * d * (N // 128) + N * d))
+check("tiling cuts the traffic by a factor of about 3.9 at N=4096, Br=128", lambda: 3.8 < attn_bytes_standard(N, d, 2) / attn_bytes_tiled(N, d, 128, 2) < 4.0)
+check("standard intensity is about 32 FLOP/byte", lambda: abs(intensity(attn_flops(N, d), attn_bytes_standard(N, d, 2)) - 32.1) < 0.3)
+check("standard attention is memory-bound on a ridge of 156", lambda: bound(intensity(attn_flops(N, d), attn_bytes_standard(N, d, 2)), 156.0) == "memory")
+check("a huge Br makes the tiled version compute-bound", lambda: bound(intensity(attn_flops(N, d), attn_bytes_tiled(N, d, 4096, 2)), 156.0) == "compute")
+check("standard traffic grows ~4x when N doubles (N^2 term)", lambda: 3.8 < attn_bytes_standard(2 * N, d, 2) / attn_bytes_standard(N, d, 2) < 4.01)
+check("tile_fits: 128x128 tiles, d=64, fp16 in 100 KB", lambda: tile_fits(128, 128, 64, 2, 100 * 1024))
+check("tile_fits: 256x256 tiles do not fit in 100 KB", lambda: not tile_fits(256, 256, 64, 2, 100 * 1024))
+check("largest_br for 100 KB, d=64, fp16, N=4096 is 128", lambda: largest_br(4096, 64, 2, 100 * 1024) == 128)
+check("largest_br for 300 KB is 256", lambda: largest_br(4096, 64, 2, 300 * 1024) == 256)
+#@@ solution
+import numpy as np
+
+def attn_flops(N, d):
+    return 4 * N * N * d + 5 * N * N
+
+def attn_bytes_standard(N, d, elem_bytes):
+    return elem_bytes * (4 * N * d + 4 * N * N)
+
+def attn_bytes_tiled(N, d, Br, elem_bytes):
+    return elem_bytes * (N * d + 2 * N * d * (N // Br) + N * d)
+
+def tile_fits(Br, Bc, d, elem_bytes, sram_bytes):
+    elems = Br * d + 2 * Bc * d + Br * Bc + Br * d
+    return elems * elem_bytes <= sram_bytes
+
+def intensity(flops, nbytes):
+    return flops / nbytes
+
+def bound(inten, ridge):
+    return "memory" if inten < ridge else "compute"
+
+def largest_br(N, d, elem_bytes, sram_bytes):
+    best = 0
+    br = 1
+    while br <= N:
+        if N % br == 0 and tile_fits(br, br, d, elem_bytes, sram_bytes):
+            best = br
+        br *= 2
+    return best

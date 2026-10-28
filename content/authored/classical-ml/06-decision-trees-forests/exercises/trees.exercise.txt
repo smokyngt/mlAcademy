@@ -1,0 +1,111 @@
+#@@ meta
+{"id": "cml.06.ex1", "title": "Impurity, best split and a small decision tree", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.trees"], "hints": ["gini: p = np.bincount(y) / len(y); return 1 - (p**2).sum(). For entropy drop zero entries of p before the log.", "best_split: for each feature, take np.unique values, midpoints (u[:-1]+u[1:])/2; left mask = X[:, j] <= t; gain = parent - (nL*I(yL) + nR*I(yR))/n. Keep only strictly better gains so ties go to the smallest feature and threshold.", "fit_tree: return a leaf {'leaf': majority_class} when the node is pure, depth == max_depth, fewer than 2*min_samples_leaf samples, or best_split finds no gain; otherwise {'f': j, 't': t, 'l': subtree, 'r': subtree}. Reject splits that leave fewer than min_samples_leaf rows on a side."]}
+#@@ prompt
+Implement a classification tree from scratch.
+
+- `gini(y)` and `entropy(y)` (bits, `log2`) for an integer label vector; an empty vector has impurity 0.
+- `best_split(X, y, criterion="gini", min_samples_leaf=1)` returns `(feature, threshold, gain)`. Candidate thresholds are midpoints between consecutive distinct sorted values; the gain is parent impurity minus the size-weighted child impurities. Only strictly larger gains replace the current best (so ties are resolved towards the smallest feature index, then the smallest threshold). If no split has positive gain return `(None, None, 0.0)`.
+- `fit_tree(X, y, max_depth=3, min_samples_leaf=1, criterion="gini")` returns a nested dict (leaf: `{"leaf": class}`; node: `{"f", "t", "l", "r"}`), where the majority class of a leaf is the smallest class on ties.
+- `predict_tree(tree, X)` returns an integer array.
+#@@ starter
+import numpy as np
+
+def gini(y):
+    raise NotImplementedError
+
+def entropy(y):
+    raise NotImplementedError
+
+def best_split(X, y, criterion="gini", min_samples_leaf=1):
+    raise NotImplementedError
+
+def fit_tree(X, y, max_depth=3, min_samples_leaf=1, criterion="gini"):
+    raise NotImplementedError
+
+def predict_tree(tree, X):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+y6 = np.array([0] * 6 + [1] * 4)
+check("gini of 6/4 is 0.48", lambda: abs(gini(y6) - 0.48) < 1e-12)
+check("entropy of 6/4 is 0.971 bits", lambda: abs(entropy(y6) - 0.9709505944546686) < 1e-9)
+check("pure node has zero impurity", lambda: gini(np.array([1, 1, 1])) == 0 and entropy(np.array([1, 1, 1])) == 0)
+check("50/50 entropy is 1 bit", lambda: abs(entropy(np.array([0, 1])) - 1.0) < 1e-12)
+x = np.arange(1, 11, dtype=float).reshape(-1, 1)
+y = np.array([0, 0, 1, 0, 0, 1, 1, 1, 1, 1])
+j, t, g = best_split(x, y)
+check("worked example: gini split at 5.5", lambda: j == 0 and abs(t - 5.5) < 1e-12)
+check("worked example: gini gain 0.32", lambda: abs(g - 0.32) < 1e-9)
+check("worked example: entropy gain 0.610", lambda: abs(best_split(x, y, "entropy")[2] - 0.6100) < 1e-3)
+check("no gain on a constant feature", lambda: best_split(np.ones((4, 1)), np.array([0, 1, 0, 1]))[0] is None)
+check("min_samples_leaf blocks tiny children", lambda: best_split(x, y, min_samples_leaf=3)[1] == 5.5)
+rng = np.random.default_rng(0)
+X = rng.normal(size=(200, 2))
+yy = ((X[:, 0] > 0.3) & (X[:, 1] > -0.2)).astype(int)
+deep = fit_tree(X, yy, max_depth=6)
+check("deep tree fits the training data exactly", lambda: (predict_tree(deep, X) == yy).all())
+stump = fit_tree(X, yy, max_depth=1)
+check("a stump has one split and two leaves", lambda: "f" in stump and "leaf" in stump["l"] and "leaf" in stump["r"])
+check("depth 2 learns the AND rule", lambda: (predict_tree(fit_tree(X, yy, max_depth=2), X) == yy).mean() > 0.97)
+Xt = rng.normal(size=(300, 2)); yt = ((Xt[:, 0] > 0.3) & (Xt[:, 1] > -0.2)).astype(int)
+check("generalises on fresh data", lambda: (predict_tree(deep, Xt) == yt).mean() > 0.9)
+xor = np.array([[0, 0], [0, 1], [1, 0], [1, 1]], float); yx = np.array([0, 1, 1, 0])
+check("greedy search finds no gain on XOR at the root", lambda: best_split(xor, yx)[0] is None)
+#@@ solution
+import numpy as np
+
+def _p(y):
+    return np.bincount(y) / len(y)
+
+def gini(y):
+    if len(y) == 0:
+        return 0.0
+    return float(1.0 - np.sum(_p(y) ** 2))
+
+def entropy(y):
+    if len(y) == 0:
+        return 0.0
+    p = _p(y)
+    p = p[p > 0]
+    return float(-np.sum(p * np.log2(p)))
+
+def best_split(X, y, criterion="gini", min_samples_leaf=1):
+    imp = gini if criterion == "gini" else entropy
+    n, d = X.shape
+    parent = imp(y)
+    best = (None, None, 0.0)
+    for j in range(d):
+        u = np.unique(X[:, j])
+        for t in (u[:-1] + u[1:]) / 2:
+            L = X[:, j] <= t
+            nl = int(L.sum())
+            nr = n - nl
+            if nl < min_samples_leaf or nr < min_samples_leaf:
+                continue
+            gain = parent - (nl * imp(y[L]) + nr * imp(y[~L])) / n
+            if gain > best[2] + 1e-12:
+                best = (j, float(t), float(gain))
+    return best
+
+def _leaf(y):
+    return {"leaf": int(np.bincount(y).argmax())}
+
+def fit_tree(X, y, max_depth=3, min_samples_leaf=1, criterion="gini"):
+    if max_depth == 0 or len(np.unique(y)) == 1 or len(y) < 2 * min_samples_leaf:
+        return _leaf(y)
+    j, t, g = best_split(X, y, criterion, min_samples_leaf)
+    if j is None:
+        return _leaf(y)
+    L = X[:, j] <= t
+    return {"f": j, "t": t,
+            "l": fit_tree(X[L], y[L], max_depth - 1, min_samples_leaf, criterion),
+            "r": fit_tree(X[~L], y[~L], max_depth - 1, min_samples_leaf, criterion)}
+
+def predict_tree(tree, X):
+    out = np.empty(len(X), dtype=int)
+    for i, row in enumerate(X):
+        node = tree
+        while "leaf" not in node:
+            node = node["l"] if row[node["f"]] <= node["t"] else node["r"]
+        out[i] = node["leaf"]
+    return out

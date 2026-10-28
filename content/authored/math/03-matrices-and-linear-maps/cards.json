@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.03.c1", "concept": "la.matrix", "front": "Shape rule for matrix multiplication", "back": "$(m\\times n)(n\\times p)=(m\\times p)$. The inner dimensions must match." },
+  { "id": "f2n.03.c2", "concept": "la.matrix", "front": "Entry formula for $AB$", "back": "$(AB)_{ij}=\\sum_k a_{ik}b_{kj}$: row $i$ of $A$ dotted with column $j$ of $B$." },
+  { "id": "f2n.03.c3", "concept": "la.linear-map", "front": "What are the columns of a matrix?", "back": "The images of the standard basis vectors: $Ae_j$ is column $j$. So $Ax$ is a linear combination of the columns." },
+  { "id": "f2n.03.c4", "concept": "la.matrix", "front": "Transpose of a product", "back": "$(AB)^\\top=B^\\top A^\\top$" },
+  { "id": "f2n.03.c5", "concept": "la.linear-map", "front": "2D rotation matrix by $\\theta$", "back": "$\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$. It preserves lengths." },
+  { "id": "f2n.03.c6", "concept": "la.matrix", "front": "Batch layer shapes", "back": "$X\\in\\mathbb{R}^{B\\times n}$, $W\\in\\mathbb{R}^{n\\times m}$ gives $XW\\in\\mathbb{R}^{B\\times m}$." }
+]

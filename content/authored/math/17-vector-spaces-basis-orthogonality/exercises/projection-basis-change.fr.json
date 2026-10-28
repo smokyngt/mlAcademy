@@ -1,0 +1,10 @@
+{
+  "id": "math.17.ex2",
+  "title": "Matrices de projection et changement de base",
+  "prompt": "Implémente :\n\n- `projection_matrix(B)` - la projection orthogonale sur l'espace des colonnes de `B` (forme `(n, m)`, colonnes indépendantes) : `B (B^T B)^-1 B^T`.\n- `project(B, x)` - la projection de `x` sans construire la matrice complète `n x n`.\n- `is_projection(P)` - un tuple `(idempotente, symétrique)` de booléens Python pour `P @ P == P` et `P == P.T` (utilise `np.allclose`).\n- `to_coords(S, x)` / `from_coords(S, c)` - coordonnées de `x` par rapport à la base formée des colonnes de `S`, et retour.\n- `matrix_in_basis(S, M)` - la matrice `S^-1 M S` de la même application linéaire dans la nouvelle base.",
+  "hints": [
+    "projection_matrix : B @ np.linalg.solve(B.T @ B, B.T) évite l'inverse explicite.",
+    "is_projection renvoie (idempotente, symétrique) : np.allclose(P @ P, P) et np.allclose(P, P.T).",
+    "to_coords résout S c = x avec np.linalg.solve ; matrix_in_basis vaut S^-1 M S (utilise solve(S, M @ S))."
+  ]
+}

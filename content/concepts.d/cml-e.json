@@ -1,0 +1,6 @@
+[
+  { "id": "ml.uncertainty", "title": "Aleatoric and epistemic uncertainty, ensembles and Bayesian predictive variance", "description": "Splitting predictive uncertainty into noise and ignorance; temperature scaling; bootstrap and deep ensembles; the Bayesian linear regression predictive variance.", "stage": "III", "prereqs": ["ml.calibration", "ml.generalization", "prob.rv", "stat.testing"] },
+  { "id": "ml.conformal", "title": "Prediction intervals and split conformal prediction", "description": "Distribution-free prediction sets with a finite-sample coverage guarantee from exchangeability and a calibration set.", "stage": "III", "prereqs": ["ml.uncertainty", "prob.rv"] },
+  { "id": "ml.slt", "title": "Empirical vs true risk, Hoeffding and the union bound", "description": "The generalisation gap, Hoeffding's inequality and the uniform bound for a finite hypothesis class.", "stage": "III", "prereqs": ["ml.generalization", "prob.rv", "stat.estimation"] },
+  { "id": "ml.vc", "title": "Shattering, VC dimension and Rademacher complexity", "description": "Capacity measures for infinite hypothesis classes, the VC generalisation bound, structural risk minimisation and why deep nets strain classical bounds.", "stage": "III", "prereqs": ["ml.slt"] }
+]

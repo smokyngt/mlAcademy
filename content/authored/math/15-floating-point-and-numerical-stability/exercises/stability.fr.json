@@ -1,0 +1,11 @@
+{
+  "id": "math.15.ex1",
+  "title": "Softmax stable, log-sum-exp, Welford, Kahan et arrondi bfloat16",
+  "prompt": "NumPy uniquement. Implémente :\n\n- `softmax_naive(z)` - la formule de manuel `exp(z) / sum(exp(z))` ; `softmax_stable(z)` - la version décalée par le max.\n- `logsumexp_stable(z)` - `c + log(sum(exp(z - c)))` avec `c = max(z)`.\n- `var_raw(x)` - variance de la population par `mean(x**2) - mean(x)**2`.\n- `welford(xs)` - un passage sur un itérable, renvoyant `(mean, population_variance, sample_variance)`.\n- `kahan_sum(v)` - somme compensée de Kahan d'un tableau float32, calculée en float32.\n- `central_diff_error(h)` - erreur absolue de la différence centrée de `exp` en `x=1` avec le pas `h` (compare avec `np.e`).\n- `to_bfloat16(x)` - arrondis une valeur float32 au bfloat16 le plus proche (garde les 16 bits de poids fort du motif float32, arrondi au plus proche pair) et renvoie-la en float32.",
+  "hints": [
+    "softmax_stable : e = np.exp(z - z.max()) ; return e / e.sum().",
+    "welford(xs) : boucle avec n, m, M2 : d = x - m ; m += d / n ; M2 += d * (x - m). Renvoie (mean, M2 / n, M2 / (n - 1)).",
+    "kahan_sum(v) : s = c = float32(0) ; pour chaque t : y = float32(t - c) ; tt = float32(s + y) ; c = float32((tt - s) - y) ; s = tt.",
+    "to_bfloat16(x) : b = np.float32(x).view(np.uint32) ; arrondi au plus proche pair : b = (b + 0x7FFF + ((b >> 16) & 1)) & 0xFFFF0000 ; reconvertis en float32 avec view."
+  ]
+}

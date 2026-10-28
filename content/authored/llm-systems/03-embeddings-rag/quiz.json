@@ -1,0 +1,131 @@
+[
+ {
+  "id": "sys.03.q1",
+  "concept": "llm.rag",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why do RAG systems split documents into chunks?",
+  "options": [
+   "Chunks are required by cosine similarity",
+   "A single embedding of a long document blurs many topics together",
+   "Because LLMs cannot read more than one word",
+   "To reduce the vocabulary"
+  ],
+  "answer": 1,
+  "explanation": "A document vector is an average of its content; smaller passages give sharper vectors and fit the prompt budget."
+ },
+ {
+  "id": "sys.03.q2",
+  "concept": "llm.rag",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which retrieval method would most reliably find the chunk containing the exact string 'E-4021'?",
+  "options": [
+   "Random sampling",
+   "k-means",
+   "BM25 / keyword search",
+   "A dense embedding alone"
+  ],
+  "answer": 2,
+  "explanation": "Exact tokens are BM25's strength; dense models may treat such codes as noise."
+ },
+ {
+  "id": "sys.03.q3",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "RRF with k=60: a document is ranked 1st by retriever A and 5th by retriever B. Its fused score times 1000 (rounded to 1 decimal)?",
+  "answer": {
+   "value": 31.8,
+   "tol": 0.1
+  },
+  "explanation": "1/61 + 1/65 = 0.01639 + 0.01538 = 0.03178, i.e. 31.8 per thousand."
+ },
+ {
+  "id": "sys.03.q4",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Two documents have equal term frequency of the query word in BM25. The shorter one scores higher because...",
+  "options": [
+   "of length normalisation (parameter b)",
+   "its idf is larger",
+   "BM25 prefers short words",
+   "of the softmax"
+  ],
+  "answer": 0,
+  "explanation": "The denominator contains k1(1 - b + b|d|/avgdl), which is smaller for short documents."
+ },
+ {
+  "id": "sys.03.q5",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "For unit-length vectors, which statement is true?",
+  "options": [
+   "Cosine is undefined",
+   "Ranking by cosine, dot product and Euclidean distance gives the same order",
+   "Dot product and cosine differ by a factor depending on length",
+   "Euclidean distance reverses the cosine order"
+  ],
+  "answer": 1,
+  "explanation": "||a-b||^2 = 2 - 2 a.b for unit vectors."
+ },
+ {
+  "id": "sys.03.q6",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What does raising nprobe in an IVF index do?",
+  "options": [
+   "Changes the embedding model",
+   "Retrains the clusters",
+   "Raises recall and the number of vectors scanned",
+   "Lowers recall and speeds up"
+  ],
+  "answer": 2,
+  "explanation": "More clusters are searched, so fewer true neighbours are missed, at more cost."
+ },
+ {
+  "id": "sys.03.q7",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is a cross-encoder used only on the top candidates?",
+  "options": [
+   "It cannot read documents",
+   "It is less accurate than cosine",
+   "It requires normalised vectors",
+   "It needs one model call per query-document pair"
+  ],
+  "answer": 3,
+  "explanation": "Cost scales with the number of candidates, so it is applied after a cheap retriever."
+ },
+ {
+  "id": "sys.03.q8",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A RAG chatbot gives a fluent wrong answer although the correct chunk was in the corpus. Which stage should you inspect first?",
+  "options": [
+   "Retrieval: was the chunk in the top-k? Then faithfulness of the generation",
+   "The tokenizer's vocabulary size",
+   "The GPU driver",
+   "The learning rate"
+  ],
+  "answer": 0,
+  "explanation": "Separate retrieval failure (chunk not retrieved) from generation failure (retrieved but ignored); measure each."
+ },
+ {
+  "id": "sys.03.q9",
+  "concept": "llm.rag",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Chunking a 10-word text with size 4 and overlap 1 gives how many chunks?",
+  "answer": {
+   "value": 3,
+   "tol": 0.1
+  },
+  "explanation": "Windows start at words 0, 3, 6 and the last reaches word 9."
+ }
+]

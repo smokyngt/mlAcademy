@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.07.c1", "front": "Mise à jour de la descente de gradient", "back": "$\\theta_{t+1}=\\theta_t-\\eta\\nabla L(\\theta_t)$. Comme $L(\\theta-\\eta g)\\approx L-\\eta\\|g\\|^2$, elle diminue $L$ pour $\\eta$ petit." },
+  { "id": "f2n.07.c2", "front": "Plage de convergence de la GD sur $\\frac12\\lambda\\theta^2$", "back": "$0<\\eta<2/\\lambda$. Facteur $1-\\eta\\lambda$ par pas ; oscillations lorsque $\\eta>1/\\lambda$." },
+  { "id": "f2n.07.c3", "front": "Nombre de conditionnement et meilleur taux", "back": "$\\kappa=\\lambda_{\\max}/\\lambda_{\\min}$. Le meilleur $\\eta=2/(\\lambda_{\\max}+\\lambda_{\\min})$ donne une contraction $(\\kappa-1)/(\\kappa+1)$." },
+  { "id": "f2n.07.c4", "front": "Pourquoi le gradient d'un mini-batch est-il une estimation valide ?", "back": "Son espérance est égale au gradient complet (non biaisé) ; la variance décroît en $1/b$." },
+  { "id": "f2n.07.c5", "front": "La perte devient NaN en début d'entraînement", "back": "Très probablement le taux d'apprentissage dépasse la limite de stabilité : divise-le par 10, puis vérifie les données et l'échelle initiale." }
+]

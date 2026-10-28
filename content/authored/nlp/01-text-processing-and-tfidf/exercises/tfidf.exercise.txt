@@ -1,0 +1,85 @@
+#@@ meta
+{"id": "nlp.01.ex1", "title": "Tokenise, count and weight with TF-IDF", "difficulty": 2, "runtime": "pyodide", "concepts": ["nlp.text-preprocessing", "nlp.tfidf"], "hints": ["Use re.findall(r\"[a-z0-9]+(?:'[a-z]+)?\", text.lower()). The vocabulary is sorted(set of all tokens).", "idf = np.log((1 + N) / (1 + df)) + 1 where df = (X > 0).sum(axis=0); then T = X * idf and divide each row by its L2 norm.", "For cosine similarity of the normalised matrix W use W @ W.T. Bigrams: [tuple(tokens[i:i+n]) for i in range(len(tokens)-n+1)]."]}
+#@@ prompt
+Implement the classical text pipeline with NumPy:
+
+- `tokenize(text)`: lowercase, then return the list of runs of letters/digits, allowing one inner apostrophe (`don't` stays one token). Punctuation is dropped.
+- `build_vocab(docs)`: `docs` is a list of token lists; return the sorted list of distinct tokens.
+- `count_matrix(docs, vocab)`: array of shape `(N, V)` of counts; tokens not in `vocab` are ignored.
+- `tfidf(X)`: smoothed IDF `ln((1+N)/(1+df)) + 1`, multiply the counts, then L2-normalise every row (a row of zeros stays zero).
+- `cosine_matrix(W)`: pairwise cosine similarity of the rows of an already normalised matrix.
+- `ngrams(tokens, n)`: list of n-gram tuples.
+#@@ starter
+import re
+import numpy as np
+
+def tokenize(text):
+    raise NotImplementedError
+
+def build_vocab(docs):
+    raise NotImplementedError
+
+def count_matrix(docs, vocab):
+    raise NotImplementedError
+
+def tfidf(X):
+    raise NotImplementedError
+
+def cosine_matrix(W):
+    raise NotImplementedError
+
+def ngrams(tokens, n):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("tokenize lowercases and drops punctuation", lambda: tokenize("The Cat, sat!") == ["the", "cat", "sat"])
+check("tokenize keeps inner apostrophe", lambda: tokenize("Don't stop") == ["don't", "stop"])
+docs = [tokenize(s) for s in ["The cat sat", "The dog sat", "The cat ran"]]
+vocab = build_vocab(docs)
+check("sorted vocabulary", lambda: vocab == ["cat", "dog", "ran", "sat", "the"])
+X = count_matrix(docs, vocab)
+check("count matrix", lambda: X.shape == (3, 5) and X.tolist() == [[1, 0, 0, 1, 1], [0, 1, 0, 1, 1], [1, 0, 1, 0, 1]])
+check("unknown tokens ignored", lambda: count_matrix([["cat", "zebra"]], vocab).sum() == 1)
+W = tfidf(X)
+check("worked example row 1", lambda: np.allclose(W[0], [0.6198, 0, 0, 0.6198, 0.4813], atol=1e-4))
+check("worked example row 2", lambda: np.allclose(W[1], [0, 0.7203, 0, 0.5478, 0.4254], atol=1e-4))
+check("rows have unit norm", lambda: np.allclose(np.linalg.norm(W, axis=1), 1))
+S = cosine_matrix(W)
+check("similarity 1-2 = 0.5443", lambda: abs(S[0, 1] - 0.5443) < 1e-4)
+check("similarity 2-3 = 0.1810", lambda: abs(S[1, 2] - 0.1810) < 1e-4)
+check("diagonal is 1 and S symmetric", lambda: np.allclose(np.diag(S), 1) and np.allclose(S, S.T))
+check("empty document stays zero", lambda: np.allclose(tfidf(np.array([[1., 0.], [0., 0.]]))[1], 0))
+check("bigrams", lambda: ngrams(["a", "b", "c"], 2) == [("a", "b"), ("b", "c")])
+check("n larger than length", lambda: ngrams(["a"], 2) == [])
+#@@ solution
+import re
+import numpy as np
+
+def tokenize(text):
+    return re.findall(r"[a-z0-9]+(?:'[a-z]+)?", text.lower())
+
+def build_vocab(docs):
+    return sorted({w for d in docs for w in d})
+
+def count_matrix(docs, vocab):
+    index = {w: i for i, w in enumerate(vocab)}
+    X = np.zeros((len(docs), len(vocab)))
+    for d, tokens in enumerate(docs):
+        for w in tokens:
+            if w in index:
+                X[d, index[w]] += 1
+    return X
+
+def tfidf(X):
+    N = X.shape[0]
+    df = (X > 0).sum(axis=0)
+    idf = np.log((1 + N) / (1 + df)) + 1
+    T = X * idf
+    norm = np.linalg.norm(T, axis=1, keepdims=True)
+    return T / np.where(norm == 0, 1, norm)
+
+def cosine_matrix(W):
+    return W @ W.T
+
+def ngrams(tokens, n):
+    return [tuple(tokens[i:i + n]) for i in range(len(tokens) - n + 1)]

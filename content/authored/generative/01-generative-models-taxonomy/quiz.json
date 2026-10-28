@@ -1,0 +1,113 @@
+[
+ {
+  "id": "gen.01.q1",
+  "concept": "gen.taxonomy",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A discriminative model learns...",
+  "options": [
+   "$p(x)$",
+   "$p(y\\mid x)$",
+   "$p(x,y)$ only",
+   "the pixel values"
+  ],
+  "answer": 1,
+  "explanation": "It models the label given the input. A generative model models $p(x)$ or $p(x,y)$."
+ },
+ {
+  "id": "gen.01.q2",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "Maximum likelihood estimation is equivalent to minimising which quantity?",
+  "options": [
+   "$\\mathrm{KL}(p_\\theta\\|p_\\text{data})$",
+   "$\\mathrm{KL}(p_\\text{data}\\|p_\\theta)$",
+   "the entropy of $p_\\theta$",
+   "the variance of $x$"
+  ],
+  "answer": 1,
+  "explanation": "$\\mathrm{KL}(p_\\text{data}\\|p_\\theta)=-H(p_\\text{data})-\\mathbb E_{p_\\text{data}}\\log p_\\theta$; the first term is constant in $\\theta$."
+ },
+ {
+  "id": "gen.01.q3",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "Which family has no explicit density and is trained against a critic?",
+  "options": [
+   "Autoregressive models",
+   "VAEs",
+   "Normalising flows",
+   "GANs"
+  ],
+  "answer": 3,
+  "explanation": "A GAN learns a sampler $G(z)$ only; the discriminator replaces the likelihood."
+ },
+ {
+  "id": "gen.01.q4",
+  "concept": "gen.taxonomy",
+  "kind": "numeric",
+  "prompt": "A model assigns density 0.25 to each of 4 training points (all equal). What is the average NLL in nats? (give to 3 decimals)",
+  "options": [],
+  "answer": {
+   "value": 1.386,
+   "tol": 0.002
+  },
+  "explanation": "$-\\ln0.25=1.386$."
+ },
+ {
+  "id": "gen.01.q5",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "The chain rule $p(x)=\\prod_j p(x_j\\mid x_{<j})$ makes sampling...",
+  "options": [
+   "parallel in all components",
+   "independent of the data",
+   "sequential, one component after another",
+   "impossible"
+  ],
+  "answer": 2,
+  "explanation": "Each factor conditions on earlier components, so you must draw them in order."
+ },
+ {
+  "id": "gen.01.q6",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "Priors $(0.9,0.1)$ and likelihood ratio $e^{8}\\approx2981$ in favour of class 2. Which is true of $p(y{=}2\\mid x)$?",
+  "options": [
+   "It is below 0.5",
+   "It is about 0.5",
+   "It is above 0.99",
+   "It cannot be computed"
+  ],
+  "answer": 2,
+  "explanation": "Posterior odds $=2981/9\\approx331$, so $p\\approx0.997$."
+ },
+ {
+  "id": "gen.01.q7",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "Why must NLL be reported on held-out data?",
+  "options": [
+   "It is faster to compute",
+   "NLL is undefined on training data",
+   "Held-out data has lower entropy",
+   "Training NLL can be driven down by memorising the training set"
+  ],
+  "answer": 3,
+  "explanation": "A flexible model can overfit; held-out NLL estimates generalisation."
+ },
+ {
+  "id": "gen.01.q8",
+  "concept": "gen.taxonomy",
+  "kind": "mcq",
+  "prompt": "A single Gaussian fitted to two well separated modes mostly samples...",
+  "options": [
+   "inside the two modes",
+   "exactly at the means",
+   "in the low-density region between them",
+   "only at the extremes"
+  ],
+  "answer": 2,
+  "explanation": "The single Gaussian is centred between the modes with a large variance, putting mass where the data has little."
+ }
+]

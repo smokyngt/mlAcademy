@@ -1,0 +1,88 @@
+#@@ meta
+{"id": "cml.10.ex1", "title": "Confusion matrix, ROC and AUC from scratch", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.eval-metrics"], "hints": ["confusion_counts: tp = sum((pred==1)&(y==1)), and so on. Divide by zero -> return 0.0 for that metric.", "roc_curve: sort scores in decreasing order, take cumulative sums of y and of 1-y, keep only the last index of each run of equal scores, prepend the point (0, 0), and divide by the number of positives / negatives.", "auc_pairs: compare every positive score with every negative score with broadcasting: (pos[:,None] > neg[None,:]) + 0.5*(pos[:,None] == neg[None,:]); take the mean."]}
+#@@ prompt
+Implement, with NumPy only:
+
+- `confusion_counts(y, pred)` -> `(tp, fp, fn, tn)` for 0/1 arrays.
+- `prf(tp, fp, fn, tn)` -> `(precision, recall, f1, accuracy)`; a metric whose denominator is 0 is returned as `0.0`.
+- `roc_curve(y, scores)` -> `(fpr, tpr)`, both starting at `0` and ending at `1`, one point per **distinct** score (tied scores move together).
+- `auc_trapz(fpr, tpr)` -> area under the ROC curve by the trapezoid rule (write the sum yourself).
+- `auc_pairs(y, scores)` -> $P(S^+ > S^-) + \tfrac12 P(S^+ = S^-)$ computed over all (positive, negative) pairs.
+
+The two AUC functions must agree.
+#@@ starter
+import numpy as np
+
+def confusion_counts(y, pred):
+    raise NotImplementedError
+
+def prf(tp, fp, fn, tn):
+    raise NotImplementedError
+
+def roc_curve(y, scores):
+    raise NotImplementedError
+
+def auc_trapz(fpr, tpr):
+    raise NotImplementedError
+
+def auc_pairs(y, scores):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("model A of the book: precision 0.5, recall 0.1, F1 0.1667, accuracy 0.9", lambda: np.allclose(prf(10, 10, 90, 890), [0.5, 0.1, 1/6, 0.9]))
+check("model B of the book: recall 0.9, F1 0.6429, accuracy 0.9", lambda: np.allclose(prf(90, 90, 10, 810), [0.5, 0.9, 9/14, 0.9]))
+check("always-negative model: P=R=F1=0, accuracy 0.99", lambda: np.allclose(prf(0, 0, 10, 990), [0, 0, 0, 0.99]))
+y = np.array([1, 1, 0, 1, 0, 0]); s = np.array([.9, .8, .7, .6, .4, .2])
+check("confusion counts at threshold 0.5", lambda: tuple(confusion_counts(y, (s >= 0.5).astype(int))) == (3, 1, 0, 2))
+fpr, tpr = roc_curve(y, s)
+check("ROC fpr of the worked example", lambda: np.allclose(fpr, [0, 0, 0, 1/3, 1/3, 2/3, 1]))
+check("ROC tpr of the worked example", lambda: np.allclose(tpr, [0, 1/3, 2/3, 2/3, 1, 1, 1]))
+check("trapezoid AUC = 8/9", lambda: abs(auc_trapz(fpr, tpr) - 8/9) < 1e-12)
+check("pair-counting AUC = 8/9", lambda: abs(auc_pairs(y, s) - 8/9) < 1e-12)
+rng = np.random.default_rng(1)
+yy = (rng.random(300) < 0.3).astype(int); ss = np.round(rng.normal(yy * 1.0, 1.0), 1)
+f2, t2 = roc_curve(yy, ss)
+check("with ties: both AUC definitions agree", lambda: abs(auc_trapz(f2, t2) - auc_pairs(yy, ss)) < 1e-12)
+check("ROC starts at (0,0) and ends at (1,1), monotone", lambda: f2[0] == 0 and t2[0] == 0 and f2[-1] == 1 and t2[-1] == 1 and np.all(np.diff(f2) >= 0) and np.all(np.diff(t2) >= 0))
+check("random scores give AUC near 0.5, reversed scores give 1-AUC", lambda: abs(auc_pairs(yy, rng.random(300)) - 0.5) < 0.1 and abs(auc_pairs(yy, -ss) - (1 - auc_pairs(yy, ss))) < 1e-12)
+check("constant score gives AUC exactly 0.5", lambda: abs(auc_pairs(yy, np.zeros(300)) - 0.5) < 1e-12)
+#@@ solution
+import numpy as np
+
+def confusion_counts(y, pred):
+    y = np.asarray(y); pred = np.asarray(pred)
+    tp = int(np.sum((pred == 1) & (y == 1)))
+    fp = int(np.sum((pred == 1) & (y == 0)))
+    fn = int(np.sum((pred == 0) & (y == 1)))
+    tn = int(np.sum((pred == 0) & (y == 0)))
+    return tp, fp, fn, tn
+
+def prf(tp, fp, fn, tn):
+    p = tp / (tp + fp) if tp + fp else 0.0
+    r = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * p * r / (p + r) if p + r else 0.0
+    acc = (tp + tn) / (tp + fp + fn + tn)
+    return p, r, f1, acc
+
+def roc_curve(y, scores):
+    y = np.asarray(y); scores = np.asarray(scores, dtype=float)
+    order = np.argsort(-scores, kind="stable")
+    y_s, s_s = y[order], scores[order]
+    last = np.r_[np.where(np.diff(s_s) != 0)[0], len(s_s) - 1]
+    tps = np.cumsum(y_s)[last]
+    fps = np.cumsum(1 - y_s)[last]
+    tpr = np.r_[0.0, tps / y.sum()]
+    fpr = np.r_[0.0, fps / (1 - y).sum()]
+    return fpr, tpr
+
+def auc_trapz(fpr, tpr):
+    total = 0.0
+    for i in range(1, len(fpr)):
+        total += (fpr[i] - fpr[i - 1]) * (tpr[i] + tpr[i - 1]) / 2
+    return float(total)
+
+def auc_pairs(y, scores):
+    y = np.asarray(y); scores = np.asarray(scores, dtype=float)
+    pos = scores[y == 1]; neg = scores[y == 0]
+    wins = (pos[:, None] > neg[None, :]) + 0.5 * (pos[:, None] == neg[None, :])
+    return float(wins.mean())

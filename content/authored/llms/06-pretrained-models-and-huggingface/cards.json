@@ -1,0 +1,16 @@
+[
+  {"id": "llm.06.c1", "concept": "tal.hub-ecosystem", "front": "What a model repository contains", "back": "Configuration, tokenizer and weights. They must stay matched."},
+  {"id": "llm.06.c2", "concept": "tal.hub-ecosystem", "front": "Auto classes", "back": "The model path/config says which class to build: AutoModel, AutoConfig, AutoTokenizer. A registry maps model type to class."},
+  {"id": "llm.06.c3", "concept": "tal.hub-ecosystem", "front": "Pipeline", "back": "tokenizer -> model -> decoder. Text to (ids, mask) $(B,T)$, to logits $(B,K)$, to readable results."},
+  {"id": "llm.06.c4", "concept": "tal.hub-ecosystem", "front": "Attention mask", "back": "0/1 array marking real tokens versus padding; without it, outputs depend on batch composition."},
+  {"id": "llm.06.c5", "concept": "tal.hub-ecosystem", "front": "Classification decoder", "back": "Softmax over logits, argmax gives the label, its probability is the score."},
+  {"id": "llm.06.c6", "concept": "tal.hub-ecosystem", "front": "Zero-shot classification", "back": "Classify against freely chosen labels with no fine-tuning on them."},
+  {"id": "llm.06.c7", "concept": "tal.hub-ecosystem", "front": "Few-shot learning", "back": "Put a few examples in the prompt; the language model extrapolates the pattern with no weight update."},
+  {"id": "llm.06.c8", "concept": "tal.hub-ecosystem", "front": "Extractive QA pipeline", "back": "Returns a span quoted from the given text; it does not invent text."},
+  {"id": "llm.06.c9", "concept": "tal.hub-ecosystem", "front": "Four ways to use a pretrained model", "back": "Direct, zero-shot, few-shot prompting, fine-tuning. Weights change only in fine-tuning."},
+  {"id": "llm.06.c10", "concept": "tal.hub-ecosystem", "front": "Fine-tuning workflow", "back": "Pick a model for your language and task, add/keep a head, train on labelled data with a small learning rate, evaluate on held-out data."},
+  {"id": "llm.06.c11", "concept": "tal.hub-ecosystem", "front": "Model card required fields", "back": "License, language, intended use, limitations, training data, metrics (and base model if fine-tuned)."},
+  {"id": "llm.06.c12", "concept": "tal.hub-ecosystem", "front": "Why read the license separately from the weights?", "back": "Open weights do not imply an open data set or a permissive license."},
+  {"id": "llm.06.c13", "concept": "tal.hub-ecosystem", "front": "Hosted LLM versus self-hosted", "back": "A hosted API sends your text to a server; self-hosting (for example with Ollama, per the deck) keeps data local at the cost of hardware."},
+  {"id": "llm.06.c14", "concept": "tal.hub-ecosystem", "front": "Checklist before adopting a model", "back": "Check license, language/domain fit, run it on your own examples, note the exact model id and revision, review known biases."}
+]

@@ -1,0 +1,12 @@
+{
+  "id": "mx.05.ex1",
+  "title": "Trapèzes, Simpson, Monte-Carlo et espérances comme intégrales",
+  "prompt": "Implémente la boîte à outils d'intégration numérique ci-dessous avec NumPy. `f` est une fonction vectorisée (elle accepte un tableau NumPy).\n\n- `left_riemann(f, a, b, n)` - la somme de Riemann à gauche avec `n` morceaux égaux.\n- `trapezoid(f, a, b, n)` - méthode des trapèzes composite avec `n` intervalles.\n- `simpson(f, a, b, n)` - méthode de Simpson composite (`n` pair).\n- `mc_integrate(f, a, b, n, rng)` - estimation de Monte-Carlo avec des échantillons uniformes ; renvoie `(estimate, standard_error)`.\n- `gaussian_integral(n)` - l'intégrale de `exp(-x**2/2)` sur `[-10, 10]` en utilisant ta méthode des trapèzes avec `n` intervalles.\n- `expectation(pdf, g, a, b, n=400)` - `E[g(X)]` pour une densité `pdf` de support `[a, b]`, comme intégrale de `g(x)*pdf(x)`.\n- `mc_ball_volume(d, n, rng)` - estimation de Monte-Carlo du volume de la boule unité en dimension `d` à partir de `n` points uniformes dans le cube `[-1, 1]^d`.",
+  "hints": [
+    "trapezoid : x = np.linspace(a, b, n+1), y = f(x) ; le résultat est h*(y[0]/2 + y[1:-1].sum() + y[-1]/2) avec h = (b-a)/n.",
+    "simpson (n pair) : h/3 * (y[0] + 4*y[1:-1:2].sum() + 2*y[2:-1:2].sum() + y[-1]).",
+    "mc_integrate : u = rng.uniform(a, b, n), vals = (b-a)*f(u) ; l'estimation est vals.mean() et l'erreur standard est vals.std(ddof=1)/sqrt(n).",
+    "expectation(pdf, g, a, b, n) : intègre g(x)*pdf(x) sur [a, b] avec Simpson.",
+    "mc_ball_volume(d, n, rng) : points uniformes dans [-1,1]^d (forme (n, d)) ; la fraction dont la norme au carré est <= 1 fois 2**d."
+  ]
+}

@@ -1,0 +1,110 @@
+#@@ meta
+{"id": "vis.06.ex1", "title": "Symmetric CLIP loss, zero-shot classification and retrieval", "difficulty": 4, "runtime": "pyodide", "concepts": ["vis.clip"], "hints": ["Logits L = (I @ T.T) / tau after L2-normalising rows of I and T. Image-to-text cross-entropy uses rows of L with target i; text-to-image uses the rows of L.T. The loss is the mean of both.", "The gradient of the mean cross-entropy of one direction w.r.t. its logits is (softmax(L) - eye) / N; the symmetric loss averages the row version and the (transposed) column version.", "Zero-shot: normalise the class text embeddings, take image @ classes.T, argmax. Prompt ensembling: average several text embeddings per class and re-normalise before comparing."]}
+#@@ prompt
+`I` is `(N, d)` image embeddings and `T` is `(N, d)` embeddings of the matching captions (`T[i]` is the caption of `I[i]`).
+
+- `l2_normalize(x)`: unit-length rows.
+- `clip_logits(I, T, tau)`: `(N, N)` matrix of cosine similarities divided by the temperature `tau`.
+- `clip_loss(I, T, tau)`: symmetric InfoNCE loss, the mean of image-to-text and text-to-image cross-entropies with the identity as target.
+- `clip_logit_grad(I, T, tau)`: the gradient of `clip_loss` with respect to the **logit matrix** (shape `(N, N)`).
+- `zero_shot_predict(image_emb, class_emb)`: for image embeddings `(M, d)` and class-prompt embeddings `(C, d)` return the predicted class index per image.
+- `ensemble_prompts(embs)`: `embs` has shape `(C, K, d)` (K prompt templates per class); return `(C, d)` class embeddings: mean over templates, then normalised.
+- `recall_at_k(I, T, k)`: image-to-text retrieval recall@k: the fraction of images whose own caption is among the `k` most similar captions.
+#@@ starter
+import numpy as np
+
+def l2_normalize(x):
+    raise NotImplementedError
+
+def clip_logits(I, T, tau):
+    raise NotImplementedError
+
+def clip_loss(I, T, tau):
+    raise NotImplementedError
+
+def clip_logit_grad(I, T, tau):
+    raise NotImplementedError
+
+def zero_shot_predict(image_emb, class_emb):
+    raise NotImplementedError
+
+def ensemble_prompts(embs):
+    raise NotImplementedError
+
+def recall_at_k(I, T, k):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+I = np.eye(3); T = np.eye(3)
+check("perfect alignment, tau 0.5, N 3: loss = log(1 + 2 e^-2)", lambda: abs(clip_loss(I, T, 0.5) - np.log(1 + 2 * np.exp(-2))) < 1e-9)
+check("logits are cosine / tau: diagonal 2, off-diagonal 0", lambda: np.allclose(clip_logits(I, T, 0.5), 2 * np.eye(3)))
+check("scale of embeddings does not matter", lambda: abs(clip_loss(3 * I, 0.2 * T, 0.5) - clip_loss(I, T, 0.5)) < 1e-9)
+rng = np.random.default_rng(1)
+A = rng.normal(size=(6, 8)); B = rng.normal(size=(6, 8))
+check("loss with unaligned random pairs at huge tau is ~ log N", lambda: abs(clip_loss(A, B, 1000.0) - np.log(6)) < 1e-3)
+check("loss is symmetric in swapping the two towers", lambda: abs(clip_loss(A, B, 0.1) - clip_loss(B, A, 0.1)) < 1e-12)
+check("lower temperature sharpens: aligned pairs get lower loss", lambda: clip_loss(A, A + 0.05 * B, 0.05) < clip_loss(A, A + 0.05 * B, 1.0))
+def numgrad():
+    L = clip_logits(A, B, 0.1)
+    def loss_from_logits(L):
+        def ce(M):
+            M = M - M.max(1, keepdims=True)
+            return -(M - np.log(np.exp(M).sum(1, keepdims=True))).diagonal().mean()
+        return 0.5 * (ce(L) + ce(L.T))
+    G = np.zeros_like(L)
+    for i in range(6):
+        for j in range(6):
+            E = np.zeros_like(L); E[i, j] = 1e-6
+            G[i, j] = (loss_from_logits(L + E) - loss_from_logits(L - E)) / 2e-6
+    return np.allclose(clip_logit_grad(A, B, 0.1), G, atol=1e-6)
+check("logit gradient matches finite differences", numgrad)
+check("each row of the gradient sums to the row-softmax part: total sums to 0", lambda: abs(clip_logit_grad(A, B, 0.1).sum()) < 1e-9)
+classes = np.array([[1.0, 0, 0], [0, 1.0, 0], [0, 0, 1.0]])
+imgs = np.array([[0.9, 0.1, 0.0], [0.1, 0.2, 0.9], [0.0, 1.0, 0.1], [2.0, 0.0, 0.1]])
+check("zero-shot picks the closest class direction", lambda: list(zero_shot_predict(imgs, classes)) == [0, 2, 1, 0])
+check("zero-shot ignores class-embedding length", lambda: list(zero_shot_predict(imgs, classes * np.array([[5], [0.1], [1]]))) == [0, 2, 1, 0])
+embs = np.array([[[1.0, 0.0], [0.0, 1.0]], [[1.0, 0.0], [1.0, 0.0]]])
+E = ensemble_prompts(embs)
+check("ensemble: mean of templates, re-normalised", lambda: np.allclose(E, [[2 ** -0.5, 2 ** -0.5], [1.0, 0.0]]))
+Ir = np.eye(4); Ir[0] = [1.0, 2.0, 0.0, 0.0]
+check("recall@1 is 3/4 when one image prefers another caption", lambda: abs(recall_at_k(Ir, np.eye(4), 1) - 0.75) < 1e-12)
+check("recall@2 recovers it", lambda: recall_at_k(Ir, np.eye(4), 2) == 1.0)
+#@@ solution
+import numpy as np
+
+def l2_normalize(x):
+    return x / np.linalg.norm(x, axis=1, keepdims=True)
+
+def clip_logits(I, T, tau):
+    return l2_normalize(I) @ l2_normalize(T).T / tau
+
+def _softmax(L):
+    Z = L - L.max(axis=1, keepdims=True)
+    P = np.exp(Z)
+    return P / P.sum(axis=1, keepdims=True)
+
+def clip_loss(I, T, tau):
+    L = clip_logits(I, T, tau)
+    N = len(L)
+    i2t = -np.log(_softmax(L)[np.arange(N), np.arange(N)]).mean()
+    t2i = -np.log(_softmax(L.T)[np.arange(N), np.arange(N)]).mean()
+    return float(0.5 * (i2t + t2i))
+
+def clip_logit_grad(I, T, tau):
+    L = clip_logits(I, T, tau)
+    N = len(L)
+    E = np.eye(N)
+    return 0.5 * ((_softmax(L) - E) / N + (_softmax(L.T) - E).T / N)
+
+def zero_shot_predict(image_emb, class_emb):
+    return np.argmax(l2_normalize(image_emb) @ l2_normalize(class_emb).T, axis=1)
+
+def ensemble_prompts(embs):
+    C, K, d = embs.shape
+    normed = embs / np.linalg.norm(embs, axis=2, keepdims=True)
+    return l2_normalize(normed.mean(axis=1))
+
+def recall_at_k(I, T, k):
+    S = l2_normalize(I) @ l2_normalize(T).T
+    top = np.argsort(-S, axis=1)[:, :k]
+    return float(np.mean([i in top[i] for i in range(len(S))]))

@@ -1,0 +1,10 @@
+{
+  "id": "f2n.05.ex1",
+  "title": "Gradient numérique et gradient de la MSE",
+  "prompt": "Construis l'outil que tu utiliseras pour le reste du cours : un vérificateur de gradient.\n\n1. `numerical_gradient(f, x, h=1e-5)` : gradient par différences centrées d'une fonction scalaire `f` en un tableau 1D `x`. Il ne doit pas modifier `x`.\n2. `mse(X, y, w)` et `mse_grad(X, y, w)` : la perte $\\frac1N\\|Xw-y\\|^2$ et ton gradient établi à la main $\\frac2N X^\\top(Xw-y)$.\n3. `max_rel_error(a, b)` : la plus grande erreur relative terme à terme entre deux tableaux.\n\nConfirme ensuite que ton gradient analytique coïncide avec le gradient numérique (erreur relative inférieure à $10^{-6}$).",
+  "hints": [
+    "Parcours chaque coordonnée i : construis x_plus et x_minus comme des copies de x avec +/- h ajouté à l'indice i, puis g[i] = (f(x_plus) - f(x_minus)) / (2h).",
+    "mse_grad : le résidu r = X @ w - y a la forme (N,). Alors (2/N) * X.T @ r a la forme (d,).",
+    "max_rel_error(a, b) : np.max(np.abs(a - b) / np.maximum(1e-8, np.abs(a) + np.abs(b)))."
+  ]
+}

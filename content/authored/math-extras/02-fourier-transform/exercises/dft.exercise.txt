@@ -1,0 +1,113 @@
+#@@ meta
+{"id": "mx.02.ex1", "title": "DFT, inverse DFT, recursive FFT, aliasing and FFT convolution", "difficulty": 3, "runtime": "pyodide", "concepts": ["mx.dft", "mx.sampling", "mx.conv-theorem"], "hints": ["dft: build F[k, n] = exp(-2j*pi*k*n/N) with np.outer(np.arange(N), np.arange(N)) and compute F @ x. The inverse uses the opposite sign and a 1/N factor.", "fft: if N == 1 return x. E = fft(x[0::2]), O = fft(x[1::2]), t = exp(-2j*pi*arange(N//2)/N) * O, result = concatenate([E + t, E - t]).", "alias_frequency: reduce f modulo fs, then if the result is above fs/2 return fs minus it. circular_convolve: multiply your fft of both inputs and invert with your own ifft (conjugate trick: ifft(X) = conj(fft(conj(X))) / N)."]}
+#@@ prompt
+Implement, without calling `np.fft` in your own code (the tests do):
+
+- `dft(x)` - the O(N^2) discrete Fourier transform via the DFT matrix.
+- `idft(X)` - the inverse DFT.
+- `fft(x)` - recursive radix-2 Cooley-Tukey FFT for lengths that are powers of two.
+- `bin_frequencies(N, fs)` - the physical frequency in Hz of each bin `k = 0..N-1`.
+- `alias_frequency(f, fs)` - the apparent frequency (in `[0, fs/2]`) at which a real tone of frequency `f` shows up when sampled at `fs`.
+- `peak_frequency(x, fs)` - the frequency of the strongest bin in the first half of the spectrum of a real signal, using your `fft`.
+- `circular_convolve(a, b)` - circular convolution of two equal-length power-of-two signals computed through your `fft` (return real values).
+#@@ starter
+import numpy as np
+
+def dft(x):
+    raise NotImplementedError
+
+def idft(X):
+    raise NotImplementedError
+
+def fft(x):
+    raise NotImplementedError
+
+def bin_frequencies(N, fs):
+    raise NotImplementedError
+
+def alias_frequency(f, fs):
+    raise NotImplementedError
+
+def peak_frequency(x, fs):
+    raise NotImplementedError
+
+def circular_convolve(a, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x8 = np.array([1, 2, 3, 4, 0, 0, 0, 0], dtype=float)
+check("dft matches np.fft on the 8-sample example", lambda: np.allclose(dft(x8), np.fft.fft(x8)))
+check("X[0] is the sum 10", lambda: abs(dft(x8)[0] - 10) < 1e-9)
+check("magnitudes 7.254 at k=1 and 2.715 at k=3", lambda: abs(abs(dft(x8)[1]) - 7.2545) < 1e-3 and abs(abs(dft(x8)[3]) - 2.7152) < 1e-3)
+check("real input gives conjugate symmetry X[N-k] = conj(X[k])", lambda: np.allclose(dft(x8)[1:], np.conj(dft(x8)[1:][::-1])))
+check("idft inverts dft", lambda: np.allclose(idft(dft(x8)), x8))
+rng = np.random.default_rng(0)
+z = rng.normal(size=64) + 1j * rng.normal(size=64)
+check("fft equals np.fft.fft for N = 64 complex", lambda: np.allclose(fft(z), np.fft.fft(z)))
+check("fft equals dft", lambda: np.allclose(fft(z), dft(z)))
+check("Parseval: sum |x|^2 = sum |X|^2 / N", lambda: abs(np.sum(abs(z) ** 2) - np.sum(abs(fft(z)) ** 2) / 64) < 1e-8)
+n = np.arange(16)
+s = np.sin(2 * np.pi * 3 * n / 16) + 0.5 * np.cos(2 * np.pi * 5 * n / 16)
+S = fft(s)
+check("sine at bin 3 gives X[3] = -8i", lambda: abs(S[3] + 8j) < 1e-9)
+check("cosine of amplitude 0.5 at bin 5 gives X[5] = 4", lambda: abs(S[5] - 4) < 1e-9)
+check("all other bins are zero", lambda: np.allclose(np.delete(S, [3, 5, 11, 13]), 0, atol=1e-9))
+check("bin spacing 8000/1024 = 7.8125 Hz", lambda: abs(bin_frequencies(1024, 8000)[1] - 7.8125) < 1e-12 and bin_frequencies(1024, 8000).shape == (1024,))
+check("7 Hz sampled at 10 Hz aliases to 3 Hz", lambda: abs(alias_frequency(7, 10) - 3) < 1e-12)
+check("13 Hz at 10 Hz aliases to 3 Hz, 4 Hz stays 4", lambda: abs(alias_frequency(13, 10) - 3) < 1e-12 and abs(alias_frequency(4, 10) - 4) < 1e-12)
+t = np.arange(10) / 10
+check("aliased samples really coincide (up to sign)", lambda: np.allclose(np.sin(2 * np.pi * 7 * t), -np.sin(2 * np.pi * 3 * t)))
+fs = 256
+tt = np.arange(256) / fs
+sig = np.sin(2 * np.pi * 40 * tt) + 0.3 * np.sin(2 * np.pi * 90 * tt)
+check("peak frequency of a 40 Hz + 90 Hz mixture is 40", lambda: abs(peak_frequency(sig, fs) - 40) < 1e-9)
+a = np.array([1, 2, 3, 0.]); b = np.array([1, 1, 0, 0.])
+check("circular convolution example = [1,3,5,3]", lambda: np.allclose(circular_convolve(a, b), [1, 3, 5, 3]))
+a2 = rng.normal(size=32); b2 = rng.normal(size=32)
+direct = np.array([sum(a2[m] * b2[(k - m) % 32] for m in range(32)) for k in range(32)])
+check("matches direct O(N^2) circular convolution", lambda: np.allclose(circular_convolve(a2, b2), direct))
+#@@ solution
+import numpy as np
+
+def dft(x):
+    x = np.asarray(x, dtype=complex)
+    N = len(x)
+    k = np.arange(N)
+    F = np.exp(-2j * np.pi * np.outer(k, k) / N)
+    return F @ x
+
+def idft(X):
+    X = np.asarray(X, dtype=complex)
+    N = len(X)
+    k = np.arange(N)
+    F = np.exp(2j * np.pi * np.outer(k, k) / N)
+    return F @ X / N
+
+def fft(x):
+    x = np.asarray(x, dtype=complex)
+    N = len(x)
+    if N == 1:
+        return x
+    E = fft(x[0::2])
+    O = fft(x[1::2])
+    t = np.exp(-2j * np.pi * np.arange(N // 2) / N) * O
+    return np.concatenate([E + t, E - t])
+
+def bin_frequencies(N, fs):
+    return np.arange(N) * fs / N
+
+def alias_frequency(f, fs):
+    g = f % fs
+    return min(g, fs - g)
+
+def peak_frequency(x, fs):
+    X = fft(x)
+    N = len(X)
+    k = int(np.argmax(np.abs(X[: N // 2 + 1])))
+    return k * fs / N
+
+def circular_convolve(a, b):
+    A, B = fft(a), fft(b)
+    prod = A * B
+    out = np.conj(fft(np.conj(prod))) / len(prod)
+    return out.real

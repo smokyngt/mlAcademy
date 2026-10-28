@@ -1,0 +1,17 @@
+[
+  { "id": "ops.04.c1", "concept": "ops.offline-eval", "front": "Why start with the simplest model?", "back": "It deploys earlier (validating the serving pipeline), is easier to debug, and is the baseline for complex models." },
+  { "id": "ops.04.c2", "concept": "ops.offline-eval", "front": "The state-of-the-art trap", "back": "A benchmark winner may be too slow or costly, or no better on your data; prefer a simpler solution that works." },
+  { "id": "ops.04.c3", "concept": "ops.offline-eval", "front": "Majority vote of $n$ independent classifiers with accuracy $p$", "back": "$\\sum_{k>n/2}\\binom nk p^k(1-p)^{n-k}$; three at 0.7 give 0.784." },
+  { "id": "ops.04.c4", "concept": "ops.offline-eval", "front": "Bagging, boosting, stacking", "back": "Bagging: bootstrap samples, vote or average. Boosting: sequential re-weighting toward mistakes. Stacking: a meta-learner combines base learners." },
+  { "id": "ops.04.c5", "concept": "ops.offline-eval", "front": "Experiment tracking versus versioning", "back": "Tracking records progress and results of runs; versioning records code, data, config and environment to reproduce them." },
+  { "id": "ops.04.c6", "concept": "ops.offline-eval", "front": "Synchronous versus asynchronous SGD", "back": "Sync waits for all workers (stragglers). Async updates as gradients arrive (stale gradients)." },
+  { "id": "ops.04.c7", "concept": "ops.offline-eval", "front": "Data versus model parallelism", "back": "Data: copies of the model on different data shards. Model: different parts of one model on different machines (pipelining reduces idle time)." },
+  { "id": "ops.04.c8", "concept": "ops.offline-eval", "front": "Five useful baselines", "back": "Random, simple heuristic, zero-rule (majority), human, and the existing solution." },
+  { "id": "ops.04.c9", "concept": "ops.offline-eval", "front": "Random-baseline formulas", "back": "$F_1=\\frac{2pq}{p+q}$ and accuracy $=pq+(1-p)(1-q)$ for prevalence $p$ and positive-guess rate $q$." },
+  { "id": "ops.04.c10", "concept": "ops.offline-eval", "front": "Perturbation test", "back": "Add realistic noise to test inputs and measure the performance drop; prefer models that stay accurate." },
+  { "id": "ops.04.c11", "concept": "ops.offline-eval", "front": "Invariance test", "back": "Change a field that must not matter (name, protected attribute) and count changed predictions." },
+  { "id": "ops.04.c12", "concept": "ops.offline-eval", "front": "Directional expectation test", "back": "Change an input in a way with a known effect direction (larger lot size cannot lower the price) and count violations." },
+  { "id": "ops.04.c13", "concept": "ops.slice-eval", "front": "Slice-based evaluation", "back": "Compute metrics on subsets of the data (mobile, region, rare class) because aggregates hide failures." },
+  { "id": "ops.04.c14", "concept": "ops.slice-eval", "front": "Simpson's paradox", "back": "A model can win in every group yet lose overall because the groups have different weights in the totals." },
+  { "id": "ops.04.c15", "concept": "ops.slice-eval", "front": "Three ways to find slices", "back": "Domain heuristics, error analysis, and automatic slice finders (beam search, clustering, decision trees)." }
+]

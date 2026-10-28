@@ -1,0 +1,118 @@
+[
+ {
+  "id": "saf.05.q1",
+  "concept": "saf.fairness-criteria",
+  "stage": "pre",
+  "prompt": "A model scores résumés and consistently gives lower scores to equally qualified candidates from one group. Which kind of harm is this?",
+  "options": [
+   "Representational harm only",
+   "Privacy harm",
+   "Allocational harm",
+   "Calibration drift"
+  ],
+  "answer": 2,
+  "explanation": "Allocational harm is unequal distribution of resources or opportunities; representational harm concerns portrayal and stereotypes."
+ },
+ {
+  "id": "saf.05.q2",
+  "concept": "saf.fairness-criteria",
+  "prompt": "Which criterion requires equal TPR and equal FPR across groups?",
+  "options": [
+   "Equalised odds",
+   "Demographic parity",
+   "Predictive parity",
+   "Individual fairness"
+  ],
+  "answer": 0,
+  "explanation": "Equalised odds conditions on the true outcome and compares error rates."
+ },
+ {
+  "id": "saf.05.q3",
+  "concept": "saf.fairness-criteria",
+  "prompt": "TPR = 0.6, FPR = 0.2, base rate p = 0.5. What is PPV $=\\frac{\\mathrm{TPR}\\,p}{\\mathrm{TPR}\\,p+\\mathrm{FPR}(1-p)}$?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.75,
+   "tol": 0.005
+  },
+  "explanation": "0.3 / (0.3 + 0.1) = 0.75."
+ },
+ {
+  "id": "saf.05.q4",
+  "concept": "saf.fairness-criteria",
+  "prompt": "Two groups have equal TPR and FPR but base rates 0.3 and 0.5. What follows for PPV?",
+  "options": [
+   "PPV is equal automatically",
+   "PPV must differ (the larger base rate gets the larger PPV) unless the classifier is degenerate or perfect",
+   "PPV is 0.5 in both groups",
+   "Nothing can be said"
+  ],
+  "answer": 1,
+  "explanation": "PPV is strictly increasing in the base rate when TPR and FPR are positive."
+ },
+ {
+  "id": "saf.05.q5",
+  "concept": "saf.fairness-criteria",
+  "prompt": "Why can individual fairness not be checked by statistics alone?",
+  "options": [
+   "It needs causal graphs",
+   "It is only defined for images",
+   "It needs a task-specific similarity metric that someone must define",
+   "It requires zero loss"
+  ],
+  "answer": 2,
+  "explanation": "The Lipschitz condition depends on the metric d; choosing it is a policy question."
+ },
+ {
+  "id": "saf.05.q6",
+  "concept": "saf.fairness-criteria",
+  "prompt": "Counterfactual fairness depends on which assumption?",
+  "options": [
+   "A causal model of how the protected attribute influences features and outcomes",
+   "Equal base rates",
+   "A differentially private training run",
+   "A calibrated score"
+  ],
+  "answer": 0,
+  "explanation": "Counterfactuals are defined with respect to a causal graph, which is a modelling choice."
+ },
+ {
+  "id": "saf.05.q7",
+  "concept": "saf.differential-privacy",
+  "prompt": "What noise scale does the Laplace mechanism use for a query with sensitivity $\\Delta$ and privacy parameter $\\varepsilon$?",
+  "options": [
+   "$b=\\Delta\\varepsilon$",
+   "$b=\\Delta/\\varepsilon$",
+   "$b=\\varepsilon/\\Delta^2$",
+   "$b=1/\\Delta$"
+  ],
+  "answer": 1,
+  "explanation": "The density ratio is bounded by $e^{\\Delta/b}$; setting it to $e^\\varepsilon$ gives $b=\\Delta/\\varepsilon$."
+ },
+ {
+  "id": "saf.05.q8",
+  "concept": "saf.differential-privacy",
+  "prompt": "Gaussian mechanism with sensitivity 1, $\\varepsilon=0.5$, $\\delta=10^{-5}$: what $\\sigma$ does the classical calibration give?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 9.69,
+   "tol": 0.05
+  },
+  "explanation": "$\\sqrt{2\\ln(1.25/10^{-5})}/0.5=4.845/0.5=9.69$."
+ },
+ {
+  "id": "saf.05.q9",
+  "concept": "saf.differential-privacy",
+  "prompt": "What is the role of per-example clipping in DP-SGD?",
+  "options": [
+   "It speeds up training",
+   "It removes the need for noise",
+   "It bounds each example's influence on the summed gradient, so the noise can be calibrated to that sensitivity",
+   "It increases epsilon"
+  ],
+  "answer": 2,
+  "explanation": "After clipping to norm C, adding or removing one example changes the sum by at most C."
+ }
+]

@@ -1,0 +1,17 @@
+[
+  { "id": "seq.01.c1", "concept": "seq.conv", "front": "Conv layer output formula (one axis)", "back": "$H_{out}=\\lfloor (H-K+2P)/S\\rfloor+1$." },
+  { "id": "seq.01.c2", "concept": "seq.conv", "front": "Parameter count of a conv layer", "back": "$C_{out}C_{in}K^2+C_{out}$. Independent of the image size." },
+  { "id": "seq.01.c3", "concept": "seq.conv", "front": "Weight shapes: input, weights, output of a conv layer", "back": "$x:(C_{in},H,W)$, $W:(C_{out},C_{in},K,K)$, $b:(C_{out})$, $Y:(C_{out},H_{out},W_{out})$." },
+  { "id": "seq.01.c4", "concept": "seq.conv", "front": "Convolution vs cross-correlation in deep learning", "back": "Libraries implement cross-correlation (no kernel flip). With learned kernels the difference is only a relabelling of the weights." },
+  { "id": "seq.01.c5", "concept": "seq.conv", "front": "What is parameter sharing?", "back": "The same kernel weights are applied at every spatial position: far fewer parameters and translation equivariance." },
+  { "id": "seq.01.c6", "concept": "seq.conv", "front": "im2col forward in one line", "back": "$Y_{mat}=W_{mat}X_{col}+b\\mathbf1^\\top$ with $X_{col}:(C_{in}K^2, H_{out}W_{out})$, $W_{mat}:(C_{out},C_{in}K^2)$." },
+  { "id": "seq.01.c7", "concept": "seq.conv", "front": "Backward of a conv layer (matrix form)", "back": "$\\bar W_{mat}=\\bar Y_{mat}X_{col}^\\top$, $\\bar b=\\sum\\bar Y$, $\\bar X_{col}=W_{mat}^\\top\\bar Y_{mat}$, then col2im (scatter-add, crop padding)." },
+  { "id": "seq.01.c8", "concept": "seq.conv", "front": "Why must col2im add instead of assign?", "back": "Windows overlap; a pixel used by several outputs receives the sum of their gradient contributions." },
+  { "id": "seq.01.c9", "concept": "seq.cnn-arch", "front": "Receptive field recurrence", "back": "$r\\leftarrow r+(K-1)j$, $j\\leftarrow jS$, starting from $r=j=1$." },
+  { "id": "seq.01.c10", "concept": "seq.cnn-arch", "front": "Max-pool backward", "back": "Route the upstream gradient to the arg-max position of each window; all other positions get 0. No parameters." },
+  { "id": "seq.01.c11", "concept": "seq.cnn-arch", "front": "LeNet-5 layout", "back": "conv5 (1->6), pool, conv5 (6->16), pool, dense 400->120->84->10; 61,706 parameters; maps 32, 28, 14, 10, 5." },
+  { "id": "seq.01.c12", "concept": "seq.cnn-arch", "front": "What did AlexNet, VGG, Inception, ResNet each contribute?", "back": "AlexNet: ReLU, dropout, depth on GPUs. VGG: stacks of 3x3 convs. Inception: parallel kernel sizes with 1x1 reductions. ResNet: residual blocks $y=x+F(x)$." },
+  { "id": "seq.01.c13", "concept": "seq.cnn-arch", "front": "Why do residual connections ease training of deep nets?", "back": "$\\partial y/\\partial x=I+\\partial F/\\partial x$: the gradient has an identity path to earlier layers, and a block can learn $F\\approx0$ (do nothing)." },
+  { "id": "seq.01.c14", "concept": "seq.conv", "front": "Two stacked 3x3 convs vs one 5x5", "back": "Same receptive field (5), fewer weights ($18C^2$ vs $25C^2$), an extra non-linearity." },
+  { "id": "seq.01.c15", "concept": "seq.conv", "front": "A 1D conv of width k over word embeddings is...", "back": "A learnable k-gram detector (TextCNN): parallel and cheap, but blind beyond its window." }
+]

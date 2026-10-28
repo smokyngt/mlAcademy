@@ -1,0 +1,10 @@
+{
+  "id": "app.06.ex1",
+  "title": "Un calculateur de coût et de latence pour un pipeline LLM à plusieurs étapes",
+  "prompt": "Avant de construire une fonctionnalité LLM, chiffre-la et chronomètre-la sur le papier. Une requête traverse plusieurs **étapes** (garde-fou d'entrée, récupération, génération principale, garde-fou de sortie). Chaque étape est un dict avec `name`, `in_tokens`, `out_tokens`, `price_in`, `price_out` (dollars par million de jetons), `ttft` (secondes avant le premier jeton) et `tps` (jetons générés par seconde), plus `group` (`None`, ou une étiquette partagée par les étapes qui s'exécutent **en parallèle**).\n\nImplémente :\n\n- `stage_cost(s)` et `stage_latency(s)` (latence = `ttft + out_tokens/tps` ; avec zéro jeton de sortie, c'est simplement `ttft`).\n- `pipeline(stages)` -> `{\"cost\", \"latency\"}` : les coûts s'additionnent ; la latence s'additionne sur les pas séquentiels, où chaque groupe parallèle compte une fois avec la latence **maximale** de ses membres. Les pas sont ordonnés par première apparition.\n- `retry_expected_cost(cost, p_fail, max_attempts)` : dépense espérée quand chaque tentative échoue indépendamment avec la probabilité `p_fail` et que tu réessaies jusqu'à `max_attempts` tentatives au total (une tentative échouée est quand même facturée).\n- `monthly_cost(request_cost, users, requests_per_user_per_day, days=30)`.\n- `meets_budget(result, max_latency, max_cost)` -> bool (les deux limites sont incluses).",
+  "hints": [
+    "Coût d'une étape = (in_tokens * price_in + out_tokens * price_out) / 1e6. Latence d'une étape = ttft + out_tokens / tps (juste ttft quand out_tokens vaut 0).",
+    "Les étapes qui partagent le même 'group' non None s'exécutent en parallèle : le groupe coûte la SOMME des coûts de ses étapes mais seulement le MAX de ses latences. Les étapes avec group None s'exécutent l'une après l'autre.",
+    "Coût espéré avec réessais : la tentative k (k = 0, 1, ...) a lieu avec la probabilité p**k, donc cost * somme_{k<max_attempts} p**k."
+  ]
+}

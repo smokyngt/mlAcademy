@@ -1,0 +1,77 @@
+[
+ {
+  "id": "vis.01.c1",
+  "front": "Pixel",
+  "back": "Un échantillon d'intensité lumineuse par canal à une position de la grille ; pas une surface."
+ },
+ {
+  "id": "vis.01.c2",
+  "front": "HWC vs CHW",
+  "back": "HWC $(H,W,C)$ : fichiers, PIL, OpenCV. CHW $(C,H,W)$ : PyTorch. Conversion avec transpose(2,0,1)."
+ },
+ {
+  "id": "vis.01.c3",
+  "front": "Trois conventions numériques",
+  "back": "uint8 0..255 (fichiers), float 0..1 (division par 255), standardisé (soustraire la moyenne du canal, diviser par l'écart-type du canal)."
+ },
+ {
+  "id": "vis.01.c4",
+  "front": "Formule de standardisation",
+  "back": "$x'_c=(x_c/255-\\mu_c)/\\sigma_c$ par canal ; ImageNet : $\\mu=(0.485,0.456,0.406)$, $\\sigma=(0.229,0.224,0.225)$."
+ },
+ {
+  "id": "vis.01.c5",
+  "front": "Pourquoi standardiser avant de transposer ?",
+  "back": "La moyenne et l'écart-type ont la forme (3,) et sont diffusés sur le DERNIER axe en HWC."
+ },
+ {
+  "id": "vis.01.c6",
+  "front": "Formule du gris",
+  "back": "$Y=0.299R+0.587G+0.114B$ (l'œil est le plus sensible au vert)."
+ },
+ {
+  "id": "vis.01.c7",
+  "front": "Quand utiliser HSV / YCbCr ?",
+  "back": "HSV : séparer la teinte de la luminosité pour le seuillage de couleur. YCbCr : luminosité vs différences de couleur, utilisé par JPEG et la vidéo."
+ },
+ {
+  "id": "vis.01.c8",
+  "front": "Choix d'interpolation",
+  "back": "Plus proche voisin : étiquettes/masques. Bilinéaire : défaut pour l'entraînement. Bicubique/Lanczos : plus net, pour l'affichage."
+ },
+ {
+  "id": "vis.01.c9",
+  "front": "Taille de sortie d'un filtre valid",
+  "back": "$(H-k_h+1)\\times(W-k_w+1)$ ; le remplissage conserve $H\\times W$."
+ },
+ {
+  "id": "vis.01.c10",
+  "front": "Formule de filtrage",
+  "back": "$O[i,j]=\\sum_{u,v}K[u,v]\\,I[i+u,j+v]$, un produit scalaire glissant (intercorrélation)."
+ },
+ {
+  "id": "vis.01.c11",
+  "front": "Noyau Sobel-x et sens",
+  "back": "$[[-1,0,1],[-2,0,2],[-1,0,1]]$ : droite moins gauche, ligne du milieu doublée ; répond aux contours verticaux. $G=\\sqrt{G_x^2+G_y^2}$."
+ },
+ {
+  "id": "vis.01.c12",
+  "front": "Noyau de flou moyenneur",
+  "back": "$\\frac19\\mathbf 1_{3\\times3}$ : moyenne locale ; réduit le bruit, adoucit les contours."
+ },
+ {
+  "id": "vis.01.c13",
+  "front": "Histogramme d'image",
+  "back": "Nombre de pixels par classe de luminosité ; ignore la position ; révèle sous-exposition ou écrêtage."
+ },
+ {
+  "id": "vis.01.c14",
+  "front": "Règle de l'augmentation",
+  "back": "Doit préserver l'étiquette ; s'applique uniquement aux images d'entraînement. Exemples : retournement, recadrage avec remplissage par réflexion, variation de couleur, mixup."
+ },
+ {
+  "id": "vis.01.c15",
+  "front": "Liste des bugs classiques de prétraitement",
+  "back": "uint8 donné à un modèle float, BGR vs RGB, mauvaise disposition, moyenne/écart-type absents ou faux, redimensionnement différent de l'entraînement."
+ }
+]

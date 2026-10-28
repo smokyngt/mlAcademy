@@ -1,0 +1,104 @@
+[
+  {
+    "id": "rlhf-three-stages",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The three-stage recipe: supervised fine-tuning, a reward model fitted to rater preferences with the Bradley-Terry loss, then reinforcement learning against that reward with a KL leash to the SFT model. The reward model is a summary of rater behaviour, not of human values.",
+      "fr": "La recette en trois étapes : fine-tuning supervisé, modèle de récompense ajusté aux préférences des évaluateurs avec la perte de Bradley-Terry, puis apprentissage par renforcement contre cette récompense avec une laisse KL vers le modèle SFT. Le modèle de récompense résume le comportement des évaluateurs, pas les valeurs humaines."
+    },
+    "code": {
+      "en": "flowchart LR\n  PT[\"pretrained model\"] --> SFT[\"1. SFT on human demonstrations\"]\n  SFT --> RMT[\"2. reward model r(x,y)<br/>-log sigma(r(y_w) - r(y_l))\"]\n  SFT --> RL[\"3. RL: max E[r] - beta KL(pi || pi_ref)\"]\n  RMT --> RL\n  RL --> OUT[\"assistant\"]",
+      "fr": "flowchart LR\n  PT[\"modèle pré-entraîné\"] --> SFT[\"1. SFT sur des démonstrations humaines\"]\n  SFT --> RMT[\"2. modèle de récompense r(x,y)<br/>-log sigma(r(y_w) - r(y_l))\"]\n  SFT --> RL[\"3. RL : max E[r] - beta KL(pi || pi_ref)\"]\n  RMT --> RL\n  RL --> OUT[\"assistant\"]"
+    }
+  },
+  {
+    "id": "bradley-terry",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The Bradley-Terry reward-model loss -log sigma(d) as a function of the score gap d = r(y_w) - r(y_l). It is near zero when the preferred answer scores much higher and grows roughly linearly when the model ranks the pair the wrong way.",
+      "fr": "La perte de Bradley-Terry du modèle de récompense -log sigma(d) en fonction de l'écart de score d = r(y_w) - r(y_l). Elle est proche de zéro quand la réponse préférée a un score nettement plus haut et croît presque linéairement quand le modèle classe la paire à l'envers."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        -5,
+        5
+      ],
+      "yDomain": [
+        0,
+        5.5
+      ],
+      "title": "d",
+      "data": [
+        {
+          "fn": "-log(1/(1 + exp(-x)))",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "bon-kl",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "How far best-of-n moves the policy: the usual estimate KL = ln n - (n-1)/n, plotted for n from 1 to 64 (n = 4 gives 0.636, n = 16 gives 1.835, n = 64 gives 3.175). It puts best-of-n and RL on the same KL-budget axis.",
+      "fr": "De combien le best-of-n déplace la politique : l'estimation usuelle KL = ln n - (n-1)/n, tracée pour n de 1 à 64 (n = 4 donne 0,636 ; n = 16 donne 1,835 ; n = 64 donne 3,175). Elle place best-of-n et RL sur le même axe de budget KL."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        1,
+        64
+      ],
+      "yDomain": [
+        0,
+        3.5
+      ],
+      "title": "n",
+      "data": [
+        {
+          "fn": "log(x) - (x - 1)/x",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "tilt-factor",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The KL-regularised optimum reweights the reference policy by exp(r/beta): a response with reward higher by delta is up-weighted by exp(delta/beta). Small beta (blue, 0.5) amplifies reward differences, flaws included, far more than large beta (purple, 2).",
+      "fr": "L'optimum régularisé par KL repondère la politique de référence par exp(r/beta) : une réponse dont la récompense est plus haute de delta est amplifiée de exp(delta/beta). Un petit beta (bleu, 0,5) amplifie les écarts de récompense, défauts compris, bien plus qu'un grand beta (violet, 2)."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        4
+      ],
+      "yDomain": [
+        0,
+        60
+      ],
+      "title": "delta",
+      "data": [
+        {
+          "fn": "exp(x/0.5)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(x/1)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(x/2)",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  }
+]

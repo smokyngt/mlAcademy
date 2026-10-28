@@ -1,0 +1,203 @@
+#@@ meta
+{"id": "rsn.03.ex1", "title": "Scoring answers: log-probabilities and a rule-based score", "difficulty": 3, "runtime": "pyodide", "concepts": ["rsn.refine"], "hints": ["log_softmax: subtract the row maximum, then subtract log(sum(exp(.))) so that exp of the result sums to 1.", "Row t of the logits predicts token_ids[t+1]. Select logprobs[t, token_ids[t+1]] with fancy indexing, then keep only the positions t >= prompt_len - 1 (those predict the answer tokens).", "heuristic_score = (boxed_bonus if there is a box, else extract_bonus if there is a number, else fulltext_bonus) + 1.5 * exp(-len(answer) / brevity)."]}
+#@@ prompt
+To choose between candidate answers (best-of-n, tie-breaks, accepting a revision) you need a **score**. Implement two kinds with NumPy:
+
+**Model confidence from logits.** A language model reads a sequence of `L` token ids and returns one row of `V` scores (logits) per position; the row at position `t` scores the token that comes next, i.e. `token_ids[t+1]`. The last row has no known target, so you work with `L-1` rows.
+
+- `log_softmax(logits)`: stable row-wise log-probabilities.
+- `answer_token_logprobs(logits, token_ids, prompt_len)`: `logits` has shape `(L-1, V)` where `L = len(token_ids)`; row `t` predicts `token_ids[t+1]`. Return the log-probability of each **answer** token, i.e. the tokens at positions `prompt_len ... L-1` (a vector of length `L - prompt_len`). The prompt tokens are not scored.
+- `sequence_logprob(lp)` and `avg_logprob(lp)`: sum and mean of such a vector.
+- `joint_probability(lp)`: the product of the token probabilities (`exp` of each, multiplied); you will see it underflow to `0.0` for long sequences, which is why log-probabilities are used.
+- `pick_best(candidates, mode)`: each candidate is a vector of token log-probabilities; return the index of the best by `"sum"` or `"mean"` (first on ties).
+
+**A rule-based score.** `heuristic_score(answer, brevity=500.0, boxed_bonus=2.0, extract_bonus=1.0, fulltext_bonus=0.0)`: a bonus for the best available kind of final answer (a `\boxed{}` gets `boxed_bonus`; otherwise a number found in the text gets `extract_bonus`; otherwise `fulltext_bonus`) plus a brevity term `1.5 * exp(-len(answer) / brevity)` (length in characters). The helper `extract_final_candidate(text, fallback)` is provided.
+#@@ starter
+import re
+import numpy as np
+
+RE_NUMBER = re.compile(r"-?(?:\d+/\d+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)")
+
+
+def get_last_boxed(text):
+    start = text.rfind("\\boxed")
+    if start == -1:
+        return None
+    i = start + len("\\boxed")
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i >= len(text) or text[i] != "{":
+        return None
+    i += 1
+    depth, begin = 1, i
+    while i < len(text) and depth > 0:
+        depth += (text[i] == "{") - (text[i] == "}")
+        i += 1
+    return text[begin:i - 1] if depth == 0 else None
+
+
+def extract_final_candidate(text, fallback="number_then_full"):
+    result = ""
+    if text:
+        boxed = get_last_boxed(text.strip())
+        if boxed:
+            result = boxed.strip().strip("$ ")
+        elif fallback in ("number_then_full", "number_only"):
+            nums = RE_NUMBER.findall(text)
+            if nums:
+                result = nums[-1]
+            elif fallback == "number_then_full":
+                result = text
+    return result
+
+
+def log_softmax(logits):
+    raise NotImplementedError
+
+
+def answer_token_logprobs(logits, token_ids, prompt_len):
+    raise NotImplementedError
+
+
+def sequence_logprob(lp):
+    raise NotImplementedError
+
+
+def avg_logprob(lp):
+    raise NotImplementedError
+
+
+def joint_probability(lp):
+    raise NotImplementedError
+
+
+def pick_best(candidates, mode):
+    raise NotImplementedError
+
+
+def heuristic_score(answer, brevity=500.0, boxed_bonus=2.0, extract_bonus=1.0, fulltext_bonus=0.0):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+
+rng = np.random.default_rng(0)
+Z = rng.normal(size=(5, 7))
+lp = log_softmax(Z)
+check("rows of exp(log_softmax) sum to 1", lambda: np.allclose(np.exp(lp).sum(axis=1), 1.0))
+check("matches the definition", lambda: np.allclose(lp, Z - np.log(np.exp(Z).sum(axis=1, keepdims=True))))
+check("stable for huge logits", lambda: np.all(np.isfinite(log_softmax(np.array([[1000.0, 0.0, -1000.0]])))))
+
+ids = [3, 1, 4, 1, 5, 2]
+logits = rng.normal(size=(5, 7))
+full = log_softmax(logits)
+a = answer_token_logprobs(logits, ids, 3)
+check("answer log-probs have one value per answer token", lambda: a.shape == (3,))
+check("values: row t scores token_ids[t+1], answer starts at t = prompt_len - 1", lambda: np.allclose(a, [full[2, 1], full[3, 5], full[4, 2]]))
+check("prompt_len = 1 scores all but the first token", lambda: answer_token_logprobs(logits, ids, 1).shape == (5,))
+logits2 = logits.copy()
+logits2[:2] = rng.normal(size=(2, 7))
+check("changing prompt rows does not change the answer score", lambda: np.allclose(answer_token_logprobs(logits2, ids, 3), a))
+
+check("sum and mean", lambda: abs(sequence_logprob(a) - a.sum()) < 1e-12 and abs(avg_logprob(a) - a.mean()) < 1e-12)
+check("joint probability is exp of the sum", lambda: abs(joint_probability(np.array([math.log(0.5), math.log(0.25)])) - 0.125) < 1e-12)
+long_lp = np.full(400, math.log(0.01))
+check("the product underflows to exactly 0.0", lambda: joint_probability(long_lp) == 0.0)
+check("while the sum of logs stays finite (-1842.07)", lambda: abs(sequence_logprob(long_lp) + 1842.068) < 1e-2)
+
+short = np.full(3, -0.5)
+longer = np.full(30, -0.3)
+check("sum prefers the short answer", lambda: pick_best([short, longer], "sum") == 0)
+check("mean prefers the long, more confident answer", lambda: pick_best([short, longer], "mean") == 1)
+check("first on ties", lambda: pick_best([np.array([-1.0, -1.0]), np.array([-1.0, -1.0])], "mean") == 0)
+
+check("boxed answer, 9 chars: 3.4732", lambda: abs(heuristic_score(r"\boxed{5}") - 3.4732415) < 1e-6)
+check("number but no box, 15 chars: 2.4557", lambda: abs(heuristic_score("the answer is 5") - 2.4556683) < 1e-6)
+check("no number, no box: only the brevity term", lambda: abs(heuristic_score("no digits here at all") - 1.4383046) < 1e-6)
+long_ans = ("x " * 400) + r"\boxed{5}"
+check("long boxed answer decays: 2.2974", lambda: abs(heuristic_score(long_ans) - 2.2974424) < 1e-6)
+check("a boxed answer beats an unboxed one of similar length", lambda: heuristic_score(r"so \boxed{5}") > heuristic_score("so it is 5"))
+check("shorter beats longer with equal format", lambda: heuristic_score(r"\boxed{5}") > heuristic_score("x " * 50 + r"\boxed{5}"))
+check("bonuses are parameters", lambda: abs(heuristic_score(r"\boxed{5}", boxed_bonus=0.0) - 1.4732415) < 1e-6)
+#@@ solution
+import re
+import numpy as np
+
+RE_NUMBER = re.compile(r"-?(?:\d+/\d+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)")
+
+
+def get_last_boxed(text):
+    start = text.rfind("\\boxed")
+    if start == -1:
+        return None
+    i = start + len("\\boxed")
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i >= len(text) or text[i] != "{":
+        return None
+    i += 1
+    depth, begin = 1, i
+    while i < len(text) and depth > 0:
+        depth += (text[i] == "{") - (text[i] == "}")
+        i += 1
+    return text[begin:i - 1] if depth == 0 else None
+
+
+def extract_final_candidate(text, fallback="number_then_full"):
+    result = ""
+    if text:
+        boxed = get_last_boxed(text.strip())
+        if boxed:
+            result = boxed.strip().strip("$ ")
+        elif fallback in ("number_then_full", "number_only"):
+            nums = RE_NUMBER.findall(text)
+            if nums:
+                result = nums[-1]
+            elif fallback == "number_then_full":
+                result = text
+    return result
+
+
+def log_softmax(logits):
+    z = np.asarray(logits, float)
+    z = z - z.max(axis=-1, keepdims=True)
+    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+
+
+def answer_token_logprobs(logits, token_ids, prompt_len):
+    lp = log_softmax(logits)
+    ids = np.asarray(token_ids)
+    t = np.arange(prompt_len - 1, len(ids) - 1)
+    return lp[t, ids[t + 1]]
+
+
+def sequence_logprob(lp):
+    return float(np.sum(lp))
+
+
+def avg_logprob(lp):
+    return float(np.mean(lp))
+
+
+def joint_probability(lp):
+    prod = 1.0
+    for x in lp:
+        prod *= float(np.exp(x))
+    return prod
+
+
+def pick_best(candidates, mode):
+    f = sequence_logprob if mode == "sum" else avg_logprob
+    scores = [f(c) for c in candidates]
+    return int(np.argmax(scores))
+
+
+def heuristic_score(answer, brevity=500.0, boxed_bonus=2.0, extract_bonus=1.0, fulltext_bonus=0.0):
+    score = 0.0
+    if extract_final_candidate(answer, fallback=None):
+        score += boxed_bonus
+    elif extract_final_candidate(answer, fallback="number_only"):
+        score += extract_bonus
+    elif extract_final_candidate(answer, fallback="number_then_full"):
+        score += fulltext_bonus
+    return score + 1.5 * float(np.exp(-len(answer) / brevity))

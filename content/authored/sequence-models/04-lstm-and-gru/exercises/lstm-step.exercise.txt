@@ -1,0 +1,107 @@
+#@@ meta
+{"id": "seq.04.ex1", "title": "LSTM step: forward, backward and gate properties", "difficulty": 4, "runtime": "pyodide", "concepts": ["seq.lstm", "nn.backprop"], "hints": ["Pre-activations a = W @ x + U @ h_prev + b has shape (4H,). Split into four blocks of size H in the order i, f, g, o: i = sigmoid, f = sigmoid, g = tanh, o = sigmoid. Then c = f*c_prev + i*g and h = o*tanh(c).", "Backward: tc = tanh(c); do = dh*tc; dc_tot = dc + dh*o*(1 - tc**2); df = dc_tot*c_prev; di = dc_tot*g; dg = dc_tot*i; dc_prev = dc_tot*f.", "Gate pre-activation grads: da_i = di*i*(1-i), da_f = df*f*(1-f), da_g = dg*(1-g**2), da_o = do*o*(1-o). Concatenate to da (4H,), then dW = outer(da, x), dU = outer(da, h_prev), db = da, dx = W.T @ da, dh_prev = U.T @ da."]}
+#@@ prompt
+Implement one LSTM time step for a single sample and its backward pass.
+
+Parameters: `W (4H, n)`, `U (4H, H)`, `b (4H,)`, with the four gate blocks stacked in the order **input `i`, forget `f`, candidate `g`, output `o`**:
+
+$$a=Wx+Uh_{t-1}+b,\quad i=\sigma(a_i),\ f=\sigma(a_f),\ g=\tanh(a_g),\ o=\sigma(a_o),\quad c_t=f\odot c_{t-1}+i\odot g,\quad h_t=o\odot\tanh(c_t).$$
+
+- `lstm_step(x, h_prev, c_prev, W, U, b)` returns `(h, c, cache)`.
+- `lstm_step_backward(dh, dc, cache)` takes the gradients flowing into `h_t` and `c_t` from the future and returns `(dx, dh_prev, dc_prev, dW, dU, db)`.
+#@@ starter
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def lstm_step(x, h_prev, c_prev, W, U, b):
+    raise NotImplementedError
+
+def lstm_step_backward(dh, dc, cache):
+    raise NotImplementedError
+
+rng = np.random.default_rng(0)
+n, H = 3, 4
+W = rng.normal(0, 0.5, (4 * H, n)); U = rng.normal(0, 0.5, (4 * H, H)); b = np.zeros(4 * H)
+h, c, cache = lstm_step(rng.normal(size=n), np.zeros(H), np.zeros(H), W, U, b)
+print(h.shape, c.shape)
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(1)
+n, H = 3, 4
+W = rng.normal(0, 0.5, (4 * H, n)); U = rng.normal(0, 0.5, (4 * H, H)); b = rng.normal(0, 0.3, 4 * H)
+x = rng.normal(size=n); hp = rng.normal(size=H); cp = rng.normal(size=H)
+h, c, cache = lstm_step(x, hp, cp, W, U, b)
+check("output shapes", lambda: h.shape == (H,) and c.shape == (H,))
+def ref(x, hp, cp, W, U, b):
+    a = W @ x + U @ hp + b
+    i, f, g, o = sigmoid(a[:H]), sigmoid(a[H:2*H]), np.tanh(a[2*H:3*H]), sigmoid(a[3*H:])
+    c = f * cp + i * g
+    return o * np.tanh(c), c
+hr, cr = ref(x, hp, cp, W, U, b)
+check("forward matches the equations", lambda: np.allclose(h, hr) and np.allclose(c, cr))
+# gradient check with loss = sum(A*h) + sum(B*c)
+A = rng.normal(size=H); Bv = rng.normal(size=H)
+dx, dhp, dcp, dW, dU, db = lstm_step_backward(A, Bv, cache)
+def loss(x, hp, cp, W, U, b):
+    h_, c_, _ = lstm_step(x, hp, cp, W, U, b)
+    return float(A @ h_ + Bv @ c_)
+args0 = [x, hp, cp, W, U, b]
+def num(k):
+    g = np.zeros(args0[k].shape)
+    for idx in np.ndindex(*args0[k].shape):
+        a = [v.copy() for v in args0]; c_ = [v.copy() for v in args0]
+        a[k][idx] += 1e-6; c_[k][idx] -= 1e-6
+        g[idx] = (loss(*a) - loss(*c_)) / 2e-6
+    return g
+for k, (name, val) in enumerate(zip(["dx", "dh_prev", "dc_prev", "dW", "dU", "db"], [dx, dhp, dcp, dW, dU, db])):
+    check(name + " matches finite differences", lambda k=k, val=val: val.shape == args0[k].shape and np.allclose(val, num(k), atol=1e-7, rtol=1e-5), "dc_tot = dc + dh*o*(1-tanh(c)^2); remember the factor from every gate")
+# property 1: big forget bias, closed input gate -> cell is kept
+b2 = np.zeros(4 * H); b2[H:2*H] = 20.0; b2[:H] = -20.0
+W0 = np.zeros_like(W); U0 = np.zeros_like(U)
+_, c2, cache2 = lstm_step(x, hp, cp, W0, U0, b2)
+check("forget gate ~1 and input gate ~0 keep the cell unchanged", lambda: np.allclose(c2, cp, atol=1e-6))
+# property 2: gradient flows along the cell path with factor f
+dcp2 = lstm_step_backward(np.zeros(H), np.ones(H), cache2)[2]
+check("dc_prev ~ dc when the forget gate is ~1 (additive path)", lambda: np.allclose(dcp2, np.ones(H), atol=1e-6))
+# property 3: forget gate ~0 erases the cell
+b3 = np.zeros(4 * H); b3[H:2*H] = -20.0; b3[:H] = -20.0
+_, c3, _ = lstm_step(x, hp, cp, W0, U0, b3)
+check("forget gate ~0 and input gate ~0 erase the cell", lambda: np.allclose(c3, 0, atol=1e-6))
+#@@ solution
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def lstm_step(x, h_prev, c_prev, W, U, b):
+    H = h_prev.shape[0]
+    a = W @ x + U @ h_prev + b
+    i = sigmoid(a[:H]); f = sigmoid(a[H:2 * H]); g = np.tanh(a[2 * H:3 * H]); o = sigmoid(a[3 * H:])
+    c = f * c_prev + i * g
+    tc = np.tanh(c)
+    h = o * tc
+    return h, c, (x, h_prev, c_prev, W, U, i, f, g, o, tc)
+
+def lstm_step_backward(dh, dc, cache):
+    x, h_prev, c_prev, W, U, i, f, g, o, tc = cache
+    do = dh * tc
+    dc_tot = dc + dh * o * (1.0 - tc ** 2)
+    df = dc_tot * c_prev
+    di = dc_tot * g
+    dg = dc_tot * i
+    dc_prev = dc_tot * f
+    da = np.concatenate([di * i * (1 - i), df * f * (1 - f), dg * (1 - g ** 2), do * o * (1 - o)])
+    dW = np.outer(da, x)
+    dU = np.outer(da, h_prev)
+    db = da
+    dx = W.T @ da
+    dh_prev = U.T @ da
+    return dx, dh_prev, dc_prev, dW, dU, db
+
+rng = np.random.default_rng(0)
+n, H = 3, 4
+W = rng.normal(0, 0.5, (4 * H, n)); U = rng.normal(0, 0.5, (4 * H, H)); b = np.zeros(4 * H)
+h, c, cache = lstm_step(rng.normal(size=n), np.zeros(H), np.zeros(H), W, U, b)
+print(h.shape, c.shape)

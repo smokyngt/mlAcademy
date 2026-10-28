@@ -1,0 +1,140 @@
+[
+  {
+    "id": "tsne-pipeline",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The t-SNE pipeline: Gaussian affinities calibrated by perplexity in the input space, Student-t affinities in the map, and gradient descent on KL(P||Q) where pairs attract or repel.",
+      "fr": "Le pipeline t-SNE : affinités gaussiennes calibrées par la perplexité dans l'espace d'entrée, affinités de Student-t dans la carte, et descente de gradient sur KL(P||Q) où les paires s'attirent ou se repoussent."
+    },
+    "code": {
+      "en": "flowchart TB\n  X[\"X (N, D)\"] --> PC[\"p(j|i) Gaussian, sigma_i by bisection\\nso that exp(H(P_i)) = perplexity\"]\n  PC --> PS[\"symmetrise\\np_ij = (p(j|i) + p(i|j)) / 2N\\nP (N, N), sums to 1\"]\n  Y0[\"Y init small random (N, 2)\"] --> W[\"w_ij = 1 / (1 + ‖y_i - y_j‖²)\\nq_ij = w_ij / Σ w\"]\n  PS --> KL[\"C = KL(P ‖ Q)\"]\n  W --> KL\n  KL --> G[\"gradient\\n4 Σ_j (p_ij - q_ij) w_ij (y_i - y_j)  (N, 2)\"]\n  G --> S{\"p_ij > q_ij ?\"}\n  S -->|\"yes: too far apart\"| AT[\"attract i and j\"]\n  S -->|\"no: too close\"| RE[\"repel i and j\"]\n  AT --> UP[\"Y ← Y - eta grad\"]\n  RE --> UP\n  UP -->|\"iterate\"| W\n  UP --> OUT[\"2-D map for looking only\"]",
+      "fr": "flowchart TB\n  X[\"X (N, D)\"] --> PC[\"p(j|i) gaussienne, sigma_i par bissection\\npour que exp(H(P_i)) = perplexité\"]\n  PC --> PS[\"symétriser\\np_ij = (p(j|i) + p(i|j)) / 2N\\nP (N, N), somme 1\"]\n  Y0[\"Y initial petit aléatoire (N, 2)\"] --> W[\"w_ij = 1 / (1 + ‖y_i - y_j‖²)\\nq_ij = w_ij / Σ w\"]\n  PS --> KL[\"C = KL(P ‖ Q)\"]\n  W --> KL\n  KL --> G[\"gradient\\n4 Σ_j (p_ij - q_ij) w_ij (y_i - y_j)  (N, 2)\"]\n  G --> S{\"p_ij > q_ij ?\"}\n  S -->|\"oui : trop éloignés\"| AT[\"attirer i et j\"]\n  S -->|\"non : trop proches\"| RE[\"repousser i et j\"]\n  AT --> UP[\"Y ← Y - eta grad\"]\n  RE --> UP\n  UP -->|\"itérer\"| W\n  UP --> OUT[\"carte 2-D pour regarder seulement\"]"
+    }
+  },
+  {
+    "id": "heavy-tail",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Gaussian kernel exp(-d^2/2) (blue) against the Student-t kernel 1/(1 + d^2) (orange) as a function of the map distance d: the heavy tail lets moderately distant points sit far apart at little cost, which solves the crowding problem.",
+      "fr": "Noyau gaussien exp(-d^2/2) (bleu) face au noyau de Student-t 1/(1 + d^2) (orange) en fonction de la distance d sur la carte : la queue épaisse laisse des points moyennement éloignés se placer loin à faible coût, ce qui résout le problème d'entassement."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        6
+      ],
+      "yDomain": [
+        -0.02,
+        1.05
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(-x*x/2)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1+x*x)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "kpca",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Kernel PCA: build the N x N RBF Gram matrix, centre it with J K J, take its top eigenpairs, and read coordinates as u_i sqrt(mu_i). No explicit feature map is ever computed.",
+      "fr": "ACP à noyau : construire la matrice de Gram RBF N x N, la centrer par J K J, prendre ses premiers couples propres, et lire les coordonnées u_i sqrt(mu_i). Aucune application de caractéristiques explicite n'est calculée."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N, d)\"] --> K[\"K_ij = exp(-γ ‖x_i - x_j‖²)\\n(N, N)\"]\n  K --> C[\"centre: K~ = J K J\\nJ = I - 11ᵀ/N\"]\n  C --> E[\"eigen-decomposition of K~\\ntop k pairs (mu_i, u_i)\"]\n  E --> Z[\"coordinates Z = u_i sqrt(mu_i)\\n(N, k)\"]\n  K -.->|\"linear kernel\"| PCA[\"recovers ordinary PCA\"]",
+      "fr": "flowchart LR\n  X[\"X (N, d)\"] --> K[\"K_ij = exp(-γ ‖x_i - x_j‖²)\\n(N, N)\"]\n  K --> C[\"centrer : K~ = J K J\\nJ = I - 11ᵀ/N\"]\n  C --> E[\"décomposition propre de K~\\nk premiers couples (mu_i, u_i)\"]\n  E --> Z[\"coordonnées Z = u_i sqrt(mu_i)\\n(N, k)\"]\n  K -.->|\"noyau linéaire\"| PCA[\"retrouve l'ACP ordinaire\"]"
+    }
+  },
+  {
+    "id": "perm-imp",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Permutation importance: score the fitted model on held-out data, shuffle one column at a time, and measure how much the error grows.",
+      "fr": "Importance par permutation : évaluer le modèle ajusté sur des données de test, mélanger une colonne à la fois, et mesurer de combien l'erreur augmente."
+    },
+    "code": {
+      "en": "flowchart TB\n  M[\"fitted model f, held-out (X, y)\"] --> S0[\"baseline error s0\"]\n  M --> LJ[\"for each feature j, repeat R times\"]\n  LJ --> PM[\"X' = X with column j shuffled\\n(link to y broken, marginal kept)\"]\n  PM --> SJ[\"error s_j on X'\"]\n  SJ --> IM[\"imp_j = mean over repeats of (s_j - s0)\"]\n  S0 --> IM\n  IM --> RD[\"large: model relies on feature j\\n≈ 0: ignored (or a correlated copy covers it)\"]",
+      "fr": "flowchart TB\n  M[\"modèle ajusté f, (X, y) de test\"] --> S0[\"erreur de référence s0\"]\n  M --> LJ[\"pour chaque variable j, répéter R fois\"]\n  LJ --> PM[\"X' = X avec la colonne j mélangée\\n(lien avec y rompu, marginale conservée)\"]\n  PM --> SJ[\"erreur s_j sur X'\"]\n  SJ --> IM[\"imp_j = moyenne sur les répétitions de (s_j - s0)\"]\n  S0 --> IM\n  IM --> RD[\"grand : le modèle s'appuie sur la variable j\\n≈ 0 : ignorée (ou une copie corrélée la remplace)\"]"
+    }
+  },
+  {
+    "id": "pd-x1",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Partial dependence of the worked example on x1: the model learned x1^2, so the average prediction is a parabola. The red points are the lesson's computed values (4.05, 1.03, -0.01, 0.96, 3.92) at x1 = -2, -1, 0, 1, 2.",
+      "fr": "Dépendance partielle de l'exemple sur x1 : le modèle a appris x1^2, donc la prédiction moyenne est une parabole. Les points rouges sont les valeurs calculées dans la leçon (4,05 ; 1,03 ; -0,01 ; 0,96 ; 3,92) en x1 = -2, -1, 0, 1, 2."
+    },
+    "spec": {
+      "xDomain": [
+        -2.5,
+        2.5
+      ],
+      "yDomain": [
+        -1,
+        6
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "x^2",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              -2,
+              4.05
+            ],
+            [
+              -1,
+              1.03
+            ],
+            [
+              0,
+              -0.01
+            ],
+            [
+              1,
+              0.96
+            ],
+            [
+              2,
+              3.92
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "shapley",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Shapley value of feature 1 with d = 3 features: average its marginal contribution v(S ∪ {1}) - v(S) over all coalitions S of the other features, weighted by |S|!(d - |S| - 1)!/d!. The weights sum to 1.",
+      "fr": "Valeur de Shapley de la variable 1 avec d = 3 variables : moyenne de sa contribution marginale v(S ∪ {1}) - v(S) sur toutes les coalitions S des autres variables, pondérée par |S|!(d - |S| - 1)!/d!. Les poids somment à 1."
+    },
+    "code": {
+      "en": "flowchart TB\n  E[\"S = {}  weight 1/3\\nv({1}) - v({})\"] --> PHI\n  F[\"S = {2}  weight 1/6\\nv({1,2}) - v({2})\"] --> PHI\n  G[\"S = {3}  weight 1/6\\nv({1,3}) - v({3})\"] --> PHI\n  H[\"S = {2,3}  weight 1/3\\nv({1,2,3}) - v({2,3})\"] --> PHI\n  PHI[\"phi_1 = weighted sum\\nefficiency: Σ_j phi_j = f(x) - E[f]\"]",
+      "fr": "flowchart TB\n  E[\"S = {}  poids 1/3\\nv({1}) - v({})\"] --> PHI\n  F[\"S = {2}  poids 1/6\\nv({1,2}) - v({2})\"] --> PHI\n  G[\"S = {3}  poids 1/6\\nv({1,3}) - v({3})\"] --> PHI\n  H[\"S = {2,3}  poids 1/3\\nv({1,2,3}) - v({2,3})\"] --> PHI\n  PHI[\"phi_1 = somme pondérée\\nefficacité : Σ_j phi_j = f(x) - E[f]\"]"
+    }
+  }
+]

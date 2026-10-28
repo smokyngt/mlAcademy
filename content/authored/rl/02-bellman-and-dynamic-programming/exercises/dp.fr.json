@@ -1,0 +1,10 @@
+{
+ "id": "rl.02.ex1",
+ "title": "Itération de politique et itération de valeur sur un gridworld",
+ "prompt": "`make_gridworld` construit le gridworld 4x4 classique comme un MDP : états 0..15 en ordre ligne par ligne, actions 0..3 = haut, bas, gauche, droite, les états 0 et 15 sont terminaux (absorbants, récompense 0), tout autre déplacement coûte une récompense de -1, et marcher contre un mur te laisse où tu es. `P` a la forme `(S, A, S)` et `R` a la forme `(S, A, S)`.\n\nImplémente la boîte à outils de programmation dynamique :\n\n- `q_from_v(P, R, V, gamma)` -> `Q` de forme `(S, A)`, `Q[s,a] = sum_s' P[s,a,s'] (R[s,a,s'] + gamma V[s'])`.\n- `policy_evaluation(P, R, pi, gamma, tol)` -> `V` pour une politique stochastique `pi` de forme `(S, A)` (itère la mise à jour d'espérance de Bellman jusqu'à `max|V_new - V| < tol`).\n- `greedy_policy(P, R, V, gamma)` -> politique one-hot `(S, A)` gloutonne par rapport à `V` (égalités : plus petit indice d'action).\n- `policy_iteration(P, R, gamma)` -> `(pi, V, n_iterations)` en partant de la politique aléatoire uniforme.\n- `value_iteration(P, R, gamma, tol)` -> `(V, n_sweeps)` en utilisant la mise à jour d'optimalité de Bellman.",
+ "hints": [
+  "q_from_v : la récompense immédiate espérée est (P * R).sum(axis=2), de forme (S, A) ; la partie future est gamma * P @ V, également (S, A).",
+  "policy_evaluation : répète V <- (pi * Q).sum(axis=1) avec Q = q_from_v(...) jusqu'à ce que le plus grand changement soit sous tol.",
+  "greedy_policy : une matrice one-hot avec un 1 en argmax_a Q[s, a]. policy_iteration s'arrête quand la politique gloutonne ne change plus. value_iteration est V <- Q.max(axis=1)."
+ ]
+}

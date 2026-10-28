@@ -1,0 +1,131 @@
+[
+ {
+  "id": "sys.01.q1",
+  "concept": "llm.kv-cache",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Without a KV cache, what is recomputed at every decoding step?",
+  "options": [
+   "Nothing; the cache is built into attention",
+   "The keys and values (and queries) of all tokens so far",
+   "Only the newest token",
+   "Only the softmax"
+  ],
+  "answer": 1,
+  "explanation": "A naive loop feeds the whole prefix through the model again, although the keys and values of the old tokens did not change."
+ },
+ {
+  "id": "sys.01.q2",
+  "concept": "llm.kv-cache",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "The KV cache memory grows linearly with which pair?",
+  "options": [
+   "Number of training tokens and epochs",
+   "Temperature and top-k",
+   "Sequence length and batch size",
+   "Vocabulary size and learning rate"
+  ],
+  "answer": 2,
+  "explanation": "bytes = 2 L n_kv d_h T b B: linear in T and in B."
+ },
+ {
+  "id": "sys.01.q3",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "KV cache in GiB for L=32, n_kv=32, d_h=128, T=4096, fp16 (2 bytes), batch 1?",
+  "answer": {
+   "value": 2.0,
+   "tol": 0.01
+  },
+  "explanation": "2*32*32*128*4096*2 = 2,147,483,648 bytes = 2 GiB."
+ },
+ {
+  "id": "sys.01.q4",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Same model but with GQA, n_kv=8. KV cache in GiB?",
+  "answer": {
+   "value": 0.5,
+   "tol": 0.01
+  },
+  "explanation": "The cache scales with n_kv: 2 GiB * 8/32 = 0.5 GiB."
+ },
+ {
+  "id": "sys.01.q5",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which phase is memory-bandwidth bound?",
+  "options": [
+   "Neither, they are latency-bound",
+   "Decode: one token per step but all weights and the cache are read",
+   "Prefill of a long prompt",
+   "Both are compute-bound"
+  ],
+  "answer": 1,
+  "explanation": "Decode has very few operations per byte moved. Prefill amortises each weight read over many tokens."
+ },
+ {
+  "id": "sys.01.q6",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What does grouped-query attention change?",
+  "options": [
+   "The softmax temperature",
+   "It removes the values",
+   "Several query heads share one key/value head",
+   "The number of layers"
+  ],
+  "answer": 2,
+  "explanation": "Queries keep their number of heads; K and V heads are shared in groups, reducing the cache by the group size."
+ },
+ {
+  "id": "sys.01.q7",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A float64 toy model with a cache differs from the uncached one by 1e-6. What do you conclude?",
+  "options": [
+   "It is normal, caching is approximate",
+   "The cache needs more layers",
+   "Softmax is random",
+   "There is a bug: the difference should be about 1e-12 or smaller"
+  ],
+  "answer": 3,
+  "explanation": "Keys and values are identical numbers, so only floating-point rounding may differ (about 1e-15 in float64)."
+ },
+ {
+  "id": "sys.01.q8",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "For d=4096, d_h=128, t=1000, the naive/cached FLOP ratio per step is about...",
+  "options": [
+   "930",
+   "2",
+   "10",
+   "1000000"
+  ],
+  "answer": 0,
+  "explanation": "(6 t d d_h + 2 t (t+1) d_h) / (6 d d_h + 4 t d_h) is about 930; it tends to t for large t."
+ },
+ {
+  "id": "sys.01.q9",
+  "concept": "llm.kv-cache",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is the KV cache not used during training?",
+  "options": [
+   "It is used in training too",
+   "The whole sequence is processed in parallel with a causal mask, so nothing is regenerated step by step",
+   "Gradients cannot flow through it",
+   "It requires int8"
+  ],
+  "answer": 1,
+  "explanation": "Training computes all positions at once; the cache saves work only when tokens arrive one at a time."
+ }
+]

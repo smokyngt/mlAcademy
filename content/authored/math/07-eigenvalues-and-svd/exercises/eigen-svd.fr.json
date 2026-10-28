@@ -1,0 +1,10 @@
+{
+  "id": "math.07.ex1",
+  "title": "Couples propres, puissances de matrices et SVD à partir de AtA",
+  "prompt": "Implémente, sans appeler `np.linalg.eig`/`svd` dans ton propre code (les tests, eux, le font) :\n\n- `eigvals2(A)` : valeurs propres d'une matrice réelle `2x2` à valeurs propres réelles, triées par ordre décroissant, à partir du polynôme caractéristique.\n- `eigvec2(A, lam)` : un vecteur propre unitaire pour `lam`.\n- `power_iteration(A, iters=200)` : valeur propre dominante et vecteur propre unitaire d'une matrice symétrique par multiplications répétées.\n- `matrix_power_diag(A, k)` : `A^k` en utilisant `A = P D P^-1` (tu peux utiliser `np.linalg.eig` pour `P`, `D` ici).\n- `svd_via_eigh(A)` : SVD réduite `(U, S, Vt)` d'une matrice `m x n` de rang colonne plein (`m >= n`) construite à partir de `eigh(A^T A)`.\n- `low_rank(U, S, Vt, k)` : l'approximation de rang `k`.",
+  "hints": [
+    "eigvals2(A) : tr = a+d, det = ad-bc, disc = sqrt(tr^2 - 4 det), racines (tr +/- disc)/2, renvoie-les triées par ordre décroissant.",
+    "eigvec2(A, lam) : résous (A - lam I) v = 0. Essaie v = (b, lam - a) ; s'il est (presque) nul, utilise v = (lam - d, c). Normalise à la longueur 1.",
+    "svd_via_eigh : lam, V = np.linalg.eigh(A.T @ A) ; réordonne par ordre décroissant ; S = sqrt(clip(lam, 0)) ; U = A @ V / S (division colonne par colonne)."
+  ]
+}

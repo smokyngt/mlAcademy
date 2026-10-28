@@ -1,0 +1,11 @@
+{
+  "id": "mf.06.ex1",
+  "title": "Sommes, produits et formes closes",
+  "prompt": "Calcule des sommes de deux façons et vérifie-les l'une contre l'autre.\n\n- `arith_sum(a, d, n)` : somme des `n` premiers termes de la suite arithmétique de premier terme `a` et de raison `d`.\n- `geom_sum(a, r, n)` : somme des `n` premiers termes $a+ar+\\dots+ar^{n-1}$ (gère `r == 1`).\n- `geom_infinite(a, r)` : la somme géométrique infinie $a/(1-r)$ si `abs(r) < 1`, sinon `None`.\n- `loop_sum_squares(n)` (avec une boucle `for`) et `closed_sum_squares(n)` (formule $n(n+1)(2n+1)/6$, résultat entier).\n- `harmonic(n)` : $\\sum_{k=1}^n1/k$.\n- `terms_to_exceed(target)` : plus petit `n` tel que `harmonic(n) > target`.\n- `partial_sums(terms)` : tableau NumPy des totaux cumulés (utilise `np.cumsum`).",
+  "hints": [
+    "arith_sum(a, d, n) = n * (2*a + (n-1)*d) / 2. geom_sum(a, r, n) : si r == 1 renvoie a*n sinon a*(1 - r**n)/(1 - r).",
+    "geom_infinite(a, r) : renvoie a/(1-r) quand abs(r) < 1, sinon None.",
+    "harmonic(n) : somme de 1/k pour k de 1 à n ; terms_to_exceed : continue d'ajouter 1/n jusqu'à ce que le total dépasse la cible et renvoie n.",
+    "loop_sum_squares(n) avec une boucle for ; closed_sum_squares(n) = n*(n+1)*(2*n+1)//6."
+  ]
+}

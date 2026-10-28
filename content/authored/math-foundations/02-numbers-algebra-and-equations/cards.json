@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.02.c1",
+  "concept": "mf.algebra",
+  "front": "Number families",
+  "back": "$\\mathbb N$ naturals (0,1,2..), $\\mathbb Z$ integers, $\\mathbb Q$ fractions, $\\mathbb R$ reals (the whole number line)."
+ },
+ {
+  "id": "mf.02.c2",
+  "concept": "mf.algebra",
+  "front": "Order of operations",
+  "back": "Brackets, then powers/roots, then multiplication/division (left to right), then addition/subtraction."
+ },
+ {
+  "id": "mf.02.c3",
+  "concept": "mf.algebra",
+  "front": "Exponent rules (preview)",
+  "back": "$a^m a^n=a^{m+n}$, $(a^m)^n=a^{mn}$, $a^0=1$, $a^{-n}=1/a^n$, $a^{1/2}=\\sqrt a$."
+ },
+ {
+  "id": "mf.02.c4",
+  "concept": "mf.algebra",
+  "front": "Adding fractions",
+  "back": "Use a common denominator: $\\frac ab+\\frac cd=\\frac{ad+bc}{bd}$."
+ },
+ {
+  "id": "mf.02.c5",
+  "concept": "mf.algebra",
+  "front": "Percent change",
+  "back": "New $=$ old $\\times(1+p/100)$. A rise of 20% multiplies by 1.2; a fall of 20% by 0.8."
+ },
+ {
+  "id": "mf.02.c6",
+  "concept": "mf.algebra",
+  "front": "Golden rule of equations",
+  "back": "Do the same thing to both sides. Undo operations in reverse order."
+ },
+ {
+  "id": "mf.02.c7",
+  "concept": "mf.algebra",
+  "front": "Solve $ax+b=c$",
+  "back": "$x=(c-b)/a$, valid when $a\\neq0$."
+ },
+ {
+  "id": "mf.02.c8",
+  "concept": "mf.algebra",
+  "front": "Inequality flip rule",
+  "back": "Multiplying or dividing both sides by a negative number reverses the inequality sign."
+ },
+ {
+  "id": "mf.02.c9",
+  "concept": "mf.algebra",
+  "front": "Two equations, two unknowns",
+  "back": "Eliminate one unknown (or substitute) to get one equation in one unknown; then back-substitute."
+ },
+ {
+  "id": "mf.02.c10",
+  "concept": "mf.algebra",
+  "front": "2x2 system formula",
+  "back": "$a_1x+b_1y=c_1,\\;a_2x+b_2y=c_2$: $x=\\frac{c_1b_2-c_2b_1}{a_1b_2-a_2b_1}$, $y=\\frac{a_1c_2-a_2c_1}{a_1b_2-a_2b_1}$ when the denominator is not 0."
+ },
+ {
+  "id": "mf.02.c11",
+  "concept": "mf.algebra",
+  "front": "No / infinite solutions",
+  "back": "If the denominator $a_1b_2-a_2b_1=0$ the lines are parallel (none) or identical (infinitely many)."
+ },
+ {
+  "id": "mf.02.c12",
+  "concept": "mf.algebra",
+  "front": "$\\in$, $\\forall$, $\\exists$",
+  "back": "'is an element of', 'for all', 'there exists'."
+ },
+ {
+  "id": "mf.02.c13",
+  "concept": "mf.algebra",
+  "front": "Function arrow notation",
+  "back": "$f:\\mathbb R\\to\\mathbb R,\\;x\\mapsto x^2$ reads: $f$ takes a real number and returns a real number, sending $x$ to $x^2$."
+ },
+ {
+  "id": "mf.02.c14",
+  "concept": "mf.algebra",
+  "front": "Subscripts and the bold symbol",
+  "back": "$x_1,x_2$ are different numbers; a bold $\\mathbf x$ usually denotes a whole vector (list) of numbers."
+ }
+]

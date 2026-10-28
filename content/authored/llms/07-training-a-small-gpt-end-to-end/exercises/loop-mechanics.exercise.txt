@@ -1,0 +1,137 @@
+#@@ meta
+{"id": "llm.07.ex1", "title": "The mechanics of a pre-training loop in NumPy", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.training-loop", "llm.lm", "dl.lr-schedule"], "hints": ["Window i is tokens[s:s+T] as input and tokens[s+1:s+T+1] as target. The largest legal start is len(tokens)-T-1, so rng.integers(0, len(tokens)-T, size=B) is right (the upper bound is exclusive).", "Stable cross-entropy: subtract the row max, logsumexp = max + log(sum(exp(z - max))), loss = mean(logsumexp - logit_of_target). Perplexity is exp(loss).", "Accumulation: the full-batch gradient is the mean over N examples. Chunk k contributes grad_k * len(chunk_k) / N, so unequal last chunks are weighted correctly. Clipping: scale every gradient by min(1, max_norm / (global_norm + 1e-6)) where global_norm is the square root of the sum of ALL squared entries."]}
+#@@ prompt
+Implement the small pieces that every language-model training loop is built from.
+
+- `make_windows(tokens, starts, T)` returns `(x, y)`, both of shape `(len(starts), T)`: `x[i] = tokens[s:s+T]` and `y[i] = tokens[s+1:s+T+1]` for `s = starts[i]`.
+- `get_batch(tokens, B, T, rng)` draws `B` uniformly random legal start positions with `rng.integers` (every window must have its target inside the stream) and calls `make_windows`.
+- `cross_entropy(logits, targets)` takes logits of shape `(N, V)` and integer targets `(N,)`, returns the mean negative log-likelihood in nats, numerically stable. `perplexity(loss)` is `exp(loss)`.
+- `lr_at(step, max_lr, min_lr, warmup, total)`: linear warmup `max_lr * (step+1)/warmup` for `step < warmup`, then cosine decay from `max_lr` to `min_lr` at `step = total`.
+- `accumulate_gradient(grad_fn, W, X, y, micro)` splits `(X, y)` into consecutive micro-batches of at most `micro` examples, calls `grad_fn(W, Xb, yb)` (which returns the gradient of the **mean** loss on that chunk) and returns the gradient of the mean loss over the whole batch.
+- `clip_by_global_norm(grads, max_norm)` takes a list of arrays, returns `(clipped_list, global_norm)`; scale by `min(1, max_norm / (global_norm + 1e-6))`.
+- `gpt_param_count(V, ctx, d, L, tied=True)`: GPT-2 style parameters with biases, two LayerNorms per block and a final LayerNorm.
+#@@ starter
+import numpy as np
+
+def make_windows(tokens, starts, T):
+    raise NotImplementedError
+
+def get_batch(tokens, B, T, rng):
+    raise NotImplementedError
+
+def cross_entropy(logits, targets):
+    raise NotImplementedError
+
+def perplexity(loss):
+    raise NotImplementedError
+
+def lr_at(step, max_lr, min_lr, warmup, total):
+    raise NotImplementedError
+
+def softmax_grad(W, X, y):
+    """Gradient of the mean softmax cross-entropy of a linear model, W: (d, V)."""
+    Z = X @ W
+    Z = Z - Z.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    P[np.arange(len(y)), y] -= 1
+    return X.T @ P / len(y)
+
+def accumulate_gradient(grad_fn, W, X, y, micro):
+    raise NotImplementedError
+
+def clip_by_global_norm(grads, max_norm):
+    raise NotImplementedError
+
+def gpt_param_count(V, ctx, d, L, tied=True):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+tok = np.arange(100)
+x, y = make_windows(tok, np.array([0, 10, 94]), 5)
+check("windows shape (B, T)", lambda: x.shape == (3, 5) and y.shape == (3, 5))
+check("targets are inputs shifted by one", lambda: np.array_equal(y, x + 1) and x[1, 0] == 10)
+check("last legal window fits", lambda: y[2, -1] == 99)
+rng = np.random.default_rng(0)
+xs, ys = get_batch(tok, 500, 8, rng)
+check("random batch targets stay inside the stream", lambda: ys.max() <= 99 and xs.min() >= 0)
+check("random batch is a shifted copy", lambda: np.array_equal(ys, xs + 1))
+check("all starts reachable incl. the last legal one (91)", lambda: xs[:, 0].max() == 91)
+rng = np.random.default_rng(1)
+lg = rng.normal(size=(6, 10)); tg = rng.integers(0, 10, 6)
+ref = np.mean([np.log(np.exp(r).sum()) - r[t] for r, t in zip(lg, tg)])
+check("cross-entropy matches the definition", lambda: abs(cross_entropy(lg, tg) - ref) < 1e-12)
+check("stable for huge logits", lambda: np.isfinite(cross_entropy(lg * 1000 + 5000, tg)))
+check("uniform logits give ln V", lambda: abs(cross_entropy(np.zeros((4, 50)), np.array([0, 1, 2, 3])) - np.log(50)) < 1e-12)
+check("perplexity of uniform = V", lambda: abs(perplexity(np.log(50)) - 50) < 1e-9)
+check("warmup step 0 is max_lr/warmup", lambda: abs(lr_at(0, 1e-3, 1e-4, 10, 100) - 1e-4) < 1e-12)
+check("warmup reaches max_lr at the last warmup step", lambda: abs(lr_at(9, 1e-3, 1e-4, 10, 100) - 1e-3) < 1e-12)
+check("cosine starts at max_lr", lambda: abs(lr_at(10, 1e-3, 1e-4, 10, 100) - 1e-3) < 1e-12)
+check("cosine midpoint is the average", lambda: abs(lr_at(55, 1e-3, 1e-4, 10, 100) - 5.5e-4) < 1e-12)
+check("ends at min_lr", lambda: abs(lr_at(100, 1e-3, 1e-4, 10, 100) - 1e-4) < 1e-12)
+rng = np.random.default_rng(2)
+X = rng.normal(size=(10, 4)); yy = rng.integers(0, 3, 10); W = rng.normal(size=(4, 3))
+full = softmax_grad(W, X, yy)
+check("accumulation with an uneven last chunk equals the full gradient", lambda: np.allclose(accumulate_gradient(softmax_grad, W, X, yy, 4), full))
+check("micro=1 equals the full gradient", lambda: np.allclose(accumulate_gradient(softmax_grad, W, X, yy, 1), full))
+check("micro >= N equals the full gradient", lambda: np.allclose(accumulate_gradient(softmax_grad, W, X, yy, 99), full))
+g = [np.array([3.0, 0.0]), np.array([[0.0], [4.0]])]
+cg, n = clip_by_global_norm(g, 1.0)
+check("global norm is 5", lambda: abs(n - 5.0) < 1e-12)
+check("clipped global norm is max_norm", lambda: abs(np.sqrt(sum((a ** 2).sum() for a in cg)) - 1.0) < 1e-5)
+check("direction preserved", lambda: np.allclose(cg[0] / cg[0].sum(), [1.0, 0.0]) and cg[1][1, 0] > 0)
+cg2, _ = clip_by_global_norm(g, 10.0)
+check("no change when the norm is below the limit", lambda: np.allclose(cg2[0], g[0]) and np.allclose(cg2[1], g[1]))
+check("GPT-2 small = 124,439,808", lambda: gpt_param_count(50257, 1024, 768, 12) == 124439808)
+check("untied head adds V*d", lambda: gpt_param_count(50257, 1024, 768, 12, tied=False) == 124439808 + 50257 * 768)
+check("tiny config (V=24, ctx=32, d=64, L=2) = 103,680", lambda: gpt_param_count(24, 32, 64, 2) == 103680)
+#@@ solution
+import numpy as np
+
+def make_windows(tokens, starts, T):
+    tokens = np.asarray(tokens)
+    x = np.stack([tokens[s:s + T] for s in starts])
+    y = np.stack([tokens[s + 1:s + T + 1] for s in starts])
+    return x, y
+
+def get_batch(tokens, B, T, rng):
+    starts = rng.integers(0, len(tokens) - T, size=B)
+    return make_windows(tokens, starts, T)
+
+def cross_entropy(logits, targets):
+    m = logits.max(axis=1, keepdims=True)
+    lse = m[:, 0] + np.log(np.exp(logits - m).sum(axis=1))
+    return float(np.mean(lse - logits[np.arange(len(targets)), targets]))
+
+def perplexity(loss):
+    return float(np.exp(loss))
+
+def lr_at(step, max_lr, min_lr, warmup, total):
+    if step < warmup:
+        return max_lr * (step + 1) / warmup
+    p = min(1.0, (step - warmup) / max(1, total - warmup))
+    return min_lr + 0.5 * (max_lr - min_lr) * (1 + np.cos(np.pi * p))
+
+def softmax_grad(W, X, y):
+    Z = X @ W
+    Z = Z - Z.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    P[np.arange(len(y)), y] -= 1
+    return X.T @ P / len(y)
+
+def accumulate_gradient(grad_fn, W, X, y, micro):
+    N = len(y)
+    total = np.zeros_like(W)
+    for s in range(0, N, micro):
+        xb, yb = X[s:s + micro], y[s:s + micro]
+        total += grad_fn(W, xb, yb) * len(yb) / N
+    return total
+
+def clip_by_global_norm(grads, max_norm):
+    norm = float(np.sqrt(sum((g ** 2).sum() for g in grads)))
+    coef = min(1.0, max_norm / (norm + 1e-6))
+    return [g * coef for g in grads], norm
+
+def gpt_param_count(V, ctx, d, L, tied=True):
+    per_block = 12 * d * d + 13 * d
+    total = V * d + ctx * d + L * per_block + 2 * d
+    return total if tied else total + V * d

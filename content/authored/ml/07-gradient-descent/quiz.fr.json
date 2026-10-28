@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.07.q1",
+    "prompt": "La mise à jour de la descente de gradient pour des paramètres $\\theta$ avec un taux d'apprentissage $\\eta$ est...",
+    "options": ["$\\theta\\leftarrow\\theta+\\eta\\nabla L(\\theta)$", "$\\theta\\leftarrow\\theta-\\eta\\nabla L(\\theta)$", "$\\theta\\leftarrow\\theta-\\eta L(\\theta)$", "$\\theta\\leftarrow\\eta\\nabla L(\\theta)$"],
+    "explanation": "On avance contre le gradient (la direction de plus forte montée) pour diminuer $L$. Additionner serait une *montée* de gradient."
+  },
+  {
+    "id": "f2n.07.q2",
+    "prompt": "$L(\\theta)=\\theta^2$, $\\theta_0=3$, $\\eta=0.1$. Quelle est la valeur de $\\theta_2$ après deux pas ?",
+    "options": [],
+    "explanation": "$L'=2\\theta$, donc chaque pas multiplie par $1-2\\eta=0.8$ : $3\\to2.4\\to1.92$."
+  },
+  {
+    "id": "f2n.07.q3",
+    "prompt": "Pour $L(\\theta)=\\tfrac12\\lambda\\theta^2$, la descente de gradient converge si et seulement si...",
+    "options": ["$\\eta<1/\\lambda$", "$0<\\eta<2/\\lambda$", "$\\eta>2/\\lambda$", "tout $\\eta>0$"],
+    "explanation": "$\\theta_{t+1}=(1-\\eta\\lambda)\\theta_t$ décroît si et seulement si $|1-\\eta\\lambda|<1$, c'est-à-dire $0<\\eta<2/\\lambda$. Entre $1/\\lambda$ et $2/\\lambda$, elle converge en oscillant."
+  },
+  {
+    "id": "f2n.07.q4",
+    "prompt": "Une quadratique a une courbure $\\lambda_{\\max}=20$ le long d'un axe. Le plus grand taux d'apprentissage stable pour la descente de gradient est (strictement inférieur à)...",
+    "options": [],
+    "explanation": "$\\eta<2/\\lambda_{\\max}=2/20=0.1$. Au-delà, la direction la plus raide diverge quelles que soient les autres directions."
+  },
+  {
+    "id": "f2n.07.q5",
+    "prompt": "Qu'est-ce qui rend la descente de gradient lente sur $L=\\tfrac12(x^2+100y^2)$ ?",
+    "options": ["Trop de paramètres", "Un grand nombre de conditionnement $\\kappa=100$ impose un petit $\\eta$ qui rampe le long de la direction plate", "La perte n'est pas différentiable", "La perte est non convexe"],
+    "explanation": "$\\eta$ est plafonné par l'axe raide ($<2/100$), donc l'axe plat ($\\lambda=1$) ne se contracte que d'environ $1-0.02$ par pas. Le taux de contraction au meilleur $\\eta$ est $(\\kappa-1)/(\\kappa+1)\\approx0.98$."
+  },
+  {
+    "id": "f2n.07.q6",
+    "prompt": "Ta perte d'entraînement devient NaN après quelques pas. Quelle est la première chose à essayer ?",
+    "options": ["Entraîner plus d'epochs", "Réduire le taux d'apprentissage d'un facteur 10 environ", "Augmenter la taille du batch jusqu'au jeu de données complet", "Ajouter plus de couches"],
+    "explanation": "Un taux d'apprentissage au-dessus de la limite de stabilité fait croître la perte géométriquement jusqu'au dépassement de capacité. Réduire $\\eta$ est le test le moins coûteux."
+  }
+]

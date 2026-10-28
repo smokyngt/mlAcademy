@@ -1,0 +1,80 @@
+[
+ {
+  "id": "mf.05.c1",
+  "concept": "mf.trig",
+  "front": "Radian",
+  "back": "Angle measured by arc length on the unit circle: $2\\pi$ rad $=360^\\circ$, so $x^\\circ=x\\pi/180$ rad."
+ },
+ {
+  "id": "mf.05.c2",
+  "concept": "mf.trig",
+  "front": "Unit circle",
+  "back": "Circle of radius 1 centred at the origin. The point at angle $\\theta$ is $(\\cos\\theta,\\sin\\theta)$."
+ },
+ {
+  "id": "mf.05.c3",
+  "concept": "mf.trig",
+  "front": "Right-triangle definitions",
+  "back": "$\\sin=\\frac{\\text{opposite}}{\\text{hypotenuse}}$, $\\cos=\\frac{\\text{adjacent}}{\\text{hypotenuse}}$, $\\tan=\\frac{\\text{opposite}}{\\text{adjacent}}$."
+ },
+ {
+  "id": "mf.05.c4",
+  "concept": "mf.trig",
+  "front": "Pythagorean identity",
+  "back": "$\\sin^2\\theta+\\cos^2\\theta=1$."
+ },
+ {
+  "id": "mf.05.c5",
+  "concept": "mf.trig",
+  "front": "Key values",
+  "back": "$\\sin0=0$, $\\sin\\frac\\pi6=\\frac12$, $\\sin\\frac\\pi4=\\frac{\\sqrt2}2$, $\\sin\\frac\\pi3=\\frac{\\sqrt3}2$, $\\sin\\frac\\pi2=1$; cosine is the same list reversed."
+ },
+ {
+  "id": "mf.05.c6",
+  "concept": "mf.trig",
+  "front": "Tangent",
+  "back": "$\\tan\\theta=\\sin\\theta/\\cos\\theta$; undefined at $\\pi/2+k\\pi$."
+ },
+ {
+  "id": "mf.05.c7",
+  "concept": "mf.trig",
+  "front": "Symmetry",
+  "back": "$\\sin(-\\theta)=-\\sin\\theta$ (odd), $\\cos(-\\theta)=\\cos\\theta$ (even)."
+ },
+ {
+  "id": "mf.05.c8",
+  "concept": "mf.trig",
+  "front": "Periodicity",
+  "back": "$\\sin(\\theta+2\\pi)=\\sin\\theta$, same for $\\cos$. $A\\sin(2\\pi ft+\\varphi)$ has period $1/f$."
+ },
+ {
+  "id": "mf.05.c9",
+  "concept": "mf.trig",
+  "front": "Amplitude, frequency, phase",
+  "back": "$A\\sin(2\\pi ft+\\varphi)$: height $A$, cycles per unit time $f$, horizontal offset $\\varphi$."
+ },
+ {
+  "id": "mf.05.c10",
+  "concept": "mf.trig",
+  "front": "Angle addition",
+  "back": "$\\sin(a+b)=\\sin a\\cos b+\\cos a\\sin b$; $\\cos(a+b)=\\cos a\\cos b-\\sin a\\sin b$."
+ },
+ {
+  "id": "mf.05.c11",
+  "concept": "mf.trig",
+  "front": "Rotation matrix",
+  "back": "$R(\\theta)=\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$ turns a point by $\\theta$ counter-clockwise and keeps lengths."
+ },
+ {
+  "id": "mf.05.c12",
+  "concept": "mf.trig",
+  "front": "Polar coordinates",
+  "back": "$(x,y)=(r\\cos\\theta,r\\sin\\theta)$; $r=\\sqrt{x^2+y^2}$, $\\theta=\\text{atan2}(y,x)$."
+ },
+ {
+  "id": "mf.05.c13",
+  "concept": "mf.trig",
+  "front": "Why ML cares",
+  "back": "Rotations (data augmentation, rotary position embeddings), sinusoidal positional encodings, and the Fourier view of audio and signals."
+ }
+]

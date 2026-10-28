@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "sys.02.ex1", "title": "Int8 quantisation: scale, zero point and error", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.quantization"], "hints": ["Symmetric: qmax = 2**(bits-1)-1, scale = amax/qmax, q = clip(round(x/scale), -qmax, qmax). Use keepdims when axis is given.", "Asymmetric: first extend the range to include 0 (lo = min(x.min(), 0), hi = max(x.max(), 0)), scale = (hi-lo)/(2**bits-1), zp = round(-lo/scale).", "The rounding error is at most scale/2 for every element that is not clipped."]}
+#@@ prompt
+Implement the quantisers used in LLM deployment.
+
+- `quantize_sym(x, bits=8, axis=None)`: symmetric, integers in $[-q_{max}, q_{max}]$ with $q_{max}=2^{b-1}-1$, scale $s=\max|x|/q_{max}$. With `axis=1` use one scale per row (per-channel).
+- `quantize_asym(x, bits=8)`: unsigned integers $0..2^b-1$ with a scale and a **zero point**, so that real zero is represented exactly.
+- the matching dequantisers and `mse`.
+
+Then observe: an outlier row ruins the per-tensor scale for all other rows, per-channel scales fix it, and one-sided data (like ReLU outputs) wastes half the integer range under the symmetric scheme.
+#@@ starter
+import numpy as np
+
+def quantize_sym(x, bits=8, axis=None):
+    # scale = max|x| / (2^(bits-1) - 1); q = clip(round(x / scale), -qmax, qmax).
+    # axis=None: one scale for the whole tensor. axis=1: one scale per row (use keepdims so it broadcasts).
+    # return (q as int32, scale); an all-zero tensor must not divide by zero
+    raise NotImplementedError
+
+def dequantize_sym(q, scale):
+    raise NotImplementedError
+
+def quantize_asym(x, bits=8):
+    # map [min(x,0), max(x,0)] onto the unsigned integers 0..2^bits-1.
+    # scale = (hi - lo) / (2^bits - 1); zero_point = round(-lo / scale); q = clip(round(x/scale) + zp, 0, levels)
+    # return (q as int32, scale, zp as int)
+    raise NotImplementedError
+
+def dequantize_asym(q, scale, zp):
+    raise NotImplementedError
+
+def mse(a, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([-1.0, -0.3, 0.0, 0.4, 2.54])
+q, s = quantize_sym(x)
+check("symmetric scale = 2.54/127", lambda: abs(float(s) - 0.02) < 1e-12)
+check("symmetric integers", lambda: q.tolist() == [-50, -15, 0, 20, 127])
+check("round trip error at most scale/2", lambda: np.max(np.abs(dequantize_sym(q, s) - x)) <= float(s) / 2 + 1e-12)
+check("zero maps to zero (symmetric)", lambda: q[2] == 0)
+y = np.array([-1.0, 0.0, 0.5, 3.0])
+qa, sa, zp = quantize_asym(y)
+check("asymmetric scale = 4/255", lambda: abs(sa - 4 / 255) < 1e-12)
+check("zero point = 64", lambda: zp == 64)
+check("asymmetric integers", lambda: qa.tolist() == [0, 64, 96, 255])
+check("zero is represented exactly (asymmetric)", lambda: dequantize_asym(qa, sa, zp)[1] == 0.0)
+check("asymmetric round trip error at most scale/2", lambda: np.max(np.abs(dequantize_asym(qa, sa, zp) - y)) <= sa / 2 + 1e-12)
+relu = np.array([0.0, 0.5, 1.0, 2.0, 6.0])
+qs, ss = quantize_sym(relu)
+qa2, sa2, zp2 = quantize_asym(relu)
+check("one-sided data: asymmetric beats symmetric", lambda: mse(relu, dequantize_asym(qa2, sa2, zp2)) < 0.5 * mse(relu, dequantize_sym(qs, ss)))
+rng = np.random.default_rng(0)
+W = rng.normal(0, 0.05, (64, 32))
+W[5] *= 40
+qt, st = quantize_sym(W)
+qc, sc = quantize_sym(W, axis=1)
+check("per-channel scale has one entry per row", lambda: np.asarray(sc).shape == (64, 1))
+check("per-channel is much better with an outlier row", lambda: mse(W, dequantize_sym(qc, sc)) < mse(W, dequantize_sym(qt, st)) / 20)
+errs = []
+v = rng.normal(0, 1, 2000)
+for b in (8, 6, 4, 2):
+    qq, ss_ = quantize_sym(v, b)
+    errs.append(mse(v, dequantize_sym(qq, ss_)))
+check("error grows as bits shrink", lambda: all(a < b for a, b in zip(errs, errs[1:])))
+check("8-bit error is tiny", lambda: errs[0] < 1e-4)
+check("all-zero tensor does not divide by zero", lambda: np.all(dequantize_sym(*quantize_sym(np.zeros(4))) == 0))
+#@@ solution
+import numpy as np
+
+def quantize_sym(x, bits=8, axis=None):
+    qmax = 2 ** (bits - 1) - 1
+    amax = np.max(np.abs(x), axis=axis, keepdims=axis is not None)
+    scale = np.where(amax == 0, 1.0, amax / qmax)
+    q = np.clip(np.round(x / scale), -qmax, qmax).astype(np.int32)
+    return q, scale
+
+def dequantize_sym(q, scale):
+    return q * scale
+
+def quantize_asym(x, bits=8):
+    lo, hi = min(float(x.min()), 0.0), max(float(x.max()), 0.0)
+    levels = 2 ** bits - 1
+    scale = (hi - lo) / levels if hi > lo else 1.0
+    zp = int(np.round(-lo / scale))
+    q = np.clip(np.round(x / scale) + zp, 0, levels).astype(np.int32)
+    return q, scale, zp
+
+def dequantize_asym(q, scale, zp):
+    return (q - zp) * scale
+
+def mse(a, b):
+    return float(np.mean((a - b) ** 2))

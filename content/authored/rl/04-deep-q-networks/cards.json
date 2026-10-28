@@ -1,0 +1,16 @@
+[
+  { "id": "rl.04.c1", "concept": "rl.dqn", "front": "Function approximation in RL", "back": "Represent $Q(s,a;\\theta)$ with parameters so values generalise across states; needed when the state space is too large for a table." },
+  { "id": "rl.04.c2", "concept": "rl.dqn", "front": "DQN loss", "back": "$L=\\mathbb{E}[\\tfrac12(y-Q(s,a;\\theta))^2]$, $y=r+\\gamma(1-d)\\max_{a'}Q(s',a';\\theta^-)$." },
+  { "id": "rl.04.c3", "concept": "rl.dqn", "front": "Semi-gradient", "back": "Differentiate only through $Q(s,a;\\theta)$; the target $y$ is treated as a constant (code: detach / stop-gradient)." },
+  { "id": "rl.04.c4", "concept": "rl.dqn", "front": "Experience replay", "back": "Ring buffer of past transitions sampled uniformly for minibatches: decorrelates data and reuses it. Valid because Q-learning is off-policy." },
+  { "id": "rl.04.c5", "concept": "rl.dqn", "front": "Target network", "back": "A frozen copy $\\theta^-$ used to compute targets, refreshed every $C$ steps; stops the target from moving with every update." },
+  { "id": "rl.04.c6", "concept": "rl.dqn", "front": "Hard vs soft target update", "back": "Hard: $\\theta^-\\leftarrow\\theta$ every $C$ steps. Soft: $\\theta^-\\leftarrow(1-\\tau)\\theta^-+\\tau\\theta$ each step." },
+  { "id": "rl.04.c7", "concept": "rl.dqn", "front": "Deadly triad", "back": "Function approximation + bootstrapping + off-policy data: together they can diverge." },
+  { "id": "rl.04.c8", "concept": "rl.dqn", "front": "Linear Q-function shapes", "back": "$W:(A,d)$, features $\\Phi:(B,d)$, $Q=\\Phi W^\\top:(B,A)$." },
+  { "id": "rl.04.c9", "concept": "rl.dqn", "front": "Gradient of the DQN loss for linear Q", "back": "$\\partial L/\\partial W[a]=-\\frac1B\\sum_{i:a_i=a}\\delta_i\\phi(s_i)$; only rows of actions taken change." },
+  { "id": "rl.04.c10", "concept": "rl.dqn", "front": "What does $(1-d)$ do in the target?", "back": "Removes the bootstrap at terminal transitions, since a terminal state has value 0." },
+  { "id": "rl.04.c11", "concept": "rl.dqn", "front": "Double DQN idea", "back": "Select $a'=\\arg\\max Q(s',\\cdot;\\theta)$ with the online net but evaluate it with the target net, reducing overestimation from the max." },
+  { "id": "rl.04.c12", "concept": "rl.dqn", "front": "One-hot features and DQN", "back": "With one-hot state features linear DQN reduces to tabular Q-learning." },
+  { "id": "rl.04.c13", "concept": "rl.dqn", "front": "Why reward clipping?", "back": "Keeps the scale of TD errors and gradients comparable across tasks; wrong when reward magnitude carries information." },
+  { "id": "rl.04.c14", "concept": "rl.dqn", "front": "How to test a DQN implementation", "back": "Check the gradient against finite differences with fixed target weights, and run on a tiny MDP with a known optimal $Q^*$." }
+]

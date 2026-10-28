@@ -1,0 +1,131 @@
+[
+ {
+  "id": "sys.04.q1",
+  "concept": "llm.eval",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why can a high public-benchmark score fail to predict performance on your product?",
+  "options": [
+   "Scores are not numbers",
+   "Contamination, saturation and a task mismatch",
+   "Benchmarks use a different GPU",
+   "Benchmarks have no questions"
+  ],
+  "answer": 1,
+  "explanation": "The benchmark may be in training data, may no longer discriminate, and rarely matches your data and failure modes."
+ },
+ {
+  "id": "sys.04.q2",
+  "concept": "llm.eval",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which metric rewards putting the first relevant document at rank 1 rather than rank 4?",
+  "options": [
+   "Perplexity",
+   "Accuracy@10",
+   "MRR",
+   "Recall@10"
+  ],
+  "answer": 2,
+  "explanation": "Reciprocal rank is 1 at rank 1 and 0.25 at rank 4; recall@10 ignores position within the top 10."
+ },
+ {
+  "id": "sys.04.q3",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Query with relevant {d1}, ranking d3 d1 d7. Reciprocal rank?",
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "The first relevant item is at rank 2, so RR = 1/2."
+ },
+ {
+  "id": "sys.04.q4",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Relevant set {d1, d2}; ranking d4 d5 d6 d1 d2. Recall@4?",
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "Only d1 is in the top 4: 1 of 2 relevant."
+ },
+ {
+  "id": "sys.04.q5",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In nDCG, why divide by the ideal DCG?",
+  "options": [
+   "To make it non-differentiable",
+   "To put the score in [0, 1] regardless of how many relevant documents exist",
+   "To remove the log",
+   "To penalise long lists"
+  ],
+  "answer": 1,
+  "explanation": "The normalised value is 1 for a perfect ordering, making queries comparable."
+ },
+ {
+  "id": "sys.04.q6",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "System A: 74/100 correct, B: 67/100 on the same items. What is the right way to test the difference?",
+  "options": [
+   "Compare the means only",
+   "Use the training loss",
+   "Paired bootstrap of the per-item differences",
+   "Check whether the two separate CIs overlap and stop there"
+  ],
+  "answer": 2,
+  "explanation": "The pairing removes shared item difficulty; overlap of marginal intervals is neither necessary nor sufficient."
+ },
+ {
+  "id": "sys.04.q7",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "You quadruple the number of eval items. The 95% CI of the mean roughly...",
+  "options": [
+   "stays the same",
+   "doubles",
+   "shrinks by a factor of 4",
+   "halves in width"
+  ],
+  "answer": 3,
+  "explanation": "The standard error scales like 1/sqrt(n)."
+ },
+ {
+  "id": "sys.04.q8",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A judge picks the answer shown FIRST in 70% of pairwise comparisons although the display order was assigned at random. Which bias is this?",
+  "options": [
+   "Position bias (when order is not randomised)",
+   "Self-preference",
+   "Verbosity",
+   "Contamination"
+  ],
+  "answer": 0,
+  "explanation": "Preference tied to position rather than content is position bias; randomise or evaluate both orders."
+ },
+ {
+  "id": "sys.04.q9",
+  "concept": "llm.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Model A beats model B in every slice but B has the higher overall accuracy. This is...",
+  "options": [
+   "Evidence that B is better in every slice",
+   "Simpson's paradox: slice sizes differ between the models",
+   "A bug in the metric",
+   "Impossible"
+  ],
+  "answer": 1,
+  "explanation": "Unequal weights of the slices reverse the aggregate; always look at slices."
+ }
+]

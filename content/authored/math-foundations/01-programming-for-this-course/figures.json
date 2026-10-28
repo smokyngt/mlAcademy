@@ -1,0 +1,139 @@
+[
+  {
+    "id": "f1",
+    "after": 2,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The notebook loop: you edit a cell, the kernel (a background Python process) runs it, the answer appears below, and variables stay in memory for the next cell.",
+      "fr": "La boucle du notebook : vous modifiez une cellule, le noyau (processus Python en arrière-plan) l'exécute, la réponse s'affiche dessous, et les variables restent en mémoire pour la cellule suivante."
+    },
+    "code": {
+      "en": "flowchart LR\n  E[\"Edit a cell\"] --> R[\"Run (Shift+Enter)\"] --> K[\"Kernel executes the code\"] --> O[\"Output appears below\"]\n  K --> S[(\"Variables stay in memory\")]\n  S --> E",
+      "fr": "flowchart LR\n  E[\"Modifier une cellule\"] --> R[\"Exécuter (Maj+Entrée)\"] --> K[\"Le noyau exécute le code\"] --> O[\"La sortie s'affiche dessous\"]\n  K --> S[(\"Les variables restent en mémoire\")]\n  S --> E"
+    }
+  },
+  {
+    "id": "f2",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Tracing a for loop: the accumulator total is updated once per item, exactly as in the trace table (0, 3, 8, 16).",
+      "fr": "Tracer une boucle for : l'accumulateur total est mis à jour une fois par élément, comme dans le tableau de trace (0, 3, 8, 16)."
+    },
+    "code": {
+      "en": "flowchart TD\n  S[\"total = 0\"] --> N{\"items left in [3, 5, 8]?\"}\n  N -- yes --> V[\"v = next item\"] --> U[\"total = total + v\"] --> N\n  N -- no --> D[\"print(total) gives 16\"]",
+      "fr": "flowchart TD\n  S[\"total = 0\"] --> N{\"reste-t-il des éléments de [3, 5, 8] ?\"}\n  N -- oui --> V[\"v = élément suivant\"] --> U[\"total = total + v\"] --> N\n  N -- non --> D[\"print(total) donne 16\"]"
+    }
+  },
+  {
+    "id": "f3",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Axes and shape: the number of axes (ndim) tells whether an array is a vector, a matrix or a tensor; shape lists the size along each axis.",
+      "fr": "Axes et forme : le nombre d'axes (ndim) dit si un tableau est un vecteur, une matrice ou un tenseur ; shape donne la taille le long de chaque axe."
+    },
+    "code": {
+      "en": "flowchart LR\n  V[\"1 axis: vector, shape (3,)\"] --> Mx[\"2 axes: matrix, shape (2, 3)\"] --> T[\"3 or more axes: tensor, shape (B, H, W)\"]",
+      "fr": "flowchart LR\n  V[\"1 axe : vecteur, forme (3,)\"] --> Mx[\"2 axes : matrice, forme (2, 3)\"] --> T[\"3 axes ou plus : tenseur, forme (B, H, W)\"]"
+    }
+  },
+  {
+    "id": "f4",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Broadcasting: shapes are aligned from the right; a size-1 (or missing) axis is stretched to match, otherwise NumPy raises ValueError.",
+      "fr": "Broadcasting : les formes sont alignées par la droite ; un axe de taille 1 (ou absent) est étiré pour correspondre, sinon NumPy lève une ValueError."
+    },
+    "code": {
+      "en": "flowchart TD\n  A[\"B: shape (3, 4)\"] --> C[\"Align from the right\"]\n  Bv[\"row: shape (4,)\"] --> C\n  C --> Q{\"each pair equal or 1?\"}\n  Q -- yes --> OK[\"Stretch the row over 3 rows: result (3, 4)\"]\n  Q -- no --> ERR[\"ValueError: operands could not be broadcast\"]",
+      "fr": "flowchart TD\n  A[\"B : forme (3, 4)\"] --> C[\"Aligner par la droite\"]\n  Bv[\"ligne : forme (4,)\"] --> C\n  C --> Q{\"chaque paire égale ou 1 ?\"}\n  Q -- oui --> OK[\"La ligne est étirée sur 3 lignes : résultat (3, 4)\"]\n  Q -- non --> ERR[\"ValueError : operands could not be broadcast\"]"
+    }
+  },
+  {
+    "id": "f5",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Standardising 1, 2, 3, 4: the data (blue, mean 2.5) is shifted and rescaled to z-scores (orange, mean 0, std 1).",
+      "fr": "Standardiser 1, 2, 3, 4 : les données (bleu, moyenne 2,5) sont décalées et mises à l'échelle en scores z (orange, moyenne 0, écart-type 1)."
+    },
+    "spec": {
+      "xDomain": [
+        -2,
+        5
+      ],
+      "yDomain": [
+        -1,
+        2
+      ],
+      "height": 240,
+      "grid": true,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              3,
+              0
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              -1.3416,
+              1
+            ],
+            [
+              -0.4472,
+              1
+            ],
+            [
+              0.4472,
+              1
+            ],
+            [
+              1.3416,
+              1
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0,
+          "text": "a (blue)"
+        },
+        {
+          "y": 1,
+          "text": "z (orange)"
+        }
+      ]
+    }
+  }
+]

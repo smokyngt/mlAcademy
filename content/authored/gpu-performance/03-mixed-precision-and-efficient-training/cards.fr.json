@@ -1,0 +1,17 @@
+[
+  { "id": "gpu.03.c1", "front": "Dispositions de bits de fp32, fp16, bf16", "back": "fp32 : 1/8/23. fp16 : 1/5/10. bf16 : 1/8/7 (signe/exposant/mantisse). bf16 garde la plage de fp32 avec moins de précision." },
+  { "id": "gpu.03.c2", "front": "Max, min normal et epsilon d'un format de style IEEE", "back": "biais b = 2^(e-1) - 1 ; max = (2 - 2^-m) 2^b ; min normal = 2^(1-b) ; min sous-normal = 2^(1-b-m) ; eps = 2^-m." },
+  { "id": "gpu.03.c3", "front": "Nombres clés de float16", "back": "Max 65,504 ; min normal 6.1e-5 ; min sous-normal 6.0e-8 ; eps environ 1e-3 (environ 3 chiffres décimaux)." },
+  { "id": "gpu.03.c4", "front": "Qu'est-ce que tf32 ?", "back": "Un mode de calcul des tensor cores : stockage et plage fp32, produits calculés avec 10 bits de mantisse, pour du code d'apparence fp32 à la vitesse des tensor cores." },
+  { "id": "gpu.03.c5", "front": "Variantes de fp8", "back": "E4M3 (plus de précision, poids et activations) et E5M2 (plus de plage, gradients). Demande un scaling soigneux par tenseur." },
+  { "id": "gpu.03.c6", "front": "Pourquoi les gradients fp16 s'annulent-ils (underflow) ?", "back": "Les gradients inférieurs à environ 3e-8 sont arrondis à exactement zéro (la moitié du plus petit sous-normal) ; de nombreux gradients de réseaux profonds sont aussi petits." },
+  { "id": "gpu.03.c7", "front": "Recette du loss scaling", "back": "Multiplier la perte par S, backward en fp16, convertir les gradients en fp32 et diviser par S, mettre à jour les poids maîtres fp32. Exact car grad(S L) = S grad(L)." },
+  { "id": "gpu.03.c8", "front": "Loss scaling dynamique", "back": "Débordement détecté : sauter le pas et diviser S par deux. Après une série de bons pas, doubler S." },
+  { "id": "gpu.03.c9", "front": "Pourquoi garder des poids maîtres fp32 ?", "back": "Les mises à jour sont minuscules par rapport aux poids ; en fp16/bf16, poids + mise à jour est arrondi au poids et la mise à jour est perdue." },
+  { "id": "gpu.03.c10", "front": "Octets par paramètre pour l'entraînement Adam", "back": "16 : (fp32) 4 poids + 4 gradients + 4 m + 4 v, ou (mixte) 2 + 2 + 4 maître + 4 m + 4 v. Les activations s'ajoutent." },
+  { "id": "gpu.03.c11", "front": "Règle empirique de la mémoire d'activations", "back": "Environ 12 * B * L * d valeurs par couche (batch, longueur de séquence, largeur) ; linéaire en B, L et en profondeur." },
+  { "id": "gpu.03.c12", "front": "Mémoire du checkpointing et espacement optimal", "back": "mem(k) = (n/k) a_in + k a_layer ; k* = sqrt(n a_in / a_layer), sqrt(n) quand a_in = a_layer." },
+  { "id": "gpu.03.c13", "front": "Coût en calcul du checkpointing complet", "back": "Une passe avant supplémentaire : 1 + 1 + 2 = 4 unités au lieu de 3, un facteur 4/3 (environ 33%). Le recalcul sélectif est bien moins cher (environ 5% selon la source)." },
+  { "id": "gpu.03.c14", "front": "Accumulation de gradients", "back": "Sommer les gradients de micro-batchs, chacun mis à l'échelle par 1/n_micro quand la perte est une moyenne, puis faire un seul pas d'optimiseur. Égale le gradient du batch complet." },
+  { "id": "gpu.03.c15", "front": "Pourquoi fusionner les noyaux / utiliser torch.compile ?", "back": "Une chaîne de k opérations élément par élément déplace 2*k*e*n octets non fusionnée mais 2*e*n fusionnée ; mêmes FLOPs, k fois moins de trafic sur un chemin limité par la mémoire." }
+]

@@ -1,0 +1,146 @@
+#@@ meta
+{"id": "aud.04.ex1", "title": "CTC: collapse, forward probability, greedy and prefix beam search", "difficulty": 5, "runtime": "pyodide", "concepts": ["aud.ctc"], "hints": ["collapse: walk the path, keep a symbol only if it differs from the previous symbol AND is not the blank.", "ctc_forward: extended labels ext = [blank, y1, blank, y2, ..., blank]. alpha[0,0]=logp[0,blank], alpha[0,1]=logp[0,ext[1]]. alpha[t,s] = logaddexp of alpha[t-1,s], alpha[t-1,s-1] and (only if ext[s] != blank and ext[s] != ext[s-2]) alpha[t-1,s-2], plus logp[t, ext[s]]. Answer = logaddexp(alpha[T-1,S-1], alpha[T-1,S-2]).", "Prefix beam search keeps for each prefix (pb, pnb) in log space. For every frame: blank -> same prefix, goes to pb; repeated last label -> stay (pnb + p) into pnb, extend (pb + p) into the new prefix pnb; other label -> extend with (pb and pnb combined) into the new prefix pnb. Keep the top `beam` prefixes by logaddexp(pb, pnb)."]}
+#@@ prompt
+Implement CTC for a single utterance. `logp` is a `(T, V)` array of per-frame **log**-probabilities (each row is a log-softmax; symbol 0 is the blank).
+
+- `collapse(path, blank=0)` -> list: merge consecutive repeats, then drop blanks.
+- `ctc_forward(logp, target, blank=0)` -> `log P(target | x)` (float; `-inf` when impossible) using the forward algorithm in log space. `target` is a list of non-blank symbols (it may be empty).
+- `ctc_greedy(logp, blank=0)` -> best-path decoding (argmax per frame, then collapse).
+- `ctc_prefix_beam_search(logp, beam=8, blank=0)` -> `(label_list, log_prob)` of the best prefix found. With a beam wide enough to keep everything the result must be the exact most probable transcript, and `log_prob` must equal `ctc_forward` of that transcript.
+#@@ starter
+import numpy as np
+from collections import defaultdict
+
+NEG = -np.inf
+
+def collapse(path, blank=0):
+    raise NotImplementedError
+
+def ctc_forward(logp, target, blank=0):
+    raise NotImplementedError
+
+def ctc_greedy(logp, blank=0):
+    raise NotImplementedError
+
+def ctc_prefix_beam_search(logp, beam=8, blank=0):
+    raise NotImplementedError
+#@@ tests
+import itertools
+import numpy as np
+
+check("collapse merges repeats and drops blanks", lambda: collapse([1, 1, 0, 0, 1, 2, 2, 0, 3]) == [1, 1, 2, 3] and collapse([0, 0]) == [] and collapse([2, 2, 2]) == [2])
+
+p = np.array([[0.6, 0.4]] * 3)
+lp = np.log(p)
+check("worked example: P('') = 0.216", lambda: abs(np.exp(ctc_forward(lp, [])) - 0.216) < 1e-12)
+check("worked example: P(a) = 0.688", lambda: abs(np.exp(ctc_forward(lp, [1])) - 0.688) < 1e-12)
+check("worked example: P(aa) = 0.096", lambda: abs(np.exp(ctc_forward(lp, [1, 1])) - 0.096) < 1e-12)
+check("the three transcripts sum to 1", lambda: abs(sum(np.exp(ctc_forward(lp, t)) for t in ([], [1], [1, 1])) - 1.0) < 1e-12)
+check("greedy returns the empty string although 'a' is more probable", lambda: ctc_greedy(lp) == [])
+bl, bs = ctc_prefix_beam_search(lp, beam=10)
+check("prefix beam search finds 'a' with probability 0.688", lambda: bl == [1] and abs(np.exp(bs) - 0.688) < 1e-9)
+
+def brute(logp, target, blank=0):
+    T, V = logp.shape
+    total = 0.0
+    for path in itertools.product(range(V), repeat=T):
+        if collapse(path, blank) == list(target):
+            total += np.exp(sum(logp[t, v] for t, v in enumerate(path)))
+    return total
+
+rng = np.random.default_rng(0)
+z = rng.normal(size=(5, 3))
+lp5 = z - np.logaddexp.reduce(z, axis=1, keepdims=True)
+for tg in ([1], [1, 2], [1, 1], [2, 1, 2], []):
+    check("forward matches brute force for target " + str(tg), lambda tg=tg: abs(np.exp(ctc_forward(lp5, tg)) - brute(lp5, tg)) < 1e-12)
+check("repeated labels need a blank: [1,1,1] is impossible in 4 frames", lambda: ctc_forward(lp5[:4], [1, 1, 1]) == -np.inf)
+check("[1,1,1] is possible in exactly 5 frames", lambda: abs(np.exp(ctc_forward(lp5, [1, 1, 1])) - brute(lp5, [1, 1, 1])) < 1e-12)
+
+def all_labelings(T, V):
+    for L in range(0, T + 1):
+        for tg in itertools.product(range(1, V), repeat=L):
+            yield list(tg)
+
+ok = True
+for trial in range(12):
+    r = np.random.default_rng(100 + trial)
+    T = int(r.integers(3, 7))
+    V = int(r.integers(2, 4))
+    zz = r.normal(size=(T, V)) * 1.5
+    l = zz - np.logaddexp.reduce(zz, axis=1, keepdims=True)
+    best = max(all_labelings(T, V), key=lambda tg: ctc_forward(l, tg))
+    lab, sc = ctc_prefix_beam_search(l, beam=1000)
+    if lab != best or abs(sc - ctc_forward(l, best)) > 1e-9:
+        ok = False
+check("wide prefix beam search equals the exact best transcript (12 random problems)", lambda: ok)
+z2 = rng.normal(size=(40, 6)) * 2.0
+lp40 = z2 - np.logaddexp.reduce(z2, axis=1, keepdims=True)
+g = ctc_greedy(lp40)
+lab4, sc4 = ctc_prefix_beam_search(lp40, beam=8)
+check("pruned beam score is a lower bound of the exact probability of its transcript", lambda: sc4 <= ctc_forward(lp40, lab4) + 1e-9 and sc4 > -np.inf)
+check("long utterance forward stays finite in log space", lambda: np.isfinite(ctc_forward(lp40, g)))
+#@@ solution
+import numpy as np
+from collections import defaultdict
+
+NEG = -np.inf
+
+def collapse(path, blank=0):
+    out, prev = [], None
+    for p in path:
+        if p != prev and p != blank:
+            out.append(p)
+        prev = p
+    return out
+
+def ctc_forward(logp, target, blank=0):
+    T = logp.shape[0]
+    ext = [blank]
+    for c in target:
+        ext += [c, blank]
+    S = len(ext)
+    alpha = np.full((T, S), NEG)
+    alpha[0, 0] = logp[0, blank]
+    if S > 1:
+        alpha[0, 1] = logp[0, ext[1]]
+    for t in range(1, T):
+        for s in range(S):
+            terms = [alpha[t - 1, s]]
+            if s >= 1:
+                terms.append(alpha[t - 1, s - 1])
+            if s >= 2 and ext[s] != blank and ext[s] != ext[s - 2]:
+                terms.append(alpha[t - 1, s - 2])
+            alpha[t, s] = np.logaddexp.reduce(terms) + logp[t, ext[s]]
+    end = alpha[T - 1, S - 1]
+    if S > 1:
+        end = np.logaddexp(end, alpha[T - 1, S - 2])
+    return float(end)
+
+def ctc_greedy(logp, blank=0):
+    return collapse(list(logp.argmax(axis=1)), blank)
+
+def ctc_prefix_beam_search(logp, beam=8, blank=0):
+    T, V = logp.shape
+    beams = {(): (0.0, NEG)}
+    for t in range(T):
+        new = defaultdict(lambda: [NEG, NEG])
+        for pre, (pb, pnb) in beams.items():
+            tot = np.logaddexp(pb, pnb)
+            e = new[pre]
+            e[0] = np.logaddexp(e[0], tot + logp[t, blank])
+            for c in range(V):
+                if c == blank:
+                    continue
+                p = logp[t, c]
+                if pre and pre[-1] == c:
+                    e = new[pre]
+                    e[1] = np.logaddexp(e[1], pnb + p)
+                    n = new[pre + (c,)]
+                    n[1] = np.logaddexp(n[1], pb + p)
+                else:
+                    n = new[pre + (c,)]
+                    n[1] = np.logaddexp(n[1], tot + p)
+        items = sorted(new.items(), key=lambda kv: -np.logaddexp(kv[1][0], kv[1][1]))[:beam]
+        beams = {k: (v[0], v[1]) for k, v in items}
+    best = max(beams.items(), key=lambda kv: np.logaddexp(kv[1][0], kv[1][1]))
+    return [int(c) for c in best[0]], float(np.logaddexp(best[1][0], best[1][1]))

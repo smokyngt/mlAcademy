@@ -1,0 +1,97 @@
+[
+ {
+  "id": "cml.19.q1",
+  "prompt": "Pourquoi l'erreur d'entraînement de l'hypothèse renvoyée par l'ERM est-elle une estimation optimiste de son risque vrai ?",
+  "options": [
+   "Parce que l'ensemble d'entraînement est toujours trop petit",
+   "Parce que l'hypothèse a été choisie avec ces mêmes données, c'est donc celle qui avait l'air la meilleure",
+   "Parce que la perte n'est pas convexe",
+   "Parce que le risque vrai est toujours nul"
+  ],
+  "explanation": "Une hypothèse fixée à l'avance a un risque empirique sans biais. Choisir le minimiseur parmi beaucoup sélectionne la chance autant que la qualité."
+ },
+ {
+  "id": "cml.19.q2",
+  "prompt": "Hoeffding pour une perte dans $[0,1]$ : $n=100$, $\\varepsilon=0.1$. La borne $2e^{-2n\\varepsilon^2}$ vaut environ...",
+  "options": [],
+  "explanation": "$2e^{-2\\cdot100\\cdot0.01}=2e^{-2}=0.2707$."
+ },
+ {
+  "id": "cml.19.q3",
+  "prompt": "Classe finie, $M=1000$, $n=200$, $\\delta=0.05$. La largeur de déviation uniforme $\\sqrt{\\ln(2M/\\delta)/(2n)}$ vaut environ...",
+  "options": [],
+  "explanation": "$\\ln(40000)=10.597$ ; $10.597/400=0.02649$ ; la racine carrée vaut $0.1628$."
+ },
+ {
+  "id": "cml.19.q4",
+  "prompt": "Tu élèves au carré le nombre d'hypothèses, $M\\to M^2$. Comment la largeur de la borne de l'union change-t-elle (pour $M$ grand) ?",
+  "options": [
+   "Elle est élevée au carré",
+   "Elle double",
+   "Elle est multipliée par environ $\\sqrt2$",
+   "Elle ne change pas"
+  ],
+  "explanation": "La largeur dépend de $\\ln M$ sous une racine carrée ; $\\ln M^2=2\\ln M$, donc la largeur augmente d'environ $\\sqrt2$ (un peu moins à cause du terme $\\ln(2/\\delta)$)."
+ },
+ {
+  "id": "cml.19.q5",
+  "prompt": "La dimension VC des intervalles sur la droite réelle est...",
+  "options": [
+   "1",
+   "2",
+   "3",
+   "infinie"
+  ],
+  "explanation": "Deux points quelconques sont pulvérisés ; pour trois points, l'étiquetage (1,0,1) est impossible parce qu'un intervalle contenant les deux extrêmes contient celui du milieu."
+ },
+ {
+  "id": "cml.19.q6",
+  "prompt": "Pour les demi-plans (classifieurs linéaires avec biais) dans $\\mathbb R^2$, la dimension VC est...",
+  "options": [
+   "2",
+   "4",
+   "infinie",
+   "3"
+  ],
+  "explanation": "Un triangle est pulvérisé (8 étiquetages), et aucun ensemble de 4 points ne l'est : l'étiquetage en ou exclusif ne peut pas être produit. Dans $\\mathbb R^p$ la valeur est $p+1$."
+ },
+ {
+  "id": "cml.19.q7",
+  "prompt": "Pour prouver qu'une classe a une dimension VC exactement égale à $d$, tu dois...",
+  "options": [
+   "Montrer que tout ensemble de $d$ points est pulvérisé",
+   "Exhiber un ensemble de $d$ points pulvérisé et montrer qu'aucun ensemble de $d+1$ points ne l'est",
+   "Compter les paramètres",
+   "Montrer que l'erreur d'entraînement est nulle"
+  ],
+  "explanation": "La définition est un énoncé d'existence pour $d$ et une impossibilité universelle pour $d+1$ ; des points alignés, par exemple, ne sont pas pulvérisés par les demi-plans, mais cela n'a pas d'importance."
+ },
+ {
+  "id": "cml.19.q8",
+  "prompt": "La complexité de Rademacher empirique d'une classe qui contient une hypothèse pour chaque étiquetage des $n$ points de l'échantillon vaut...",
+  "options": [],
+  "explanation": "Pour tout vecteur de signes aléatoires, une hypothèse lui correspond exactement, donc $\\max_h\\frac1n\\sum\\sigma_ih(x_i)=1$. La classe peut ajuster du bruit pur."
+ },
+ {
+  "id": "cml.19.q9",
+  "prompt": "Quel énoncé sur la borne VC et les grands réseaux de neurones est le plus exact ?",
+  "options": [
+   "La théorie VC prouve que les réseaux profonds surapprennent",
+   "La borne VC uniforme est vide pour les réseaux qui ont plus de poids que de données, et pourtant ces réseaux généralisent souvent, donc d'autres explications sont étudiées",
+   "La dimension VC d'un réseau vaut toujours 1",
+   "La borne est serrée pour les réseaux"
+  ],
+  "explanation": "La borne croît avec la capacité et dépasse 1 quand $d\\gtrsim n$, donc elle ne dit rien ; savoir si et pourquoi les réseaux généralisent est une question distincte et ouverte."
+ },
+ {
+  "id": "cml.19.q10",
+  "prompt": "Le no free lunch dit que...",
+  "options": [
+   "Des jeux de données plus grands n'aident jamais",
+   "En moyenne sur toutes les cibles possibles, aucun algorithme n'en surpasse un autre, donc apprendre exige des hypothèses sur le problème",
+   "La régularisation est toujours nuisible",
+   "Tout algorithme a la même dimension VC"
+  ],
+  "explanation": "Sans biais inductif (une classe restreinte, un a priori), rien ne peut être appris au-delà de l'échantillon."
+ }
+]

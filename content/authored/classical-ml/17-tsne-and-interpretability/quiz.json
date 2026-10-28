@@ -1,0 +1,139 @@
+[
+ {
+  "id": "cml.17.q1",
+  "concept": "ml.tsne",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What does t-SNE try to preserve?",
+  "options": [
+   "Neighbourhood probabilities: who is close to whom",
+   "Global distances between all points",
+   "The directions of largest variance",
+   "The class labels"
+  ],
+  "answer": 0,
+  "explanation": "It matches the neighbour distribution $P$ in the original space with $Q$ in the map by minimising $\\mathrm{KL}(P\\|Q)$."
+ },
+ {
+  "id": "cml.17.q2",
+  "concept": "ml.tsne",
+  "kind": "mcq",
+  "prompt": "The perplexity of a conditional distribution $P_i$ is $\\exp(H(P_i))$. How do you read it?",
+  "options": [
+   "The number of clusters",
+   "The learning rate",
+   "The effective number of neighbours of point $i$",
+   "The number of iterations"
+  ],
+  "answer": 2,
+  "explanation": "A distribution uniform over $k$ points has entropy $\\ln k$, hence perplexity $k$."
+ },
+ {
+  "id": "cml.17.q3",
+  "concept": "ml.tsne",
+  "kind": "numeric",
+  "prompt": "A conditional distribution is uniform over 8 neighbours (all others have probability 0). What is its perplexity $\\exp(H)$?",
+  "options": [],
+  "answer": {
+   "value": 8,
+   "tol": 0.001
+  },
+  "explanation": "$H=\\ln8$, so $\\exp(H)=8$."
+ },
+ {
+  "id": "cml.17.q4",
+  "concept": "ml.tsne",
+  "kind": "mcq",
+  "prompt": "Why does the map use a Student-t kernel instead of a Gaussian?",
+  "options": [
+   "It is cheaper to compute",
+   "Heavy tails let moderately distant points sit far apart in 2-D, easing the crowding problem",
+   "It makes the cost convex",
+   "It removes the need for perplexity"
+  ],
+  "answer": 1,
+  "explanation": "There is less room around a point in 2-D than in high dimensions; heavy tails relieve that pressure."
+ },
+ {
+  "id": "cml.17.q5",
+  "concept": "ml.kpca",
+  "kind": "mcq",
+  "prompt": "Kernel PCA diagonalises which matrix?",
+  "options": [
+   "The $D\\times D$ covariance",
+   "The identity",
+   "The data matrix $X$",
+   "The centred $N\\times N$ Gram matrix $JKJ$"
+  ],
+  "answer": 3,
+  "explanation": "Only kernel evaluations are needed; the Gram matrix must be centred because $\\phi$ rarely has zero mean."
+ },
+ {
+  "id": "cml.17.q6",
+  "concept": "ml.interpret",
+  "kind": "mcq",
+  "prompt": "Permutation importance of a feature is about 0. The correct conclusion is...",
+  "options": [
+   "This model does not rely on the feature (it may have a correlated substitute)",
+   "The feature is useless for the target",
+   "The feature has a negative effect",
+   "The model overfits"
+  ],
+  "answer": 0,
+  "explanation": "Importance measures reliance of the fitted model, not intrinsic relevance."
+ },
+ {
+  "id": "cml.17.q7",
+  "concept": "ml.interpret",
+  "kind": "mcq",
+  "prompt": "A feature raises predictions for half of the rows and lowers them for the other half. Its partial-dependence curve is likely...",
+  "options": [
+   "Steeply increasing",
+   "Undefined",
+   "Nearly flat, hiding the heterogeneity",
+   "Parabolic"
+  ],
+  "answer": 2,
+  "explanation": "PD averages over rows; opposite effects cancel. ICE curves reveal them."
+ },
+ {
+  "id": "cml.17.q8",
+  "concept": "ml.shap",
+  "kind": "numeric",
+  "prompt": "For the linear model $f(x)=2x_1-3x_2$, instance $x=(4,1)$ and background mean $(1,2)$, what is the Shapley value $\\phi_1$?",
+  "options": [],
+  "answer": {
+   "value": 6,
+   "tol": 0.001
+  },
+  "explanation": "$\\phi_1=w_1(x_1-\\bar x_1)=2\\cdot3=6$."
+ },
+ {
+  "id": "cml.17.q9",
+  "concept": "ml.shap",
+  "kind": "mcq",
+  "prompt": "The efficiency property of Shapley values says...",
+  "options": [
+   "They are computed in linear time",
+   "$\\sum_j\\phi_j=f(x)-\\mathbb E[f]$",
+   "All $\\phi_j$ are positive",
+   "Correlated features receive equal values"
+  ],
+  "answer": 1,
+  "explanation": "The attributions add up exactly to the prediction minus the average prediction."
+ },
+ {
+  "id": "cml.17.q10",
+  "concept": "ml.interpret",
+  "kind": "mcq",
+  "prompt": "A feature has the largest SHAP value in your model. Which statement is safest?",
+  "options": [
+   "Changing it in the real world will change the outcome",
+   "It is the cause of the target",
+   "It should be removed",
+   "The model's output depends strongly on it; it could still be a proxy or a leak"
+  ],
+  "answer": 3,
+  "explanation": "Attributions explain the model, not causal structure."
+ }
+]

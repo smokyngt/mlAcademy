@@ -1,0 +1,11 @@
+[
+  { "id": "seq.conv", "title": "Convolution layers and their backward pass", "description": "Cross-correlation as a sliding dot product with shared weights; stride, padding, channels, output size, im2col and the conv gradients.", "stage": "V", "prereqs": ["la.matrix", "nn.backprop"] },
+  { "id": "seq.cnn-arch", "title": "CNN architectures and residual connections", "description": "Pooling, receptive fields, and the path from LeNet to ResNet with the identity gradient path of residual blocks.", "stage": "V", "prereqs": ["seq.conv", "nn.activation"] },
+  { "id": "seq.embedding", "title": "Word embeddings and skip-gram", "description": "Dense word vectors from context: skip-gram with negative sampling, GloVe and fastText ideas, cosine similarity and analogies.", "stage": "V", "prereqs": ["nn.backprop", "la.dot", "ml.logreg"] },
+  { "id": "seq.rnn", "title": "Recurrent networks and BPTT", "description": "The recurrence h_t = tanh(W_xh x_t + W_hh h_{t-1} + b), unrolling and backpropagation through time with shared-weight gradients.", "stage": "V", "prereqs": ["nn.backprop", "calc.jacobian", "seq.embedding"] },
+  { "id": "seq.rnn-gradients", "title": "Vanishing and exploding gradients", "description": "Jacobian products through time, the role of the spectral radius of W_hh, gradient clipping and truncated BPTT.", "stage": "V", "prereqs": ["seq.rnn", "la.eigen"] },
+  { "id": "seq.lstm", "title": "LSTM", "description": "Input, forget, output gates and candidate; the additive cell-state path, parameter count and backward through one step.", "stage": "V", "prereqs": ["seq.rnn-gradients", "nn.activation"] },
+  { "id": "seq.gru", "title": "GRU", "description": "Update and reset gates, the leaner gated cell, comparison of parameter counts with LSTM.", "stage": "V", "prereqs": ["seq.lstm"] },
+  { "id": "seq.seq2seq", "title": "Sequence-to-sequence models", "description": "Encoder-decoder, teacher forcing, exposure bias, greedy and beam decoding and the fixed-vector bottleneck.", "stage": "V", "prereqs": ["seq.lstm", "seq.gru", "prob.basics"] },
+  { "id": "seq.attention", "title": "Attention", "description": "Bahdanau additive attention, alignment weights, masking, and the step to scaled dot-product self-attention.", "stage": "V", "prereqs": ["seq.seq2seq", "nn.backprop"] }
+]

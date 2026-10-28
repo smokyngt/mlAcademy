@@ -1,0 +1,240 @@
+[
+  {
+    "id": "families",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Three families of feature selection: filters score features alone, wrappers search over subsets with the model in the loop, embedded methods select while fitting.",
+      "fr": "Trois familles de sélection de variables : les filtres notent chaque variable seule, les wrappers explorent des sous-ensembles avec le modèle dans la boucle, les méthodes intégrées sélectionnent pendant l'ajustement."
+    },
+    "code": {
+      "en": "flowchart TB\n  ALL[\"d candidate features\"] --> F[\"FILTER\\nscore each feature alone:\\nvariance, correlation, mutual information\"]\n  ALL --> Wr[\"WRAPPER\\nforward / backward / RFE\\nmany model fits\"]\n  ALL --> E[\"EMBEDDED\\nL1 penalty (lasso), tree importance\\none fit\"]\n  F --> K[\"keep top k\\nfast, model-free, blind to redundancy\"]\n  Wr --> K2[\"best subset for this model\\naccurate, expensive, can overfit validation\"]\n  E --> K3[\"exact zeros in w\\ncompromise\"]\n  K --> M[\"final model\\n(selection inside the CV fold!)\"]\n  K2 --> M\n  K3 --> M",
+      "fr": "flowchart TB\n  ALL[\"d variables candidates\"] --> F[\"FILTRE\\nnoter chaque variable seule :\\nvariance, corrélation, information mutuelle\"]\n  ALL --> Wr[\"WRAPPER\\navant / arrière / RFE\\nbeaucoup d'ajustements\"]\n  ALL --> E[\"INTÉGRÉ\\npénalité L1 (lasso), importance des arbres\\nun seul ajustement\"]\n  F --> K[\"garder les k meilleures\\nrapide, sans modèle, aveugle à la redondance\"]\n  Wr --> K2[\"meilleur sous-ensemble pour ce modèle\\nprécis, coûteux, peut surapprendre la validation\"]\n  E --> K3[\"zéros exacts dans w\\ncompromis\"]\n  K --> M[\"modèle final\\n(sélection à l'intérieur du pli de CV !)\"]\n  K2 --> M\n  K3 --> M"
+    }
+  },
+  {
+    "id": "soft-threshold",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The soft-threshold operator S(rho, lambda) = sign(rho) max(|rho| - lambda, 0) for lambda = 1 (blue) against the identity (orange) and the ridge update rho/(1 + lambda) (green): the lasso clips to exactly 0 for |rho| <= lambda and otherwise shrinks by lambda; ridge only rescales.",
+      "fr": "L'opérateur de seuillage doux S(rho, lambda) = sign(rho) max(|rho| - lambda, 0) pour lambda = 1 (bleu) face à l'identité (orange) et à la mise à jour ridge rho/(1 + lambda) (vert) : le lasso écrase à exactement 0 pour |rho| <= lambda et sinon réduit de lambda ; ridge ne fait que remettre à l'échelle."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        -4,
+        4
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "max(x-1, 0) - max(-x-1, 0)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x/(1+1)",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1,
+          "text": "lambda"
+        },
+        {
+          "x": -1,
+          "text": "-lambda"
+        }
+      ]
+    }
+  },
+  {
+    "id": "l1-geometry",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why the lasso gives exact zeros: elliptical error contours (red) first touch the L1 ball |w1| + |w2| <= 1 (blue diamond) at its corner (1, 0), where w2 = 0.",
+      "fr": "Pourquoi le lasso donne des zéros exacts : les contours elliptiques de l'erreur (rouge) touchent d'abord la boule L1 |w1| + |w2| <= 1 (losange bleu) en son coin (1, 0), où w2 = 0."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        3.4
+      ],
+      "yDomain": [
+        -1.5,
+        1.5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "abs(x)+abs(y)-1",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x-2)^2+4*(y-0.2)^2-1.16",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x-2)^2+4*(y-0.2)^2-2.5",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#7c3aed",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              0.2
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0,
+          "text": "w2 = 0 axis"
+        }
+      ]
+    }
+  },
+  {
+    "id": "l2-geometry",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The same error contours against the ridge ball w1^2 + w2^2 <= 1 (orange disc): the tangent contour touches it at (0.987, 0.159), a generic point where no coordinate is exactly zero.",
+      "fr": "Les mêmes contours d'erreur face à la boule ridge w1^2 + w2^2 <= 1 (disque orange) : le contour tangent la touche en (0,987 ; 0,159), un point générique où aucune coordonnée n'est exactement nulle."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        3.4
+      ],
+      "yDomain": [
+        -1.5,
+        1.5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "x^2+y^2-1",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x-2)^2+4*(y-0.2)^2-1.0323",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#7c3aed",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              0.2
+            ],
+            [
+              0.987,
+              0.159
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "cd",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Coordinate descent for the lasso: keep the residual r = y - Xw up to date, and for each coordinate j remove its contribution, apply the soft-threshold update, put it back. Each update costs O(n).",
+      "fr": "Descente de coordonnées pour le lasso : maintenir le résidu r = y - Xw à jour, et pour chaque coordonnée j retirer sa contribution, appliquer la mise à jour de seuillage doux, la remettre. Chaque mise à jour coûte O(n)."
+    },
+    "code": {
+      "en": "flowchart TB\n  S[\"start w = 0, r = y  (n,)\\nz_j = ‖X_j‖²/n\"] --> J[\"for j = 1..d\"]\n  J --> A[\"r += X_j w_j\\n(remove coordinate j)\"]\n  A --> RHO[\"rho_j = X_jᵀ r / n\"]\n  RHO --> U[\"w_j = S(rho_j, lambda) / z_j\"]\n  U --> B[\"r -= X_j w_j\\n(put it back)\"]\n  B --> J\n  B --> C{\"max |w - w_old| < tol ?\"}\n  C -->|\"no: next sweep\"| J\n  C -->|\"yes\"| OUT[\"lasso solution w (d,)\\nKKT: active |g_j| = lambda, inactive |g_j| <= lambda\"]",
+      "fr": "flowchart TB\n  S[\"départ w = 0, r = y  (n,)\\nz_j = ‖X_j‖²/n\"] --> J[\"pour j = 1..d\"]\n  J --> A[\"r += X_j w_j\\n(retirer la coordonnée j)\"]\n  A --> RHO[\"rho_j = X_jᵀ r / n\"]\n  RHO --> U[\"w_j = S(rho_j, lambda) / z_j\"]\n  U --> B[\"r -= X_j w_j\\n(la remettre)\"]\n  B --> J\n  B --> C{\"max |w - w_ancien| < tol ?\"}\n  C -->|\"non : balayage suivant\"| J\n  C -->|\"oui\"| OUT[\"solution lasso w (d,)\\nKKT : actifs |g_j| = lambda, inactifs |g_j| <= lambda\"]"
+    }
+  },
+  {
+    "id": "path",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The regularisation path in the idealised orthogonal-design case, where w_j(lambda) = S(rho_j, lambda): with rho = (3, -2, 1.5), features enter one at a time as lambda decreases below lambda_max = max|rho_j| = 3, and all coefficients are 0 for lambda >= lambda_max.",
+      "fr": "Le chemin de régularisation dans le cas idéalisé à design orthogonal, où w_j(lambda) = S(rho_j, lambda) : avec rho = (3, -2, 1,5), les variables entrent une à une quand lambda passe sous lambda_max = max|rho_j| = 3, et tous les coefficients sont nuls pour lambda >= lambda_max."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3.6
+      ],
+      "yDomain": [
+        -2.5,
+        3.2
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "max(3-x, 0)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "-max(2-x, 0)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "max(1.5-x, 0)",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 3,
+          "text": "lambda_max"
+        },
+        {
+          "y": 0,
+          "text": "w = 0"
+        }
+      ]
+    }
+  },
+  {
+    "id": "stability",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Stability selection: refit the lasso on many random half-samples and report each feature's selection frequency; real features sit near 100%, noise features appear sporadically.",
+      "fr": "Sélection par stabilité : réajuster le lasso sur de nombreux demi-échantillons aléatoires et rapporter la fréquence de sélection de chaque variable ; les vraies variables sont proches de 100 %, les variables de bruit n'apparaissent que sporadiquement."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"data (n, d)\"] --> S1[\"half-sample 1\\nlasso → support\"]\n  D --> S2[\"half-sample 2\\nlasso → support\"]\n  D --> S3[\"... 50 half-samples\"]\n  S1 --> C[\"count how often\\neach feature is non-zero\\nfrequencies (d,)\"]\n  S2 --> C\n  S3 --> C\n  C --> T{\"frequency above 0.6-0.9 ?\"}\n  T -->|\"yes (features 0, 1, 4: 100%)\"| KEEP[\"trusted features\"]\n  T -->|\"no (noise: 20-36%)\"| DROP[\"discard\"]",
+      "fr": "flowchart LR\n  D[\"données (n, d)\"] --> S1[\"demi-échantillon 1\\nlasso → support\"]\n  D --> S2[\"demi-échantillon 2\\nlasso → support\"]\n  D --> S3[\"... 50 demi-échantillons\"]\n  S1 --> C[\"compter combien de fois\\nchaque variable est non nulle\\nfréquences (d,)\"]\n  S2 --> C\n  S3 --> C\n  C --> T{\"fréquence au-dessus de 0,6-0,9 ?\"}\n  T -->|\"oui (variables 0, 1, 4 : 100 %)\"| KEEP[\"variables fiables\"]\n  T -->|\"non (bruit : 20-36 %)\"| DROP[\"écarter\"]"
+    }
+  }
+]

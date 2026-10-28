@@ -1,0 +1,59 @@
+[
+  {
+    "id": "rlhf-vs-dpo",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "RLHF versus DPO. The closed-form optimum pi* ~ pi_ref exp(r/beta) lets the reward be written through the policies, so the partition term cancels in the Bradley-Terry difference and the reward model and sampling loop disappear: DPO needs only log-probabilities under the trained and reference policies.",
+      "fr": "RLHF contre DPO. L'optimum en forme close pi* ~ pi_ref exp(r/beta) permet d'écrire la récompense à l'aide des politiques ; le terme de partition s'annule dans la différence de Bradley-Terry et le modèle de récompense et la boucle d'échantillonnage disparaissent : DPO n'a besoin que des log-probabilités sous la politique entraînée et la référence."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph RLHF[\"RLHF\"]\n    P1[\"preference pairs\"] --> R1[\"reward model\"] --> S1[\"sample + PPO with KL\"]\n  end\n  subgraph DPO[\"DPO\"]\n    P2[\"preference pairs\"] --> L2[\"loss from log pi_theta, log pi_ref<br/>of y_w and y_l\"]\n  end",
+      "fr": "flowchart LR\n  subgraph RLHF[\"RLHF\"]\n    P1[\"paires de préférences\"] --> R1[\"modèle de récompense\"] --> S1[\"échantillonner + PPO avec KL\"]\n  end\n  subgraph DPO[\"DPO\"]\n    P2[\"paires de préférences\"] --> L2[\"perte à partir de log pi_theta, log pi_ref<br/>de y_w et y_l\"]\n  end"
+    }
+  },
+  {
+    "id": "dpo-loss-weight",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The DPO loss -log sigma(m) (blue) and the weight sigma(-m) it puts on an example (orange), as a function of the margin m = beta[Delta_w - Delta_l]. Pairs the model currently gets wrong (small or negative margin) get a weight near 1, pairs it already ranks well get almost none.",
+      "fr": "La perte DPO -log sigma(m) (bleu) et le poids sigma(-m) qu'elle donne à un exemple (orange), en fonction de la marge m = beta[Delta_w - Delta_l]. Les paires que le modèle classe mal (marge faible ou négative) reçoivent un poids proche de 1, celles qu'il classe déjà bien en reçoivent presque aucun."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        -5,
+        5
+      ],
+      "yDomain": [
+        0,
+        5.5
+      ],
+      "title": "m",
+      "data": [
+        {
+          "fn": "-log(1/(1 + exp(-x)))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1 + exp(x))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "constitutional-ai",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Constitutional AI in two phases. Phase 1: sample, critique against a principle, revise, and fine-tune on the revisions. Phase 2 (RLAIF): an AI feedback model picks the better of two answers by sampled principles, and these AI preferences train a reward model or a DPO-style loss.",
+      "fr": "L'IA constitutionnelle en deux phases. Phase 1 : échantillonner, critiquer selon un principe, réviser, puis fine-tuner sur les révisions. Phase 2 (RLAIF) : un modèle de retour par IA choisit la meilleure de deux réponses selon des principes tirés au hasard, et ces préférences d'IA entraînent un modèle de récompense ou une perte de type DPO."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph P1[\"Phase 1: supervised\"]\n    A[\"answer to risky prompt\"] --> CR[\"critique against a principle\"] --> RV[\"revision\"] --> FT[\"fine-tune on revisions\"]\n  end\n  subgraph P2[\"Phase 2: RLAIF\"]\n    PA[\"pairs of answers\"] --> AI[\"AI picks better by principles\"] --> RM[\"reward model or DPO loss\"] --> RL[\"RL step\"]\n  end\n  FT --> PA",
+      "fr": "flowchart LR\n  subgraph P1[\"Phase 1 : supervisée\"]\n    A[\"réponse à un prompt risqué\"] --> CR[\"critique selon un principe\"] --> RV[\"révision\"] --> FT[\"fine-tuning sur les révisions\"]\n  end\n  subgraph P2[\"Phase 2 : RLAIF\"]\n    PA[\"paires de réponses\"] --> AI[\"l'IA choisit la meilleure selon les principes\"] --> RM[\"modèle de récompense ou perte DPO\"] --> RL[\"étape RL\"]\n  end\n  FT --> PA"
+    }
+  }
+]

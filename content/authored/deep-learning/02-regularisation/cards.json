@@ -1,0 +1,17 @@
+[
+  { "id": "dl.02.c1", "concept": "dl.weight-decay", "front": "L2 penalty and its gradient", "back": "Loss $+\\tfrac\\lambda2\\|\\theta\\|^2$; gradient gains $\\lambda\\theta$." },
+  { "id": "dl.02.c2", "concept": "dl.weight-decay", "front": "SGD update with weight decay", "back": "$\\theta\\leftarrow(1-\\eta\\lambda)\\theta-\\eta\\nabla L$: shrink, then step." },
+  { "id": "dl.02.c3", "concept": "dl.weight-decay", "front": "L2 as a Gaussian prior", "back": "Prior $\\mathcal N(0,\\tau^2)$ and noise variance $\\sigma^2$ give $\\lambda=\\sigma^2/\\tau^2$; the penalty is the negative log prior." },
+  { "id": "dl.02.c4", "concept": "dl.weight-decay", "front": "L1 versus L2 on a 1-D example $\\tfrac12(w-3)^2$", "back": "L2: $w=3/(1+\\lambda)$ (shrinks, never zero). L1: $\\mathrm{sign}(3)\\max(3-\\lambda,0)$ (exact zero once $\\lambda\\ge3$)." },
+  { "id": "dl.02.c5", "concept": "dl.weight-decay", "front": "Which parameters usually get weight decay?", "back": "Weight matrices; biases and normalisation scales are normally excluded." },
+  { "id": "dl.02.c6", "concept": "dl.dropout", "front": "Inverted dropout forward", "back": "$\\tilde a=m\\odot a/(1-p)$ with $m_i\\sim\\mathrm{Bernoulli}(1-p)$; identity at evaluation." },
+  { "id": "dl.02.c7", "concept": "dl.dropout", "front": "Why divide by $1-p$?", "back": "$\\mathbb{E}[m]=1-p$, so $\\mathbb{E}[\\tilde a]=a$: train and test see the same expected activation scale." },
+  { "id": "dl.02.c8", "concept": "dl.dropout", "front": "Variance added by dropout", "back": "$a^2\\,p/(1-p)$ per unit: equal to $a^2$ at $p=0.5$." },
+  { "id": "dl.02.c9", "concept": "dl.dropout", "front": "Dropout backward", "back": "$\\bar a=\\bar{\\tilde a}\\odot m/(1-p)$ with the same mask as forward." },
+  { "id": "dl.02.c10", "concept": "dl.dropout", "front": "Common dropout bug", "back": "Forgetting $\\texttt{model.eval()}$ at test time, or resampling the mask in backward." },
+  { "id": "dl.02.c11", "concept": "dl.early-stopping", "front": "Early-stopping procedure", "back": "Track validation loss, checkpoint the best epoch, stop after a patience window without improvement, restore the best checkpoint." },
+  { "id": "dl.02.c12", "concept": "dl.early-stopping", "front": "Why must validation differ from test?", "back": "Choosing the stopping epoch on the test set leaks it and makes the reported score optimistic." },
+  { "id": "dl.02.c13", "concept": "dl.early-stopping", "front": "Augmentation as a regulariser (Bishop 5.5.5)", "back": "Small zero-mean transformations give $E+\\lambda\\Omega$ to second order: a penalty on sensitivity to the transformation." },
+  { "id": "dl.02.c14", "concept": "dl.weight-decay", "front": "Symptom of overfitting in curves", "back": "Training loss keeps falling while validation loss turns upward; a growing train/test gap." },
+  { "id": "dl.02.c15", "concept": "dl.weight-decay", "front": "Symptom of too much regularisation", "back": "Training loss itself stays high (underfitting); e.g. $\\lambda=0.1$ dropped training accuracy to 0.875 in the lesson experiment." }
+]

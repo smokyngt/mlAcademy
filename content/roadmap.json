@@ -1,0 +1,902 @@
+{
+  "stages": [
+    {
+      "id": "I",
+      "name": "Mathematical foundations",
+      "topics": [
+        {
+          "name": "Arithmetic, algebra, equations, inequalities",
+          "authored": [
+            "mf.02"
+          ]
+        },
+        {
+          "name": "Functions, graphs, notation",
+          "authored": [
+            "f2n.01",
+            "mf.03"
+          ]
+        },
+        {
+          "name": "Exponents, logarithms",
+          "authored": [
+            "f2n.01",
+            "mf.04"
+          ]
+        },
+        {
+          "name": "Trigonometry",
+          "authored": [
+            "mf.05"
+          ]
+        },
+        {
+          "name": "Summation notation and sequences",
+          "authored": [
+            "f2n.01",
+            "mf.06"
+          ]
+        },
+        {
+          "name": "Vectors and vector operations",
+          "authored": [
+            "f2n.02"
+          ]
+        },
+        {
+          "name": "Matrices and matrix multiplication",
+          "authored": [
+            "f2n.03"
+          ]
+        },
+        {
+          "name": "Linear systems",
+          "authored": [
+            "math.11"
+          ]
+        },
+        {
+          "name": "Linear transformations",
+          "authored": [
+            "f2n.03"
+          ]
+        },
+        {
+          "name": "Vector spaces, subspaces, basis, rank, dimension",
+          "note": "Subspaces, basis, dimension, rank-nullity and change of basis (math.17).",
+          "authored": [
+            "math.11",
+            "math.17"
+          ]
+        },
+        {
+          "name": "Orthogonality and projections",
+          "authored": [
+            "f2n.02",
+            "cml.01",
+            "math.17"
+          ],
+          "note": "Projections, orthonormal bases, Gram-Schmidt and QR (math.17)."
+        },
+        {
+          "name": "Eigenvalues and eigenvectors",
+          "authored": [
+            "math.07"
+          ]
+        },
+        {
+          "name": "Singular value decomposition",
+          "authored": [
+            "math.07"
+          ]
+        },
+        {
+          "name": "Limits and continuity",
+          "authored": [
+            "mf.07"
+          ]
+        },
+        {
+          "name": "Derivatives and differentiation rules",
+          "authored": [
+            "f2n.04"
+          ]
+        },
+        {
+          "name": "Partial derivatives and gradients",
+          "authored": [
+            "f2n.05"
+          ]
+        },
+        {
+          "name": "Jacobians and the chain rule",
+          "authored": [
+            "f2n.06"
+          ]
+        },
+        {
+          "name": "Hessians and second-order methods",
+          "authored": [
+            "math.12"
+          ]
+        },
+        {
+          "name": "Integrals relevant to ML",
+          "authored": [
+            "mx.05"
+          ]
+        },
+        {
+          "name": "Probability fundamentals, conditional probability, Bayes",
+          "authored": [
+            "math.08"
+          ]
+        },
+        {
+          "name": "Random variables, expectation, variance, covariance",
+          "authored": [
+            "math.09"
+          ]
+        },
+        {
+          "name": "Estimation, confidence intervals, hypothesis testing",
+          "authored": [
+            "math.13"
+          ]
+        },
+        {
+          "name": "Numerical precision and stability",
+          "authored": [
+            "math.15",
+            "f2n.01",
+            "f2n.04",
+            "f2n.08"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "II",
+      "name": "Optimisation and statistical learning",
+      "topics": [
+        {
+          "name": "Objective and loss functions",
+          "authored": [
+            "f2n.08"
+          ]
+        },
+        {
+          "name": "Maximum likelihood estimation",
+          "authored": [
+            "f2n.08",
+            "math.09",
+            "math.13"
+          ]
+        },
+        {
+          "name": "Convexity and optimisation geometry",
+          "authored": [
+            "math.12"
+          ]
+        },
+        {
+          "name": "Gradient descent",
+          "authored": [
+            "f2n.07"
+          ]
+        },
+        {
+          "name": "SGD and momentum",
+          "authored": [
+            "f2n.07",
+            "f2n.11",
+            "dl.01"
+          ]
+        },
+        {
+          "name": "RMSProp, Adam, optimisers",
+          "authored": [
+            "dl.01"
+          ]
+        },
+        {
+          "name": "Learning-rate schedules",
+          "authored": [
+            "dl.01"
+          ]
+        },
+        {
+          "name": "Regularisation",
+          "authored": [
+            "dl.02",
+            "cml.01",
+            "cml.16"
+          ]
+        },
+        {
+          "name": "Constrained optimisation, Lagrange multipliers",
+          "authored": [
+            "math.12"
+          ]
+        },
+        {
+          "name": "Bias-variance, overfitting, generalisation",
+          "authored": [
+            "cml.03"
+          ]
+        },
+        {
+          "name": "Bayesian reasoning",
+          "authored": [
+            "math.08",
+            "math.13"
+          ]
+        },
+        {
+          "name": "Entropy, cross-entropy, KL divergence",
+          "authored": [
+            "math.10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "III",
+      "name": "Classical machine learning",
+      "topics": [
+        {
+          "name": "Data preparation and feature engineering",
+          "authored": [
+            "cml.11",
+            "ops.03"
+          ]
+        },
+        {
+          "name": "Linear regression",
+          "authored": [
+            "cml.01"
+          ]
+        },
+        {
+          "name": "Logistic regression and classification",
+          "authored": [
+            "cml.02"
+          ]
+        },
+        {
+          "name": "Decision trees and random forests",
+          "authored": [
+            "cml.06"
+          ]
+        },
+        {
+          "name": "Gradient boosting and ensembles",
+          "authored": [
+            "cml.07"
+          ]
+        },
+        {
+          "name": "Support vector machines",
+          "authored": [
+            "cml.08"
+          ]
+        },
+        {
+          "name": "Naive Bayes",
+          "authored": [
+            "cml.09",
+            "nlp.02"
+          ]
+        },
+        {
+          "name": "k-nearest neighbours",
+          "authored": [
+            "cml.09"
+          ]
+        },
+        {
+          "name": "Clustering, k-means, Gaussian mixtures",
+          "authored": [
+            "cml.04",
+            "cml.12"
+          ]
+        },
+        {
+          "name": "PCA and dimensionality reduction",
+          "authored": [
+            "cml.05",
+            "cml.17"
+          ]
+        },
+        {
+          "name": "Model evaluation, cross-validation, tuning",
+          "authored": [
+            "cml.03",
+            "cml.10",
+            "cml.15"
+          ]
+        },
+        {
+          "name": "Imbalanced datasets",
+          "authored": [
+            "cml.11"
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "authored": [
+            "cml.10",
+            "cml.18"
+          ],
+          "note": "Calibration, temperature scaling, ensembles, Bayesian regression and conformal prediction (cml.18)."
+        },
+        {
+          "name": "Interpretability",
+          "authored": [
+            "cml.17"
+          ]
+        },
+        {
+          "name": "Statistical learning theory",
+          "authored": [
+            "cml.03",
+            "cml.19"
+          ],
+          "note": "ERM, Hoeffding, VC dimension, Rademacher complexity and SRM (cml.19)."
+        }
+      ]
+    },
+    {
+      "id": "IV",
+      "name": "Deep learning fundamentals",
+      "topics": [
+        {
+          "name": "Perceptrons and multi-layer networks",
+          "authored": [
+            "f2n.09"
+          ],
+          "keywords": [
+            "Perceptron"
+          ]
+        },
+        {
+          "name": "Forward propagation",
+          "authored": [
+            "f2n.09"
+          ]
+        },
+        {
+          "name": "Backpropagation, derived",
+          "authored": [
+            "f2n.10"
+          ]
+        },
+        {
+          "name": "Automatic differentiation, computational graphs",
+          "authored": [
+            "f2n.12"
+          ]
+        },
+        {
+          "name": "Weight initialisation",
+          "authored": [
+            "f2n.09",
+            "f2n.11",
+            "dl.03"
+          ]
+        },
+        {
+          "name": "Activation functions",
+          "authored": [
+            "f2n.09"
+          ]
+        },
+        {
+          "name": "Batch and layer normalisation",
+          "authored": [
+            "dl.03"
+          ]
+        },
+        {
+          "name": "Dropout and regularisation",
+          "authored": [
+            "dl.02"
+          ]
+        },
+        {
+          "name": "Vanishing/exploding gradients",
+          "authored": [
+            "f2n.04",
+            "f2n.09",
+            "dl.03",
+            "seq.03"
+          ]
+        },
+        {
+          "name": "Gradient checking and debugging training",
+          "authored": [
+            "f2n.05",
+            "f2n.10",
+            "f2n.11"
+          ],
+          "keywords": [
+            "Debugging Neural"
+          ]
+        },
+        {
+          "name": "PyTorch tensor semantics",
+          "authored": [
+            "dl.04"
+          ]
+        },
+        {
+          "name": "GPU computation and mixed precision",
+          "note": "Execution model, memory hierarchy, roofline and mixed precision are taught and computed; exercises run on CPU, so no real GPU run.",
+          "authored": [
+            "dl.04",
+            "adv.06",
+            "gpu.01",
+            "gpu.02",
+            "gpu.03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V",
+      "name": "Advanced architectures",
+      "topics": [
+        {
+          "name": "Convolutional networks",
+          "authored": [
+            "seq.01",
+            "vis.01"
+          ]
+        },
+        {
+          "name": "RNNs, LSTMs, GRUs, sequence models",
+          "authored": [
+            "seq.03",
+            "seq.04",
+            "seq.05"
+          ]
+        },
+        {
+          "name": "Embeddings",
+          "authored": [
+            "seq.02"
+          ]
+        },
+        {
+          "name": "Attention and self-attention",
+          "authored": [
+            "trf.01",
+            "seq.05"
+          ]
+        },
+        {
+          "name": "Multi-head attention",
+          "authored": [
+            "trf.02"
+          ]
+        },
+        {
+          "name": "Positional encodings and RoPE",
+          "authored": [
+            "trf.03"
+          ]
+        },
+        {
+          "name": "Transformer blocks, encoder/decoder-only",
+          "authored": [
+            "trf.04",
+            "trf.05"
+          ]
+        },
+        {
+          "name": "Causal masking, residuals",
+          "authored": [
+            "trf.02",
+            "trf.04"
+          ]
+        },
+        {
+          "name": "RMSNorm, LayerNorm, gated MLPs",
+          "authored": [
+            "trf.04",
+            "dl.03"
+          ]
+        },
+        {
+          "name": "KV caching and autoregressive generation",
+          "authored": [
+            "sys.01",
+            "llm.02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "VI",
+      "name": "LLM engineering and training",
+      "topics": [
+        {
+          "name": "Tokenisation and building a tokenizer",
+          "authored": [
+            "llm.01"
+          ]
+        },
+        {
+          "name": "Decoder-only transformer from scratch",
+          "authored": [
+            "trf.04",
+            "llm.02"
+          ]
+        },
+        {
+          "name": "Pre-training a small language model",
+          "authored": [
+            "llm.03",
+            "llm.07"
+          ],
+          "note": "A small GPT is trained end to end at CPU scale (llm.07); not a large run."
+        },
+        {
+          "name": "Datasets and pre-processing",
+          "authored": [
+            "llm.03",
+            "ops.02"
+          ]
+        },
+        {
+          "name": "Distributed training, scaling laws",
+          "authored": [
+            "llm.03",
+            "adv.06"
+          ]
+        },
+        {
+          "name": "Fine-tuning and instruction tuning",
+          "authored": [
+            "llm.04"
+          ]
+        },
+        {
+          "name": "LoRA and low-rank adaptation",
+          "authored": [
+            "llm.04"
+          ]
+        },
+        {
+          "name": "Quantisation and inference optimisation",
+          "authored": [
+            "sys.02",
+            "sys.01"
+          ]
+        },
+        {
+          "name": "Speculative decoding, mixture of experts",
+          "authored": [
+            "sys.02",
+            "adv.03"
+          ]
+        },
+        {
+          "name": "Evaluation and benchmarking",
+          "authored": [
+            "sys.04",
+            "app.04",
+            "rsn.01"
+          ]
+        },
+        {
+          "name": "Data quality and contamination",
+          "authored": [
+            "llm.03",
+            "llm.08",
+            "sys.04"
+          ],
+          "note": "Quality classifiers, deduplication and decontamination (llm.08)."
+        },
+        {
+          "name": "Alignment and preference optimisation",
+          "authored": [
+            "llm.05",
+            "saf.01",
+            "saf.02"
+          ]
+        },
+        {
+          "name": "Retrieval-augmented generation",
+          "authored": [
+            "sys.03"
+          ]
+        },
+        {
+          "name": "Embeddings, vector search, hybrid retrieval, reranking",
+          "authored": [
+            "sys.03"
+          ]
+        },
+        {
+          "name": "Evaluating retrieval and generation",
+          "authored": [
+            "sys.04"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "VII",
+      "name": "Expert and research level",
+      "topics": [
+        {
+          "name": "Reading research papers systematically",
+          "authored": [
+            "sys.05"
+          ]
+        },
+        {
+          "name": "Reproducing published experiments",
+          "authored": [
+            "f2n.12",
+            "sys.05",
+            "res.01",
+            "proj.reproduce"
+          ],
+          "note": "Method (res.01) plus a reproduce-and-ablate project."
+        },
+        {
+          "name": "Ablations and experimental design",
+          "authored": [
+            "sys.05"
+          ]
+        },
+        {
+          "name": "Statistical significance of results",
+          "authored": [
+            "math.13",
+            "sys.04",
+            "sys.05"
+          ]
+        },
+        {
+          "name": "Reasoning-model training and evaluation",
+          "authored": [
+            "rsn.01",
+            "rsn.02",
+            "rsn.03",
+            "rsn.04",
+            "rsn.05"
+          ]
+        },
+        {
+          "name": "Complexity, profiling, performance",
+          "authored": [
+            "sys.01",
+            "adv.06",
+            "gpu.02"
+          ],
+          "note": "Complexity, FLOP/memory accounting, profiling and roofline analysis (gpu.02); modelled on CPU."
+        },
+        {
+          "name": "CUDA and GPU execution",
+          "keywords": [
+            "CUDA"
+          ],
+          "authored": [
+            "gpu.01",
+            "gpu.02"
+          ],
+          "note": "Grids, blocks, warps, coalescing and occupancy are taught as concepts with computed exercises; no CUDA code is compiled or run here."
+        },
+        {
+          "name": "Designing and evaluating original experiments",
+          "note": "Power, multiple comparisons, ablation design (res.02).",
+          "authored": [
+            "sys.05",
+            "res.02"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "+",
+      "name": "Specialisations (written beyond the original list)",
+      "topics": [
+        {
+          "name": "Computer vision: images, transfer learning, detection, segmentation, ViT, CLIP, captioning",
+          "authored": [
+            "vis.01",
+            "vis.02",
+            "vis.03",
+            "vis.04",
+            "vis.05",
+            "vis.06",
+            "vis.07"
+          ]
+        },
+        {
+          "name": "Natural language processing before transformers",
+          "authored": [
+            "nlp.01",
+            "nlp.02",
+            "nlp.03",
+            "nlp.04",
+            "nlp.05",
+            "nlp.06"
+          ]
+        },
+        {
+          "name": "Generative models: VAE, GAN, diffusion, flow matching",
+          "authored": [
+            "gen.01",
+            "gen.02",
+            "gen.03",
+            "gen.04",
+            "gen.05",
+            "gen.06"
+          ]
+        },
+        {
+          "name": "Reinforcement learning: bandits to PPO",
+          "authored": [
+            "rl.01",
+            "rl.02",
+            "rl.03",
+            "rl.04",
+            "rl.05",
+            "rl.06"
+          ],
+          "note": "Games and multi-agent RL (source phase 09 lessons 10-12) are only mentioned."
+        },
+        {
+          "name": "Speech and audio: STFT, MFCC, CTC, TTS",
+          "authored": [
+            "aud.01",
+            "aud.02",
+            "aud.03",
+            "aud.04",
+            "aud.05"
+          ]
+        },
+        {
+          "name": "Modern architectures: VLMs, MoE, long-context attention, state-space models",
+          "authored": [
+            "adv.01",
+            "adv.02",
+            "adv.03",
+            "adv.04",
+            "adv.05",
+            "adv.06"
+          ]
+        },
+        {
+          "name": "LLM applications: prompting, structured outputs, context, evaluation, guardrails",
+          "authored": [
+            "app.01",
+            "app.02",
+            "app.03",
+            "app.04",
+            "app.05",
+            "app.06"
+          ]
+        },
+        {
+          "name": "ML systems and operations: data, deployment, monitoring, drift",
+          "authored": [
+            "ops.01",
+            "ops.02",
+            "ops.03",
+            "ops.04",
+            "ops.05",
+            "ops.06"
+          ],
+          "note": "Book chapters 10 (infrastructure) and 11 (human side) are not covered."
+        },
+        {
+          "name": "Safety, alignment, fairness, privacy and governance",
+          "authored": [
+            "saf.01",
+            "saf.02",
+            "saf.03",
+            "saf.04",
+            "saf.05",
+            "saf.06"
+          ],
+          "note": "Regulatory content is a dated summary of the course notes and must be checked against official sources."
+        },
+        {
+          "name": "Complex numbers, Fourier, graphs, Markov chains",
+          "authored": [
+            "mx.01",
+            "mx.02",
+            "mx.03",
+            "mx.04"
+          ]
+        },
+        {
+          "name": "Time series and anomaly detection",
+          "authored": [
+            "cml.13",
+            "cml.14"
+          ]
+        },
+        {
+          "name": "Sampling and Monte Carlo",
+          "authored": [
+            "math.14"
+          ]
+        },
+        {
+          "name": "Tensors, norms and distances",
+          "authored": [
+            "math.16"
+          ]
+        }
+      ]
+    }
+  ],
+  "platform": [
+    {
+      "area": "Verification",
+      "item": "The web UI has never been looked at in a real browser by the author of this code. Layout, colours and interactions are untested visually; typecheck, build, API tests, server-side rendering tests and a module-load crawl were run.",
+      "severity": "high"
+    },
+    {
+      "area": "Execution",
+      "item": "The Docker (PyTorch) runner has never run end to end: the Docker daemon was off. The PyTorch exercises were verified with a local Python instead.",
+      "severity": "high"
+    },
+    {
+      "area": "Language",
+      "item": "Interface strings exist in French and English and the server can serve translated lessons, quizzes and cards, but no course text is translated yet: all lessons, quizzes, flashcards and exercise statements are English only.",
+      "severity": "high"
+    },
+    {
+      "area": "Sources",
+      "item": "The 17 first lessons (functions through PCA) were written from general knowledge; their library citations are pointers. They have not yet been re-checked against the sources. Later lessons were written after reading the cited pages or files, often only the opening sections of repo lessons: each lesson's source list says which.",
+      "severity": "medium"
+    },
+    {
+      "area": "Sources",
+      "item": "Several figures in the library's own lessons disagreed with their code or with arithmetic (examples found: a CNN parameter count, a codec bitrate, a scaling-law ratio, an FID bias claim). Where an author noticed, the lesson says so; others may remain.",
+      "severity": "medium"
+    },
+    {
+      "area": "Content",
+      "item": "Lessons rely on exercises that ran in a local Python. They have not been timed inside the browser WebAssembly runtime; the heaviest (CTC, Griffin-Lim, Gibbs, DQN loops) may be slow there.",
+      "severity": "medium"
+    },
+    {
+      "area": "Pedagogy",
+      "item": "Mastery weights (quiz 0.3, exercise 0.5, card 0.15) and thresholds are reasonable heuristics, not calibrated. No adaptive difficulty, no spaced practice of exercises.",
+      "severity": "medium"
+    },
+    {
+      "area": "Lab",
+      "item": "Notebook cells are plain text areas: no plotting (matplotlib is not available in the runtime), no syntax highlighting, no autocompletion. Projects as long multi-stage notebooks are not built yet.",
+      "severity": "medium"
+    },
+    {
+      "area": "Security",
+      "item": "Results from the browser runtime are reported by the client and trusted by the server: fine for one local user, not for a shared deployment. No authentication.",
+      "severity": "medium"
+    },
+    {
+      "area": "Data",
+      "item": "No export/import or backup of progress (it lives in data/academy.db).",
+      "severity": "low"
+    },
+    {
+      "area": "Accessibility",
+      "item": "Labels and roles were added but no accessibility audit (contrast, keyboard paths, screen reader) was run.",
+      "severity": "low"
+    },
+    {
+      "area": "Capstone",
+      "item": "One capstone only, self-assessed. Nothing grades the written evidence.",
+      "severity": "low"
+    }
+  ]
+}

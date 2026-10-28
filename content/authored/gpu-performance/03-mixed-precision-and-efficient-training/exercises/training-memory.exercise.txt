@@ -1,0 +1,92 @@
+#@@ meta
+{"id": "gpu.03.ex2", "title": "Training-memory calculator, checkpointing and gradient accumulation", "difficulty": 4, "runtime": "pyodide", "concepts": ["gpu.train-memory", "gpu.checkpoint-model", "gpu.grad-accum"], "hints": ["Per parameter: weights + gradients + optimiser state. Mixed precision with Adam: 2 (bf16 weights) + 2 (bf16 grads) + 4 (fp32 master) + 4 + 4 (Adam m and v) = 16 bytes.", "Checkpointing every k layers stores n/k segment inputs plus the full activations of ONE segment of k layers being recomputed: mem(k) = (n/k) * a_in + k * a_layer. Brute-force k over divisors of n for the best.", "Gradient accumulation: with loss = mean over the micro-batch, divide each micro-batch gradient by the number of micro-batches before summing, and you recover the full-batch mean gradient exactly (equal-sized micro-batches)."]}
+#@@ prompt
+Three small models of how a training run uses memory and time.
+
+1. `training_bytes(n_params, mode)` -> bytes for weights + gradients + optimiser state (no activations), where `mode` is `"fp32"` (fp32 weights, fp32 grads, Adam m and v in fp32) or `"mixed"` (bf16 weights, bf16 grads, plus an fp32 master copy and fp32 Adam m and v).
+2. `activation_bytes(n_layers, batch, seq, d_model, elem_bytes)`: the rough rule `12 * batch * seq * d_model * elem_bytes` per layer, times `n_layers`.
+3. `checkpoint_model(n_layers, k, a_layer, a_in)` -> `(memory, compute_factor)` for checkpointing every `k` layers (`k` divides `n_layers`): `memory = (n_layers/k) * a_in + k * a_layer`. Recomputing one extra forward pass over every layer makes a step cost `1 + 1 + 2 = 4` units instead of `1 + 2 = 3`, so `compute_factor = 4/3`. The value `k = 0` means "no checkpointing": return `(n_layers * a_layer, 1.0)`.
+4. `best_k(n_layers, a_layer, a_in)`: the divisor `k` of `n_layers` minimising `checkpoint_model` memory (smallest `k` on ties).
+5. `accumulated_gradient(X, y, w, n_micro)`: gradient of the mean-squared-error `mean((X @ w - y)**2)` with respect to `w`, computed by splitting the batch into `n_micro` equal micro-batches, accumulating `grad / n_micro`.
+6. `loader_step_time(load, compute, workers, prefetch)`: seconds per step. Without prefetch the step waits for loading: `load / workers + compute`. With prefetch loading overlaps compute: `max(load / workers, compute)`.
+#@@ starter
+import numpy as np
+
+def training_bytes(n_params, mode):
+    raise NotImplementedError
+
+def activation_bytes(n_layers, batch, seq, d_model, elem_bytes):
+    raise NotImplementedError
+
+def checkpoint_model(n_layers, k, a_layer, a_in):
+    raise NotImplementedError
+
+def best_k(n_layers, a_layer, a_in):
+    raise NotImplementedError
+
+def accumulated_gradient(X, y, w, n_micro):
+    raise NotImplementedError
+
+def loader_step_time(load, compute, workers, prefetch):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("fp32 Adam: 16 bytes per parameter", lambda: training_bytes(1_000_000, "fp32") == 16_000_000)
+check("mixed precision Adam: also 16 bytes per parameter", lambda: training_bytes(1_000_000, "mixed") == 16_000_000)
+check("7B model in mixed precision needs 112 GB before activations", lambda: training_bytes(7_000_000_000, "mixed") == 112_000_000_000)
+check("activations: 32 layers, B=1, L=4096, d=4096, bf16", lambda: activation_bytes(32, 1, 4096, 4096, 2) == 32 * 12 * 4096 * 4096 * 2)
+check("no checkpointing: full activations, factor 1", lambda: checkpoint_model(32, 0, 10.0, 1.0) == (320.0, 1.0))
+m, f = checkpoint_model(32, 4, 10.0, 1.0)
+check("k=4 of 32 layers: 8 inputs + 4 layers = 48", lambda: m == 48.0)
+check("recompute costs a factor 4/3", lambda: abs(f - 4 / 3) < 1e-12)
+check("k=1 stores 32 inputs + 1 layer", lambda: checkpoint_model(32, 1, 10.0, 1.0)[0] == 42.0)
+check("best k when a_in = a_layer is near sqrt(n): n=36 -> 6", lambda: best_k(36, 1.0, 1.0) == 6)
+check("best k with a_in = a_layer/12 for n=48 is 2 (formula sqrt(n*a_in/a_layer) = 2)", lambda: best_k(48, 12.0, 1.0) == 2)
+check("checkpointing saves memory vs none", lambda: checkpoint_model(48, best_k(48, 12.0, 1.0), 12.0, 1.0)[0] < 48 * 12.0 / 5)
+rng = np.random.default_rng(1)
+X = rng.normal(size=(64, 5)); w = rng.normal(size=5); y = X @ rng.normal(size=5) + 0.1 * rng.normal(size=64)
+full = 2 * X.T @ (X @ w - y) / len(X)
+check("accumulated gradient equals the full-batch gradient (4 micro-batches)", lambda: np.allclose(accumulated_gradient(X, y, w, 4), full))
+check("accumulated gradient equals the full-batch gradient (16 micro-batches)", lambda: np.allclose(accumulated_gradient(X, y, w, 16), full))
+check("loader, no prefetch, 1 worker: 0.05 + 0.03", lambda: abs(loader_step_time(0.05, 0.03, 1, False) - 0.08) < 1e-12)
+check("loader, prefetch, 1 worker: bounded by loading", lambda: abs(loader_step_time(0.05, 0.03, 1, True) - 0.05) < 1e-12)
+check("loader, prefetch, 4 workers: bounded by compute", lambda: abs(loader_step_time(0.05, 0.03, 4, True) - 0.03) < 1e-12)
+#@@ solution
+import numpy as np
+
+def training_bytes(n_params, mode):
+    if mode == "fp32":
+        per = 4 + 4 + 4 + 4
+    elif mode == "mixed":
+        per = 2 + 2 + 4 + 4 + 4
+    else:
+        raise ValueError(mode)
+    return n_params * per
+
+def activation_bytes(n_layers, batch, seq, d_model, elem_bytes):
+    return n_layers * 12 * batch * seq * d_model * elem_bytes
+
+def checkpoint_model(n_layers, k, a_layer, a_in):
+    if k == 0:
+        return (n_layers * a_layer, 1.0)
+    return ((n_layers // k) * a_in + k * a_layer, 4.0 / 3.0)
+
+def best_k(n_layers, a_layer, a_in):
+    best, best_mem = None, None
+    for k in range(1, n_layers + 1):
+        if n_layers % k == 0:
+            mem = checkpoint_model(n_layers, k, a_layer, a_in)[0]
+            if best_mem is None or mem < best_mem - 1e-12:
+                best, best_mem = k, mem
+    return best
+
+def accumulated_gradient(X, y, w, n_micro):
+    g = np.zeros_like(w, dtype=float)
+    for Xb, yb in zip(np.array_split(X, n_micro), np.array_split(y, n_micro)):
+        g += 2 * Xb.T @ (Xb @ w - yb) / len(Xb) / n_micro
+    return g
+
+def loader_step_time(load, compute, workers, prefetch):
+    if prefetch:
+        return max(load / workers, compute)
+    return load / workers + compute

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.04.c1",
+  "concept": "mf.explog",
+  "front": "Power as repeated multiplication",
+  "back": "$a^n=a\\cdot a\\cdots a$ ($n$ factors)."
+ },
+ {
+  "id": "mf.04.c2",
+  "concept": "mf.explog",
+  "front": "Exponent laws",
+  "back": "$a^ma^n=a^{m+n}$, $(a^m)^n=a^{mn}$, $a^m/a^n=a^{m-n}$, $(ab)^n=a^nb^n$."
+ },
+ {
+  "id": "mf.04.c3",
+  "concept": "mf.explog",
+  "front": "Zero, negative, fractional exponents",
+  "back": "$a^0=1$, $a^{-n}=1/a^n$, $a^{1/n}=\\sqrt[n]{a}$."
+ },
+ {
+  "id": "mf.04.c4",
+  "concept": "mf.explog",
+  "front": "Compound growth",
+  "back": "Amount after $t$ steps at rate $r$: $P(1+r)^t$. Growth is multiplicative, not additive."
+ },
+ {
+  "id": "mf.04.c5",
+  "concept": "mf.explog",
+  "front": "The number $e$",
+  "back": "$e=\\lim_{n\\to\\infty}(1+1/n)^n\\approx2.71828=\\sum_k 1/k!$; the base of continuous growth."
+ },
+ {
+  "id": "mf.04.c6",
+  "concept": "mf.explog",
+  "front": "Continuous compounding",
+  "back": "$P\\,e^{rt}$: the limit of compounding more and more often."
+ },
+ {
+  "id": "mf.04.c7",
+  "concept": "mf.explog",
+  "front": "Logarithm definition",
+  "back": "$\\log_b x=y$ means $b^y=x$: 'the exponent that makes $b$ into $x$'."
+ },
+ {
+  "id": "mf.04.c8",
+  "concept": "mf.explog",
+  "front": "Natural log",
+  "back": "$\\ln x=\\log_e x$; the inverse of $e^x$; $\\ln(e^x)=x$ and $e^{\\ln x}=x$."
+ },
+ {
+  "id": "mf.04.c9",
+  "concept": "mf.explog",
+  "front": "Log laws",
+  "back": "$\\log(ab)=\\log a+\\log b$, $\\log(a/b)=\\log a-\\log b$, $\\log(a^k)=k\\log a$."
+ },
+ {
+  "id": "mf.04.c10",
+  "concept": "mf.explog",
+  "front": "Change of base",
+  "back": "$\\log_b x=\\ln x/\\ln b$."
+ },
+ {
+  "id": "mf.04.c11",
+  "concept": "mf.explog",
+  "front": "Doubling time",
+  "back": "Growth $r$ per step doubles in $\\ln2/\\ln(1+r)$ steps (about $70/r\\%$ for small $r$)."
+ },
+ {
+  "id": "mf.04.c12",
+  "concept": "mf.explog",
+  "front": "Cross-entropy",
+  "back": "$-\\sum_i p_i\\ln q_i$: with a one-hot $p$ it is $-\\ln q_{\\text{true class}}$, the cost of low confidence in the right answer."
+ },
+ {
+  "id": "mf.04.c13",
+  "concept": "mf.explog",
+  "front": "Log-likelihood",
+  "back": "Independent data: $\\ln\\prod_i p_i=\\sum_i\\ln p_i$; sums are stable and maximising them is equivalent."
+ },
+ {
+  "id": "mf.04.c14",
+  "concept": "mf.explog",
+  "front": "Log-sum-exp trick",
+  "back": "$\\ln\\sum_i e^{z_i}=m+\\ln\\sum_i e^{z_i-m}$ with $m=\\max z$ avoids overflow."
+ }
+]

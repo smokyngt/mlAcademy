@@ -1,0 +1,48 @@
+[
+  {
+    "id": "dl.01.q1",
+    "prompt": "Pourquoi le momentum aide-t-il dans une longue vallée étroite ?",
+    "options": ["Il agrandit le gradient partout", "Les composantes du gradient qui changent de signe à chaque pas s'annulent dans la vitesse, tandis que celles qui pointent toujours dans le même sens s'accumulent", "Il supprime le besoin d'un taux d'apprentissage", "Il calcule des dérivées secondes"],
+    "explanation": "La composante en travers de la vallée alterne et se moyenne à zéro ; la composante le long de la vallée est cohérente et s'accumule jusqu'à environ $\\eta/(1-\\mu)$."
+  },
+  {
+    "id": "dl.01.q2",
+    "prompt": "Avec un momentum $\\mu=0.9$ et un gradient constant $g$, la vitesse $v_t=\\mu v_{t-1}+g$ converge vers $c\\cdot g$. Que vaut $c$ ?",
+    "explanation": "Le point fixe $v=\\mu v+g$ donne $v=g/(1-\\mu)=10g$."
+  },
+  {
+    "id": "dl.01.q3",
+    "prompt": "Au pas $t=1$ avec $\\beta_1=0.9$, le premier moment brut vaut $m_1=0.1\\,g_1$. Que fait la correction de biais ?",
+    "options": ["Rien à t=1", "Elle divise par $1-\\beta_1^1=0.1$, ce qui donne $\\hat m_1=g_1$", "Elle multiplie à nouveau par 0.1", "Elle remplace $m$ par $g^2$"],
+    "explanation": "Une moyenne mobile initialisée à zéro sous-estime d'un facteur $1-\\beta^t$ ; diviser restaure une estimation non biaisée."
+  },
+  {
+    "id": "dl.01.q4",
+    "prompt": "Quelle est approximativement la taille de la toute première mise à jour d'Adam par coordonnée avec un taux d'apprentissage $\\eta$ ?",
+    "options": ["$\\eta\\,g$", "$\\eta\\,g^2$", "Environ $\\eta$ en magnitude, quelle que soit l'échelle du gradient", "Zéro"],
+    "explanation": "$\\hat m_1/\\sqrt{\\hat v_1}=g/|g|=\\mathrm{sign}(g)$, donc le pas vaut environ $\\eta$."
+  },
+  {
+    "id": "dl.01.q5",
+    "prompt": "Pourquoi Adam avec une pénalité L2 est-il différent d'AdamW ?",
+    "options": ["L2 n'est pas autorisé dans Adam", "Avec L2, le terme $\\lambda\\theta$ est divisé par $\\sqrt{\\hat v}$ comme n'importe quel gradient, donc la décroissance effective dépend des statistiques du gradient ; AdamW applique $\\eta\\lambda\\theta$ directement", "AdamW supprime le second moment", "Ils sont identiques"],
+    "explanation": "Ce n'est qu'avec la SGD simple que la régularisation L2 et la décroissance des poids sont la même opération."
+  },
+  {
+    "id": "dl.01.q6",
+    "prompt": "Une quadratique a des valeurs propres 1 et 100, donc la descente de gradient simple n'est stable que pour $\\eta<2/\\lambda_{\\max}$. Quelle est cette borne ?",
+    "explanation": "$2/100=0.02$. Exactement à 0.02, la composante la plus raide change de signe sans diminuer, donc l'itération ne converge pas."
+  },
+  {
+    "id": "dl.01.q7",
+    "prompt": "Warmup plus décroissance cosinus avec un pic de 0.3 et 20 pas de warmup : quel est le taux d'apprentissage au pas 10 ?",
+    "options": ["0.3", "0.15", "0.03", "0"],
+    "explanation": "Le warmup est linéaire : $0.3\\cdot10/20=0.15$."
+  },
+  {
+    "id": "dl.01.q8",
+    "prompt": "Sur le réseau des demi-lunes, Adam a atteint une perte minuscule pour des taux d'apprentissage d'environ 0.03 à 0.3, tandis que la SGD nécessitait des taux proches de 1 à 3. Qu'est-ce que cela montre ?",
+    "options": ["Adam généralise toujours mieux", "L'échelonnage par paramètre d'Adam le rend bien moins sensible à la valeur du taux d'apprentissage sur ce problème", "La SGD a un bug", "Adam utilise plus de données"],
+    "explanation": "Le tableau ne mesure que la perte d'entraînement ; il montre la robustesse de l'optimisation, pas la généralisation."
+  }
+]

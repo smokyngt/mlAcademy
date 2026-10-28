@@ -1,0 +1,147 @@
+#@@ meta
+{"id": "math.11.ex1", "title": "Gaussian elimination, rank, null space and least squares", "difficulty": 4, "runtime": "pyodide", "concepts": ["la.linear-systems"], "hints": ["gauss_solve: for each column k pick the row i>=k with the largest |A[i,k]|, swap, then eliminate below; finish with back substitution.", "rref: walk through columns; for each, find a row at or below the current row with |entry| > tol, swap it up, scale it so the pivot is 1, and clear that column in every other row. Record the pivot columns.", "null_space: for every free column f build a vector with x[f] = 1, x[pivot_j] = -R[j, f] and zeros elsewhere.", "solve_general: reduce [A|b]; if a pivot lands in the last column the system is inconsistent. Otherwise x_p[pivot_j] = Raug[j, -1] and free variables are 0."]}
+#@@ prompt
+Implement with NumPy only (no `np.linalg.solve`, `inv`, `lstsq`, `matrix_rank` in your own code; the tests use them to check you):
+
+- `gauss_solve(A, b)` - solve a square non-singular system by Gaussian elimination with partial pivoting and back substitution.
+- `rref(A, tol=1e-10)` - reduced row-echelon form and the list of pivot column indices.
+- `rank(A)` - the rank, from `rref`.
+- `null_space(A)` - a matrix of shape `(n, n - rank)` whose columns span the null space (use the free columns of the RREF; the "minus-1 trick").
+- `solve_general(A, b)` - return `None` if `A x = b` has no solution, otherwise a tuple `(x_p, N)` with a particular solution `x_p` (free variables set to 0) and the null-space matrix `N`.
+- `lstsq_normal(A, b)` - least-squares solution of an overdetermined full-column-rank system through the normal equations (you may call `gauss_solve`).
+- `cond2(A)` - the 2-norm condition number from the singular values (`np.linalg.svd` is allowed).
+#@@ starter
+import numpy as np
+
+def gauss_solve(A, b):
+    raise NotImplementedError
+
+def rref(A, tol=1e-10):
+    raise NotImplementedError
+
+def rank(A):
+    raise NotImplementedError
+
+def null_space(A):
+    raise NotImplementedError
+
+def solve_general(A, b):
+    raise NotImplementedError
+
+def lstsq_normal(A, b):
+    raise NotImplementedError
+
+def cond2(A):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+A3 = np.array([[2., 1, 1], [4, 3, 3], [2, 3, 1]]); b3 = np.array([8., 20, 12])
+check("3x3 system gives (2,2,2)", lambda: np.allclose(gauss_solve(A3, b3), [2, 2, 2]))
+Bp = np.array([[1e-20, 1], [1, 1.]]); bp = np.array([1., 2])
+check("partial pivoting handles a tiny pivot", lambda: np.allclose(gauss_solve(Bp, bp), [1, 1], atol=1e-9))
+rng = np.random.default_rng(1)
+M = rng.normal(size=(6, 6)); y = rng.normal(size=6)
+check("random 6x6 matches np.linalg.solve", lambda: np.allclose(gauss_solve(M, y), np.linalg.solve(M, y)))
+check("gauss_solve does not modify its inputs", lambda: np.allclose(A3, [[2, 1, 1], [4, 3, 3], [2, 3, 1]]) and np.allclose(b3, [8, 20, 12]))
+R = np.array([[1., 2, 1], [-2, -3, 1], [3, 5, 0]])
+check("book example has rank 2", lambda: rank(R) == 2)
+check("rank of the 4x5 example is 3", lambda: rank(np.array([[-2, 4, -2, -1, 4], [4, -8, 3, -3, 1], [1, -2, 1, -1, 1], [1, -2, 0, -3, 4.]])) == 3)
+check("identity has full rank", lambda: rank(np.eye(4)) == 4)
+check("rank agrees with NumPy on random low-rank matrix", lambda: rank(rng.normal(size=(5, 2)) @ rng.normal(size=(2, 7))) == 2)
+Rr, piv = rref(np.array([[1., 3, 0, 0, 3], [0, 0, 1, 0, 9], [0, 0, 0, 1, -4]]))
+check("pivot columns of the book RREF example", lambda: list(piv) == [0, 2, 3])
+Rr2, piv2 = rref(R)
+check("rref has pivot count equal to rank and 1s at pivots", lambda: len(piv2) == 2 and all(abs(Rr2[i, c] - 1) < 1e-9 for i, c in enumerate(piv2)))
+E1 = np.array([[1., 0, 8, -4], [0, 1, 2, 12]]); e1 = np.array([42., 8])
+Nn = null_space(E1)
+check("null space has shape (4, 2)", lambda: Nn.shape == (4, 2))
+check("null-space columns are mapped to zero", lambda: np.allclose(E1 @ Nn, 0))
+check("null space has full column rank", lambda: np.linalg.matrix_rank(Nn) == 2)
+xp, N1 = solve_general(E1, e1)
+check("particular solution solves the system", lambda: np.allclose(E1 @ xp, e1))
+check("particular + null space still solves it", lambda: np.allclose(E1 @ (xp + N1 @ np.array([3., -2])), e1))
+M5 = np.array([[-2, 4, -2, -1, 4], [4, -8, 3, -3, 1], [1, -2, 1, -1, 1], [1, -2, 0, -3, 4.]])
+check("a = 0 is inconsistent", lambda: solve_general(M5, np.array([-3., 2, 0, 0])) is None)
+res = solve_general(M5, np.array([-3., 2, 0, -1]))
+check("a = -1 is consistent with 2 free parameters", lambda: res is not None and np.allclose(M5 @ res[0], [-3, 2, 0, -1]) and res[1].shape == (5, 2))
+Al = np.array([[1., 1], [1, 2], [1, 3], [1, 4]]); bl = np.array([3., 5, 6, 8])
+w = lstsq_normal(Al, bl)
+check("line fit is (1.5, 1.6)", lambda: np.allclose(w, [1.5, 1.6]))
+check("agrees with np.linalg.lstsq", lambda: np.allclose(w, np.linalg.lstsq(Al, bl, rcond=None)[0]))
+check("residual is orthogonal to the columns", lambda: np.allclose(Al.T @ (bl - Al @ w), 0, atol=1e-9))
+check("condition number of the design matrix is 7.4687", lambda: abs(cond2(Al) - 7.468739725928092) < 1e-6)
+check("normal equations square the condition number", lambda: abs(cond2(Al.T @ Al) - cond2(Al) ** 2) < 1e-6)
+check("nearly singular matrix has large condition number", lambda: cond2(np.array([[1., 1], [1, 1.0001]])) > 3e4)
+#@@ solution
+import numpy as np
+
+def gauss_solve(A, b):
+    A = np.array(A, float); b = np.array(b, float)
+    n = len(b)
+    for k in range(n):
+        p = k + np.argmax(np.abs(A[k:, k]))
+        if p != k:
+            A[[k, p]] = A[[p, k]]
+            b[[k, p]] = b[[p, k]]
+        for i in range(k + 1, n):
+            m = A[i, k] / A[k, k]
+            A[i, k:] -= m * A[k, k:]
+            b[i] -= m * b[k]
+    x = np.zeros(n)
+    for i in range(n - 1, -1, -1):
+        x[i] = (b[i] - A[i, i + 1:] @ x[i + 1:]) / A[i, i]
+    return x
+
+def rref(A, tol=1e-10):
+    R = np.array(A, float)
+    m, n = R.shape
+    piv = []
+    r = 0
+    for c in range(n):
+        if r >= m:
+            break
+        p = r + np.argmax(np.abs(R[r:, c]))
+        if abs(R[p, c]) <= tol:
+            continue
+        R[[r, p]] = R[[p, r]]
+        R[r] = R[r] / R[r, c]
+        for i in range(m):
+            if i != r:
+                R[i] = R[i] - R[i, c] * R[r]
+        piv.append(c)
+        r += 1
+    R[np.abs(R) < tol] = 0.0
+    return R, piv
+
+def rank(A):
+    return len(rref(A)[1])
+
+def null_space(A):
+    R, piv = rref(A)
+    n = R.shape[1]
+    free = [c for c in range(n) if c not in piv]
+    N = np.zeros((n, len(free)))
+    for k, f in enumerate(free):
+        N[f, k] = 1.0
+        for j, pc in enumerate(piv):
+            N[pc, k] = -R[j, f]
+    return N
+
+def solve_general(A, b):
+    A = np.array(A, float)
+    aug = np.c_[A, np.asarray(b, float)]
+    R, piv = rref(aug)
+    n = A.shape[1]
+    if n in piv:
+        return None
+    x = np.zeros(n)
+    for j, pc in enumerate(piv):
+        x[pc] = R[j, -1]
+    return x, null_space(A)
+
+def lstsq_normal(A, b):
+    return gauss_solve(A.T @ A, A.T @ b)
+
+def cond2(A):
+    s = np.linalg.svd(A, compute_uv=False)
+    return s.max() / s.min()

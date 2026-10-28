@@ -1,0 +1,78 @@
+#@@ meta
+{"id": "vis.01.ex1", "title": "Pixels, standardisation and convolution filters", "difficulty": 2, "runtime": "pyodide", "concepts": ["vis.image-tensor", "vis.filter"], "hints": ["Grayscale is a weighted sum over the LAST axis: rgb.astype(float) @ np.array([0.299, 0.587, 0.114]).", "Standardise as (img/255 - mean) / std with broadcasting over the last axis, THEN transpose(2, 0, 1) to get CHW.", "conv2d_valid: for every output position (i, j) take the window img[i:i+kh, j:j+kw] and sum window * kernel. Output shape is (H-kh+1, W-kw+1). Sobel magnitude is sqrt(gx**2 + gy**2) where gy uses the transposed kernel."]}
+#@@ prompt
+Build the basic image toolbox with NumPy only.
+
+- `to_gray(rgb)`: `(H, W, 3)` array -> `(H, W)` float array using the weights `0.299, 0.587, 0.114`.
+- `standardize(img_uint8, mean, std)`: `(H, W, 3)` uint8 -> `(3, H, W)` float: divide by 255, subtract `mean`, divide by `std` (per channel), then move channels first.
+- `conv2d_valid(img, kernel)`: 2-D "valid" sliding-window filtering (no padding, stride 1). Like deep-learning libraries, do **not** flip the kernel (this is cross-correlation). Output shape `(H-kh+1, W-kw+1)`.
+- `sobel_magnitude(gray)`: edge strength `sqrt(gx^2 + gy^2)` with the Sobel kernels `Kx = [[-1,0,1],[-2,0,2],[-1,0,1]]` and `Ky = Kx.T`.
+- `histogram(gray, bins)`: counts of pixel values in `bins` equal-width bins over `[0, 256)` (integers in 0..255).
+#@@ starter
+import numpy as np
+
+def to_gray(rgb):
+    raise NotImplementedError
+
+def standardize(img_uint8, mean, std):
+    raise NotImplementedError
+
+def conv2d_valid(img, kernel):
+    raise NotImplementedError
+
+def sobel_magnitude(gray):
+    raise NotImplementedError
+
+def histogram(gray, bins):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+px = np.array([[[210, 140, 30]]], dtype=np.uint8)
+check("gray of (210,140,30) is 148.39", lambda: to_gray(px).shape == (1, 1) and abs(to_gray(px)[0, 0] - 148.39) < 1e-6)
+mean = np.array([0.485, 0.456, 0.406]); std = np.array([0.229, 0.224, 0.225])
+z = standardize(px, mean, std)
+check("standardize output is CHW", lambda: z.shape == (3, 1, 1))
+check("standardize values 1.478, 0.415, -1.282", lambda: np.allclose(z[:, 0, 0], [1.4782, 0.4150, -1.2819], atol=2e-3))
+edge = np.tile(np.array([0., 0., 0., 10., 10.]), (5, 1))
+Kx = np.array([[-1., 0, 1], [-2, 0, 2], [-1, 0, 1]])
+check("valid conv output shape (3,3)", lambda: conv2d_valid(edge, Kx).shape == (3, 3))
+check("Sobel-x on a vertical step gives [0,40,40] per row", lambda: np.allclose(conv2d_valid(edge, Kx), [[0, 40, 40]] * 3))
+box = np.ones((3, 3)) / 9
+check("box blur row is [0, 3.333, 6.667]", lambda: np.allclose(conv2d_valid(edge, box)[0], [0, 10 / 3, 20 / 3]))
+check("sobel magnitude [0,40,40]", lambda: np.allclose(sobel_magnitude(edge), [[0, 40, 40]] * 3))
+check("sobel of a constant image is 0", lambda: np.allclose(sobel_magnitude(np.full((6, 6), 7.0)), 0))
+check("sobel detects horizontal edges too", lambda: np.allclose(sobel_magnitude(edge.T), sobel_magnitude(edge).T))
+g = np.array([[0, 10, 200], [255, 128, 64]])
+check("histogram with 4 bins is [2,1,1,2]", lambda: list(histogram(g, 4)) == [2, 1, 1, 2])
+rng = np.random.default_rng(0)
+big = rng.integers(0, 256, size=(20, 30))
+check("histogram counts sum to the number of pixels", lambda: histogram(big, 16).sum() == 600)
+#@@ solution
+import numpy as np
+
+def to_gray(rgb):
+    return rgb.astype(float) @ np.array([0.299, 0.587, 0.114])
+
+def standardize(img_uint8, mean, std):
+    x = img_uint8.astype(float) / 255.0
+    x = (x - np.asarray(mean)) / np.asarray(std)
+    return x.transpose(2, 0, 1)
+
+def conv2d_valid(img, kernel):
+    H, W = img.shape
+    kh, kw = kernel.shape
+    out = np.zeros((H - kh + 1, W - kw + 1))
+    for i in range(out.shape[0]):
+        for j in range(out.shape[1]):
+            out[i, j] = np.sum(img[i:i + kh, j:j + kw] * kernel)
+    return out
+
+def sobel_magnitude(gray):
+    Kx = np.array([[-1., 0, 1], [-2, 0, 2], [-1, 0, 1]])
+    gx = conv2d_valid(gray, Kx)
+    gy = conv2d_valid(gray, Kx.T)
+    return np.sqrt(gx ** 2 + gy ** 2)
+
+def histogram(gray, bins):
+    idx = (np.asarray(gray).astype(int) * bins) // 256
+    return np.bincount(idx.ravel(), minlength=bins)

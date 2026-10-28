@@ -1,0 +1,17 @@
+[
+  {"id": "vis.04.c1", "concept": "vis.segmentation", "front": "Semantic vs instance vs panoptic", "back": "Semantic: class per pixel. Instance: separate mask per object. Panoptic: class per pixel plus instance id for countable things."},
+  {"id": "vis.04.c2", "concept": "vis.segmentation", "front": "U-Net structure", "back": "Encoder halves resolution and doubles channels; bottleneck; decoder upsamples and concatenates same-resolution encoder maps (skips); final 1x1 conv to classes."},
+  {"id": "vis.04.c3", "concept": "vis.segmentation", "front": "U-Net input size constraint", "back": "H and W divisible by $2^D$ for $D$ downsampling stages."},
+  {"id": "vis.04.c4", "concept": "vis.segmentation", "front": "Why skip connections?", "back": "They restore localisation detail lost when the encoder shrinks the feature maps."},
+  {"id": "vis.04.c5", "concept": "vis.segmentation", "front": "Transposed conv vs bilinear upsample + conv", "back": "Transposed conv is learnable but can give checkerboard artefacts; bilinear + 3x3 conv has fewer artefacts and parameters."},
+  {"id": "vis.04.c6", "concept": "vis.segmentation", "front": "Shapes for semantic segmentation", "back": "Logits $(N,C,H,W)$, target $(N,H,W)$ of class ids; per-pixel cross-entropy averaged over $N,H,W$."},
+  {"id": "vis.04.c7", "concept": "vis.dice", "front": "Dice score", "back": "$2|P\\cap Y|/(|P|+|Y|)$; soft version $2\\sum p y/(\\sum p+\\sum y+\\varepsilon)$; loss $=1-$Dice."},
+  {"id": "vis.04.c8", "concept": "vis.dice", "front": "IoU for masks", "back": "$|P\\cap Y|/(|P|+|Y|-|P\\cap Y|)$."},
+  {"id": "vis.04.c9", "concept": "vis.dice", "front": "Dice-IoU relation", "back": "$\\mathrm{Dice}=2\\,\\mathrm{IoU}/(1+\\mathrm{IoU})$; same ranking of models."},
+  {"id": "vis.04.c10", "concept": "vis.dice", "front": "Why combine cross-entropy and Dice?", "back": "Cross-entropy gives stable gradients early; Dice optimises overlap and ignores background size. $L=L_{CE}+\\lambda L_{Dice}$."},
+  {"id": "vis.04.c11", "concept": "vis.dice", "front": "Mean IoU from a confusion matrix", "back": "$\\mathrm{IoU}_c=M_{cc}/(\\text{row}_c+\\text{col}_c-M_{cc})$, then average over classes; also report per-class values."},
+  {"id": "vis.04.c12", "concept": "vis.instance", "front": "Mask R-CNN pipeline", "back": "Backbone + FPN, RPN proposals, RoIAlign, box head (class + refinement) and mask head (per-class low-resolution binary mask)."},
+  {"id": "vis.04.c13", "concept": "vis.instance", "front": "RoIPool vs RoIAlign", "back": "RoIPool rounds coordinates (misalignment up to a feature cell); RoIAlign keeps real coordinates and samples bilinearly."},
+  {"id": "vis.04.c14", "concept": "vis.instance", "front": "Bilinear interpolation formula", "back": "Blend four neighbours: $(1-w_y)(1-w_x)f_{00}+(1-w_y)w_xf_{01}+w_y(1-w_x)f_{10}+w_yw_xf_{11}$; exact for linear $f$."},
+  {"id": "vis.04.c15", "concept": "vis.instance", "front": "Mask R-CNN losses", "back": "RPN objectness + RPN box + box classification + box regression + per-pixel binary cross-entropy of the mask."}
+]

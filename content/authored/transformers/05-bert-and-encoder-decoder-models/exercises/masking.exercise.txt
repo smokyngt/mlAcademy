@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "trf.05.ex1", "title": "BERT masking (80/10/10), masked-LM loss and T5 span corruption", "difficulty": 3, "runtime": "pyodide", "concepts": ["tal.mlm", "tal.denoising-seq2seq"], "hints": ["A position is selected when select_u[i] < p. For a selected position look at action_u[i]: below 0.8 use mask_id, below 0.9 use random_tokens[i], otherwise keep the original token. Labels hold the ORIGINAL token at selected positions and -1 elsewhere.", "mlm_loss: log-softmax each selected row (subtract the row max first), take minus the log-probability of the label, average over selected rows only. Return 0.0 when nothing is selected.", "span_corrupt: walk left to right; copy tokens outside spans to the input; at the start of span j emit sentinel_base+j into the input, and append sentinel_base+j followed by the span tokens to the target. End the target with sentinel_base+len(spans)."]}
+#@@ prompt
+Implement three pieces of the encoder / denoising pre-training objectives, with all randomness passed in so that results are deterministic.
+
+1. `mask_tokens(tokens, select_u, action_u, random_tokens, mask_id, p=0.15)`: `tokens`, `select_u`, `action_u`, `random_tokens` are 1-D arrays of the same length `T`. A position is *selected* if `select_u[i] < p`. For a selected position, if `action_u[i] < 0.8` the input becomes `mask_id`; elif `action_u[i] < 0.9` it becomes `random_tokens[i]`; else it is left unchanged. Return `(inputs, labels)`; `labels[i]` is the original token at selected positions and `-1` elsewhere.
+2. `mlm_loss(logits, labels)`: `logits` has shape `(T, V)`. Average cross-entropy over positions whose label is not `-1` (return `0.0` if there are none).
+3. `span_corrupt(tokens, spans, sentinel_base)`: `spans` is a sorted list of non-overlapping `(start, length)`. Return `(inputs, targets)` as Python lists. Every span is replaced in the input by one sentinel id `sentinel_base + j` (j = span index); the target is, for each span, its sentinel followed by the removed tokens, and finally one extra closing sentinel `sentinel_base + len(spans)`.
+#@@ starter
+import numpy as np
+
+def mask_tokens(tokens, select_u, action_u, random_tokens, mask_id, p=0.15):
+    # TODO
+    raise NotImplementedError
+
+def mlm_loss(logits, labels):
+    # TODO
+    raise NotImplementedError
+
+def span_corrupt(tokens, spans, sentinel_base):
+    # TODO
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+tok = np.array([5, 12, 7, 30, 8, 19, 22, 41])
+su = np.array([0.9, 0.05, 0.5, 0.1, 0.14, 0.8, 0.01, 0.6])
+au = np.array([0.5, 0.3, 0.5, 0.85, 0.95, 0.5, 0.5, 0.5])
+rt = np.array([3, 3, 3, 33, 3, 3, 3, 3])
+inp, lab = mask_tokens(tok, su, au, rt, mask_id=0)
+check("inputs follow the 80/10/10 rule", lambda: list(inp) == [5, 0, 7, 33, 8, 19, 0, 41], "idx1: 0.3<0.8 -> mask; idx3: 0.85 -> random token 33; idx4: 0.95 -> unchanged; idx6: 0.5 -> mask")
+check("labels are original tokens at selected positions, -1 elsewhere", lambda: list(lab) == [-1, 12, -1, 30, 8, -1, 22, -1])
+check("input is not modified in place", lambda: list(tok) == [5, 12, 7, 30, 8, 19, 22, 41])
+i2, l2 = mask_tokens(tok, np.ones(8), au, rt, mask_id=0)
+check("nothing selected -> nothing changes", lambda: list(i2) == list(tok) and (l2 == -1).all())
+rng = np.random.default_rng(0)
+big = np.arange(20000)
+i3, l3 = mask_tokens(big, rng.random(20000), rng.random(20000), rng.integers(0, 50, 20000), mask_id=-7)
+sel = l3 != -1
+check("about 15% selected", lambda: abs(sel.mean() - 0.15) < 0.01)
+check("about 80% of selected become the mask", lambda: abs((i3[sel] == -7).mean() - 0.8) < 0.02)
+check("about 10% of selected are kept", lambda: abs((i3[sel] == big[sel]).mean() - 0.1) < 0.02 + 0.002)
+lg = np.array([[2.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0], [5.0, 5.0, 5.0, 5.0]])
+lb = np.array([0, 2, -1])
+exp = (-np.log(np.exp(2) / (np.exp(2) + 3)) - np.log(1 / (np.exp(1) + 3))) / 2
+check("mlm_loss averages over selected rows only", lambda: abs(mlm_loss(lg, lb) - exp) < 1e-9, "row 2 has label -1 and must be ignored")
+check("uniform logits give log V", lambda: abs(mlm_loss(np.zeros((4, 10)), np.array([1, 2, 3, 4])) - np.log(10)) < 1e-9)
+check("stable for huge logits", lambda: np.isfinite(mlm_loss(np.array([[1000.0, 0.0]]), np.array([1]))))
+check("no selected rows -> 0", lambda: mlm_loss(lg, np.array([-1, -1, -1])) == 0.0)
+a, b = span_corrupt(list(range(1, 11)), [(2, 2), (6, 3)], 100)
+check("span corruption input", lambda: a == [1, 2, 100, 5, 6, 101, 10])
+check("span corruption target", lambda: b == [100, 3, 4, 101, 7, 8, 9, 102])
+a, b = span_corrupt([1, 2, 3], [], 50)
+check("no spans: input is unchanged, target is the lone closing sentinel", lambda: a == [1, 2, 3] and b == [50])
+a, b = span_corrupt(list(range(6)), [(0, 1), (5, 1)], 90)
+check("spans at both ends", lambda: a == [90, 1, 2, 3, 4, 91] and b == [90, 0, 91, 5, 92])
+#@@ solution
+import numpy as np
+
+def mask_tokens(tokens, select_u, action_u, random_tokens, mask_id, p=0.15):
+    tokens = np.asarray(tokens)
+    inputs = tokens.copy()
+    labels = np.full(tokens.shape, -1)
+    sel = np.asarray(select_u) < p
+    labels[sel] = tokens[sel]
+    for i in np.where(sel)[0]:
+        if action_u[i] < 0.8:
+            inputs[i] = mask_id
+        elif action_u[i] < 0.9:
+            inputs[i] = random_tokens[i]
+    return inputs, labels
+
+def mlm_loss(logits, labels):
+    labels = np.asarray(labels)
+    sel = labels != -1
+    if not sel.any():
+        return 0.0
+    z = logits[sel]
+    z = z - z.max(axis=1, keepdims=True)
+    logp = z - np.log(np.exp(z).sum(axis=1, keepdims=True))
+    return float(-logp[np.arange(len(z)), labels[sel]].mean())
+
+def span_corrupt(tokens, spans, sentinel_base):
+    inputs, targets = [], []
+    pos = 0
+    for j, (s, n) in enumerate(spans):
+        inputs.extend(tokens[pos:s])
+        inputs.append(sentinel_base + j)
+        targets.append(sentinel_base + j)
+        targets.extend(tokens[s:s + n])
+        pos = s + n
+    inputs.extend(tokens[pos:])
+    targets.append(sentinel_base + len(spans))
+    return inputs, targets

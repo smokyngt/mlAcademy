@@ -1,0 +1,165 @@
+[
+  {
+    "id": "mahalanobis",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Mahalanobis contours D = 1, 2, 3 for unit variances and correlation 0.9: D^2 = (x^2 - 1.8xy + y^2)/0.19. The point (1, 1) follows the correlation (D = 1.03), while (1, -1) is far (D = 4.47) although each coordinate alone has |z| = 1.",
+      "fr": "Contours de Mahalanobis D = 1, 2, 3 pour des variances unité et une corrélation de 0,9 : D^2 = (x^2 - 1,8xy + y^2)/0,19. Le point (1, 1) suit la corrélation (D = 1,03), alors que (1, -1) est loin (D = 4,47) bien que chaque coordonnée ait |z| = 1."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        -4,
+        4
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "(x*x - 1.8*x*y + y*y)/0.19 - 1",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x*x - 1.8*x*y + y*y)/0.19 - 4",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(x*x - 1.8*x*y + y*y)/0.19 - 9",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              -1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "itree",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Isolation trees: random axis-parallel cuts isolate an outlier after very few splits (short path h), whereas a point inside the crowd needs many.",
+      "fr": "Arbres d'isolation : des coupes aléatoires parallèles aux axes isolent une valeur aberrante en très peu de coupes (chemin h court), alors qu'un point au cœur du nuage en demande beaucoup."
+    },
+    "code": {
+      "en": "flowchart TB\n  A[\"all psi points\\nrandom feature + threshold\"] -->|\"x2 > 5.1\"| B([\"leaf: the outlier\\nh = 1  → score near 1\"])\n  A -->|\"x2 <= 5.1\"| C[\"crowd\\nrandom cut\"]\n  C -->|\"x1 < -0.3\"| D[\"subset\\nrandom cut\"]\n  C -->|\"x1 >= -0.3\"| E[\"subset\\nrandom cut\"]\n  D --> F[\"...\"]\n  E --> G[\"...\"]\n  F --> H([\"leaf: a normal point\\nh large  → score below 0.5\"])\n  G --> H\n  A -.- N[\"forest: average h over many trees\\ns(x) = 2^(-E[h]/c(psi))\"]",
+      "fr": "flowchart TB\n  A[\"les psi points\\ncaractéristique + seuil aléatoires\"] -->|\"x2 > 5,1\"| B([\"feuille : la valeur aberrante\\nh = 1  → score proche de 1\"])\n  A -->|\"x2 <= 5,1\"| C[\"la foule\\ncoupe aléatoire\"]\n  C -->|\"x1 < -0,3\"| D[\"sous-ensemble\\ncoupe aléatoire\"]\n  C -->|\"x1 >= -0,3\"| E[\"sous-ensemble\\ncoupe aléatoire\"]\n  D --> F[\"...\"]\n  E --> G[\"...\"]\n  F --> H([\"feuille : un point normal\\nh grand  → score sous 0,5\"])\n  G --> H\n  A -.- N[\"forêt : moyenne de h sur de nombreux arbres\\ns(x) = 2^(-E[h]/c(psi))\"]"
+    }
+  },
+  {
+    "id": "iforest-score",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The isolation-forest score s = 2^(-E[h]/c(psi)) for psi = 256 (c = 10.2448): E[h] = c gives 0.5 (nothing special), short paths give scores near 1, long paths well below 0.5.",
+      "fr": "Le score de la forêt d'isolation s = 2^(-E[h]/c(psi)) pour psi = 256 (c = 10,2448) : E[h] = c donne 0,5 (rien de spécial), les chemins courts donnent des scores proches de 1, les longs bien en dessous de 0,5."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        24
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(-0.693147*x/10.2448)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              10.2448,
+              0.5
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.5,
+          "text": "s = 0.5 at E[h] = c(psi)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "c-factor",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The normaliser c(n) = 2(ln(n - 1) + 0.5772) - 2(n - 1)/n, the average path length of an unsuccessful search in a binary search tree: it grows only logarithmically with the subsample size (c(256) = 10.24).",
+      "fr": "Le normaliseur c(n) = 2(ln(n - 1) + 0,5772) - 2(n - 1)/n, longueur moyenne d'une recherche infructueuse dans un arbre binaire de recherche : il ne croît que logarithmiquement avec la taille du sous-échantillon (c(256) = 10,24)."
+    },
+    "spec": {
+      "xDomain": [
+        3,
+        256
+      ],
+      "yDomain": [
+        0,
+        11
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "2*(log(x-1)+0.5772156649) - 2*(x-1)/x",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eval",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Evaluating a detector with few labels: rank by score, choose the alert budget (contamination only sets the threshold), then check against labels or, without labels, injections, stability and human review, on later data.",
+      "fr": "Évaluer un détecteur avec peu d'étiquettes : classer par score, choisir le budget d'alertes (la contamination ne fait que placer le seuil), puis vérifier avec les étiquettes ou, sans étiquettes, injections, stabilité et revue humaine, sur des données postérieures."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"scores (N,)\\nrank high to low\"] --> T[\"threshold = top ceil(contamination x N)\\n= alerts you can review\"]\n  T --> Q{\"labels available?\"}\n  Q -->|\"a few\"| P1[\"precision@k\\nPR-AUC\"]\n  Q -->|\"none\"| P2[\"inject synthetic anomalies\\nstability across seeds\\nrank agreement\"]\n  P1 --> HU[\"send top alerts to a human\\nhit rate\"]\n  P2 --> HU\n  HU -->|\"new labels\"| S\n  HU --> WF[\"evaluate on data AFTER training\\n(walk-forward)\"]",
+      "fr": "flowchart LR\n  S[\"scores (N,)\\nclassés du plus haut au plus bas\"] --> T[\"seuil = top ceil(contamination x N)\\n= alertes que l'on peut examiner\"]\n  T --> Q{\"étiquettes disponibles ?\"}\n  Q -->|\"quelques-unes\"| P1[\"précision@k\\nAUC PR\"]\n  Q -->|\"aucune\"| P2[\"injecter des anomalies synthétiques\\nstabilité entre graines\\naccord des rangs\"]\n  P1 --> HU[\"envoyer les meilleures alertes à un humain\\ntaux de réussite\"]\n  P2 --> HU\n  HU -->|\"nouvelles étiquettes\"| S\n  HU --> WF[\"évaluer sur des données APRÈS l'entraînement\\n(walk-forward)\"]"
+    }
+  }
+]

@@ -1,0 +1,90 @@
+#@@ meta
+{"id": "vis.04.ex1", "title": "Dice, IoU, mean IoU and U-Net shapes", "difficulty": 3, "runtime": "pyodide", "concepts": ["vis.dice", "vis.segmentation"], "hints": ["Binary masks: intersection = sum(p * y), Dice = 2*inter / (sum(p) + sum(y) + eps), IoU = inter / (sum(p) + sum(y) - inter + eps).", "Confusion matrix: np.add.at(cm, (target, pred), 1). Per-class IoU = diag / (row_sum + col_sum - diag).", "unet_shapes: the encoder halves H and W and doubles channels at each level; the bottleneck is one more halving; the decoder mirrors the encoder. Return a list of (channels, H, W)."]}
+#@@ prompt
+- `dice_score(p, y, eps)`: `2 * sum(p*y) / (sum(p) + sum(y) + eps)` for a probability (or 0/1) map `p` and a 0/1 mask `y` of the same shape.
+- `dice_loss(p, y, eps)`: `1 - dice_score`.
+- `iou_score(p, y, eps)`: `sum(p*y) / (sum(p) + sum(y) - sum(p*y) + eps)`.
+- `confusion_matrix(pred, target, n_classes)`: integer matrix with entry `[t, p]` = number of pixels of true class `t` predicted as `p`.
+- `miou(cm)`: `(per_class_iou, mean)` where `iou_c = cm[c,c] / (row_c + col_c - cm[c,c])`; a class absent from both prediction and target is skipped in the mean.
+- `unet_shapes(H, W, base, depth)`: list of `(channels, height, width)` for the `depth` encoder stages (first has `base` channels at full size), then the bottleneck, then the `depth` decoder stages (mirror of the encoder, ending at `(base, H, W)`). `H` and `W` must be divisible by `2**depth`; raise `ValueError` otherwise.
+#@@ starter
+import numpy as np
+
+def dice_score(p, y, eps=1e-9):
+    raise NotImplementedError
+
+def dice_loss(p, y, eps=1e-9):
+    raise NotImplementedError
+
+def iou_score(p, y, eps=1e-9):
+    raise NotImplementedError
+
+def confusion_matrix(pred, target, n_classes):
+    raise NotImplementedError
+
+def miou(cm):
+    raise NotImplementedError
+
+def unet_shapes(H, W, base, depth):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+y = np.array([[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=float)
+p = np.array([[0, 1, 1, 1], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], dtype=float)
+check("worked example: Dice = 0.75", lambda: abs(dice_score(p, y, 0.0) - 0.75) < 1e-12)
+check("worked example: IoU = 0.6", lambda: abs(iou_score(p, y, 0.0) - 0.6) < 1e-12)
+d, i = dice_score(p, y, 0.0), iou_score(p, y, 0.0)
+check("Dice = 2 IoU / (1 + IoU)", lambda: abs(d - 2 * i / (1 + i)) < 1e-12)
+check("dice_loss = 1 - dice", lambda: abs(dice_loss(p, y, 0.0) - 0.25) < 1e-12)
+check("perfect prediction: Dice 1, loss ~ 0", lambda: abs(dice_score(y, y) - 1) < 1e-6 and dice_loss(y, y) < 1e-6)
+big = np.zeros((10, 10)); big[0, 0] = 1
+allbg = np.zeros((10, 10))
+check("all-background prediction has pixel accuracy 0.99 but Dice ~ 0", lambda: abs(np.mean(allbg == big) - 0.99) < 1e-12 and dice_score(allbg, big, 1e-9) < 1e-6)
+soft = np.full((10, 10), 0.01)
+check("soft probabilities are allowed", lambda: 0 < dice_score(soft, big) < 0.1)
+pred = np.array([[0, 0, 1], [1, 2, 2]]); tgt = np.array([[0, 1, 1], [1, 2, 0]])
+cm = confusion_matrix(pred, tgt, 3)
+check("confusion matrix [true, pred] orientation", lambda: cm.tolist() == [[1, 0, 1], [1, 2, 0], [0, 0, 1]])
+ious, m = miou(cm)
+check("per-class IoU = [1/3, 2/3, 1/2]", lambda: np.allclose(ious, [1 / 3, 2 / 3, 1 / 2]))
+check("mean IoU = 0.5", lambda: abs(m - 0.5) < 1e-12)
+check("absent class is skipped in the mean", lambda: abs(miou(np.array([[2, 0, 0], [0, 2, 0], [0, 0, 0]]))[1] - 1.0) < 1e-12)
+sh = unet_shapes(64, 64, 16, 3)
+check("U-Net shapes for 64x64, base 16, depth 3", lambda: sh == [(16, 64, 64), (32, 32, 32), (64, 16, 16), (128, 8, 8), (64, 16, 16), (32, 32, 32), (16, 64, 64)])
+def bad():
+    try:
+        unet_shapes(60, 64, 16, 3)
+    except ValueError:
+        return True
+    return False
+check("size not divisible by 2**depth raises ValueError", bad)
+#@@ solution
+import numpy as np
+
+def dice_score(p, y, eps=1e-9):
+    return 2 * np.sum(p * y) / (np.sum(p) + np.sum(y) + eps)
+
+def dice_loss(p, y, eps=1e-9):
+    return 1 - dice_score(p, y, eps)
+
+def iou_score(p, y, eps=1e-9):
+    inter = np.sum(p * y)
+    return inter / (np.sum(p) + np.sum(y) - inter + eps)
+
+def confusion_matrix(pred, target, n_classes):
+    cm = np.zeros((n_classes, n_classes), dtype=int)
+    np.add.at(cm, (np.asarray(target).ravel(), np.asarray(pred).ravel()), 1)
+    return cm
+
+def miou(cm):
+    diag = np.diag(cm).astype(float)
+    denom = cm.sum(axis=1) + cm.sum(axis=0) - diag
+    ious = np.where(denom > 0, diag / np.maximum(denom, 1), np.nan)
+    return ious, float(np.nanmean(ious))
+
+def unet_shapes(H, W, base, depth):
+    if H % (2 ** depth) or W % (2 ** depth):
+        raise ValueError("H and W must be divisible by 2**depth")
+    enc = [(base * 2 ** k, H // 2 ** k, W // 2 ** k) for k in range(depth)]
+    bottleneck = [(base * 2 ** depth, H // 2 ** depth, W // 2 ** depth)]
+    return enc + bottleneck + enc[::-1]

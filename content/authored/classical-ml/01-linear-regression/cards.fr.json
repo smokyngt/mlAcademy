@@ -1,0 +1,15 @@
+[
+  { "id": "cml.01.c1", "front": "Perte des moindres carrés et son gradient", "back": "$L=\\tfrac12\\|Xw-y\\|^2$, $\\nabla_wL=X^\\top(Xw-y)$." },
+  { "id": "cml.01.c2", "front": "Équations normales", "back": "$X^\\top X\\,w=X^\\top y$, donc $w=(X^\\top X)^{-1}X^\\top y$ quand elle est inversible." },
+  { "id": "cml.01.c3", "front": "Signification géométrique des moindres carrés", "back": "$Xw$ est la projection orthogonale de $y$ sur l'espace des colonnes de $X$ ; le résidu est orthogonal à chaque colonne." },
+  { "id": "cml.01.c4", "front": "Pourquoi le minimum des moindres carrés est-il global ?", "back": "La hessienne $X^\\top X$ est semi-définie positive ($v^\\top X^\\top Xv=\\|Xv\\|^2\\ge0$) : la perte est convexe." },
+  { "id": "cml.01.c5", "front": "Comment obtenir une ordonnée à l'origine ?", "back": "Ajouter à $X$ une colonne de uns ; son poids est l'ordonnée à l'origine." },
+  { "id": "cml.01.c6", "front": "Formes en régression linéaire", "back": "$X:(N,d)$, $X^\\top X:(d,d)$, $X^\\top y:(d)$, $w:(d)$, résidu $r:(N)$." },
+  { "id": "cml.01.c7", "front": "Résoudre ou inverser ?", "back": "Résoudre le système linéaire (`np.linalg.solve`/`lstsq`) ; inverser est plus lent et moins stable." },
+  { "id": "cml.01.c8", "front": "Que signifie « linéaire » dans régression linéaire ?", "back": "Linéaire en les poids. Les variables $1,x,x^2$ donnent toujours une régression linéaire." },
+  { "id": "cml.01.c9", "front": "Solution de la régression ridge", "back": "$(X^\\top X+\\lambda I)\\,w=X^\\top y$, issue de la perte $\\tfrac12\\|Xw-y\\|^2+\\tfrac\\lambda2\\|w\\|^2$." },
+  { "id": "cml.01.c10", "front": "Que fait $\\lambda I$ à $X^\\top X$ ?", "back": "Ajoute $\\lambda$ à chaque valeur propre : toujours inversible, mieux conditionnée." },
+  { "id": "cml.01.c11", "front": "Coût de ridge", "back": "Un léger biais : les poids sont rétrécis vers zéro ; l'erreur d'entraînement augmente un peu tandis que la variance diminue." },
+  { "id": "cml.01.c12", "front": "Faut-il pénaliser l'ordonnée à l'origine ?", "back": "Non : centre les données (ou exclus la colonne d'ordonnée à l'origine de la pénalité)." },
+  { "id": "cml.01.c13", "front": "Quand $X^\\top X$ est-elle singulière ?", "back": "Quand les colonnes sont linéairement dépendantes (variables dupliquées) ou quand $d>N$." }
+]

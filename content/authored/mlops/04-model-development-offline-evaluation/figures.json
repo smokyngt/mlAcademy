@@ -1,0 +1,132 @@
+[
+  {
+    "id": "ensemble-vote",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Majority vote of three independent classifiers each correct with probability p: 3p^2 - 2p^3 (blue) versus a single model (grey). At p = 0.7 three models give 0.784 (red dot). The gain needs independence; if the models always agree the ensemble is no better than one.",
+      "fr": "Vote majoritaire de trois classifieurs indépendants, chacun correct avec probabilité p : 3p^2 - 2p^3 (bleu) contre un seul modèle (gris). Pour p = 0,7 trois modèles donnent 0,784 (point rouge). Le gain exige l'indépendance ; si les modèles s'accordent toujours, l'ensemble ne vaut pas mieux qu'un seul."
+    },
+    "spec": {
+      "height": 320,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "p",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "3*x^2 - 2*x^3",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0.7,
+              0.784
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "ensemble-kinds",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Three ways to combine base learners: bagging trains on bootstrap samples in parallel and averages (less variance); boosting trains in sequence on re-weighted mistakes; stacking trains a meta-learner on the base learners' outputs.",
+      "fr": "Trois façons de combiner des apprenants de base : le bagging entraîne en parallèle sur des échantillons bootstrap et moyenne (moins de variance) ; le boosting entraîne en séquence sur les erreurs repondérées ; le stacking entraîne un méta-apprenant sur les sorties des apprenants de base."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph BAG[\"Bagging\"]\n    D1[\"bootstrap samples\"] --> L1[\"models in parallel\"] --> V1[\"vote / average\"]\n  end\n  subgraph BST[\"Boosting\"]\n    M1[\"model 1\"] -->|\"re-weight mistakes\"| M2[\"model 2\"] -->|\"re-weight mistakes\"| M3[\"model 3\"]\n  end\n  subgraph STK[\"Stacking\"]\n    B1[\"base learners\"] --> ME[\"meta-learner\"]\n  end",
+      "fr": "flowchart TB\n  subgraph BAG[\"Bagging\"]\n    D1[\"échantillons bootstrap\"] --> L1[\"modèles en parallèle\"] --> V1[\"vote / moyenne\"]\n  end\n  subgraph BST[\"Boosting\"]\n    M1[\"modèle 1\"] -->|\"repondérer les erreurs\"| M2[\"modèle 2\"] -->|\"repondérer les erreurs\"| M3[\"modèle 3\"]\n  end\n  subgraph STK[\"Stacking\"]\n    B1[\"apprenants de base\"] --> ME[\"méta-apprenant\"]\n  end"
+    }
+  },
+  {
+    "id": "random-baseline",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "The random baseline on a task with positive prevalence p = 0.1, as a function of the probability q of guessing positive: F1 = 2pq/(p+q) (blue) and accuracy = pq + (1-p)(1-q) (orange). Guessing with the label distribution (q = 0.1) gives 82% accuracy, which is chance level here.",
+      "fr": "La base aléatoire pour une prévalence positive p = 0,1, en fonction de la probabilité q de deviner positif : F1 = 2pq/(p+q) (bleu) et précision = pq + (1-p)(1-q) (orange). Deviner selon la distribution des étiquettes (q = 0,1) donne 82 % de précision, soit le niveau du hasard ici."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "q",
+      "data": [
+        {
+          "fn": "2*0.1*x/(0.1 + x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.1*x + 0.9*(1 - x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.1,
+              0.82
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.5,
+              0.5
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "simpson",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Simpson's paradox from the lesson's counts: model A (bars) beats model B (line) in each group (93.1 vs 86.7, 73.0 vs 68.8) yet loses overall (78.0 vs 82.6), because the two totals weight the groups differently. Always compare on the same slices.",
+      "fr": "Le paradoxe de Simpson avec les effectifs de la leçon : le modèle A (barres) bat le modèle B (ligne) dans chaque groupe (93,1 contre 86,7 ; 73,0 contre 68,8) mais perd au global (78,0 contre 82,6), car les deux totaux pondèrent les groupes différemment. Toujours comparer sur les mêmes tranches."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Accuracy (%) by slice\"\n  x-axis [\"group A\", \"group B\", \"overall\"]\n  y-axis \"%\" 60 --> 100\n  bar [93.1, 73.0, 78.0]\n  line [86.7, 68.8, 82.6]",
+      "fr": "xychart-beta\n  title \"Précision (%) par tranche\"\n  x-axis [\"groupe A\", \"groupe B\", \"global\"]\n  y-axis \"%\" 60 --> 100\n  bar [93.1, 73.0, 78.0]\n  line [86.7, 68.8, 82.6]"
+    }
+  }
+]

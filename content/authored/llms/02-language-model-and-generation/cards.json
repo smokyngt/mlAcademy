@@ -1,0 +1,17 @@
+[
+  {"id": "llm.02.c1", "concept": "llm.lm", "front": "Chain-rule factorisation of a text's probability", "back": "$p(x_1..x_T)=\\prod_t p(x_t\\mid x_{<t})$; an identity, the model parametrises each factor."},
+  {"id": "llm.02.c2", "concept": "llm.lm", "front": "Pretraining loss", "back": "$\\mathcal L=-\\frac1N\\sum_t\\ln p_\\theta(x_t\\mid x_{<t})$: cross-entropy of the true next token, averaged over all positions."},
+  {"id": "llm.02.c3", "concept": "llm.lm", "front": "Gradient of softmax cross-entropy w.r.t. the logits", "back": "$p-\\text{onehot}(y)$: probabilities minus the one-hot truth. Shape $(V)$ per position."},
+  {"id": "llm.02.c4", "concept": "llm.perplexity", "front": "Perplexity", "back": "$\\exp(\\text{cross-entropy})$: the effective number of equally likely tokens the model hesitates between. Uniform model: $V$. Perfect: 1."},
+  {"id": "llm.02.c5", "concept": "llm.perplexity", "front": "When can two perplexities be compared?", "back": "Only for the same tokeniser and the same text; otherwise the units being predicted differ."},
+  {"id": "llm.02.c6", "concept": "llm.lm", "front": "Targets for next-token training", "back": "The inputs shifted one position to the right; a window of length $T$ yields $T$ examples."},
+  {"id": "llm.02.c7", "concept": "llm.lm", "front": "Shapes through a GPT-style model", "back": "ids $(B,T)$ -> embeddings $(B,T,d)$ -> blocks $(B,T,d)$ -> logits $(B,T,V)$."},
+  {"id": "llm.02.c8", "concept": "llm.lm", "front": "Role of the causal mask", "back": "Position $t$ may only attend to positions $\\le t$, so a pass over a window trains all next-token predictions without cheating."},
+  {"id": "llm.02.c9", "concept": "llm.lm", "front": "Weight tying", "back": "Reuse the token-embedding matrix as the output head. For GPT-2 small it removes about 38.6M parameters (163M -> 124M)."},
+  {"id": "llm.02.c10", "concept": "llm.sampling", "front": "Temperature sampling", "back": "Sample from $\\operatorname{softmax}(z/T)$. $T\\to0$: greedy; $T=1$: model distribution; $T\\to\\infty$: uniform."},
+  {"id": "llm.02.c11", "concept": "llm.sampling", "front": "Top-k sampling", "back": "Keep the $k$ most probable tokens, renormalise. Cuts the tail but $k$ is fixed regardless of model confidence."},
+  {"id": "llm.02.c12", "concept": "llm.sampling", "front": "Top-p (nucleus) sampling", "back": "Keep the smallest set of top tokens whose cumulative probability $\\ge p$, renormalise. The set size adapts to confidence."},
+  {"id": "llm.02.c13", "concept": "llm.sampling", "front": "Usual order of decoding filters", "back": "Temperature, then top-k, then top-p, then draw from the renormalised distribution."},
+  {"id": "llm.02.c14", "concept": "llm.lm", "front": "Why is counting the optimum for a bigram model?", "back": "For each context row, minimising cross-entropy over the simplex gives the empirical frequencies (Gibbs inequality). Gradient descent reaches the same point iteratively."},
+  {"id": "llm.02.c15", "concept": "llm.lm", "front": "Why do plain n-gram tables not scale?", "back": "They need $V^n$ cells and most contexts are never seen; neural models share parameters across similar contexts."}
+]

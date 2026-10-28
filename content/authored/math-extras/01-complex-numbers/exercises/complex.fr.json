@@ -1,0 +1,10 @@
+{
+  "id": "mx.01.ex1",
+  "title": "Forme polaire, série d'Euler, racines de l'unité et valeurs propres d'une rotation",
+  "prompt": "Implémente, en utilisant de l'arithmétique Python/NumPy simple (n'appelle pas `np.linalg.eig` ni `np.roots` dans ton propre code) :\n\n- `to_polar(z)` renvoie `(r, theta)` avec `theta` obtenu par `arctan2` ; `from_polar(r, theta)` est l'inverse.\n- `mul_polar(p1, p2)` multiplie deux nombres donnés sous forme de paires `(r, theta)` en multipliant les longueurs et en additionnant les angles ; renvoie une paire `(r, theta)`.\n- `euler_series(theta, terms)` renvoie la somme partielle de la série de Taylor de `exp(i*theta)` avec `terms` termes (les termes pour k = 0 .. terms-1).\n- `roots_of_unity(n)` renvoie les `n` nombres complexes `exp(2*pi*i*k/n)`, k = 0..n-1.\n- `rotation_eigenvalues(theta)` renvoie les deux valeurs propres de la matrice de rotation 2x2 sous forme d'un tuple `(lam_plus, lam_minus)` où `lam_plus` a une partie imaginaire non négative, obtenues à partir du polynôme caractéristique.",
+  "hints": [
+    "to_polar : le module est abs(z), l'angle est np.arctan2(z.imag, z.real). from_polar : r * np.exp(1j * theta).",
+    "euler_series : garde un terme courant ; commence avec term = 1 et pour k = 0,1,... ajoute-le, puis term = term * (1j*theta) / (k+1).",
+    "rotation_eigenvalues : trace = 2cos(theta), det = 1, le discriminant tr^2 - 4 det est négatif donc prends la racine carrée d'un nombre complexe ; renvoie d'abord la racine à partie imaginaire positive."
+  ]
+}

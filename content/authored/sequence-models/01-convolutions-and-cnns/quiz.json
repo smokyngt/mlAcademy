@@ -1,0 +1,131 @@
+[
+  {
+    "id": "seq.01.q1",
+    "concept": "seq.conv",
+    "stage": "pre",
+    "kind": "mcq",
+    "prompt": "A $3\\times3$ conv with $C_{in}=16$, $C_{out}=32$ and a bias. How many parameters?",
+    "options": [
+      "$32\\cdot9+32=320$",
+      "$32\\cdot16\\cdot9+32=4640$",
+      "$16\\cdot9+16=160$",
+      "$32\\cdot16\\cdot9\\cdot H\\cdot W$"
+    ],
+    "answer": 1,
+    "explanation": "$C_{out}C_{in}K^2+C_{out}=32\\cdot16\\cdot9+32=4640$. The count does not depend on the image size."
+  },
+  {
+    "id": "seq.01.q2",
+    "concept": "seq.conv",
+    "stage": "pre",
+    "kind": "numeric",
+    "prompt": "Input height 32, kernel 5, padding 2, stride 2. What is the output height?",
+    "options": [],
+    "answer": {
+      "value": 16,
+      "tol": 0.01
+    },
+    "explanation": "$\\lfloor(32-5+4)/2\\rfloor+1=\\lfloor15.5\\rfloor+1=16$."
+  },
+  {
+    "id": "seq.01.q3",
+    "concept": "seq.conv",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Why is the weight gradient $\\bar W$ of a conv layer a **sum over output positions**?",
+    "options": [
+      "Because the loss is summed over the batch",
+      "Because of the bias",
+      "Because pooling averages the gradients",
+      "Because the same kernel weights are used at every output position, so their contributions add (chain rule over shared parameters)"
+    ],
+    "answer": 3,
+    "explanation": "Parameter sharing means $W_{o,c,u,v}$ appears in every $Y_{o,i,j}$, so $\\bar W=\\sum_{i,j}\\bar Y_{o,i,j}\\tilde x_{c,iS+u,jS+v}$."
+  },
+  {
+    "id": "seq.01.q4",
+    "concept": "seq.conv",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "In `col2im`, overlapping windows must be combined with...",
+    "options": [
+      "assignment (the last window wins)",
+      "averaging",
+      "addition (scatter-add)",
+      "max"
+    ],
+    "answer": 2,
+    "explanation": "A pixel covered by several windows influences several outputs; its gradient is the sum of the contributions."
+  },
+  {
+    "id": "seq.01.q5",
+    "concept": "seq.conv",
+    "kind": "numeric",
+    "stage": "check",
+    "prompt": "Using the lesson's worked example (5x5 input, Sobel-like kernel, upstream gradient all ones), what is $\\bar b$?",
+    "options": [],
+    "answer": {
+      "value": 9,
+      "tol": 0.01
+    },
+    "explanation": "$\\bar b=\\sum_{i,j}\\bar Y_{ij}=9$ since there are $3\\times3=9$ output positions."
+  },
+  {
+    "id": "seq.01.q6",
+    "concept": "seq.cnn-arch",
+    "kind": "numeric",
+    "stage": "check",
+    "prompt": "Receptive field (one axis) of a unit after conv $3\\times3$ stride 1, then max-pool $2\\times2$ stride 2, then conv $3\\times3$ stride 1.",
+    "options": [],
+    "answer": {
+      "value": 8,
+      "tol": 0.01
+    },
+    "explanation": "Start $r=1,j=1$. conv3: $r=3$. pool2: $r=3+1\\cdot1=4$, $j=2$. conv3: $r=4+2\\cdot2=8$."
+  },
+  {
+    "id": "seq.01.q7",
+    "concept": "seq.cnn-arch",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Why do two stacked $3\\times3$ convs beat one $5\\times5$ conv (same receptive field) in VGG?",
+    "options": [
+      "They have more parameters",
+      "They need no padding",
+      "They are translation invariant while $5\\times5$ is not",
+      "They have fewer parameters ($18C^2$ vs $25C^2$) and an extra non-linearity"
+    ],
+    "answer": 3,
+    "explanation": "Both see a $5\\times5$ patch. Two $3\\times3$ layers cost $2\\cdot9C^2$ weights, and the ReLU between them adds expressiveness."
+  },
+  {
+    "id": "seq.01.q8",
+    "concept": "seq.cnn-arch",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "For a residual block $y=x+F(x)$, the Jacobian $\\partial y/\\partial x$ equals...",
+    "options": [
+      "$I+\\partial F/\\partial x$, so the gradient always has a direct identity path",
+      "$\\partial F/\\partial x$",
+      "$I\\cdot\\partial F/\\partial x$",
+      "0 if $F$ is small"
+    ],
+    "answer": 0,
+    "explanation": "Differentiating $x+F(x)$ gives $I+F'(x)$. The identity term copies the upstream gradient unchanged to earlier layers."
+  },
+  {
+    "id": "seq.01.q9",
+    "concept": "seq.conv",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Backward of max pooling (window $2\\times2$): the gradient of an output goes to...",
+    "options": [
+      "all four input positions equally",
+      "the minimum of the window",
+      "only the arg-max position of the window",
+      "none: pooling blocks gradients"
+    ],
+    "answer": 2,
+    "explanation": "Only the maximal input affects the output (locally), so it gets the whole gradient; the others get 0."
+  }
+]

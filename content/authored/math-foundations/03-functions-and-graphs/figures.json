@@ -1,0 +1,276 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The vertical-line test: the circle x^2 + y^2 = 1 is not the graph of a function, because at x = 0 two outputs (1 and -1) share one input.",
+      "fr": "Le test de la droite verticale : le cercle x^2 + y^2 = 1 n'est pas le graphe d'une fonction, car en x = 0 deux sorties (1 et -1) partagent la même entrée."
+    },
+    "spec": {
+      "xDomain": [
+        -2,
+        2
+      ],
+      "yDomain": [
+        -2,
+        2
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "x*x+y*y-1",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x",
+          "color": "#6b7280"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0,
+              -1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "f2",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The parabola x^2 - 4x + 3: vertex (2, -1) and roots 1 and 3, symmetric around the vertex. Move over the curve to see the tangent slope vanish at the bottom.",
+      "fr": "La parabole x^2 - 4x + 3 : sommet (2, -1) et racines 1 et 3, symétriques autour du sommet. Déplacez la souris sur la courbe : la pente de la tangente s'annule au minimum."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        5
+      ],
+      "yDomain": [
+        -2,
+        6
+      ],
+      "data": [
+        {
+          "fn": "x^2-4*x+3",
+          "color": "#2563eb",
+          "derivative": {
+            "fn": "2*x-4",
+            "updateOnMouseMove": true
+          }
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              -1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              3,
+              0
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 2,
+          "text": "x = -b/2a = 2"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "A cubic, x^3 - x: at most 3 real roots (-1, 0, 1) and at most 2 turning points. Hover to see the tangent.",
+      "fr": "Une cubique, x^3 - x : au plus 3 racines réelles (-1, 0, 1) et au plus 2 points de rebroussement. Survolez pour voir la tangente."
+    },
+    "spec": {
+      "xDomain": [
+        -2,
+        2
+      ],
+      "yDomain": [
+        -3,
+        3
+      ],
+      "data": [
+        {
+          "fn": "x^3-x",
+          "color": "#7c3aed",
+          "derivative": {
+            "fn": "3*x^2-1",
+            "updateOnMouseMove": true
+          }
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              -1,
+              0
+            ],
+            [
+              0,
+              0
+            ],
+            [
+              1,
+              0
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Transformations of y = x^2: f(x-3) shifts right, f(x)+2 shifts up, -f(x) flips over the x-axis, 2f(x) stretches vertically.",
+      "fr": "Transformations de y = x^2 : f(x-3) décale vers la droite, f(x)+2 vers le haut, -f(x) retourne par rapport à l'axe x, 2f(x) étire verticalement."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        6
+      ],
+      "yDomain": [
+        -6,
+        10
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "x^2",
+          "color": "#6b7280"
+        },
+        {
+          "fn": "(x-3)^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x^2+2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "-x^2",
+          "color": "#dc2626"
+        },
+        {
+          "fn": "2*x^2",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f5",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "An inverse is a mirror image across the line y = x: f(x) = 3x - 6 (blue) and f^-1(y) = (y + 6)/3 (orange). Check: f(5) = 9 and f^-1(9) = 5.",
+      "fr": "Un inverse est une image miroir par rapport à la droite y = x : f(x) = 3x - 6 (bleu) et f^-1(y) = (y + 6)/3 (orange). Vérification : f(5) = 9 et f^-1(9) = 5."
+    },
+    "spec": {
+      "xDomain": [
+        -8,
+        12
+      ],
+      "yDomain": [
+        -8,
+        12
+      ],
+      "height": 360,
+      "data": [
+        {
+          "fn": "3*x-6",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(x+6)/3",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x",
+          "color": "#6b7280"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              5,
+              9
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              9,
+              5
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

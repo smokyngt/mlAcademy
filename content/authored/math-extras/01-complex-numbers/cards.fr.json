@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mx.01.c1",
+  "front": "Unité imaginaire",
+  "back": "$i^2=-1$ ; un quart de tour dans le plan."
+ },
+ {
+  "id": "mx.01.c2",
+  "front": "Nombre complexe",
+  "back": "$z=a+bi$ avec partie réelle $a$ et partie imaginaire $b$ ; le point $(a,b)$ du plan."
+ },
+ {
+  "id": "mx.01.c3",
+  "front": "Conjugué et module",
+  "back": "$\\bar z=a-bi$ ; $z\\bar z=|z|^2=a^2+b^2$."
+ },
+ {
+  "id": "mx.01.c4",
+  "front": "Forme polaire",
+  "back": "$z=r(\\cos\\theta+i\\sin\\theta)=re^{i\\theta}$ avec $r=|z|$, $\\theta=\\operatorname{atan2}(b,a)$."
+ },
+ {
+  "id": "mx.01.c5",
+  "front": "Multiplication géométriquement",
+  "back": "On multiplie les longueurs et on additionne les angles : une rotation plus une mise à l'échelle."
+ },
+ {
+  "id": "mx.01.c6",
+  "front": "Nombre complexe comme matrice",
+  "back": "$a+bi\\leftrightarrow\\begin{pmatrix}a&-b\\\\b&a\\end{pmatrix}$, une rotation $2\\times2$ fois un facteur d'échelle."
+ },
+ {
+  "id": "mx.01.c7",
+  "front": "Formule d'Euler",
+  "back": "$e^{i\\theta}=\\cos\\theta+i\\sin\\theta$ ; un point du cercle unité."
+ },
+ {
+  "id": "mx.01.c8",
+  "front": "Démonstration de la formule d'Euler",
+  "back": "Remplace $x=i\\theta$ dans $\\sum x^k/k!$ ; les puissances de $i$ se répètent avec une période de 4 ; les termes pairs donnent la série du cosinus, les termes impairs $i$ fois la série du sinus."
+ },
+ {
+  "id": "mx.01.c9",
+  "front": "Identité d'Euler",
+  "back": "$e^{i\\pi}+1=0$."
+ },
+ {
+  "id": "mx.01.c10",
+  "front": "Racines de l'unité",
+  "back": "Solutions de $z^n=1$ : $\\omega_k=e^{2\\pi ik/n}$, sommets d'un $n$-gone régulier."
+ },
+ {
+  "id": "mx.01.c11",
+  "front": "Somme des racines de l'unité",
+  "back": "Nulle pour $n\\ge2$, par la série géométrique avec $\\omega^n=1$."
+ },
+ {
+  "id": "mx.01.c12",
+  "front": "Valeurs propres d'une rotation",
+  "back": "$R_\\theta$ a $\\lambda=e^{\\pm i\\theta}$ à partir de $\\lambda^2-2\\cos\\theta\\,\\lambda+1=0$."
+ },
+ {
+  "id": "mx.01.c13",
+  "front": "Sens du module d'une valeur propre",
+  "back": "$|\\lambda|=1$ rotation ou oscillation pure ; $>1$ spirale vers l'extérieur (explose) ; $<1$ spirale vers l'intérieur (s'évanouit)."
+ },
+ {
+  "id": "mx.01.c14",
+  "front": "Pourquoi conjuguer dans les produits scalaires ?",
+  "back": "Pour des vecteurs complexes $\\langle x,y\\rangle=x^Hy$ avec $x^H=\\bar x^\\top$ afin que $\\langle x,x\\rangle=\\sum|x_j|^2\\ge0$."
+ }
+]

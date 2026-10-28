@@ -1,0 +1,82 @@
+#@@ meta
+{"title": "Arithmetic and equation toolbox", "difficulty": 1, "concepts": ["mf.algebra"], "hints": ["solve_linear: x = (c - b) / a. Raise ValueError when a == 0.", "solve_2x2: det = a1*b2 - a2*b1; if det == 0 return None; x = (c1*b2 - c2*b1)/det, y = (a1*c2 - a2*c1)/det.", "solve_inequality(a,b,c) for a*x + b < c: bound = (c-b)/a; if a > 0 return ('<', bound) else ('>', bound).", "add_fractions: num = p*s + r*q, den = q*s, then divide both by math.gcd(num, den)."], "id": "mf.02.ex1", "runtime": "pyodide"}
+#@@ prompt
+Build a tiny equation toolbox.
+
+- `evaluate(a, b, c)`: return $a + b \times c^2$ following the order of operations.
+- `solve_linear(a, b, c)`: solve $ax + b = c$; raise `ValueError` if `a == 0`.
+- `solve_inequality(a, b, c)`: solve $ax + b < c$ for `a != 0`; return a tuple `("<", bound)` or `(">", bound)` meaning `x < bound` or `x > bound` (remember the flip!).
+- `solve_2x2(a1, b1, c1, a2, b2, c2)`: solve $a_1x+b_1y=c_1,\ a_2x+b_2y=c_2$ and return `(x, y)`, or `None` when there is no unique solution.
+- `percent_change(old, new)`: percentage change from `old` to `new` (e.g. 100 to 120 is `20.0`).
+- `add_fractions(p, q, r, s)`: $\frac pq+\frac rs$ as a reduced `(numerator, denominator)` of integers.
+#@@ starter
+import math
+
+def evaluate(a, b, c):
+    raise NotImplementedError
+
+def solve_linear(a, b, c):
+    raise NotImplementedError
+
+def solve_inequality(a, b, c):
+    raise NotImplementedError
+
+def solve_2x2(a1, b1, c1, a2, b2, c2):
+    raise NotImplementedError
+
+def percent_change(old, new):
+    raise NotImplementedError
+
+def add_fractions(p, q, r, s):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("evaluate(2,3,4) = 50", lambda: evaluate(2, 3, 4) == 50)
+check("solve_linear 3x+5=20", lambda: abs(solve_linear(3, 5, 20) - 5) < 1e-12)
+check("solve_linear negative a", lambda: abs(solve_linear(-2, 1, 9) - (-4)) < 1e-12)
+def _raises():
+    try:
+        solve_linear(0, 1, 2)
+    except ValueError:
+        return True
+    return False
+check("solve_linear raises on a=0", _raises)
+check("inequality -2x+3<9 gives x>-3", lambda: solve_inequality(-2, 3, 9) == (">", -3))
+check("inequality 2x+1<9 gives x<4", lambda: solve_inequality(2, 1, 9) == ("<", 4))
+x, y = solve_2x2(1, 1, 10, 1, -1, 2)
+check("system x+y=10, x-y=2", lambda: abs(x - 6) < 1e-12 and abs(y - 4) < 1e-12)
+x, y = solve_2x2(2, 3, 13, 1, -1, -1)
+check("system 2x+3y=13, x-y=-1", lambda: abs(x - 2) < 1e-12 and abs(y - 3) < 1e-12)
+check("parallel lines give None", lambda: solve_2x2(1, 1, 2, 2, 2, 5) is None)
+check("percent_change 100->120", lambda: abs(percent_change(100, 120) - 20) < 1e-12)
+check("percent_change 120->96", lambda: abs(percent_change(120, 96) - (-20)) < 1e-12)
+check("1/2 + 1/3 = 5/6", lambda: add_fractions(1, 2, 1, 3) == (5, 6))
+check("1/6 + 1/3 reduces to 1/2", lambda: add_fractions(1, 6, 1, 3) == (1, 2))
+#@@ solution
+import math
+
+def evaluate(a, b, c):
+    return a + b * c ** 2
+
+def solve_linear(a, b, c):
+    if a == 0:
+        raise ValueError("a must not be 0")
+    return (c - b) / a
+
+def solve_inequality(a, b, c):
+    bound = (c - b) / a
+    return ("<", bound) if a > 0 else (">", bound)
+
+def solve_2x2(a1, b1, c1, a2, b2, c2):
+    det = a1 * b2 - a2 * b1
+    if det == 0:
+        return None
+    return ((c1 * b2 - c2 * b1) / det, (a1 * c2 - a2 * c1) / det)
+
+def percent_change(old, new):
+    return (new - old) / old * 100
+
+def add_fractions(p, q, r, s):
+    num, den = p * s + r * q, q * s
+    g = math.gcd(num, den)
+    return (num // g, den // g)

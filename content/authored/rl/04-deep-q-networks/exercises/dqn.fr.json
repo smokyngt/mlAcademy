@@ -1,0 +1,10 @@
+{
+ "id": "rl.04.ex1",
+ "title": "Briques de DQN avec une fonction Q linéaire",
+ "prompt": "Implémente les trois ingrédients de DQN pour une fonction Q **linéaire** $Q(s,a;W)=W[a]\\cdot\\phi(s)$, où `W` a la forme `(A, d)` et `phi(s)` est un vecteur de caractéristiques de longueur `d`.\n\n- `q_values(W, Phi)` -> valeurs d'action `(B, A)` pour un batch de lignes de caractéristiques `Phi` `(B, d)`.\n- `dqn_loss_grad(W, W_target, batch, gamma)` -> `(loss, grad)` où `batch = (S, A, R, S2, D)` (caractéristiques `(B,d)`, actions `(B,)` entiers, récompenses `(B,)`, caractéristiques suivantes `(B,d)`, indicateurs de fin `(B,)` dans {0,1}). Perte : $\\frac1B\\sum_i\\frac12(y_i-Q(s_i,a_i;W))^2$ avec la cible $y_i=r_i+\\gamma(1-d_i)\\max_{a'}Q(s'_i,a';W_{\\text{target}})$. `grad` a la forme de `W` et traite `y` comme une constante (semi-gradient).\n- `ReplayBuffer(capacity, state_dim)` avec `push(s, a, r, s2, done)`, `__len__`, et `sample(batch_size, rng)` renvoyant le n-uplet `(S, A, R, S2, D)`. C'est un tampon circulaire : quand il est plein, la plus ancienne transition est écrasée.\n- `hard_update(W_target, W)` -> une copie de `W` ; `soft_update(W_target, W, tau)` -> `(1-tau)*W_target + tau*W`.\n\n`train` (fourni) exécute DQN sur une chaîne de 6 états (récompense 1 en atteignant l'extrémité droite, $\\gamma=0.9$) avec tes briques ; les valeurs optimales exactes sont $\\gamma^{4-s}$ pour « droite » dans l'état $s$.",
+ "hints": [
+  "q_values : Q a la forme (B, A) = Phi (B, d) @ W.T où W a la forme (A, d).",
+  "dqn_loss_grad : y = r + gamma * (1 - done) * max_a' Q(s', a'; W_target) ; delta = y - Q(s, a; W)[arange(B), a] ; loss = 0.5 * mean(delta**2). La cible y est une constante pour le gradient. dL/dW[a] = -(1/B) * somme, sur les échantillons d'action a, de delta_i * phi(s_i).",
+  "ReplayBuffer : préalloue les tableaux ; écris à l'indice self.i et avance-le modulo la capacité ; suis le nombre stocké avec min(n + 1, capacity). sample tire des indices avec rng.integers(0, n, size=batch_size)."
+ ]
+}

@@ -1,0 +1,141 @@
+#@@ meta
+{"id": "sys.03.ex1", "title": "TF-IDF, BM25, reciprocal rank fusion and a chunker", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.rag"], "hints": ["tokenize: re.findall(r\"[a-z0-9]+\", text.lower()). idf = log((1+N)/(1+df)) + 1, TF-IDF row = tf * idf, then L2-normalise each row.", "BM25 term score: idf * tf*(k1+1) / (tf + k1*(1 - b + b*len/avgdl)) with idf = log((N-df+0.5)/(df+0.5) + 1); sum over the distinct query terms that occur in the document.", "rrf: for every ranking add 1/(k + position) with position starting at 1; sort by score descending (ties by id). chunk_words: step = size - overlap; stop after the chunk that reaches the last word."]}
+#@@ prompt
+Build the retrieval toolbox used in RAG, from scratch in NumPy.
+
+- `tokenize`, `build_vocab`, `tfidf_matrix(docs, vocab)` returning the L2-normalised matrix `X` of shape `(n_docs, n_terms)` and the `idf` vector.
+- `query_vector(q, vocab, idf)` and `cosine_search(qv, X, k)` returning `(indices, similarities)`.
+- `bm25_scores(query, docs, k1=1.2, b=0.75)` over a list of documents.
+- `rrf(rankings, k=60)` (reciprocal rank fusion) returning `(fused_order, score_dict)`.
+- `chunk_words(text, size, overlap)` splitting by words with overlapping windows.
+#@@ starter
+import numpy as np
+import re
+from collections import Counter
+
+def tokenize(text):
+    raise NotImplementedError
+
+def build_vocab(docs):
+    # sorted unique tokens -> index
+    raise NotImplementedError
+
+def tfidf_matrix(docs, vocab):
+    # raw term counts * idf, idf = log((1+N)/(1+df)) + 1, rows L2-normalised. return (X, idf)
+    raise NotImplementedError
+
+def query_vector(q, vocab, idf):
+    raise NotImplementedError
+
+def cosine_search(qv, X, k):
+    # return (indices of the top-k by cosine similarity, their similarities), best first
+    raise NotImplementedError
+
+def bm25_scores(query, docs, k1=1.2, b=0.75):
+    raise NotImplementedError
+
+def rrf(rankings, k=60):
+    # rankings: list of lists of doc ids, best first. return (list of ids sorted by fused score, dict of scores)
+    raise NotImplementedError
+
+def chunk_words(text, size, overlap):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+docs = ["the cat sat on the mat", "the dog chased the cat", "dogs and cats are pets",
+        "error code e4021 means the disk is full", "how to cancel a subscription and terminate your plan"]
+check("tokenize lowercases and splits", lambda: tokenize("Error-Code E4021!") == ["error", "code", "e4021"])
+vocab = build_vocab(docs)
+X, idf = tfidf_matrix(docs, vocab)
+check("vocabulary has 27 terms", lambda: len(vocab) == 27)
+check("X shape", lambda: X.shape == (5, 27))
+check("rows are unit vectors", lambda: np.allclose(np.linalg.norm(X, axis=1), 1.0))
+check("rare words get larger idf than common ones", lambda: idf[vocab["e4021"]] > idf[vocab["cat"]] > idf[vocab["the"]])
+o, s = cosine_search(query_vector("error e4021", vocab, idf), X, 3)
+check("exact-match query finds document 3 first", lambda: o[0] == 3)
+check("similarity of the best hit is about 0.518", lambda: abs(s[0] - 0.518) < 0.002)
+check("similarities sorted descending", lambda: all(a >= b for a, b in zip(s, s[1:])))
+o2, s2 = cosine_search(query_vector("cat", vocab, idf), X, 2)
+check("'cat': document 1 first", lambda: list(o2) == [1, 0])
+bm = bm25_scores("cat", docs)
+check("BM25 prefers the shorter document for equal tf", lambda: abs(bm[1] - 0.972) < 0.002 and abs(bm[0] - 0.909) < 0.002 and bm[1] > bm[0])
+check("BM25 zero when no term matches", lambda: bm[2] == 0 and bm[3] == 0)
+check("BM25 rare exact token", lambda: abs(bm25_scores("error e4021", docs)[3] - 2.551) < 0.002)
+order, sc = rrf([[0, 1, 2, 3, 4], [1, 0, 4, 3, 2]])
+check("rrf score of doc 0 = 1/61 + 1/62", lambda: abs(sc[0] - (1 / 61 + 1 / 62)) < 1e-12)
+check("rrf order", lambda: order == [0, 1, 2, 4, 3])
+o3, s3 = rrf([["a", "x", "y", "z", "b"], ["c", "b", "d", "e", "f"]])
+check("a doc ranked 3rd and 2nd beats one ranked 1st and 5th", lambda: o3[0] == "b" and abs(s3["b"] - (1 / 65 + 1 / 62)) < 1e-12)
+ch = chunk_words(" ".join("w%d" % i for i in range(10)), 4, 1)
+check("chunks of 4 words with overlap 1", lambda: ch == ["w0 w1 w2 w3", "w3 w4 w5 w6", "w6 w7 w8 w9"])
+check("short text gives one chunk", lambda: chunk_words("a b c", 10, 2) == ["a b c"])
+check("no word is lost", lambda: set(" ".join(chunk_words(" ".join(str(i) for i in range(57)), 8, 3)).split()) == set(str(i) for i in range(57)))
+#@@ solution
+import numpy as np
+import re
+from collections import Counter
+
+def tokenize(text):
+    return re.findall(r"[a-z0-9]+", text.lower())
+
+def build_vocab(docs):
+    return {w: i for i, w in enumerate(sorted({w for d in docs for w in tokenize(d)}))}
+
+def tfidf_matrix(docs, vocab):
+    N = len(docs)
+    tf = np.zeros((N, len(vocab)))
+    for i, d in enumerate(docs):
+        for w, c in Counter(tokenize(d)).items():
+            if w in vocab:
+                tf[i, vocab[w]] = c
+    df = (tf > 0).sum(axis=0)
+    idf = np.log((1 + N) / (1 + df)) + 1
+    X = tf * idf
+    n = np.linalg.norm(X, axis=1, keepdims=True)
+    return X / np.where(n == 0, 1, n), idf
+
+def query_vector(q, vocab, idf):
+    v = np.zeros(len(vocab))
+    for w, c in Counter(tokenize(q)).items():
+        if w in vocab:
+            v[vocab[w]] = c * idf[vocab[w]]
+    n = np.linalg.norm(v)
+    return v / n if n > 0 else v
+
+def cosine_search(qv, X, k):
+    sims = X @ qv / (np.linalg.norm(X, axis=1) * (np.linalg.norm(qv) or 1) + 1e-12)
+    order = np.argsort(-sims, kind="stable")[:k]
+    return order, sims[order]
+
+def bm25_scores(query, docs, k1=1.2, b=0.75):
+    toks = [tokenize(d) for d in docs]
+    N = len(docs)
+    avgdl = np.mean([len(t) for t in toks])
+    df = Counter(w for t in toks for w in set(t))
+    scores = np.zeros(N)
+    for i, t in enumerate(toks):
+        c = Counter(t)
+        for w in set(tokenize(query)):
+            if w not in c:
+                continue
+            idf = np.log((N - df[w] + 0.5) / (df[w] + 0.5) + 1)
+            tf = c[w]
+            scores[i] += idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * len(t) / avgdl))
+    return scores
+
+def rrf(rankings, k=60):
+    sc = {}
+    for r in rankings:
+        for pos, d in enumerate(r, 1):
+            sc[d] = sc.get(d, 0.0) + 1.0 / (k + pos)
+    return sorted(sc, key=lambda d: (-sc[d], d)), sc
+
+def chunk_words(text, size, overlap):
+    w = text.split()
+    step = size - overlap
+    out = []
+    for s in range(0, len(w), step):
+        out.append(" ".join(w[s:s + size]))
+        if s + size >= len(w):
+            break
+    return out

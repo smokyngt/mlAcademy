@@ -1,0 +1,17 @@
+[
+  { "id": "math.17.c1", "front": "Test en trois étapes d'un sous-espace", "back": "Contient le vecteur nul, fermé par addition, fermé par multiplication scalaire." },
+  { "id": "math.17.c2", "front": "Pourquoi l'ensemble des solutions de $Ax=b$ ($b\\ne0$) n'est-il pas un sous-espace ?", "back": "Il ne contient pas $\\mathbf 0$ (et n'est pas fermé par addition) ; c'est une copie décalée du noyau." },
+  { "id": "math.17.c3", "front": "Espace des colonnes de $A$ et son lien avec $Ax=b$", "back": "$\\operatorname{col}(A)=\\{Ax\\}$, le sous-espace engendré par les colonnes. $Ax=b$ est exactement résoluble si et seulement si $b\\in\\operatorname{col}(A)$." },
+  { "id": "math.17.c4", "front": "Définir une base et la dimension", "back": "Une base est une liste indépendante qui engendre l'espace (famille génératrice minimale = famille indépendante maximale). La dimension est le nombre de vecteurs d'une base quelconque." },
+  { "id": "math.17.c5", "front": "Théorème rang-noyau", "back": "$\\operatorname{rk}(A)+\\dim\\operatorname{null}(A)=n$, le nombre de colonnes." },
+  { "id": "math.17.c6", "front": "Coordonnées de $x$ dans la base donnée par les colonnes de $S$", "back": "$c=S^{-1}x$, et $x=Sc$. Même point, coordonnées différentes." },
+  { "id": "math.17.c7", "front": "Matrice d'une application dans une nouvelle base ; qu'est-ce qui est conservé ?", "back": "$\\tilde M=S^{-1}MS$ (matrices semblables). Les valeurs propres, la trace, le déterminant et le rang sont inchangés." },
+  { "id": "math.17.c8", "front": "Que dit $Q^\\top Q=I$, et qu'en découle-t-il ?", "back": "Les colonnes sont orthonormées. Si $Q$ est carrée, $Q^{-1}=Q^\\top$, et $\\|Qx\\|=\\|x\\|$, les angles sont préservés." },
+  { "id": "math.17.c9", "front": "Coordonnées dans une base orthonormée", "back": "$c_i=q_i^\\top x$, de simples produits scalaires, aucun système linéaire à résoudre." },
+  { "id": "math.17.c10", "front": "Matrice de projection sur $\\operatorname{col}(A)$ et sa forme", "back": "$P=A(A^\\top A)^{-1}A^\\top$, de forme $(n,n)$ pour $A:(n,m)$ ; rang $m$, trace $m$." },
+  { "id": "math.17.c11", "front": "Pourquoi l'erreur $x-Px$ doit-elle être orthogonale au sous-espace ?", "back": "Sinon un petit déplacement à l'intérieur du sous-espace réduirait la distance. La condition $A^\\top(x-A\\lambda)=0$ donne les équations normales." },
+  { "id": "math.17.c12", "front": "Deux propriétés d'une matrice de projection orthogonale", "back": "$P^2=P$ (idempotente) et $P^\\top=P$ (symétrique). Les valeurs propres sont 0 et 1." },
+  { "id": "math.17.c13", "front": "Étape $k$ de Gram-Schmidt", "back": "$v_k=a_k-\\sum_{i<k}(q_i^\\top a_k)q_i$, puis $q_k=v_k/\\|v_k\\|$. De plus $R_{ik}=q_i^\\top a_k$, $R_{kk}=\\|v_k\\|$." },
+  { "id": "math.17.c14", "front": "Formes de la QR réduite de $A:(n,m)$", "back": "$Q:(n,m)$ à colonnes orthonormées, $R:(m,m)$ triangulaire supérieure, $A=QR$." },
+  { "id": "math.17.c15", "front": "Moindres carrés par QR et pourquoi c'est plus stable", "back": "Résoudre $Rx=Q^\\top b$ par substitution arrière. Évite de former $A^\\top A$, qui met le conditionnement au carré." }
+]

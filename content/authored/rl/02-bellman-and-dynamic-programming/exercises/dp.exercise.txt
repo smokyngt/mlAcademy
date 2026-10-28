@@ -1,0 +1,148 @@
+#@@ meta
+{"id": "rl.02.ex1", "title": "Policy iteration and value iteration on a gridworld", "difficulty": 3, "runtime": "pyodide", "concepts": ["rl.bellman", "rl.dp"], "hints": ["q_from_v: expected immediate reward is (P * R).sum(axis=2), shape (S, A); the future part is gamma * P @ V, also (S, A).", "policy_evaluation: repeat V <- (pi * Q).sum(axis=1) with Q = q_from_v(...) until the largest change is below tol.", "greedy_policy: a one-hot matrix with a 1 at argmax_a Q[s, a]. policy_iteration stops when the greedy policy no longer changes. value_iteration is V <- Q.max(axis=1)."]}
+#@@ prompt
+`make_gridworld` builds the classic 4x4 gridworld as an MDP: states 0..15 in row-major order, actions 0..3 = up, down, left, right, states 0 and 15 are terminal (absorbing, reward 0), every other move costs reward -1, and walking into a wall leaves you where you are. `P` has shape `(S, A, S)` and `R` has shape `(S, A, S)`.
+
+Implement the dynamic-programming toolbox:
+
+- `q_from_v(P, R, V, gamma)` -> `Q` of shape `(S, A)`, `Q[s,a] = sum_s' P[s,a,s'] (R[s,a,s'] + gamma V[s'])`.
+- `policy_evaluation(P, R, pi, gamma, tol)` -> `V` for a stochastic policy `pi` of shape `(S, A)` (iterate the Bellman expectation backup until `max|V_new - V| < tol`).
+- `greedy_policy(P, R, V, gamma)` -> one-hot policy `(S, A)` that is greedy with respect to `V` (ties: lowest action index).
+- `policy_iteration(P, R, gamma)` -> `(pi, V, n_iterations)` starting from the uniform random policy.
+- `value_iteration(P, R, gamma, tol)` -> `(V, n_sweeps)` using the Bellman optimality backup.
+#@@ starter
+import numpy as np
+
+def make_gridworld(n=4):
+    S = n * n
+    P = np.zeros((S, 4, S)); R = np.zeros((S, 4, S))
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    for s in range(S):
+        if s in (0, S - 1):
+            P[s, :, s] = 1.0
+            continue
+        r, c = divmod(s, n)
+        for a, (dr, dc) in enumerate(moves):
+            r2, c2 = r + dr, c + dc
+            if not (0 <= r2 < n and 0 <= c2 < n):
+                r2, c2 = r, c
+            s2 = r2 * n + c2
+            P[s, a, s2] = 1.0
+            R[s, a, s2] = -1.0
+    return P, R
+
+def q_from_v(P, R, V, gamma):
+    raise NotImplementedError
+
+def policy_evaluation(P, R, pi, gamma, tol=1e-10):
+    raise NotImplementedError
+
+def greedy_policy(P, R, V, gamma):
+    raise NotImplementedError
+
+def policy_iteration(P, R, gamma):
+    raise NotImplementedError
+
+def value_iteration(P, R, gamma, tol=1e-10):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+P, R = make_gridworld()
+S = 16
+uniform = np.ones((S, 4)) / 4
+
+Vtest = np.arange(S, dtype=float)
+Q = q_from_v(P, R, Vtest, 0.9)
+check("q_from_v has shape (S, A)", lambda: Q.shape == (S, 4))
+check("q_from_v value for state 1, action left (into terminal 0)", lambda: abs(Q[1, 2] - (-1 + 0.9 * 0)) < 1e-12)
+check("q_from_v value for state 1, action right (into state 2)", lambda: abs(Q[1, 3] - (-1 + 0.9 * 2)) < 1e-12)
+
+V = policy_evaluation(P, R, uniform, 1.0)
+expected = np.array([[0, -14, -20, -22], [-14, -18, -20, -20], [-20, -20, -18, -14], [-22, -20, -14, 0]], dtype=float)
+check("random policy values match the classic table (-14, -20, -22, ...)", lambda: np.allclose(V.reshape(4, 4), expected, atol=1e-6))
+
+Vg = policy_evaluation(P, R, uniform, 0.9)
+Ppi = np.einsum("ij,ijk->ik", uniform, P)
+rpi = (uniform * (P * R).sum(axis=2)).sum(axis=1)
+check("evaluation agrees with the linear solve (I - gamma P)^-1 r", lambda: np.allclose(Vg, np.linalg.solve(np.eye(S) - 0.9 * Ppi, rpi), atol=1e-7))
+check("Bellman expectation equation holds at the fixed point", lambda: np.allclose(Vg, (uniform * q_from_v(P, R, Vg, 0.9)).sum(axis=1), atol=1e-7))
+
+pi_greedy = greedy_policy(P, R, np.array([0, -1, -2, -3, -1, -2, -3, -2, -2, -3, -2, -1, -3, -2, -1, 0], dtype=float), 1.0)
+check("greedy policy is one-hot", lambda: np.allclose(pi_greedy.sum(axis=1), 1.0) and set(np.unique(pi_greedy)) <= {0.0, 1.0})
+check("greedy policy next to the terminal state 0 heads to it", lambda: pi_greedy[1, 2] == 1 and pi_greedy[4, 0] == 1)
+
+pi_opt, V_pi, n_pi = policy_iteration(P, R, 1.0)
+V_vi, n_vi = value_iteration(P, R, 1.0)
+dist = np.array([[0, 1, 2, 3], [1, 2, 3, 2], [2, 3, 2, 1], [3, 2, 1, 0]], dtype=float)
+check("optimal value is minus the number of steps to the nearest terminal", lambda: np.allclose(V_vi.reshape(4, 4), -dist, atol=1e-8))
+check("policy iteration finds the same optimal values", lambda: np.allclose(V_pi, V_vi, atol=1e-8))
+check("policy iteration converges in a handful of iterations", lambda: 2 <= n_pi <= 6)
+check("value iteration converges in a handful of sweeps", lambda: 3 <= n_vi <= 8)
+check("optimal value satisfies the Bellman optimality equation", lambda: np.allclose(V_vi, q_from_v(P, R, V_vi, 1.0).max(axis=1)))
+check("optimal policy is at least as good as random everywhere", lambda: np.all(V_pi >= V - 1e-9))
+
+Vo, _ = value_iteration(P, R, 0.9)
+check("discounted optimal value of state 2 is -1.9", lambda: abs(Vo[2] - (-1.9)) < 1e-8)
+d1 = np.abs(q_from_v(P, R, np.zeros(S), 0.9).max(axis=1) - q_from_v(P, R, np.ones(S), 0.9).max(axis=1)).max()
+check("the optimality backup is a gamma-contraction in the max norm", lambda: d1 <= 0.9 * 1.0 + 1e-12)
+#@@ solution
+import numpy as np
+
+def make_gridworld(n=4):
+    S = n * n
+    P = np.zeros((S, 4, S)); R = np.zeros((S, 4, S))
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    for s in range(S):
+        if s in (0, S - 1):
+            P[s, :, s] = 1.0
+            continue
+        r, c = divmod(s, n)
+        for a, (dr, dc) in enumerate(moves):
+            r2, c2 = r + dr, c + dc
+            if not (0 <= r2 < n and 0 <= c2 < n):
+                r2, c2 = r, c
+            s2 = r2 * n + c2
+            P[s, a, s2] = 1.0
+            R[s, a, s2] = -1.0
+    return P, R
+
+def q_from_v(P, R, V, gamma):
+    return (P * R).sum(axis=2) + gamma * (P @ V)
+
+def policy_evaluation(P, R, pi, gamma, tol=1e-10):
+    V = np.zeros(P.shape[0])
+    while True:
+        V_new = (pi * q_from_v(P, R, V, gamma)).sum(axis=1)
+        delta = np.abs(V_new - V).max()
+        V = V_new
+        if delta < tol:
+            return V
+
+def greedy_policy(P, R, V, gamma):
+    Q = q_from_v(P, R, V, gamma)
+    pi = np.zeros_like(Q)
+    pi[np.arange(Q.shape[0]), Q.argmax(axis=1)] = 1.0
+    return pi
+
+def policy_iteration(P, R, gamma):
+    S, A = P.shape[:2]
+    pi = np.ones((S, A)) / A
+    n = 0
+    while True:
+        V = policy_evaluation(P, R, pi, gamma)
+        new_pi = greedy_policy(P, R, V, gamma)
+        n += 1
+        if np.array_equal(new_pi, pi):
+            return pi, V, n
+        pi = new_pi
+
+def value_iteration(P, R, gamma, tol=1e-10):
+    V = np.zeros(P.shape[0])
+    n = 0
+    while True:
+        V_new = q_from_v(P, R, V, gamma).max(axis=1)
+        n += 1
+        delta = np.abs(V_new - V).max()
+        V = V_new
+        if delta < tol:
+            return V, n

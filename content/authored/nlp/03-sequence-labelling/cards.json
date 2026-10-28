@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.03.c1","concept":"nlp.hmm-viterbi","front":"What is sequence labelling?","back":"Assign one label to every item of a sequence: POS tags, entity tags, etc. Labels of neighbours depend on each other."},
+ {"id":"nlp.03.c2","concept":"nlp.hmm-viterbi","front":"HMM parameters and shapes","back":"$\\pi$ $(K,)$, transitions $A$ $(K,K)$, emissions $B$ $(K,V)$; rows of $A$ and $B$ sum to 1."},
+ {"id":"nlp.03.c3","concept":"nlp.hmm-viterbi","front":"HMM joint probability","back":"$P(x,t)=\\pi_{t_1}B_{t_1x_1}\\prod_{i\\ge2}A_{t_{i-1}t_i}B_{t_ix_i}$."},
+ {"id":"nlp.03.c4","concept":"nlp.hmm-viterbi","front":"Two HMM assumptions","back":"Markov: each tag depends only on the previous tag. Each word depends only on its own tag."},
+ {"id":"nlp.03.c5","concept":"nlp.hmm-viterbi","front":"Learning an HMM from tagged text","back":"Count and normalise: initial, tag bigram and (tag, word) counts, with add-alpha smoothing for unseen events."},
+ {"id":"nlp.03.c6","concept":"nlp.hmm-viterbi","front":"Viterbi recursion","back":"$\\delta_i(k)=\\max_j[\\delta_{i-1}(j)A_{jk}]\\,B_{kx_i}$ with back-pointer $\\psi_i(k)=\\arg\\max_j$."},
+ {"id":"nlp.03.c7","concept":"nlp.hmm-viterbi","front":"Viterbi complexity","back":"$O(nK^2)$ time, $O(nK)$ memory for the back-pointers, versus $K^n$ sequences."},
+ {"id":"nlp.03.c8","concept":"nlp.hmm-viterbi","front":"Why does keeping one path per tag suffice?","back":"Markov property: the future depends on the past only through the current tag, so a dominated partial path can never be part of the optimum."},
+ {"id":"nlp.03.c9","concept":"nlp.hmm-viterbi","front":"Viterbi vs forward algorithm","back":"Viterbi uses max and returns the best path; forward uses sum and returns $P(x)$."},
+ {"id":"nlp.03.c10","concept":"nlp.hmm-viterbi","front":"BIO tagging","back":"B-X begins an entity of type X, I-X continues it, O is outside. Turns NER into sequence labelling."},
+ {"id":"nlp.03.c11","concept":"nlp.hmm-viterbi","front":"Why log space in Viterbi?","back":"Avoids underflow; zero probability becomes $-\\infty$, harmless for the max."},
+ {"id":"nlp.03.c12","concept":"nlp.hmm-viterbi","front":"HMM vs CRF","back":"HMM is generative ($P(x,t)$, word depends on its tag only). Linear-chain CRF is discriminative ($P(t\\mid x)$) with arbitrary features; decoding is still Viterbi."},
+ {"id":"nlp.03.c13","concept":"nlp.hmm-viterbi","front":"How to evaluate NER?","back":"Entity-level precision, recall and F1: exact span and type must match. Token accuracy is inflated by O tokens."},
+ {"id":"nlp.03.c14","concept":"nlp.hmm-viterbi","front":"Why are unknown words a problem for HMM taggers?","back":"Their emission probability is 0 for every tag; fix with smoothing, an UNK class or suffix/shape features."}
+]

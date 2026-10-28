@@ -1,0 +1,96 @@
+[
+  {
+    "id": "bradley-terry",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Bradley-Terry on a score difference d = r_w - r_l: the probability the winner wins is sigmoid(d) (blue), the loss ln(1+e^-d) (orange), and the gradient push sigmoid(-d) (green) is large for pairs the model currently ranks wrongly (d < 0).",
+      "fr": "Bradley-Terry sur un écart de scores d = r_w - r_l : la probabilité que le gagnant l'emporte est sigmoïde(d) (bleu), la perte ln(1+e^-d) (orange), et la poussée du gradient sigmoïde(-d) (vert) est grande pour les paires que le modèle classe mal (d < 0)."
+    },
+    "spec": {
+      "xDomain": [
+        -5,
+        5
+      ],
+      "yDomain": [
+        0,
+        1.6
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "log(1+exp(-x))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1/(1+exp(x))",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "kl-leash",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The KL leash. Optimal policy for three responses with reference (0.5, 0.3, 0.2) and rewards (1, 0, -1), as a function of beta: pi*(y) proportional to pi_ref(y) e^(r/beta). Small beta piles mass on the best response (blue); large beta stays near the reference.",
+      "fr": "La laisse KL. Politique optimale pour trois réponses de référence (0,5, 0,3, 0,2) et de récompenses (1, 0, -1), en fonction de beta : pi*(y) proportionnelle à pi_ref(y) e^(r/beta). Un petit beta accumule la masse sur la meilleure réponse (bleu) ; un grand beta reste près de la référence."
+    },
+    "spec": {
+      "xDomain": [
+        0.1,
+        3
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.5*exp(1/x)/(0.5*exp(1/x)+0.3+0.2*exp(-1/x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.3/(0.5*exp(1/x)+0.3+0.2*exp(-1/x))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.2*exp(-1/x)/(0.5*exp(1/x)+0.3+0.2*exp(-1/x))",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rlhf-vs-dpo",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two routes from the SFT model to an aligned policy. RLHF trains a reward model on comparisons, then optimises against it with PPO and a KL leash to the frozen reference; DPO skips the reward model and trains on the same comparisons directly.",
+      "fr": "Deux voies du modèle SFT à une politique alignée. Le RLHF entraîne un modèle de récompense sur des comparaisons puis optimise contre lui avec PPO et une laisse KL vers la référence gelée ; la DPO saute le modèle de récompense et s'entraîne directement sur les mêmes comparaisons."
+    },
+    "code": {
+      "en": "flowchart TD\n  SFT[\"SFT model\"] --> RM[\"reward model r(x,y)<br/>Bradley-Terry on (x, y_w, y_l)\"]\n  SFT --> REF[\"frozen reference pi_ref\"]\n  RM --> PPO[\"PPO: sample y, maximise<br/>r - beta * KL to pi_ref\"]\n  REF --> PPO\n  PPO --> POL[\"aligned policy pi\"]\n  SFT --> DPO[\"DPO: loss on log-ratios<br/>fixed preference pairs\"]\n  REF --> DPO\n  DPO --> POL",
+      "fr": "flowchart TD\n  SFT[\"modèle SFT\"] --> RM[\"modèle de récompense r(x,y)<br/>Bradley-Terry sur (x, y_w, y_l)\"]\n  SFT --> REF[\"référence gelée pi_ref\"]\n  RM --> PPO[\"PPO : échantillonner y, maximiser<br/>r - beta * KL vers pi_ref\"]\n  REF --> PPO\n  PPO --> POL[\"politique alignée pi\"]\n  SFT --> DPO[\"DPO : perte sur les log-rapports<br/>paires de préférence fixes\"]\n  REF --> DPO\n  DPO --> POL"
+    }
+  },
+  {
+    "id": "dpo-loss",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The DPO loss for one pair: log-probabilities of chosen and rejected responses under the policy and the frozen reference give the implicit-reward margin z; minimising -ln sigmoid(z) raises the chosen response and lowers the rejected one.",
+      "fr": "La perte DPO pour une paire : les log-probabilités des réponses choisie et rejetée sous la politique et sous la référence gelée donnent la marge de récompense implicite z ; minimiser -ln sigmoïde(z) relève la réponse choisie et abaisse la rejetée."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompt x, chosen y_w,<br/>rejected y_l\"] --> POL[\"policy:<br/>log pi(y_w), log pi(y_l)\"]\n  P --> REF[\"reference (frozen):<br/>log pi_ref(y_w), log pi_ref(y_l)\"]\n  POL --> Z[\"z = beta * [(log-ratio of y_w) - (log-ratio of y_l)]\"]\n  REF --> Z\n  Z --> LS[\"loss = -ln sigmoid(z)\"]\n  LS --> G[\"gradient weight sigmoid(-z):<br/>raise log pi(y_w), lower log pi(y_l)\"]",
+      "fr": "flowchart LR\n  P[\"prompt x, choisie y_w,<br/>rejetée y_l\"] --> POL[\"politique :<br/>log pi(y_w), log pi(y_l)\"]\n  P --> REF[\"référence (gelée) :<br/>log pi_ref(y_w), log pi_ref(y_l)\"]\n  POL --> Z[\"z = beta * [(log-rapport de y_w) - (log-rapport de y_l)]\"]\n  REF --> Z\n  Z --> LS[\"loss = -ln sigmoid(z)\"]\n  LS --> G[\"poids du gradient sigmoid(-z):<br/>relever log pi(y_w), abaisser log pi(y_l)\"]"
+    }
+  }
+]

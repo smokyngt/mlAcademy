@@ -1,0 +1,330 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Arithmetic (blue, 5, 8, 11, ..., a_n = 5 + 3(n-1)) grows linearly; geometric (orange, 3, 6, 12, ..., a_n = 3*2^(n-1)) grows exponentially and overtakes it.",
+      "fr": "L'arithmétique (bleu, 5, 8, 11, ..., a_n = 5 + 3(n-1)) croît linéairement ; la géométrique (orange, 3, 6, 12, ..., a_n = 3*2^(n-1)) croît exponentiellement et la dépasse."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        9
+      ],
+      "yDomain": [
+        0,
+        400
+      ],
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              5
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              11
+            ],
+            [
+              4,
+              14
+            ],
+            [
+              5,
+              17
+            ],
+            [
+              6,
+              20
+            ],
+            [
+              7,
+              23
+            ],
+            [
+              8,
+              26
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              6
+            ],
+            [
+              3,
+              12
+            ],
+            [
+              4,
+              24
+            ],
+            [
+              5,
+              48
+            ],
+            [
+              6,
+              96
+            ],
+            [
+              7,
+              192
+            ],
+            [
+              8,
+              384
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f2",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Gauss's pairing trick for n = 5: write the sum forward and backward; every column adds to n + 1, so 2S = n(n+1).",
+      "fr": "L'astuce d'appariement de Gauss pour n = 5 : écrire la somme à l'endroit et à l'envers ; chaque colonne vaut n + 1, donc 2S = n(n+1)."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph F[\"S forward\"]\n    direction LR\n    a1[\"1\"] --- a2[\"2\"] --- a3[\"3\"] --- a4[\"4\"] --- a5[\"5\"]\n  end\n  subgraph Bk[\"S backward\"]\n    direction LR\n    b1[\"5\"] --- b2[\"4\"] --- b3[\"3\"] --- b4[\"2\"] --- b5[\"1\"]\n  end\n  F --> C[\"each column sums to 6 = n + 1\"]\n  Bk --> C\n  C --> R[\"2S = 5 x 6 = 30, so S = 15\"]",
+      "fr": "flowchart TB\n  subgraph F[\"S à l'endroit\"]\n    direction LR\n    a1[\"1\"] --- a2[\"2\"] --- a3[\"3\"] --- a4[\"4\"] --- a5[\"5\"]\n  end\n  subgraph Bk[\"S à l'envers\"]\n    direction LR\n    b1[\"5\"] --- b2[\"4\"] --- b3[\"3\"] --- b4[\"2\"] --- b5[\"1\"]\n  end\n  F --> C[\"chaque colonne vaut 6 = n + 1\"]\n  Bk --> C\n  C --> R[\"2S = 5 x 6 = 30, donc S = 15\"]"
+    }
+  },
+  {
+    "id": "f3",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Partial sums of a geometric series settle: S_n = (1 - r^n)/(1 - r) climbs to 2 for r = 1/2 and to 10 for r = 0.9 (slower).",
+      "fr": "Les sommes partielles d'une série géométrique se stabilisent : S_n = (1 - r^n)/(1 - r) monte vers 2 pour r = 1/2 et vers 10 pour r = 0,9 (plus lentement)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        11
+      ],
+      "data": [
+        {
+          "fn": "2*(1-0.5^x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "10*(1-0.9^x)",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2,
+          "text": "limit 2"
+        },
+        {
+          "y": 10,
+          "text": "limit 10"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "When does the geometric series converge? It depends only on the ratio r.",
+      "fr": "Quand la série géométrique converge-t-elle ? Cela ne dépend que de la raison r."
+    },
+    "code": {
+      "en": "flowchart TD\n  R{\"ratio r\"} -->|\"abs(r) < 1\"| C[\"r^n goes to 0: sum = a / (1 - r)\"]\n  R -->|\"r = 1\"| D1[\"terms stay a: sum grows without bound\"]\n  R -->|\"r = -1\"| D2[\"partial sums alternate a, 0, a, 0\"]\n  R -->|\"abs(r) > 1\"| D3[\"terms explode: no limit\"]",
+      "fr": "flowchart TD\n  R{\"raison r\"} -->|\"abs(r) < 1\"| C[\"r^n tend vers 0 : somme = a / (1 - r)\"]\n  R -->|\"r = 1\"| D1[\"les termes restent a : somme non bornée\"]\n  R -->|\"r = -1\"| D2[\"les sommes partielles alternent a, 0, a, 0\"]\n  R -->|\"abs(r) > 1\"| D3[\"les termes explosent : pas de limite\"]"
+    }
+  },
+  {
+    "id": "f5",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "The harmonic series diverges: H_n (red dots) keeps climbing like ln(n) + 0.577 (blue), without bound, although the terms 1/n go to 0.",
+      "fr": "La série harmonique diverge : H_n (points rouges) continue de monter comme ln(n) + 0,577 (bleu), sans borne, bien que les termes 1/n tendent vers 0."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        32
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "data": [
+        {
+          "fn": "log(x)+0.5772",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 3
+          },
+          "points": [
+            [
+              1,
+              1.0
+            ],
+            [
+              2,
+              1.5
+            ],
+            [
+              3,
+              1.8333
+            ],
+            [
+              4,
+              2.0833
+            ],
+            [
+              5,
+              2.2833
+            ],
+            [
+              6,
+              2.45
+            ],
+            [
+              7,
+              2.5929
+            ],
+            [
+              8,
+              2.7179
+            ],
+            [
+              9,
+              2.829
+            ],
+            [
+              10,
+              2.929
+            ],
+            [
+              11,
+              3.0199
+            ],
+            [
+              12,
+              3.1032
+            ],
+            [
+              13,
+              3.1801
+            ],
+            [
+              14,
+              3.2516
+            ],
+            [
+              15,
+              3.3182
+            ],
+            [
+              16,
+              3.3807
+            ],
+            [
+              17,
+              3.4396
+            ],
+            [
+              18,
+              3.4951
+            ],
+            [
+              19,
+              3.5477
+            ],
+            [
+              20,
+              3.5977
+            ],
+            [
+              21,
+              3.6454
+            ],
+            [
+              22,
+              3.6908
+            ],
+            [
+              23,
+              3.7343
+            ],
+            [
+              24,
+              3.776
+            ],
+            [
+              25,
+              3.816
+            ],
+            [
+              26,
+              3.8544
+            ],
+            [
+              27,
+              3.8915
+            ],
+            [
+              28,
+              3.9272
+            ],
+            [
+              29,
+              3.9617
+            ],
+            [
+              30,
+              3.995
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  }
+]

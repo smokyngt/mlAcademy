@@ -1,0 +1,17 @@
+[
+  { "id": "math.11.c1", "concept": "la.linear-systems", "front": "Row picture versus column picture of $A\\mathbf x=\\mathbf b$", "back": "Row: each equation is a hyperplane, a solution lies on all. Column: $\\mathbf b$ as a linear combination of the columns of $A$ with coefficients $\\mathbf x$." },
+  { "id": "math.11.c2", "concept": "la.linear-systems", "front": "Three possible outcomes of a linear system", "back": "No solution, exactly one, or infinitely many. Never exactly two." },
+  { "id": "math.11.c3", "concept": "la.linear-systems", "front": "Elementary row operations", "back": "Swap two rows; scale a row by a non-zero constant; add a multiple of one row to another. They keep the solution set unchanged." },
+  { "id": "math.11.c4", "concept": "la.linear-systems", "front": "Row-echelon form", "back": "Zero rows at the bottom; each pivot (first non-zero entry) strictly to the right of the pivot above: a staircase." },
+  { "id": "math.11.c5", "concept": "la.linear-systems", "front": "Basic versus free variables", "back": "Basic: unknowns in pivot columns. Free: the others; they can be chosen arbitrarily and parametrise the solution set." },
+  { "id": "math.11.c6", "concept": "la.linear-systems", "front": "Rank", "back": "Number of linearly independent columns (= rows) = number of pivots = $\\dim\\operatorname{Im}(A)$. Full rank: $\\min(m,n)$." },
+  { "id": "math.11.c7", "concept": "la.linear-systems", "front": "Rank-nullity", "back": "$\\dim\\ker(A)=n-\\operatorname{rk}(A)$ for $A\\in\\mathbb R^{m\\times n}$." },
+  { "id": "math.11.c8", "concept": "la.linear-systems", "front": "Solvability test", "back": "$A\\mathbf x=\\mathbf b$ is solvable iff $\\operatorname{rk}(A)=\\operatorname{rk}(A|\\mathbf b)$; unique iff additionally $\\operatorname{rk}(A)=n$." },
+  { "id": "math.11.c9", "concept": "la.linear-systems", "front": "General solution structure", "back": "Particular solution $+$ any vector of $\\ker(A)$. For $\\mathbf b\\ne\\mathbf0$ the solution set is not a subspace." },
+  { "id": "math.11.c10", "concept": "la.linear-systems", "front": "Null space (kernel) and column space (image)", "back": "$\\ker A=\\{\\mathbf x:A\\mathbf x=0\\}\\subseteq\\mathbb R^n$; $\\operatorname{Im}A=\\operatorname{span}$ of the columns $\\subseteq\\mathbb R^m$." },
+  { "id": "math.11.c11", "concept": "la.linear-systems", "front": "Why partial pivoting?", "back": "Dividing by a tiny pivot gives huge multipliers that amplify rounding error; swap to the largest entry in the column. Cost of elimination $\\sim n^3$." },
+  { "id": "math.11.c12", "concept": "la.linear-systems", "front": "LU factorisation benefit", "back": "$PA=LU$ costs $\\sim n^3$ once; each new right-hand side then costs only $\\sim n^2$ (two triangular solves)." },
+  { "id": "math.11.c13", "concept": "la.linear-systems", "front": "Normal equations", "back": "$A^\\top A\\mathbf x=A^\\top\\mathbf b$, shapes $(n,n)$ and $(n,)$; residual $\\mathbf b-A\\mathbf x\\perp$ columns of $A$. This is linear regression." },
+  { "id": "math.11.c14", "concept": "la.linear-systems", "front": "Condition number", "back": "$\\kappa=\\sigma_{\\max}/\\sigma_{\\min}$; roughly $\\log_{10}\\kappa$ digits are lost. $\\kappa(A^\\top A)=\\kappa(A)^2$." },
+  { "id": "math.11.c15", "concept": "la.linear-systems", "front": "solve versus inv", "back": "Call `np.linalg.solve(A, b)` (LU with pivoting, no explicit inverse) or `lstsq` for rectangular $A$; never `inv(A) @ b`." }
+]

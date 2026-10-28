@@ -1,0 +1,10 @@
+{
+  "id": "rsn.01.ex2",
+  "title": "pass@k et barres d'erreur honnêtes",
+  "prompt": "Tu échantillonnes `n` solutions à un problème et `c` d'entre elles sont vérifiées correctes. **pass@k** est la probabilité qu'au moins une de `k` solutions, tirées du modèle, soit correcte.\n\nImplémente :\n\n- `pass_at_k(n, c, k)` : l'estimateur **sans biais** `1 - C(n-c, k) / C(n, k)` (évalue-le avec la forme produit stable des indices ; renvoie `1.0` quand `n - c < k`).\n- `naive_pass_at_k(n, c, k)` : l'estimateur par substitution `1 - (1 - c/n)**k`, qui traite le taux mesuré comme s'il était le vrai.\n- `expected_estimate(estimator, n, p, k)` : l'espérance exacte d'un estimateur quand la vraie probabilité de succès par échantillon est `p`, c'est-à-dire `sum_c Binomial(c; n, p) * estimator(n, c, k)`.\n- `accuracy_se(c, n)` : l'erreur standard `sqrt(p(1-p)/n)` d'une précision `p = c/n`.\n- `wilson_interval(c, n, z=1.96)` : l'intervalle de score de Wilson `(low, high)` pour une précision.\n- `mean_pass_at_k(counts, n, k)` : le score du benchmark, c'est-à-dire la moyenne de `pass_at_k(n, c, k)` sur une liste de nombres de réussites par problème.",
+  "hints": [
+    "La probabilité que k échantillons tirés SANS remise parmi n ne contiennent aucun correct est C(n-c, k) / C(n, k). pass@k est un moins cela. Si n - c < k, un échantillon correct est garanti : renvoie 1.0.",
+    "Pour de grands n, les binomiaux dépassent la précision des flottants ; utilise la forme produit 1 - prod_{i=n-c+1}^{n} (1 - k/i), qui est algébriquement identique.",
+    "Intervalle de Wilson : p = c/n, d = 1 + z^2/n, centre = (p + z^2/(2n)) / d, demi-largeur = z * sqrt(p(1-p)/n + z^2/(4n^2)) / d. Borne la valeur basse à 0 et la haute à 1."
+  ]
+}

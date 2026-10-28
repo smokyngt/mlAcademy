@@ -1,0 +1,10 @@
+{
+ "id": "gen.05.ex1",
+ "title": "Guidage sans classifieur, cross-attention et LoRA",
+ "prompt": "Implémente et teste le guidage sans classifieur et deux idées d'adaptateurs (NumPy uniquement).\n\n- Débruiteurs gaussiens exacts pour un jeu de données 1-D à deux classes (moyennes des classes `ms`, écart-type commun `s`) : `eps_cond(xt, t, abar, m, s)` pour une classe et `eps_uncond(xt, t, abar, ms, s)` pour le mélange d'a priori égaux. L'estimation inconditionnelle de $\\mathbb E[x_0|x_t]$ est la moyenne, pondérée par les probabilités a posteriori (responsabilités), des estimations de chaque classe.\n- `cfg(eps_u, eps_c, w)`, et `sample(...)` (la boucle ancestrale de la leçon DDPM). Reproduis le tableau des échelles de guidage.\n- `cross_attention(F, C, Wq, Wk, Wv)` renvoyant `(sortie, matrice_d_attention)`.\n- `lora_delta(A, B, alpha)` $=\\frac{\\alpha}{r}BA$ et `lora_params(d_out, d_in, r)`.\n\n`linear_betas`, `alpha_bars`, `x0_hat` et `npdf` sont fournis/implémentés comme dans la solution.",
+ "hints": [
+  "x0_hat inconditionnel = sum_c r_c * x0_hat_c où r_c est proportionnel à N(x_t; sqrt(abar) m_c, abar s^2 + 1 - abar).",
+  "cfg tient en une ligne : eps_u + w*(eps_c - eps_u).",
+  "LoRA : (alpha / r) * B @ A, avec r = A.shape[0]."
+ ]
+}

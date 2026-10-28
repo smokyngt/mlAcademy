@@ -1,0 +1,10 @@
+{
+  "id": "seq.01.ex2",
+  "title": "Tailles de sortie, paramètres, champ récepteur et max-pool",
+  "prompt": "Implémente quatre petits outils que tu utiliseras constamment en lisant des architectures de CNN.\n\n1. `out_size(H, K, P, S)` : taille spatiale de sortie.\n2. `n_params(C_in, C_out, K)` : paramètres d'une couche de convolution avec biais.\n3. `receptive_field(layers)` : `layers` est une liste de paires `(K, S)` (convolution ou pooling), renvoie le champ récepteur (en pixels d'entrée, un axe) d'une unité après la dernière couche.\n4. `maxpool_forward(x, k)` et `maxpool_backward(dout, cache)` pour un pooling `k x k` sans recouvrement (pas `k`) sur `x` de forme `(C, H, W)` avec `H, W` divisibles par `k`.",
+  "hints": [
+    "Taille de sortie : (H - K + 2P) // S + 1. Paramètres : C_out*C_in*K*K + C_out.",
+    "Récurrence du champ récepteur : garde r (taille du champ) et j (saut = produit des pas jusqu'ici). Pour chaque couche (K, S) : r += (K-1)*j ; j *= S.",
+    "Passe arrière du max-pool : route le gradient vers la position du maximum dans chaque fenêtre, zéro ailleurs. Utilise argmax sur la fenêtre aplatie."
+  ]
+}

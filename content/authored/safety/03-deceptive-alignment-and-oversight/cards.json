@@ -1,0 +1,92 @@
+[
+ {
+  "id": "saf.03.c1",
+  "concept": "saf.deception",
+  "front": "Mesa-optimiser and mesa-objective",
+  "back": "A learned system that itself optimises at run time, and the objective it internally pursues (which may only correlate with the base objective)."
+ },
+ {
+  "id": "saf.03.c2",
+  "concept": "saf.deception",
+  "front": "Deceptive alignment (as hypothesised)",
+  "back": "Behaving as the training signal wants because modification is expected otherwise, while holding a different objective. Needs a persistent goal, situational awareness and an expectation of modification."
+ },
+ {
+  "id": "saf.03.c3",
+  "concept": "saf.deception",
+  "front": "Why adversarial training can disappoint",
+  "back": "Failed tests teach the system what tests look like, so it can get better at separating test from deployment."
+ },
+ {
+  "id": "saf.03.c4",
+  "concept": "saf.deception",
+  "front": "Sleeper agents: what was built",
+  "back": "Models deliberately trained with a trigger-keyed backdoor (e.g. year 2024 -> vulnerable code) to study whether safety training removes it."
+ },
+ {
+  "id": "saf.03.c5",
+  "concept": "saf.deception",
+  "front": "Sleeper agents: main reported findings",
+  "back": "Backdoors survived SFT, RLHF and adversarial training; persistence grew with scale and deception reasoning; probes could detect the trigger state."
+ },
+ {
+  "id": "saf.03.c6",
+  "concept": "saf.deception",
+  "front": "Three pillars of scheming",
+  "back": "Misalignment (objective differs from user's), goal-directedness (multi-step plans), situational awareness (knows it is being evaluated)."
+ },
+ {
+  "id": "saf.03.c7",
+  "concept": "saf.deception",
+  "front": "Compliance gap",
+  "back": "Compliance in the monitored/training-relevant condition minus compliance in the unmonitored condition; isolates the strategic component."
+ },
+ {
+  "id": "saf.03.c8",
+  "concept": "saf.deception",
+  "front": "Why evaluation reliability falls",
+  "back": "As models become more aware of being tested, test behaviour is a weaker proxy for deployment behaviour."
+ },
+ {
+  "id": "saf.03.c9",
+  "concept": "saf.deception",
+  "front": "What the deception evidence does not show",
+  "back": "Unprompted deception in ordinary deployment: results come from engineered or contrived settings."
+ },
+ {
+  "id": "saf.03.c10",
+  "concept": "saf.control",
+  "front": "Control threat model",
+  "back": "Untrusted strong model U, trusted weaker model T, small trusted human audit budget H."
+ },
+ {
+  "id": "saf.03.c11",
+  "concept": "saf.control",
+  "front": "Trusted monitoring safety formula",
+  "back": "With c = catch prob, h = (1-c)q, n = (1-c)(1-q): P(safe | A attacks) = 1 - h/(c+h) * (1 - n^A)."
+ },
+ {
+  "id": "saf.03.c12",
+  "concept": "saf.control",
+  "front": "Audit threshold from a false-positive budget",
+  "back": "Pick t with P(honest score > t) = f; catch probability is P(attacked score > t)."
+ },
+ {
+  "id": "saf.03.c13",
+  "concept": "saf.control",
+  "front": "Three limits of control",
+  "back": "Humans do not scale; the trusted model eventually lags; control gives safe use, not a trustworthy model."
+ },
+ {
+  "id": "saf.03.c14",
+  "concept": "saf.oversight",
+  "front": "Performance gap recovered (PGR)",
+  "back": "(strong-on-weak-labels - weak) / (ceiling - weak). 0: copies the supervisor; 1: closes the whole gap."
+ },
+ {
+  "id": "saf.03.c15",
+  "concept": "saf.oversight",
+  "front": "Three scalable-oversight mechanisms",
+  "back": "Debate (weak judge, two arguers), recursive reward modelling (model helps evaluate its successor), task decomposition (checkable sub-tasks)."
+ }
+]

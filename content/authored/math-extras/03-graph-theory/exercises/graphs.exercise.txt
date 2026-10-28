@@ -1,0 +1,106 @@
+#@@ meta
+{"id": "mx.03.ex1", "title": "Laplacian, components, spectral bisection and PageRank", "difficulty": 3, "runtime": "pyodide", "concepts": ["mx.graph", "mx.laplacian", "mx.pagerank"], "hints": ["adjacency: start from zeros((n, n)); for each edge (i, j) set A[i, j] = A[j, i] = 1. The Laplacian is diag(A.sum(axis=1)) - A.", "n_components: eigenvalues of the symmetric Laplacian via np.linalg.eigvalsh; count those below 1e-9.", "spectral_bisection: V from np.linalg.eigh(L); the Fiedler vector is column 1 (second smallest eigenvalue). Label = (v > 0); flip all labels if node 0 got label 1 so the result is canonical.", "pagerank: P = M / row sums (a row of zeros, a dangling node, is replaced by the uniform row 1/n). Then repeat r = d * r @ P + (1 - d)/n until the change is below tol."]}
+#@@ prompt
+Implement with NumPy (use `np.linalg.eigh`/`eigvalsh` for eigenproblems):
+
+- `adjacency(n, edges)` - symmetric 0/1 adjacency matrix of an undirected graph.
+- `laplacian(A)` - the combinatorial Laplacian `L = D - A`.
+- `n_components(A)` - the number of connected components, from the number of (numerically) zero Laplacian eigenvalues.
+- `count_walks(A, i, j, k)` - the number of walks of length exactly `k` from node `i` to node `j`.
+- `spectral_bisection(A)` - an integer array of 0/1 labels from the sign of the Fiedler vector (the eigenvector of the second smallest Laplacian eigenvalue), with node 0 always labelled 0.
+- `pagerank(M, d=0.85, tol=1e-12)` - PageRank vector (sums to 1) for a directed adjacency matrix `M` where `M[i, j] = 1` means a link from `i` to `j`. A node without out-links jumps uniformly. Use power iteration.
+#@@ starter
+import numpy as np
+
+def adjacency(n, edges):
+    raise NotImplementedError
+
+def laplacian(A):
+    raise NotImplementedError
+
+def n_components(A):
+    raise NotImplementedError
+
+def count_walks(A, i, j, k):
+    raise NotImplementedError
+
+def spectral_bisection(A):
+    raise NotImplementedError
+
+def pagerank(M, d=0.85, tol=1e-12):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+edges = [(0, 1), (1, 2), (0, 2), (3, 4), (4, 5), (3, 5), (2, 3)]
+A = adjacency(6, edges)
+check("adjacency is symmetric with 7 undirected edges", lambda: np.array_equal(A, A.T) and A.sum() == 14)
+L = laplacian(A)
+check("rows of the Laplacian sum to zero", lambda: np.allclose(L.sum(axis=1), 0))
+check("degrees are 2,2,3,3,2,2", lambda: np.allclose(np.diag(L), [2, 2, 3, 3, 2, 2]))
+w = np.linalg.eigvalsh(L)
+check("Laplacian eigenvalues 0, 0.4384, 3, 3, 3, 4.5616", lambda: np.allclose(w, [0, 0.43845, 3, 3, 3, 4.56155], atol=1e-4))
+x = np.array([1., 2, 0, 3, -1, 5])
+check("quadratic form x^T L x = sum over edges (xi-xj)^2", lambda: abs(x @ L @ x - sum((x[i] - x[j]) ** 2 for i, j in edges)) < 1e-9)
+check("connected graph has 1 component", lambda: n_components(A) == 1)
+A2 = adjacency(6, [e for e in edges if e != (2, 3)])
+check("removing the bridge gives 2 components", lambda: n_components(A2) == 2)
+check("isolated nodes count as components", lambda: n_components(adjacency(5, [(0, 1)])) == 4)
+check("walks of length 2 from 0 to 3 is 1 (via node 2)", lambda: count_walks(A, 0, 3, 2) == 1)
+check("walks of length 1 are the adjacency entries", lambda: count_walks(A, 0, 1, 1) == 1 and count_walks(A, 0, 4, 1) == 0)
+check("trace(A^3) / 6 = 2 triangles", lambda: sum(count_walks(A, i, i, 3) for i in range(6)) == 12)
+lab = spectral_bisection(A)
+check("spectral bisection separates the two triangles", lambda: list(lab) == [0, 0, 0, 1, 1, 1])
+rng = np.random.default_rng(0)
+B = adjacency(8, [(i, j) for i in range(4) for j in range(i + 1, 4)] + [(i, j) for i in range(4, 8) for j in range(i + 1, 8)] + [(3, 4)])
+check("bisection finds two 4-cliques joined by one edge", lambda: list(spectral_bisection(B)) == [0, 0, 0, 0, 1, 1, 1, 1])
+M = np.array([[0, 1, 1, 0], [0, 0, 1, 0], [1, 0, 0, 1], [0, 0, 1, 0.]])
+r = pagerank(M)
+check("PageRank sums to 1", lambda: abs(r.sum() - 1) < 1e-9)
+check("PageRank = [0.21991, 0.13096, 0.42921, 0.21991]", lambda: np.allclose(r, [0.21991, 0.13096, 0.42921, 0.21991], atol=1e-4))
+n = 4
+P = M / M.sum(axis=1, keepdims=True)
+G = 0.85 * P + 0.15 / n
+check("PageRank is a fixed point of the Google matrix", lambda: np.allclose(r @ G, r, atol=1e-9))
+M2 = np.array([[0, 1, 0], [0, 0, 1], [0, 0, 0.]])
+r2 = pagerank(M2)
+check("dangling node handled: positive and sums to 1", lambda: abs(r2.sum() - 1) < 1e-9 and np.all(r2 > 0))
+check("d = 0 gives the uniform vector", lambda: np.allclose(pagerank(M, d=0.0), np.ones(4) / 4))
+#@@ solution
+import numpy as np
+
+def adjacency(n, edges):
+    A = np.zeros((n, n))
+    for i, j in edges:
+        A[i, j] = 1
+        A[j, i] = 1
+    return A
+
+def laplacian(A):
+    return np.diag(A.sum(axis=1)) - A
+
+def n_components(A):
+    w = np.linalg.eigvalsh(laplacian(A))
+    return int(np.sum(w < 1e-9))
+
+def count_walks(A, i, j, k):
+    return int(round(np.linalg.matrix_power(A, k)[i, j]))
+
+def spectral_bisection(A):
+    w, V = np.linalg.eigh(laplacian(A))
+    lab = (V[:, 1] > 0).astype(int)
+    if lab[0] == 1:
+        lab = 1 - lab
+    return lab
+
+def pagerank(M, d=0.85, tol=1e-12):
+    n = M.shape[0]
+    out = M.sum(axis=1, keepdims=True)
+    P = np.where(out > 0, M / np.where(out > 0, out, 1), 1.0 / n)
+    r = np.ones(n) / n
+    for _ in range(10000):
+        r_new = d * (r @ P) + (1 - d) / n
+        if np.abs(r_new - r).sum() < tol:
+            r = r_new
+            break
+        r = r_new
+    return r / r.sum()

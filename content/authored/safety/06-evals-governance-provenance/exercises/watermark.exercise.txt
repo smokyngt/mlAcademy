@@ -1,0 +1,119 @@
+#@@ meta
+{"id": "saf.06.ex1", "title": "Green-list watermark detection with a z-test", "difficulty": 4, "runtime": "pyodide", "concepts": ["saf.watermarking"], "hints": ["For each position t >= 1, the previous token and the current token decide green or red through the given is_green(prev, tok) hash. Count green positions g among T = n - 1 positions.", "Under the null (no watermark) each position is green with probability gamma, independently: mean gamma*T, variance T*gamma*(1-gamma). z = (g - gamma*T) / sqrt(T*gamma*(1-gamma)).", "The one-sided p-value is 0.5*erfc(z/sqrt(2)). For biased generation multiply the base probabilities by exp(delta) on green tokens and renormalise."]}
+#@@ prompt
+Token-level watermarking biases a model's sampling towards a pseudo-random **green list** that depends on the previous token and a secret key. A detector who knows the key counts green tokens and runs a z-test. The helper `is_green(prev, tok, key, gamma)` (given) is the keyed hash that defines the lists; `base_probs(V)` is a toy language model.
+
+Implement:
+
+- `green_fraction(tokens, key, gamma)`: fraction of the `n-1` consecutive pairs that are green.
+- `watermark_z(tokens, key, gamma)`: the one-sided z-score `(g - gamma*T) / sqrt(T*gamma*(1-gamma))`.
+- `p_value(z)`: one-sided normal tail probability.
+- `generate(T, delta, rng, key, gamma)`: sample `T` tokens; at each step multiply the base probability of green tokens by `exp(delta)`, renormalise and sample. (`delta = 0` is ordinary unwatermarked sampling.)
+- `detect(tokens, key, gamma, z_threshold)`: `True` if `z >= z_threshold`.
+#@@ starter
+import math
+import numpy as np
+
+V = 500
+
+def base_probs(V=V):
+    p = np.arange(1, V + 1) ** -0.5
+    return p / p.sum()
+
+def is_green(prev, tok, key=42, gamma=0.5):
+    x = (np.asarray(prev, dtype=np.uint64) * np.uint64(1000003) + np.asarray(tok, dtype=np.uint64) * np.uint64(10007) + np.uint64(key))
+    x = (x * np.uint64(2654435761)) % np.uint64(2 ** 32)
+    x = x ^ (x >> np.uint64(15))
+    x = (x * np.uint64(0x45d9f3b)) % np.uint64(2 ** 32)
+    x = x ^ (x >> np.uint64(13))
+    return (x.astype(np.float64) / 2 ** 32) < gamma
+
+def green_fraction(tokens, key=42, gamma=0.5):
+    raise NotImplementedError
+
+def watermark_z(tokens, key=42, gamma=0.5):
+    raise NotImplementedError
+
+def p_value(z):
+    raise NotImplementedError
+
+def generate(T, delta, rng, key=42, gamma=0.5):
+    raise NotImplementedError
+
+def detect(tokens, key=42, gamma=0.5, z_threshold=4.0):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+g = is_green(*np.meshgrid(np.arange(V), np.arange(V)))
+check("the hash puts about half the pairs in the green list", lambda: abs(g.mean() - 0.5) < 0.01)
+check("p_value(0) = 0.5", lambda: abs(p_value(0.0) - 0.5) < 1e-12)
+check("p_value(1.645) is about 0.05", lambda: abs(p_value(1.645) - 0.05) < 1e-3)
+rng = np.random.default_rng(1)
+base = base_probs()
+X = rng.choice(V, size=(3000, 100), p=base)
+zs = np.array([watermark_z(row) for row in X[:600]])
+check("unwatermarked text: z has mean about 0 and std about 1", lambda: abs(zs.mean()) < 0.15 and abs(zs.std() - 1.0) < 0.15)
+check("unwatermarked false positive rate at z>=2 is near 2.3%", lambda: abs((zs >= 2).mean() - 0.0228) < 0.02)
+check("no unwatermarked sample passes z>=4", lambda: not any(detect(row, z_threshold=4.0) for row in X[:600]))
+rng = np.random.default_rng(0)
+plain = [generate(200, 0.0, rng) for _ in range(4)]
+marked = [generate(200, 2.0, rng) for _ in range(4)]
+check("generate returns T integer tokens in range", lambda: len(marked[0]) == 200 and marked[0].min() >= 0 and marked[0].max() < V)
+check("plain generation is not flagged", lambda: all(abs(watermark_z(t)) < 3 for t in plain))
+check("watermarked generation has z above 8", lambda: all(watermark_z(t) > 8 for t in marked))
+check("watermarked text is detected, plain text is not", lambda: all(detect(t) for t in marked) and not any(detect(t) for t in plain))
+check("green fraction of marked text is clearly above gamma", lambda: np.mean([green_fraction(t) for t in marked]) > 0.7)
+check("the wrong key sees nothing", lambda: all(abs(watermark_z(t, key=7)) < 3.5 for t in marked))
+t = marked[0]
+rr = np.random.default_rng(3)
+def replace(tokens, frac):
+    out = tokens.copy()
+    idx = rr.random(len(out)) < frac
+    out[idx] = rr.choice(V, size=idx.sum(), p=base)
+    return out
+check("replacing half the tokens weakens but does not erase the signal; 80% erases it", lambda: watermark_z(replace(t, 0.5)) < watermark_z(t) and watermark_z(replace(t, 0.8)) < 3.0)
+#@@ solution
+import math
+import numpy as np
+
+V = 500
+
+def base_probs(V=V):
+    p = np.arange(1, V + 1) ** -0.5
+    return p / p.sum()
+
+def is_green(prev, tok, key=42, gamma=0.5):
+    x = (np.asarray(prev, dtype=np.uint64) * np.uint64(1000003) + np.asarray(tok, dtype=np.uint64) * np.uint64(10007) + np.uint64(key))
+    x = (x * np.uint64(2654435761)) % np.uint64(2 ** 32)
+    x = x ^ (x >> np.uint64(15))
+    x = (x * np.uint64(0x45d9f3b)) % np.uint64(2 ** 32)
+    x = x ^ (x >> np.uint64(13))
+    return (x.astype(np.float64) / 2 ** 32) < gamma
+
+def green_fraction(tokens, key=42, gamma=0.5):
+    tokens = np.asarray(tokens)
+    return float(is_green(tokens[:-1], tokens[1:], key, gamma).mean())
+
+def watermark_z(tokens, key=42, gamma=0.5):
+    tokens = np.asarray(tokens)
+    gr = is_green(tokens[:-1], tokens[1:], key, gamma)
+    T = len(gr)
+    return float((gr.sum() - gamma * T) / math.sqrt(T * gamma * (1 - gamma)))
+
+def p_value(z):
+    return 0.5 * math.erfc(z / math.sqrt(2.0))
+
+def generate(T, delta, rng, key=42, gamma=0.5):
+    base = base_probs()
+    allt = np.arange(V)
+    toks = [int(rng.choice(V, p=base))]
+    for _ in range(T - 1):
+        gr = is_green(np.full(V, toks[-1]), allt, key, gamma)
+        w = base * np.exp(delta * gr)
+        w = w / w.sum()
+        toks.append(int(rng.choice(V, p=w)))
+    return np.array(toks)
+
+def detect(tokens, key=42, gamma=0.5, z_threshold=4.0):
+    return watermark_z(tokens, key, gamma) >= z_threshold

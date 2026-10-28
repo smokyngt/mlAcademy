@@ -1,0 +1,98 @@
+[
+ {
+  "id": "sys.02.c1",
+  "concept": "llm.quantization",
+  "front": "Symmetric int8 scale",
+  "back": "$s=\\max|x|/127$, $q=\\operatorname{clip}(\\operatorname{round}(x/s),-127,127)$, $\\hat x=s\\,q$."
+ },
+ {
+  "id": "sys.02.c2",
+  "concept": "llm.quantization",
+  "front": "Asymmetric quantisation",
+  "back": "$s=(u-\\ell)/(2^b-1)$, zero point $z=\\operatorname{round}(-\\ell/s)$, $q=\\operatorname{round}(x/s)+z$, $\\hat x=s(q-z)$. Range must include 0."
+ },
+ {
+  "id": "sys.02.c3",
+  "concept": "llm.quantization",
+  "front": "Why include 0 in the range?",
+  "back": "So that real zero (padding, ReLU outputs, masks) is represented exactly: x=0 gives q=z and dequantises to 0."
+ },
+ {
+  "id": "sys.02.c4",
+  "concept": "llm.quantization",
+  "front": "Rounding error bound and MSE",
+  "back": "$|\\hat x-x|\\le s/2$ for unclipped values; roughly uniform error gives MSE $\\approx s^2/12$."
+ },
+ {
+  "id": "sys.02.c5",
+  "concept": "llm.quantization",
+  "front": "Effect of removing one bit",
+  "back": "The scale doubles, so the MSE is multiplied by about 4."
+ },
+ {
+  "id": "sys.02.c6",
+  "concept": "llm.quantization",
+  "front": "Per-tensor vs per-channel",
+  "back": "Per-tensor: one scale, set by the largest weight. Per-channel: one scale per output row, so an outlier only damages its own row. Cost: one scale stored per row."
+ },
+ {
+  "id": "sys.02.c7",
+  "concept": "llm.quantization",
+  "front": "What is an outlier in quantisation?",
+  "back": "A value far larger than the rest; it forces a large scale and coarse resolution for all other values sharing that scale."
+ },
+ {
+  "id": "sys.02.c8",
+  "concept": "llm.quantization",
+  "front": "Sensitivity hierarchy",
+  "back": "Most robust to least: weights, activations (outliers), KV cache (errors accumulate), attention logits (softmax amplifies; keep in 16-bit)."
+ },
+ {
+  "id": "sys.02.c9",
+  "concept": "llm.quantization",
+  "front": "PTQ vs QAT",
+  "back": "Post-training quantisation rounds a trained model (fast, cheap). Quantisation-aware training simulates rounding during training."
+ },
+ {
+  "id": "sys.02.c10",
+  "concept": "llm.quantization",
+  "front": "Speculative decoding in one sentence",
+  "back": "A cheap draft model proposes N tokens; the target verifies all in one parallel pass and keeps a prefix; output law equals the target's."
+ },
+ {
+  "id": "sys.02.c11",
+  "concept": "llm.quantization",
+  "front": "Acceptance rule",
+  "back": "Accept draft token d with probability $\\min(1,q(d)/p(d))$."
+ },
+ {
+  "id": "sys.02.c12",
+  "concept": "llm.quantization",
+  "front": "Residual distribution",
+  "back": "On rejection sample from $\\max(0,q-p)$ normalised. Its normaliser is $1-\\alpha$."
+ },
+ {
+  "id": "sys.02.c13",
+  "concept": "llm.quantization",
+  "front": "Acceptance rate",
+  "back": "$\\alpha=\\sum_x\\min(p(x),q(x))=1-\\mathrm{TV}(p,q)$."
+ },
+ {
+  "id": "sys.02.c14",
+  "concept": "llm.quantization",
+  "front": "Proof sketch of exactness",
+  "back": "$\\Pr[x]=\\min(p,q)(x)+(1-\\alpha)\\frac{(q-p)_+(x)}{1-\\alpha}=q(x)$."
+ },
+ {
+  "id": "sys.02.c15",
+  "concept": "llm.quantization",
+  "front": "Expected tokens per round and speed-up",
+  "back": "$\\mathbb{E}=\\frac{1-\\alpha^{N+1}}{1-\\alpha}$; with draft cost c per token, speed-up $\\approx \\mathbb{E}/(Nc+1)$ (assumes i.i.d. acceptance)."
+ },
+ {
+  "id": "sys.02.c16",
+  "concept": "llm.quantization",
+  "front": "Mixture of experts: what is saved?",
+  "back": "Compute per token (only top-k experts run), not memory: all experts must be stored. Load balancing keeps experts evenly used."
+ }
+]

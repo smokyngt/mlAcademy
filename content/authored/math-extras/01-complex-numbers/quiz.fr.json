@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.01.q1",
+  "prompt": "L'unité imaginaire $i$ est définie par...",
+  "options": [
+   "$i=\\sqrt{2}$",
+   "$i^2=-1$",
+   "$i=1/0$",
+   "$i=-1$"
+  ],
+  "explanation": "$i$ est un nombre tel que $i^2=-1$ ; géométriquement, un quart de tour."
+ },
+ {
+  "id": "mx.01.q2",
+  "prompt": "Quel est le module $|3+4i|$ ?",
+  "options": [],
+  "explanation": "$\\sqrt{3^2+4^2}=5$."
+ },
+ {
+  "id": "mx.01.q3",
+  "prompt": "Multiplier deux nombres complexes en forme polaire...",
+  "options": [
+   "additionne les longueurs, multiplie les angles",
+   "additionne les deux",
+   "multiplie les longueurs, additionne les angles",
+   "multiplie les deux"
+  ],
+  "explanation": "$r_1e^{i\\theta_1}r_2e^{i\\theta_2}=r_1r_2e^{i(\\theta_1+\\theta_2)}$."
+ },
+ {
+  "id": "mx.01.q4",
+  "prompt": "Calcule la partie réelle de $(1+2i)(3-i)$.",
+  "options": [],
+  "explanation": "$3-i+6i-2i^2=5+5i$."
+ },
+ {
+  "id": "mx.01.q5",
+  "prompt": "Quelle étape de la démonstration de la formule d'Euler sépare $\\cos\\theta$ de $\\sin\\theta$ ?",
+  "options": [
+   "Dériver deux fois",
+   "Poser $\\theta=\\pi$",
+   "Prendre le conjugué",
+   "Regrouper les puissances paires de $i\\theta$ (réelles) et les puissances impaires (imaginaires) dans la série de l'exponentielle"
+  ],
+  "explanation": "Les puissances de $i$ se répètent $1,i,-1,-i$, donc les termes pairs sont réels et les termes impairs imaginaires."
+ },
+ {
+  "id": "mx.01.q6",
+  "prompt": "Que vaut $e^{i\\pi}$ (un nombre réel) ?",
+  "options": [],
+  "explanation": "$\\cos\\pi+i\\sin\\pi=-1$."
+ },
+ {
+  "id": "mx.01.q7",
+  "prompt": "Quelle est la somme des racines $n$-ièmes de l'unité pour $n\\ge2$ ?",
+  "options": [
+   "$n$",
+   "$1$",
+   "$0$",
+   "$-1$"
+  ],
+  "explanation": "Série géométrique $(1-\\omega^n)/(1-\\omega)=0$ ; le polygone est équilibré autour de l'origine."
+ },
+ {
+  "id": "mx.01.q8",
+  "prompt": "Une rotation 2D de $90^\\circ$ a pour valeurs propres...",
+  "options": [
+   "$1$ et $-1$",
+   "$\\pm i$",
+   "$0$ et $1$",
+   "aucune, car elle n'a pas de vecteur propre réel"
+  ],
+  "explanation": "$\\lambda^2+1=0$, donc $\\lambda=\\pm i=e^{\\pm i\\pi/2}$. Pas de vecteur propre réel, mais des valeurs propres complexes existent."
+ },
+ {
+  "id": "mx.01.q9",
+  "prompt": "Une matrice réelle a pour valeur propre $0.6+0.8i$. Une autre valeur propre est nécessairement...",
+  "options": [
+   "$-0.6-0.8i$",
+   "$1$",
+   "$0.8+0.6i$",
+   "$0.6-0.8i$"
+  ],
+  "explanation": "Les valeurs propres complexes des matrices réelles viennent par paires conjuguées. Son module vaut 1 : une rotation pure."
+ }
+]

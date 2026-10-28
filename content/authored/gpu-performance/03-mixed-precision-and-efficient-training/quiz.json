@@ -1,0 +1,121 @@
+[
+ {
+  "id": "gpu.03.q1",
+  "concept": "gpu.formats",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Compared with fp16, bfloat16 has...",
+  "options": [
+   "the same range as fp32 but fewer mantissa bits than fp16",
+   "more mantissa bits and a smaller range",
+   "the same bits as fp16 arranged differently with the same range",
+   "exactly the precision of fp32"
+  ],
+  "answer": 0,
+  "explanation": "bf16 is 1/8/7: the 8 exponent bits of fp32 (so a huge range) but only 7 mantissa bits, versus fp16's 1/5/10."
+ },
+ {
+  "id": "gpu.03.q2",
+  "concept": "gpu.formats",
+  "kind": "numeric",
+  "prompt": "What is the largest finite float16 number?",
+  "options": [],
+  "answer": {
+   "value": 65504,
+   "tol": 1
+  },
+  "explanation": "(2 - 2^-10) * 2^15 = 65,504 for 5 exponent bits (bias 15) and 10 mantissa bits."
+ },
+ {
+  "id": "gpu.03.q3",
+  "concept": "gpu.loss-scaling",
+  "kind": "mcq",
+  "prompt": "Why multiply the loss by a large constant S before backward in fp16 training?",
+  "options": [
+   "to make the optimiser step larger",
+   "to reduce the memory used by activations",
+   "to avoid overflow in the forward pass",
+   "so tiny gradients become representable in fp16, then divide by S before the update"
+  ],
+  "answer": 3,
+  "explanation": "The gradient of S * L is S times the gradient of L, which moves small values into fp16's range; unscaling in fp32 cancels S exactly."
+ },
+ {
+  "id": "gpu.03.q4",
+  "concept": "gpu.loss-scaling",
+  "kind": "mcq",
+  "prompt": "A weight is 1.0 stored in fp16 and each update adds 1e-4. After 1000 updates carried out in fp16, the weight is...",
+  "options": [
+   "1.1",
+   "1.0",
+   "1.05",
+   "1.0001"
+  ],
+  "answer": 1,
+  "explanation": "The spacing of fp16 numbers near 1.0 is about 1e-3, so adding 1e-4 rounds back to 1.0 every time. An fp32 master copy would give about 1.1."
+ },
+ {
+  "id": "gpu.03.q5",
+  "concept": "gpu.train-memory",
+  "kind": "numeric",
+  "prompt": "Mixed-precision Adam training keeps bf16 weights and gradients, an fp32 master copy and fp32 m and v. How many bytes per parameter?",
+  "options": [],
+  "answer": {
+   "value": 16,
+   "tol": 0.01
+  },
+  "explanation": "2 + 2 + 4 + 4 + 4 = 16 bytes per parameter, the same total as pure fp32 training (4 + 4 + 4 + 4)."
+ },
+ {
+  "id": "gpu.03.q6",
+  "concept": "gpu.train-memory",
+  "kind": "numeric",
+  "prompt": "How many GB do weights, gradients and Adam state of a 7-billion-parameter model need in mixed precision (16 bytes per parameter), before activations?",
+  "options": [],
+  "answer": {
+   "value": 112,
+   "tol": 0.5
+  },
+  "explanation": "7e9 * 16 bytes = 112e9 bytes = 112 GB, more than a single 80 GB card."
+ },
+ {
+  "id": "gpu.03.q7",
+  "concept": "gpu.checkpoint-model",
+  "kind": "mcq",
+  "prompt": "Checkpointing every k layers of an n-layer network stores...",
+  "options": [
+   "only the final layer's output",
+   "all activations but in fp8",
+   "k copies of every layer",
+   "n/k segment inputs plus the full activations of one k-layer segment at a time"
+  ],
+  "answer": 3,
+  "explanation": "mem(k) = (n/k) a_in + k a_layer: the segment boundaries are kept, and one segment is recomputed and held during its backward pass."
+ },
+ {
+  "id": "gpu.03.q8",
+  "concept": "gpu.checkpoint-model",
+  "kind": "numeric",
+  "prompt": "By what factor does full checkpointing increase the compute of a training step if backward costs twice a forward pass?",
+  "options": [],
+  "answer": {
+   "value": 1.333,
+   "tol": 0.01
+  },
+  "explanation": "A normal step is 1 + 2 = 3 forward-units; checkpointing adds one extra forward: 4 units, so 4/3, about 33% more."
+ },
+ {
+  "id": "gpu.03.q9",
+  "concept": "gpu.grad-accum",
+  "kind": "mcq",
+  "prompt": "You accumulate gradients over 4 micro-batches whose losses are each a mean over their examples. To match the full-batch mean gradient you must...",
+  "options": [
+   "sum the four gradients without scaling",
+   "multiply each by 4",
+   "divide each micro-batch gradient (or loss) by 4 before summing",
+   "use only the last micro-batch"
+  ],
+  "answer": 2,
+  "explanation": "The full-batch mean gradient is the average of the equal-sized micro-batch mean gradients, so scale by 1/4 before accumulating."
+ }
+]

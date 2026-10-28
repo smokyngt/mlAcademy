@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mx.03.c1",
+  "front": "Matrice d'adjacence",
+  "back": "$A_{ij}=1$ s'il y a une arête $i\\to j$ ; symétrique pour les graphes non orientés."
+ },
+ {
+  "id": "mx.03.c2",
+  "front": "Matrice des degrés",
+  "back": "$D=\\operatorname{diag}(d_i)$ avec $d_i=\\sum_jA_{ij}$."
+ },
+ {
+  "id": "mx.03.c3",
+  "front": "Compter les marches",
+  "back": "$(A^k)_{ij}$ = nombre de marches de longueur $k$ de $i$ à $j$."
+ },
+ {
+  "id": "mx.03.c4",
+  "front": "Triangles à partir de la trace",
+  "back": "$\\operatorname{trace}(A^3)=6\\times$ nombre de triangles (graphe simple non orienté)."
+ },
+ {
+  "id": "mx.03.c5",
+  "front": "Laplacien d'un graphe",
+  "back": "$L=D-A$, symétrique, les lignes somment à 0, $L\\mathbf 1=0$."
+ },
+ {
+  "id": "mx.03.c6",
+  "front": "Forme quadratique de L",
+  "back": "$x^\\top Lx=\\sum_{\\text{edges}}(x_i-x_j)^2\\ge0$ : rugosité de $x$ sur le graphe."
+ },
+ {
+  "id": "mx.03.c7",
+  "front": "Valeurs propres nulles de L",
+  "back": "Leur nombre = nombre de composantes connexes ; vecteurs propres = indicateurs des composantes."
+ },
+ {
+  "id": "mx.03.c8",
+  "front": "Vecteur de Fiedler",
+  "back": "Vecteur propre de la deuxième plus petite valeur propre $\\lambda_2$ ; son motif de signes donne une coupe minimale relaxée."
+ },
+ {
+  "id": "mx.03.c9",
+  "front": "Taille de coupe à partir des étiquettes",
+  "back": "Avec $s_i=\\pm1$ : cut $=\\frac14s^\\top Ls$."
+ },
+ {
+  "id": "mx.03.c10",
+  "front": "Recette du clustering spectral",
+  "back": "Prends les $k$ premiers vecteurs propres du laplacien, empile-les en une matrice $n\\times k$, lance $k$-means sur ses lignes."
+ },
+ {
+  "id": "mx.03.c11",
+  "front": "Matrice de marche aléatoire",
+  "back": "$P=D_{\\text{out}}^{-1}A$ ; les lignes somment à 1 ; la distribution évolue par $r\\leftarrow rP$."
+ },
+ {
+  "id": "mx.03.c12",
+  "front": "Matrice de Google",
+  "back": "$G=dP+\\frac{1-d}{n}\\mathbf 1\\mathbf 1^\\top$ avec $d\\approx0.85$ ; les lignes pendantes deviennent uniformes."
+ },
+ {
+  "id": "mx.03.c13",
+  "front": "PageRank comme vecteur propre",
+  "back": "$r=rG$, $\\sum r_i=1$ ; trouvé par itération de puissance, avec une erreur qui diminue comme $d^t$."
+ },
+ {
+  "id": "mx.03.c14",
+  "front": "Graphe en anneau et Fourier",
+  "back": "Sur un anneau de $n$ nœuds, les vecteurs propres du laplacien sont les ondes de la DFT."
+ }
+]

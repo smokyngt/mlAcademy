@@ -1,0 +1,60 @@
+#@@ meta
+{"id": "ops.04.ex2", "title": "Perturbation, invariance and directional tests", "difficulty": 3, "runtime": "pyodide", "concepts": ["ops.offline-eval"], "hints": ["perturbation_drop: accuracy on clean X minus accuracy on X + rng.normal(0, noise_std, X.shape).", "invariance_flip_rate: copy X, overwrite column `col` with `new_value`, compare predictions; return the share that changed.", "directional_violation_rate: increase column `col` by `delta`, predictions of a score model must not go down (for direction=+1) or must not go up (direction=-1); count violations."]}
+#@@ prompt
+Behavioural tests catch problems that a held-out accuracy number cannot. `predict` below is any function that maps a matrix `X` of shape `(n, d)` to predictions of shape `(n,)`.
+
+- `perturbation_drop(predict, X, y, noise_std, rng)` -> accuracy on clean `X` minus accuracy on `X + Gaussian noise` (noise drawn with `rng.normal(0, noise_std, X.shape)`).
+- `invariance_flip_rate(predict, X, col, new_value)` -> share of rows whose prediction changes when column `col` is overwritten with `new_value` (a sensitive attribute should not matter).
+- `directional_violation_rate(score, X, col, delta, direction)` -> share of rows for which adding `delta` to column `col` moves the score the wrong way (`direction=+1` means the score should not decrease; `-1` means it should not increase).
+#@@ starter
+import numpy as np
+
+def perturbation_drop(predict, X, y, noise_std, rng):
+    raise NotImplementedError
+
+def invariance_flip_rate(predict, X, col, new_value):
+    raise NotImplementedError
+
+def directional_violation_rate(score, X, col, delta, direction):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+n = 2000
+X = np.column_stack([rng.normal(size=n), rng.normal(size=n), rng.integers(0, 2, size=n).astype(float)])
+y = (X[:, 0] + 0.1 * X[:, 1] > 0).astype(int)
+robust = lambda A: (A[:, 0] > 0).astype(int)
+cheater = lambda A: ((A[:, 0] + 0.5 * (A[:, 2] - 0.5)) > 0).astype(int)  # uses the sensitive column
+d0 = perturbation_drop(robust, X, y, 0.0, np.random.default_rng(1))
+check("zero noise -> zero drop", lambda: abs(d0) < 1e-12)
+dr = perturbation_drop(robust, X, y, 1.0, np.random.default_rng(1))
+dbig = perturbation_drop(robust, X, y, 2.0, np.random.default_rng(1))
+dsmall = perturbation_drop(robust, X, y, 0.1, np.random.default_rng(1))
+check("noise hurts the robust model a bit", lambda: 0.05 < dr < 0.35)
+check("more noise, bigger drop", lambda: dsmall < dr < dbig)
+check("robust model ignores the sensitive column", lambda: invariance_flip_rate(robust, X, 2, 1.0) == 0.0)
+check("cheater changes predictions when the sensitive column changes", lambda: invariance_flip_rate(cheater, X, 2, 1.0) > 0.02)
+mono_up = lambda A: 2.0 * A[:, 0] + A[:, 1]
+mono_bad = lambda A: np.sin(3 * A[:, 0])
+check("monotone score has no violations", lambda: directional_violation_rate(mono_up, X, 0, 0.5, +1) == 0.0)
+check("wrong direction is fully violated", lambda: directional_violation_rate(mono_up, X, 0, 0.5, -1) == 1.0)
+check("non-monotone score violates some rows", lambda: 0.05 < directional_violation_rate(mono_bad, X, 0, 0.5, +1) < 0.95)
+#@@ solution
+import numpy as np
+
+def perturbation_drop(predict, X, y, noise_std, rng):
+    clean = np.mean(predict(X) == y)
+    noisy = np.mean(predict(X + rng.normal(0, noise_std, X.shape)) == y)
+    return float(clean - noisy)
+
+def invariance_flip_rate(predict, X, col, new_value):
+    X2 = X.copy()
+    X2[:, col] = new_value
+    return float(np.mean(predict(X) != predict(X2)))
+
+def directional_violation_rate(score, X, col, delta, direction):
+    X2 = X.copy()
+    X2[:, col] = X2[:, col] + delta
+    diff = score(X2) - score(X)
+    bad = diff < 0 if direction > 0 else diff > 0
+    return float(np.mean(bad))

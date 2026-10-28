@@ -1,0 +1,92 @@
+[
+ {
+  "id": "saf.02.c1",
+  "concept": "saf.pref-optimisation",
+  "front": "DPO loss",
+  "back": "$-\\log\\sigma\\big(\\beta[\\log\\frac{\\pi_\\theta(y_w)}{\\pi_{ref}(y_w)}-\\log\\frac{\\pi_\\theta(y_l)}{\\pi_{ref}(y_l)}]\\big)$."
+ },
+ {
+  "id": "saf.02.c2",
+  "concept": "saf.pref-optimisation",
+  "front": "Implicit reward in DPO",
+  "back": "$\\hat r=\\beta\\log(\\pi_\\theta/\\pi_{ref})$, identified only up to a per-prompt constant $\\beta\\log Z(x)$."
+ },
+ {
+  "id": "saf.02.c3",
+  "concept": "saf.pref-optimisation",
+  "front": "Starting point of the DPO derivation",
+  "back": "The RLHF optimum $\\pi^*\\propto\\pi_{ref}e^{r/\\beta}$, rearranged to $r=\\beta\\log(\\pi^*/\\pi_{ref})+\\beta\\log Z$."
+ },
+ {
+  "id": "saf.02.c4",
+  "concept": "saf.pref-optimisation",
+  "front": "DPO gradient weight",
+  "back": "$\\sigma(-m)$ with $m$ the margin: pairs the model gets wrong dominate."
+ },
+ {
+  "id": "saf.02.c5",
+  "concept": "saf.pref-optimisation",
+  "front": "IPO in one line",
+  "back": "Squared error between the log-ratio difference and $1/(2\\beta)$: a bounded margin tied to preference strength."
+ },
+ {
+  "id": "saf.02.c6",
+  "concept": "saf.pref-optimisation",
+  "front": "KTO in one line",
+  "back": "Single outputs with a desirable/undesirable flag; a prospect-theory utility of the log-ratio, so no pairs needed."
+ },
+ {
+  "id": "saf.02.c7",
+  "concept": "saf.pref-optimisation",
+  "front": "SimPO in one line",
+  "back": "No reference model; length-normalised log-probabilities with a margin $\\gamma$ inside the sigmoid."
+ },
+ {
+  "id": "saf.02.c8",
+  "concept": "saf.pref-optimisation",
+  "front": "ORPO in one line",
+  "back": "Supervised NLL on the chosen response plus an odds-ratio preference term: one stage, no reference model."
+ },
+ {
+  "id": "saf.02.c9",
+  "concept": "saf.pref-optimisation",
+  "front": "Degraded chosen response",
+  "back": "DPO can lower the chosen response's absolute log-probability as long as the rejected falls faster; BPO adds a correction."
+ },
+ {
+  "id": "saf.02.c10",
+  "concept": "saf.pref-optimisation",
+  "front": "Do direct alignment algorithms escape over-optimisation?",
+  "back": "No: the implicit reward is queried off-distribution and the same rise-peak-fall gold curve appears."
+ },
+ {
+  "id": "saf.02.c11",
+  "concept": "saf.pref-optimisation",
+  "front": "Length bias in DPO",
+  "back": "Sequence log-ratios are sums over tokens, so longer responses give larger-magnitude margins; SimPO normalises by length."
+ },
+ {
+  "id": "saf.02.c12",
+  "concept": "saf.constitutional-ai",
+  "front": "Two phases of Constitutional AI",
+  "back": "(1) Critique and revise with sampled principles, then supervised fine-tuning; (2) RL from AI feedback using AI-generated preferences."
+ },
+ {
+  "id": "saf.02.c13",
+  "concept": "saf.constitutional-ai",
+  "front": "Why RLAIF is not just cheaper RLHF",
+  "back": "Error becomes systematic and uniform (a consistent lean) instead of random per-labeller noise, and the signal becomes legible."
+ },
+ {
+  "id": "saf.02.c14",
+  "concept": "saf.constitutional-ai",
+  "front": "Constitutional classifiers",
+  "back": "Lightweight classifiers trained on principles that gate inputs/outputs; layered with post-training rather than replacing it."
+ },
+ {
+  "id": "saf.02.c15",
+  "concept": "saf.constitutional-ai",
+  "front": "Why treat lab-reported figures cautiously?",
+  "back": "Overhead, attack-rate and benchmark gains are developer- or pre-print reported and summarised second-hand in the repo lesson; check primary sources."
+ }
+]

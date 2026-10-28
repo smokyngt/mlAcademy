@@ -1,0 +1,75 @@
+[
+  {
+    "id": "lda-plate",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "LDA in plate notation as a graph: alpha generates each document's topic mixture theta_d, each token draws a topic z_di from theta_d and then a word w_di from the topic's word distribution phi_k (drawn once per topic from beta). Only the words w are observed.",
+      "fr": "LDA en notation « plaques » sous forme de graphe : alpha engendre le mélange de thèmes theta_d de chaque document, chaque token tire un thème z_di selon theta_d puis un mot w_di selon la distribution phi_k du thème (tirée une fois par thème depuis beta). Seuls les mots w sont observés."
+    },
+    "code": {
+      "en": "flowchart LR\n  alpha((\"alpha\")) --> theta\n  beta((\"beta\")) --> phi\n  subgraph PK[\"K topics\"]\n    phi((\"phi_k\"))\n  end\n  subgraph PD[\"D documents\"]\n    theta((\"theta_d\"))\n    subgraph PN[\"N_d tokens\"]\n      z((\"z_di\"))\n      w((\"w_di\"))\n    end\n  end\n  theta --> z\n  z --> w\n  phi --> w\n  style w fill:#e5e7eb,stroke:#374151",
+      "fr": "flowchart LR\n  alpha((\"alpha\")) --> theta\n  beta((\"beta\")) --> phi\n  subgraph PK[\"K thèmes\"]\n    phi((\"phi_k\"))\n  end\n  subgraph PD[\"D documents\"]\n    theta((\"theta_d\"))\n    subgraph PN[\"N_d tokens\"]\n      z((\"z_di\"))\n      w((\"w_di\"))\n    end\n  end\n  theta --> z\n  z --> w\n  phi --> w\n  style w fill:#e5e7eb,stroke:#374151"
+    }
+  },
+  {
+    "id": "dirichlet-alpha",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Symmetric Dirichlet over a two-topic mixture, shown as the density of theta_1 (a Beta(alpha, alpha)). alpha = 0.5 (blue, below 1) piles mass near 0 and 1: sparse documents with one dominant topic. alpha = 1 (orange) is uniform. alpha = 5 (green, above 1) favours balanced mixtures.",
+      "fr": "Dirichlet symétrique sur un mélange de deux thèmes, montrée comme densité de theta_1 (une Beta(alpha, alpha)). alpha = 0,5 (bleu, inférieur à 1) concentre la masse près de 0 et 1 : documents creux avec un thème dominant. alpha = 1 (orange) est uniforme. alpha = 5 (vert, supérieur à 1) favorise les mélanges équilibrés."
+    },
+    "spec": {
+      "xDomain": [
+        0.01,
+        0.99
+      ],
+      "yDomain": [
+        0,
+        4
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.3183/sqrt(x*(1-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "color": "#d97706"
+        },
+        {
+          "fn": "630*x^4*(1-x)^4",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "gibbs-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One sweep of collapsed Gibbs sampling. The token being resampled is removed from the counts first; the K weights (n_dk + alpha)(n_kw + beta)/(n_k + V beta) are normalised and a new topic is drawn.",
+      "fr": "Un balayage de l'échantillonnage de Gibbs collapsé. Le token rééchantillonné est d'abord retiré des comptes ; les K poids (n_dk + alpha)(n_kw + beta)/(n_k + V beta) sont normalisés et un nouveau thème est tiré."
+    },
+    "code": {
+      "en": "flowchart TB\n  I[\"random init of every z_di, fill counts<br/>n_dk (D,K), n_kw (K,V), n_k (K,)\"] --> T1[\"pick next token (d, i, w)\"]\n  T1 --> DEC[\"decrement its counts\"]\n  DEC --> WT[\"weights for k = 1..K<br/>(n_dk + alpha) * (n_kw + beta) / (n_k + V beta)\"]\n  WT --> SA[\"normalise and sample new topic\"]\n  SA --> INC[\"increment counts of the new topic\"]\n  INC --> MORE{\"tokens left?\"}\n  MORE -- yes --> T1\n  MORE -- no: sweep done --> EST[\"after burn-in: estimate theta, phi\"]",
+      "fr": "flowchart TB\n  I[\"initialisation aléatoire de chaque z_di, remplir les comptes<br/>n_dk (D,K), n_kw (K,V), n_k (K,)\"] --> T1[\"prendre le token suivant (d, i, w)\"]\n  T1 --> DEC[\"décrémenter ses comptes\"]\n  DEC --> WT[\"poids pour k = 1..K<br/>(n_dk + alpha) * (n_kw + beta) / (n_k + V beta)\"]\n  WT --> SA[\"normaliser et tirer un nouveau thème\"]\n  SA --> INC[\"incrémenter les comptes du nouveau thème\"]\n  INC --> MORE{\"reste-t-il des tokens ?\"}\n  MORE -- oui --> T1\n  MORE -- non : balayage fini --> EST[\"après burn-in : estimer theta, phi\"]"
+    }
+  },
+  {
+    "id": "bertopic",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The BERTopic pipeline: embed, reduce dimension, cluster with outlier detection, then describe each cluster with class-based TF-IDF. Strong on short text, but gives hard assignments instead of mixtures.",
+      "fr": "Le pipeline BERTopic : plonger, réduire la dimension, regrouper avec détection des aberrants, puis décrire chaque groupe avec un TF-IDF par classe. Efficace sur les textes courts, mais donne des affectations dures au lieu de mélanges."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"documents\"] --> EMB[\"sentence encoder<br/>(D, d)\"]\n  EMB --> UM[\"UMAP<br/>(D, 5)\"]\n  UM --> HD[\"HDBSCAN<br/>clusters + outliers\"]\n  HD --> CT[\"class-based TF-IDF<br/>(one cluster = one big document)\"]\n  CT --> TP[\"topic = top words\"]",
+      "fr": "flowchart LR\n  D[\"documents\"] --> EMB[\"encodeur de phrases<br/>(D, d)\"]\n  EMB --> UM[\"UMAP<br/>(D, 5)\"]\n  UM --> HD[\"HDBSCAN<br/>groupes + aberrants\"]\n  HD --> CT[\"TF-IDF par classe<br/>(un groupe = un gros document)\"]\n  CT --> TP[\"thème = mots principaux\"]"
+    }
+  }
+]

@@ -1,0 +1,16 @@
+[
+  { "id": "rl.04.c1", "front": "Approximation de fonction en RL", "back": "Représenter $Q(s,a;\\theta)$ avec des paramètres pour que les valeurs généralisent entre états ; nécessaire quand l'espace d'états est trop grand pour une table." },
+  { "id": "rl.04.c2", "front": "Perte DQN", "back": "$L=\\mathbb{E}[\\tfrac12(y-Q(s,a;\\theta))^2]$, $y=r+\\gamma(1-d)\\max_{a'}Q(s',a';\\theta^-)$." },
+  { "id": "rl.04.c3", "front": "Semi-gradient", "back": "Dériver uniquement à travers $Q(s,a;\\theta)$ ; la cible $y$ est traitée comme une constante (en code : detach / stop-gradient)." },
+  { "id": "rl.04.c4", "front": "Rejeu d'expérience", "back": "Tampon circulaire de transitions passées échantillonnées uniformément pour les minibatches : décorrèle et réutilise les données. Valide parce que le Q-learning est hors politique." },
+  { "id": "rl.04.c5", "front": "Réseau cible", "back": "Une copie gelée $\\theta^-$ utilisée pour calculer les cibles, rafraîchie tous les $C$ pas ; empêche la cible de bouger à chaque mise à jour." },
+  { "id": "rl.04.c6", "front": "Mise à jour de cible dure vs douce", "back": "Dure : $\\theta^-\\leftarrow\\theta$ tous les $C$ pas. Douce : $\\theta^-\\leftarrow(1-\\tau)\\theta^-+\\tau\\theta$ à chaque pas." },
+  { "id": "rl.04.c7", "front": "Triade mortelle", "back": "Approximation de fonction + bootstrap + données hors politique : ensemble, ils peuvent diverger." },
+  { "id": "rl.04.c8", "front": "Formes d'une fonction Q linéaire", "back": "$W:(A,d)$, caractéristiques $\\Phi:(B,d)$, $Q=\\Phi W^\\top:(B,A)$." },
+  { "id": "rl.04.c9", "front": "Gradient de la perte DQN pour un Q linéaire", "back": "$\\partial L/\\partial W[a]=-\\frac1B\\sum_{i:a_i=a}\\delta_i\\phi(s_i)$ ; seules les lignes des actions prises changent." },
+  { "id": "rl.04.c10", "front": "Que fait $(1-d)$ dans la cible ?", "back": "Supprime le bootstrap aux transitions terminales, puisqu'un état terminal a une valeur 0." },
+  { "id": "rl.04.c11", "front": "Idée de Double DQN", "back": "Sélectionner $a'=\\arg\\max Q(s',\\cdot;\\theta)$ avec le réseau en ligne mais l'évaluer avec le réseau cible, ce qui réduit la surestimation due au max." },
+  { "id": "rl.04.c12", "front": "Caractéristiques one-hot et DQN", "back": "Avec des caractéristiques d'état one-hot, DQN linéaire se réduit au Q-learning tabulaire." },
+  { "id": "rl.04.c13", "front": "Pourquoi écrêter les récompenses ?", "back": "Garde l'échelle des erreurs TD et des gradients comparable entre tâches ; faux quand l'amplitude de la récompense porte de l'information." },
+  { "id": "rl.04.c14", "front": "Comment tester une implémentation de DQN", "back": "Vérifier le gradient contre des différences finies avec des poids cibles fixes, et exécuter sur un petit MDP dont le $Q^*$ optimal est connu." }
+]

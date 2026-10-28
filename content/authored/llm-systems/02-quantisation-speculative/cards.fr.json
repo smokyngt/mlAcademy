@@ -1,0 +1,82 @@
+[
+ {
+  "id": "sys.02.c1",
+  "front": "Échelle int8 symétrique",
+  "back": "$s=\\max|x|/127$, $q=\\operatorname{clip}(\\operatorname{round}(x/s),-127,127)$, $\\hat x=s\\,q$."
+ },
+ {
+  "id": "sys.02.c2",
+  "front": "Quantification asymétrique",
+  "back": "$s=(u-\\ell)/(2^b-1)$, point zéro $z=\\operatorname{round}(-\\ell/s)$, $q=\\operatorname{round}(x/s)+z$, $\\hat x=s(q-z)$. La plage doit inclure 0."
+ },
+ {
+  "id": "sys.02.c3",
+  "front": "Pourquoi inclure 0 dans la plage ?",
+  "back": "Pour que le zéro réel (padding, sorties de ReLU, masques) soit représenté exactement : x=0 donne q=z et se déquantifie en 0."
+ },
+ {
+  "id": "sys.02.c4",
+  "front": "Borne de l'erreur d'arrondi et MSE",
+  "back": "$|\\hat x-x|\\le s/2$ pour les valeurs non écrêtées ; une erreur à peu près uniforme donne une MSE $\\approx s^2/12$."
+ },
+ {
+  "id": "sys.02.c5",
+  "front": "Effet du retrait d'un bit",
+  "back": "L'échelle double, donc la MSE est multipliée par environ 4."
+ },
+ {
+  "id": "sys.02.c6",
+  "front": "Par tenseur contre par canal",
+  "back": "Par tenseur : une échelle, fixée par le plus grand poids. Par canal : une échelle par ligne de sortie, donc une valeur aberrante n'endommage que sa ligne. Coût : une échelle stockée par ligne."
+ },
+ {
+  "id": "sys.02.c7",
+  "front": "Qu'est-ce qu'une valeur aberrante en quantification ?",
+  "back": "Une valeur bien plus grande que les autres ; elle impose une grande échelle et une résolution grossière à toutes les autres valeurs partageant cette échelle."
+ },
+ {
+  "id": "sys.02.c8",
+  "front": "Hiérarchie de sensibilité",
+  "back": "Du plus robuste au moins robuste : poids, activations (valeurs aberrantes), cache KV (les erreurs s'accumulent), logits d'attention (le softmax amplifie ; garder en 16 bits)."
+ },
+ {
+  "id": "sys.02.c9",
+  "front": "PTQ contre QAT",
+  "back": "La quantification post-entraînement arrondit un modèle entraîné (rapide, peu coûteuse). L'entraînement conscient de la quantification simule l'arrondi pendant l'entraînement."
+ },
+ {
+  "id": "sys.02.c10",
+  "front": "Le décodage spéculatif en une phrase",
+  "back": "Un modèle brouillon peu coûteux propose N tokens ; la cible les vérifie tous en une passe parallèle et garde un préfixe ; la loi de sortie est celle de la cible."
+ },
+ {
+  "id": "sys.02.c11",
+  "front": "Règle d'acceptation",
+  "back": "Accepter le token brouillon d avec la probabilité $\\min(1,q(d)/p(d))$."
+ },
+ {
+  "id": "sys.02.c12",
+  "front": "Distribution résiduelle",
+  "back": "Lors d'un rejet, échantillonner depuis $\\max(0,q-p)$ normalisé. Son normalisateur vaut $1-\\alpha$."
+ },
+ {
+  "id": "sys.02.c13",
+  "front": "Taux d'acceptation",
+  "back": "$\\alpha=\\sum_x\\min(p(x),q(x))=1-\\mathrm{TV}(p,q)$."
+ },
+ {
+  "id": "sys.02.c14",
+  "front": "Esquisse de preuve de l'exactitude",
+  "back": "$\\Pr[x]=\\min(p,q)(x)+(1-\\alpha)\\frac{(q-p)_+(x)}{1-\\alpha}=q(x)$."
+ },
+ {
+  "id": "sys.02.c15",
+  "front": "Tokens attendus par tour et accélération",
+  "back": "$\\mathbb{E}=\\frac{1-\\alpha^{N+1}}{1-\\alpha}$ ; avec un coût de brouillon c par token, accélération $\\approx \\mathbb{E}/(Nc+1)$ (suppose une acceptation i.i.d.)."
+ },
+ {
+  "id": "sys.02.c16",
+  "front": "Mélange d'experts : qu'est-ce qui est économisé ?",
+  "back": "Le calcul par token (seuls les top-k experts s'exécutent), pas la mémoire : tous les experts doivent être stockés. L'équilibrage de charge maintient une utilisation homogène des experts."
+ }
+]

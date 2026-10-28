@@ -1,0 +1,98 @@
+[
+ {
+  "id": "sys.03.c1",
+  "concept": "llm.rag",
+  "front": "Why RAG instead of fine-tuning on documents?",
+  "back": "Cheaper, updated in minutes, shows which source was used, model unchanged. Fine-tuning goes stale and gives no attribution."
+ },
+ {
+  "id": "sys.03.c2",
+  "concept": "llm.rag",
+  "front": "RAG pipeline steps",
+  "back": "Offline: clean, chunk, embed, index. Online: embed question, retrieve top-k, (rerank), build prompt with passages, generate."
+ },
+ {
+  "id": "sys.03.c3",
+  "concept": "llm.rag",
+  "front": "Cosine similarity",
+  "back": "$\\cos(a,b)=a^\\top b/(\\lVert a\\rVert\\lVert b\\rVert)$: compares direction, ignores length."
+ },
+ {
+  "id": "sys.03.c4",
+  "concept": "llm.rag",
+  "front": "Unit vectors: cosine = dot = L2 ranking",
+  "back": "For $\\lVert a\\rVert=\\lVert b\\rVert=1$: $\\lVert a-b\\rVert^2=2-2a^\\top b$, so all three order documents identically."
+ },
+ {
+  "id": "sys.03.c5",
+  "concept": "llm.rag",
+  "front": "TF-IDF",
+  "back": "Term count times inverse document frequency $\\ln\\frac{1+N}{1+df}+1$, then L2-normalised: rare words weigh more."
+ },
+ {
+  "id": "sys.03.c6",
+  "concept": "llm.rag",
+  "front": "BM25 in words",
+  "back": "TF-IDF-like score with saturating term frequency ($k_1$) and document-length normalisation ($b$). Defaults $k_1=1.2$, $b=0.75$."
+ },
+ {
+  "id": "sys.03.c7",
+  "concept": "llm.rag",
+  "front": "BM25 vs dense retrieval",
+  "back": "BM25: exact tokens, great for codes and names, blind to synonyms. Dense: matches meaning, may blur exact strings."
+ },
+ {
+  "id": "sys.03.c8",
+  "concept": "llm.rag",
+  "front": "Reciprocal rank fusion",
+  "back": "$\\text{RRF}(d)=\\sum_R 1/(k+\\text{rank}_R(d))$, $k\\approx60$. Uses ranks only, so no score calibration is needed."
+ },
+ {
+  "id": "sys.03.c9",
+  "concept": "llm.rag",
+  "front": "Why the constant k in RRF?",
+  "back": "It flattens the top of the curve so one first place does not outweigh agreement across several lists."
+ },
+ {
+  "id": "sys.03.c10",
+  "concept": "llm.rag",
+  "front": "Bi-encoder vs cross-encoder",
+  "back": "Bi-encoder: separate embeddings, precomputable, fast. Cross-encoder: reads query and document jointly, more accurate, one call per candidate."
+ },
+ {
+  "id": "sys.03.c11",
+  "concept": "llm.rag",
+  "front": "Retrieve-then-rerank",
+  "back": "Cheap retriever returns ~100 candidates, expensive reranker re-scores them and keeps ~10."
+ },
+ {
+  "id": "sys.03.c12",
+  "concept": "llm.rag",
+  "front": "Chunk size trade-off",
+  "back": "Small chunks lose context; large chunks blur the embedding and waste prompt budget. Overlap protects sentences cut at boundaries."
+ },
+ {
+  "id": "sys.03.c13",
+  "concept": "llm.rag",
+  "front": "IVF index",
+  "back": "Cluster vectors with k-means; at query time scan only the nprobe clusters closest to the query. More nprobe = higher recall, slower."
+ },
+ {
+  "id": "sys.03.c14",
+  "concept": "llm.rag",
+  "front": "HNSW index",
+  "back": "Layered proximity graph: sparse top layers for long jumps, dense bottom layer for fine search; greedy descent gives approximate neighbours in ~log n."
+ },
+ {
+  "id": "sys.03.c15",
+  "concept": "llm.rag",
+  "front": "Why must query and chunks use the same embedder?",
+  "back": "Vectors from different models live in different spaces; similarities between them are meaningless."
+ },
+ {
+  "id": "sys.03.c16",
+  "concept": "llm.rag",
+  "front": "Recall@k of an ANN index",
+  "back": "Fraction of the true (exact) top-k neighbours that the approximate search returns. Measure it against brute force."
+ }
+]

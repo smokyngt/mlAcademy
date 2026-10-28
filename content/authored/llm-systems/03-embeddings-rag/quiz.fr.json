@@ -1,0 +1,91 @@
+[
+ {
+  "id": "sys.03.q1",
+  "prompt": "Pourquoi les systèmes RAG découpent-ils les documents en chunks ?",
+  "options": [
+   "Les chunks sont requis par la similarité cosinus",
+   "Un seul embedding d'un long document mélange et brouille de nombreux sujets",
+   "Parce que les LLM ne peuvent pas lire plus d'un mot",
+   "Pour réduire le vocabulaire"
+  ],
+  "explanation": "Un vecteur de document est une moyenne de son contenu ; des passages plus petits donnent des vecteurs plus nets et tiennent dans le budget du prompt."
+ },
+ {
+  "id": "sys.03.q2",
+  "prompt": "Quelle méthode de récupération trouverait le plus sûrement le chunk contenant la chaîne exacte 'E-4021' ?",
+  "options": [
+   "L'échantillonnage aléatoire",
+   "k-means",
+   "BM25 / recherche par mots-clés",
+   "Un embedding dense seul"
+  ],
+  "explanation": "Les tokens exacts sont la force de BM25 ; les modèles denses peuvent traiter de tels codes comme du bruit."
+ },
+ {
+  "id": "sys.03.q3",
+  "prompt": "RRF avec k=60 : un document est classé 1er par le récupérateur A et 5e par le récupérateur B. Son score fusionné multiplié par 1000 (arrondi à 1 décimale) ?",
+  "options": [],
+  "explanation": "1/61 + 1/65 = 0.01639 + 0.01538 = 0.03178, soit 31.8 pour mille."
+ },
+ {
+  "id": "sys.03.q4",
+  "prompt": "Deux documents ont la même fréquence du mot de la requête dans BM25. Le plus court obtient un meilleur score parce que...",
+  "options": [
+   "de la normalisation de longueur (paramètre b)",
+   "son idf est plus grand",
+   "BM25 préfère les mots courts",
+   "du softmax"
+  ],
+  "explanation": "Le dénominateur contient k1(1 - b + b|d|/avgdl), qui est plus petit pour les documents courts."
+ },
+ {
+  "id": "sys.03.q5",
+  "prompt": "Pour des vecteurs de longueur unité, quelle affirmation est vraie ?",
+  "options": [
+   "Le cosinus est indéfini",
+   "Classer par cosinus, produit scalaire et distance euclidienne donne le même ordre",
+   "Le produit scalaire et le cosinus diffèrent d'un facteur dépendant de la longueur",
+   "La distance euclidienne inverse l'ordre du cosinus"
+  ],
+  "explanation": "||a-b||^2 = 2 - 2 a.b pour des vecteurs unitaires."
+ },
+ {
+  "id": "sys.03.q6",
+  "prompt": "Qu'est-ce qu'augmenter nprobe dans un index IVF fait ?",
+  "options": [
+   "Change le modèle d'embedding",
+   "Réentraîne les clusters",
+   "Augmente le rappel et le nombre de vecteurs parcourus",
+   "Diminue le rappel et accélère"
+  ],
+  "explanation": "Plus de clusters sont fouillés, donc moins de vrais voisins sont manqués, à un coût plus élevé."
+ },
+ {
+  "id": "sys.03.q7",
+  "prompt": "Pourquoi un cross-encodeur n'est-il utilisé que sur les meilleurs candidats ?",
+  "options": [
+   "Il ne sait pas lire les documents",
+   "Il est moins précis que le cosinus",
+   "Il exige des vecteurs normalisés",
+   "Il exige un appel de modèle par paire requête-document"
+  ],
+  "explanation": "Le coût croît avec le nombre de candidats, il est donc appliqué après un récupérateur peu coûteux."
+ },
+ {
+  "id": "sys.03.q8",
+  "prompt": "Un chatbot RAG donne une réponse fluide mais fausse alors que le bon chunk était dans le corpus. Quelle étape inspecter en premier ?",
+  "options": [
+   "La récupération : le chunk était-il dans le top-k ? Puis la fidélité de la génération",
+   "La taille du vocabulaire du tokenizer",
+   "Le pilote du GPU",
+   "Le taux d'apprentissage"
+  ],
+  "explanation": "Sépare l'échec de récupération (chunk non récupéré) de l'échec de génération (récupéré mais ignoré) ; mesure chacun."
+ },
+ {
+  "id": "sys.03.q9",
+  "prompt": "Découper un texte de 10 mots avec une taille 4 et un recouvrement 1 donne combien de chunks ?",
+  "options": [],
+  "explanation": "Les fenêtres commencent aux mots 0, 3, 6 et la dernière atteint le mot 9."
+ }
+]

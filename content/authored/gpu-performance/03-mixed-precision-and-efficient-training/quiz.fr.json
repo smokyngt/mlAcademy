@@ -1,0 +1,81 @@
+[
+ {
+  "id": "gpu.03.q1",
+  "prompt": "Comparé à fp16, bfloat16 a...",
+  "options": [
+   "la même plage que fp32 mais moins de bits de mantisse que fp16",
+   "plus de bits de mantisse et une plage plus petite",
+   "les mêmes bits que fp16 disposés différemment avec la même plage",
+   "exactement la précision de fp32"
+  ],
+  "explanation": "bf16 est 1/8/7 : les 8 bits d'exposant de fp32 (donc une plage énorme) mais seulement 7 bits de mantisse, contre 1/5/10 pour fp16."
+ },
+ {
+  "id": "gpu.03.q2",
+  "prompt": "Quel est le plus grand nombre fini en float16 ?",
+  "options": [],
+  "explanation": "(2 - 2^-10) * 2^15 = 65,504 pour 5 bits d'exposant (biais 15) et 10 bits de mantisse."
+ },
+ {
+  "id": "gpu.03.q3",
+  "prompt": "Pourquoi multiplier la perte par une grande constante S avant backward dans un entraînement fp16 ?",
+  "options": [
+   "pour agrandir le pas de l'optimiseur",
+   "pour réduire la mémoire utilisée par les activations",
+   "pour éviter le débordement dans la passe avant",
+   "pour que les minuscules gradients deviennent représentables en fp16, puis diviser par S avant la mise à jour"
+  ],
+  "explanation": "Le gradient de S * L vaut S fois le gradient de L, ce qui déplace les petites valeurs dans la plage de fp16 ; retirer l'échelle en fp32 annule exactement S."
+ },
+ {
+  "id": "gpu.03.q4",
+  "prompt": "Un poids vaut 1.0 stocké en fp16 et chaque mise à jour ajoute 1e-4. Après 1000 mises à jour effectuées en fp16, le poids vaut...",
+  "options": [
+   "1.1",
+   "1.0",
+   "1.05",
+   "1.0001"
+  ],
+  "explanation": "L'espacement des nombres fp16 près de 1.0 est d'environ 1e-3, donc ajouter 1e-4 est arrondi à 1.0 à chaque fois. Une copie maîtresse fp32 donnerait environ 1.1."
+ },
+ {
+  "id": "gpu.03.q5",
+  "prompt": "L'entraînement Adam en précision mixte garde des poids et gradients bf16, une copie maîtresse fp32 et m et v en fp32. Combien d'octets par paramètre ?",
+  "options": [],
+  "explanation": "2 + 2 + 4 + 4 + 4 = 16 octets par paramètre, le même total que l'entraînement fp32 pur (4 + 4 + 4 + 4)."
+ },
+ {
+  "id": "gpu.03.q6",
+  "prompt": "Combien de Go faut-il pour les poids, les gradients et l'état Adam d'un modèle de 7 milliards de paramètres en précision mixte (16 octets par paramètre), avant les activations ?",
+  "options": [],
+  "explanation": "7e9 * 16 octets = 112e9 octets = 112 Go, plus qu'une seule carte de 80 Go."
+ },
+ {
+  "id": "gpu.03.q7",
+  "prompt": "Faire un checkpointing toutes les k couches d'un réseau de n couches stocke...",
+  "options": [
+   "uniquement la sortie de la dernière couche",
+   "toutes les activations mais en fp8",
+   "k copies de chaque couche",
+   "n/k entrées de segment plus les activations complètes d'un segment de k couches à la fois"
+  ],
+  "explanation": "mem(k) = (n/k) a_in + k a_layer : les frontières de segment sont conservées, et un segment est recalculé et conservé pendant sa passe arrière."
+ },
+ {
+  "id": "gpu.03.q8",
+  "prompt": "De quel facteur un checkpointing complet augmente-t-il le calcul d'un pas d'entraînement si la passe arrière coûte deux fois une passe avant ?",
+  "options": [],
+  "explanation": "Un pas normal vaut 1 + 2 = 3 unités de passe avant ; le checkpointing ajoute une passe avant supplémentaire : 4 unités, donc 4/3, environ 33% de plus."
+ },
+ {
+  "id": "gpu.03.q9",
+  "prompt": "Tu accumules les gradients sur 4 micro-batchs dont les pertes sont chacune une moyenne sur leurs exemples. Pour égaler le gradient moyen du batch complet, tu dois...",
+  "options": [
+   "additionner les quatre gradients sans mise à l'échelle",
+   "multiplier chacun par 4",
+   "diviser chaque gradient (ou perte) de micro-batch par 4 avant de sommer",
+   "n'utiliser que le dernier micro-batch"
+  ],
+  "explanation": "Le gradient moyen du batch complet est la moyenne des gradients moyens des micro-batchs de même taille, donc mets à l'échelle par 1/4 avant d'accumuler."
+ }
+]

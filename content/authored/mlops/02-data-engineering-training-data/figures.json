@@ -1,0 +1,81 @@
+[
+  {
+    "id": "data-flow",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Typical ML data flow: sources are extracted, transformed and loaded (ETL) into storage; batch jobs and stream processors then feed training sets and online features.",
+      "fr": "Flux de données ML typique : les sources sont extraites, transformées et chargées (ETL) dans un stockage ; les traitements par lots et par flux alimentent ensuite les jeux d'entraînement et les variables en ligne."
+    },
+    "code": {
+      "en": "flowchart LR\n  S1[\"user input\"] --> ETL[\"ETL\"]\n  S2[\"logs, predictions, metrics\"] --> ETL\n  ETL --> ST[(\"storage: Parquet, warehouse\")]\n  ST -->|\"batch\"| TR[\"training set\"]\n  ETL -->|\"stream\"| ON[\"online features\"]",
+      "fr": "flowchart LR\n  S1[\"saisies utilisateur\"] --> ETL[\"ETL\"]\n  S2[\"journaux, prédictions, métriques\"] --> ETL\n  ETL --> ST[(\"stockage : Parquet, entrepôt\")]\n  ST -->|\"batch\"| TR[\"jeu d'entraînement\"]\n  ETL -->|\"stream\"| ON[\"variables en ligne\"]"
+    }
+  },
+  {
+    "id": "reservoir",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Reservoir sampling in one pass with memory for k items: keep the first k, then for item n > k draw j uniformly in 1..n and replace slot j only if j <= k. Every item seen so far is in the reservoir with probability k/n.",
+      "fr": "Échantillonnage par réservoir en un passage avec de la mémoire pour k éléments : garder les k premiers, puis pour l'élément n > k tirer j uniformément dans 1..n et remplacer la case j seulement si j <= k. Chaque élément vu est dans le réservoir avec probabilité k/n."
+    },
+    "code": {
+      "en": "flowchart LR\n  IN[\"stream item n\"] --> C{\"n <= k ?\"}\n  C -->|\"yes\"| ADD[\"put in reservoir\"]\n  C -->|\"no\"| J[\"draw j uniform in 1..n\"]\n  J --> D{\"j <= k ?\"}\n  D -->|\"yes\"| REP[\"replace slot j\"]\n  D -->|\"no\"| DIS[\"discard\"]",
+      "fr": "flowchart LR\n  IN[\"élément n du flux\"] --> C{\"n <= k ?\"}\n  C -->|\"oui\"| ADD[\"mettre dans le réservoir\"]\n  C -->|\"non\"| J[\"tirer j uniforme dans 1..n\"]\n  J --> D{\"j <= k ?\"}\n  D -->|\"oui\"| REP[\"remplacer la case j\"]\n  D -->|\"non\"| DIS[\"ignorer\"]"
+    }
+  },
+  {
+    "id": "reservoir-prob",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Inclusion probability k/n of any item seen so far, for a reservoir of k = 10: it falls as the stream grows, but stays the same for old and new items, which is what makes the sample uniform.",
+      "fr": "Probabilité d'inclusion k/n d'un élément vu, pour un réservoir de k = 10 : elle diminue quand le flux grandit, mais reste la même pour les éléments anciens et récents, ce qui rend l'échantillon uniforme."
+    },
+    "spec": {
+      "height": 260,
+      "xDomain": [
+        10,
+        200
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "n",
+      "data": [
+        {
+          "fn": "10/x",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "weak-supervision",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Weak supervision: several noisy labelling functions vote (or abstain) on each unlabelled example; an aggregator combines them into labels used to train the real model.",
+      "fr": "Supervision faible : plusieurs fonctions d'étiquetage bruitées votent (ou s'abstiennent) sur chaque exemple non étiqueté ; un agrégateur les combine en étiquettes utilisées pour entraîner le vrai modèle."
+    },
+    "code": {
+      "en": "flowchart LR\n  U[\"unlabelled examples\"] --> LF1[\"LF: regex\"]\n  U --> LF2[\"LF: keyword list\"]\n  U --> LF3[\"LF: another model\"]\n  LF1 --> AG[\"aggregate: majority or weighted vote\"]\n  LF2 --> AG\n  LF3 --> AG\n  AG --> LB[\"training labels\"] --> M[\"train model\"]",
+      "fr": "flowchart LR\n  U[\"exemples non étiquetés\"] --> LF1[\"FE : regex\"]\n  U --> LF2[\"FE : liste de mots-clés\"]\n  U --> LF3[\"FE : un autre modèle\"]\n  LF1 --> AG[\"agréger : vote majoritaire ou pondéré\"]\n  LF2 --> AG\n  LF3 --> AG\n  AG --> LB[\"étiquettes d'entraînement\"] --> M[\"entraîner le modèle\"]"
+    }
+  },
+  {
+    "id": "augment-train-only",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Augmentation applies to the training split only; validation and test stay untouched so they measure the real distribution.",
+      "fr": "L'augmentation ne s'applique qu'au jeu d'entraînement ; la validation et le test restent intacts pour mesurer la vraie distribution."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"raw data\"] --> SP[\"split first\"]\n  SP --> TR[\"train\"] --> AU[\"augment, oversample\"] --> FIT[\"fit model\"]\n  SP --> VA[\"validation (untouched)\"]\n  SP --> TE[\"test (untouched)\"]",
+      "fr": "flowchart LR\n  D[\"données brutes\"] --> SP[\"séparer d'abord\"]\n  SP --> TR[\"train\"] --> AU[\"augmenter, suréchantillonner\"] --> FIT[\"entraîner\"]\n  SP --> VA[\"validation (intacte)\"]\n  SP --> TE[\"test (intact)\"]"
+    }
+  }
+]

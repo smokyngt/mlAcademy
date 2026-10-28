@@ -1,0 +1,96 @@
+[
+ {
+  "id": "app.04.q1",
+  "prompt": "Pourquoi garder un ensemble de réserve que tu regardes rarement ?",
+  "options": [
+   "c'est moins cher",
+   "régler les prompts sur l'ensemble de développement les sur-ajuste à lui, donc il faut des données intactes pour une estimation honnête",
+   "les juges l'exigent",
+   "cela accélère la CI"
+  ],
+  "explanation": "Même logique qu'entraînement/test : un réglage répété contre un seul ensemble injecte ses particularités dans le prompt."
+ },
+ {
+  "id": "app.04.q2",
+  "prompt": "Quel notateur faut-il lancer en premier et utiliser comme barrière ?",
+  "options": [
+   "des vérifications déterministes (schéma, longueur, chaînes interdites)",
+   "LLM-as-judge",
+   "la revue humaine",
+   "BLEU"
+  ],
+  "explanation": "Les vérifications déterministes sont rapides, gratuites et sans ambiguïté."
+ },
+ {
+  "id": "app.04.q3",
+  "prompt": "Pourquoi ancrer chaque niveau du barème à un comportement observable ?",
+  "options": [
+   "pour allonger le prompt du juge",
+   "les juges ne savent pas lire les nombres",
+   "pour éviter le JSON",
+   "des échelles vagues comme « note de 1 à 5 la qualité » donnent des scores bruités et incohérents"
+  ],
+  "explanation": "Les ancres réduisent la variance entre les appels du juge et entre les juges."
+ },
+ {
+  "id": "app.04.q4",
+  "prompt": "Étiquettes humaines 1,1,1,0,0,1,0,1,1,0 ; juge 1,1,0,0,0,1,1,1,1,0. Kappa de Cohen (3 décimales) ?",
+  "options": [],
+  "explanation": "p_o = 0,8, p_e = 0,6*0,6 + 0,4*0,4 = 0,52, kappa = 0,28/0,48 = 0,583."
+ },
+ {
+  "id": "app.04.q5",
+  "prompt": "Un juge répond toujours « pass ». 90 % des éléments sont réellement pass. Son accord brut est de 90 %. Son kappa vaut...",
+  "options": [
+   "0,9",
+   "0,5",
+   "0",
+   "1"
+  ],
+  "explanation": "p_e = 0,9*1 + 0,1*0 = 0,9 = p_o, donc kappa = 0. L'exactitude cache l'absence de discrimination."
+ },
+ {
+  "id": "app.04.q6",
+  "prompt": "Le prompt B bat A sur 9 éléments, A bat B sur 3, 28 égalités (n = 40). P-valeur exacte bilatérale par inversion de signes ?",
+  "options": [
+   "0,015",
+   "0,146",
+   "0,5",
+   "0,0003"
+  ],
+  "explanation": "Sur m = 12 éléments qui diffèrent, le nombre de motifs de signes avec |S| >= 6 est 2(1+12+66+220) = 598 sur 4096, p = 0,146 : non significatif à 5 pour cent."
+ },
+ {
+  "id": "app.04.q7",
+  "prompt": "Comment la taille d'échantillon requise change-t-elle si tu veux détecter une amélioration deux fois plus petite (même écart type) ?",
+  "options": [
+   "elle quadruple",
+   "elle est divisée par deux",
+   "elle reste la même",
+   "elle double"
+  ],
+  "explanation": "n est proportionnel à (sd/delta)^2, donc diviser delta par deux multiplie n par 4."
+ },
+ {
+  "id": "app.04.q8",
+  "prompt": "Pourquoi comparer les prompts comme des différences APPARIÉES plutôt que deux exactitudes séparées ?",
+  "options": [
+   "les tests appariés nécessitent moins de prompts",
+   "cela rend le score plus élevé",
+   "le bootstrap ne fonctionne que sur des paires",
+   "la difficulté des éléments s'annule dans la différence, donc la comparaison est moins bruitée"
+  ],
+  "explanation": "Un élément facile l'est pour les deux prompts ; la différence supprime cette variation partagée."
+ },
+ {
+  "id": "app.04.q9",
+  "prompt": "Un changement de prompt augmente la qualité moyenne mais une tranche thématique s'effondre. Quelle pratique l'aurait détecté ?",
+  "options": [
+   "un modèle plus grand",
+   "une température plus basse",
+   "suivre les métriques par étiquette/tranche et plusieurs métriques à la fois",
+   "des prompts plus longs"
+  ],
+  "explanation": "Les moyennes peuvent cacher des régressions dans des tranches ; étiquette les éléments et rapporte des résultats par tranche."
+ }
+]

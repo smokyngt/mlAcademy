@@ -1,0 +1,10 @@
+{
+ "id": "nlp.01.ex1",
+ "title": "Tokeniser, compter et pondérer avec TF-IDF",
+ "prompt": "Implémente le pipeline de texte classique avec NumPy :\n\n- `tokenize(text)` : passe en minuscules, puis renvoie la liste des suites de lettres/chiffres, en autorisant une apostrophe interne (`don't` reste un seul token). La ponctuation est supprimée.\n- `build_vocab(docs)` : `docs` est une liste de listes de tokens ; renvoie la liste triée des tokens distincts.\n- `count_matrix(docs, vocab)` : tableau de forme `(N, V)` de comptes ; les tokens absents de `vocab` sont ignorés.\n- `tfidf(X)` : IDF lissé `ln((1+N)/(1+df)) + 1`, multiplie les comptes, puis normalise en L2 chaque ligne (une ligne de zéros reste nulle).\n- `cosine_matrix(W)` : similarité cosinus par paires des lignes d'une matrice déjà normalisée.\n- `ngrams(tokens, n)` : liste de tuples de n-grammes.",
+ "hints": [
+  "Utilise re.findall(r\"[a-z0-9]+(?:'[a-z]+)?\", text.lower()). Le vocabulaire est sorted(ensemble de tous les tokens).",
+  "idf = np.log((1 + N) / (1 + df)) + 1 où df = (X > 0).sum(axis=0) ; puis T = X * idf et divise chaque ligne par sa norme L2.",
+  "Pour la similarité cosinus de la matrice normalisée W, utilise W @ W.T. Bigrammes : [tuple(tokens[i:i+n]) for i in range(len(tokens)-n+1)]."
+ ]
+}

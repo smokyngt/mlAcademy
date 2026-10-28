@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.03.c1","front":"Qu'est-ce que l'étiquetage de séquences ?","back":"Attribuer une étiquette à chaque élément d'une séquence : catégories grammaticales, étiquettes d'entités, etc. Les étiquettes des voisins dépendent les unes des autres."},
+ {"id":"nlp.03.c2","front":"Paramètres du HMM et formes","back":"$\\pi$ $(K,)$, transitions $A$ $(K,K)$, émissions $B$ $(K,V)$ ; les lignes de $A$ et $B$ ont pour somme 1."},
+ {"id":"nlp.03.c3","front":"Probabilité jointe du HMM","back":"$P(x,t)=\\pi_{t_1}B_{t_1x_1}\\prod_{i\\ge2}A_{t_{i-1}t_i}B_{t_ix_i}$."},
+ {"id":"nlp.03.c4","front":"Deux hypothèses du HMM","back":"Markov : chaque étiquette ne dépend que de l'étiquette précédente. Chaque mot ne dépend que de sa propre étiquette."},
+ {"id":"nlp.03.c5","front":"Apprendre un HMM à partir de texte étiqueté","back":"Compter et normaliser : comptes initiaux, de bigrammes d'étiquettes et de (étiquette, mot), avec un lissage add-alpha pour les événements non vus."},
+ {"id":"nlp.03.c6","front":"Récurrence de Viterbi","back":"$\\delta_i(k)=\\max_j[\\delta_{i-1}(j)A_{jk}]\\,B_{kx_i}$ avec le pointeur arrière $\\psi_i(k)=\\arg\\max_j$."},
+ {"id":"nlp.03.c7","front":"Complexité de Viterbi","back":"Temps $O(nK^2)$, mémoire $O(nK)$ pour les pointeurs arrière, contre $K^n$ séquences."},
+ {"id":"nlp.03.c8","front":"Pourquoi garder un chemin par étiquette suffit-il ?","back":"Propriété de Markov : le futur dépend du passé uniquement via l'étiquette courante, donc un chemin partiel dominé ne peut jamais faire partie de l'optimum."},
+ {"id":"nlp.03.c9","front":"Viterbi vs algorithme forward","back":"Viterbi utilise le max et renvoie le meilleur chemin ; forward utilise la somme et renvoie $P(x)$."},
+ {"id":"nlp.03.c10","front":"Étiquetage BIO","back":"B-X commence une entité de type X, I-X la continue, O est en dehors. Transforme la NER en étiquetage de séquences."},
+ {"id":"nlp.03.c11","front":"Pourquoi l'espace logarithmique dans Viterbi ?","back":"Évite l'underflow ; une probabilité nulle devient $-\\infty$, sans danger pour le max."},
+ {"id":"nlp.03.c12","front":"HMM vs CRF","back":"Le HMM est génératif ($P(x,t)$, le mot ne dépend que de son étiquette). Le CRF linéaire est discriminatif ($P(t\\mid x)$) avec des caractéristiques arbitraires ; le décodage reste Viterbi."},
+ {"id":"nlp.03.c13","front":"Comment évaluer la NER ?","back":"Précision, rappel et F1 au niveau de l'entité : le segment exact et le type doivent correspondre. L'exactitude par token est gonflée par les tokens O."},
+ {"id":"nlp.03.c14","front":"Pourquoi les mots inconnus posent-ils problème aux étiqueteurs HMM ?","back":"Leur probabilité d'émission vaut 0 pour toute étiquette ; remède : lissage, une classe UNK ou des caractéristiques de suffixe/forme."}
+]

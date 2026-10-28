@@ -1,0 +1,92 @@
+[
+ {
+  "id": "aud.05.c1",
+  "concept": "aud.tts",
+  "front": "Three stages of TTS",
+  "back": "Text frontend (normalise, phonemes) -> acoustic model (phonemes to mel) -> vocoder (mel to waveform)."
+ },
+ {
+  "id": "aud.05.c2",
+  "concept": "aud.tts",
+  "front": "Length regulator",
+  "back": "Repeats each phoneme hidden vector $d_u$ times, $T=\\sum d_u$; `np.repeat(H, d, axis=0)`; replaces learned attention alignment."
+ },
+ {
+  "id": "aud.05.c3",
+  "concept": "aud.tts",
+  "front": "Tacotron 2 vs FastSpeech 2",
+  "back": "Tacotron: autoregressive with attention, can skip/repeat words. FastSpeech: non-autoregressive with a duration predictor, parallel and robust."
+ },
+ {
+  "id": "aud.05.c4",
+  "concept": "aud.tts",
+  "front": "Why vocoders are hard",
+  "back": "The mel spectrogram has no phase and blurred frequency detail; the vocoder must invent plausible waveform detail."
+ },
+ {
+  "id": "aud.05.c5",
+  "concept": "aud.tts",
+  "front": "HiFi-GAN upsampling",
+  "back": "Transposed convolutions whose factors multiply to the hop length (e.g. 8*8*2*2 = 256); trained adversarially plus mel and feature-matching losses."
+ },
+ {
+  "id": "aud.05.c6",
+  "concept": "aud.tts",
+  "front": "Residual vector quantisation and bitrate",
+  "back": "Each codebook quantises the previous residual; bitrate $=f\\,Q\\log_2K$ (75 Hz, 8, 1024 gives 6 kbps)."
+ },
+ {
+  "id": "aud.05.c7",
+  "concept": "aud.griffinlim",
+  "front": "Inverse STFT formula",
+  "back": "$x[m]=\\sum_tw[m-tH]\\,y_t[m-tH]\\,/\\sum_tw[m-tH]^2$: weighted overlap-add, the least-squares solution."
+ },
+ {
+  "id": "aud.05.c8",
+  "concept": "aud.griffinlim",
+  "front": "Consistent spectrogram",
+  "back": "A complex matrix that is the STFT of some real signal; overlapping frames constrain each other, so random matrices are not consistent."
+ },
+ {
+  "id": "aud.05.c9",
+  "concept": "aud.griffinlim",
+  "front": "Griffin-Lim iteration",
+  "back": "$X=\\mathrm{STFT}(\\mathrm{ISTFT}(S))$, then $S=A\\,e^{i\\angle X}$ (keep phase, restore magnitude), starting from random phase."
+ },
+ {
+  "id": "aud.05.c10",
+  "concept": "aud.griffinlim",
+  "front": "Why Griffin-Lim error does not increase",
+  "back": "Both steps are nearest-point projections, so the distance between the consistent set and the prescribed-magnitude set is non-increasing (local optimum only)."
+ },
+ {
+  "id": "aud.05.c11",
+  "concept": "aud.griffinlim",
+  "front": "Spectral convergence",
+  "back": "$\\|\\,|\\mathrm{STFT}(x)|-A\\,\\|_F/\\|A\\|_F$; compare magnitudes, because the waveform (e.g. its sign) is not unique."
+ },
+ {
+  "id": "aud.05.c12",
+  "concept": "aud.voice",
+  "front": "MOS and its confidence interval",
+  "back": "Mean rating 1-5; 95% interval $\\bar r\\pm1.96\\,s/\\sqrt n$ (use a $t$ value for small $n$); use 20+ listeners."
+ },
+ {
+  "id": "aud.05.c13",
+  "concept": "aud.voice",
+  "front": "Other TTS metrics",
+  "back": "CMOS (A/B), UTMOS (learned MOS), round-trip WER/CER via ASR, SECS for speaker similarity, time-to-first-audio."
+ },
+ {
+  "id": "aud.05.c14",
+  "concept": "aud.voice",
+  "front": "Zero-shot cloning vs voice conversion",
+  "back": "Cloning: text + short reference -> new speech in that voice. Conversion: existing speech of A -> same words in B's voice."
+ },
+ {
+  "id": "aud.05.c15",
+  "concept": "aud.voice",
+  "front": "Safeguards for voice cloning",
+  "back": "Verified consent records, inaudible watermarking, anti-spoof detection, policy/legal compliance; each is partial, none sufficient alone."
+ }
+]

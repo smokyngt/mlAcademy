@@ -1,0 +1,10 @@
+{
+  "id": "app.01.ex1",
+  "title": "Auto-cohérence : extraire, voter et prédire le gain",
+  "prompt": "On a posé à un modèle 8 problèmes arithmétiques en prompting par chaîne de pensée à une température supérieure à zéro, et 5 échantillons de raisonnement ont été stockés pour chaque question dans `CANNED` sous la forme `(true_answer, [five_texts])`. Aucun modèle n'est appelé : tu construis le **harnais d'analyse et d'agrégation**.\n\nImplémente :\n\n- `extract_answer(text)` -> `int` ou `None`. La réponse finale est l'entier qui suit la **dernière** occurrence du mot « answer » (insensible à la casse), éventuellement suivi de `is` ou `:`. Les textes sans ce motif (divagation, tronqués) donnent `None`.\n- `majority_vote(answers)` -> la réponse non `None` la plus fréquente ; en cas d'égalité, c'est la réponse qui apparaît en premier dans la liste ; `None` s'il n'y a aucune réponse valide.\n- `sample_accuracy(canned)` -> exactitude moyenne par échantillon sur tous les textes (un échantillon inanalysable compte comme faux).\n- `vote_accuracy(canned)` -> fraction des questions où le vote à la majorité est égal à la vérité.\n- `majority_accuracy(p, n)` -> probabilité exacte qu'une majorité de `n` (impair) échantillons indépendants, chacun correct avec la probabilité `p`, soit correcte. Suppose que chaque mauvaise réponse est différente, de sorte que le vote est correct exactement quand plus de n/2 échantillons sont corrects.",
+  "hints": [
+    "Utilise re.findall avec un motif comme r\"answer\\s*(?:is|:)?\\s*(-?\\d+)\" et flags=re.I, puis prends la DERNIÈRE correspondance ; renvoie None quand il n'y en a pas.",
+    "Compte les réponses avec collections.Counter, en ignorant None. Pour départager, parcours la liste dans l'ordre et renvoie la première réponse dont le compte est égal au maximum.",
+    "Exactitude exacte de la majorité pour n impair : somme sur k de n//2+1 à n de comb(n,k) * p**k * (1-p)**(n-k)."
+  ]
+}

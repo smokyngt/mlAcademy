@@ -1,0 +1,16 @@
+[
+  {"id": "trf.01.c1", "front": "Formule de l'attention par produit scalaire normalisé", "back": "$\\operatorname{softmax}(QK^\\top/\\sqrt{d_k})\\,V$, softmax sur chaque ligne (l'axe des clés)."},
+  {"id": "trf.01.c2", "front": "Rôles de la requête, de la clé, de la valeur", "back": "Requête : ce que je cherche. Clé : ce que j'annonce. Valeur : ce que je transmets si je suis sélectionné. Sortie = moyenne pondérée des valeurs."},
+  {"id": "trf.01.c3", "front": "Comment calcule-t-on Q, K, V ?", "back": "$Q=XW_Q$, $K=XW_K$, $V=XW_V$ ; $W_Q,W_K:(d_{model},d_k)$, $W_V:(d_{model},d_v)$."},
+  {"id": "trf.01.c4", "front": "Forme de la matrice de scores / de poids", "back": "$(T,T)$ par tête, $(B,T,T)$ par batch ; la ligne $i$ = distribution du token $i$ sur tous les tokens."},
+  {"id": "trf.01.c5", "front": "Variance de $q\\cdot k$ pour des entrées indépendantes de variance unité", "back": "$d_k$ (somme de $d_k$ termes indépendants de variance 1)."},
+  {"id": "trf.01.c6", "front": "Pourquoi diviser par $\\sqrt{d_k}$ ?", "back": "$\\operatorname{Var}(s/\\sqrt{d_k})=1$. Cela évite un softmax presque one-hot dont la jacobienne est quasi nulle (gradient évanescent)."},
+  {"id": "trf.01.c7", "front": "Jacobienne du softmax", "back": "$\\partial p_i/\\partial s_j=p_i(\\delta_{ij}-p_j)$. Proche de 0 quand $p$ est one-hot."},
+  {"id": "trf.01.c8", "front": "Temps et mémoire de l'attention en fonction de $T$", "back": "$O(T^2d_k)$ en temps, $O(T^2)$ en mémoire par tête ; profondeur séquentielle constante."},
+  {"id": "trf.01.c9", "front": "Pourquoi soustraire le maximum de la ligne dans le softmax ?", "back": "Le softmax est invariant par translation ; soustraire le maximum évite le débordement de $e^{s}$ sans changer le résultat."},
+  {"id": "trf.01.c10", "front": "Sortie du token $i$", "back": "$z_i=\\sum_j a_{ij}v_j$, une combinaison convexe des vecteurs valeurs ; $Z=AV$, de forme $(T,d_v)$."},
+  {"id": "trf.01.c11", "front": "Auto-attention vs attention croisée", "back": "Auto : Q, K, V viennent de la même séquence. Croisée : Q vient d'une séquence, K et V d'une autre."},
+  {"id": "trf.01.c12", "front": "Pourquoi des projections séparées pour la clé et la valeur ?", "back": "Trouver un token (clé) et utiliser son contenu (valeur) sont deux tâches différentes ; deux applications permettent au modèle d'apprendre les deux."},
+  {"id": "trf.01.c13", "front": "Attention vs récurrence", "back": "L'attention relie deux tokens quelconques en une étape et se parallélise sur la séquence, au coût de $O(T^2)$ ; un RNN est en $O(T)$ mais séquentiel."},
+  {"id": "trf.01.c14", "front": "Transposée par batch de K en NumPy", "back": "`np.swapaxes(K, -1, -2)` ou `K.transpose(0, 2, 1)` : $(B,T,d_k)\\to(B,d_k,T)$."}
+]

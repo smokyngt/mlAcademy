@@ -1,0 +1,105 @@
+#@@ meta
+{"id": "math.16.ex1", "title": "Norms, pairwise distances, Mahalanobis and concentration of distances", "difficulty": 3, "runtime": "pyodide", "concepts": ["la.tensor", "la.norms"], "hints": ["lp_norm: for p=inf use max(abs(x)); otherwise (sum(abs(x)**p))**(1/p). Frobenius: sqrt of sum of squares of all entries; spectral: largest singular value (np.linalg.svd(A, compute_uv=False)[0]).", "pairwise_sq_dists: (X**2).sum(1)[:, None] + (Y**2).sum(1)[None, :] - 2 * X @ Y.T, then clip at 0.", "mahalanobis: d = x - mu; sqrt(d @ np.linalg.solve(S, d)).", "distance_contrast(D, n, seed): rng = np.random.default_rng(seed); P = rng.random((n, D)); q = rng.random(D) in that order; d = norm of P - q along axis 1; return (d.max() - d.min()) / d.min()."]}
+#@@ prompt
+NumPy only. Implement:
+
+- `lp_norm(x, p)` - the `p`-norm of a vector, with `p = np.inf` giving the max norm.
+- `frobenius(A)` and `spectral(A)` - matrix norms (compute the spectral norm from singular values, `np.linalg.svd(..., compute_uv=False)`).
+- `cosine(a, b)` - cosine similarity.
+- `pairwise_sq_dists(X, Y)` - the `(N, M)` matrix of squared Euclidean distances between rows of `X: (N, D)` and `Y: (M, D)` without Python loops, by expanding `|x-y|^2`; clip tiny negatives to 0.
+- `mahalanobis(x, mu, S)` - Mahalanobis distance, using `np.linalg.solve` rather than an explicit inverse.
+- `distance_contrast(D, n, seed)` - draw `n` points uniformly in the `D`-dimensional unit cube and one query point (in this order, from one `default_rng(seed)`), return `(dmax - dmin) / dmin` of the Euclidean distances from the query to the points.
+- `shell_fraction(eps, D)` - fraction of a `D`-ball's volume within `eps` of its surface.
+#@@ starter
+import numpy as np
+
+def lp_norm(x, p):
+    raise NotImplementedError
+
+def frobenius(A):
+    raise NotImplementedError
+
+def spectral(A):
+    raise NotImplementedError
+
+def cosine(a, b):
+    raise NotImplementedError
+
+def pairwise_sq_dists(X, Y):
+    raise NotImplementedError
+
+def mahalanobis(x, mu, S):
+    raise NotImplementedError
+
+def distance_contrast(D, n, seed):
+    raise NotImplementedError
+
+def shell_fraction(eps, D):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([3., -4., 12.])
+check("L1 = 19", lambda: abs(lp_norm(x, 1) - 19) < 1e-12)
+check("L2 = 13", lambda: abs(lp_norm(x, 2) - 13) < 1e-12)
+check("Linf = 12", lambda: abs(lp_norm(x, np.inf) - 12) < 1e-12)
+check("L3 = 12.2071", lambda: abs(lp_norm(x, 3) - 12.207054953) < 1e-6)
+check("norm ordering Linf <= L2 <= L1", lambda: lp_norm(x, np.inf) <= lp_norm(x, 2) <= lp_norm(x, 1))
+A = np.array([[1., 2.], [3., 4.]])
+check("Frobenius = sqrt(30)", lambda: abs(frobenius(A) - np.sqrt(30)) < 1e-12)
+check("spectral = 5.4650", lambda: abs(spectral(A) - 5.464985704) < 1e-8)
+check("Frobenius^2 equals sum of squared singular values", lambda: abs(frobenius(A) ** 2 - (np.linalg.svd(A, compute_uv=False) ** 2).sum()) < 1e-9)
+check("cosine((1,2,3),(2,4,6)) = 1", lambda: abs(cosine(np.array([1., 2, 3]), np.array([2., 4, 6])) - 1) < 1e-12)
+check("cosine((1,0),(1,1)) = 0.7071", lambda: abs(cosine(np.array([1., 0]), np.array([1., 1])) - 0.70710678) < 1e-7)
+rng = np.random.default_rng(0)
+X = rng.normal(size=(6, 4)); Y = rng.normal(size=(5, 4))
+D2 = pairwise_sq_dists(X, Y)
+check("pairwise shape is (6, 5)", lambda: D2.shape == (6, 5))
+check("pairwise matches brute force", lambda: np.allclose(D2, ((X[:, None, :] - Y[None, :, :]) ** 2).sum(-1)))
+check("pairwise is non-negative with zero diagonal on X, X", lambda: (pairwise_sq_dists(X, X) >= 0).all() and np.allclose(np.diag(pairwise_sq_dists(X, X)), 0, atol=1e-9))
+u = X[0] / np.linalg.norm(X[0]); v = X[1] / np.linalg.norm(X[1])
+check("unit vectors: |u-v|^2 = 2 - 2 cos", lambda: abs(((u - v) ** 2).sum() - (2 - 2 * cosine(u, v))) < 1e-12)
+S = np.array([[4., 2.], [2., 3.]]); mu = np.zeros(2)
+check("Mahalanobis (2,0) = 1.2247", lambda: abs(mahalanobis(np.array([2., 0]), mu, S) - 1.22474487) < 1e-7)
+check("Mahalanobis (2,2) = 1.2247 despite larger Euclidean norm", lambda: abs(mahalanobis(np.array([2., 2]), mu, S) - 1.22474487) < 1e-7)
+check("Mahalanobis (2,-2) = 2.3452", lambda: abs(mahalanobis(np.array([2., -2]), mu, S) - 2.34520788) < 1e-7)
+check("Mahalanobis with identity covariance equals Euclidean", lambda: abs(mahalanobis(np.array([3., 4]), mu, np.eye(2)) - 5) < 1e-12)
+check("contrast D=2 is about 230.6", lambda: abs(distance_contrast(2, 200, 0) - 230.608419) < 1e-3)
+check("contrast D=100 is about 0.316", lambda: abs(distance_contrast(100, 200, 0) - 0.31596) < 1e-3)
+check("contrast shrinks with dimension", lambda: distance_contrast(10, 200, 0) > distance_contrast(100, 200, 0) > distance_contrast(1000, 200, 0))
+check("shell fraction eps=0.05 D=2 is 0.0975", lambda: abs(shell_fraction(0.05, 2) - 0.0975) < 1e-12)
+check("shell fraction eps=0.05 D=100 is 0.99408", lambda: abs(shell_fraction(0.05, 100) - 0.99407947) < 1e-7)
+#@@ solution
+import numpy as np
+
+def lp_norm(x, p):
+    a = np.abs(x)
+    if np.isinf(p):
+        return a.max()
+    return (a ** p).sum() ** (1.0 / p)
+
+def frobenius(A):
+    return np.sqrt((A ** 2).sum())
+
+def spectral(A):
+    return np.linalg.svd(A, compute_uv=False)[0]
+
+def cosine(a, b):
+    return a @ b / (np.linalg.norm(a) * np.linalg.norm(b))
+
+def pairwise_sq_dists(X, Y):
+    D2 = (X ** 2).sum(1)[:, None] + (Y ** 2).sum(1)[None, :] - 2 * X @ Y.T
+    return np.maximum(D2, 0)
+
+def mahalanobis(x, mu, S):
+    d = x - mu
+    return np.sqrt(d @ np.linalg.solve(S, d))
+
+def distance_contrast(D, n, seed):
+    rng = np.random.default_rng(seed)
+    P = rng.random((n, D))
+    q = rng.random(D)
+    d = np.linalg.norm(P - q, axis=1)
+    return (d.max() - d.min()) / d.min()
+
+def shell_fraction(eps, D):
+    return 1 - (1 - eps) ** D

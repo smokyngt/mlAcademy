@@ -1,0 +1,54 @@
+[
+  {
+    "id": "split-then-fit",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The leakage-safe order: split first, fit every statistic (mean, vocabulary, imputation value) on the training part only, then transform all splits with those stored statistics. Fitting before the split lets test information into training.",
+      "fr": "L'ordre sans fuite : séparer d'abord, ajuster chaque statistique (moyenne, vocabulaire, valeur d'imputation) sur la partie entraînement seulement, puis transformer tous les jeux avec ces statistiques stockées. Ajuster avant la séparation fait entrer de l'information du test dans l'entraînement."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"data\"] --> SP[\"1. split\"]\n  SP --> TR[\"train\"]\n  SP --> TE[\"test\"]\n  TR --> FIT[\"2. fit mean, sigma, vocabulary on train\"]\n  FIT --> ST[(\"stored statistics\")]\n  ST --> T1[\"3. transform train\"]\n  ST --> T2[\"3. transform test\"]\n  ST --> T3[\"same statistics at serving\"]",
+      "fr": "flowchart LR\n  D[\"données\"] --> SP[\"1. séparer\"]\n  SP --> TR[\"train\"]\n  SP --> TE[\"test\"]\n  TR --> FIT[\"2. ajuster moyenne, sigma, vocabulaire sur train\"]\n  FIT --> ST[(\"statistiques stockées\")]\n  ST --> T1[\"3. transformer train\"]\n  ST --> T2[\"3. transformer test\"]\n  ST --> T3[\"mêmes statistiques en service\"]"
+    }
+  },
+  {
+    "id": "time-split",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Splitting time-correlated data: random splits put rows from the same day on both sides, so train on the earlier weeks and test on the later one (the lesson's example: four weeks of training, week five for testing).",
+      "fr": "Séparer des données corrélées dans le temps : un tirage aléatoire met des lignes du même jour des deux côtés ; on entraîne donc sur les semaines antérieures et on teste sur la suivante (exemple de la leçon : quatre semaines d'entraînement, la cinquième pour le test)."
+    },
+    "code": {
+      "en": "flowchart LR\n  W1[\"week 1\"] --> W2[\"week 2\"] --> W3[\"week 3\"] --> W4[\"week 4\"] --> W5[\"week 5\"]\n  W1 -.- TRN[\"train\"]\n  W4 -.- TRN\n  W5 -.- TST[\"test\"]",
+      "fr": "flowchart LR\n  W1[\"semaine 1\"] --> W2[\"semaine 2\"] --> W3[\"semaine 3\"] --> W4[\"semaine 4\"] --> W5[\"semaine 5\"]\n  W1 -.- TRN[\"train\"]\n  W4 -.- TRN\n  W5 -.- TST[\"test\"]"
+    }
+  },
+  {
+    "id": "feature-store",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A feature store defines each feature once and serves it twice: historical values as of each example's time for training, current values at low latency for serving. Without a store, share one transformation library between both paths.",
+      "fr": "Un magasin de variables définit chaque variable une fois et la sert deux fois : valeurs historiques à la date de chaque exemple pour l'entraînement, valeurs courantes à faible latence pour la production. Sans magasin, partager une même bibliothèque de transformations entre les deux chemins."
+    },
+    "code": {
+      "en": "flowchart TB\n  DEF[\"one feature definition<br/>(versioned with the model)\"] --> OFF[\"offline: values as of label time\"]\n  DEF --> ONL[\"online: current values, low latency\"]\n  OFF --> TRN[\"training job\"]\n  ONL --> SRV[\"prediction service\"]",
+      "fr": "flowchart TB\n  DEF[\"une définition de variable<br/>(versionnée avec le modèle)\"] --> OFF[\"hors ligne : valeurs à la date du label\"]\n  DEF --> ONL[\"en ligne : valeurs courantes, faible latence\"]\n  OFF --> TRN[\"entraînement\"]\n  ONL --> SRV[\"service de prédiction\"]"
+    }
+  },
+  {
+    "id": "skew-checker",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The skew checker compares a training matrix with a sample of served features, per feature and without labels: missing rate, mean shift in training standard deviations, out-of-range share, and unseen categories.",
+      "fr": "Le détecteur de décalage compare une matrice d'entraînement à un échantillon de variables servies, variable par variable et sans étiquettes : taux de valeurs manquantes, décalage de la moyenne en écarts types d'entraînement, part hors plage et catégories inconnues."
+    },
+    "code": {
+      "en": "flowchart LR\n  TR[\"training features\"] --> CK[\"per-feature checks\"]\n  SV[\"sample of served features\"] --> CK\n  CK --> M[\"missing: NaN rate differs\"]\n  CK --> S[\"shift: mean moves > z sigma\"]\n  CK --> RG[\"range: outside train min/max\"]\n  CK --> UC[\"unseen category rate\"]",
+      "fr": "flowchart LR\n  TR[\"variables d'entraînement\"] --> CK[\"contrôles par variable\"]\n  SV[\"échantillon de variables servies\"] --> CK\n  CK --> M[\"missing : taux de NaN différent\"]\n  CK --> S[\"shift : moyenne décalée de > z sigma\"]\n  CK --> RG[\"range : hors du min/max d'entraînement\"]\n  CK --> UC[\"taux de catégories inconnues\"]"
+    }
+  }
+]

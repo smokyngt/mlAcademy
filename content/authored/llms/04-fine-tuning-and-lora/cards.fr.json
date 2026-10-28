@@ -1,0 +1,17 @@
+[
+  {"id": "llm.04.c1", "front": "Que change le SFT dans un modèle de base ?", "back": "Le comportement (répondre aux instructions dans un format donné), pas les connaissances. Il s'entraîne sur des démonstrations (prompt, réponse) avec un faible taux d'apprentissage pendant 1 à 3 époques."},
+  {"id": "llm.04.c2", "front": "Masquage du prompt : pourquoi et comment ?", "back": "Perte uniquement sur les tokens de réponse et de fin ; étiquettes du prompt mises à un indice ignoré (-100). Évite d'entraîner le modèle à écrire des instructions ; les tokens du prompt restent dans le contexte."},
+  {"id": "llm.04.c3", "front": "Formule de la perte masquée", "back": "$\\mathcal L=-\\frac{1}{\\sum M_t}\\sum_t M_t\\ln p(y_t\\mid s_{\\le t})$ ; diviser par le nombre de cibles supervisées, pas par $B\\cdot T$."},
+  {"id": "llm.04.c4", "front": "Entrées et étiquettes d'une séquence SFT", "back": "ids = prompt + réponse + [eos] ; x = ids[:-1] ; y = labels[1:] avec les positions du prompt = -100. Les cibles de padding valent aussi -100."},
+  {"id": "llm.04.c5", "front": "Oubli catastrophique et remèdes", "back": "Le fine-tuning efface la capacité générale. Utiliser un faible taux d'apprentissage, peu d'époques, mélanger des données de pré-entraînement, ou restreindre les mises à jour (LoRA)."},
+  {"id": "llm.04.c6", "front": "Mise à jour LoRA", "back": "$W' = W + \\frac{\\alpha}{r}BA$ avec $B:(d_{out},r)$, $A:(r,d_{in})$, $W$ gelé. Rang de la mise à jour $\\le r$."},
+  {"id": "llm.04.c7", "front": "Nombre de paramètres LoRA", "back": "$r(d_{out}+d_{in})$ par matrice adaptée au lieu de $d_{out}d_{in}$. Exemple 4096x4096, r=16 : 131,072 = 0.78 %."},
+  {"id": "llm.04.c8", "front": "Initialisation de LoRA", "back": "$B=0$ (l'adaptateur démarre à zéro, modèle inchangé), $A$ aléatoire (pour que $\\bar B\\ne0$ et que l'apprentissage démarre)."},
+  {"id": "llm.04.c9", "front": "Passe avant de LoRA", "back": "$y=xW^\\top+s\\,(xA^\\top)B^\\top$, $s=\\alpha/r$. Ne forme jamais la mise à jour $d_{out}\\times d_{in}$."},
+  {"id": "llm.04.c10", "front": "Gradients de LoRA", "back": "$\\bar B=sG^\\top h$, $\\bar A=s(GB)^\\top x$, $\\bar x=GW+s(GB)A$, avec $h=xA^\\top$."},
+  {"id": "llm.04.c11", "front": "Pourquoi mettre à l'échelle par alpha/r ?", "back": "Garde l'amplitude de la mise à jour comparable d'un rang à l'autre, de sorte que des exécutions de rangs différents puissent être comparées sans réajuster le taux d'apprentissage."},
+  {"id": "llm.04.c12", "front": "Fusionner un adaptateur LoRA", "back": "$W_{merged}=W+\\frac{\\alpha}{r}BA$ : sorties identiques, aucune latence supplémentaire. Ou garder les adaptateurs séparés pour les échanger par tâche."},
+  {"id": "llm.04.c13", "front": "QLoRA en une phrase", "back": "Poids de base gelés stockés en 4 bits (NF4, avec double quantification des constantes), adaptateurs LoRA entraînés en plus haute précision, état d'optimiseur paginé."},
+  {"id": "llm.04.c14", "front": "Principale limite de LoRA", "back": "Une mise à jour de rang r ne peut pas représenter des changements qui exigent un rang plus élevé ; les tâches demandant beaucoup de nouvelles connaissances peuvent nécessiter un r plus grand ou un fine-tuning complet."},
+  {"id": "llm.04.c15", "front": "Pourquoi le fine-tuning complet coûte-t-il autant de mémoire ?", "back": "Gradients et état d'optimiseur (Adam garde deux moments) pour chaque poids : environ 16 octets/paramètre en fp32 avant les activations."}
+]

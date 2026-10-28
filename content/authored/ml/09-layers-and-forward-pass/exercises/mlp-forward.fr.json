@@ -1,0 +1,10 @@
+{
+  "id": "f2n.09.ex1",
+  "title": "Passe avant : activations, couche dense et XOR à la main",
+  "prompt": "1. Implémente `relu`, `sigmoid`, `tanh_prime` (dérivée de tanh, à partir de $1-\\tanh^2$).\n2. Implémente `mlp_forward(X, params)` où `params` est une liste de paires `(W, b)`. Applique ReLU après chaque couche sauf la dernière (qui est linéaire). Renvoie la sortie.\n3. Renvoie `xor_params()` - une liste de deux paires `(W, b)` qui fait calculer à `mlp_forward` le XOR sur les quatre entrées binaires (voir le tableau de la leçon).\n4. `count_params(params)` renvoie le nombre total de poids et de biais.",
+  "hints": [
+    "relu = np.maximum(0, z) ; sigmoid = 1 / (1 + np.exp(-z)).",
+    "mlp_forward : boucle sur les couches ; pour toutes sauf la dernière, applique relu à X @ W + b ; la dernière couche reste linéaire.",
+    "xor_params : W1 = [[1,1],[1,1]], b1 = [0,-1], W2 = [[1],[-2]], b2 = [0]."
+  ]
+}

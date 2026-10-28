@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.04.c14",
+  "concept": "calc.derivative",
+  "front": "Power rule",
+  "back": "$(x^n)'=nx^{n-1}$."
+ },
+ {
+  "id": "f2n.04.c15",
+  "concept": "calc.derivative",
+  "front": "Derivative of $e^x$ and $\\ln x$",
+  "back": "$e^x$ and $1/x$."
+ },
+ {
+  "id": "f2n.04.c16",
+  "concept": "calc.derivative",
+  "front": "Sum rule",
+  "back": "$(f+g)'=f'+g'$."
+ },
+ {
+  "id": "f2n.04.c17",
+  "concept": "calc.derivative",
+  "front": "First-order approximation",
+  "back": "$f(x+h)\\approx f(x)+f'(x)h$."
+ },
+ {
+  "id": "f2n.04.c18",
+  "concept": "calc.numerical-diff",
+  "front": "Forward difference",
+  "back": "$\\dfrac{f(x+h)-f(x)}h$, error $O(h)$."
+ },
+ {
+  "id": "f2n.04.c19",
+  "concept": "calc.numerical-diff",
+  "front": "Best $h$ for central differences (float64)",
+  "back": "About $10^{-5}$ ($\\varepsilon^{1/3}$)."
+ },
+ {
+  "id": "f2n.04.c20",
+  "concept": "calc.numerical-diff",
+  "front": "Source of the extra error for tiny $h$",
+  "back": "Round-off, about $\\varepsilon/h$."
+ },
+ {
+  "id": "f2n.04.c21",
+  "concept": "calc.derivative",
+  "front": "Value of $\\sigma(0)$ and $\\sigma'(0)$",
+  "back": "$0.5$ and $0.25$."
+ },
+ {
+  "id": "f2n.04.c22",
+  "concept": "calc.derivative",
+  "front": "Derivative of ReLU",
+  "back": "$1$ for $z>0$, $0$ for $z<0$; undefined at $0$ (a convention is used)."
+ }
+]

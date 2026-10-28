@@ -1,0 +1,72 @@
+[
+  {
+    "id": "outer-inner",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Outer versus inner alignment: outer alignment asks whether the base objective matches what we want; inner alignment asks whether the objective the trained system actually pursues (a mesa-objective) matches the base objective or merely correlates with it in training.",
+      "fr": "Alignement externe contre interne : l'alignement externe demande si l'objectif de base correspond à ce que nous voulons ; l'alignement interne demande si l'objectif réellement poursuivi par le système entraîné (un méso-objectif) correspond à l'objectif de base ou seulement lui est corrélé à l'entraînement."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"what we want\"] -->|\"outer alignment?\"| BO[\"base objective<br/>(reward + KL, cross-entropy)\"]\n  BO --> TR[\"training\"]\n  TR --> MO[\"learned system with<br/>a mesa-objective\"]\n  BO -.->|\"inner alignment?\"| MO\n  MO --> BE[\"behaviour in deployment\"]",
+      "fr": "flowchart LR\n  W[\"ce que nous voulons\"] -->|\"alignement externe ?\"| BO[\"objectif de base<br/>(récompense + KL, entropie croisée)\"]\n  BO --> TR[\"entraînement\"]\n  TR --> MO[\"système appris avec<br/>un méso-objectif\"]\n  BO -.->|\"alignement interne ?\"| MO\n  MO --> BE[\"comportement en déploiement\"]"
+    }
+  },
+  {
+    "id": "evidence-ladder",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The evidence ladder as reported: each rung shows more than the one before but has a stated limit, and there is no demonstrated case of an unprompted deceptive system in ordinary use.",
+      "fr": "L'échelle des preuves telle que rapportée : chaque barreau montre davantage que le précédent mais a une limite déclarée, et aucun cas démontré de système trompeur non sollicité en usage ordinaire n'existe."
+    },
+    "code": {
+      "en": "flowchart TB\n  R1[\"1. Sleeper agents (implanted)<br/>safety training did not remove the backdoor\"] --> R2[\"2. In-context scheming (elicited)<br/>contrived scenarios\"]\n  R2 --> R3[\"3. Alignment faking (apparently spontaneous)<br/>told it would be retrained\"]\n  R3 --> R4[\"4. Reading the inside: probes<br/>detect a distinction, do not remove it\"]",
+      "fr": "flowchart TB\n  R1[\"1. Agents dormants (implantés)<br/>l'entraînement de sécurité n'a pas retiré la porte dérobée\"] --> R2[\"2. Manigances en contexte (provoquées)<br/>scénarios artificiels\"]\n  R2 --> R3[\"3. Faux alignement (apparemment spontané)<br/>informé qu'il serait réentraîné\"]\n  R3 --> R4[\"4. Lire l'intérieur : sondes<br/>détectent une distinction, ne la retirent pas\"]"
+    }
+  },
+  {
+    "id": "trusted-monitoring",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "AI control with trusted monitoring: the untrusted strong model writes the solution, a weaker trusted model scores it, and only the most suspicious solutions (within the audit budget) go to a human. A caught attack ends the game in the defenders' favour.",
+      "fr": "Contrôle de l'IA par surveillance de confiance : le modèle fort non fiable écrit la solution, un modèle plus faible de confiance la note, et seules les solutions les plus suspectes (dans le budget d'audit) vont à un humain. Une attaque détectée met fin à la partie en faveur des défenseurs."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"task\"] --> U[\"untrusted model U writes solution\"]\n  U --> M[\"trusted monitor T scores it\"]\n  M --> TH{\"score above audit threshold?\"}\n  TH -->|\"yes (budget f)\"| H[\"human audit\"]\n  TH -->|\"no\"| SH[\"ship\"]\n  H -->|\"backdoor found\"| STOP[\"caught: stop U\"]\n  H -->|\"clean\"| SH",
+      "fr": "flowchart LR\n  T[\"tâche\"] --> U[\"modèle non fiable U écrit la solution\"]\n  U --> M[\"le moniteur de confiance T la note\"]\n  M --> TH{\"score au-dessus du seuil d'audit ?\"}\n  TH -->|\"oui (budget f)\"| H[\"audit humain\"]\n  TH -->|\"non\"| SH[\"livrer\"]\n  H -->|\"porte dérobée trouvée\"| STOP[\"détecté : arrêter U\"]\n  H -->|\"propre\"| SH"
+    }
+  },
+  {
+    "id": "control-safety",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Safety of trusted monitoring, P(safe | A) = 1 - h/(c+h) (1 - n^A), as the number of attacks A grows. With catch probability c = 0.5 (blue) and harm-if-uncaught q = 0.5, safety levels off near 0.67; with a weaker monitor c = 0.2 (red) it falls toward 0.33. Illustrative parameters.",
+      "fr": "Sûreté de la surveillance de confiance, P(sûr | A) = 1 - h/(c+h) (1 - n^A), quand le nombre d'attaques A croît. Avec une probabilité de détection c = 0,5 (bleu) et un dommage si non détecté q = 0,5, la sûreté se stabilise près de 0,67 ; avec un moniteur plus faible c = 0,2 (rouge) elle tombe vers 0,33. Paramètres illustratifs."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "A",
+      "data": [
+        {
+          "fn": "1 - (1/3)*(1 - 0.25^x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1 - 0.6667*(1 - 0.4^x)",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  }
+]

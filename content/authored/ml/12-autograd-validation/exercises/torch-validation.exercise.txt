@@ -1,0 +1,76 @@
+#@@ meta
+{"id": "f2n.12.ex2", "title": "Validate backpropagation against PyTorch autograd", "difficulty": 4, "runtime": "docker", "concepts": ["nn.autograd", "nn.backprop"], "hints": ["Wrap each NumPy array: torch.tensor(a, dtype=torch.float64, requires_grad=True). Keep them in a list so you can read .grad afterwards.", "logits = torch.relu(X @ W1 + b1) @ W2 + b2; loss = F.cross_entropy(logits, y) where y is a LongTensor.", "After loss.backward(), return [p.grad.numpy() for p in tensors]. For the accumulation demo call backward twice with retain_graph=True on the first call."]}
+#@@ prompt
+This exercise needs PyTorch, so it runs in the Docker sandbox (see the Lab page for runner status).
+
+`numpy_loss_and_grads` (your lesson-10 implementation) is provided. Write:
+
+1. `torch_loss_and_grads(params, X, y)` - the same network and loss using PyTorch tensors in **float64**, returning `(loss_float, [grad arrays in param order])` from autograd.
+2. `accumulated_after_two_backwards(w0)` - create a tensor `w = torch.tensor(w0, requires_grad=True)`, compute `loss = (w ** 2).sum()`, call `backward()` twice (the first with `retain_graph=True`), and return `w.grad` as a NumPy array. Observe that it is twice the single-pass gradient.
+#@@ starter
+import numpy as np
+import torch
+import torch.nn.functional as F
+
+def numpy_loss_and_grads(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y])))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, [X.T @ dZ1, dZ1.sum(0), A1.T @ dZ2, dZ2.sum(0)]
+
+def torch_loss_and_grads(params, X, y):
+    raise NotImplementedError
+
+def accumulated_after_two_backwards(w0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+params = (rng.normal(0, 0.5, (4, 6)), rng.normal(0, 0.1, 6), rng.normal(0, 0.5, (6, 3)), rng.normal(0, 0.1, 3))
+X = rng.normal(size=(8, 4)); y = rng.integers(0, 3, size=8)
+nl, ng = numpy_loss_and_grads(params, X, y)
+tl, tg = torch_loss_and_grads(params, X, y)
+check("losses agree to 1e-12", lambda: abs(nl - tl) < 1e-12)
+check("four gradients returned", lambda: len(tg) == 4)
+for name, a, b in zip(["dW1", "db1", "dW2", "db2"], ng, tg):
+    check(name + " equals autograd to 1e-10", (lambda a=a, b=b: np.allclose(a, b, atol=1e-10, rtol=1e-8)), "Your NumPy backward differs from autograd")
+w0 = np.array([1.0, -2.0, 3.0])
+acc = accumulated_after_two_backwards(w0)
+check("gradients accumulate: 2 * (2 w) = 4 w", lambda: np.allclose(acc, 4 * w0))
+#@@ solution
+import numpy as np
+import torch
+import torch.nn.functional as F
+
+def numpy_loss_and_grads(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y])))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, [X.T @ dZ1, dZ1.sum(0), A1.T @ dZ2, dZ2.sum(0)]
+
+def torch_loss_and_grads(params, X, y):
+    ts = [torch.tensor(p, dtype=torch.float64, requires_grad=True) for p in params]
+    W1, b1, W2, b2 = ts
+    Xt = torch.tensor(X, dtype=torch.float64)
+    yt = torch.tensor(y, dtype=torch.long)
+    logits = torch.relu(Xt @ W1 + b1) @ W2 + b2
+    loss = F.cross_entropy(logits, yt)
+    loss.backward()
+    return float(loss.item()), [t.grad.numpy() for t in ts]
+
+def accumulated_after_two_backwards(w0):
+    w = torch.tensor(w0, dtype=torch.float64, requires_grad=True)
+    loss = (w ** 2).sum()
+    loss.backward(retain_graph=True)
+    loss.backward()
+    return w.grad.numpy()

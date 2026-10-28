@@ -1,0 +1,111 @@
+[
+  {
+    "id": "three-pass",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The three-pass reading method: each pass has a time budget and a question, and at every pass you keep four notes (claim, evidence, baseline, what is missing).",
+      "fr": "La lecture en trois passes : chaque passe a un budget de temps et une question, et à chaque passe on garde quatre notes (affirmation, preuve, référence, ce qui manque)."
+    },
+    "code": {
+      "en": "flowchart LR\n  P1[\"Pass 1, 5-10 min<br/>title, abstract, figures,<br/>conclusion\"] --> Q1{\"relevant to me?\"}\n  Q1 -- no --> STOP[\"stop\"]\n  Q1 -- yes --> P2[\"Pass 2, about 1 h<br/>setup, tables, figures,<br/>skip proofs\"]\n  P2 --> Q2{\"can I explain the method<br/>and list claims with evidence?\"}\n  Q2 -- no --> P1\n  Q2 -- yes --> P3[\"Pass 3, hours<br/>re-derive, find assumptions,<br/>reproduce a part\"]\n  P3 --> N[\"notes: claim, evidence,<br/>baseline, what is missing\"]",
+      "fr": "flowchart LR\n  P1[\"Passe 1, 5-10 min<br/>titre, résumé, figures,<br/>conclusion\"] --> Q1{\"pertinent pour moi ?\"}\n  Q1 -- non --> STOP[\"arrêt\"]\n  Q1 -- oui --> P2[\"Passe 2, environ 1 h<br/>protocole, tableaux, figures,<br/>sauter les preuves\"]\n  P2 --> Q2{\"puis-je expliquer la méthode<br/>et lister affirmations et preuves ?\"}\n  Q2 -- non --> P1\n  Q2 -- oui --> P3[\"Passe 3, des heures<br/>refaire les calculs, hypothèses,<br/>reproduire une partie\"]\n  P3 --> N[\"notes : affirmation, preuve,<br/>référence, ce qui manque\"]"
+    }
+  },
+  {
+    "id": "reproduction-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Reproducing a result: start small, fix everything fixable, reproduce the published baseline first, then check invariants before interpreting any difference.",
+      "fr": "Reproduire un résultat : commencer petit, fixer tout ce qui peut l'être, reproduire d'abord la référence publiée, puis vérifier des invariants avant d'interpréter une différence."
+    },
+    "code": {
+      "en": "stateDiagram-v2\n  [*] --> Smallest: tiny model, data subset\n  Smallest --> Fixed: seeds, split, versions, command\n  Fixed --> Baseline: reproduce the published baseline\n  Baseline --> Mismatch: number far from the paper\n  Mismatch --> Fixed: debug setup\n  Baseline --> Sanity: baseline matches within variance\n  Sanity --> Mismatch: invariant violated (bug)\n  Sanity --> Change: invariants hold, log curves\n  Change --> [*]: test one change at a time",
+      "fr": "stateDiagram-v2\n  [*] --> Smallest: petit modèle, sous-ensemble\n  Smallest --> Fixed: graines, split, versions, commande\n  Fixed --> Baseline: reproduire la référence publiée\n  Baseline --> Mismatch: écart important avec l'article\n  Mismatch --> Fixed: déboguer le montage\n  Baseline --> Sanity: référence conforme à la variance près\n  Sanity --> Mismatch: invariant violé (bug)\n  Sanity --> Change: invariants respectés, tracer les courbes\n  Change --> [*]: tester un changement à la fois"
+    }
+  },
+  {
+    "id": "controlled-experiment",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Design of a controlled ablation: one manipulated variable, a fairly tuned baseline, the same seeds in both arms (common random numbers), then a paired statistic on the per-seed differences and an effect size.",
+      "fr": "Conception d'une ablation contrôlée : une seule variable manipulée, une référence réglée équitablement, les mêmes graines dans les deux bras (nombres aléatoires communs), puis une statistique appariée sur les différences par graine et une taille d'effet."
+    },
+    "code": {
+      "en": "flowchart TB\n  H[\"falsifiable hypothesis<br/>warmup changes test accuracy\"] --> V[\"one manipulated variable<br/>everything else fixed\"]\n  V --> AA[\"arm A: no warmup\"]\n  V --> BB[\"arm B: warmup 50 steps\"]\n  S[\"seeds 0..n-1 (same for both arms)\"] --> AA\n  S --> BB\n  AA --> RA[\"accuracies a (n,)\"]\n  BB --> RB[\"accuracies b (n,)\"]\n  RA --> D[\"paired differences d = a - b (n,)\"]\n  RB --> D\n  D --> T[\"mean d, s_d, t = mean d / (s_d / sqrt n)<br/>compare |t| with Student, n - 1 d.o.f.\"]\n  T --> E[\"report effect size in points,<br/>n, nulls and limits\"]",
+      "fr": "flowchart TB\n  H[\"hypothèse falsifiable<br/>le warmup change l'exactitude test\"] --> V[\"une variable manipulée<br/>tout le reste fixé\"]\n  V --> AA[\"bras A : sans warmup\"]\n  V --> BB[\"bras B : warmup 50 pas\"]\n  S[\"graines 0..n-1 (les mêmes pour les deux bras)\"] --> AA\n  S --> BB\n  AA --> RA[\"exactitudes a (n,)\"]\n  BB --> RB[\"exactitudes b (n,)\"]\n  RA --> D[\"différences appariées d = a - b (n,)\"]\n  RB --> D\n  D --> T[\"moyenne d, s_d, t = moyenne d / (s_d / sqrt n)<br/>comparer |t| à Student, n - 1 ddl\"]\n  T --> E[\"rapporter la taille d'effet en points,<br/>n, résultats nuls et limites\"]"
+    }
+  },
+  {
+    "id": "production-testing",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Testing in production after the offline protocol: shadow deployment (log but do not serve), canary release (small traffic fraction, abort on degraded metrics), then A/B test with random assignment.",
+      "fr": "Test en production après le protocole hors ligne : déploiement fantôme (journaliser sans servir), canari (petite fraction du trafic, arrêt si les métriques se dégradent), puis test A/B à affectation aléatoire."
+    },
+    "code": {
+      "en": "flowchart LR\n  OFF[\"offline evaluation<br/>paired seeds, CI\"] --> SH[\"shadow deployment<br/>new model runs in parallel,<br/>predictions logged, not served\"]\n  SH --> CA[\"canary release<br/>small fraction of traffic\"]\n  CA --> M{\"key metrics degrade?\"}\n  M -- yes --> AB[\"abort and roll back\"]\n  M -- no --> AT[\"A/B test<br/>random assignment, enough samples\"]\n  AT --> SHIP[\"ship or stop\"]",
+      "fr": "flowchart LR\n  OFF[\"évaluation hors ligne<br/>graines appariées, IC\"] --> SH[\"déploiement fantôme<br/>le nouveau modèle tourne en parallèle,<br/>prédictions journalisées, non servies\"]\n  SH --> CA[\"canari<br/>petite fraction du trafic\"]\n  CA --> M{\"les métriques clés se dégradent ?\"}\n  M -- oui --> AB[\"arrêt et retour arrière\"]\n  M -- non --> AT[\"test A/B<br/>affectation aléatoire, assez d'échantillons\"]\n  AT --> SHIP[\"livrer ou arrêter\"]"
+    }
+  },
+  {
+    "id": "paired-seeds",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Warmup ablation, accuracy per seed: no warmup on the x axis, warmup 50 on the y axis, the line is y = x. Every seed sits on or below the line, a consistent small gap that the unpaired view (seed spread about 0.02) hides: paired t = 3.65.",
+      "fr": "Ablation du warmup, exactitude par graine : sans warmup en abscisse, warmup 50 en ordonnée, la droite est y = x. Chaque graine est sur la droite ou en dessous, un petit écart constant que la vue non appariée (dispersion des graines d'environ 0,02) masque : t apparié = 3,65."
+    },
+    "spec": {
+      "xDomain": [
+        0.86,
+        0.95
+      ],
+      "yDomain": [
+        0.86,
+        0.95
+      ],
+      "height": 340,
+      "title": "per-seed test accuracy: warmup 50 (y) vs no warmup (x)",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.911,
+              0.904
+            ],
+            [
+              0.873,
+              0.873
+            ],
+            [
+              0.9,
+              0.893
+            ],
+            [
+              0.935,
+              0.929
+            ],
+            [
+              0.918,
+              0.908
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

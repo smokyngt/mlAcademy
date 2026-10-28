@@ -1,0 +1,10 @@
+{
+  "id": "math.08.ex1",
+  "title": "Marginales, conditionnelles et mise à jour bayésienne",
+  "prompt": "`P` est un tableau de probabilités conjointes de forme `(n, m)` (lignes : états de `x`, colonnes : états de `y`). Implémente :\n\n- `marginal_x(P)`, `marginal_y(P)` (règle de la somme).\n- `conditional_y_given_x(P)` : chaque ligne est `p(y | x)` et somme à 1.\n- `is_independent(P, tol=1e-9)` : vrai si et seulement si `P == outer(p(x), p(y))`.\n- `posterior(prior, likelihood)` : théorème de Bayes sur un ensemble fini d'hypothèses.\n- `sequential_posterior(prior, likelihoods)` : applique la mise à jour une fois par observation (une liste de vecteurs de vraisemblance).",
+  "hints": [
+    "marginal_x = P.sum(axis=1) ; marginal_y = P.sum(axis=0).",
+    "conditional_y_given_x = P / P.sum(axis=1, keepdims=True).",
+    "posterior : joint = prior * likelihood ; renvoie joint / joint.sum(). Pour plusieurs observations, multiplie leurs vecteurs de vraisemblance (indépendance) ou applique posterior à répétition."
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "scorer-kinds",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Three kinds of scorer for the same model output: exact rules (cheap, brittle), a model acting as judge (flexible, needs calibration against humans), and human review (the reference, expensive).",
+      "fr": "Trois types de correcteurs pour la même sortie de modèle : des règles exactes (peu coûteuses, fragiles), un modèle juge (souple, à calibrer sur des humains) et une revue humaine (la référence, coûteuse)."
+    },
+    "code": {
+      "en": "flowchart LR\n  O[\"model output\"] --> R[\"rule-based<br/>exact match, regex, schema\"]\n  O --> J[\"LLM judge with rubric\"]\n  O --> H[\"human review\"]\n  R --> S[\"scores\"]\n  J --> S\n  H --> S",
+      "fr": "flowchart LR\n  O[\"sortie du modèle\"] --> R[\"à base de règles<br/>correspondance exacte, regex, schéma\"]\n  O --> J[\"LLM juge avec grille\"]\n  O --> H[\"revue humaine\"]\n  R --> S[\"scores\"]\n  J --> S\n  H --> S"
+    }
+  },
+  {
+    "id": "paired-comparison",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Comparing two prompts on the same items: per-item paired differences feed both a bootstrap confidence interval and an exact sign-flip test. A 15-point gain on 40 items gives p = 0.146 and an interval that touches 0: not significant.",
+      "fr": "Comparer deux prompts sur les mêmes items : les différences appariées par item alimentent à la fois un intervalle de confiance bootstrap et un test exact de changement de signe. Un gain de 15 points sur 40 items donne p = 0,146 et un intervalle qui touche 0 : non significatif."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"same n items\"] --> A[\"score prompt A\"]\n  I --> B2[\"score prompt B\"]\n  A --> D[\"d_i = b_i - a_i\"]\n  B2 --> D\n  D --> BS[\"bootstrap: resample items, 95% interval\"]\n  D --> PT[\"sign-flip test: p-value\"]\n  BS --> DEC[\"interval excludes 0?\"]\n  PT --> DEC",
+      "fr": "flowchart LR\n  I[\"les mêmes n items\"] --> A[\"score du prompt A\"]\n  I --> B2[\"score du prompt B\"]\n  A --> D[\"d_i = b_i - a_i\"]\n  B2 --> D\n  D --> BS[\"bootstrap : rééchantillonner, intervalle à 95 %\"]\n  D --> PT[\"test de changement de signe : p-valeur\"]\n  BS --> DEC[\"l'intervalle exclut 0 ?\"]\n  PT --> DEC"
+    }
+  },
+  {
+    "id": "sample-size",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Items needed to detect an improvement delta with 5% significance and 80% power, n = ((1.96 + 0.8416) sigma/delta)^2 with sigma = 0.4. At delta = 0.05 this is 503; halving delta quadruples n.",
+      "fr": "Nombre d'items nécessaires pour détecter une amélioration delta avec un seuil de 5 % et une puissance de 80 %, n = ((1,96 + 0,8416) sigma/delta)^2 avec sigma = 0,4. Pour delta = 0,05 on obtient 503 ; diviser delta par deux multiplie n par quatre."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0.03,
+        0.3
+      ],
+      "yDomain": [
+        0,
+        1300
+      ],
+      "title": "delta",
+      "data": [
+        {
+          "fn": "((2.8016*0.4)/x)^2",
+          "color": "#2563eb"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0.05,
+          "text": "n = 503"
+        }
+      ]
+    }
+  },
+  {
+    "id": "regression-gate",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A regression gate in CI: any prompt or model change reruns the fixed eval set and is compared with the stored baseline; production samples feed new cases back into the set.",
+      "fr": "Une barrière de régression en CI : tout changement de prompt ou de modèle relance le jeu d'évaluation fixe et le compare à la référence enregistrée ; des échantillons de production alimentent de nouveaux cas dans le jeu."
+    },
+    "code": {
+      "en": "flowchart LR\n  CH[\"prompt or model change\"] --> RUN[\"run eval set\"]\n  RUN --> CMP{\"worse than baseline?\"}\n  CMP -->|\"yes\"| BLK[\"block the change\"]\n  CMP -->|\"no\"| SHIP[\"ship, update baseline\"]\n  SHIP --> MON[\"monitor production\"]\n  MON -->|\"new failure cases\"| RUN",
+      "fr": "flowchart LR\n  CH[\"changement de prompt ou de modèle\"] --> RUN[\"lancer le jeu d'évaluation\"]\n  RUN --> CMP{\"pire que la référence ?\"}\n  CMP -->|\"oui\"| BLK[\"bloquer le changement\"]\n  CMP -->|\"non\"| SHIP[\"livrer, mettre à jour la référence\"]\n  SHIP --> MON[\"surveiller la production\"]\n  MON -->|\"nouveaux cas d'échec\"| RUN"
+    }
+  }
+]

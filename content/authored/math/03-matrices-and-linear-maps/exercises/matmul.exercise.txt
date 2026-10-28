@@ -1,0 +1,53 @@
+#@@ meta
+{"id": "f2n.03.ex1", "title": "Matrix multiplication and rotation from scratch", "difficulty": 3, "runtime": "pyodide", "concepts": ["la.matrix", "la.linear-map"], "hints": ["Check A.shape[1] == B.shape[0] first and raise ValueError with a clear message if not.", "C[i, j] = sum over k of A[i, k] * B[k, j] - that is np.sum(A[i, :] * B[:, j]).", "rotation(theta): the first column is (cos, sin), the second is (-sin, cos)."]}
+#@@ prompt
+1. Implement `matmul(A, B)` with explicit loops over `i` and `j` (you may use `np.sum` for the inner dot product). **Do not use `@` or `np.dot`.** It must raise `ValueError` when the inner dimensions disagree.
+2. Implement `rotation(theta)` returning the $2\times2$ counter-clockwise rotation matrix.
+#@@ starter
+import numpy as np
+
+def matmul(A, B):
+    # TODO: validate shapes, then fill C[i, j] = row i of A . column j of B
+    raise NotImplementedError
+
+def rotation(theta):
+    # TODO
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+A = np.array([[1., 2.], [3., 4.]]); B = np.array([[5., 6.], [7., 8.]])
+check("2x2 product is [[19,22],[43,50]]", lambda: np.allclose(matmul(A, B), [[19, 22], [43, 50]]))
+rng = np.random.default_rng(0)
+X = rng.normal(size=(5, 3)); W = rng.normal(size=(3, 4))
+check("result shape (5,3)@(3,4) = (5,4)", lambda: matmul(X, W).shape == (5, 4))
+check("matches NumPy on random matrices", lambda: np.allclose(matmul(X, W), X @ W))
+check("not commutative: AB != BA", lambda: not np.allclose(matmul(A, B), matmul(B, A)))
+def bad():
+    try:
+        matmul(np.ones((2, 3)), np.ones((2, 3)))
+    except ValueError:
+        return True
+    return False
+check("raises ValueError on shape mismatch", bad, "Raise ValueError when A.shape[1] != B.shape[0]")
+check("rotation(90 deg) sends (1,0) to (0,1)", lambda: np.allclose(rotation(np.pi / 2) @ np.array([1., 0.]), [0., 1.]))
+v = np.array([3., 4.])
+check("rotation preserves length", lambda: abs(np.linalg.norm(rotation(0.7) @ v) - 5) < 1e-12)
+check("rotating by a then b equals rotating by a+b", lambda: np.allclose(rotation(0.3) @ rotation(0.4), rotation(0.7)))
+#@@ solution
+import numpy as np
+
+def matmul(A, B):
+    A = np.asarray(A, dtype=float); B = np.asarray(B, dtype=float)
+    m, n = A.shape
+    n2, p = B.shape
+    if n != n2:
+        raise ValueError(f"inner dimensions differ: {n} vs {n2}")
+    C = np.zeros((m, p))
+    for i in range(m):
+        for j in range(p):
+            C[i, j] = np.sum(A[i, :] * B[:, j])
+    return C
+
+def rotation(theta):
+    c, s = np.cos(theta), np.sin(theta)
+    return np.array([[c, -s], [s, c]])

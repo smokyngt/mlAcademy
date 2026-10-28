@@ -1,0 +1,179 @@
+#@@ meta
+{"id": "trf.04.ex1", "title": "Assemble a decoder-only transformer forward pass", "difficulty": 5, "runtime": "pyodide", "concepts": ["trf.block", "trf.architectures"], "hints": ["rms_norm(x, g) = g * x / sqrt(mean(x**2, axis=-1, keepdims=True) + eps); layer_norm also subtracts the mean and divides by sqrt(var + eps).", "swiglu(x, W1, W3, W2) = (silu(x @ W1) * (x @ W3)) @ W2 with silu(z) = z / (1 + exp(-z)). Shapes: (B,T,d)->(B,T,f)->(B,T,d).", "Pre-norm block: x = x + attn(rms_norm(x)); x = x + ffn(rms_norm(x)). After the L blocks apply the final norm, then logits = x @ head with shape (B,T,V). Parameter count per block: 4*d*d + 3*d*f + 2*d."]}
+#@@ prompt
+You get a small, Llama-style decoder (pre-norm, RMSNorm, SwiGLU, RoPE, no biases, untied output head). The attention layer `attn_rope` and the parameter initialiser `init_params` are given. Implement:
+
+- `rms_norm(x, g, eps=1e-6)` and `layer_norm(x, g, b, eps=1e-5)` (normalise over the last axis).
+- `swiglu(x, W1, W3, W2)`.
+- `block(x, p, h)`: one pre-norm block, `x + attn(norm1(x))` followed by `x + ffn(norm2(x))`. `p` is the dict of that block's parameters.
+- `forward(params, tokens, h)`: `tokens` is an int array `(B, T)`; return logits `(B, T, V)`: embed lookup, `L` blocks, final RMSNorm, multiply by `head`.
+- `count_params(params)`: total number of scalars in the nested dict/list structure.
+- `param_formula(V, d, L, f)`: closed form `V*d + L*(4*d*d + 3*d*f + 2*d) + d + d*V`; it must equal `count_params`.
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    e = np.exp(x - x.max(axis=-1, keepdims=True))
+    return e / e.sum(axis=-1, keepdims=True)
+
+def rope(x, pos, base=10000.0):
+    d = x.shape[-1]
+    th = base ** (-2 * np.arange(d // 2) / d)
+    ang = np.asarray(pos)[:, None] * th[None, :]
+    c, s = np.cos(ang), np.sin(ang)
+    out = np.empty_like(x, dtype=float)
+    a, b = x[..., 0::2], x[..., 1::2]
+    out[..., 0::2] = a * c - b * s
+    out[..., 1::2] = a * s + b * c
+    return out
+
+def attn_rope(x, p, h):
+    """Causal multi-head self-attention with RoPE. x: (B,T,d) -> (B,T,d)."""
+    B, T, d = x.shape; dh = d // h
+    def split(z): return z.reshape(B, T, h, dh).transpose(0, 2, 1, 3)
+    q, k, v = split(x @ p["Wq"]), split(x @ p["Wk"]), split(x @ p["Wv"])
+    q, k = rope(q, np.arange(T)), rope(k, np.arange(T))
+    s = q @ k.transpose(0, 1, 3, 2) / np.sqrt(dh)
+    s = np.where(np.triu(np.ones((T, T), bool), 1), -np.inf, s)
+    z = (softmax(s) @ v).transpose(0, 2, 1, 3).reshape(B, T, d)
+    return z @ p["Wo"]
+
+def init_params(V, d, L, f, seed=0):
+    rng = np.random.default_rng(seed)
+    w = lambda *s: rng.normal(0, 0.02, s)
+    blocks = [{"n1": np.ones(d), "Wq": w(d, d), "Wk": w(d, d), "Wv": w(d, d), "Wo": w(d, d),
+               "n2": np.ones(d), "W1": w(d, f), "W3": w(d, f), "W2": w(f, d)} for _ in range(L)]
+    return {"tok": w(V, d), "blocks": blocks, "nf": np.ones(d), "head": w(d, V)}
+
+def rms_norm(x, g, eps=1e-6):
+    # TODO
+    raise NotImplementedError
+
+def layer_norm(x, g, b, eps=1e-5):
+    # TODO
+    raise NotImplementedError
+
+def swiglu(x, W1, W3, W2):
+    # TODO
+    raise NotImplementedError
+
+def block(x, p, h):
+    # TODO: pre-norm residual attention, then pre-norm residual FFN
+    raise NotImplementedError
+
+def forward(params, tokens, h):
+    # TODO: embeddings, blocks, final norm, head -> logits (B, T, V)
+    raise NotImplementedError
+
+def count_params(obj):
+    # TODO: recursive sum of sizes over dicts, lists and arrays
+    raise NotImplementedError
+
+def param_formula(V, d, L, f):
+    # TODO
+    raise NotImplementedError
+
+params = init_params(1000, 64, 4, 172)
+logits = forward(params, np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]), 4)
+print(logits.shape, count_params(params), param_formula(1000, 64, 4, 172))
+#@@ tests
+import numpy as np
+V, d, L, f, h = 1000, 64, 4, 172, 4
+params = init_params(V, d, L, f)
+toks = np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]])
+x = np.array([[1., 2, 3, 4]])
+check("rms_norm matches the lesson", lambda: np.allclose(rms_norm(x, np.ones(4), eps=0), [[0.3651, 0.7303, 1.0954, 1.4606]], atol=1e-4), "x / sqrt(mean(x^2)): rms of [1,2,3,4] is sqrt(7.5)")
+check("layer_norm matches the lesson", lambda: np.allclose(layer_norm(x, np.ones(4), np.zeros(4), eps=0), [[-1.3416, -0.4472, 0.4472, 1.3416]], atol=1e-4), "subtract the mean, divide by sqrt of the variance")
+rr = np.random.default_rng(1).normal(size=(3, 7, 16)) * 5
+check("rms_norm output has unit rms", lambda: np.allclose(np.sqrt((rms_norm(rr, np.ones(16)) ** 2).mean(-1)), 1, atol=1e-3))
+check("layer_norm output has mean 0 and variance 1", lambda: np.allclose(layer_norm(rr, np.ones(16), np.zeros(16)).mean(-1), 0, atol=1e-6) and np.allclose(layer_norm(rr, np.ones(16), np.zeros(16)).var(-1), 1, atol=1e-3))
+check("swiglu shape", lambda: swiglu(np.ones((2, 5, d)), params["blocks"][0]["W1"], params["blocks"][0]["W3"], params["blocks"][0]["W2"]).shape == (2, 5, d))
+logits = forward(params, toks, h)
+check("logits shape is (B, T, V)", lambda: logits.shape == (2, 5, V), "embed (B,T,d) -> blocks keep (B,T,d) -> head (B,T,V)")
+check("block keeps the shape (B, T, d)", lambda: block(np.random.default_rng(0).normal(size=(2, 5, d)), params["blocks"][0], h).shape == (2, 5, d))
+check("parameter count equals the closed form", lambda: count_params(params) == param_formula(V, d, L, f) == 326208, "per block: 4d^2 + 3df + 2d; plus embeddings, final norm, head")
+def no_leak():
+    t2 = toks.copy(); t2[:, 3:] = (t2[:, 3:] + 17) % V
+    l2 = forward(params, t2, h)
+    return np.allclose(l2[:, :3], logits[:, :3]) and not np.allclose(l2[:, 3:], logits[:, 3:])
+check("changing tokens 3.. never changes logits at positions 0..2", no_leak, "causal mask inside attention")
+def identity_when_zero():
+    p0 = init_params(V, d, 2, f)
+    for b in p0["blocks"]:
+        b["Wo"] = np.zeros_like(b["Wo"]); b["W2"] = np.zeros_like(b["W2"])
+    got = forward(p0, toks, h)
+    want = rms_norm(p0["tok"][toks], p0["nf"]) @ p0["head"]
+    return np.allclose(got, want)
+check("with zeroed output projections the residual stream passes straight through", identity_when_zero, "x + 0 = x: every sublayer adds its result to the stream")
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    e = np.exp(x - x.max(axis=-1, keepdims=True))
+    return e / e.sum(axis=-1, keepdims=True)
+
+def rope(x, pos, base=10000.0):
+    d = x.shape[-1]
+    th = base ** (-2 * np.arange(d // 2) / d)
+    ang = np.asarray(pos)[:, None] * th[None, :]
+    c, s = np.cos(ang), np.sin(ang)
+    out = np.empty_like(x, dtype=float)
+    a, b = x[..., 0::2], x[..., 1::2]
+    out[..., 0::2] = a * c - b * s
+    out[..., 1::2] = a * s + b * c
+    return out
+
+def attn_rope(x, p, h):
+    B, T, d = x.shape; dh = d // h
+    def split(z): return z.reshape(B, T, h, dh).transpose(0, 2, 1, 3)
+    q, k, v = split(x @ p["Wq"]), split(x @ p["Wk"]), split(x @ p["Wv"])
+    q, k = rope(q, np.arange(T)), rope(k, np.arange(T))
+    s = q @ k.transpose(0, 1, 3, 2) / np.sqrt(dh)
+    s = np.where(np.triu(np.ones((T, T), bool), 1), -np.inf, s)
+    z = (softmax(s) @ v).transpose(0, 2, 1, 3).reshape(B, T, d)
+    return z @ p["Wo"]
+
+def init_params(V, d, L, f, seed=0):
+    rng = np.random.default_rng(seed)
+    w = lambda *s: rng.normal(0, 0.02, s)
+    blocks = [{"n1": np.ones(d), "Wq": w(d, d), "Wk": w(d, d), "Wv": w(d, d), "Wo": w(d, d),
+               "n2": np.ones(d), "W1": w(d, f), "W3": w(d, f), "W2": w(f, d)} for _ in range(L)]
+    return {"tok": w(V, d), "blocks": blocks, "nf": np.ones(d), "head": w(d, V)}
+
+def rms_norm(x, g, eps=1e-6):
+    return g * x / np.sqrt((x ** 2).mean(axis=-1, keepdims=True) + eps)
+
+def layer_norm(x, g, b, eps=1e-5):
+    mu = x.mean(axis=-1, keepdims=True)
+    var = x.var(axis=-1, keepdims=True)
+    return g * (x - mu) / np.sqrt(var + eps) + b
+
+def swiglu(x, W1, W3, W2):
+    a = x @ W1
+    silu = a / (1.0 + np.exp(-a))
+    return (silu * (x @ W3)) @ W2
+
+def block(x, p, h):
+    x = x + attn_rope(rms_norm(x, p["n1"]), p, h)
+    x = x + swiglu(rms_norm(x, p["n2"]), p["W1"], p["W3"], p["W2"])
+    return x
+
+def forward(params, tokens, h):
+    x = params["tok"][tokens]
+    for p in params["blocks"]:
+        x = block(x, p, h)
+    return rms_norm(x, params["nf"]) @ params["head"]
+
+def count_params(obj):
+    if isinstance(obj, dict):
+        return sum(count_params(v) for v in obj.values())
+    if isinstance(obj, (list, tuple)):
+        return sum(count_params(v) for v in obj)
+    return int(np.size(obj))
+
+def param_formula(V, d, L, f):
+    return V * d + L * (4 * d * d + 3 * d * f + 2 * d) + d + d * V
+
+params = init_params(1000, 64, 4, 172)
+logits = forward(params, np.array([[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]]), 4)
+print(logits.shape, count_params(params), param_formula(1000, 64, 4, 172))

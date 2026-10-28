@@ -1,0 +1,11 @@
+{
+  "id": "math.11.ex1",
+  "title": "Élimination de Gauss, rang, noyau et moindres carrés",
+  "prompt": "Implémente avec NumPy uniquement (pas de `np.linalg.solve`, `inv`, `lstsq`, `matrix_rank` dans ton propre code ; les tests les utilisent pour te vérifier) :\n\n- `gauss_solve(A, b)` - résous un système carré non singulier par élimination de Gauss avec pivotage partiel et substitution remontante.\n- `rref(A, tol=1e-10)` - forme échelonnée réduite et liste des indices des colonnes de pivot.\n- `rank(A)` - le rang, à partir de `rref`.\n- `null_space(A)` - une matrice de forme `(n, n - rank)` dont les colonnes engendrent le noyau (utilise les colonnes libres de la RREF ; l'« astuce du moins-1 »).\n- `solve_general(A, b)` - renvoie `None` si `A x = b` n'a pas de solution, sinon un tuple `(x_p, N)` avec une solution particulière `x_p` (variables libres mises à 0) et la matrice du noyau `N`.\n- `lstsq_normal(A, b)` - solution des moindres carrés d'un système surdéterminé de rang colonne plein via les équations normales (tu peux appeler `gauss_solve`).\n- `cond2(A)` - le conditionnement en norme 2 à partir des valeurs singulières (`np.linalg.svd` est autorisé).",
+  "hints": [
+    "gauss_solve : pour chaque colonne k, choisis la ligne i>=k de plus grand |A[i,k]|, échange, puis élimine en dessous ; termine par la substitution remontante.",
+    "rref : parcours les colonnes ; pour chacune, trouve une ligne à ou sous la ligne courante avec |coefficient| > tol, remonte-la par échange, divise-la pour que le pivot vaille 1, et annule cette colonne dans toutes les autres lignes. Enregistre les colonnes de pivot.",
+    "null_space : pour chaque colonne libre f, construis un vecteur avec x[f] = 1, x[pivot_j] = -R[j, f] et des zéros ailleurs.",
+    "solve_general : réduis [A|b] ; si un pivot tombe dans la dernière colonne, le système est incohérent. Sinon x_p[pivot_j] = Raug[j, -1] et les variables libres valent 0."
+  ]
+}

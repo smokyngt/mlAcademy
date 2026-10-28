@@ -1,0 +1,17 @@
+[
+  { "id": "dl.03.c1", "front": "Variance de la pré-activation d'une couche", "back": "$\\mathrm{Var}(z)=n_{in}\\,\\mathrm{Var}(w)\\,\\mathbb{E}[x^2]$ pour des poids indépendants de moyenne nulle." },
+  { "id": "dl.03.c2", "front": "Initialisation de He (Kaiming)", "back": "$\\mathrm{Var}(w)=2/n_{in}$, c'est-à-dire un écart-type $\\sqrt{2/n_{in}}$, pour ReLU. Le 2 compense le fait que ReLU met à zéro la moitié des unités." },
+  { "id": "dl.03.c3", "front": "Initialisation de Xavier (Glorot)", "back": "$\\mathrm{Var}(w)=2/(n_{in}+n_{out})$ : un compromis entre la préservation de la variance en avant et en arrière, pour des activations à peu près linéaires (tanh)." },
+  { "id": "dl.03.c4", "front": "Symptôme de l'init de Xavier avec ReLU", "back": "Le moment d'ordre deux est divisé par deux à chaque couche ; dans la mesure de la leçon, l'écart-type est tombé à $10^{-8}$ après 50 couches." },
+  { "id": "dl.03.c5", "front": "Pourquoi ne pas initialiser tous les poids à zéro ?", "back": "Symétrie : chaque unité d'une couche calcule et reçoit la même chose et reste identique." },
+  { "id": "dl.03.c6", "front": "Diagnostics bon marché à journaliser par couche", "back": "Moyenne/écart-type des activations, fraction de zéros exacts, norme du gradient. Évanescence : normes minuscules dans les premières couches ; explosion : nan/inf ou croissance." },
+  { "id": "dl.03.c7", "front": "Passe avant de la batch norm", "back": "$\\hat x=(x-\\mu_B)/\\sqrt{\\sigma_B^2+\\varepsilon}$, $y=\\gamma\\hat x+\\beta$ ; statistiques par caractéristique sur le batch." },
+  { "id": "dl.03.c8", "front": "Passe arrière de la batch norm (entrée)", "back": "$\\bar x=\\frac{\\mathrm{inv}}{N}\\big(N\\bar{\\hat x}-\\sum\\bar{\\hat x}-\\hat x\\sum\\bar{\\hat x}\\hat x\\big)$ avec $\\bar{\\hat x}=\\bar y\\gamma$." },
+  { "id": "dl.03.c9", "front": "Gradients des paramètres de la batch norm", "back": "$\\bar\\gamma=\\sum_i\\bar y\\odot\\hat x$, $\\bar\\beta=\\sum_i\\bar y$, tous deux de forme $(D)$." },
+  { "id": "dl.03.c10", "front": "Batch norm à l'inférence", "back": "Utilise les moyennes mobiles de la moyenne et de la variance recueillies à l'entraînement (moyenne exponentielle, momentum d'environ 0.1) ; aucune dépendance au batch." },
+  { "id": "dl.03.c11", "front": "Faiblesse de la batch norm", "back": "Dépend des statistiques du batch : bruitée pour les petits batches, absurde pour $N=1$, écart entre entraînement et évaluation." },
+  { "id": "dl.03.c12", "front": "Layer norm", "back": "Normalise chaque exemple sur ses $D$ caractéristiques : identique à l'entraînement et à l'évaluation, toute taille de batch. Passe arrière : même formule avec des sommes sur les caractéristiques et $N\\to D$." },
+  { "id": "dl.03.c13", "front": "RMSNorm", "back": "$y=\\gamma x/\\sqrt{\\frac1D\\sum x^2+\\varepsilon}$ : pas de soustraction de la moyenne, pas de décalage. Utilisée dans les modèles de type LLaMA." },
+  { "id": "dl.03.c14", "front": "Passe arrière de RMSNorm", "back": "$\\bar x=r\\bar{\\hat x}-x\\,\\frac{r^3}{D}\\sum_k\\bar{\\hat x}_kx_k$, avec $r=(\\frac1D\\sum x^2+\\varepsilon)^{-1/2}$." },
+  { "id": "dl.03.c15", "front": "Propriétés du gradient d'entrée de la batch norm", "back": "Somme nulle sur le batch et orthogonal à $\\hat x$ : invariance au décalage et au changement d'échelle des entrées." }
+]

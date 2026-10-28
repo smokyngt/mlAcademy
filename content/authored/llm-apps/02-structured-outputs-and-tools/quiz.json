@@ -1,0 +1,137 @@
+[
+ {
+  "id": "app.02.q1",
+  "concept": "app.structured-output",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which gives the strongest guarantee that output matches a grammar?",
+  "options": [
+   "a polite instruction to answer in JSON",
+   "masking illegal tokens with an automaton at every decoding step",
+   "JSON mode",
+   "retrying until it parses"
+  ],
+  "answer": 1,
+  "explanation": "Masking makes invalid continuations unreachable; the others only ask or check."
+ },
+ {
+  "id": "app.02.q2",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In constrained decoding, illegal tokens get logit $-\\infty$. After softmax their probability is...",
+  "options": [
+   "exactly 0",
+   "a small positive number",
+   "1/V",
+   "unchanged"
+  ],
+  "answer": 0,
+  "explanation": "$e^{-\\infty}=0$, and the remaining mass is renormalised over the allowed set."
+ },
+ {
+  "id": "app.02.q3",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Tokens are multi-character. A token is allowed in automaton state q if...",
+  "options": [
+   "its first character has a transition from q",
+   "it is in the grammar's literal strings",
+   "the model's logit for it is the largest",
+   "all its characters can be fed in sequence without a missing transition"
+  ],
+  "answer": 3,
+  "explanation": "Legality is checked by running the whole token through the automaton, not only its first character."
+ },
+ {
+  "id": "app.02.q4",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "After the grammar forces `{\"sentiment\":\"`, the first digit state of `[0-9]{1,2}` allows 6 of 25 tokens in the lesson vocabulary. Why not more?",
+  "options": [
+   "digits are rare",
+   "the model prefers them",
+   "only tokens whose characters are all legal here are allowed: five digit tokens and 42",
+   "the mask removes half"
+  ],
+  "answer": 2,
+  "explanation": "Junk and wrong-position tokens are masked; the allowed set is the five single-digit tokens (1,2,7,0,9) plus the two-digit token 42."
+ },
+ {
+  "id": "app.02.q5",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A JSON validator receives {\"price\": true} against {\"type\":\"number\"}. Correct behaviour?",
+  "options": [
+   "accept: True equals 1",
+   "reject: a JSON boolean is not a number",
+   "accept only if price >= 0",
+   "crash"
+  ],
+  "answer": 1,
+  "explanation": "Python's bool subclasses int, so a naive isinstance check wrongly accepts it; test bool first."
+ },
+ {
+  "id": "app.02.q6",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is field order in a schema 'logic, not formatting'?",
+  "options": [
+   "the model writes left to right, so an answer placed before the reasoning is committed without it",
+   "JSON objects are ordered by key length",
+   "validators require it",
+   "it changes the token count only"
+  ],
+  "answer": 0,
+  "explanation": "Earlier tokens condition later ones. Put reasoning first when you want it to influence the answer."
+ },
+ {
+  "id": "app.02.q7",
+  "concept": "app.tool-calling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In function calling, who executes the function?",
+  "options": [
+   "the model, inside its forward pass",
+   "the API provider's tokenizer",
+   "nobody; results are generated",
+   "the application code, after reading the model's structured call"
+  ],
+  "answer": 3,
+  "explanation": "The model only emits the function name and arguments; your code validates and executes, then returns the result."
+ },
+ {
+  "id": "app.02.q8",
+  "concept": "app.tool-calling",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A tool returns an error 'city not found'. Best practice?",
+  "options": [
+   "raise an exception and end the conversation",
+   "hide it and answer from memory",
+   "return the error text as the tool result so the model can adjust",
+   "retry forever with the same arguments"
+  ],
+  "answer": 2,
+  "explanation": "Errors are data the model can react to; always bound the number of tool rounds."
+ },
+ {
+  "id": "app.02.q9",
+  "concept": "app.structured-output",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The first reply in a repair loop fails validation with '$.price: expected number, got str'. What feedback should you send back?",
+  "options": [
+   "'wrong, try again'",
+   "the error list with paths and rules, appended to the conversation",
+   "nothing, just resample",
+   "a longer system prompt"
+  ],
+  "answer": 1,
+  "explanation": "Path-specific feedback lets the model fix exactly the broken field."
+ }
+]

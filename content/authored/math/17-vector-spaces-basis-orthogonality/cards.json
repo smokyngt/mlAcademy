@@ -1,0 +1,17 @@
+[
+  { "id": "math.17.c1", "concept": "la.vector-space", "front": "Three-step test for a subspace", "back": "Contains the zero vector, closed under addition, closed under scalar multiplication." },
+  { "id": "math.17.c2", "concept": "la.vector-space", "front": "Why is the solution set of $Ax=b$ ($b\\ne0$) not a subspace?", "back": "It does not contain $\\mathbf 0$ (and is not closed under addition); it is a shifted copy of the null space." },
+  { "id": "math.17.c3", "concept": "la.vector-space", "front": "Column space of $A$ and its link to $Ax=b$", "back": "$\\operatorname{col}(A)=\\{Ax\\}$, the span of the columns. $Ax=b$ is exactly solvable iff $b\\in\\operatorname{col}(A)$." },
+  { "id": "math.17.c4", "concept": "la.basis", "front": "Define a basis and the dimension", "back": "A basis is an independent list that spans the space (minimal spanning set = maximal independent set). The dimension is the number of vectors in any basis." },
+  { "id": "math.17.c5", "concept": "la.basis", "front": "Rank-nullity theorem", "back": "$\\operatorname{rk}(A)+\\dim\\operatorname{null}(A)=n$, the number of columns." },
+  { "id": "math.17.c6", "concept": "la.basis", "front": "Coordinates of $x$ in the basis given by columns of $S$", "back": "$c=S^{-1}x$, and $x=Sc$. Same point, different coordinates." },
+  { "id": "math.17.c7", "concept": "la.basis", "front": "Matrix of a map in a new basis; what is preserved?", "back": "$\\tilde M=S^{-1}MS$ (similar matrices). Eigenvalues, trace, determinant and rank are unchanged." },
+  { "id": "math.17.c8", "concept": "la.projection", "front": "What does $Q^\\top Q=I$ say, and what follows?", "back": "Columns are orthonormal. If $Q$ is square, $Q^{-1}=Q^\\top$, and $\\|Qx\\|=\\|x\\|$, angles are preserved." },
+  { "id": "math.17.c9", "concept": "la.projection", "front": "Coordinates in an orthonormal basis", "back": "$c_i=q_i^\\top x$, just dot products, no linear system to solve." },
+  { "id": "math.17.c10", "concept": "la.projection", "front": "Projection matrix onto $\\operatorname{col}(A)$ and its shape", "back": "$P=A(A^\\top A)^{-1}A^\\top$, shape $(n,n)$ for $A:(n,m)$; rank $m$, trace $m$." },
+  { "id": "math.17.c11", "concept": "la.projection", "front": "Why must the error $x-Px$ be orthogonal to the subspace?", "back": "Otherwise a small move inside the subspace would reduce the distance. The condition $A^\\top(x-A\\lambda)=0$ gives the normal equations." },
+  { "id": "math.17.c12", "concept": "la.projection", "front": "Two properties of an orthogonal projection matrix", "back": "$P^2=P$ (idempotent) and $P^\\top=P$ (symmetric). Eigenvalues are 0 and 1." },
+  { "id": "math.17.c13", "concept": "la.qr", "front": "Gram-Schmidt step $k$", "back": "$v_k=a_k-\\sum_{i<k}(q_i^\\top a_k)q_i$, then $q_k=v_k/\\|v_k\\|$. Also $R_{ik}=q_i^\\top a_k$, $R_{kk}=\\|v_k\\|$." },
+  { "id": "math.17.c14", "concept": "la.qr", "front": "Shapes of the reduced QR of $A:(n,m)$", "back": "$Q:(n,m)$ with orthonormal columns, $R:(m,m)$ upper triangular, $A=QR$." },
+  { "id": "math.17.c15", "concept": "la.qr", "front": "Least squares by QR and why it is stabler", "back": "Solve $Rx=Q^\\top b$ by back-substitution. Avoids forming $A^\\top A$, which squares the condition number." }
+]

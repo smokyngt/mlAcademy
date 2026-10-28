@@ -1,0 +1,10 @@
+{
+  "id": "dl.04.ex1",
+  "title": "Porter le MLP à partir de zéro vers PyTorch et prouver qu'ils concordent",
+  "prompt": "Le réseau NumPy des leçons précédentes (`init_params`, `forward_backward`) est fourni. Porte-le vers PyTorch (CPU uniquement).\n\n- `torch_model(params)` renvoie un `nn.Sequential(Linear(2,16), ReLU, Linear(16,2))` en **float64** dont les poids sont égaux aux `params = (W1, b1, W2, b2)` NumPy (rappelle-toi que `nn.Linear.weight` est la transposée de `W`).\n- `torch_loss_and_grads(params, X, y)` renvoie `(loss_float, [dW1, db1, dW2, db2])` sous forme de tableaux NumPy dans la **disposition NumPy**, calculés par l'autograd de PyTorch. Ils doivent coïncider avec `forward_backward`.\n- `train_torch(X, y, epochs=60, lr=0.03, batch_size=32, seed=0)` entraîne un nouveau modèle float32 (poids Kaiming-normal, biais nuls, Adam) avec un `DataLoader` et la boucle standard (`zero_grad`, passe avant, perte, `backward`, `step`) ; renvoie `(model, history)` avec la perte moyenne de chaque epoch.\n- `accuracy(model, X, y)` en mode évaluation, sans suivi des gradients.\n- `checkpoint_roundtrip(model)` sauvegarde le `state_dict` dans un `io.BytesIO` en mémoire, le charge avec `torch.load(..., weights_only=True)` dans un modèle fraîchement construit de même architecture, et renvoie ce nouveau modèle.",
+  "hints": [
+    "nn.Linear stocke son poids en (out_features, in_features) : le W NumPy de forme (n_in, n_out) en est la transposée. Copie avec torch.no_grad() : lin.weight.copy_(torch.tensor(W.T)).",
+    "Construis le modèle avec .double() AVANT de copier les poids, et utilise X en float64 et y en torch.long. F.cross_entropy prend des logits et des étiquettes entières et fait la moyenne sur le batch, exactement comme la perte NumPy.",
+    "Boucle d'entraînement par batch : optimizer.zero_grad() ; loss = F.cross_entropy(model(xb), yb) ; loss.backward() ; optimizer.step(). Évalue avec model.eval() et torch.no_grad()."
+  ]
+}

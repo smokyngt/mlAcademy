@@ -1,0 +1,122 @@
+#@@ meta
+{"id": "llm.02.ex2", "title": "A bigram language model: counting, then gradient descent", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.lm", "llm.perplexity", "ml.loss", "info.entropy"], "hints": ["Counts: C[a, b] += 1 for every adjacent pair (ids[i], ids[i+1]). Maximum-likelihood probabilities are the rows of C divided by their sums; add-k smoothing adds k to every cell first.", "Gradient descent: logits for context x are row W[x]. The loss gradient of one example is softmax(W[x]) - onehot(y) placed in row x. Average over examples (divide by N) and accumulate with np.add.at(dW, x, G).", "Full-batch gradient descent with lr=1.0 for ~2000 steps on a tiny corpus converges close to the counting solution, because the counts are the exact minimiser of the average cross-entropy."]}
+#@@ prompt
+Build the smallest possible language model, a **bigram** model $p(y\mid x)$ over a vocabulary of size `V`, in two ways.
+
+- `bigram_counts(ids, V)` returns the `(V, V)` matrix of counts `C[a, b]` of token `b` following token `a`.
+- `bigram_probs(C, k=0.0)` returns row-normalised probabilities after adding `k` to every count (add-k smoothing). Rows with no counts and `k=0` should become uniform.
+- `mean_nll(P, ids)` is the average negative log-probability of the true next tokens `ids[1:]` given `ids[:-1]` under probabilities `P`.
+- `grad_bigram(W, ids)` returns `(loss, dW)` for one pass over the data, where `W` is a `(V, V)` logit matrix and the loss is the mean cross-entropy. Derive the gradient yourself (no autodiff).
+- `train_bigram_gd(ids, V, lr, steps)` starts from `W = 0` and runs full-batch gradient descent, returning `W`.
+#@@ starter
+import numpy as np
+
+def softmax(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def bigram_counts(ids, V):
+    # TODO
+    raise NotImplementedError
+
+def bigram_probs(C, k=0.0):
+    # TODO
+    raise NotImplementedError
+
+def mean_nll(P, ids):
+    # TODO
+    raise NotImplementedError
+
+def grad_bigram(W, ids):
+    # TODO: return (loss, dW)
+    raise NotImplementedError
+
+def train_bigram_gd(ids, V, lr=1.0, steps=2000):
+    # TODO
+    raise NotImplementedError
+
+words = "the cat sat on the mat the cat ate the fish".split()
+vocab = sorted(set(words)); idx = {w: i for i, w in enumerate(vocab)}
+ids = np.array([idx[w] for w in words])
+print(vocab, ids)
+#@@ tests
+import numpy as np
+words = "the cat sat on the mat the cat ate the fish".split()
+vocab = sorted(set(words)); idx = {w: i for i, w in enumerate(vocab)}
+ids = np.array([idx[w] for w in words]); V = len(vocab)
+C = bigram_counts(ids, V)
+the = idx["the"]
+check("counts: 'the' is followed by cat twice, mat once, fish once", lambda: C[the, idx["cat"]] == 2 and C[the, idx["mat"]] == 1 and C[the, idx["fish"]] == 1 and C.sum() == len(ids) - 1)
+P = bigram_probs(C)
+check("rows are distributions", lambda: np.allclose(P.sum(axis=1), 1))
+check("p(cat | the) = 1/2", lambda: abs(P[the, idx["cat"]] - 0.5) < 1e-12)
+check("unseen context row is uniform", lambda: np.allclose(P[idx["fish"]], 1 / V))
+check("MLE NLL = 0.5545 and perplexity 1.741", lambda: abs(mean_nll(P, ids) - 0.5545) < 1e-3 and abs(np.exp(mean_nll(P, ids)) - 1.741) < 1e-3)
+Ps = bigram_probs(C, k=1.0)
+check("add-1 smoothing: NLL 1.4561 (perplexity 4.29)", lambda: abs(mean_nll(Ps, ids) - 1.4561) < 1e-3)
+W0 = np.zeros((V, V))
+loss0, g0 = grad_bigram(W0, ids)
+check("initial loss is ln V", lambda: abs(loss0 - np.log(V)) < 1e-12)
+def finite_diff():
+    rng = np.random.default_rng(3)
+    W = rng.normal(0, 0.5, (V, V)); _, g = grad_bigram(W, ids)
+    worst = 0.0
+    for idx_ in np.ndindex(V, V):
+        a = W.copy(); b = W.copy(); a[idx_] += 1e-6; b[idx_] -= 1e-6
+        num = (grad_bigram(a, ids)[0] - grad_bigram(b, ids)[0]) / 2e-6
+        worst = max(worst, abs(num - g[idx_]))
+    return worst
+check("gradient matches finite differences", lambda: finite_diff() < 1e-7, "row x gets softmax(W[x]) - onehot(y), averaged over the N pairs")
+W = train_bigram_gd(ids, V, lr=1.0, steps=2000)
+Pw = softmax(W)
+check("gradient descent loss approaches the counting loss", lambda: abs(mean_nll(Pw, ids) - mean_nll(P, ids)) < 0.01)
+check("learned p(cat | the) is close to 0.5", lambda: abs(Pw[the, idx["cat"]] - 0.5) < 0.01)
+check("a context never seen as input keeps a uniform row", lambda: np.allclose(Pw[idx["fish"]], 1 / V))
+#@@ solution
+import numpy as np
+
+def softmax(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def bigram_counts(ids, V):
+    C = np.zeros((V, V))
+    for a, b in zip(ids[:-1], ids[1:]):
+        C[a, b] += 1
+    return C
+
+def bigram_probs(C, k=0.0):
+    Ck = C + k
+    s = Ck.sum(axis=1, keepdims=True)
+    P = np.where(s > 0, Ck / np.where(s > 0, s, 1), 1.0 / C.shape[1])
+    return P
+
+def mean_nll(P, ids):
+    x, y = ids[:-1], ids[1:]
+    return float(-np.mean(np.log(P[x, y])))
+
+def grad_bigram(W, ids):
+    x, y = ids[:-1], ids[1:]
+    N = len(x)
+    P = softmax(W[x])
+    loss = float(-np.mean(np.log(P[np.arange(N), y])))
+    G = P.copy()
+    G[np.arange(N), y] -= 1.0
+    G /= N
+    dW = np.zeros_like(W)
+    np.add.at(dW, x, G)
+    return loss, dW
+
+def train_bigram_gd(ids, V, lr=1.0, steps=2000):
+    W = np.zeros((V, V))
+    for _ in range(steps):
+        _, dW = grad_bigram(W, ids)
+        W -= lr * dW
+    return W
+
+words = "the cat sat on the mat the cat ate the fish".split()
+vocab = sorted(set(words)); idx = {w: i for i, w in enumerate(vocab)}
+ids = np.array([idx[w] for w in words])
+print(vocab, ids)

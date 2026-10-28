@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.04.c1",
+  "front": "Étape directe",
+  "back": "$x_t=\\sqrt{1-\\beta_t}\\,x_{t-1}+\\sqrt{\\beta_t}\\,\\varepsilon$."
+ },
+ {
+  "id": "gen.04.c2",
+  "front": "$\\alpha_t$ et $\\bar\\alpha_t$",
+  "back": "$\\alpha_t=1-\\beta_t$, $\\bar\\alpha_t=\\prod_{s\\le t}\\alpha_s$."
+ },
+ {
+  "id": "gen.04.c3",
+  "front": "Marginale directe en forme close",
+  "back": "$x_t=\\sqrt{\\bar\\alpha_t}\\,x_0+\\sqrt{1-\\bar\\alpha_t}\\,\\varepsilon$, $\\varepsilon\\sim\\mathcal N(0,I)$."
+ },
+ {
+  "id": "gen.04.c4",
+  "front": "Calendrier linéaire standard",
+  "back": "$\\beta_t$ de $10^{-4}$ à $0.02$ sur $T=1000$ ; alors $\\bar\\alpha_T\\approx4\\times10^{-5}$."
+ },
+ {
+  "id": "gen.04.c5",
+  "front": "Vraie loi a posteriori inverse",
+  "back": "$q(x_{t-1}|x_t,x_0)=\\mathcal N(\\tilde\\mu_t,\\tilde\\beta_tI)$, $\\tilde\\beta_t=\\frac{1-\\bar\\alpha_{t-1}}{1-\\bar\\alpha_t}\\beta_t$."
+ },
+ {
+  "id": "gen.04.c6",
+  "front": "Moyenne inverse en fonction du bruit",
+  "back": "$\\tilde\\mu_t=\\frac1{\\sqrt{\\alpha_t}}\\big(x_t-\\frac{\\beta_t}{\\sqrt{1-\\bar\\alpha_t}}\\varepsilon\\big)$."
+ },
+ {
+  "id": "gen.04.c7",
+  "front": "Perte simple du DDPM",
+  "back": "$\\mathbb E\\|\\varepsilon-\\varepsilon_\\theta(\\sqrt{\\bar\\alpha_t}x_0+\\sqrt{1-\\bar\\alpha_t}\\varepsilon,t)\\|^2$."
+ },
+ {
+  "id": "gen.04.c8",
+  "front": "Étape d'échantillonnage",
+  "back": "$x_{t-1}=\\frac1{\\sqrt{\\alpha_t}}(x_t-\\frac{\\beta_t}{\\sqrt{1-\\bar\\alpha_t}}\\varepsilon_\\theta)+\\sigma_tz$ ; pas de bruit à la dernière étape."
+ },
+ {
+  "id": "gen.04.c9",
+  "front": "Pourquoi la perte d'entraînement est-elle une somme de KL ?",
+  "back": "L'ELBO de la diffusion est une somme de KL par étape entre gaussiennes, qui se réduisent à des différences de moyennes au carré."
+ },
+ {
+  "id": "gen.04.c10",
+  "front": "Lien avec le score",
+  "back": "$\\varepsilon_\\theta\\approx-\\sqrt{1-\\bar\\alpha_t}\\,\\nabla_{x_t}\\log q(x_t)$."
+ },
+ {
+  "id": "gen.04.c11",
+  "front": "Marginale pour des données gaussiennes $\\mathcal N(m_0,s_0^2)$",
+  "back": "$x_t\\sim\\mathcal N(\\sqrt{\\bar\\alpha_t}m_0,\\ \\bar\\alpha_ts_0^2+1-\\bar\\alpha_t)$."
+ },
+ {
+  "id": "gen.04.c12",
+  "front": "$\\mathbb E[x_0|x_t]$ optimale pour des données gaussiennes",
+  "back": "$m_0+\\frac{\\sqrt{\\bar\\alpha_t}s_0^2}{\\bar\\alpha_ts_0^2+1-\\bar\\alpha_t}(x_t-\\sqrt{\\bar\\alpha_t}m_0)$."
+ },
+ {
+  "id": "gen.04.c13",
+  "front": "Pourquoi l'échantillonnage par diffusion est lent",
+  "back": "$T$ évaluations séquentielles du réseau ; remèdes : échantillonneurs à moins d'étapes, distillation, flow matching."
+ },
+ {
+  "id": "gen.04.c14",
+  "front": "Pourquoi débruiter est-il plus facile que générer ?",
+  "back": "Chaque étape fait une petite correction ; à fort bruit la moyenne est une bonne estimation, à faible bruit le changement est local."
+ }
+]

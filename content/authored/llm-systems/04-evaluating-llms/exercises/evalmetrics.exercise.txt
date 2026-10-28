@@ -1,0 +1,111 @@
+#@@ meta
+{"id": "sys.04.ex1", "title": "Retrieval metrics and bootstrap confidence intervals", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.eval"], "hints": ["recall@k = |top-k ∩ relevant| / |relevant|. reciprocal rank = 1/position of the first relevant document (0 if none).", "DCG = sum gain_i / log2(i + 1) for positions i = 1..k (np.log2(np.arange(2, k + 2))). nDCG = DCG / DCG of the ideal ordering (gains sorted descending).", "bootstrap_ci: draw an (n_boot, n) matrix of indices with rng.integers(0, n, ...), take row means, return the alpha/2 and 1-alpha/2 quantiles. For the paired version bootstrap the per-item DIFFERENCES a - b."]}
+#@@ prompt
+Implement the metrics used to evaluate a retriever and the statistics used to decide whether a difference between two systems is real.
+
+- `recall_at_k(ranked, relevant, k)`, `reciprocal_rank(ranked, relevant)` (average it over queries to get MRR), `ndcg_at_k(ranked, rel, k)` with graded relevance `rel` (a dict doc -> gain) and the gain/log2(rank+1) discount.
+- `bootstrap_ci(values, n_boot, alpha, seed)`: percentile bootstrap confidence interval for the mean.
+- `paired_bootstrap(a, b, ...)`: mean difference, its bootstrap CI, and the fraction of resamples with mean difference <= 0.
+- `wilson(k, n)`: 95 percent Wilson interval for a proportion.
+#@@ starter
+import numpy as np
+
+def recall_at_k(ranked, relevant, k):
+    raise NotImplementedError
+
+def reciprocal_rank(ranked, relevant):
+    raise NotImplementedError
+
+def dcg(gains):
+    raise NotImplementedError
+
+def ndcg_at_k(ranked, rel, k):
+    # rel: dict doc -> graded relevance (missing = 0). ideal DCG uses the k best gains of rel.
+    raise NotImplementedError
+
+def bootstrap_ci(values, n_boot=2000, alpha=0.05, seed=0):
+    raise NotImplementedError
+
+def paired_bootstrap(a, b, n_boot=2000, alpha=0.05, seed=0):
+    # returns (mean difference, (lo, hi), fraction of resamples with mean difference <= 0)
+    raise NotImplementedError
+
+def wilson(k, n, z=1.96):
+    # Wilson score interval: centre (p + z^2/(2n)) / (1 + z^2/n), half-width z*sqrt(p(1-p)/n + z^2/(4n^2)) / (1 + z^2/n)
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+R = [(["d3", "d1", "d7", "d2", "d9"], {"d1"}), (["d4", "d5", "d6", "d1", "d2"], {"d1", "d2"}),
+     (["d8", "d2", "d1", "d3", "d4"], {"d8"}), (["d5", "d6", "d7", "d8", "d9"], {"d1"})]
+check("recall@3 per query", lambda: [recall_at_k(r, s, 3) for r, s in R] == [1.0, 0.0, 1.0, 0.0])
+check("recall@5 per query", lambda: [recall_at_k(r, s, 5) for r, s in R] == [1.0, 1.0, 1.0, 0.0])
+check("partial recall: 1 of 2 relevant in top 4", lambda: recall_at_k(["d4", "d5", "d6", "d1", "d2"], {"d1", "d2"}, 4) == 0.5)
+check("reciprocal ranks", lambda: [reciprocal_rank(r, s) for r, s in R] == [0.5, 0.25, 1.0, 0.0])
+check("MRR = 0.4375", lambda: abs(np.mean([reciprocal_rank(r, s) for r, s in R]) - 0.4375) < 1e-12)
+rel = {"a": 3, "b": 2, "c": 3, "d": 0, "e": 1, "f": 2}
+check("DCG of [3,2,3,0,1,2]", lambda: abs(dcg([3, 2, 3, 0, 1, 2]) - 6.861127) < 1e-5)
+check("nDCG@6 of the given order = 0.9608", lambda: abs(ndcg_at_k(list("abcdef"), rel, 6) - 0.960808) < 1e-5)
+check("nDCG@6 after pushing a useless doc to the top = 0.7497", lambda: abs(ndcg_at_k(list("dacbef"), rel, 6) - 0.749673) < 1e-5)
+check("nDCG@3 = 0.9778", lambda: abs(ndcg_at_k(list("abcdef"), rel, 3) - 0.977781) < 1e-5)
+check("perfect ordering gives nDCG = 1", lambda: abs(ndcg_at_k(list("acbfed"), rel, 6) - 1.0) < 1e-12)
+lo, hi = wilson(45, 50)
+check("Wilson interval for 45/50 is about [0.786, 0.957]", lambda: abs(lo - 0.7864) < 0.002 and abs(hi - 0.9565) < 0.002)
+w50, w1000 = wilson(45, 50), wilson(900, 1000)
+check("more data, narrower interval", lambda: (w1000[1] - w1000[0]) < 0.5 * (w50[1] - w50[0]))
+rng = np.random.default_rng(0)
+n = 100
+lat = rng.normal(size=n)
+A = (lat + 0.5 * rng.normal(size=n) < 0.84).astype(float)
+B = (lat + 0.5 * rng.normal(size=n) < 0.52).astype(float)
+ciA = bootstrap_ci(A)
+check("bootstrap CI contains the sample mean", lambda: ciA[0] < A.mean() < ciA[1])
+check("bootstrap CI for A is about [0.65, 0.82]", lambda: abs(ciA[0] - 0.65) < 0.03 and abs(ciA[1] - 0.82) < 0.03)
+check("same seed gives the same interval", lambda: bootstrap_ci(A, seed=3) == bootstrap_ci(A, seed=3))
+check("4x more data narrows the interval by about half", lambda: (lambda c4, c1: (c4[1] - c4[0]) < 0.65 * (c1[1] - c1[0]))(bootstrap_ci(np.tile(A, 4)), ciA))
+d, (dlo, dhi), p = paired_bootstrap(A, B)
+check("mean difference = 0.07", lambda: abs(d - 0.07) < 1e-12)
+check("paired CI roughly [-0.01, 0.15]", lambda: abs(dlo + 0.01) < 0.025 and abs(dhi - 0.15) < 0.025)
+check("fraction of resamples <= 0 is small but not tiny", lambda: 0.02 < p < 0.09)
+check("identical systems: difference exactly 0 and CI is [0, 0]", lambda: paired_bootstrap(A, A)[0] == 0 and paired_bootstrap(A, A)[1] == (0.0, 0.0))
+#@@ solution
+import numpy as np
+
+def recall_at_k(ranked, relevant, k):
+    return len(set(ranked[:k]) & set(relevant)) / len(relevant)
+
+def reciprocal_rank(ranked, relevant):
+    for i, d in enumerate(ranked, 1):
+        if d in relevant:
+            return 1.0 / i
+    return 0.0
+
+def dcg(gains):
+    g = np.asarray(gains, float)
+    return float((g / np.log2(np.arange(2, len(g) + 2))).sum())
+
+def ndcg_at_k(ranked, rel, k):
+    gains = [rel.get(d, 0) for d in ranked[:k]]
+    ideal = sorted(rel.values(), reverse=True)[:k]
+    return dcg(gains) / dcg(ideal) if ideal and dcg(ideal) > 0 else 0.0
+
+def bootstrap_ci(values, n_boot=2000, alpha=0.05, seed=0):
+    v = np.asarray(values, float)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(v), (n_boot, len(v)))
+    means = v[idx].mean(axis=1)
+    return float(np.quantile(means, alpha / 2)), float(np.quantile(means, 1 - alpha / 2))
+
+def paired_bootstrap(a, b, n_boot=2000, alpha=0.05, seed=0):
+    d = np.asarray(a, float) - np.asarray(b, float)
+    lo, hi = bootstrap_ci(d, n_boot, alpha, seed)
+    rng = np.random.default_rng(seed + 1)
+    idx = rng.integers(0, len(d), (n_boot, len(d)))
+    p = float((d[idx].mean(axis=1) <= 0).mean())
+    return float(d.mean()), (lo, hi), p
+
+def wilson(k, n, z=1.96):
+    p = k / n
+    den = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / den
+    h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return float(c - h), float(c + h)

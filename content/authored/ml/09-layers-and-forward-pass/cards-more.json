@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.09.c14",
+  "concept": "nn.layer",
+  "front": "Parameters in a $784\\to128\\to10$ MLP",
+  "back": "$101{,}770$."
+ },
+ {
+  "id": "f2n.09.c15",
+  "concept": "nn.activation",
+  "front": "ReLU",
+  "back": "$\\max(0,z)$; cheap, default for hidden layers; can 'die'."
+ },
+ {
+  "id": "f2n.09.c16",
+  "concept": "nn.activation",
+  "front": "Tanh derivative",
+  "back": "$1-\\tanh^2z$, max 1."
+ },
+ {
+  "id": "f2n.09.c17",
+  "concept": "nn.activation",
+  "front": "Dead ReLU",
+  "back": "A unit whose pre-activation is always $\\le0$ has zero gradient forever."
+ },
+ {
+  "id": "f2n.09.c18",
+  "concept": "nn.layer",
+  "front": "Why random initialisation?",
+  "back": "Equal weights give identical neurons and identical gradients; symmetry is never broken."
+ },
+ {
+  "id": "f2n.09.c19",
+  "concept": "nn.layer",
+  "front": "Variance of a weighted sum",
+  "back": "$\\operatorname{Var}(z)=n\\sigma_w^2\\sigma_x^2$ for independent zero-mean terms."
+ },
+ {
+  "id": "f2n.09.c20",
+  "concept": "nn.layer",
+  "front": "Xavier / Glorot rule",
+  "back": "$\\sigma_w^2=1/n_{\\text{in}}$ (variance-preserving for tanh-like layers)."
+ },
+ {
+  "id": "f2n.09.c21",
+  "concept": "nn.activation",
+  "front": "XOR network",
+  "back": "$h_1=\\mathrm{ReLU}(x_1+x_2)$, $h_2=\\mathrm{ReLU}(x_1+x_2-1)$, output $h_1-2h_2$."
+ },
+ {
+  "id": "f2n.09.c22",
+  "concept": "nn.layer",
+  "front": "Broadcasting the bias",
+  "back": "$b:(m)$ is added to every row of $XW:(B,m)$."
+ }
+]

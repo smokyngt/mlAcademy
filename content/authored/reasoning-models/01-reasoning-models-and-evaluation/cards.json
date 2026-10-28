@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.01.c1", "concept": "rsn.verifier", "front": "Why is a chain of thought 'inference compute'?", "back": "Each generated token costs one forward pass, so writing more reasoning tokens spends more computation on the question." },
+  { "id": "rsn.01.c2", "concept": "rsn.verifier", "front": "Four stages of answer checking", "back": "Extract the final answer, normalise its notation, check equivalence with the reference, then average over the dataset." },
+  { "id": "rsn.01.c3", "concept": "rsn.verifier", "front": "How to extract `\\boxed{...}` with nested braces", "back": "Find the last `\\boxed`, skip spaces, expect `{`, scan forward with a depth counter (+1 on `{`, -1 on `}`) until depth 0; return None if it never balances." },
+  { "id": "rsn.01.c4", "concept": "rsn.verifier", "front": "Extraction fallbacks and when to use them", "back": "Last number, whole text, or nothing. Forgiving fallbacks suit measurement; a strict box-only rule suits training rewards because it teaches the format." },
+  { "id": "rsn.01.c5", "concept": "rsn.verifier", "front": "Verifiable reward", "back": "A deterministic, automatic reward such as r = 1 if the extracted answer is equivalent to the reference else 0; no learned reward model needed." },
+  { "id": "rsn.01.c6", "concept": "rsn.verifier", "front": "Exact versus tolerance equality", "back": "Exact rationals compared exactly (0.3333333333 is not 1/3); irrational values (sqrt) compared with a tight relative tolerance. Choose and document the policy." },
+  { "id": "rsn.01.c7", "concept": "rsn.verifier", "front": "Why compare tuples part by part", "back": "(2,1) is not (1,2); the order and the number of parts must match, and each pair is checked for equivalence." },
+  { "id": "rsn.01.c8", "concept": "rsn.passk", "front": "Definition of pass@k", "back": "The probability that at least one of k sampled answers is correct; with success rate p and independent samples it equals 1-(1-p)^k." },
+  { "id": "rsn.01.c9", "concept": "rsn.passk", "front": "Unbiased pass@k estimator", "back": "From n samples with c correct: 1 - C(n-c, k) / C(n, k); equals 1 when n-c < k." },
+  { "id": "rsn.01.c10", "concept": "rsn.passk", "front": "Stable product form of pass@k", "back": "1 - prod_{i=n-c+1}^{n} (1 - k/i), algebraically identical to the binomial form but safe for large n." },
+  { "id": "rsn.01.c11", "concept": "rsn.passk", "front": "Why the plug-in 1-(1-c/n)^k is biased", "back": "(1-x)^k is convex, so Jensen gives E[(1-c/n)^k] >= (1-p)^k; the plug-in underestimates pass@k." },
+  { "id": "rsn.01.c12", "concept": "rsn.passk", "front": "Standard error of an accuracy", "back": "sqrt(p(1-p)/N); for 48.2% on 500 problems about 2.2 points, so a 95% interval is about plus or minus 4.4 points." },
+  { "id": "rsn.01.c13", "concept": "rsn.passk", "front": "Why Wilson instead of estimate plus/minus 1.96 SE", "back": "At rates near 0 or 1 or with small N the normal interval can leave [0,1]; Wilson stays inside and has better coverage." },
+  { "id": "rsn.01.c14", "concept": "rsn.verifier", "front": "Evaluation pitfalls to report", "back": "Prompt template, token limit (truncation), device/numeric differences, benchmark contamination, grader false positives and negatives, sample size." }
+]

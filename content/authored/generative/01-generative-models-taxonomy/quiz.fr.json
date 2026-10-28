@@ -1,0 +1,85 @@
+[
+ {
+  "id": "gen.01.q1",
+  "prompt": "Un modèle discriminatif apprend...",
+  "options": [
+   "$p(x)$",
+   "$p(y\\mid x)$",
+   "$p(x,y)$ uniquement",
+   "les valeurs des pixels"
+  ],
+  "explanation": "Il modélise l'étiquette sachant l'entrée. Un modèle génératif modélise $p(x)$ ou $p(x,y)$."
+ },
+ {
+  "id": "gen.01.q2",
+  "prompt": "L'estimation par maximum de vraisemblance équivaut à minimiser quelle quantité ?",
+  "options": [
+   "$\\mathrm{KL}(p_\\theta\\|p_\\text{data})$",
+   "$\\mathrm{KL}(p_\\text{data}\\|p_\\theta)$",
+   "l'entropie de $p_\\theta$",
+   "la variance de $x$"
+  ],
+  "explanation": "$\\mathrm{KL}(p_\\text{data}\\|p_\\theta)=-H(p_\\text{data})-\\mathbb E_{p_\\text{data}}\\log p_\\theta$ ; le premier terme est constant en $\\theta$."
+ },
+ {
+  "id": "gen.01.q3",
+  "prompt": "Quelle famille n'a pas de densité explicite et s'entraîne contre un critique ?",
+  "options": [
+   "Les modèles autorégressifs",
+   "Les VAE",
+   "Les flux normalisants",
+   "Les GAN"
+  ],
+  "explanation": "Un GAN n'apprend qu'un échantillonneur $G(z)$ ; le discriminateur remplace la vraisemblance."
+ },
+ {
+  "id": "gen.01.q4",
+  "prompt": "Un modèle assigne la densité 0.25 à chacun de 4 points d'entraînement (tous égaux). Quelle est la NLL moyenne en nats ? (donne 3 décimales)",
+  "options": [],
+  "explanation": "$-\\ln0.25=1.386$."
+ },
+ {
+  "id": "gen.01.q5",
+  "prompt": "La règle de la chaîne $p(x)=\\prod_j p(x_j\\mid x_{<j})$ rend l'échantillonnage...",
+  "options": [
+   "parallèle sur toutes les composantes",
+   "indépendant des données",
+   "séquentiel, une composante après l'autre",
+   "impossible"
+  ],
+  "explanation": "Chaque facteur conditionne sur les composantes précédentes, donc il faut les tirer dans l'ordre."
+ },
+ {
+  "id": "gen.01.q6",
+  "prompt": "A priori $(0.9,0.1)$ et rapport de vraisemblance $e^{8}\\approx2981$ en faveur de la classe 2. Laquelle de ces affirmations est vraie pour $p(y{=}2\\mid x)$ ?",
+  "options": [
+   "Elle est inférieure à 0.5",
+   "Elle vaut environ 0.5",
+   "Elle est supérieure à 0.99",
+   "Elle ne peut pas être calculée"
+  ],
+  "explanation": "Les cotes a posteriori valent $=2981/9\\approx331$, donc $p\\approx0.997$."
+ },
+ {
+  "id": "gen.01.q7",
+  "prompt": "Pourquoi la NLL doit-elle être rapportée sur des données de validation ?",
+  "options": [
+   "C'est plus rapide à calculer",
+   "La NLL n'est pas définie sur les données d'entraînement",
+   "Les données de validation ont une entropie plus faible",
+   "La NLL d'entraînement peut être abaissée en mémorisant l'ensemble d'entraînement"
+  ],
+  "explanation": "Un modèle flexible peut sur-apprendre ; la NLL de validation estime la généralisation."
+ },
+ {
+  "id": "gen.01.q8",
+  "prompt": "Une gaussienne unique ajustée sur deux modes bien séparés échantillonne surtout...",
+  "options": [
+   "à l'intérieur des deux modes",
+   "exactement aux moyennes",
+   "dans la région de faible densité entre eux",
+   "uniquement aux extrêmes"
+  ],
+  "explanation": "La gaussienne unique est centrée entre les modes avec une grande variance, ce qui place de la masse là où les données en ont peu."
+ }
+]

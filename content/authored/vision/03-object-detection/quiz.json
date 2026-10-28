@@ -1,0 +1,123 @@
+[
+ {
+  "id": "vis.03.q1",
+  "concept": "vis.iou",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Two boxes of area 100 each overlap in an area of 25. Their IoU is...",
+  "options": [
+   "25/175",
+   "25/200",
+   "0.25",
+   "25/100"
+  ],
+  "answer": 0,
+  "explanation": "Union $=100+100-25=175$, so IoU $=25/175\\approx0.143$."
+ },
+ {
+  "id": "vis.03.q2",
+  "concept": "vis.iou",
+  "kind": "numeric",
+  "prompt": "Box A $=(0,0,10,10)$, box B $=(2,2,4,4)$ lies inside A. What is IoU(A,B)?",
+  "options": [],
+  "answer": {
+   "value": 0.04,
+   "tol": 0.0005
+  },
+  "explanation": "Intersection is B itself (area 4), union is A (area 100): $4/100=0.04$."
+ },
+ {
+  "id": "vis.03.q3",
+  "concept": "vis.iou",
+  "kind": "mcq",
+  "prompt": "In greedy NMS with threshold 0.5, a lower-scored box with IoU 0.6 to a kept box is...",
+  "options": [
+   "kept only if its class differs",
+   "suppressed, because its IoU exceeds the threshold",
+   "kept, because its IoU is high",
+   "always kept if it is the last box"
+  ],
+  "answer": 1,
+  "explanation": "Boxes whose IoU with a higher-scoring kept box exceeds the threshold are treated as duplicates."
+ },
+ {
+  "id": "vis.03.q4",
+  "concept": "vis.detection",
+  "kind": "mcq",
+  "prompt": "Why does the decoding use $\\sigma(t_x)$ for the centre offset?",
+  "options": [
+   "To avoid overfitting",
+   "To normalise class probabilities",
+   "To make the box width positive",
+   "To keep the predicted centre inside the cell responsible for it"
+  ],
+  "answer": 3,
+  "explanation": "The sigmoid maps to $(0,1)$, so the centre lies within the cell; the exponential is what keeps widths positive."
+ },
+ {
+  "id": "vis.03.q5",
+  "concept": "vis.detection",
+  "kind": "numeric",
+  "prompt": "A YOLO-style head uses a $13\\times13$ grid, $B=3$ anchors and $C=80$ classes. How many output numbers per image?",
+  "options": [],
+  "answer": {
+   "value": 43095,
+   "tol": 0
+  },
+  "explanation": "Each cell predicts $3\\cdot(5+80)=255$ numbers; there are $13\\cdot13=169$ cells, so $169\\cdot255=43095$."
+ },
+ {
+  "id": "vis.03.q6",
+  "concept": "vis.detection",
+  "kind": "mcq",
+  "prompt": "Why is the 'no object' loss weight small?",
+  "options": [
+   "Empty slots vastly outnumber object slots and would dominate the loss",
+   "Objectness is not learnable",
+   "It prevents NMS from running",
+   "Empty cells are more important"
+  ],
+  "answer": 0,
+  "explanation": "Without down-weighting, the easy majority of empty slots would push the model to predict nothing."
+ },
+ {
+  "id": "vis.03.q7",
+  "concept": "vis.map",
+  "kind": "mcq",
+  "prompt": "Two detections hit the same ground-truth box; the higher-scoring one is matched first. The second is counted as...",
+  "options": [
+   "a false negative",
+   "ignored",
+   "a true positive",
+   "a false positive"
+  ],
+  "answer": 3,
+  "explanation": "Each ground truth can be claimed once; a duplicate is a false positive."
+ },
+ {
+  "id": "vis.03.q8",
+  "concept": "vis.map",
+  "kind": "numeric",
+  "prompt": "4 ground-truth objects; ranked detections are TP, TP, FP, TP, FP. What is the all-points AP (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.6875,
+   "tol": 0.001
+  },
+  "explanation": "Envelope precision $[1,1,0.75,0.75,0.6]$, recall increments $[0.25,0.25,0,0.25,0]$: $0.25+0.25+0.1875=0.6875$."
+ },
+ {
+  "id": "vis.03.q9",
+  "concept": "vis.map",
+  "kind": "mcq",
+  "prompt": "A detector has high AP@0.5 but low AP@0.75. The best diagnosis is...",
+  "options": [
+   "It misses most objects",
+   "It has too many classes",
+   "It finds objects but localises them loosely",
+   "Its NMS threshold is too low"
+  ],
+  "answer": 2,
+  "explanation": "Loose boxes pass a lenient IoU threshold but fail stricter ones; improve the box regression loss."
+ }
+]

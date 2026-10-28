@@ -1,0 +1,34 @@
+[
+  {
+    "id": "float-bit-layout", "after": 3, "kind": "mermaid",
+    "caption": { "en": "Bit layouts of the common formats: bfloat16 keeps float32's 8 exponent bits (same range) but only 7 mantissa bits (coarser precision); float16 has more precision but a tiny range.", "fr": "Dispositions des bits des formats courants : bfloat16 garde les 8 bits d'exposant de float32 (même plage) mais seulement 7 bits de mantisse (précision plus grossière) ; float16 a plus de précision mais une plage minuscule." },
+    "code": {
+      "en": "flowchart LR\n  A[\"float32: 1 sign + 8 exponent + 23 mantissa\\neps 1.2e-7, max 3.4e38\"]\n  B[\"bfloat16: 1 + 8 + 7\\neps 7.8e-3, max 3.4e38\"]\n  C[\"float16: 1 + 5 + 10\\neps 9.8e-4, max 65504\"]\n  A -->|\"drop 16 mantissa bits\"| B\n  A -->|\"shrink exponent and mantissa\"| C",
+      "fr": "flowchart LR\n  A[\"float32 : 1 signe + 8 exposant + 23 mantisse\\neps 1,2e-7, max 3,4e38\"]\n  B[\"bfloat16 : 1 + 8 + 7\\neps 7,8e-3, max 3,4e38\"]\n  C[\"float16 : 1 + 5 + 10\\neps 9,8e-4, max 65504\"]\n  A -->|\"supprimer 16 bits de mantisse\"| B\n  A -->|\"réduire exposant et mantisse\"| C"
+    }
+  },
+  {
+    "id": "float-spacing", "after": 3, "kind": "plot",
+    "caption": { "en": "Floats are not evenly spaced. In a toy format with 2 mantissa bits the representable numbers (dots) are 0.25 apart in [1, 2), 0.5 apart in [2, 4) and 1 apart in [4, 8): the gap doubles at every power of two, so the relative spacing stays about constant.", "fr": "Les flottants ne sont pas régulièrement espacés. Dans un format jouet à 2 bits de mantisse, les nombres représentables (points) sont espacés de 0,25 dans [1, 2), 0,5 dans [2, 4) et 1 dans [4, 8) : l'écart double à chaque puissance de deux, donc l'espacement relatif reste à peu près constant." },
+    "spec": { "xDomain": [0, 9], "yDomain": [-1, 1], "height": 200,
+      "data": [
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[1,0],[1.25,0],[1.5,0],[1.75,0],[2,0],[2.5,0],[3,0],[3.5,0],[4,0],[5,0],[6,0],[7,0],[8,0]] }
+      ] }
+  },
+  {
+    "id": "cancellation", "after": 4, "kind": "mermaid",
+    "caption": { "en": "Catastrophic cancellation: with data near 10⁹, E[x²] − E[x]² subtracts two numbers of size 10¹⁸ whose float64 spacing is 128, so the true variance 22.5 is rounded away (result −128). Centring first avoids it.", "fr": "Annulation catastrophique : avec des données proches de 10⁹, E[x²] − E[x]² soustrait deux nombres de taille 10¹⁸ dont l'espacement float64 est 128, donc la vraie variance 22,5 est arrondie (résultat −128). Centrer d'abord l'évite." },
+    "code": {
+      "en": "flowchart LR\n  D[\"data = 1e9 + (4, 7, 13, 16)\"] --> B[\"mean(x^2) - mean(x)^2\\nterms ~ 1e18, gap 128\"] --> BR[\"-128.0 (wrong)\"]\n  D --> G[\"subtract the mean first,\\nthen average squares\"] --> GR[\"22.5 (correct)\"]",
+      "fr": "flowchart LR\n  D[\"données = 1e9 + (4, 7, 13, 16)\"] --> B[\"mean(x^2) - mean(x)^2\\ntermes ~ 1e18, écart 128\"] --> BR[\"-128,0 (faux)\"]\n  D --> G[\"soustraire d'abord la moyenne,\\npuis moyenner les carrés\"] --> GR[\"22,5 (correct)\"]"
+    }
+  },
+  {
+    "id": "stable-softmax", "after": 5, "kind": "mermaid",
+    "caption": { "en": "The stable softmax: subtracting max(z) leaves the result unchanged but keeps every exponent at or below 0, so exp can neither overflow nor have all terms underflow.", "fr": "Le softmax stable : soustraire max(z) ne change pas le résultat mais garde chaque exposant inférieur ou égal à 0, donc exp ne déborde pas et tous les termes ne s'annulent pas." },
+    "code": {
+      "en": "flowchart LR\n  Z[\"logits z (e.g. 1000, 1001)\"] --> N[\"naive: exp(z)\\noverflow -> inf, inf/inf = nan\"]\n  Z --> M[\"m = max(z)\"] --> S[\"z - m = (-1, 0)\"] --> E[\"exp -> (0.37, 1)\"] --> P[\"divide by sum\\n(0.269, 0.731)\"]",
+      "fr": "flowchart LR\n  Z[\"logits z (ex. 1000, 1001)\"] --> N[\"naïf : exp(z)\\ndébordement -> inf, inf/inf = nan\"]\n  Z --> M[\"m = max(z)\"] --> S[\"z - m = (-1, 0)\"] --> E[\"exp -> (0,37 ; 1)\"] --> P[\"diviser par la somme\\n(0,269 ; 0,731)\"]"
+    }
+  }
+]

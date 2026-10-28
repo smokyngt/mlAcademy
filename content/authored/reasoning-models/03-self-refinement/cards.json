@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.03.c1", "concept": "rsn.refine", "front": "Self-refinement", "back": "The model drafts an answer, critiques it, revises using the critique, and the result is accepted or rejected by a score; repeated for a few rounds." },
+  { "id": "rsn.03.c2", "concept": "rsn.refine", "front": "Cost of one refinement round", "back": "Two sequential generations (critique, revise); rounds of one problem cannot run in parallel." },
+  { "id": "rsn.03.c3", "concept": "rsn.refine", "front": "Chain rule for sequence probability", "back": "P(x_1..x_T) = prod_t P(x_t | x_{<t}); each factor is a softmax output at the previous position." },
+  { "id": "rsn.03.c4", "concept": "rsn.refine", "front": "Why logs", "back": "The product of many probabilities underflows (400 tokens at 0.01 gives 1e-800 = 0.0); the sum of log-probabilities stays finite (-1842)." },
+  { "id": "rsn.03.c5", "concept": "rsn.refine", "front": "Stable log-softmax", "back": "log p_i = z_i - max(z) - log sum_j exp(z_j - max(z))." },
+  { "id": "rsn.03.c6", "concept": "rsn.refine", "front": "Which logit rows score the answer?", "back": "For prompt length m and total length L, rows m-1 .. L-2 of the (L-1) x V logits; the prompt itself is not scored." },
+  { "id": "rsn.03.c7", "concept": "rsn.refine", "front": "Sum versus mean log-probability", "back": "Sum favours short texts; mean is length-normalised and used to compare candidates. Training with a sequence-level advantage uses the sum." },
+  { "id": "rsn.03.c8", "concept": "rsn.refine", "front": "Mean log-probability and perplexity", "back": "-mean(logprob) is the per-token cross-entropy; its exponential is the perplexity." },
+  { "id": "rsn.03.c9", "concept": "rsn.refine", "front": "Confidence versus correctness", "back": "A high average log-probability means the model is unsurprised by its text; a fluent consistent mistake can score very high." },
+  { "id": "rsn.03.c10", "concept": "rsn.refine", "front": "Rule-based heuristic score", "back": "Bonus for a boxed answer (2.0), smaller for any number (1.0), plus a brevity term 1.5*exp(-len/500); rewards form, not truth." },
+  { "id": "rsn.03.c11", "concept": "rsn.refine", "front": "Accept-if-not-worse", "back": "Keep the revision only if its score is >= the current draft's score; strict acceptance requires > and freezes on ties." },
+  { "id": "rsn.03.c12", "concept": "rsn.refine", "front": "Stopping rules for a refinement loop", "back": "max iterations, target score reached, critic says OK, or patience: P consecutive rounds without strict improvement." },
+  { "id": "rsn.03.c13", "concept": "rsn.refine", "front": "When refinement helps", "back": "Slips a second reading can catch; an informative critic or external check; checking easier than generating." },
+  { "id": "rsn.03.c14", "concept": "rsn.refine", "front": "When refinement hurts", "back": "Shared blind spots, sycophantic edits that break correct answers, drift toward whatever the score rewards, models too small to critique themselves." }
+]

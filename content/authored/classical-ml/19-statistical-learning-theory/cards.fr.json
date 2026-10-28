@@ -1,0 +1,17 @@
+[
+  { "id": "cml.19.c1", "front": "Risque vrai vs risque empirique", "back": "$R(h)=\\mathbb E\\,\\ell(h(x),y)$ sur la distribution des données ; $\\hat R_n(h)=\\frac1n\\sum_i\\ell(h(x_i),y_i)$ sur l'échantillon. Écart $=R-\\hat R_n$." },
+  { "id": "cml.19.c2", "front": "Pourquoi l'erreur d'entraînement de l'ERM est-elle optimiste ?", "back": "L'hypothèse est sélectionnée avec les données ; celle qui a l'air la meilleure parmi beaucoup profite de la chance. Une hypothèse fixée à l'avance a un risque empirique sans biais." },
+  { "id": "cml.19.c3", "front": "Inégalité de Hoeffding", "back": "Pour des variables indépendantes dans $[0,1]$ : $P(|\\bar Z-\\mu|\\ge\\varepsilon)\\le2e^{-2n\\varepsilon^2}$." },
+  { "id": "cml.19.c4", "front": "La borne de l'union", "back": "$P(\\cup A_j)\\le\\sum_jP(A_j)$. Elle transforme une garantie par hypothèse en garantie sur les $M$ hypothèses, au prix d'un facteur $M$ sur la probabilité d'échec." },
+  { "id": "cml.19.c5", "front": "Borne de généralisation pour une classe finie", "back": "Avec une probabilité $\\ge1-\\delta$, pour tout $h$ : $|R-\\hat R_n|\\le\\sqrt{\\ln(2M/\\delta)/(2n)}$. Croît comme $\\sqrt{\\ln M}$." },
+  { "id": "cml.19.c6", "front": "Risque en excès de l'ERM pour une classe finie", "back": "$R(\\hat h)\\le R(h^\\star)+2\\varepsilon$ où $\\varepsilon$ est la largeur de déviation uniforme." },
+  { "id": "cml.19.c7", "front": "Pulvérisation (shattering)", "back": "Un ensemble de $m$ points est pulvérisé si la classe réalise les $2^m$ étiquetages." },
+  { "id": "cml.19.c8", "front": "Dimension VC", "back": "Plus grand $d$ tel que CERTAIN ensemble de $d$ points soit pulvérisé. Demande un exemple pulvérisé et une preuve d'impossibilité pour $d+1$." },
+  { "id": "cml.19.c9", "front": "Dimension VC des intervalles ; des demi-plans dans $\\mathbb R^2$", "back": "Intervalles sur une droite : 2 (l'étiquetage 1,0,1 est impossible). Demi-plans dans le plan : 3 ; dans $\\mathbb R^p$, classifieurs linéaires avec biais : $p+1$." },
+  { "id": "cml.19.c10", "front": "Lemme de Sauer", "back": "Fonction de croissance $\\Pi(n)\\le(en/d)^d$ pour $n\\ge d$ : les étiquetages croissent de façon polynomiale, non exponentielle, au-delà de la dimension VC." },
+  { "id": "cml.19.c11", "front": "Forme de la borne VC", "back": "$R\\le\\hat R_n+\\sqrt{(d(\\ln(2n/d)+1)+\\ln(4/\\delta))/n}$ (constantes variables) : pénalité d'environ $\\sqrt{d\\ln n/n}$, donc on veut $n\\gg d$." },
+  { "id": "cml.19.c12", "front": "Complexité de Rademacher empirique", "back": "$\\mathbb E_\\sigma\\max_h\\frac1n\\sum_i\\sigma_ih(x_i)$ : à quel point la classe ajuste des étiquettes aléatoires $\\pm1$. 0 pour une seule hypothèse, 1 si elle peut réaliser tout étiquetage." },
+  { "id": "cml.19.c13", "front": "Lemme de Massart", "back": "Pour $M$ hypothèses à valeurs $\\pm1$ : complexité de Rademacher $\\le\\sqrt{2\\ln M/n}$." },
+  { "id": "cml.19.c14", "front": "Minimisation du risque structurel et régularisation", "back": "SRM : classes emboîtées, minimiser l'erreur d'entraînement plus une pénalité de complexité. La régularisation $\\hat R_n+\\lambda\\Omega(h)$ en est la version continue (par ex. $\\|w\\|^2$)." },
+  { "id": "cml.19.c15", "front": "No free lunch et réseaux profonds", "back": "Aucun algorithme ne gagne sur tous les problèmes, donc des hypothèses sont nécessaires. Pour les réseaux profonds, la borne VC uniforme est vide et pourtant ils généralisent ; l'explication est un domaine de recherche ouvert." }
+]

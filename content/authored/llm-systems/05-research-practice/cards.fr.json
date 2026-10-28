@@ -1,0 +1,18 @@
+[
+ {"id": "sys.05.c1", "front": "Étude d'ablation", "back": "Retirer ou modifier exactement un composant d'un système, en maintenant tout le reste (données, budget, effort de réglage) fixe, pour mesurer la contribution de ce composant."},
+ {"id": "sys.05.c2", "front": "Lecture d'article en trois passes", "back": "Passe 1 (5-10 min) : titre, résumé, titres, figures, conclusion. Passe 2 : texte, figures et dispositif, lister affirmations et preuves. Passe 3 : redériver/réimplémenter, trouver hypothèses et cas d'échec."},
+ {"id": "sys.05.c3", "front": "Note de quatre lignes sur un article", "back": "Affirmation, preuve (quel tableau/figure), référence, ce qui manque."},
+ {"id": "sys.05.c4", "front": "Pourquoi reproduire d'abord la référence ?", "back": "Si tu ne peux pas retrouver le nombre publié pour la référence, une comparaison avec elle n'a aucun sens."},
+ {"id": "sys.05.c5", "front": "Métriques de contrôle de cohérence", "back": "Quantités qui doivent tenir par construction (perte initiale proche de ln K, avantages de moyenne nulle, vérification de gradient). Une violation signale un bug avant d'interpréter les résultats."},
+ {"id": "sys.05.c6", "front": "Pourquoi plusieurs graines ?", "back": "Une seule exécution est un tirage aléatoire (initialisation, ordre des batchs) ; la dispersion d'une graine à l'autre peut être plus grande que l'effet mesuré."},
+ {"id": "sys.05.c7", "front": "Convention moyenne +- écart-type", "back": "Rapporter la moyenne et l'écart-type empirique (ddof=1) sur n graines, et indiquer n et ce que la graine contrôle."},
+ {"id": "sys.05.c8", "front": "Nombres aléatoires communs", "back": "Utiliser les mêmes graines (même initialisation et même ordre des batchs) pour les deux bras afin que le bruit s'annule dans la différence par graine."},
+ {"id": "sys.05.c9", "front": "Statistique t appariée", "back": "$d_i=a_i-b_i$ ; $t=\\bar d/(s_d/\\sqrt n)$ avec $n-1$ degrés de liberté (valeur critique 2.776 pour 4 d.d.l., 5 % bilatéral)."},
+ {"id": "sys.05.c10", "front": "t de Welch (non apparié)", "back": "$t=(\\bar a-\\bar b)/\\sqrt{s_a^2/n+s_b^2/n}$ ; ignore l'appariement, donc avec un grand bruit entre graines il a bien moins de puissance."},
+ {"id": "sys.05.c11", "front": "Significativité statistique contre pratique", "back": "Un effet minuscule peut être significatif avec assez d'appariement/de données ; rapporter toujours la taille d'effet dans les unités de la métrique."},
+ {"id": "sys.05.c12", "front": "L'absence de significativité n'est pas l'égalité", "back": "Avec peu de graines, tu peux manquer de puissance. Rapporte un intervalle et les tailles d'effet que tu aurais pu détecter."},
+ {"id": "sys.05.c13", "front": "Référence équitable", "back": "Régler la référence aussi soigneusement que la nouvelle méthode et lui donner le même budget (pas, paramètres, calcul) ; sinon le gain est un artefact."},
+ {"id": "sys.05.c14", "front": "Observation contre interprétation", "back": "Observation : la précision a augmenté de 4.4 points. Interprétation : à cause de la saturation. Marquer les interprétations non testées comme des hypothèses."},
+ {"id": "sys.05.c15", "front": "Fantôme, A/B et canari", "back": "Fantôme : exécuter le nouveau modèle en parallèle sans le servir. A/B : répartir aléatoirement le trafic réel et tester la significativité. Canari : déployer progressivement et abandonner si les métriques se dégradent."},
+ {"id": "sys.05.c16", "front": "Signaux d'alerte dans un article", "back": "Gain inférieur au bruit entre graines, exécution unique, référence faible/non réglée, réglage sur les données de test, budgets inégaux, pas d'ablations, affirmations au-delà des réglages testés."}
+]

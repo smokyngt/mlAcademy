@@ -1,0 +1,198 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "A definite integral is an area: the integral of sin x from 0 to pi is 2 (shaded). Riemann sums approximate it by thin rectangles whose limit is this area.",
+      "fr": "Une intégrale définie est une aire : l'intégrale de sin x de 0 à pi vaut 2 (zone ombrée). Les sommes de Riemann l'approchent par de fins rectangles dont la limite est cette aire."
+    },
+    "spec": {
+      "xDomain": [
+        -0.5,
+        3.8
+      ],
+      "yDomain": [
+        -0.3,
+        1.3
+      ],
+      "data": [
+        {
+          "fn": "sin(x)",
+          "range": [
+            0,
+            3.14159
+          ],
+          "closed": true,
+          "color": "#2563eb"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f2",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Fundamental theorem of calculus: F(x) = 1 - cos x (blue) is an antiderivative of f(x) = sin x (orange); hover over F and the tangent slope equals the height of f. Also, the integral of f from 0 to pi is F(pi) - F(0) = 2.",
+      "fr": "Théorème fondamental : F(x) = 1 - cos x (bleu) est une primitive de f(x) = sin x (orange) ; survolez F et la pente de la tangente égale la hauteur de f. Aussi, l'intégrale de f de 0 à pi vaut F(pi) - F(0) = 2."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        6.3
+      ],
+      "yDomain": [
+        -1.5,
+        2.5
+      ],
+      "data": [
+        {
+          "fn": "1-cos(x)",
+          "color": "#2563eb",
+          "derivative": {
+            "fn": "sin(x)",
+            "updateOnMouseMove": true
+          }
+        },
+        {
+          "fn": "sin(x)",
+          "color": "#d97706"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "A probability is an area under a density: for the standard normal, P(|X| <= 1.96) = 0.95 (shaded); the height of the curve is not itself a probability.",
+      "fr": "Une probabilité est une aire sous une densité : pour la loi normale centrée réduite, P(|X| <= 1,96) = 0,95 (zone ombrée) ; la hauteur de la courbe n'est pas une probabilité."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        -0.02,
+        0.45
+      ],
+      "data": [
+        {
+          "fn": "exp(-x^2/2)/sqrt(2*3.14159265)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-x^2/2)/sqrt(2*3.14159265)",
+          "range": [
+            -1.96,
+            1.96
+          ],
+          "closed": true,
+          "color": "#2563eb"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Gaussian integral trick: square the integral, switch to polar coordinates where the extra factor r makes the integrand integrable by substitution, and read off the square root of 2*pi.",
+      "fr": "L'astuce de l'intégrale gaussienne : élever l'intégrale au carré, passer en coordonnées polaires où le facteur r permet l'intégration par substitution, puis lire la racine de 2*pi."
+    },
+    "code": {
+      "en": "flowchart TD\n  I[\"I = integral of e^(-x^2/2) dx, no elementary antiderivative\"] --> Sq[\"I^2 = double integral of e^(-(x^2+y^2)/2) dx dy\"]\n  Sq --> Po[\"polar: x^2 + y^2 = r^2, dx dy = r dr dtheta\"]\n  Po --> Sp[\"I^2 = 2 pi * integral from 0 to inf of e^(-r^2/2) r dr\"]\n  Sp --> Su[\"substitute u = r^2 / 2: integral of e^(-u) du = 1\"]\n  Su --> Res[\"I^2 = 2 pi, so I = sqrt(2 pi)\"]",
+      "fr": "flowchart TD\n  I[\"I = intégrale de e^(-x^2/2) dx, sans primitive élémentaire\"] --> Sq[\"I^2 = intégrale double de e^(-(x^2+y^2)/2) dx dy\"]\n  Sq --> Po[\"polaire : x^2 + y^2 = r^2, dx dy = r dr dtheta\"]\n  Po --> Sp[\"I^2 = 2 pi * intégrale de 0 à inf de e^(-r^2/2) r dr\"]\n  Sp --> Su[\"poser u = r^2 / 2 : intégrale de e^(-u) du = 1\"]\n  Su --> Res[\"I^2 = 2 pi, donc I = racine de 2 pi\"]"
+    }
+  },
+  {
+    "id": "f5",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Trapezoid rule with n = 4 on sin x over [0, pi]: the straight segments (orange) replace the curve (blue); the estimate is 1.896, error -0.104, matching the table.",
+      "fr": "Règle des trapèzes avec n = 4 pour sin x sur [0, pi] : les segments (orange) remplacent la courbe (bleu) ; l'estimation vaut 1,896, erreur -0,104, comme dans le tableau."
+    },
+    "spec": {
+      "xDomain": [
+        -0.3,
+        3.5
+      ],
+      "yDomain": [
+        -0.2,
+        1.2
+      ],
+      "data": [
+        {
+          "fn": "sin(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.7854,
+              0.7071
+            ],
+            [
+              1.5708,
+              1.0
+            ],
+            [
+              2.3562,
+              0.7071
+            ],
+            [
+              3.1416,
+              0.0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.7854,
+              0.7071
+            ],
+            [
+              1.5708,
+              1.0
+            ],
+            [
+              2.3562,
+              0.7071
+            ],
+            [
+              3.1416,
+              0.0
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  }
+]

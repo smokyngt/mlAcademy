@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.05.c1","front":"LDA en une phrase","back":"Les documents sont des mélanges de sujets et les sujets sont des distributions sur des mots ; les deux ont des a priori de Dirichlet."},
+ {"id":"nlp.05.c2","front":"Histoire générative de LDA","back":"Tirer $\\phi_k\\sim\\mathrm{Dir}(\\beta)$, $\\theta_d\\sim\\mathrm{Dir}(\\alpha)$ ; pour chaque mot : $z\\sim\\theta_d$, $w\\sim\\phi_z$."},
+ {"id":"nlp.05.c3","front":"Distribution de Dirichlet","back":"Une distribution sur des vecteurs de probabilité ; $\\alpha<1$ favorise les vecteurs creux, $\\alpha>1$ les presque uniformes. Conjuguée de la catégorielle."},
+ {"id":"nlp.05.c4","front":"Échantillonnage de Gibbs","back":"Ré-échantillonner une variable à la fois à partir de sa conditionnelle sachant toutes les autres ; laisse la jointe invariante et est toujours accepté ; exige l'ergodicité (aucune conditionnelle nulle)."},
+ {"id":"nlp.05.c5","front":"Mise à jour de Gibbs collapsée pour LDA","back":"$P(z_{di}=k)\\propto(n_{dk}+\\alpha)\\frac{n_{kw}+\\beta}{n_k+V\\beta}$ avec le token courant retiré des comptes."},
+ {"id":"nlp.05.c6","front":"Pourquoi « collapsé » ?","back":"$\\theta$ et $\\phi$ sont intégrés grâce à la conjugaison Dirichlet-multinomiale ; seules les affectations $z$ sont échantillonnées."},
+ {"id":"nlp.05.c7","front":"Estimer theta et phi après l'échantillonnage","back":"$\\hat\\theta_{dk}=\\frac{n_{dk}+\\alpha}{N_d+K\\alpha}$, $\\hat\\phi_{kw}=\\frac{n_{kw}+\\beta}{n_k+V\\beta}$."},
+ {"id":"nlp.05.c8","front":"Formes dans LDA","back":"ndk $(D,K)$, nkw $(K,V)$, nk $(K,)$, theta $(D,K)$, phi $(K,V)$ ; les lignes de theta, phi ont pour somme 1."},
+ {"id":"nlp.05.c9","front":"Quelle entrée LDA attend-il ?","back":"Des comptes de mots bruts (sac de mots), après retrait des mots vides et des termes très rares/fréquents ; pas du TF-IDF."},
+ {"id":"nlp.05.c10","front":"Cohérence des sujets","back":"Score de la fréquence à laquelle les mots principaux d'un sujet co-occurrent dans du vrai texte (basé sur NPMI, par ex. c_v). Plus élevé, c'est mieux."},
+ {"id":"nlp.05.c11","front":"Diversité des sujets","back":"Fraction de mots distincts parmi les mots principaux de tous les sujets ; de faibles valeurs signifient des sujets redondants."},
+ {"id":"nlp.05.c12","front":"Pipeline BERTopic","back":"Plongements de phrases -> réduction UMAP -> regroupement HDBSCAN (avec étiquette de valeur aberrante) -> TF-IDF par classe pour nommer les sujets."},
+ {"id":"nlp.05.c13","front":"LDA vs BERTopic","back":"LDA : mélanges, longs documents, peu coûteux. BERTopic : texte court, sujets sémantiques, affectation dure, coût des plongements et troncature."},
+ {"id":"nlp.05.c14","front":"Le choix de K est-il appris ?","back":"Non, K est un hyperparamètre : compare plusieurs valeurs par la cohérence et la lecture des sujets ; vérifie la stabilité sur plusieurs graines."}
+]

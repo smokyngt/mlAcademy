@@ -1,0 +1,67 @@
+[
+  {
+    "id": "graph-forward",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The computational graph of f(a,b) = ab + a² at a = 3, b = 2. Node values are from the forward pass; edge labels are the local derivatives that reverse mode will multiply.",
+      "fr": "Le graphe de calcul de f(a,b) = ab + a² en a = 3, b = 2. Les valeurs des noeuds viennent de la passe avant ; les étiquettes d'arêtes sont les dérivées locales que le mode inverse va multiplier."
+    },
+    "code": {
+      "en": "flowchart LR\n  a[\"a = 3\"] -->|\"du/da = b = 2\"| u[\"u = a*b = 6\"]\n  b[\"b = 2\"] -->|\"du/db = a = 3\"| u\n  a -->|\"dv/da = 2a = 6\"| v[\"v = a^2 = 9\"]\n  u -->|\"df/du = 1\"| f[\"f = u + v = 15\"]\n  v -->|\"df/dv = 1\"| f",
+      "fr": "flowchart LR\n  a[\"a = 3\"] -->|\"du/da = b = 2\"| u[\"u = a*b = 6\"]\n  b[\"b = 2\"] -->|\"du/db = a = 3\"| u\n  a -->|\"dv/da = 2a = 6\"| v[\"v = a^2 = 9\"]\n  u -->|\"df/du = 1\"| f[\"f = u + v = 15\"]\n  v -->|\"df/dv = 1\"| f"
+    }
+  },
+  {
+    "id": "graph-reverse",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Reverse mode on the same graph: seed f-bar = 1, push adjoints to the parents and add when a node has several consumers. Node a receives two contributions (2 and 6), giving 8.",
+      "fr": "Mode inverse sur le même graphe : on part de f-bar = 1, on propage les adjoints vers les parents et on additionne quand un noeud a plusieurs consommateurs. Le noeud a reçoit deux contributions (2 et 6), soit 8."
+    },
+    "code": {
+      "en": "flowchart RL\n  f[\"f-bar = 1\"] -->|\"times 1\"| u[\"u-bar = 1\"]\n  f -->|\"times 1\"| v[\"v-bar = 1\"]\n  u -->|\"times b = 2\"| a[\"a-bar = 2 + 6 = 8\"]\n  v -->|\"times 2a = 6\"| a\n  u -->|\"times a = 3\"| b[\"b-bar = 3\"]",
+      "fr": "flowchart RL\n  f[\"f-bar = 1\"] -->|\"fois 1\"| u[\"u-bar = 1\"]\n  f -->|\"fois 1\"| v[\"v-bar = 1\"]\n  u -->|\"fois b = 2\"| a[\"a-bar = 2 + 6 = 8\"]\n  v -->|\"fois 2a = 6\"| a\n  u -->|\"fois a = 3\"| b[\"b-bar = 3\"]"
+    }
+  },
+  {
+    "id": "forward-mode",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Forward mode on the same function, seeded with a-dot = 1: tangents travel input to output and give one derivative (df/da = 8) per pass. A second pass seeded on b would be needed for df/db. Reverse mode gave both in one pass because the output is a scalar.",
+      "fr": "Mode direct sur la même fonction, amorcé avec a-point = 1 : les tangentes vont de l'entrée à la sortie et donnent une seule dérivée (df/da = 8) par passe. Il faudrait une seconde passe pour df/db. Le mode inverse a donné les deux en une passe car la sortie est un scalaire."
+    },
+    "code": {
+      "en": "flowchart LR\n  a[\"a-dot = 1\"] -->|\"times b\"| u[\"u-dot = 2\"]\n  a -->|\"times 2a\"| v[\"v-dot = 6\"]\n  u -->|\"plus\"| f[\"f-dot = 8 = df/da\"]\n  v -->|\"plus\"| f\n  b[\"b-dot = 0\"] -->|\"times a\"| u2[\"adds 0 to u-dot\"]",
+      "fr": "flowchart LR\n  a[\"a-point = 1\"] -->|\"fois b\"| u[\"u-point = 2\"]\n  a -->|\"fois 2a\"| v[\"v-point = 6\"]\n  u -->|\"plus\"| f[\"f-point = 8 = df/da\"]\n  v -->|\"plus\"| f\n  b[\"b-point = 0\"] -->|\"fois a\"| u2[\"ajoute 0 à u-point\"]"
+    }
+  },
+  {
+    "id": "autograd-lifecycle",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The life of a gradient in PyTorch: operations on tensors with requires_grad record a graph; backward() accumulates into .grad on the leaves; the optimiser reads it; zero_grad() must reset it.",
+      "fr": "La vie d'un gradient dans PyTorch : les opérations sur des tenseurs avec requires_grad enregistrent un graphe ; backward() accumule dans .grad sur les feuilles ; l'optimiseur le lit ; zero_grad() doit le remettre à zéro."
+    },
+    "code": {
+      "en": "flowchart LR\n  Lf[\"Leaf tensors, requires_grad=True\"] --> Fw[\"Forward ops record the graph\"]\n  Fw --> Lo[\"loss, a scalar\"]\n  Lo -->|\"loss.backward()\"| Gr[\".grad += local VJPs\"]\n  Gr --> Op[\"optimizer.step() reads .grad\"]\n  Op --> Z[\"optimizer.zero_grad()\"]\n  Z --> Lf\n  Lo -.->|\"no_grad or detach cuts the graph\"| X[\"No gradient\"]",
+      "fr": "flowchart LR\n  Lf[\"Tenseurs feuilles, requires_grad=True\"] --> Fw[\"Les opérations avant enregistrent le graphe\"]\n  Fw --> Lo[\"loss, un scalaire\"]\n  Lo -->|\"loss.backward()\"| Gr[\".grad += PVJ locaux\"]\n  Gr --> Op[\"optimizer.step() lit .grad\"]\n  Op --> Z[\"optimizer.zero_grad()\"]\n  Z --> Lf\n  Lo -.->|\"no_grad ou detach coupe le graphe\"| X[\"Pas de gradient\"]"
+    }
+  },
+  {
+    "id": "validate-flow",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Validating a from-scratch backward pass: run the same forward computation in NumPy and in PyTorch float64, then compare every gradient.",
+      "fr": "Valider une passe arrière faite main : exécuter le même calcul avant en NumPy et en PyTorch float64, puis comparer chaque gradient."
+    },
+    "code": {
+      "en": "flowchart TD\n  P[\"NumPy params and data\"] --> N[\"Your forward_backward\"]\n  P -->|\"torch.tensor float64, requires_grad\"| T[\"Torch forward with F.cross_entropy on logits\"]\n  T -->|\"backward()\"| Tg[\"p.grad\"]\n  N --> Ng[\"your gradients\"]\n  Ng --> C{\"max relative error below 1e-10?\"}\n  Tg --> C\n  C -->|\"yes\"| OK[\"Backward pass validated\"]\n  C -->|\"no\"| Bug[\"Check shapes, 1/B, sums over the batch\"]",
+      "fr": "flowchart TD\n  P[\"Paramètres et données NumPy\"] --> N[\"Votre forward_backward\"]\n  P -->|\"torch.tensor float64, requires_grad\"| T[\"Passe avant Torch avec F.cross_entropy sur les logits\"]\n  T -->|\"backward()\"| Tg[\"p.grad\"]\n  N --> Ng[\"vos gradients\"]\n  Ng --> C{\"erreur relative max sous 1e-10 ?\"}\n  Tg --> C\n  C -->|\"oui\"| OK[\"Passe arrière validée\"]\n  C -->|\"non\"| Bug[\"Vérifier formes, 1/B, sommes sur le lot\"]"
+    }
+  }
+]

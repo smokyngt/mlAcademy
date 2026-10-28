@@ -1,0 +1,606 @@
+[
+  {
+    "id": "two-uncertainties",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two kinds of uncertainty: aleatoric noise is irreducible, epistemic variance of the fitted model shrinks as data grows; the predictive variance is their sum.",
+      "fr": "Deux types d'incertitude : le bruit aléatoire est irréductible, la variance épistémique du modèle ajusté diminue avec les données ; la variance prédictive est leur somme."
+    },
+    "code": {
+      "en": "flowchart TB\n  V[\"Var(y | x)\"] --> A[\"aleatoric: sigma²\\nnoise in the world\\nstays however much data\"]\n  V --> Ep[\"epistemic: Var(f_hat(x))\\nignorance of the model\\nshrinks as n grows\"]\n  A --> T[\"Bayesian linear regression:\\n1/beta + phi(x)ᵀ S_N phi(x)\"]\n  Ep --> T\n  Ep --> EN[\"ensemble: spread of the member means\"]",
+      "fr": "flowchart TB\n  V[\"Var(y | x)\"] --> A[\"aléatoire : sigma²\\nbruit du monde\\nreste quelle que soit la quantité de données\"]\n  V --> Ep[\"épistémique : Var(f_chap(x))\\nignorance du modèle\\ndiminue quand n croît\"]\n  A --> T[\"régression linéaire bayésienne :\\n1/beta + phi(x)ᵀ S_N phi(x)\"]\n  Ep --> T\n  Ep --> EN[\"ensemble : dispersion des moyennes des membres\"]"
+    }
+  },
+  {
+    "id": "temperature",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Effect of the temperature T on the top-class probability for logits (2, 1, 0): p_top(T) = e^(2/T) / (e^(2/T) + e^(1/T) + 1). T < 1 sharpens, T > 1 flattens towards 1/3; the arg-max never changes, so accuracy is untouched.",
+      "fr": "Effet de la température T sur la probabilité de la classe la plus probable pour les logits (2, 1, 0) : p_top(T) = e^(2/T) / (e^(2/T) + e^(1/T) + 1). T < 1 accentue, T > 1 aplatit vers 1/3 ; l'arg-max ne change jamais, donc la précision est intacte."
+    },
+    "spec": {
+      "xDomain": [
+        0.3,
+        8
+      ],
+      "yDomain": [
+        0.2,
+        1.05
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(2/x)/(exp(2/x)+exp(1/x)+1)",
+          "color": "#2563eb"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1,
+          "text": "T = 1 (original)"
+        },
+        {
+          "y": 0.3333,
+          "text": "uniform 1/3"
+        }
+      ]
+    }
+  },
+  {
+    "id": "temp-procedure",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Temperature scaling: split off a calibration set, minimise NLL(T) by golden-section search, then divide all logits by T* at prediction time.",
+      "fr": "Mise à l'échelle par la température : mettre de côté un jeu de calibration, minimiser NLL(T) par recherche du nombre d'or, puis diviser tous les logits par T* à la prédiction."
+    },
+    "code": {
+      "en": "flowchart LR\n  TR[\"train set\"] --> M[\"trained network\\nlogits z (N, K)\"]\n  CAL[\"held-out calibration set\"] --> M\n  M --> Z[\"calibration logits z, labels y\"]\n  Z --> NLL[\"NLL(T) = -mean log p_y(T)\\np_k(T) = softmax(z/T)\"]\n  NLL --> GS[\"golden-section search on T\\n(1-D, no gradients)\"]\n  GS --> TS[\"T*\"]\n  TS --> INF[\"inference: softmax(z / T*)\\nsame arg-max, honest confidence\"]",
+      "fr": "flowchart LR\n  TR[\"jeu d'entraînement\"] --> M[\"réseau entraîné\\nlogits z (N, K)\"]\n  CAL[\"jeu de calibration mis de côté\"] --> M\n  M --> Z[\"logits z de calibration, étiquettes y\"]\n  Z --> NLL[\"NLL(T) = -moyenne log p_y(T)\\np_k(T) = softmax(z/T)\"]\n  NLL --> GS[\"recherche du nombre d'or sur T\\n(1-D, sans gradient)\"]\n  GS --> TS[\"T*\"]\n  TS --> INF[\"inférence : softmax(z / T*)\\nmême arg-max, confiance honnête\"]"
+    }
+  },
+  {
+    "id": "deep-ensemble",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A deep ensemble: M networks from different initialisations; the predictive variance adds the mean of their noise variances (aleatoric) to the spread of their means (epistemic).",
+      "fr": "Un ensemble profond : M réseaux issus d'initialisations différentes ; la variance prédictive additionne la moyenne de leurs variances de bruit (aléatoire) à la dispersion de leurs moyennes (épistémique)."
+    },
+    "code": {
+      "en": "flowchart TB\n  D[\"same training data\"] --> N1[\"network 1 → mu_1(x), sigma_1²(x)\"]\n  D --> N2[\"network 2 → mu_2(x), sigma_2²(x)\"]\n  D --> NM[\"network M → mu_M(x), sigma_M²(x)\"]\n  N1 --> AL[\"mean aleatoric: (1/M) Σ sigma_m²\"]\n  N2 --> AL\n  NM --> AL\n  N1 --> EP[\"epistemic: (1/M) Σ (mu_m - mu_bar)²\"]\n  N2 --> EP\n  NM --> EP\n  AL --> TOT[\"sigma²(x) = aleatoric + epistemic\"]\n  EP --> TOT",
+      "fr": "flowchart TB\n  D[\"mêmes données d'entraînement\"] --> N1[\"réseau 1 → mu_1(x), sigma_1²(x)\"]\n  D --> N2[\"réseau 2 → mu_2(x), sigma_2²(x)\"]\n  D --> NM[\"réseau M → mu_M(x), sigma_M²(x)\"]\n  N1 --> AL[\"aléatoire moyen : (1/M) Σ sigma_m²\"]\n  N2 --> AL\n  NM --> AL\n  N1 --> EP[\"épistémique : (1/M) Σ (mu_m - mu_bar)²\"]\n  N2 --> EP\n  NM --> EP\n  AL --> TOT[\"sigma²(x) = aléatoire + épistémique\"]\n  EP --> TOT"
+    }
+  },
+  {
+    "id": "blr",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Bayesian linear regression: a Gaussian prior and Gaussian likelihood give a Gaussian posterior over the weights in closed form; the predictive variance is noise plus phi^T S_N phi. The mean m_N is the ridge solution.",
+      "fr": "Régression linéaire bayésienne : un a priori gaussien et une vraisemblance gaussienne donnent en forme close une postérieure gaussienne sur les poids ; la variance prédictive est le bruit plus phi^T S_N phi. La moyenne m_N est la solution ridge."
+    },
+    "code": {
+      "en": "flowchart LR\n  PR[\"prior w ~ N(0, I/alpha)\"] --> PO\n  LK[\"likelihood t = Φw + noise\\nnoise precision beta\"] --> PO\n  PO[\"posterior N(m_N, S_N)\\nS_N⁻¹ = alpha I + beta ΦᵀΦ  (M,M)\\nm_N = beta S_N Φᵀ t  (M,)\"]\n  PO --> RG[\"m_N = ridge, lambda = alpha/beta\"]\n  PO --> PD[\"new x: phi = phi(x)\\nmean m_Nᵀ phi\\nvariance 1/beta + phiᵀ S_N phi\"]",
+      "fr": "flowchart LR\n  PR[\"a priori w ~ N(0, I/alpha)\"] --> PO\n  LK[\"vraisemblance t = Φw + bruit\\nprécision du bruit beta\"] --> PO\n  PO[\"postérieure N(m_N, S_N)\\nS_N⁻¹ = alpha I + beta ΦᵀΦ  (M,M)\\nm_N = beta S_N Φᵀ t  (M,)\"]\n  PO --> RG[\"m_N = ridge, lambda = alpha/beta\"]\n  PO --> PD[\"nouveau x : phi = phi(x)\\nmoyenne m_Nᵀ phi\\nvariance 1/beta + phiᵀ S_N phi\"]"
+    }
+  },
+  {
+    "id": "conformal",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Split conformal prediction: fit on the proper training set, compute absolute-residual scores on a separate calibration set, take the ceil((n+1)(1 - alpha))-th smallest as q_hat, and output f_hat(x) ± q_hat.",
+      "fr": "Prédiction conforme par séparation : ajuster sur le jeu d'entraînement propre, calculer les scores en résidu absolu sur un jeu de calibration séparé, prendre le ceil((n+1)(1 - alpha))-ième plus petit comme q_chap, et sortir f_chap(x) ± q_chap."
+    },
+    "code": {
+      "en": "flowchart TB\n  D[\"data\"] --> TR[\"proper training set\"]\n  D --> CA[\"calibration set (n points)\\nnot used for fitting\"]\n  TR --> FIT[\"fit any model f_hat\"]\n  FIT --> SC[\"scores s_i = |y_i - f_hat(x_i)|  (n,)\"]\n  CA --> SC\n  SC --> Q[\"k = ceil((n+1)(1 - alpha))\\nq_hat = k-th smallest score\"]\n  Q --> CI[\"new x: C(x) = [f_hat(x) - q_hat, f_hat(x) + q_hat]\"]\n  CI --> G[\"guarantee (exchangeability):\\n1 - alpha ≤ P(y in C) ≤ 1 - alpha + 1/(n+1)\"]",
+      "fr": "flowchart TB\n  D[\"données\"] --> TR[\"jeu d'entraînement propre\"]\n  D --> CA[\"jeu de calibration (n points)\\nnon utilisé pour l'ajustement\"]\n  TR --> FIT[\"ajuster un modèle quelconque f_chap\"]\n  FIT --> SC[\"scores s_i = |y_i - f_chap(x_i)|  (n,)\"]\n  CA --> SC\n  SC --> Q[\"k = ceil((n+1)(1 - alpha))\\nq_chap = k-ième plus petit score\"]\n  Q --> CI[\"nouveau x : C(x) = [f_chap(x) - q_chap, f_chap(x) + q_chap]\"]\n  CI --> G[\"garantie (échangeabilité) :\\n1 - alpha ≤ P(y dans C) ≤ 1 - alpha + 1/(n+1)\"]"
+    }
+  },
+  {
+    "id": "coverage-n",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Exact conformal coverage k/(n + 1) with k = ceil((n + 1)(1 - alpha)) for alpha = 0.1: it never drops below 0.9 and converges to it as n grows (n = 19 gives exactly 0.90, n = 100 gives 91/101 = 0.901).",
+      "fr": "Couverture conforme exacte k/(n + 1) avec k = ceil((n + 1)(1 - alpha)) pour alpha = 0,1 : elle ne descend jamais sous 0,9 et converge vers cette valeur quand n croît (n = 19 donne exactement 0,90, n = 100 donne 91/101 = 0,901)."
+    },
+    "spec": {
+      "xDomain": [
+        5,
+        120
+      ],
+      "yDomain": [
+        0.85,
+        1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              5,
+              1
+            ],
+            [
+              6,
+              1
+            ],
+            [
+              7,
+              1
+            ],
+            [
+              8,
+              1
+            ],
+            [
+              9,
+              0.9
+            ],
+            [
+              10,
+              0.9091
+            ],
+            [
+              11,
+              0.9167
+            ],
+            [
+              12,
+              0.9231
+            ],
+            [
+              13,
+              0.9286
+            ],
+            [
+              14,
+              0.9333
+            ],
+            [
+              15,
+              0.9375
+            ],
+            [
+              16,
+              0.9412
+            ],
+            [
+              17,
+              0.9444
+            ],
+            [
+              18,
+              0.9474
+            ],
+            [
+              19,
+              0.9
+            ],
+            [
+              20,
+              0.9048
+            ],
+            [
+              21,
+              0.9091
+            ],
+            [
+              22,
+              0.913
+            ],
+            [
+              23,
+              0.9167
+            ],
+            [
+              24,
+              0.92
+            ],
+            [
+              25,
+              0.9231
+            ],
+            [
+              26,
+              0.9259
+            ],
+            [
+              27,
+              0.9286
+            ],
+            [
+              28,
+              0.931
+            ],
+            [
+              29,
+              0.9
+            ],
+            [
+              30,
+              0.9032
+            ],
+            [
+              31,
+              0.9062
+            ],
+            [
+              32,
+              0.9091
+            ],
+            [
+              33,
+              0.9118
+            ],
+            [
+              34,
+              0.9143
+            ],
+            [
+              35,
+              0.9167
+            ],
+            [
+              36,
+              0.9189
+            ],
+            [
+              37,
+              0.9211
+            ],
+            [
+              38,
+              0.9231
+            ],
+            [
+              39,
+              0.9
+            ],
+            [
+              40,
+              0.9024
+            ],
+            [
+              41,
+              0.9048
+            ],
+            [
+              42,
+              0.907
+            ],
+            [
+              43,
+              0.9091
+            ],
+            [
+              44,
+              0.9111
+            ],
+            [
+              45,
+              0.913
+            ],
+            [
+              46,
+              0.9149
+            ],
+            [
+              47,
+              0.9167
+            ],
+            [
+              48,
+              0.9184
+            ],
+            [
+              49,
+              0.9
+            ],
+            [
+              50,
+              0.902
+            ],
+            [
+              51,
+              0.9038
+            ],
+            [
+              52,
+              0.9057
+            ],
+            [
+              53,
+              0.9074
+            ],
+            [
+              54,
+              0.9091
+            ],
+            [
+              55,
+              0.9107
+            ],
+            [
+              56,
+              0.9123
+            ],
+            [
+              57,
+              0.9138
+            ],
+            [
+              58,
+              0.9153
+            ],
+            [
+              59,
+              0.9
+            ],
+            [
+              60,
+              0.9016
+            ],
+            [
+              61,
+              0.9032
+            ],
+            [
+              62,
+              0.9048
+            ],
+            [
+              63,
+              0.9062
+            ],
+            [
+              64,
+              0.9077
+            ],
+            [
+              65,
+              0.9091
+            ],
+            [
+              66,
+              0.9104
+            ],
+            [
+              67,
+              0.9118
+            ],
+            [
+              68,
+              0.913
+            ],
+            [
+              69,
+              0.9
+            ],
+            [
+              70,
+              0.9014
+            ],
+            [
+              71,
+              0.9028
+            ],
+            [
+              72,
+              0.9041
+            ],
+            [
+              73,
+              0.9054
+            ],
+            [
+              74,
+              0.9067
+            ],
+            [
+              75,
+              0.9079
+            ],
+            [
+              76,
+              0.9091
+            ],
+            [
+              77,
+              0.9103
+            ],
+            [
+              78,
+              0.9114
+            ],
+            [
+              79,
+              0.9
+            ],
+            [
+              80,
+              0.9012
+            ],
+            [
+              81,
+              0.9024
+            ],
+            [
+              82,
+              0.9036
+            ],
+            [
+              83,
+              0.9048
+            ],
+            [
+              84,
+              0.9059
+            ],
+            [
+              85,
+              0.907
+            ],
+            [
+              86,
+              0.908
+            ],
+            [
+              87,
+              0.9091
+            ],
+            [
+              88,
+              0.9101
+            ],
+            [
+              89,
+              0.9
+            ],
+            [
+              90,
+              0.9011
+            ],
+            [
+              91,
+              0.9022
+            ],
+            [
+              92,
+              0.9032
+            ],
+            [
+              93,
+              0.9043
+            ],
+            [
+              94,
+              0.9053
+            ],
+            [
+              95,
+              0.9062
+            ],
+            [
+              96,
+              0.9072
+            ],
+            [
+              97,
+              0.9082
+            ],
+            [
+              98,
+              0.9091
+            ],
+            [
+              99,
+              0.9
+            ],
+            [
+              100,
+              0.901
+            ],
+            [
+              101,
+              0.902
+            ],
+            [
+              102,
+              0.9029
+            ],
+            [
+              103,
+              0.9038
+            ],
+            [
+              104,
+              0.9048
+            ],
+            [
+              105,
+              0.9057
+            ],
+            [
+              106,
+              0.9065
+            ],
+            [
+              107,
+              0.9074
+            ],
+            [
+              108,
+              0.9083
+            ],
+            [
+              109,
+              0.9
+            ],
+            [
+              110,
+              0.9009
+            ],
+            [
+              111,
+              0.9018
+            ],
+            [
+              112,
+              0.9027
+            ],
+            [
+              113,
+              0.9035
+            ],
+            [
+              114,
+              0.9043
+            ],
+            [
+              115,
+              0.9052
+            ],
+            [
+              116,
+              0.906
+            ],
+            [
+              117,
+              0.9068
+            ],
+            [
+              118,
+              0.9076
+            ],
+            [
+              119,
+              0.9
+            ],
+            [
+              120,
+              0.9008
+            ]
+          ]
+        },
+        {
+          "fn": "0.9",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.9,
+          "text": "target 1 - alpha = 0.9"
+        }
+      ]
+    }
+  }
+]

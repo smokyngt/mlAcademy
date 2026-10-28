@@ -1,0 +1,17 @@
+[
+  { "id": "math.13.c1", "front": "Estimateur contre estimation", "back": "Un estimateur est une fonction des données aléatoires (une recette, elle-même variable aléatoire) ; une estimation est sa valeur sur un jeu de données." },
+  { "id": "math.13.c2", "front": "Biais et variance d'un estimateur", "back": "$\\text{bias}=\\mathbb E[\\hat\\theta]-\\theta$ ; $\\text{Var}=\\mathbb E[(\\hat\\theta-\\mathbb E\\hat\\theta)^2]$. Erreur quadratique espérée $=\\text{bias}^2+\\text{Var}$." },
+  { "id": "math.13.c3", "front": "Erreur standard de la moyenne empirique", "back": "$\\sigma/\\sqrt N$. Quatre fois plus de données divise la barre d'erreur par deux." },
+  { "id": "math.13.c4", "front": "Variance empirique non biaisée", "back": "$s^2=\\frac1{N-1}\\sum(x_n-\\bar x)^2$. Diviser par $N$ donne $\\mathbb E=\\frac{N-1}{N}\\sigma^2$, biaisé vers le bas." },
+  { "id": "math.13.c5", "front": "Log-vraisemblance négative", "back": "$L(\\theta)=-\\sum_n\\log p(y_n\\mid x_n,\\theta)$. Les logs transforment le produit sur les exemples en somme ; le moins transforme maximiser en minimiser." },
+  { "id": "math.13.c6", "front": "Pourquoi un bruit gaussien donne-t-il les moindres carrés ?", "back": "Le $-\\log$ de $\\mathcal N(y\\mid x^\\top\\theta,\\sigma^2)$ vaut $\\frac{(y-x^\\top\\theta)^2}{2\\sigma^2}$ plus une constante en $\\theta$, donc la NLL est une somme d'erreurs quadratiques mise à l'échelle." },
+  { "id": "math.13.c7", "front": "Estimation MAP", "back": "$\\arg\\min_\\theta[-\\log p(x\\mid\\theta)-\\log p(\\theta)]$ : maximiser l'a posteriori $\\propto$ vraisemblance $\\times$ a priori ; $p(x)$ est ignoré." },
+  { "id": "math.13.c8", "front": "La régularisation L2 comme a priori", "back": "Un a priori $\\theta\\sim\\mathcal N(0,\\tau^2I)$ avec un bruit $\\sigma^2$ donne ridge avec $\\lambda=\\sigma^2/\\tau^2$ (Bishop : $\\lambda=\\alpha/\\beta$). Un a priori de Laplace donne L1." },
+  { "id": "math.13.c9", "front": "Qu'est-ce qu'une p-valeur ?", "back": "$P(\\text{statistic at least this extreme}\\mid H_0)$. Ce n'est pas $P(H_0\\mid\\text{data})$ et ce n'est pas une taille d'effet." },
+  { "id": "math.13.c10", "front": "Lecture correcte d'un intervalle de confiance à 95 %", "back": "La procédure capture la vraie valeur dans 95 % des expériences répétées ; un intervalle calculé la contient ou non." },
+  { "id": "math.13.c11", "front": "Comparaisons multiples", "back": "$m$ tests indépendants au niveau $\\alpha$ donnent une probabilité $1-(1-\\alpha)^m$ de faux positif ($0.64$ pour $m=20$). Bonferroni : tester à $\\alpha/m$." },
+  { "id": "math.13.c12", "front": "Statistique t appariée pour comparer des modèles", "back": "Avec les différences par pli $d_i$ : $t=\\bar d/(s_d/\\sqrt K)$, $K-1$ degrés de liberté. Les plis partagent des données d'entraînement donc le test est quelque peu optimiste." },
+  { "id": "math.13.c13", "front": "Intervalle de confiance bootstrap", "back": "Rééchantillonne les données avec remise $B$ fois, recalcule la statistique, prends les 2.5e et 97.5e percentiles. Aucune formule de distribution nécessaire." },
+  { "id": "math.13.c14", "front": "Signification statistique contre pratique", "back": "Avec un énorme $N$, une différence triviale obtient une minuscule p-valeur. Rapporte une taille d'effet (différence en unités de la métrique, $d$ de Cohen) à côté." },
+  { "id": "math.13.c15", "front": "Erreur standard d'une exactitude", "back": "$\\sqrt{\\hat p(1-\\hat p)/N}$ ; pour $\\hat p=0.87$, $N=500$ elle vaut $0.015$, donc un intervalle à 95 % est d'environ $\\pm0.03$." }
+]

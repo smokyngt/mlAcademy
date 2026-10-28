@@ -1,0 +1,10 @@
+{
+ "id": "gen.02.ex1",
+ "title": "Petite perte de VAE et gradients de reparamétrisation",
+ "prompt": "Implémente les éléments d'un petit VAE avec un décodeur linéaire et vérifie les gradients de l'échantillon reparamétré.\n\n- `kl_to_std_normal(mu, logvar)` : $\\tfrac12\\sum(\\mu^2+e^{\\text{logvar}}-\\text{logvar}-1)$ sur le dernier axe.\n- `kl_gauss_1d(m1, s1, m2, s2)` : KL entre deux gaussiennes 1-D (écarts-types, pas variances).\n- `reparameterize(mu, logvar, eps)` : $z=\\mu+e^{\\text{logvar}/2}\\varepsilon$.\n- `vae_loss(x, mu, logvar, eps, W, b, beta=1.0)` : renvoie `(total, reconstruction, kl)` où reconstruction $=\\sum(x-(Wz+b))^2$ et total $=$ rec $+\\beta\\,$KL.\n- `vae_grads(x, mu, logvar, eps, W, b, beta=1.0)` : gradients analytiques `(dmu, dlogvar)` de la perte totale avec le bruit `eps` maintenu fixe.\n\nLes tests comparent tes gradients à des différences finies centrées.",
+ "hints": [
+  "dL/dz pour la reconstruction vaut 2 W^T (xhat - x).",
+  "dz/dmu = 1 et dz/dlogvar = 0.5 * exp(0.5*logvar) * eps ; ajoute les gradients de la KL, mu et 0.5*(exp(logvar)-1), multipliés par beta.",
+  "Vérifie chaque gradient avec (f(v+h)-f(v-h))/(2h), h=1e-6."
+ ]
+}

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "aud.04.c1",
+  "concept": "aud.ctc",
+  "front": "CTC path probability and transcript probability",
+  "back": "$P(\\pi|x)=\\prod_tp_t(\\pi_t)$; $P(y|x)=\\sum_{\\pi\\in\\mathcal B^{-1}(y)}P(\\pi|x)$; loss $=-\\log P(y|x)$."
+ },
+ {
+  "id": "aud.04.c2",
+  "concept": "aud.ctc",
+  "front": "Collapse map $\\mathcal B$",
+  "back": "Merge consecutive repeats, then delete blanks (a a _ a b b _ c becomes a a b c)."
+ },
+ {
+  "id": "aud.04.c3",
+  "concept": "aud.ctc",
+  "front": "Why a blank symbol?",
+  "back": "Allows 'no emission' at a frame and separates equal consecutive labels such as the double l in 'hello'."
+ },
+ {
+  "id": "aud.04.c4",
+  "concept": "aud.ctc",
+  "front": "Extended label sequence",
+  "back": "$l'=(\\varnothing,y_1,\\varnothing,\\dots,y_U,\\varnothing)$ with length $S=2U+1$."
+ },
+ {
+  "id": "aud.04.c5",
+  "concept": "aud.ctc",
+  "front": "CTC forward recursion",
+  "back": "$\\alpha_t(s)=p_t(l'_s)[\\alpha_{t-1}(s)+\\alpha_{t-1}(s-1)+\\mathbb 1\\{l'_s\\ne\\varnothing,l'_s\\ne l'_{s-2}\\}\\alpha_{t-1}(s-2)]$."
+ },
+ {
+  "id": "aud.04.c6",
+  "concept": "aud.ctc",
+  "front": "CTC initialisation and termination",
+  "back": "$\\alpha_1(1)=p_1(\\varnothing)$, $\\alpha_1(2)=p_1(y_1)$; $P(y|x)=\\alpha_T(S)+\\alpha_T(S-1)$."
+ },
+ {
+  "id": "aud.04.c7",
+  "concept": "aud.ctc",
+  "front": "CTC cost and feasibility",
+  "back": "$O(T\\cdot U)$; impossible (probability 0) when $T<U+$ number of adjacent equal target pairs."
+ },
+ {
+  "id": "aud.04.c8",
+  "concept": "aud.ctc",
+  "front": "CTC conditional independence assumption",
+  "back": "Frames are predicted independently, so CTC has no internal language model; fix with an external LM in beam search."
+ },
+ {
+  "id": "aud.04.c9",
+  "concept": "aud.ctc",
+  "front": "Greedy vs prefix beam search",
+  "back": "Greedy takes the best path; prefix beam search tracks $p_b$ and $p_{nb}$ per prefix and merges paths with the same prefix, approximating the best transcript."
+ },
+ {
+  "id": "aud.04.c10",
+  "concept": "aud.asr",
+  "front": "RNN-T components",
+  "back": "Encoder over audio, prediction network over past labels, joiner producing a distribution over $V+1$ symbols; lattice $T\\times(U+1)\\times(V+1)$."
+ },
+ {
+  "id": "aud.04.c11",
+  "concept": "aud.asr",
+  "front": "Attention encoder-decoder factorisation",
+  "back": "$P(y|x)=\\prod_uP(y_u|y_{<u},\\mathrm{Enc}(x))$ with cross-attention; no alignment constraint, autoregressive."
+ },
+ {
+  "id": "aud.04.c12",
+  "concept": "aud.asr",
+  "front": "Whisper input and encoder length",
+  "back": "30 s log-mel (80, 3000), stride-2 conv gives 1500 positions of 20 ms; task chosen by special tokens in the decoder prompt."
+ },
+ {
+  "id": "aud.04.c13",
+  "concept": "aud.asr",
+  "front": "Whisper failure modes",
+  "back": "Hallucination on silence (use VAD), cascading errors from conditioning on previous text, padded short clips, wrong mel statistics."
+ },
+ {
+  "id": "aud.04.c14",
+  "concept": "aud.wer",
+  "front": "Edit distance recursion",
+  "back": "$D[i][j]=\\min(D[i-1][j]+1,\\ D[i][j-1]+1,\\ D[i-1][j-1]+\\mathbb 1\\{r_i\\ne h_j\\})$, $D[i][0]=i$, $D[0][j]=j$."
+ },
+ {
+  "id": "aud.04.c15",
+  "concept": "aud.wer",
+  "front": "WER definition and properties",
+  "back": "$(S+D+I)/N$ over reference words; can exceed 1; normalise case/punctuation first; CER is the character version."
+ }
+]

@@ -1,0 +1,16 @@
+[
+  { "id": "cml.18.c1", "concept": "ml.uncertainty", "front": "Aleatoric vs epistemic uncertainty", "back": "Aleatoric: irreducible noise in the process. Epistemic: the model's ignorance because of limited data; shrinks with more data." },
+  { "id": "cml.18.c2", "concept": "ml.uncertainty", "front": "Temperature scaling: formula and effect", "back": "$p_k=\\mathrm{softmax}(z/T)$. $T>1$ flattens (less confident), $T<1$ sharpens. The arg-max, hence accuracy, never changes." },
+  { "id": "cml.18.c3", "concept": "ml.uncertainty", "front": "How is the temperature fitted?", "back": "Minimise the held-out negative log-likelihood over the single scalar $T$ (1-D search such as golden section). Never on the training set." },
+  { "id": "cml.18.c4", "concept": "ml.uncertainty", "front": "Isotonic calibration", "back": "Fit a monotone non-decreasing map from score to probability (pool adjacent violators). Flexible but needs more data; cannot fix poor ranking." },
+  { "id": "cml.18.c5", "concept": "ml.uncertainty", "front": "Does calibration change AUC?", "back": "No: a strictly increasing map of scores keeps the ranking. Calibration changes confidence, not discrimination." },
+  { "id": "cml.18.c6", "concept": "ml.uncertainty", "front": "Bootstrap ensemble for epistemic uncertainty", "back": "Fit $B$ models on resamples with replacement; the std of their predictions at $x$ estimates the epistemic spread." },
+  { "id": "cml.18.c7", "concept": "ml.uncertainty", "front": "Deep ensemble predictive variance", "back": "Mean of member noise variances (aleatoric) plus variance of member means (epistemic)." },
+  { "id": "cml.18.c8", "concept": "ml.uncertainty", "front": "Bayesian linear regression posterior", "back": "$S_N^{-1}=\\alpha I+\\beta\\Phi^\\top\\Phi$, $m_N=\\beta S_N\\Phi^\\top t$. The mean equals ridge with $\\lambda=\\alpha/\\beta$." },
+  { "id": "cml.18.c9", "concept": "ml.uncertainty", "front": "Bayesian linear regression predictive variance", "back": "$\\sigma_N^2(x)=\\beta^{-1}+\\phi(x)^\\top S_N\\phi(x)$: noise plus parameter uncertainty. Shapes: $\\phi\\in\\mathbb R^M$, $S_N\\in\\mathbb R^{M\\times M}$." },
+  { "id": "cml.18.c10", "concept": "ml.uncertainty", "front": "Prediction interval vs confidence interval for the mean", "back": "A prediction interval covers a new observation (includes noise); a confidence interval for $f(x)$ omits the noise term and is narrower." },
+  { "id": "cml.18.c11", "concept": "ml.conformal", "front": "Split conformal recipe", "back": "Fit on proper train; compute scores $s_i$ on $n$ held-out points; $\\hat q$ = $\\lceil (n+1)(1-\\alpha)\\rceil$-th smallest; interval $\\hat f(x)\\pm\\hat q$." },
+  { "id": "cml.18.c12", "concept": "ml.conformal", "front": "Conformal coverage theorem", "back": "Under exchangeability and no ties: $1-\\alpha\\le P(y\\in C(x))\\le 1-\\alpha+1/(n+1)$, for any model." },
+  { "id": "cml.18.c13", "concept": "ml.conformal", "front": "Core idea of the conformal proof", "back": "The test score's rank among $n+1$ exchangeable scores is uniform; it is below the $k$-th calibration score with probability $k/(n+1)$." },
+  { "id": "cml.18.c14", "concept": "ml.conformal", "front": "Limits of conformal guarantees", "back": "Marginal, not conditional coverage; breaks under distribution shift or drifting time series; a poor model gives valid but wide intervals." }
+]

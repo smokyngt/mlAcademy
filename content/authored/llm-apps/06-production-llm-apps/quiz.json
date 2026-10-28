@@ -1,0 +1,133 @@
+[
+ {
+  "id": "app.06.q1",
+  "concept": "app.production",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why is output length usually the biggest lever on latency?",
+  "options": [
+   "output tokens are free",
+   "generation time is roughly tokens divided by speed, so 400 tokens at 80 tokens/s is 5 s",
+   "input tokens are slower",
+   "networks are slow"
+  ],
+  "answer": 1,
+  "explanation": "Decoding is sequential: time grows linearly with the number of generated tokens."
+ },
+ {
+  "id": "app.06.q2",
+  "concept": "app.production",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Each attempt fails with probability 0.5; up to 3 attempts, failed attempts are billed. Expected cost relative to one attempt?",
+  "options": [],
+  "answer": {
+   "value": 1.75,
+   "tol": 0.001
+  },
+  "explanation": "1 + 0.5 + 0.25 = (1 - 0.5^3)/(1 - 0.5) = 1.75."
+ },
+ {
+  "id": "app.06.q3",
+  "concept": "app.production",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "The main model call costs 0.015 of a 0.015226 dollar request. What is the main call's share of cost (percent, one decimal)?",
+  "options": [],
+  "answer": {
+   "value": 98.5,
+   "tol": 0.1
+  },
+  "explanation": "0.015 / 0.015226 = 0.985."
+ },
+ {
+  "id": "app.06.q4",
+  "concept": "app.production",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which practice improves PERCEIVED latency without changing total generation time?",
+  "options": [
+   "longer prompts",
+   "retrying twice",
+   "logging more",
+   "streaming tokens as they are produced"
+  ],
+  "answer": 3,
+  "explanation": "Users see output after the time-to-first-token instead of waiting for the whole answer."
+ },
+ {
+  "id": "app.06.q5",
+  "concept": "app.agent-graph",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In a graph runner, what does a reducer on the messages field do?",
+  "options": [
+   "deletes old messages",
+   "validates JSON",
+   "defines how an update is merged into the existing value (for example append)",
+   "chooses the next node"
+  ],
+  "answer": 2,
+  "explanation": "Without it the default is overwrite, and the history is lost silently."
+ },
+ {
+  "id": "app.06.q6",
+  "concept": "app.agent-graph",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "An interrupt before the 'tools' node is used to...",
+  "options": [
+   "speed up the run",
+   "pause for human approval before a risky action and resume later from the saved state",
+   "skip the node",
+   "retry the model"
+  ],
+  "answer": 1,
+  "explanation": "State persists across the interrupt, so execution can resume exactly where it stopped."
+ },
+ {
+  "id": "app.06.q7",
+  "concept": "app.agent-graph",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why set max_steps on an agent graph?",
+  "options": [
+   "to bound cost and time when the model keeps requesting tools",
+   "to reduce token prices",
+   "because JSON requires it",
+   "to enable streaming"
+  ],
+  "answer": 0,
+  "explanation": "A loop without a cap can run indefinitely; the cap makes the worst case finite."
+ },
+ {
+  "id": "app.06.q8",
+  "concept": "app.agent-graph",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What does MCP standardise?",
+  "options": [
+   "which tool the model should choose",
+   "model weights",
+   "prompt wording",
+   "how hosts discover and call tools, resources and prompts on servers over JSON-RPC"
+  ],
+  "answer": 3,
+  "explanation": "It is a communication protocol; it does not decide tool choice or make untrusted content safe."
+ },
+ {
+  "id": "app.06.q9",
+  "concept": "app.agent-graph",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A third-party MCP server returns text containing instructions. How should the host treat it?",
+  "options": [
+   "as trusted system instructions",
+   "as already sanitised by the protocol",
+   "as untrusted data, subject to the same guardrails and approvals as any tool output",
+   "as a higher-priority prompt"
+  ],
+  "answer": 2,
+  "explanation": "MCP does not sanitise content; tool results can carry injection."
+ }
+]

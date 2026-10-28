@@ -1,0 +1,127 @@
+[
+ {
+  "id": "vis.05.q1",
+  "concept": "vis.patch-embed",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A ViT cuts a $224\\times224$ image into $16\\times16$ patches. How many patch tokens result (before adding any class token)?",
+  "options": [
+   "196",
+   "14",
+   "49",
+   "256"
+  ],
+  "answer": 0,
+  "explanation": "$(224/16)^2=14^2=196$."
+ },
+ {
+  "id": "vis.05.q2",
+  "concept": "vis.patch-embed",
+  "kind": "mcq",
+  "prompt": "Halving the patch size from 16 to 8 changes the size of each attention matrix by a factor of...",
+  "options": [
+   "2",
+   "8",
+   "16",
+   "4"
+  ],
+  "answer": 2,
+  "explanation": "Tokens quadruple, and attention entries scale with tokens squared: $4^2=16$."
+ },
+ {
+  "id": "vis.05.q3",
+  "concept": "vis.patch-embed",
+  "kind": "mcq",
+  "prompt": "Why does a ViT add positional embeddings?",
+  "options": [
+   "To reduce the number of tokens",
+   "Attention alone is permutation-equivariant and cannot tell where a patch came from",
+   "To make patches overlap",
+   "To normalise the colours"
+  ],
+  "answer": 1,
+  "explanation": "Without positions, shuffling patches would not change the set of attention outputs (only reorder them)."
+ },
+ {
+  "id": "vis.05.q4",
+  "concept": "vis.patch-embed",
+  "kind": "mcq",
+  "prompt": "Which statement about inductive bias is correct?",
+  "options": [
+   "ViTs build in locality; CNNs do not",
+   "Neither depends on data size",
+   "Both have identical biases",
+   "CNNs build in locality and translation equivariance; ViTs must learn them"
+  ],
+  "answer": 3,
+  "explanation": "Weight sharing and small kernels give CNNs these priors; a plain ViT has few, which is why recipes and pre-training matter."
+ },
+ {
+  "id": "vis.05.q5",
+  "concept": "vis.contrastive",
+  "kind": "mcq",
+  "prompt": "In SimCLR, what counts as a positive pair?",
+  "options": [
+   "An image and its caption",
+   "Two images of the same class label",
+   "Two random augmentations of the same image",
+   "Adjacent frames of any video"
+  ],
+  "answer": 2,
+  "explanation": "No labels are used; the pairing comes from the augmentation process."
+ },
+ {
+  "id": "vis.05.q6",
+  "concept": "vis.contrastive",
+  "kind": "numeric",
+  "prompt": "A batch has $N=8$ images, so $2N=16$ views. If all similarities are equal, the NT-Xent loss equals $\\log(2N-1)$. What is it (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 2.708,
+   "tol": 0.002
+  },
+  "explanation": "$\\ln15=2.708$."
+ },
+ {
+  "id": "vis.05.q7",
+  "concept": "vis.contrastive",
+  "kind": "mcq",
+  "prompt": "Lowering the temperature $\\tau$ in NT-Xent does what?",
+  "options": [
+   "Removes the need for negatives",
+   "Changes the embedding dimension",
+   "Flattens the softmax so all negatives weigh the same",
+   "Sharpens the softmax, focusing on the hardest negatives"
+  ],
+  "answer": 3,
+  "explanation": "Dividing similarities by a small $\\tau$ makes large similarities dominate the softmax and the gradient."
+ },
+ {
+  "id": "vis.05.q8",
+  "concept": "vis.contrastive",
+  "kind": "mcq",
+  "prompt": "How does DINO avoid collapsing to a constant output without negatives?",
+  "options": [
+   "Dropout",
+   "A centred and sharpened EMA teacher",
+   "Label smoothing",
+   "Larger batch sizes"
+  ],
+  "answer": 1,
+  "explanation": "Centring prevents one dimension dominating; sharpening prevents collapse to a uniform output."
+ },
+ {
+  "id": "vis.05.q9",
+  "concept": "vis.contrastive",
+  "kind": "mcq",
+  "prompt": "Why does MAE mask 75% of patches while BERT masks 15% of tokens?",
+  "options": [
+   "Images are larger",
+   "It speeds up the decoder only",
+   "Neighbouring pixels are highly redundant, so a low ratio can be solved by interpolation",
+   "ViTs cannot process more tokens"
+  ],
+  "answer": 2,
+  "explanation": "Image patches carry low information beyond their neighbourhood; aggressive masking forces semantic representations."
+ }
+]

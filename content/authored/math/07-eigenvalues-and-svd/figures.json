@@ -1,0 +1,122 @@
+[
+  {
+    "id": "eigen-directions",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "A = [[4,2],[1,3]] sends the unit circle (grey) to an ellipse (blue). Eigenvectors keep their direction: the unit vector along (2, 1) is stretched by 5 (orange arrows), and the one along (1, −1) by 2 (green arrows).",
+      "fr": "A = [[4,2],[1,3]] envoie le cercle unité (gris) sur une ellipse (bleu). Les vecteurs propres gardent leur direction : le vecteur unitaire le long de (2, 1) est étiré d'un facteur 5 (flèches orange), celui le long de (1, −1) d'un facteur 2 (flèches vertes)."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -5,
+        5
+      ],
+      "height": 400,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "x*x + y*y - 1",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "(3*x-2*y)^2 + (4*y-x)^2 - 100",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.8944,
+            0.4472
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            4.4721,
+            2.2361
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.7071,
+            -0.7071
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            1.4142,
+            -1.4142
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "diagonalisation-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Diagonalisation A = P D P⁻¹: change to the eigenbasis, scale each axis by its eigenvalue, change back.",
+      "fr": "Diagonalisation A = P D P⁻¹ : on passe dans la base propre, on étire chaque axe par sa valeur propre, on revient."
+    },
+    "code": {
+      "en": "flowchart LR\n  x[\"x\"] -->|\"P^-1: coordinates in eigenbasis\"| c[\"c\"] -->|\"D: scale axis i by lambda_i\"| d[\"D c\"] -->|\"P: back to standard basis\"| y[\"Ax\"]",
+      "fr": "flowchart LR\n  x[\"x\"] -->|\"P^-1 : coordonnées dans la base propre\"| c[\"c\"] -->|\"D : étire l'axe i par lambda_i\"| d[\"D c\"] -->|\"P : retour à la base canonique\"| y[\"Ax\"]"
+    }
+  },
+  {
+    "id": "svd-three-steps",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The SVD A = UΣVᵀ reads as rotate (Vᵀ), stretch along the axes by the singular values (Σ), rotate again (U). Every linear map is that composition.",
+      "fr": "La SVD A = UΣVᵀ se lit : tourner (Vᵀ), étirer le long des axes par les valeurs singulières (Σ), tourner à nouveau (U). Toute application linéaire est cette composition."
+    },
+    "code": {
+      "en": "flowchart LR\n  x[\"x (unit circle)\"] -->|\"V^T: rotate/reflect\"| a[\"circle\"] -->|\"Sigma: stretch by sigma_1, sigma_2\"| b[\"axis-aligned ellipse\"] -->|\"U: rotate/reflect\"| y[\"Ax (ellipse)\"]",
+      "fr": "flowchart LR\n  x[\"x (cercle unité)\"] -->|\"V^T : rotation/réflexion\"| a[\"cercle\"] -->|\"Sigma : étirement par sigma_1, sigma_2\"| b[\"ellipse alignée sur les axes\"] -->|\"U : rotation/réflexion\"| y[\"Ax (ellipse)\"]"
+    }
+  },
+  {
+    "id": "manim-eigenvectors",
+    "after": 3,
+    "kind": "video",
+    "caption": {
+      "en": "Manim: a generic vector turns under the map, eigenvectors only stretch along their own line.",
+      "fr": "Manim : un vecteur quelconque tourne, les vecteurs propres s'étirent seulement le long de leur droite."
+    },
+    "src": "/manim/Eigenvectors.mp4"
+  }
+]

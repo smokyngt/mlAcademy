@@ -1,0 +1,6 @@
+[
+  { "id": "la.vector-space", "title": "Vector spaces, subspaces, span and independence", "description": "The vector-space axioms in plain words, subspaces (and non-examples), span, linear independence and the column space.", "stage": "I", "prereqs": ["la.vector", "la.matrix", "la.linear-systems"] },
+  { "id": "la.basis", "title": "Basis, dimension, coordinates and change of basis", "description": "Bases and dimension, rank-nullity, coordinates with respect to a basis, the change-of-basis matrix and similar matrices.", "stage": "I", "prereqs": ["la.vector-space", "la.linear-map"] },
+  { "id": "la.projection", "title": "Orthogonality and orthogonal projection", "description": "Orthogonal and orthonormal bases, orthogonal matrices (Q^T Q = I), the orthogonal complement and the projection matrix A (A^T A)^-1 A^T.", "stage": "I", "prereqs": ["la.basis", "la.dot"] },
+  { "id": "la.qr", "title": "Gram-Schmidt, QR and least squares via QR", "description": "Gram-Schmidt (classical and modified), A = QR, solving least squares by back-substitution and why this is more stable than the normal equations.", "stage": "I", "prereqs": ["la.projection", "num.stability"] }
+]

@@ -1,0 +1,28 @@
+{
+  "cap.mlp-from-scratch": {
+    "title": "Projet de synthèse 1 : un réseau de neurones validé, écrit à partir de zéro",
+    "brief": "Construis, entraîne et valide rigoureusement un réseau de neurones à deux couches sans autograd, puis explique-le et cherche où il casse. Tu as terminé seulement quand chaque critère s'appuie sur une preuve écrite que tu serais prêt·e à défendre devant un relecteur.",
+    "criteria": {
+      "gradients": {
+        "text": "Ta passe arrière est égale à la fois aux différences finies et à l'autograd de PyTorch.",
+        "evidence": "Colle l'erreur relative maximale de ta vérification de gradient et de la comparaison PyTorch en float64 (exercice de la leçon 12). Indique les tailles du réseau et le batch utilisés."
+      },
+      "derivation": {
+        "text": "Tu sais dériver toi-même chaque gradient et chaque forme.",
+        "evidence": "Écris avec tes propres mots la dérivation de dW1, db1, dW2, db2, avec les formes, comme si tu l'enseignais à quelqu'un qui ne connaît que les leçons 1 à 6."
+      },
+      "experiments": {
+        "text": "Tu as mené une expérience contrôlée sur le taux d'apprentissage (ou la largeur, ou l'initialisation) et tu l'as interprétée.",
+        "evidence": "Fournis un tableau de taux d'apprentissage avec la perte et la précision finales sur au moins 3 graines chacun, puis explique ce que la théorie (leçon 7) prédit pour le plus grand taux stable."
+      },
+      "failure": {
+        "text": "Tu as trouvé et expliqué un cas d'échec.",
+        "evidence": "Décris une configuration où l'entraînement échoue (diverge, stagne à ln K, ReLU morts...), le diagnostic qui l'a révélée et la correction."
+      },
+      "limits": {
+        "text": "Tu sais énoncer les limites de ton implémentation.",
+        "evidence": "Liste au moins trois choses que la version écrite à partir de zéro ne fait pas et qu'un framework de production fait (par exemple garde-fous numériques, performance, généralité), et indique comment tu testerais chacune."
+      }
+    }
+  }
+}

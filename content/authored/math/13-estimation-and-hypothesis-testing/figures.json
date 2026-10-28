@@ -1,0 +1,37 @@
+[
+  {
+    "id": "mle-map-pipeline", "after": 3, "kind": "mermaid",
+    "caption": { "en": "Maximum likelihood uses only the data; MAP adds a prior. A Gaussian prior on the weights turns into an L2 penalty on the loss.", "fr": "Le maximum de vraisemblance n'utilise que les données ; le MAP ajoute un a priori. Un a priori gaussien sur les poids devient une pénalité L2 sur la perte." },
+    "code": {
+      "en": "flowchart LR\n  D[\"data\"] --> LL[\"log-likelihood\"] --> MLE[\"MLE: argmax\"]\n  PR[\"prior: Gaussian on w\"] --> LP[\"log-prior = -lambda ||w||^2\"]\n  LL --> SUM((\"+\"))\n  LP --> SUM\n  SUM --> MAP[\"MAP: argmax = loss + L2 penalty\"]",
+      "fr": "flowchart LR\n  D[\"données\"] --> LL[\"log-vraisemblance\"] --> MLE[\"MLE : argmax\"]\n  PR[\"a priori : gaussien sur w\"] --> LP[\"log-a priori = -lambda ||w||^2\"]\n  LL --> SUM((\"+\"))\n  LP --> SUM\n  SUM --> MAP[\"MAP : argmax = perte + pénalité L2\"]"
+    }
+  },
+  {
+    "id": "map-shrinkage", "after": 5, "kind": "plot",
+    "caption": { "en": "Shrinkage: the MAP weight ŵ = 15.2/(14 + λ) falls from 1.0857 (λ = 0, maximum likelihood) to 1.0133 (λ = 1) and 0.8 (λ = 5). A stronger prior pulls the weight toward zero.", "fr": "Rétrécissement : le poids MAP ŵ = 15,2/(14 + λ) passe de 1,0857 (λ = 0, maximum de vraisemblance) à 1,0133 (λ = 1) et 0,8 (λ = 5). Un a priori plus fort tire le poids vers zéro." },
+    "spec": { "xDomain": [0, 20], "yDomain": [0, 1.3], "height": 300,
+      "data": [
+        { "fn": "15.2/(14+x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0, 1.0857], [1, 1.0133], [5, 0.8]] }
+      ] }
+  },
+  {
+    "id": "ci-tails", "after": 6, "kind": "plot",
+    "caption": { "en": "The sampling distribution of the standardised estimate: a 95% confidence interval keeps the central 95% (blue) and leaves 2.5% in each tail (red, beyond ±1.96). The same shaded tails give the two-sided p-value of a test.", "fr": "La distribution d'échantillonnage de l'estimateur standardisé : un intervalle de confiance à 95 % garde les 95 % centraux (bleu) et laisse 2,5 % dans chaque queue (rouge, au-delà de ±1,96). Les mêmes queues ombrées donnent la p-valeur bilatérale d'un test." },
+    "spec": { "xDomain": [-4, 4], "yDomain": [-0.02, 0.45], "height": 300,
+      "data": [
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#2563eb" },
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#dc2626", "range": [1.96, 4], "closed": true },
+        { "fn": "exp(-x^2/2)/sqrt(2*3.14159265)", "color": "#dc2626", "range": [-4, -1.96], "closed": true }
+      ] }
+  },
+  {
+    "id": "bootstrap-flow", "after": 6, "kind": "mermaid",
+    "caption": { "en": "The bootstrap confidence interval: resample the data with replacement many times, recompute the statistic, and read the 2.5% and 97.5% percentiles.", "fr": "L'intervalle de confiance par bootstrap : rééchantillonner les données avec remise de nombreuses fois, recalculer la statistique, puis lire les percentiles 2,5 % et 97,5 %." },
+    "code": {
+      "en": "flowchart LR\n  D[\"sample of n values\"] --> R[\"resample n values with replacement\"] --> S[\"compute statistic\"] --> C[\"collect 5000 values\"]\n  S -.->|\"repeat\"| R\n  C --> P[\"2.5% and 97.5% percentiles\"] --> I[\"95% interval\"]",
+      "fr": "flowchart LR\n  D[\"échantillon de n valeurs\"] --> R[\"rééchantillonner n valeurs avec remise\"] --> S[\"calculer la statistique\"] --> C[\"collecter 5000 valeurs\"]\n  S -.->|\"répéter\"| R\n  C --> P[\"percentiles 2,5 % et 97,5 %\"] --> I[\"intervalle à 95 %\"]"
+    }
+  }
+]

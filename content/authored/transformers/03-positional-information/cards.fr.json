@@ -1,0 +1,16 @@
+[
+  {"id": "trf.03.c1", "front": "Pourquoi un transformer a-t-il besoin d'information de position ?", "back": "L'attention est équivariante par permutation : $Z(PX)=PZ(X)$. Sans signal de position, l'ordre des mots est invisible."},
+  {"id": "trf.03.c2", "front": "Formule de l'encodage sinusoïdal", "back": "$PE_{p,2i}=\\sin(p\\,\\omega_i)$, $PE_{p,2i+1}=\\cos(p\\,\\omega_i)$, $\\omega_i=10000^{-2i/d}$. Forme $(T,d)$, ajouté aux embeddings."},
+  {"id": "trf.03.c3", "front": "Pourquoi sinus et cosinus par paires ?", "back": "Un décalage de $k$ devient une rotation fixe de chaque paire, indépendante de $p$ : une application linéaire que le modèle peut apprendre."},
+  {"id": "trf.03.c4", "front": "Fréquences multi-échelles", "back": "Les paires rapides distinguent les voisins, les paires lentes encodent la localisation grossière (comme les aiguilles des secondes, minutes et heures)."},
+  {"id": "trf.03.c5", "front": "Embeddings de position appris", "back": "Table entraînable $(T_{\\max},d)$ ajoutée aux embeddings de tokens (GPT-2). Pas de lignes au-delà de $T_{\\max}$ ; $T_{\\max}d$ paramètres."},
+  {"id": "trf.03.c6", "front": "RoPE en une phrase", "back": "Faire tourner chaque paire de coordonnées de $q$ et $k$ d'un angle $m\\theta_i$ proportionnel à la position ; le produit scalaire ne dépend alors que de $m-n$."},
+  {"id": "trf.03.c7", "front": "Matrice de rotation 2-D et ses identités clés", "back": "$R(\\phi)=\\begin{pmatrix}\\cos\\phi&-\\sin\\phi\\\\\\sin\\phi&\\cos\\phi\\end{pmatrix}$ ; $R(\\phi)^\\top=R(-\\phi)$, $R(a)R(b)=R(a+b)$."},
+  {"id": "trf.03.c8", "front": "Propriété clé de RoPE", "back": "$\\langle R_mq,R_nk\\rangle=q^\\top R_{n-m}k$ ; les positions absolues s'annulent."},
+  {"id": "trf.03.c9", "front": "Formule de RoPE par paire", "back": "$x'_{2i}=x_{2i}c-x_{2i+1}s$, $x'_{2i+1}=x_{2i}s+x_{2i+1}c$ avec $c,s=\\cos,\\sin(m\\theta_i)$, $\\theta_i=\\text{base}^{-2i/d_h}$."},
+  {"id": "trf.03.c10", "front": "RoPE change-t-il les normes ? Ajoute-t-il des paramètres ?", "back": "Non aux deux : les rotations préservent les normes et les angles sont des fonctions fixes de la position."},
+  {"id": "trf.03.c11", "front": "Où RoPE est-il appliqué ?", "back": "À $Q$ et $K$ (pas à $V$), par tête, dans chaque couche d'attention ; la forme reste $(B,h,T,d_h)$."},
+  {"id": "trf.03.c12", "front": "Forme close du score RoPE en 2-D", "back": "$\\cos\\phi\\,(q\\cdot k)+\\sin\\phi\\,(q_1k_2-q_2k_1)$ avec $\\phi=(m-n)\\theta$."},
+  {"id": "trf.03.c13", "front": "ALiBi en une ligne", "back": "Pas de vecteurs de position : on ajoute aux scores une pénalité propre à chaque tête $-m_h|i-j|$ ; mentionné dans la leçon source comme bon en extrapolation de longueur."},
+  {"id": "trf.03.c14", "front": "Masque causal et ordre", "back": "Le masque brise un peu la symétrie de permutation (un token ne voit que son préfixe) mais ne donne aucune information de distance."}
+]

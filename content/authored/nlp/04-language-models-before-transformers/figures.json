@@ -1,0 +1,134 @@
+[
+  {
+    "id": "addk-smoothing",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Add-k smoothing on the worked example (|V| = 9, c(the) = 6): P(cat | the) = (2 + k)/(6 + 9k) (blue, seen twice) and P(rug | the) = (1 + k)/(6 + 9k) (orange, seen once). k = 0 is the MLE (0.333 and 0.167); k = 1 gives 0.2 and 0.133. Smoothing takes mass from seen events; large k steals too much.",
+      "fr": "Lissage add-k sur l'exemple travaillé (|V| = 9, c(the) = 6) : P(cat | the) = (2 + k)/(6 + 9k) (bleu, vu deux fois) et P(rug | the) = (1 + k)/(6 + 9k) (orange, vu une fois). k = 0 est le MLE (0,333 et 0,167) ; k = 1 donne 0,2 et 0,133. Le lissage prend de la masse aux événements vus ; un k grand en prend trop."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3
+      ],
+      "yDomain": [
+        0,
+        0.4
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "(2+x)/(6+9*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(1+x)/(6+9*x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.3333
+            ],
+            [
+              1,
+              0.2
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.1667
+            ],
+            [
+              1,
+              0.1333
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "backoff-interp",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two ways to use lower-order evidence. Interpolation always mixes the bigram and unigram estimates; backoff uses the bigram when its count is positive and otherwise falls back (Katz discounts so the total stays 1; stupid backoff multiplies by about 0.4).",
+      "fr": "Deux façons d'utiliser l'information d'ordre inférieur. L'interpolation mélange toujours les estimations bigramme et unigramme ; le backoff utilise le bigramme si son compte est positif, sinon se rabat (Katz décompte pour garder un total de 1 ; le stupid backoff multiplie par environ 0,4)."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph IN[\"Interpolation\"]\n    direction LR\n    b1[\"P_MLE(w | v)\"] --> m1[\"lambda * bigram + (1 - lambda) * unigram\"]\n    u1[\"P_MLE(w)\"] --> m1\n    m1 --> p1[\"P_interp(w | v)\"]\n  end\n  subgraph BO[\"Backoff\"]\n    direction LR\n    q{\"c(v, w) > 0 ?\"} -- yes --> hb[\"use discounted bigram\"]\n    q -- no --> lu[\"back off to unigram\"]\n  end",
+      "fr": "flowchart TB\n  subgraph IN[\"Interpolation\"]\n    direction LR\n    b1[\"P_MLE(w | v)\"] --> m1[\"lambda * bigram + (1 - lambda) * unigram\"]\n    u1[\"P_MLE(w)\"] --> m1\n    m1 --> p1[\"P_interp(w | v)\"]\n  end\n  subgraph BO[\"Backoff\"]\n    direction LR\n    q{\"c(v, w) > 0 ?\"} -- oui --> hb[\"utiliser le bigramme décompté\"]\n    q -- non --> lu[\"se rabattre sur l'unigramme\"]\n  end"
+    }
+  },
+  {
+    "id": "perplexity",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Perplexity PP = exp(H) against the per-token cross-entropy H in nats. A model that is uniform over b words has H = ln b and PP = b: the uniform model over the 9 words of the worked example sits at (ln 9, 9). Lower is better.",
+      "fr": "Perplexité PP = exp(H) en fonction de l'entropie croisée par token H en nats. Un modèle uniforme sur b mots a H = ln b et PP = b : le modèle uniforme sur les 9 mots de l'exemple travaillé est en (ln 9, 9). Plus bas est mieux."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3.2
+      ],
+      "yDomain": [
+        0,
+        25
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2.1972,
+              9
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "neural-lm",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A feed-forward neural language model: each of the previous n-1 words becomes a dense embedding, the embeddings are concatenated, a hidden layer follows, and a softmax over the vocabulary gives the next-word distribution. Similar words get similar embeddings, so it generalises to unseen contexts.",
+      "fr": "Un modèle de langage neuronal feed-forward : chacun des n-1 mots précédents devient un embedding dense, les embeddings sont concaténés, une couche cachée suit, et un softmax sur le vocabulaire donne la distribution du mot suivant. Des mots proches ont des embeddings proches, d'où la généralisation aux contextes jamais vus."
+    },
+    "code": {
+      "en": "flowchart LR\n  C[\"previous n-1 words\"] --> EM[\"embedding lookup<br/>(n-1) x (d,)\"]\n  EM --> CC[\"concatenate<br/>((n-1)d,)\"]\n  CC --> HL[\"hidden layer<br/>(h,)\"]\n  HL --> SM[\"softmax<br/>(V,)\"]\n  SM --> NW[\"P(w | context)\"]\n  SM --> LS[\"loss: cross-entropy H, PP = exp(H)\"]",
+      "fr": "flowchart LR\n  C[\"n-1 mots précédents\"] --> EM[\"table d'embeddings<br/>(n-1) x (d,)\"]\n  EM --> CC[\"concaténer<br/>((n-1)d,)\"]\n  CC --> HL[\"couche cachée<br/>(h,)\"]\n  HL --> SM[\"softmax<br/>(V,)\"]\n  SM --> NW[\"P(w | contexte)\"]\n  SM --> LS[\"perte : entropie croisée H, PP = exp(H)\"]"
+    }
+  }
+]

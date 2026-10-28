@@ -1,0 +1,96 @@
+#@@ meta
+{"id": "cml.09.ex2", "title": "Multinomial and Gaussian naive Bayes in log space", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.naive-bayes"], "hints": ["mnb_fit: for each class c, counts_c = X[y == c].sum(0) + alpha; log_theta[c] = log(counts_c / counts_c.sum()). log_prior = log(class frequency).", "scores = X @ log_theta.T + log_prior has shape (N, C); posterior = softmax over classes (subtract the row max first).", "gnb_fit: per class means and variances (np.var, population variance) plus a floor 1e-9; log-likelihood = -0.5*log(2*pi*var) - (x-mu)**2/(2*var), summed over features."]}
+#@@ prompt
+Implement naive Bayes for count features and for continuous features. Classes are `0..C-1`.
+
+- `mnb_fit(X, y, alpha=1.0)` returns `(log_prior, log_theta)` with shapes `(C,)` and `(C, V)`, using Laplace smoothing $\theta_{ki}=(n_{ki}+\alpha)/(\sum_in_{ki}+\alpha V)$.
+- `mnb_scores(X, log_prior, log_theta)` returns the unnormalised log posteriors `(N, C)`.
+- `softmax_rows(S)` turns scores into posteriors, row-wise and numerically stable.
+- `mnb_predict(X, log_prior, log_theta)` returns the argmax class.
+- `gnb_fit(X, y)` returns `(log_prior, mu, var)` with `mu, var` of shape `(C, d)`; use the population variance plus `1e-9`.
+- `gnb_scores(X, log_prior, mu, var)` returns `(N, C)` log posteriors up to a constant; `gnb_predict` returns the argmax.
+#@@ starter
+import numpy as np
+
+def mnb_fit(X, y, alpha=1.0):
+    raise NotImplementedError
+
+def mnb_scores(X, log_prior, log_theta):
+    raise NotImplementedError
+
+def softmax_rows(S):
+    raise NotImplementedError
+
+def mnb_predict(X, log_prior, log_theta):
+    raise NotImplementedError
+
+def gnb_fit(X, y):
+    raise NotImplementedError
+
+def gnb_scores(X, log_prior, mu, var):
+    raise NotImplementedError
+
+def gnb_predict(X, log_prior, mu, var):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+spam = np.array([[3, 2, 0, 0], [2, 1, 0, 1], [1, 2, 1, 0]]); ham = np.array([[0, 0, 2, 3], [1, 0, 3, 1], [0, 1, 2, 2]])
+X = np.vstack([spam, ham]); y = np.array([1, 1, 1, 0, 0, 0])   # 1 = spam
+lp, lt = mnb_fit(X, y)
+check("priors are 1/2", lambda: np.allclose(np.exp(lp), [0.5, 0.5]))
+check("smoothed spam word probabilities (7,6,2,2)/17", lambda: np.allclose(np.exp(lt[1]), np.array([7, 6, 2, 2]) / 17))
+check("smoothed ham word probabilities (2,2,8,7)/19", lambda: np.allclose(np.exp(lt[0]), np.array([2, 2, 8, 7]) / 19))
+check("each class distribution sums to 1", lambda: np.allclose(np.exp(lt).sum(1), 1))
+doc = np.array([[2, 0, 1, 0]])
+S = mnb_scores(doc, lp, lt)
+check("log scores ham -6.061, spam -4.608", lambda: np.allclose(S[0], [-6.0607, -4.6078], atol=1e-3))
+check("posterior spam 0.810", lambda: abs(softmax_rows(S)[0, 1] - 0.8104) < 1e-3)
+check("softmax rows sum to 1 and is stable for huge scores", lambda: np.allclose(softmax_rows(np.array([[1000., 1001.]])).sum(1), 1) and not np.isnan(softmax_rows(np.array([[1000., 1001.]]))).any())
+check("predict spam", lambda: mnb_predict(doc, lp, lt).tolist() == [1])
+check("a 'meeting report' mail is ham", lambda: mnb_predict(np.array([[0, 0, 2, 2]]), lp, lt).tolist() == [0])
+Z = np.array([[5, 0], [4, 0], [0, 6], [0, 3]]); yz = np.array([0, 0, 1, 1])
+lp0, lt0 = mnb_fit(Z, yz, alpha=0.0)
+check("alpha=0 gives a zero probability for an unseen word", lambda: np.isneginf(lt0).any())
+lp1, lt1 = mnb_fit(Z, yz, alpha=1.0)
+check("alpha=1 keeps everything finite", lambda: np.isfinite(lt1).all())
+rng = np.random.default_rng(0)
+Xg = np.vstack([rng.normal([0, 0], [1, 1], (100, 2)), rng.normal([3, 2], [1, 2], (100, 2))]); yg = np.r_[np.zeros(100, int), np.ones(100, int)]
+lpg, mu, var = gnb_fit(Xg, yg)
+check("estimated means near the truth", lambda: np.allclose(mu, [[0, 0], [3, 2]], atol=0.4))
+check("estimated variances near the truth", lambda: abs(var[1, 1] - 4) < 1.2 and abs(var[0, 0] - 1) < 0.4)
+check("gaussian NB training accuracy > 0.9", lambda: (gnb_predict(Xg, lpg, mu, var) == yg).mean() > 0.9)
+check("scores have shape (N, C)", lambda: gnb_scores(Xg, lpg, mu, var).shape == (200, 2))
+#@@ solution
+import numpy as np
+
+def mnb_fit(X, y, alpha=1.0):
+    classes = np.unique(y)
+    log_prior = np.log(np.array([(y == c).mean() for c in classes]))
+    counts = np.array([X[y == c].sum(axis=0) for c in classes]).astype(float) + alpha
+    with np.errstate(divide="ignore"):
+        log_theta = np.log(counts / counts.sum(axis=1, keepdims=True))
+    return log_prior, log_theta
+
+def mnb_scores(X, log_prior, log_theta):
+    return X @ log_theta.T + log_prior
+
+def softmax_rows(S):
+    E = np.exp(S - S.max(axis=1, keepdims=True))
+    return E / E.sum(axis=1, keepdims=True)
+
+def mnb_predict(X, log_prior, log_theta):
+    return mnb_scores(X, log_prior, log_theta).argmax(axis=1)
+
+def gnb_fit(X, y):
+    classes = np.unique(y)
+    log_prior = np.log(np.array([(y == c).mean() for c in classes]))
+    mu = np.array([X[y == c].mean(axis=0) for c in classes])
+    var = np.array([X[y == c].var(axis=0) for c in classes]) + 1e-9
+    return log_prior, mu, var
+
+def gnb_scores(X, log_prior, mu, var):
+    ll = -0.5 * np.log(2 * np.pi * var)[None, :, :] - (X[:, None, :] - mu[None, :, :]) ** 2 / (2 * var[None, :, :])
+    return ll.sum(axis=2) + log_prior
+
+def gnb_predict(X, log_prior, mu, var):
+    return gnb_scores(X, log_prior, mu, var).argmax(axis=1)

@@ -1,0 +1,10 @@
+{
+  "id": "aud.01.ex1",
+  "title": "Découpage en trames, fenêtre de Hann, STFT, quantification et repliement",
+  "prompt": "Implémente la première étape de tout pipeline audio avec NumPy uniquement :\n\n- `frame_signal(x, frame_len, hop)` -> tableau de forme `(n_frames, frame_len)` avec `n_frames = 1 + (len(x) - frame_len) // hop` (sans remplissage ; supprime les trames incomplètes).\n- `hann(N)` -> la fenêtre de Hann **périodique** `0.5 - 0.5 cos(2 pi n / N)`.\n- `stft(x, n_fft, hop)` -> tableau complexe `(n_frames, n_fft // 2 + 1)` : découpe en trames, multiplie par la fenêtre de Hann, applique `np.fft.rfft` le long de l'axe des trames.\n- `quantize(x, bits)` -> signal arrondi au centre de l'un des `2**bits` niveaux couvrant `[-1, 1)` (pas `2 / 2**bits`).\n- `alias_freq(f, sr)` -> la fréquence à laquelle apparaît un son de `f` Hz après échantillonnage à `sr` Hz.\n- `bin_freq(k, n_fft, sr)` -> fréquence en Hz du bin `k` de la DFT.",
+  "hints": [
+    "frame_signal : n = 1 + (len(x) - frame_len) // hop ; construis une matrice d'indices np.arange(frame_len)[None, :] + hop * np.arange(n)[:, None] et renvoie x[idx].",
+    "hann(N) = 0.5 - 0.5 * cos(2 pi n / N) avec n = 0..N-1 (la forme périodique, qui divise par N, pas N-1). stft = rfft de (frames * window) le long de l'axe 1.",
+    "quantize : step = 2 / 2**bits ; q = clip(floor(x / step), -2**(bits-1), 2**(bits-1) - 1) ; renvoie (q + 0.5) * step. alias_freq : r = f % sr ; renvoie min(r, sr - r)."
+  ]
+}

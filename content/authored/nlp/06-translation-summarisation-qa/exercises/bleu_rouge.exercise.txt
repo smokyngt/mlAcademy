@@ -1,0 +1,100 @@
+#@@ meta
+{"id": "nlp.06.ex1", "title": "BLEU and ROUGE from scratch", "difficulty": 3, "runtime": "pyodide", "concepts": ["nlp.seq-eval"], "hints": ["clipped(c, refs, n): count candidate n-grams with Counter; for each n-gram take the max count over the references; matched = sum(min(count_c, max_ref)); total = sum(count_c).", "BLEU = BP * exp(mean(log p_n)). rho = length of the reference whose length is closest to len(c). BP = 1 if len(c) > rho else exp(1 - rho/len(c)). Return 0.0 if some p_n is 0 (unless smooth=True: add 1 to numerator and denominator for n >= 2).", "ROUGE-n overlap = sum((Counter_c & Counter_r).values()). LCS by dynamic programming: D[i+1][j+1] = D[i][j]+1 if a[i]==b[j] else max(D[i][j+1], D[i+1][j])."]}
+#@@ prompt
+All inputs are token lists.
+
+- `ngrams(tokens, n)` -> `collections.Counter` of n-gram tuples.
+- `clipped(c, refs, n)` -> `(matched, total)`: clipped n-gram matches of candidate `c` against a list of reference token lists, and the number of candidate n-grams.
+- `bleu(c, refs, max_n=4, smooth=False)` -> sentence BLEU with brevity penalty (closest reference length). Return `0.0` if a precision is zero. With `smooth=True` add 1 to matched and total for `n >= 2` before checking for zero.
+- `lcs(a, b)` -> length of the longest common subsequence.
+- `rouge_n(c, r, n)` -> F1 of n-gram overlap; `rouge_l(c, r)` -> F1 from the LCS. Return 0.0 when a denominator is zero.
+#@@ starter
+import numpy as np
+from collections import Counter
+
+def ngrams(tokens, n):
+    raise NotImplementedError
+
+def clipped(c, refs, n):
+    raise NotImplementedError
+
+def bleu(c, refs, max_n=4, smooth=False):
+    raise NotImplementedError
+
+def lcs(a, b):
+    raise NotImplementedError
+
+def rouge_n(c, r, n):
+    raise NotImplementedError
+
+def rouge_l(c, r):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+c = "the cat sat on the mat".split()
+r = "the cat is on the mat".split()
+check("clipped unigram 5/6", lambda: clipped(c, [r], 1) == (5, 6))
+check("clipped bigram 3/5", lambda: clipped(c, [r], 2) == (3, 5))
+check("clipped trigram 1/4 and 4-gram 0/3", lambda: clipped(c, [r], 3) == (1, 4) and clipped(c, [r], 4) == (0, 3))
+check("repeated word is clipped to 2/7", lambda: clipped("the the the the the the the".split(), [r], 1) == (2, 7))
+check("BLEU-2 = sqrt(0.5)", lambda: abs(bleu(c, [r], max_n=2) - 0.7071) < 1e-3)
+check("BLEU-4 is 0 without smoothing", lambda: bleu(c, [r], max_n=4) == 0.0)
+check("smoothed BLEU-4 = 0.4855", lambda: abs(bleu(c, [r], max_n=4, smooth=True) - 0.4855) < 1e-3)
+check("brevity penalty: BLEU-1 of 'the cat sat' = 0.2453", lambda: abs(bleu("the cat sat".split(), [r], max_n=1) - 0.2453) < 1e-3)
+check("second reference matches exactly", lambda: abs(bleu(c, [r, "a cat sat on the mat".split()], max_n=2) - 1.0) < 1e-9)
+check("identical sentence has BLEU 1", lambda: abs(bleu(r, [r]) - 1.0) < 1e-9)
+check("paraphrase BLEU-2 = 0.2582", lambda: abs(bleu("a feline rested on the rug".split(), [r], max_n=2) - 0.2582) < 1e-3)
+check("ngrams is a Counter", lambda: ngrams(["a", "b", "a", "b"], 2)[("a", "b")] == 2)
+check("LCS of the example is 5", lambda: lcs(c, r) == 5)
+check("LCS with a gap", lambda: lcs(list("ABCBDAB"), list("BDCABA")) == 4)
+check("ROUGE-1 F1 = 0.8333", lambda: abs(rouge_n(c, r, 1) - 0.8333) < 1e-3)
+check("ROUGE-2 F1 = 0.6", lambda: abs(rouge_n(c, r, 2) - 0.6) < 1e-9)
+check("ROUGE-L F1 = 0.8333", lambda: abs(rouge_l(c, r) - 0.8333) < 1e-3)
+check("paraphrase ROUGE-1 = 0.3333", lambda: abs(rouge_n("a feline rested on the rug".split(), r, 1) - 1 / 3) < 1e-9)
+check("no overlap gives 0", lambda: rouge_n(["x"], ["y"], 1) == 0.0 and rouge_l(["x"], ["y"]) == 0.0)
+#@@ solution
+import numpy as np
+from collections import Counter
+
+def ngrams(tokens, n):
+    return Counter(tuple(tokens[i:i + n]) for i in range(len(tokens) - n + 1))
+
+def clipped(c, refs, n):
+    cc, mx = ngrams(c, n), Counter()
+    for r in refs:
+        for g, v in ngrams(r, n).items():
+            mx[g] = max(mx[g], v)
+    return sum(min(v, mx[g]) for g, v in cc.items()), sum(cc.values())
+
+def bleu(c, refs, max_n=4, smooth=False):
+    ps = []
+    for n in range(1, max_n + 1):
+        m, t = clipped(c, refs, n)
+        if smooth and n >= 2:
+            m, t = m + 1, t + 1
+        if t == 0 or m == 0:
+            return 0.0
+        ps.append(m / t)
+    rho = min((abs(len(r) - len(c)), len(r)) for r in refs)[1]
+    bp = 1.0 if len(c) > rho else float(np.exp(1 - rho / len(c)))
+    return bp * float(np.exp(np.mean(np.log(ps))))
+
+def lcs(a, b):
+    D = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
+    for i in range(len(a)):
+        for j in range(len(b)):
+            D[i + 1][j + 1] = D[i][j] + 1 if a[i] == b[j] else max(D[i][j + 1], D[i + 1][j])
+    return D[-1][-1]
+
+def _f1(p, r):
+    return 0.0 if p + r == 0 else 2 * p * r / (p + r)
+
+def rouge_n(c, r, n):
+    cc, rr = ngrams(c, n), ngrams(r, n)
+    o = sum((cc & rr).values())
+    nc, nr = sum(cc.values()), sum(rr.values())
+    return _f1(o / nc if nc else 0.0, o / nr if nr else 0.0)
+
+def rouge_l(c, r):
+    l = lcs(c, r)
+    return _f1(l / len(c) if c else 0.0, l / len(r) if r else 0.0)

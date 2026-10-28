@@ -1,0 +1,77 @@
+[
+ {
+  "id": "aud.01.c1",
+  "front": "La forme d'onde comme donnée",
+  "back": "Un tableau 1-D d'échantillons $x[n]=s(n/f_s)$, généralement en float32 dans $[-1,1]$ ; secondes $=n/f_s$."
+ },
+ {
+  "id": "aud.01.c2",
+  "front": "Fréquence de Nyquist",
+  "back": "$f_s/2$. Les fréquences au-dessus ne peuvent pas être représentées et se replient dans $[0,f_s/2]$."
+ },
+ {
+  "id": "aud.01.c3",
+  "front": "Alias d'un son",
+  "back": "$r=f \\bmod f_s$ ; le son apparaît à $\\min(r, f_s-r)$. Exemple : 7 kHz échantillonné à 10 kHz apparaît à 3 kHz."
+ },
+ {
+  "id": "aud.01.c4",
+  "front": "Pourquoi $f$ et $f+m f_s$ donnent-ils les mêmes échantillons ?",
+  "back": "$e^{i2\\pi m n}=1$ : le $m f_s$ supplémentaire ajoute des tours entiers entre deux échantillons consécutifs."
+ },
+ {
+  "id": "aud.01.c5",
+  "front": "Pas de quantification et bruit",
+  "back": "Pas $\\Delta=2/2^b$ ; erreur uniforme sur $[-\\Delta/2,\\Delta/2]$ de variance $\\Delta^2/12$."
+ },
+ {
+  "id": "aud.01.c6",
+  "front": "SNR d'une sinusoïde d'amplitude $A$ quantifiée sur $b$ bits",
+  "back": "$6.02\\,b+1.76+20\\log_{10}A$ dB ; environ 6 dB par bit, 96 dB à 16 bits."
+ },
+ {
+  "id": "aud.01.c7",
+  "front": "Fréquences d'échantillonnage typiques",
+  "back": "8 kHz téléphone, 16 kHz reconnaissance vocale, 24 kHz synthèse vocale moderne, 44,1 kHz CD/musique, 48 kHz cinéma/audio pro."
+ },
+ {
+  "id": "aud.01.c8",
+  "front": "Définition de la DFT",
+  "back": "$X[k]=\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}$ : corrélation avec une sinusoïde qui fait $k$ tours sur la trame."
+ },
+ {
+  "id": "aud.01.c9",
+  "front": "Fréquence du bin $k$ de la DFT et résolution",
+  "back": "$f_k=k f_s/N$ Hz ; espacement (résolution) $f_s/N$."
+ },
+ {
+  "id": "aud.01.c10",
+  "front": "Pourquoi seulement $N/2+1$ bins pour les signaux réels ?",
+  "back": "La symétrie conjuguée $X[N-k]=\\overline{X[k]}$ rend la moitié supérieure redondante (`np.fft.rfft`)."
+ },
+ {
+  "id": "aud.01.c11",
+  "front": "Nombre de trames",
+  "back": "$T=1+\\lfloor(L-N)/H\\rfloor$ pour un signal de longueur $L$, une trame $N$, un saut $H$ ; par ex. 10 s, 400/160 à 16 kHz donne 998."
+ },
+ {
+  "id": "aud.01.c12",
+  "front": "Fenêtre de Hann périodique",
+  "back": "$w[n]=0.5-0.5\\cos(2\\pi n/N)$, $n=0..N-1$. La forme symétrique divise par $N-1$ (`np.hanning`)."
+ },
+ {
+  "id": "aud.01.c13",
+  "front": "Fuite spectrale",
+  "back": "L'énergie d'un son se répand vers des bins éloignés parce qu'une trame a des bords abrupts ; l'atténuer avec une fenêtre réduit la fuite."
+ },
+ {
+  "id": "aud.01.c14",
+  "front": "Définition de la STFT et sa forme",
+  "back": "$X[t,k]=\\sum_n w[n]x[tH+n]e^{-i2\\pi kn/N}$ ; matrice complexe de forme $(T, N/2+1)$."
+ },
+ {
+  "id": "aud.01.c15",
+  "front": "Compromis temps-fréquence",
+  "back": "Une fenêtre de $N/f_s$ secondes résout $f_s/N$ Hz : les fenêtres longues donnent une hauteur fine mais un timing flou, les fenêtres courtes l'inverse."
+ }
+]

@@ -1,0 +1,125 @@
+[
+ {
+  "id": "cml.13.q1",
+  "concept": "ml.timeseries",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why is a random train/test split invalid for forecasting?",
+  "options": [
+   "The model can train on observations that come after the test points, leaking the future",
+   "It makes the test set too small",
+   "Random splits remove the trend",
+   "Time series have no labels"
+  ],
+  "answer": 0,
+  "explanation": "Neighbouring time points are dependent; training on t+1 while testing on t gives optimistic scores a real forecaster could never obtain."
+ },
+ {
+  "id": "cml.13.q2",
+  "concept": "ml.timeseries",
+  "kind": "mcq",
+  "prompt": "A series has a steady upward trend. Which statement is true?",
+  "options": [
+   "It is stationary because the variance is constant",
+   "Differencing makes it longer",
+   "It is not stationary because its mean depends on time; differencing often fixes this",
+   "Stationarity only concerns seasonality"
+  ],
+  "answer": 2,
+  "explanation": "Weak stationarity needs a time-independent mean. First differences $y_t-y_{t-1}$ remove a linear trend."
+ },
+ {
+  "id": "cml.13.q3",
+  "concept": "ml.timeseries",
+  "kind": "numeric",
+  "prompt": "For $y=(2,4,3,5,4,6,5,7)$ the sum of lagged products at lag 1 is 2.25 and $\\sum d_t^2=18$. What is the sample autocorrelation $r_1$?",
+  "options": [],
+  "answer": {
+   "value": 0.125,
+   "tol": 0.001
+  },
+  "explanation": "$r_1=2.25/18=0.125$."
+ },
+ {
+  "id": "cml.13.q4",
+  "concept": "ml.timeseries",
+  "kind": "mcq",
+  "prompt": "Daily data show an autocorrelation spike at lag 7 on top of a slow decay. This suggests...",
+  "options": [
+   "Pure white noise",
+   "A weekly seasonal pattern",
+   "A bug in the code",
+   "That no model can be fitted"
+  ],
+  "answer": 1,
+  "explanation": "A spike at the seasonal lag means the series resembles itself one week earlier."
+ },
+ {
+  "id": "cml.13.q5",
+  "concept": "ml.autoreg",
+  "kind": "mcq",
+  "prompt": "Fitting AR($p$) by least squares is the same as...",
+  "options": [
+   "Clustering lagged values",
+   "Computing the FFT",
+   "Maximising autocorrelation",
+   "Linear regression whose features are the $p$ previous values of the series and an intercept"
+  ],
+  "answer": 3,
+  "explanation": "Each target $y_t$ is regressed on $[1,y_{t-1},\\dots,y_{t-p}]$; the solution solves $X^\\top X\\mathbf w=X^\\top\\mathbf t$."
+ },
+ {
+  "id": "cml.13.q6",
+  "concept": "ml.autoreg",
+  "kind": "numeric",
+  "prompt": "A series of $n=100$ points is fitted with AR(3). How many training equations (rows of the design matrix) are there?",
+  "options": [],
+  "answer": {
+   "value": 97,
+   "tol": 0
+  },
+  "explanation": "The first $p=3$ values have no complete history, so $m=n-p=97$."
+ },
+ {
+  "id": "cml.13.q7",
+  "concept": "ml.autoreg",
+  "kind": "mcq",
+  "prompt": "For a stationary AR(1) with $\\phi_1=0.8$, the theoretical autocorrelation at lag 3 is...",
+  "options": [
+   "0.512",
+   "0.8",
+   "0.24",
+   "0"
+  ],
+  "answer": 0,
+  "explanation": "$\\rho_k=\\phi_1^k$, so $0.8^3=0.512$."
+ },
+ {
+  "id": "cml.13.q8",
+  "concept": "ml.timeseries",
+  "kind": "mcq",
+  "prompt": "In walk-forward validation, the prediction for time $t$ may use...",
+  "options": [
+   "All data, to get the best model",
+   "Only observations after $t$",
+   "Only observations at times before $t$",
+   "A random subset of all times"
+  ],
+  "answer": 2,
+  "explanation": "A forecaster standing at time $t$ only knows the past; fitting on anything later is leakage."
+ },
+ {
+  "id": "cml.13.q9",
+  "concept": "ml.autoreg",
+  "kind": "mcq",
+  "prompt": "Your AR model has MAE 0.9 and the naive last-value forecast has MAE 0.8 under walk-forward validation. What do you conclude?",
+  "options": [
+   "The AR model is better because it is more complex",
+   "The AR model adds no value over persistence on this data",
+   "Naive forecasts cannot be evaluated",
+   "The validation must be wrong"
+  ],
+  "answer": 1,
+  "explanation": "A model that loses to a trivial baseline has learned nothing useful; check stationarity, the lag order and the data."
+ }
+]

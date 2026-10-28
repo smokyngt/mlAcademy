@@ -1,0 +1,77 @@
+[
+ {
+  "id": "aud.04.c1",
+  "front": "Probabilité d'un chemin CTC et d'une transcription",
+  "back": "$P(\\pi|x)=\\prod_tp_t(\\pi_t)$ ; $P(y|x)=\\sum_{\\pi\\in\\mathcal B^{-1}(y)}P(\\pi|x)$ ; perte $=-\\log P(y|x)$."
+ },
+ {
+  "id": "aud.04.c2",
+  "front": "Application de réduction $\\mathcal B$",
+  "back": "Fusionner les répétitions consécutives, puis supprimer les blanks (a a _ a b b _ c devient a a b c)."
+ },
+ {
+  "id": "aud.04.c3",
+  "front": "Pourquoi un symbole blank ?",
+  "back": "Permet « aucune émission » à une trame et sépare des étiquettes consécutives égales comme le double l de « hello »."
+ },
+ {
+  "id": "aud.04.c4",
+  "front": "Séquence d'étiquettes étendue",
+  "back": "$l'=(\\varnothing,y_1,\\varnothing,\\dots,y_U,\\varnothing)$ de longueur $S=2U+1$."
+ },
+ {
+  "id": "aud.04.c5",
+  "front": "Récurrence avant de la CTC",
+  "back": "$\\alpha_t(s)=p_t(l'_s)[\\alpha_{t-1}(s)+\\alpha_{t-1}(s-1)+\\mathbb 1\\{l'_s\\ne\\varnothing,l'_s\\ne l'_{s-2}\\}\\alpha_{t-1}(s-2)]$."
+ },
+ {
+  "id": "aud.04.c6",
+  "front": "Initialisation et terminaison de la CTC",
+  "back": "$\\alpha_1(1)=p_1(\\varnothing)$, $\\alpha_1(2)=p_1(y_1)$ ; $P(y|x)=\\alpha_T(S)+\\alpha_T(S-1)$."
+ },
+ {
+  "id": "aud.04.c7",
+  "front": "Coût et faisabilité de la CTC",
+  "back": "$O(T\\cdot U)$ ; impossible (probabilité 0) quand $T<U+$ nombre de paires adjacentes d'étiquettes cibles égales."
+ },
+ {
+  "id": "aud.04.c8",
+  "front": "Hypothèse d'indépendance conditionnelle de la CTC",
+  "back": "Les trames sont prédites indépendamment, donc la CTC n'a pas de modèle de langage interne ; on corrige avec un LM externe dans la recherche en faisceau."
+ },
+ {
+  "id": "aud.04.c9",
+  "front": "Glouton vs recherche en faisceau sur préfixes",
+  "back": "Le glouton prend le meilleur chemin ; la recherche en faisceau sur préfixes suit $p_b$ et $p_{nb}$ par préfixe et fusionne les chemins de même préfixe, ce qui approche la meilleure transcription."
+ },
+ {
+  "id": "aud.04.c10",
+  "front": "Composants du RNN-T",
+  "back": "Encodeur sur l'audio, réseau de prédiction sur les étiquettes passées, joiner produisant une distribution sur $V+1$ symboles ; treillis $T\\times(U+1)\\times(V+1)$."
+ },
+ {
+  "id": "aud.04.c11",
+  "front": "Factorisation d'un encodeur-décodeur à attention",
+  "back": "$P(y|x)=\\prod_uP(y_u|y_{<u},\\mathrm{Enc}(x))$ avec cross-attention ; pas de contrainte d'alignement, autorégressif."
+ },
+ {
+  "id": "aud.04.c12",
+  "front": "Entrée de Whisper et longueur de l'encodeur",
+  "back": "Log-mel de 30 s (80, 3000), la convolution de pas 2 donne 1500 positions de 20 ms ; la tâche est choisie par des jetons spéciaux dans le prompt du décodeur."
+ },
+ {
+  "id": "aud.04.c13",
+  "front": "Modes de défaillance de Whisper",
+  "back": "Hallucination sur le silence (utiliser un VAD), erreurs en cascade dues au conditionnement sur le texte précédent, extraits courts complétés, mauvaises statistiques mel."
+ },
+ {
+  "id": "aud.04.c14",
+  "front": "Récurrence de la distance d'édition",
+  "back": "$D[i][j]=\\min(D[i-1][j]+1,\\ D[i][j-1]+1,\\ D[i-1][j-1]+\\mathbb 1\\{r_i\\ne h_j\\})$, $D[i][0]=i$, $D[0][j]=j$."
+ },
+ {
+  "id": "aud.04.c15",
+  "front": "Définition et propriétés du WER",
+  "back": "$(S+D+I)/N$ sur les mots de référence ; peut dépasser 1 ; normaliser d'abord casse/ponctuation ; le CER est la version sur caractères."
+ }
+]

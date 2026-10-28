@@ -1,0 +1,86 @@
+[
+ {
+  "id": "aud.02.q1",
+  "prompt": "Pourquoi les systèmes de parole prennent-ils le logarithme des énergies du spectrogramme ?",
+  "options": [
+   "pour rendre la matrice carrée",
+   "pour comprimer une énorme dynamique, en accord avec la perception de l'intensité",
+   "pour supprimer la phase",
+   "pour augmenter la résolution fréquentielle"
+  ],
+  "explanation": "Les énergies couvrent de nombreux ordres de grandeur et l'intensité est perçue à peu près de façon logarithmique ; le log transforme aussi les produits en sommes."
+ },
+ {
+  "id": "aud.02.q2",
+  "prompt": "Avec $m=2595\\log_{10}(1+f/700)$, quelle est la valeur en mel de 700 Hz ? (Donne un nombre arrondi à l'entier le plus proche.)",
+  "options": [],
+  "explanation": "$2595\\log_{10}2=781.17$."
+ },
+ {
+  "id": "aud.02.q3",
+  "prompt": "Un banc de filtres mel a 80 filtres et la FFT a 400 points (201 bins unilatéraux). Quelle est la forme de la matrice du banc de filtres $\\mathbf H$ ?",
+  "options": [
+   "(201, 80)",
+   "(400, 80)",
+   "(80, 400)",
+   "(80, 201)"
+  ],
+  "explanation": "Une ligne par filtre et une colonne par bin de FFT unilatéral : $(M, N/2+1)=(80,201)$ ; le spectrogramme mel est $\\mathbf P\\mathbf H^\\top$."
+ },
+ {
+  "id": "aud.02.q4",
+  "prompt": "Les filtres mel sont équidistants sur l'axe mel. En hertz, les filtres sont...",
+  "options": [
+   "de largeur égale",
+   "plus larges aux basses fréquences",
+   "plus larges aux hautes fréquences",
+   "tous de même hauteur et de même largeur en bins"
+  ],
+  "explanation": "L'axe mel comprime les hautes fréquences, donc des pas mel égaux sont de plus en plus grands en hertz."
+ },
+ {
+  "id": "aud.02.q5",
+  "prompt": "Tu calcules 13 MFCC, 13 deltas et 13 delta-deltas par trame. Combien de caractéristiques par trame ?",
+  "options": [],
+  "explanation": "$3\\times13=39$ ; la matrice de caractéristiques a la forme (T, 39)."
+ },
+ {
+  "id": "aud.02.q6",
+  "prompt": "Quel est le rôle de la DCT dans le calcul des MFCC ?",
+  "options": [
+   "elle fait pivoter le vecteur log-mel vers une base où les premiers coefficients contiennent le contour spectral lisse",
+   "elle convertit la fréquence en mel",
+   "elle mesure la vitesse à laquelle les caractéristiques changent",
+   "elle supprime le silence"
+  ],
+  "explanation": "La DCT-II orthonormée réexprime le vecteur log-mel comme des cosinus lents à rapides ; la tronquer conserve l'enveloppe."
+ },
+ {
+  "id": "aud.02.q7",
+  "prompt": "La matrice DCT-II orthonormée $\\mathbf D$ vérifie...",
+  "options": [
+   "$\\mathbf D^2=\\mathbf I$",
+   "$\\mathbf D\\mathbf D^\\top=\\mathbf I$",
+   "$\\mathbf D=\\mathbf D^{-1}$ seulement pour $M=2$",
+   "$\\mathbf D\\mathbf 1=\\mathbf 0$"
+  ],
+  "explanation": "Les lignes sont orthonormées, donc $\\mathbf D$ est une rotation et la transformation inverse est $\\mathbf D^\\top$."
+ },
+ {
+  "id": "aud.02.q8",
+  "prompt": "Le delta d'une séquence de caractéristiques qui augmente d'exactement 2 par trame (à l'intérieur) vaut...",
+  "options": [
+   "0",
+   "1",
+   "4",
+   "2"
+  ],
+  "explanation": "La formule du delta est la pente par moindres carrés en unités de caractéristique par trame ; pour une droite parfaite c'est la pente, 2."
+ },
+ {
+  "id": "aud.02.q9",
+  "prompt": "Que vaut $dm/df$ en mel par Hz à $f=0$ (à deux décimales) ? Utilise $2595/(700\\ln 10)$.",
+  "options": [],
+  "explanation": "$2595/(700\\cdot2.3026)=1.61$ ; elle tombe à 0,66 à 1 kHz et à 0,13 à 8 kHz."
+ }
+]

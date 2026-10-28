@@ -1,0 +1,17 @@
+[
+  { "id": "math.14.c1", "front": "Échantillonnage par transformée inverse", "back": "Tire $U\\sim\\text{Uniform}(0,1)$ et renvoie $F^{-1}(U)$ ; il a pour cdf $F$ car $P(F^{-1}(U)\\le x)=P(U\\le F(x))=F(x)$." },
+  { "id": "math.14.c2", "front": "Transformée inverse pour l'exponentielle", "back": "$F(x)=1-e^{-\\lambda x}$, donc $x=-\\ln(1-u)/\\lambda$ (ou $-\\ln u/\\lambda$)." },
+  { "id": "math.14.c3", "front": "Quand la transformée inverse ne marche-t-elle pas directement ?", "back": "Quand $F^{-1}$ n'a pas de forme fermée (la gaussienne) : utilise Box-Muller, ou d'autres méthodes." },
+  { "id": "math.14.c4", "front": "Échantillonner une gaussienne multivariée", "back": "$y=\\mu+Lz$ avec $\\Sigma=LL^\\top$ (Cholesky) et $z$ à composantes normales standard indépendantes : $\\text{Cov}(y)=\\Sigma$." },
+  { "id": "math.14.c5", "front": "Algorithme d'échantillonnage par rejet", "back": "Il faut $p\\le Mq$. Tire $x\\sim q$, $u\\sim U(0,1)$ ; accepte si $u<p(x)/(Mq(x))$. Taux d'acceptation $1/M$." },
+  { "id": "math.14.c6", "front": "Pourquoi le rejet échoue en grande dimension", "back": "La borne $M$ croît exponentiellement avec $D$ (par ex. $(\\sigma_q/\\sigma_p)^D$), donc le taux d'acceptation $1/M$ s'effondre." },
+  { "id": "math.14.c7", "front": "Estimateur d'échantillonnage préférentiel", "back": "$\\mathbb E_p[f]\\approx\\frac1L\\sum_l \\frac{p(x_l)}{q(x_l)}f(x_l)$ avec $x_l\\sim q$. Autonormalisé : divise par $\\sum_l p(x_l)/q(x_l)$ (n'a besoin de $p$ qu'à une constante près)." },
+  { "id": "math.14.c8", "front": "Quand l'échantillonnage préférentiel est-il mauvais ?", "back": "Quand $q$ a peu de masse là où $|f|p$ est grand : quelques poids énormes dominent et la variance est grande ou infinie." },
+  { "id": "math.14.c9", "front": "Taux d'erreur de Monte Carlo", "back": "$\\text{Var}(\\hat I)=\\text{Var}(f)/N$, erreur $\\sim\\sigma_f/\\sqrt N$, indépendante de la dimension. 100 fois plus d'échantillons pour 10 fois plus de précision." },
+  { "id": "math.14.c10", "front": "Estimation de $\\pi$ par Monte Carlo", "back": "Fraction de points uniformes du carré unité avec $x^2+y^2\\le1$, fois 4. Écart-type $1.642/\\sqrt N$." },
+  { "id": "math.14.c11", "front": "Chaîne de Markov", "back": "Une suite où $p(z^{(m+1)}\\mid z^{(1)},\\dots,z^{(m)})=p(z^{(m+1)}\\mid z^{(m)})$ : l'état suivant ne dépend que de l'état courant." },
+  { "id": "math.14.c12", "front": "Algorithme de Metropolis", "back": "Propose $z'=z+\\text{noise}$ ; accepte avec la probabilité $\\min(1,\\tilde p(z')/\\tilde p(z))$ ; si rejeté, répète l'ancien état. $\\tilde p$ peut être non normalisée." },
+  { "id": "math.14.c13", "front": "Pourquoi le MCMC marche (équilibre détaillé)", "back": "La règle d'acceptation rend le flux $z\\to z'$ égal au flux $z'\\to z$ sous $p$, donc $p$ est la distribution stationnaire de la chaîne." },
+  { "id": "math.14.c14", "front": "Pièges pratiques du MCMC", "back": "Période de chauffe, réglage de la taille de pas (trop petite rampe, trop grande rejette), et autocorrélation : la taille d'échantillon effective est inférieure à la longueur de la chaîne." },
+  { "id": "math.14.c15", "front": "Échantillonnage de Gibbs", "back": "Met à jour chaque variable selon sa conditionnelle sachant toutes les autres, en cyclant avec les valeurs les plus récentes. Toujours accepté ; lent quand les variables sont fortement corrélées." }
+]

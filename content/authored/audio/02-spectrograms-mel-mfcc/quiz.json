@@ -1,0 +1,123 @@
+[
+ {
+  "id": "aud.02.q1",
+  "concept": "aud.mel",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why do speech systems take the logarithm of spectrogram energies?",
+  "options": [
+   "to make the matrix square",
+   "to compress a huge dynamic range, matching how loudness is perceived",
+   "to remove the phase",
+   "to increase the frequency resolution"
+  ],
+  "answer": 1,
+  "explanation": "Energies span many orders of magnitude and loudness is perceived roughly logarithmically; the log also turns products into sums."
+ },
+ {
+  "id": "aud.02.q2",
+  "concept": "aud.mel",
+  "kind": "numeric",
+  "prompt": "Using $m=2595\\log_{10}(1+f/700)$, what is the mel value of 700 Hz? (Give a number rounded to the nearest integer.)",
+  "options": [],
+  "answer": {
+   "value": 781,
+   "tol": 1
+  },
+  "explanation": "$2595\\log_{10}2=781.17$."
+ },
+ {
+  "id": "aud.02.q3",
+  "concept": "aud.mel",
+  "kind": "mcq",
+  "prompt": "A mel filterbank has 80 filters and the FFT has 400 points (201 one-sided bins). What is the shape of the filterbank matrix $\\mathbf H$?",
+  "options": [
+   "(201, 80)",
+   "(400, 80)",
+   "(80, 400)",
+   "(80, 201)"
+  ],
+  "answer": 3,
+  "explanation": "One row per filter and one column per one-sided FFT bin: $(M, N/2+1)=(80,201)$; the mel spectrogram is $\\mathbf P\\mathbf H^\\top$."
+ },
+ {
+  "id": "aud.02.q4",
+  "concept": "aud.mel",
+  "kind": "mcq",
+  "prompt": "Mel filters are equally spaced on the mel axis. In hertz, the filters are...",
+  "options": [
+   "equally wide",
+   "wider at low frequency",
+   "wider at high frequency",
+   "all the same height and width in bins"
+  ],
+  "answer": 2,
+  "explanation": "The mel axis compresses high frequencies, so equal mel steps are larger and larger in hertz."
+ },
+ {
+  "id": "aud.02.q5",
+  "concept": "aud.mfcc",
+  "kind": "numeric",
+  "prompt": "You compute 13 MFCCs, 13 deltas and 13 delta-deltas per frame. How many features per frame?",
+  "options": [],
+  "answer": {
+   "value": 39,
+   "tol": 0
+  },
+  "explanation": "$3\\times13=39$; the feature matrix has shape (T, 39)."
+ },
+ {
+  "id": "aud.02.q6",
+  "concept": "aud.mfcc",
+  "kind": "mcq",
+  "prompt": "What is the role of the DCT in MFCC computation?",
+  "options": [
+   "it rotates the log-mel vector into a basis where the first coefficients hold the smooth spectral outline",
+   "it converts frequency to mel",
+   "it measures how fast the features change",
+   "it removes silence"
+  ],
+  "answer": 0,
+  "explanation": "The orthonormal DCT-II re-expresses the log-mel vector as slow to fast cosines; truncating keeps the envelope."
+ },
+ {
+  "id": "aud.02.q7",
+  "concept": "aud.mfcc",
+  "kind": "mcq",
+  "prompt": "The orthonormal DCT-II matrix $\\mathbf D$ satisfies...",
+  "options": [
+   "$\\mathbf D^2=\\mathbf I$",
+   "$\\mathbf D\\mathbf D^\\top=\\mathbf I$",
+   "$\\mathbf D=\\mathbf D^{-1}$ only for $M=2$",
+   "$\\mathbf D\\mathbf 1=\\mathbf 0$"
+  ],
+  "answer": 1,
+  "explanation": "Rows are orthonormal, so $\\mathbf D$ is a rotation and the inverse transform is $\\mathbf D^\\top$."
+ },
+ {
+  "id": "aud.02.q8",
+  "concept": "aud.mfcc",
+  "kind": "mcq",
+  "prompt": "The delta of a feature sequence that increases by exactly 2 per frame (in the interior) is...",
+  "options": [
+   "0",
+   "1",
+   "4",
+   "2"
+  ],
+  "answer": 3,
+  "explanation": "The delta formula is the least-squares slope in feature units per frame; for a perfect line it is the slope, 2."
+ },
+ {
+  "id": "aud.02.q9",
+  "concept": "aud.mel",
+  "kind": "numeric",
+  "prompt": "What is $dm/df$ in mel per Hz at $f=0$ (to two decimals)? Use $2595/(700\\ln 10)$.",
+  "options": [],
+  "answer": {
+   "value": 1.61,
+   "tol": 0.01
+  },
+  "explanation": "$2595/(700\\cdot2.3026)=1.61$; it falls to 0.66 at 1 kHz and 0.13 at 8 kHz."
+ }
+]

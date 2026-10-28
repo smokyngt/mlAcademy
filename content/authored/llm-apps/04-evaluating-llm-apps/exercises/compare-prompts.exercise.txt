@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "app.04.ex1", "title": "Is prompt B really better than prompt A? Bootstrap, sign-flip test, judge kappa", "difficulty": 3, "runtime": "pyodide", "concepts": ["app.eval"], "hints": ["Paired data: work with d_i = b_i - a_i. Items where both prompts agree (d_i = 0) carry no information for the sign-flip test.", "Bootstrap: rng = np.random.default_rng(seed); idx = rng.integers(0, n, size=(B, n)); means = d[idx].mean(axis=1); then np.percentile at 100*alpha/2 and 100*(1-alpha/2).", "Sign-flip: under H0 each non-zero difference is equally likely to be + or -. Enumerate all 2^m sign patterns of the m non-zero differences, e.g. bits = ((np.arange(2**m)[:, None] >> np.arange(m)) & 1) * 2 - 1, and count patterns whose |sum| is at least the observed |sum|."]}
+#@@ prompt
+Two prompts were run on the same 40 test items and each output was graded pass (1) or fail (0): `A_SCORES` and `B_SCORES`. Prompt B passes more items. Is that evidence, or noise? Implement the tools to answer, offline:
+
+- `paired_diffs(a, b)` -> NumPy array of `b_i - a_i`.
+- `bootstrap_ci(d, B=2000, alpha=0.05, seed=0)` -> `(low, high)`, a percentile bootstrap confidence interval for the **mean** of `d`: draw `B` resamples of size `n` with replacement using `np.random.default_rng(seed).integers(0, n, size=(B, n))`.
+- `sign_flip_pvalue(d)` -> exact two-sided p-value of the paired permutation (sign-flip) test on the mean difference: drop zero differences, enumerate every assignment of signs to the remaining `m` differences (`m <= 20`), and return the fraction of assignments whose `|sum|` is at least the observed `|sum|`.
+- `required_n(delta, sd, z_alpha=1.96, z_power=0.8416)` -> the number of items needed to detect a mean paired difference `delta` when per-item differences have standard deviation `sd`: `ceil(((z_alpha + z_power) * sd / delta) ** 2)`.
+- `cohen_kappa(human, judge)` -> chance-corrected agreement between an LLM judge's labels and human labels: `(p_o - p_e) / (1 - p_e)`, where `p_e = sum over classes of P_human(c) * P_judge(c)`.
+#@@ starter
+import numpy as np
+from math import ceil
+
+A_SCORES = [0] * 9 + [1] * 3 + [1] * 16 + [0] * 12
+B_SCORES = [1] * 9 + [0] * 3 + [1] * 16 + [0] * 12
+
+def paired_diffs(a, b):
+    raise NotImplementedError
+
+def bootstrap_ci(d, B=2000, alpha=0.05, seed=0):
+    raise NotImplementedError
+
+def sign_flip_pvalue(d):
+    raise NotImplementedError
+
+def required_n(delta, sd, z_alpha=1.96, z_power=0.8416):
+    raise NotImplementedError
+
+def cohen_kappa(human, judge):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+d = paired_diffs(A_SCORES, B_SCORES)
+check("40 paired differences", lambda: len(d) == 40)
+check("mean difference is +0.15", lambda: abs(d.mean() - 0.15) < 1e-12)
+check("9 items where only B passes, 3 where only A passes", lambda: int((d == 1).sum()) == 9 and int((d == -1).sum()) == 3)
+lo, hi = bootstrap_ci(d)
+check("bootstrap interval contains the observed mean", lambda: lo <= 0.15 <= hi)
+check("bootstrap interval reaches down to about zero", lambda: lo < 0.05)
+check("bootstrap interval has a plausible width (about 0.33)", lambda: 0.25 < hi - lo < 0.42)
+check("bootstrap is deterministic given the seed", lambda: bootstrap_ci(d) == (lo, hi))
+check("exact sign-flip p-value is 598/4096", lambda: abs(sign_flip_pvalue(d) - 598 / 4096) < 1e-12)
+check("so +15 points on 40 items is NOT significant at 5%", lambda: sign_flip_pvalue(d) > 0.05)
+d_big = np.array([1] * 12 + [-1] * 2)
+check("12 wins vs 2 losses is significant", lambda: sign_flip_pvalue(d_big) < 0.05)
+check("all ties gives p = 1", lambda: sign_flip_pvalue(np.zeros(10)) == 1.0)
+check("sample size to detect 5 points with sd 0.4 is 503", lambda: required_n(0.05, 0.4) == 503)
+check("halving delta quadruples n", lambda: abs(required_n(0.025, 0.4) / required_n(0.05, 0.4) - 4) < 0.05)
+h = [1, 1, 1, 0, 0, 1, 0, 1, 1, 0]
+j = [1, 1, 0, 0, 0, 1, 1, 1, 1, 0]
+check("kappa = 0.5833", lambda: abs(cohen_kappa(h, j) - 0.28 / 0.48) < 1e-12)
+check("perfect agreement gives 1", lambda: abs(cohen_kappa(h, h) - 1.0) < 1e-12)
+check("a judge that always says pass has kappa 0, whatever the base rate", lambda: abs(cohen_kappa([1, 1, 1, 0, 0, 1, 0, 0, 0, 0], [1] * 10)) < 1e-12)
+#@@ solution
+import numpy as np
+from math import ceil
+
+A_SCORES = [0] * 9 + [1] * 3 + [1] * 16 + [0] * 12
+B_SCORES = [1] * 9 + [0] * 3 + [1] * 16 + [0] * 12
+
+def paired_diffs(a, b):
+    return np.asarray(b, dtype=float) - np.asarray(a, dtype=float)
+
+def bootstrap_ci(d, B=2000, alpha=0.05, seed=0):
+    d = np.asarray(d, dtype=float)
+    n = len(d)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n, size=(B, n))
+    means = d[idx].mean(axis=1)
+    return float(np.percentile(means, 100 * alpha / 2)), float(np.percentile(means, 100 * (1 - alpha / 2)))
+
+def sign_flip_pvalue(d):
+    d = np.asarray(d, dtype=float)
+    nz = d[d != 0]
+    m = len(nz)
+    if m == 0:
+        return 1.0
+    assert m <= 20
+    bits = ((np.arange(2 ** m)[:, None] >> np.arange(m)) & 1) * 2 - 1
+    sums = (bits * nz).sum(axis=1)
+    return float(np.mean(np.abs(sums) >= abs(nz.sum()) - 1e-12))
+
+def required_n(delta, sd, z_alpha=1.96, z_power=0.8416):
+    return int(ceil(((z_alpha + z_power) * sd / delta) ** 2))
+
+def cohen_kappa(human, judge):
+    human, judge = list(human), list(judge)
+    n = len(human)
+    po = sum(h == j for h, j in zip(human, judge)) / n
+    classes = set(human) | set(judge)
+    pe = sum((human.count(c) / n) * (judge.count(c) / n) for c in classes)
+    return (po - pe) / (1 - pe)

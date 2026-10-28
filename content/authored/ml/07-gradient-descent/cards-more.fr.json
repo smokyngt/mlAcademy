@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.07.c14", "front": "Facteur par pas sur $\\frac12\\lambda\\theta^2$", "back": "$1-\\eta\\lambda$." },
+  { "id": "f2n.07.c15", "front": "Plage de convergence monotone", "back": "$0<\\eta<1/\\lambda$." },
+  { "id": "f2n.07.c16", "front": "Plage de convergence avec oscillations", "back": "$1/\\lambda<\\eta<2/\\lambda$." },
+  { "id": "f2n.07.c17", "front": "Divergence", "back": "$\\eta>2/\\lambda$ sur la direction la plus raide." },
+  { "id": "f2n.07.c18", "front": "Meilleur taux d'apprentissage pour une quadratique", "back": "$2/(\\lambda_{\\max}+\\lambda_{\\min})$." },
+  { "id": "f2n.07.c19", "front": "Nombre de conditionnement", "back": "$\\kappa=\\lambda_{\\max}/\\lambda_{\\min}$ ; un grand $\\kappa$ signifie lent." },
+  { "id": "f2n.07.c20", "front": "Estimation du gradient par mini-batch", "back": "Non biaisée pour le gradient complet ; la variance décroît en $1/b$." },
+  { "id": "f2n.07.c21", "front": "Mise à jour de la SGD", "back": "$\\theta\\leftarrow\\theta-\\eta\\hat g$ avec $\\hat g$ issu d'un mini-batch aléatoire." },
+  { "id": "f2n.07.c22", "front": "Pourquoi la perte baisse-t-elle pour $\\eta$ petit ?", "back": "$L(\\theta-\\eta g)\\approx L(\\theta)-\\eta\\|g\\|^2$." }
+]

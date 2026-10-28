@@ -1,0 +1,92 @@
+[
+ {
+  "id": "cml.17.c1",
+  "concept": "ml.tsne",
+  "front": "t-SNE high-dimensional affinity",
+  "back": "$p_{j|i}\\propto\\exp(-\\|x_i-x_j\\|^2/2\\sigma_i^2)$, $\\sigma_i$ set by bisection to hit the perplexity; $p_{ij}=(p_{j|i}+p_{i|j})/2N$."
+ },
+ {
+  "id": "cml.17.c2",
+  "concept": "ml.tsne",
+  "front": "Perplexity",
+  "back": "$\\exp(H(P_i))$: the effective number of neighbours; typical values 5-50."
+ },
+ {
+  "id": "cml.17.c3",
+  "concept": "ml.tsne",
+  "front": "t-SNE low-dimensional affinity",
+  "back": "$q_{ij}=w_{ij}/\\sum_{k\\ne l}w_{kl}$ with $w_{ij}=(1+\\|y_i-y_j\\|^2)^{-1}$."
+ },
+ {
+  "id": "cml.17.c4",
+  "concept": "ml.tsne",
+  "front": "t-SNE objective",
+  "back": "$\\mathrm{KL}(P\\|Q)=\\sum p_{ij}\\ln(p_{ij}/q_{ij})$."
+ },
+ {
+  "id": "cml.17.c5",
+  "concept": "ml.tsne",
+  "front": "t-SNE gradient",
+  "back": "$\\partial C/\\partial y_i=4\\sum_j(p_{ij}-q_{ij})w_{ij}(y_i-y_j)$; matrix form $4(\\mathrm{diag}(M\\mathbf1)-M)Y$ with $M=(P-Q)\\odot W$."
+ },
+ {
+  "id": "cml.17.c6",
+  "concept": "ml.tsne",
+  "front": "What t-SNE does not preserve",
+  "back": "Distances between clusters, cluster sizes and densities; layouts vary with seed and perplexity; no out-of-sample map."
+ },
+ {
+  "id": "cml.17.c7",
+  "concept": "ml.kpca",
+  "front": "Kernel PCA recipe",
+  "back": "RBF kernel $K$, centre $JKJ$ with $J=I-\\frac1N\\mathbf1\\mathbf1^\\top$, eigendecompose; coordinates $u_i\\sqrt{\\mu_i}$."
+ },
+ {
+  "id": "cml.17.c8",
+  "concept": "ml.kpca",
+  "front": "Kernel PCA drawbacks",
+  "back": "$N\\times N$ matrix ($O(N^2)$ memory, $O(N^3)$ time), no direct reconstruction (pre-image problem), kernel parameter tuning."
+ },
+ {
+  "id": "cml.17.c9",
+  "concept": "ml.interpret",
+  "front": "Permutation importance",
+  "back": "Mean increase in error after shuffling one column on held-out data; model-agnostic."
+ },
+ {
+  "id": "cml.17.c10",
+  "concept": "ml.interpret",
+  "front": "Pitfalls of permutation importance",
+  "back": "Correlated features hide each other; shuffling creates unrealistic rows; it measures reliance of the model, not causal relevance."
+ },
+ {
+  "id": "cml.17.c11",
+  "concept": "ml.interpret",
+  "front": "Partial dependence",
+  "back": "$\\frac1N\\sum_nf(x_n$ with feature $j$ set to $g)$; the average effect, exact when the model is additive in $j$."
+ },
+ {
+  "id": "cml.17.c12",
+  "concept": "ml.interpret",
+  "front": "ICE curves",
+  "back": "Individual conditional expectation: one curve per row; reveals effects that PD averages away."
+ },
+ {
+  "id": "cml.17.c13",
+  "concept": "ml.shap",
+  "front": "Shapley value",
+  "back": "$\\phi_j=\\sum_S\\frac{|S|!(d-|S|-1)!}{d!}[v(S\\cup j)-v(S)]$: average marginal contribution over coalitions."
+ },
+ {
+  "id": "cml.17.c14",
+  "concept": "ml.shap",
+  "front": "Shapley efficiency",
+  "back": "$\\sum_j\\phi_j=f(x)-\\mathbb E[f]$; for linear models $\\phi_j=w_j(x_j-\\mathbb E x_j)$."
+ },
+ {
+  "id": "cml.17.c15",
+  "concept": "ml.shap",
+  "front": "Why SHAP needs approximations",
+  "back": "Exact Shapley values need $2^d$ coalitions; KernelSHAP samples, TreeSHAP exploits tree structure."
+ }
+]

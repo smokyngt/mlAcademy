@@ -1,0 +1,15 @@
+[
+  { "id": "cml.05.c1", "front": "Matrice de covariance de données centrées", "back": "$C=\\frac1{N-1}X^\\top X$, de forme $(d,d)$, symétrique semi-définie positive." },
+  { "id": "cml.05.c2", "front": "Variance le long d'une direction unitaire $w$", "back": "$w^\\top Cw$." },
+  { "id": "cml.05.c3", "front": "L'ACP comme problème d'optimisation", "back": "Maximiser $w^\\top Cw$ sous $\\|w\\|=1$ ; le gradient du lagrangien donne $Cw=\\lambda w$." },
+  { "id": "cml.05.c4", "front": "Signification de la valeur propre", "back": "$\\lambda_i$ est la variance des données le long de la direction principale $i$." },
+  { "id": "cml.05.c5", "front": "Ratio de variance expliquée des $k$ premières", "back": "$(\\lambda_1+\\dots+\\lambda_k)/(\\lambda_1+\\dots+\\lambda_d)$." },
+  { "id": "cml.05.c6", "front": "Erreur de reconstruction avec $k$ composantes", "back": "$\\|X-\\hat X\\|_F^2=(N-1)(\\lambda_{k+1}+\\dots+\\lambda_d)$." },
+  { "id": "cml.05.c7", "front": "Lien avec la SVD", "back": "$X=U\\Sigma V^\\top$ : les directions principales sont les colonnes de $V$ ; $\\lambda_i=\\sigma_i^2/(N-1)$. La SVD est plus stable." },
+  { "id": "cml.05.c8", "front": "Formes d'une transformation ACP", "back": "$Z=X_c\\,W^\\top$ avec composantes $W:(k,d)$ donne $Z:(N,k)$ ; reconstruction $ZW+\\text{mean}:(N,d)$." },
+  { "id": "cml.05.c9", "front": "Pourquoi centrer les données ?", "back": "Sinon la moyenne au carré domine et le premier axe pointe vers la moyenne." },
+  { "id": "cml.05.c10", "front": "Quand faut-il standardiser avant l'ACP ?", "back": "Quand les variables ont des unités ou des échelles différentes ; sinon la variable à grande échelle domine." },
+  { "id": "cml.05.c11", "front": "Les signes des composantes principales ont-ils un sens ?", "back": "Non : $w$ et $-w$ décrivent la même direction." },
+  { "id": "cml.05.c12", "front": "Idée du multiplicateur de Lagrange", "back": "À un optimum contraint, $\\nabla f=\\lambda\\nabla g$ : le gradient de l'objectif est parallèle à celui de la contrainte." },
+  { "id": "cml.05.c13", "front": "Limites de l'ACP", "back": "Linéaire, non supervisée, sensible à l'échelle ; rate les structures courbes et les directions de faible variance pertinentes pour les étiquettes." }
+]

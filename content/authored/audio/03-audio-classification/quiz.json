@@ -1,0 +1,123 @@
+[
+ {
+  "id": "aud.03.q1",
+  "concept": "aud.classify",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A classifier needs a fixed-size input but clips have different lengths. Which option solves this?",
+  "options": [
+   "zero-pad every clip to the longest clip and ignore the problem of silence",
+   "summarise frame features over time (e.g. mean and standard deviation) or use global pooling",
+   "use a different sampling rate per clip",
+   "discard all clips shorter than average"
+  ],
+  "answer": 1,
+  "explanation": "Mean/std over time or global pooling gives a vector whose size does not depend on the number of frames."
+ },
+ {
+  "id": "aud.03.q2",
+  "concept": "aud.classify",
+  "kind": "mcq",
+  "prompt": "Cosine k-NN predicts the label by...",
+  "options": [
+   "averaging the labels of all training clips",
+   "fitting a linear boundary by gradient descent",
+   "a majority vote among the $k$ training clips with highest cosine similarity",
+   "choosing the class with the largest mean feature"
+  ],
+  "answer": 2,
+  "explanation": "k-NN has no training: it stores examples, ranks them by similarity to the query and votes."
+ },
+ {
+  "id": "aud.03.q3",
+  "concept": "aud.classify",
+  "kind": "numeric",
+  "prompt": "A 3x3 convolution with padding 1 and stride 1 is applied to an input of length 100. What is the output length?",
+  "options": [],
+  "answer": {
+   "value": 100,
+   "tol": 0
+  },
+  "explanation": "$\\lfloor(100+2-3)/1\\rfloor+1=100$."
+ },
+ {
+  "id": "aud.03.q4",
+  "concept": "aud.classify",
+  "kind": "numeric",
+  "prompt": "How many parameters does a Conv2d layer with 32 input channels, 64 output channels and a 3x3 kernel have (including biases)?",
+  "options": [],
+  "answer": {
+   "value": 18496,
+   "tol": 0
+  },
+  "explanation": "$32\\cdot64\\cdot9+64=18432+64=18496$."
+ },
+ {
+  "id": "aud.03.q5",
+  "concept": "aud.classify",
+  "kind": "mcq",
+  "prompt": "A model answers 'negative' for every clip in a test set with 95 negatives and 5 positives. Which statement is true?",
+  "options": [
+   "accuracy 0.95 and macro F1 about 0.49",
+   "accuracy 0.50 and macro F1 0.50",
+   "accuracy 0.95 and macro F1 0.95",
+   "accuracy 1.0 and macro F1 1.0"
+  ],
+  "answer": 0,
+  "explanation": "Accuracy is $95/100$. F1 is $0.974$ for the negative class and $0$ for the positive class, so macro F1 $=0.487$."
+ },
+ {
+  "id": "aud.03.q6",
+  "concept": "aud.classify",
+  "kind": "numeric",
+  "prompt": "A class has 10 true clips; the model finds 6 of them and also labels 2 clips of other classes as this class. What is its precision? (Give a decimal.)",
+  "options": [],
+  "answer": {
+   "value": 0.75,
+   "tol": 0.001
+  },
+  "explanation": "Precision $=6/(6+2)=0.75$; recall would be $6/10=0.6$."
+ },
+ {
+  "id": "aud.03.q7",
+  "concept": "aud.specaugment",
+  "kind": "mcq",
+  "prompt": "What does SpecAugment do?",
+  "options": [
+   "it shifts the pitch of the waveform by random semitones",
+   "it masks random time and frequency bands of the log-mel spectrogram",
+   "it adds a second microphone channel",
+   "it resamples the audio at a random rate"
+  ],
+  "answer": 1,
+  "explanation": "Random frequency bands and time spans are replaced by a constant, so the network must not depend on any single patch."
+ },
+ {
+  "id": "aud.03.q8",
+  "concept": "aud.specaugment",
+  "kind": "mcq",
+  "prompt": "Which augmentation is the worst choice for identifying a song from a short recording (Shazam-style)?",
+  "options": [
+   "adding background noise",
+   "a time shift",
+   "a change of volume",
+   "a pitch shift"
+  ],
+  "answer": 3,
+  "explanation": "The pitch pattern is the identifying information; an augmentation must not change the information used for supervision."
+ },
+ {
+  "id": "aud.03.q9",
+  "concept": "aud.classify",
+  "kind": "mcq",
+  "prompt": "Clips cut from the same long recording appear in both the training and test sets. The usual consequence is...",
+  "options": [
+   "an overly optimistic test score because the model can recognise the recording",
+   "an overly pessimistic test score",
+   "no effect, since clips are different",
+   "a crash during training"
+  ],
+  "answer": 0,
+  "explanation": "The test clips are not independent of the training clips, so the score no longer estimates performance on new recordings."
+ }
+]

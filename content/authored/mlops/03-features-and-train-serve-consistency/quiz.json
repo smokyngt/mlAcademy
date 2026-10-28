@@ -1,0 +1,135 @@
+[
+ {
+  "id": "ops.03.q1",
+  "concept": "ops.skew",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What is train/serve skew?",
+  "options": [
+   "A systematic difference between the features used in training and those received at serving",
+   "Training being slower than serving",
+   "Class imbalance in the training set",
+   "Using two different models"
+  ],
+  "answer": 0,
+  "explanation": "The model is evaluated offline on one feature distribution and run on another; nothing crashes, but accuracy drops."
+ },
+ {
+  "id": "ops.03.q2",
+  "concept": "ops.feature-pipelines",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Where should the mean and standard deviation for feature scaling be computed?",
+  "options": [
+   "On the entire dataset before splitting",
+   "Separately on each split",
+   "On the training split only, then reused for validation, test and serving",
+   "On the test split"
+  ],
+  "answer": 2,
+  "explanation": "Statistics from the test split leak information; using each split's own statistics makes the transformation differ between splits."
+ },
+ {
+  "id": "ops.03.q3",
+  "concept": "ops.skew",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "You have five weeks of click data whose click rate depends on trends of the day. Which split avoids leakage?",
+  "options": [
+   "Random 80/20 split of all rows",
+   "Train on weeks 1-4, test on week 5",
+   "Test on a random day of each week",
+   "Train on week 5, test on weeks 1-4"
+  ],
+  "answer": 1,
+  "explanation": "A time split prevents future information from entering training."
+ },
+ {
+  "id": "ops.03.q4",
+  "concept": "ops.skew",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Two scans of the same patient, a week apart, land in train and test. This is...",
+  "options": [
+   "feature crossing",
+   "covariate shift",
+   "scaling before splitting",
+   "group leakage"
+  ],
+  "answer": 3,
+  "explanation": "Strongly correlated rows from one group must be kept in the same split."
+ },
+ {
+  "id": "ops.03.q5",
+  "concept": "ops.skew",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Training age has mean 30 and standard deviation 5. In serving, the age feature is accidentally sent in months (mean about 360). By how many training standard deviations has the mean moved?",
+  "options": [],
+  "answer": {
+   "value": 66,
+   "tol": 0.5
+  },
+  "explanation": "$(360-30)/5=66$; a shift check with threshold 0.5 flags this immediately."
+ },
+ {
+  "id": "ops.03.q6",
+  "concept": "ops.feature-pipelines",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What problem does the hashing trick solve for categorical features?",
+  "options": [
+   "It removes the need for scaling",
+   "It eliminates all collisions",
+   "It maps unseen categories to a fixed-size index space without a vocabulary",
+   "It makes categories ordinal"
+  ],
+  "answer": 2,
+  "explanation": "The index is hash(category) mod a fixed size, so new categories are encoded without growing the model; collisions are random and usually harmless."
+ },
+ {
+  "id": "ops.03.q7",
+  "concept": "ops.skew",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A newly added feature raises the validation AUC from 0.70 to 0.99. The most sensible first reaction is...",
+  "options": [
+   "suspect leakage and investigate how the feature is generated, e.g. with ablation",
+   "ship it",
+   "add more such features",
+   "lower the learning rate"
+  ],
+  "answer": 0,
+  "explanation": "A huge jump from one feature is more often leaked label information than a miracle."
+ },
+ {
+  "id": "ops.03.q8",
+  "concept": "ops.feature-pipelines",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A feature has 90% coverage in training but 20% in test. This most likely indicates...",
+  "options": [
+   "a great feature",
+   "that the feature is categorical",
+   "nothing; coverage is irrelevant",
+   "the splits do not come from the same distribution or the feature is generated differently"
+  ],
+  "answer": 3,
+  "explanation": "A large coverage gap between splits is a sign of different distributions or of a leaking or inconsistent feature."
+ },
+ {
+  "id": "ops.03.q9",
+  "concept": "ops.feature-pipelines",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The core principle behind a feature store is...",
+  "options": [
+   "store only labels",
+   "one definition of each feature, served to both offline training and online inference",
+   "faster GPUs",
+   "automatic hyper-parameter tuning"
+  ],
+  "answer": 1,
+  "explanation": "A single definition avoids two diverging implementations of the same feature."
+ }
+]

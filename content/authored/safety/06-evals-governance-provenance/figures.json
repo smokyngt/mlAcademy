@@ -1,0 +1,90 @@
+[
+  {
+    "id": "wilson-decision",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A threshold decision under noise: a framework says take extra precautions if the capability rate reaches a threshold. Act when the upper confidence bound (not the point estimate) reaches it: 3/100 gives 0.085 (below 0.10), 8/100 gives 0.150 (above), and even 0/40 still allows 0.088.",
+      "fr": "Une décision de seuil sous bruit : un cadre dit de prendre des précautions supplémentaires si le taux de capacité atteint un seuil. Agir quand la borne supérieure de confiance (et non l'estimation ponctuelle) l'atteint : 3/100 donne 0,085 (sous 0,10), 8/100 donne 0,150 (au-dessus), et même 0/40 autorise encore 0,088."
+    },
+    "code": {
+      "en": "flowchart LR\n  E[\"run eval suite<br/>k successes in n trials\"] --> W[\"Wilson upper bound\"]\n  W --> D{\"upper bound >= threshold?\"}\n  D -->|\"yes\"| A[\"treat capability as possibly present:<br/>extra precautions\"]\n  D -->|\"no\"| OK[\"below threshold, keep monitoring\"]",
+      "fr": "flowchart LR\n  E[\"lancer la suite d'évaluation<br/>k succès sur n essais\"] --> W[\"borne haute de Wilson\"]\n  W --> D{\"borne haute >= seuil ?\"}\n  D -->|\"oui\"| A[\"considérer la capacité comme possible :<br/>précautions supplémentaires\"]\n  D -->|\"non\"| OK[\"sous le seuil, continuer la surveillance\"]"
+    }
+  },
+  {
+    "id": "watermark-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Green-list watermarking. Generation: hash the previous token and a secret key to split the vocabulary into green and red, then add delta to the green logits before sampling. Detection: recompute the split, count the green tokens g among T pairs and compute a z-score against the null that each is green with probability gamma.",
+      "fr": "Tatouage par liste verte. Génération : hacher le jeton précédent et une clé secrète pour séparer le vocabulaire en vert et rouge, puis ajouter delta aux logits verts avant l'échantillonnage. Détection : recalculer la séparation, compter les jetons verts g parmi T paires et calculer un score z contre l'hypothèse nulle que chacun est vert avec probabilité gamma."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph GEN[\"Generation\"]\n    P[\"previous token + key\"] --> H[\"hash: green set (fraction gamma)\"]\n    H --> L[\"logits of green tokens + delta\"] --> SM[\"sample next token\"]\n  end\n  subgraph DET[\"Detection\"]\n    TX[\"text of n tokens\"] --> CT[\"count green g among T=n-1 pairs\"]\n    CT --> Z[\"z = (g - gamma T) / sqrt(T gamma (1-gamma))\"]\n    Z --> TH{\"z above threshold?\"}\n  end",
+      "fr": "flowchart TB\n  subgraph GEN[\"Génération\"]\n    P[\"jeton précédent + clé\"] --> H[\"hachage : ensemble vert (fraction gamma)\"]\n    H --> L[\"logits des jetons verts + delta\"] --> SM[\"échantillonner le jeton suivant\"]\n  end\n  subgraph DET[\"Détection\"]\n    TX[\"texte de n jetons\"] --> CT[\"compter les verts g parmi T=n-1 paires\"]\n    CT --> Z[\"z = (g - gamma T) / sqrt(T gamma (1-gamma))\"]\n    Z --> TH{\"z au-dessus du seuil ?\"}\n  end"
+    }
+  },
+  {
+    "id": "green-fraction",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Expected green fraction of watermarked text when probability mass is spread evenly: f = gamma e^delta / (1 + gamma (e^delta - 1)) with gamma = 0.5 (blue). At delta = 2 this is 0.881; the grey line is the unwatermarked baseline gamma.",
+      "fr": "Fraction verte attendue d'un texte tatoué quand la masse de probabilité est répartie uniformément : f = gamma e^delta / (1 + gamma (e^delta - 1)) avec gamma = 0,5 (bleu). Pour delta = 2 on obtient 0,881 ; la ligne grise est la référence sans tatouage gamma."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        0.4,
+        1.02
+      ],
+      "title": "delta",
+      "data": [
+        {
+          "fn": "0.5*exp(x)/(1 + 0.5*(exp(x) - 1))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5",
+          "color": "#9ca3af"
+        }
+      ]
+    }
+  },
+  {
+    "id": "z-score-growth",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Evidence grows like the square root of the length: E[z] = (f - gamma) sqrt(T) / sqrt(gamma (1-gamma)) with f = 0.881 and gamma = 0.5 is about 0.762 sqrt(T) (blue). It crosses z = 4 (red line, p about 3e-5) at roughly T = 28 tokens in this idealised case.",
+      "fr": "L'évidence croît comme la racine de la longueur : E[z] = (f - gamma) sqrt(T) / sqrt(gamma (1-gamma)) avec f = 0,881 et gamma = 0,5 vaut environ 0,762 sqrt(T) (bleu). Elle franchit z = 4 (ligne rouge, p d'environ 3e-5) vers T = 28 jetons dans ce cas idéalisé."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        60
+      ],
+      "yDomain": [
+        0,
+        7
+      ],
+      "title": "T",
+      "data": [
+        {
+          "fn": "0.762*sqrt(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "4",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,357 @@
+[
+  {
+    "id": "power-curves",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Power of a two-sided test at alpha = 0.05 against the runs per group n, power = Phi(delta/sigma * sqrt(n/2) - 1.96): effect sizes 0.2 (red), 0.5 (orange) and 0.8 (blue). (Phi is drawn with the logistic approximation 1/(1+e^(-1.702z)), error under 0.01.) The 0.8 target is reached at n = 393, 63 and 25; ten runs per arm detect a half-sigma effect only about one time in six.",
+      "fr": "Puissance d'un test bilatéral à alpha = 0,05 en fonction du nombre d'exécutions par groupe n, puissance = Phi(delta/sigma * sqrt(n/2) - 1,96) : tailles d'effet 0,2 (rouge), 0,5 (orange) et 0,8 (bleu). (Phi est tracée avec l'approximation logistique 1/(1+e^(-1,702z)), erreur inférieure à 0,01.) La cible 0,8 est atteinte à n = 393, 63 et 25 ; dix exécutions par bras ne détectent un effet d'un demi-sigma qu'environ une fois sur six."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        150
+      ],
+      "yDomain": [
+        0,
+        1.02
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "1/(1+exp(-1.702*(0.8*sqrt(x/2)-1.96)))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1+exp(-1.702*(0.5*sqrt(x/2)-1.96)))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1/(1+exp(-1.702*(0.2*sqrt(x/2)-1.96)))",
+          "color": "#dc2626"
+        },
+        {
+          "fn": "0.8",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#7c3aed",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              63,
+              0.8
+            ],
+            [
+              25,
+              0.8
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "null-alt",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The power derivation as two bell curves of the test statistic Z: under H0 it is N(0,1) (blue); under H1 it is shifted by delta/se (orange, here 2.80 for n = 63 and delta/sigma = 0.5). Power is the orange area beyond the cut-off z = 1.96.",
+      "fr": "La dérivation de la puissance comme deux courbes en cloche de la statistique Z : sous H0 elle suit N(0,1) (bleu) ; sous H1 elle est décalée de delta/se (orange, ici 2,80 pour n = 63 et delta/sigma = 0,5). La puissance est l'aire orange au-delà du seuil z = 1,96."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        7
+      ],
+      "yDomain": [
+        0,
+        0.45
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "exp(-x^2/2)/sqrt(2*3.14159265)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-(x-2.8)^2/2)/sqrt(2*3.14159265)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(-(x-2.8)^2/2)/sqrt(2*3.14159265)",
+          "range": [
+            1.96,
+            7
+          ],
+          "closed": true,
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1.96,
+          "text": "z = 1.96"
+        }
+      ]
+    }
+  },
+  {
+    "id": "fwer",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Family-wise error rate with m independent tests at alpha = 0.05: 1-(1-0.05)^m (blue). It is 0.226 at m = 5 and 0.642 at m = 20, which is also the chance that a flexible analyst with k forks 'finds' something when nothing exists. Bonferroni tests each at 0.05/m to stay under 0.05 (grey line).",
+      "fr": "Taux d'erreur par famille avec m tests indépendants à alpha = 0,05 : 1-(1-0,05)^m (bleu). Il vaut 0,226 pour m = 5 et 0,642 pour m = 20, ce qui est aussi la chance qu'un analyste flexible avec k embranchements « trouve » quelque chose alors qu'il n'y a rien. Bonferroni teste chacun à 0,05/m pour rester sous 0,05 (ligne grise)."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        30
+      ],
+      "yDomain": [
+        0,
+        1.02
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1-0.95^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.05",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              5,
+              0.226
+            ],
+            [
+              20,
+              0.642
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "bh-procedure",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Benjamini-Hochberg on the eight sorted p-values of the worked example (rank k on the x axis; ranks 7 and 8, p = 0.30 and 0.62, are off the chart). The line is the threshold 0.05*k/8 (orange); the last p-value under it is rank 4, so four hypotheses are rejected. Bonferroni's flat threshold 0.05/8 = 0.00625 (grey) rejects only the first.",
+      "fr": "Benjamini-Hochberg sur les huit p-valeurs triées de l'exemple (rang k en abscisse ; les rangs 7 et 8, p = 0,30 et 0,62, sont hors du graphique). La droite est le seuil 0,05*k/8 (orange) ; la dernière p-valeur en dessous est de rang 4, donc quatre hypothèses sont rejetées. Le seuil plat de Bonferroni 0,05/8 = 0,00625 (gris) ne rejette que la première."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        8.5
+      ],
+      "yDomain": [
+        0,
+        0.07
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.05*x/8",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.00625",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              1,
+              0.001
+            ],
+            [
+              2,
+              0.008
+            ],
+            [
+              3,
+              0.012
+            ],
+            [
+              4,
+              0.021
+            ],
+            [
+              5,
+              0.034
+            ],
+            [
+              6,
+              0.041
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              1,
+              0.001
+            ],
+            [
+              2,
+              0.008
+            ],
+            [
+              3,
+              0.012
+            ],
+            [
+              4,
+              0.021
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              5,
+              0.034
+            ],
+            [
+              6,
+              0.041
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "interaction",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "An interaction in a 2x2 ablation: factor A off/on on the x axis (0 or 1). With B off (grey) A does nothing (0.80 to 0.80); with B on (blue) A lifts the result from 0.80 to 0.90. Non-parallel lines mean interaction I = 0.10, which one-factor-at-a-time would miss.",
+      "fr": "Une interaction dans une ablation 2x2 : facteur A désactivé/activé en abscisse (0 ou 1). Avec B désactivé (gris) A ne change rien (0,80 à 0,80) ; avec B activé (bleu) A fait passer le résultat de 0,80 à 0,90. Des droites non parallèles signifient une interaction I = 0,10, que le one-factor-at-a-time raterait."
+    },
+    "spec": {
+      "xDomain": [
+        -0.3,
+        1.3
+      ],
+      "yDomain": [
+        0.75,
+        0.95
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#9ca3af",
+          "points": [
+            [
+              0,
+              0.8
+            ],
+            [
+              1,
+              0.8
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#6b7280",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0,
+              0.8
+            ],
+            [
+              1,
+              0.8
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0.8
+            ],
+            [
+              1,
+              0.9
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0,
+              0.8
+            ],
+            [
+              1,
+              0.9
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "budget-stages",
+    "after": 9,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Compute budgeting in stages: a pilot (about 10%) estimates sigma and catches bugs, the power calculation sets the number of seeds, and only then the main run executes, with a reserve for confirming surprises.",
+      "fr": "Budget de calcul par étapes : un pilote (environ 10 %) estime sigma et détecte les bogues, le calcul de puissance fixe le nombre de graines, et seulement ensuite le run principal s'exécute, avec une réserve pour confirmer les surprises."
+    },
+    "code": {
+      "en": "flowchart LR\n  PI[\"1. pilot, about 10% of budget<br/>few seeds, smallest config:<br/>estimate sigma, check metric\"] --> PW[\"2. power calculation<br/>n = 2 sigma^2 (z_a + z_b)^2 / delta^2\"]\n  PW --> FIT{\"n x configs x minutes<br/>fits the budget?\"}\n  FIT -->|no| CH[\"change the design:<br/>pair arms, bigger delta,<br/>less noise\"]\n  CH --> PW\n  FIT -->|yes| MN[\"3. main experiment<br/>analysis script tested on pilot\"]\n  MN --> RS[\"4. reserve:<br/>confirm surprising results\"]",
+      "fr": "flowchart LR\n  PI[\"1. pilote, environ 10 % du budget<br/>peu de graines, plus petite config :<br/>estimer sigma, vérifier la métrique\"] --> PW[\"2. calcul de puissance<br/>n = 2 sigma^2 (z_a + z_b)^2 / delta^2\"]\n  PW --> FIT{\"n x configs x minutes<br/>tient dans le budget ?\"}\n  FIT -->|non| CH[\"changer le plan :<br/>apparier les bras, delta plus grand,<br/>moins de bruit\"]\n  CH --> PW\n  FIT -->|oui| MN[\"3. expérience principale<br/>script d'analyse testé sur le pilote\"]\n  MN --> RS[\"4. réserve :<br/>confirmer les résultats surprenants\"]"
+    }
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "seq.02.ex2",
+  "title": "Entraîner un minuscule skip-gram et l'interroger",
+  "prompt": "`sgns_step` (une mise à jour SGD de la perte à échantillonnage négatif) est fournie. Tu écris le pipeline de données et la boucle d'entraînement.\n\n- `make_pairs(sentences, vocab, window)` : liste de `(centre_id, context_id)` pour chaque paire ordonnée dans la fenêtre.\n- `noise_distribution(sentences, vocab)` : comptages unigrammes élevés à la puissance 0.75, normalisés.\n- `train_skipgram(sentences, dim, window, k, epochs, lr, seed)` : renvoie `(vocab, E, losses)` où `E = V + U` et `losses` est la perte moyenne par époque. Mélange les paires à chaque époque et tire `k` négatifs par paire dans la distribution de bruit.\n- `cosine(a, b)` et `most_similar(word, vocab, E, topn)`.",
+  "hints": [
+    "make_pairs : pour chaque position i et chaque j à moins de `window` de i (j != i), émets (id[i], id[j]).",
+    "noise = counts**0.75 normalisé pour sommer à 1 ; tire les négatifs avec rng.choice(n, size=k, p=noise).",
+    "Après l'entraînement, utilise E = V + U (somme des deux tables) et la similarité cosinus a.b / (|a||b|). most_similar : classe tous les autres mots par cosinus."
+  ]
+}

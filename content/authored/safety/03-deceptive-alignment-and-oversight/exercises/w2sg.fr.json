@@ -1,0 +1,10 @@
+{
+  "id": "saf.03.ex2",
+  "title": "Du faible au fort : écart de performance récupéré",
+  "prompt": "La généralisation du faible au fort demande : si un apprenant fort est entraîné uniquement sur les étiquettes d'un superviseur plus faible, quelle part du potentiel de l'apprenant fort est récupérée ? L'**écart de performance récupéré** est `PGR = (strong_on_weak - weak) / (ceiling - weak)`.\n\nCadre jouet : la vraie étiquette est `sign(X @ w)` avec 20 variables. L'apprenant « fort » est une régression logistique sur les 20 variables. Deux types de superviseur faible :\n- `random` : la vraie étiquette avec 30 % des étiquettes inversées indépendamment (précision faible 0.7).\n- `systematic` : l'étiquette issue d'une règle qui n'utilise que les 5 premières variables.\n\nImplémente `fit_logreg(X, y)` (300 pas de descente de gradient, taux d'apprentissage 0.5, à partir de zéros), `accuracy(theta, X, y)` et `pgr(weak, strong_on_weak, ceiling)`. La fonction auxiliaire `run(seed, mode)` (donnée dans le code de départ) les utilise.",
+  "hints": [
+    "Ajuste la régression logistique par descente de gradient : th -= lr * X.T @ (sigmoid(X @ th) - y) / n, en partant de zéros.",
+    "PGR = (strong_on_weak_labels - weak) / (ceiling - weak).",
+    "Le bruit d'étiquettes aléatoire se moyenne dans un modèle linéaire ; un annotateur qui ne regarde que 5 variables donne des étiquettes qu'un modèle linéaire peut reproduire exactement, erreurs comprises."
+  ]
+}

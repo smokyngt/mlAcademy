@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.05.c1",
+  "front": "Les deux étapes de la diffusion latente",
+  "back": "1) entraîner un VAE/autoencodeur et le geler ; 2) entraîner le modèle de diffusion sur les latents $z=E(x)$ ; décoder avec $D$."
+ },
+ {
+  "id": "gen.05.c2",
+  "front": "Pourquoi diffuser dans l'espace latent ?",
+  "back": "Le tenseur est bien plus petit (environ 48x pour un sous-échantillonnage 8x), donc chaque étape de débruitage coûte beaucoup moins ; la perte est inchangée."
+ },
+ {
+  "id": "gen.05.c3",
+  "front": "Cross-attention",
+  "back": "$\\mathrm{softmax}(QK^\\top/\\sqrt{d_k})V$ avec $Q$ issu des caractéristiques de l'image, $K,V$ issus des tokens de texte."
+ },
+ {
+  "id": "gen.05.c4",
+  "front": "Forme typique d'un latent",
+  "back": "$(B,4,64,64)$ pour une image $512\\times512$ avec un sous-échantillonnage 8x."
+ },
+ {
+  "id": "gen.05.c5",
+  "front": "ControlNet",
+  "back": "Base gelée + copie entraînable de l'encodeur alimentée par une condition spatiale, reliées par des convolutions initialisées à zéro."
+ },
+ {
+  "id": "gen.05.c6",
+  "front": "Mise à jour LoRA",
+  "back": "$W'=W+\\frac{\\alpha}{r}BA$, $A\\in\\mathbb R^{r\\times d_\\text{in}}$, $B\\in\\mathbb R^{d_\\text{out}\\times r}$, $B$ initialisé à 0."
+ },
+ {
+  "id": "gen.05.c7",
+  "front": "Nombre de paramètres de LoRA",
+  "back": "$r(d_\\text{out}+d_\\text{in})$ au lieu de $d_\\text{out}d_\\text{in}$."
+ },
+ {
+  "id": "gen.05.c8",
+  "front": "Formule du guidage sans classifieur",
+  "back": "$\\tilde\\varepsilon=\\varepsilon_u+w(\\varepsilon_c-\\varepsilon_u)$."
+ },
+ {
+  "id": "gen.05.c9",
+  "front": "Dérivation du CFG",
+  "back": "$p_w(x|c)\\propto p(x)p(c|x)^w$ ; score $=\\nabla\\log p(x)+w(\\nabla\\log p(x|c)-\\nabla\\log p(x))$ ; multiplier par $-\\sqrt{1-\\bar\\alpha_t}$."
+ },
+ {
+  "id": "gen.05.c10",
+  "front": "Comment un seul réseau sert-il pour $\\varepsilon_c$ et $\\varepsilon_u$ ?",
+  "back": "La condition est supprimée aléatoirement (environ 10 %) pendant l'entraînement."
+ },
+ {
+  "id": "gen.05.c11",
+  "front": "Effet d'une grande échelle de guidage",
+  "back": "Meilleure fidélité au prompt mais images saturées et moins diversifiées ; coût de deux passes dans le réseau par étape."
+ },
+ {
+  "id": "gen.05.c12",
+  "front": "Prédicteur de bruit vs score",
+  "back": "$\\varepsilon_\\theta=-\\sqrt{1-\\bar\\alpha_t}\\,\\nabla_{x_t}\\log p_t(x_t)$."
+ },
+ {
+  "id": "gen.05.c13",
+  "front": "Qu'enseignent LoRA et ControlNet ?",
+  "back": "LoRA : de nouveaux concepts/styles dans les poids. ControlNet : un nouveau signal de conditionnement spatial."
+ },
+ {
+  "id": "gen.05.c14",
+  "front": "Peut-on fusionner des adaptateurs LoRA ?",
+  "back": "Oui : $W'=W+\\Delta W$ n'ajoute aucun coût d'inférence ; plusieurs adaptateurs s'additionnent."
+ }
+]

@@ -1,0 +1,16 @@
+[
+  {"id": "trf.01.c1", "concept": "trf.attention", "front": "Scaled dot-product attention formula", "back": "$\\operatorname{softmax}(QK^\\top/\\sqrt{d_k})\\,V$, softmax over each row (the key axis)."},
+  {"id": "trf.01.c2", "concept": "trf.attention", "front": "Roles of query, key, value", "back": "Query: what I look for. Key: what I advertise. Value: what I hand over if selected. Output = weighted average of values."},
+  {"id": "trf.01.c3", "concept": "trf.attention", "front": "How are Q, K, V computed?", "back": "$Q=XW_Q$, $K=XW_K$, $V=XW_V$; $W_Q,W_K:(d_{model},d_k)$, $W_V:(d_{model},d_v)$."},
+  {"id": "trf.01.c4", "concept": "trf.attention", "front": "Shape of the score / weight matrix", "back": "$(T,T)$ per head, $(B,T,T)$ batched; row $i$ = distribution of token $i$ over all tokens."},
+  {"id": "trf.01.c5", "concept": "trf.attention", "front": "Variance of $q\\cdot k$ for unit-variance independent entries", "back": "$d_k$ (sum of $d_k$ independent terms of variance 1)."},
+  {"id": "trf.01.c6", "concept": "trf.attention", "front": "Why divide by $\\sqrt{d_k}$?", "back": "$\\operatorname{Var}(s/\\sqrt{d_k})=1$. It avoids near-one-hot softmax whose Jacobian is almost zero (vanishing gradient)."},
+  {"id": "trf.01.c7", "concept": "trf.attention", "front": "Softmax Jacobian", "back": "$\\partial p_i/\\partial s_j=p_i(\\delta_{ij}-p_j)$. Near 0 when $p$ is one-hot."},
+  {"id": "trf.01.c8", "concept": "trf.attention", "front": "Time and memory of attention in $T$", "back": "$O(T^2d_k)$ time, $O(T^2)$ memory per head; constant sequential depth."},
+  {"id": "trf.01.c9", "concept": "trf.attention", "front": "Why subtract the row max in softmax?", "back": "Softmax is shift invariant; subtracting the max prevents overflow of $e^{s}$ without changing the result."},
+  {"id": "trf.01.c10", "concept": "trf.attention", "front": "Output of token $i$", "back": "$z_i=\\sum_j a_{ij}v_j$, a convex combination of value vectors; $Z=AV$, shape $(T,d_v)$."},
+  {"id": "trf.01.c11", "concept": "trf.attention", "front": "Self- vs cross-attention", "back": "Self: Q, K, V from the same sequence. Cross: Q from one sequence, K and V from another."},
+  {"id": "trf.01.c12", "concept": "trf.attention", "front": "Why separate key and value projections?", "back": "Finding a token (key) and using its content (value) are different jobs; two maps let the model learn both."},
+  {"id": "trf.01.c13", "concept": "trf.attention", "front": "Attention vs recurrence", "back": "Attention links any two tokens in one step and parallelises over the sequence, at $O(T^2)$ cost; an RNN is $O(T)$ but sequential."},
+  {"id": "trf.01.c14", "concept": "trf.attention", "front": "Batched transpose of K in NumPy", "back": "`np.swapaxes(K, -1, -2)` or `K.transpose(0, 2, 1)`: $(B,T,d_k)\\to(B,d_k,T)$."}
+]

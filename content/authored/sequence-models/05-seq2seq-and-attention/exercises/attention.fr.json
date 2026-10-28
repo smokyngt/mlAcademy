@@ -1,0 +1,10 @@
+{
+  "id": "seq.05.ex1",
+  "title": "Attention additive : poids, contexte et passe arrière",
+  "prompt": "Implémente l'attention de Bahdanau (additive) pour un pas de décodeur.\n\n- `additive_attention(s, H, Wa, Ua, v, mask=None)` avec l'état du décodeur `s (d_s,)`, les états de l'encodeur `H (T, d_h)`, `Wa (A, d_s)`, `Ua (A, d_h)`, `v (A,)`. Scores $e_i=v^\\top\\tanh(W_as+U_ah_i)$, poids $\\alpha=\\operatorname{softmax}(e)$ et contexte $c=\\sum_i\\alpha_ih_i$. Si `mask` (booléen, `True` = vrai token) est donné, les positions remplies doivent avoir un poids exactement 0. Renvoie `(ctx, alpha, cache)`.\n- `additive_attention_backward(dctx, cache)` renvoie `(ds, dH, dWa, dUa, dv)`.\n- `scaled_dot_attention(Q, K, Vv)` : $\\operatorname{softmax}(QK^\\top/\\sqrt d)\\,V$ ligne par ligne, avec `Q (Tq, d)`, `K (Tk, d)`, `Vv (Tk, dv)` ; renvoie `(out, weights)`. C'est la forme utilisée dans l'auto-attention : avec `Q = K = Vv = X`, elle relie chaque position à toutes les positions de la même séquence.",
+  "hints": [
+    "Z = s @ Wa.T + H @ Ua.T a la forme (T, A) (le terme du décodeur de forme (A,) se diffuse). u = tanh(Z), e = u @ v a la forme (T,). Les positions masquées reçoivent e = -1e9 avant le softmax. alpha = softmax(e), ctx = alpha @ H.",
+    "Passe arrière : dalpha = H @ dctx ; dH = outer(alpha, dctx) ; de = alpha * (dalpha - alpha @ dalpha) (rétropropagation du softmax) ; dv = u.T @ de ; du = outer(de, v) ; dZ = du * (1 - u**2).",
+    "Puis dWa = outer(dZ.sum(0), s), ds = Wa.T @ dZ.sum(0), dUa = dZ.T @ H, et dH += dZ @ Ua."
+  ]
+}

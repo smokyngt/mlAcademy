@@ -1,0 +1,10 @@
+{
+  "id": "math.13.ex1",
+  "title": "Estimateurs, ridge comme MAP, intervalle t et bootstrap",
+  "prompt": "Implémente, avec NumPy uniquement :\n\n- `variance_ml(x)` - variance divisant par `N` ; `variance_unbiased(x)` - divisant par `N-1`.\n- `bias_of_variance(N, ntrials, seed)` - simule `ntrials` jeux de données de `N` nombres normaux standard (utilise `np.random.default_rng(seed).normal(size=(ntrials, N))`) et renvoie la paire `(moyenne de variance_ml, moyenne de variance_unbiased)` sur les jeux de données.\n- `ridge_1d(x, y, lam)` - le poids MAP pour `y = w x` avec un a priori gaussien, c.-à-d. le minimiseur de `sum((y - w x)^2) + lam w^2`.\n- `lam_from_prior(sigma2, tau2)` - la force de ridge impliquée par la variance du bruit `sigma2` et la variance a priori `tau2`.\n- `t_interval(x, tcrit)` - `(low, high)` de `mean +/- tcrit * s / sqrt(n)` avec `s` non biaisé.\n- `paired_t(a, b)` - la statistique t appariée des différences `b - a`.\n- `bootstrap_ci(d, B, seed)` - intervalle à 95 % par percentiles de la moyenne de `d` avec `B` rééchantillonnages.",
+  "hints": [
+    "variance_ml divise par N, variance_unbiased par N-1 : utilise np.sum((x - x.mean())**2) et divise toi-même.",
+    "ridge_1d : (x @ y) / (x @ x + lam). t_interval : mean +/- tcrit * s / sqrt(n) avec s calculé avec ddof=1.",
+    "bootstrap_ci : rng = np.random.default_rng(seed) ; pour chacun des B tours, tire len(d) valeurs avec rng.choice(d, size=len(d)) (la remise est le comportement par défaut) et stocke la moyenne ; renvoie np.percentile(means, [2.5, 97.5])."
+  ]
+}

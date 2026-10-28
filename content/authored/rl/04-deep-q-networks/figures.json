@@ -1,0 +1,59 @@
+[
+  {
+    "id": "dqn-sequence",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One DQN training step as a sequence: act epsilon-greedily with the online weights, store the transition, sample a random minibatch, build targets from the frozen target network, update the online weights, and copy them every C steps.",
+      "fr": "Un pas d'entraînement DQN en séquence : agir epsilon-glouton avec les poids en ligne, stocker la transition, tirer un minibatch aléatoire, construire les cibles avec le réseau cible gelé, mettre à jour les poids en ligne et les copier tous les C pas."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant E as Environment\n  participant N as Online net\n  participant D as Replay buffer\n  participant T as Target net\n  N->>E: a (epsilon-greedy)\n  E->>D: (s, a, r, s', d)\n  D->>N: random minibatch\n  T->>N: y = r + gamma (1-d) max Q_target(s',.)\n  N->>N: gradient step on (y - Q(s,a))^2\n  N-->>T: copy W every C steps",
+      "fr": "sequenceDiagram\n  participant E as Environnement\n  participant N as Réseau en ligne\n  participant D as Tampon de rejeu\n  participant T as Réseau cible\n  N->>E: a (epsilon-glouton)\n  E->>D: (s, a, r, s', d)\n  D->>N: minibatch aléatoire\n  T->>N: y = r + gamma (1-d) max Q_target(s',.)\n  N->>N: pas de gradient sur (y - Q(s,a))^2\n  N-->>T: copie de W tous les C pas"
+    }
+  },
+  {
+    "id": "q-network-shapes",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The linear Q-function: features phi(s) of dimension d times a weight matrix W (d, |A|) give one value per action; only the row of the action taken receives gradient.",
+      "fr": "La fonction Q linéaire : les variables phi(s) de dimension d multipliées par une matrice W (d, |A|) donnent une valeur par action ; seule la ligne de l'action choisie reçoit du gradient."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"state s\"] --> PHI[\"phi(s) (d)\"]\n  PHI --> M[\"x W   W: (d, |A|)\"]\n  M --> Q[\"Q(s,.) (|A|)\"]\n  Q -->|\"argmax\"| A[\"action\"]\n  Q -->|\"Q(s,a)\"| L[\"loss with y\"]",
+      "fr": "flowchart LR\n  S[\"état s\"] --> PHI[\"phi(s) (d)\"]\n  PHI --> M[\"x W   W: (d, |A|)\"]\n  M --> Q[\"Q(s,.) (|A|)\"]\n  Q -->|\"argmax\"| A[\"action\"]\n  Q -->|\"Q(s,a)\"| L[\"perte avec y\"]"
+    }
+  },
+  {
+    "id": "huber",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Squared error (orange) versus the Huber loss (blue) of the TD error delta. The original DQN clips the error, which is equivalent to Huber: past |delta| = 1 the gradient stays bounded.",
+      "fr": "Erreur quadratique (orange) contre perte de Huber (bleu) de l'erreur TD delta. Le DQN d'origine tronque l'erreur, ce qui équivaut à Huber : au-delà de |delta| = 1 le gradient reste borné."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        0,
+        6
+      ],
+      "title": "loss(delta)",
+      "data": [
+        {
+          "fn": "x^2/2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "abs(x) <= 1 ? x^2/2 : abs(x) - 0.5",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,100 @@
+#@@ meta
+{"id": "dl.02.ex1", "title": "Inverted dropout, weight decay and ridge as MAP", "difficulty": 3, "runtime": "pyodide", "concepts": ["dl.dropout", "dl.weight-decay"], "hints": ["Mask: (rng.random(x.shape) >= p) / (1 - p). Store it in self.mask and reuse it in backward.", "decay_step: (1 - lr*lam) * W - lr * g. Check that it equals W - lr*(g + lam*W).", "Ridge MAP: solve (X^T X + lam I) w = X^T y with lam = sigma2 / tau2; np.linalg.solve is better than inverting."]}
+#@@ prompt
+Implement three small pieces.
+
+1. `Dropout(p, seed)` with `forward(x, train=True)` and `backward(dy)`. Use **inverted** scaling: kept units are multiplied by `1/(1-p)`. In evaluation mode (`train=False`) return `x` unchanged. `backward` must reuse the mask from the last training forward pass (dropped units get zero gradient, kept units get `dy/(1-p)`); if the last forward was in evaluation mode, backward returns `dy`.
+2. `decay_step(W, g, lr, lam)` returning the new weights after one gradient step on `loss + lam/2 * ||W||^2`, written as shrink-then-step: `(1 - lr*lam) * W - lr * g`. Do not modify `W` in place.
+3. `ridge_map(X, y, sigma2, tau2)` returning the MAP weights of a linear model with Gaussian noise (variance `sigma2`) and a zero-mean Gaussian prior (variance `tau2`) on the weights, i.e. ridge regression with `lam = sigma2 / tau2`.
+#@@ starter
+import numpy as np
+
+class Dropout:
+    def __init__(self, p, seed=0):
+        self.p = p
+        self.rng = np.random.default_rng(seed)
+        self.mask = None
+    def forward(self, x, train=True):
+        raise NotImplementedError
+    def backward(self, dy):
+        raise NotImplementedError
+
+def decay_step(W, g, lr, lam):
+    raise NotImplementedError
+
+def ridge_map(X, y, sigma2, tau2):
+    raise NotImplementedError
+
+d = Dropout(0.5, seed=1)
+x = np.full((4, 3), 2.0)
+print(d.forward(x))
+#@@ tests
+import numpy as np
+
+x = np.full((2000, 50), 2.0)
+d = Dropout(0.5, seed=1)
+y = d.forward(x, train=True)
+check("kept units are scaled to a/(1-p) = 4, dropped are 0", lambda: set(np.unique(y)) <= {0.0, 4.0})
+check("about half of the units are dropped", lambda: abs((y == 0).mean() - 0.5) < 0.02)
+check("expected activation is preserved (mean about a = 2)", lambda: abs(y.mean() - 2.0) < 0.05)
+check("variance is a^2 p/(1-p) = 4", lambda: abs(y.var() - 4.0) < 0.2)
+check("evaluation mode returns x unchanged", lambda: np.array_equal(d.forward(x, train=False), x))
+d2 = Dropout(0.3, seed=2)
+a = np.arange(1.0, 13.0).reshape(3, 4)
+out = d2.forward(a, train=True)
+dy = np.ones_like(a) * 5.0
+dx = d2.backward(dy)
+check("backward is zero exactly where forward dropped the unit", lambda: np.array_equal(dx == 0, out == 0))
+check("backward scales kept units by 1/(1-p)", lambda: np.allclose(dx[out != 0], 5.0 / 0.7))
+check("backward matches d(out)/d(a) times dy", lambda: np.allclose(dx, dy * (out / a)))
+d2.forward(a, train=False)
+check("backward after an evaluation forward is the identity", lambda: np.array_equal(d2.backward(dy), dy))
+d3 = Dropout(0.0, seed=0)
+check("p = 0 leaves activations unchanged", lambda: np.array_equal(d3.forward(a, train=True), a))
+
+W = np.array([1.0, -2.0]); g = np.array([0.5, 0.5])
+W0 = W.copy()
+new = decay_step(W, g, 0.1, 0.5)
+check("decay_step equals W - lr*(g + lam*W)", lambda: np.allclose(new, W0 - 0.1 * (g + 0.5 * W0)))
+check("decay_step does not modify W", lambda: np.array_equal(W, W0))
+w = np.zeros(1)
+for _ in range(2000):
+    w = decay_step(w, w - 3.0, 0.1, 0.5)
+check("L2-regularised minimum of 0.5(w-3)^2 is 3/(1+0.5) = 2", lambda: abs(w[0] - 2.0) < 1e-6)
+
+rng = np.random.default_rng(0)
+X = rng.normal(size=(20, 3))
+yv = X @ np.array([1.0, -2.0, 0.5]) + rng.normal(0, 0.5, 20)
+w_map = ridge_map(X, yv, 0.25, 1.0)
+grad = X.T @ (X @ w_map - yv) / 0.25 + w_map / 1.0
+check("gradient of the negative log posterior vanishes at the MAP", lambda: np.abs(grad).max() < 1e-8)
+w_ols = np.linalg.lstsq(X, yv, rcond=None)[0]
+check("the prior shrinks the weights (smaller norm than least squares)", lambda: np.linalg.norm(w_map) < np.linalg.norm(w_ols))
+check("a very wide prior recovers least squares", lambda: np.allclose(ridge_map(X, yv, 0.25, 1e9), w_ols, atol=1e-6))
+#@@ solution
+import numpy as np
+
+class Dropout:
+    def __init__(self, p, seed=0):
+        self.p = p
+        self.rng = np.random.default_rng(seed)
+        self.mask = None
+    def forward(self, x, train=True):
+        if not train or self.p == 0:
+            self.mask = None
+            return x
+        self.mask = (self.rng.random(x.shape) >= self.p) / (1 - self.p)
+        return x * self.mask
+    def backward(self, dy):
+        return dy if self.mask is None else dy * self.mask
+
+def decay_step(W, g, lr, lam):
+    return (1 - lr * lam) * W - lr * g
+
+def ridge_map(X, y, sigma2, tau2):
+    lam = sigma2 / tau2
+    return np.linalg.solve(X.T @ X + lam * np.eye(X.shape[1]), X.T @ y)
+
+d = Dropout(0.5, seed=1)
+x = np.full((4, 3), 2.0)
+print(d.forward(x))

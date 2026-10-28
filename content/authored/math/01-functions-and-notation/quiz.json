@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.01.q1", "concept": "alg.functions", "stage": "pre",
+    "prompt": "A layer takes a 784-pixel image vector and outputs 128 numbers. Which signature describes it?",
+    "options": ["$f:\\mathbb{R}^{128}\\to\\mathbb{R}^{784}$", "$f:\\mathbb{R}^{784}\\to\\mathbb{R}^{128}$", "$f:\\mathbb{R}\\to\\mathbb{R}^{128\\times 784}$", "$f:\\mathbb{R}^{784}\\to\\mathbb{R}$"],
+    "answer": 1,
+    "explanation": "The domain is the input space (784 numbers) and the codomain the output space (128 numbers), written $f:\\mathbb{R}^{784}\\to\\mathbb{R}^{128}$. The weight matrix has shape $128\\times784$, but that is a parameter, not the input."
+  },
+  {
+    "id": "f2n.01.q2", "concept": "alg.summation",
+    "prompt": "Compute $\\sum_{i=1}^{3}(2i+1)$.",
+    "kind": "numeric", "options": [], "answer": { "value": 15, "tol": 0.001 },
+    "explanation": "$(2\\cdot1+1)+(2\\cdot2+1)+(2\\cdot3+1)=3+5+7=15$. With linearity: $2\\cdot(1+2+3)+3\\cdot1=12+3=15$."
+  },
+  {
+    "id": "f2n.01.q3", "concept": "alg.exp-log",
+    "prompt": "Which identity is correct for positive $a,b$?",
+    "options": ["$\\ln(a+b)=\\ln a+\\ln b$", "$\\ln(ab)=\\ln a+\\ln b$", "$\\ln(ab)=\\ln a\\cdot\\ln b$", "$\\ln(a/b)=\\ln a/\\ln b$"],
+    "answer": 1,
+    "explanation": "$\\ln$ is the inverse of $\\exp$, and $\\exp(u+v)=\\exp(u)\\exp(v)$ turns into $\\ln(ab)=\\ln a+\\ln b$. The other options confuse sums, products and quotients. The correct quotient rule is $\\ln(a/b)=\\ln a-\\ln b$."
+  },
+  {
+    "id": "f2n.01.q4", "concept": "alg.exp-log",
+    "prompt": "You multiply 400 probabilities of about 0.1 in float64 and get exactly 0. What is the best fix?",
+    "options": ["Use float32 instead", "Add the logarithms of the probabilities instead of multiplying", "Multiply in a different order", "Round each probability up to 0.5"],
+    "answer": 1,
+    "explanation": "The true value $10^{-400}$ is below the smallest float64 (about $10^{-308}$), so it underflows. Order does not help, and float32 has an even smaller range. The sum of logs is about $-921$, which is representable."
+  },
+  {
+    "id": "f2n.01.q5", "concept": "alg.functions",
+    "prompt": "If $f(x)=x+1$ and $g(x)=2x$, what is $(g\\circ f)(3)$?",
+    "kind": "numeric", "options": [], "answer": { "value": 8, "tol": 0.001 },
+    "explanation": "$g\\circ f$ applies $f$ first: $f(3)=4$, then $g(4)=8$. The other order would give $f(g(3))=7$: composition is not commutative."
+  },
+  {
+    "id": "f2n.01.q6", "concept": "alg.summation",
+    "prompt": "Which statement about sums is true in general?",
+    "options": ["$\\sum_i a_ib_i=(\\sum_i a_i)(\\sum_i b_i)$", "$\\sum_i (a_i+b_i)=\\sum_i a_i+\\sum_i b_i$", "$\\sum_i a_i^2=(\\sum_i a_i)^2$", "$\\sum_{i=1}^{n} c = c$"],
+    "answer": 1,
+    "explanation": "Only additivity (a consequence of linearity) holds. The product of two sums contains all $n^2$ cross terms, $(\\sum a_i)^2$ includes cross terms $2a_ia_j$, and summing a constant $n$ times gives $nc$."
+  }
+]

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.03.q1",
+  "prompt": "Pour $f(x)=2x^2-3$, que vaut $f(-2)$ ?",
+  "options": [],
+  "explanation": "$f(-2)=2\\cdot4-3=5$."
+ },
+ {
+  "id": "mf.03.q2",
+  "prompt": "Quel est le domaine naturel de $f(x)=\\sqrt{x-1}$ (nombres réels uniquement) ?",
+  "options": [
+   "tous les réels $x$",
+   "$x\\ge1$",
+   "$x>1$ seulement",
+   "$x\\le1$"
+  ],
+  "explanation": "L'expression sous une racine carrée doit être non négative : $x-1\\ge0$, donc $x\\ge1$ (y compris $x=1$)."
+ },
+ {
+  "id": "mf.03.q3",
+  "prompt": "La droite passant par $(0,1)$ et $(2,5)$ a pour pente...",
+  "options": [],
+  "explanation": "Variation verticale sur variation horizontale : $(5-1)/(2-0)=2$."
+ },
+ {
+  "id": "mf.03.q4",
+  "prompt": "La parabole $y=x^2-4x+3$ a son sommet en $x=$...",
+  "options": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "explanation": "Le sommet de $ax^2+bx+c$ est en $x=-b/(2a)=4/2=2$ (valeur $-1$). Les racines sont 1 et 3, symétriques autour de 2."
+ },
+ {
+  "id": "mf.03.q5",
+  "prompt": "Si $g(x)=f(x-3)$, le graphe de $g$ est le graphe de $f$...",
+  "options": [
+   "translaté de 3 unités vers la gauche",
+   "translaté de 3 unités vers la droite",
+   "translaté de 3 unités vers le haut",
+   "étiré d'un facteur 3"
+  ],
+  "explanation": "La sortie en $x$ est égale à la sortie de $f$ en $x-3$, donc chaque particularité se déplace de 3 vers la droite (le signe contre-intuitif)."
+ },
+ {
+  "id": "mf.03.q6",
+  "prompt": "Avec $f(x)=x+1$ et $g(x)=2x$, que vaut $(f\\circ g)(3)$ ?",
+  "options": [],
+  "explanation": "$g(3)=6$ d'abord, puis $f(6)=7$. ($g\\circ f$ donnerait $2\\cdot4=8$ : l'ordre compte.)"
+ },
+ {
+  "id": "mf.03.q7",
+  "prompt": "L'inverse de $f(x)=3x-6$ est...",
+  "options": [
+   "$\\frac{x}{3}+6$",
+   "$\\frac{x+6}{3}$",
+   "$\\frac{x}{3}-2$",
+   "$3x+6$"
+  ],
+  "explanation": "Résous $y=3x-6$ pour $x$ : $x=(y+6)/3$. Vérification : $f((y+6)/3)=y$."
+ },
+ {
+  "id": "mf.03.q8",
+  "prompt": "Quelle fonction n'a AUCUN inverse sur tout $\\mathbb R$ ?",
+  "options": [
+   "$f(x)=2x+1$",
+   "$f(x)=x^3$",
+   "$f(x)=x^2$",
+   "$f(x)=x+5$"
+  ],
+  "explanation": "$x^2$ envoie à la fois $2$ et $-2$ sur $4$, donc une sortie ne détermine pas l'entrée (elle échoue au test de la droite horizontale)."
+ },
+ {
+  "id": "mf.03.q9",
+  "prompt": "Quelle relation n'est PAS une fonction de $x$ ?",
+  "options": [
+   "$y=x^2$",
+   "$y=|x|$",
+   "$x^2+y^2=1$",
+   "$y=2x$"
+  ],
+  "explanation": "Pour $x=0$, le cercle a deux sorties $y=\\pm1$. Une fonction donne exactement une sortie par entrée."
+ }
+]

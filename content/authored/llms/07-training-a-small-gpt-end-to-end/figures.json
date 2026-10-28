@@ -1,0 +1,109 @@
+[
+  {
+    "id": "gpt-shapes",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A GPT-2 style model in shapes: token and position embeddings are added, L pre-norm blocks keep (B,T,d), and a head tied to the embedding table maps to V logits.",
+      "fr": "Un modèle de type GPT-2 en formes : les embeddings de jetons et de positions sont additionnés, L blocs pre-norm gardent (B,T,d), et une tête liée à la table d'embedding projette vers V logits."
+    },
+    "code": {
+      "en": "flowchart TD\n  ids[\"x (B,T)\"] --> TE[\"token embedding E (V,d)\"]\n  pos[\"positions 0..T-1\"] --> PE[\"position embedding P (T,d)\"]\n  TE --> ADD((\"+\"))\n  PE --> ADD\n  ADD --> BL[\"L x block, shape (B,T,d)<br/>x = x + Attn(LN(x)); x = x + MLP(LN(x))\"]\n  BL --> LN[\"final LayerNorm\"]\n  LN --> HD[\"LM head (d,V), tied to E\"]\n  HD --> Z[\"logits (B,T,V)\"]\n  Z --> CE[\"cross-entropy vs y (B,T)\"]",
+      "fr": "flowchart TD\n  ids[\"x (B,T)\"] --> TE[\"embedding de jeton E (V,d)\"]\n  pos[\"positions 0..T-1\"] --> PE[\"embedding de position P (T,d)\"]\n  TE --> ADD((\"+\"))\n  PE --> ADD\n  ADD --> BL[\"L x bloc, forme (B,T,d)<br/>x = x + Attn(LN(x)); x = x + MLP(LN(x))\"]\n  BL --> LN[\"LayerNorm final\"]\n  LN --> HD[\"tête LM (d,V), liée à E\"]\n  HD --> Z[\"logits (B,T,V)\"]\n  Z --> CE[\"entropie croisée vs y (B,T)\"]"
+    }
+  },
+  {
+    "id": "gpt-attention",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Inside one attention layer: a single d to 3d projection, split into heads, scaled scores, mask above the diagonal set to -infinity before the softmax, merge, and an output projection.",
+      "fr": "Dans une couche d'attention : une seule projection d vers 3d, séparée en têtes, scores normalisés, masque au-dessus de la diagonale mis à -infini avant le softmax, fusion et projection de sortie."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (B,T,d)\"] --> QKV[\"qkv Linear<br/>d to 3d\"]\n  QKV --> SP[\"split and reshape<br/>q, k, v (B,h,T,d/h)\"]\n  SP --> SC[\"q k^T / sqrt(d/h)<br/>(B,h,T,T)\"]\n  SC --> MK[\"mask above diagonal<br/>= -inf\"]\n  MK --> SM[\"softmax\"]\n  SM --> AV[\"weights x v<br/>(B,h,T,d/h)\"]\n  AV --> MG[\"merge (B,T,d)\"]\n  MG --> PR[\"projection d x d\"]",
+      "fr": "flowchart LR\n  X[\"x (B,T,d)\"] --> QKV[\"qkv Linear<br/>d vers 3d\"]\n  QKV --> SP[\"découpe et reshape<br/>q, k, v (B,h,T,d/h)\"]\n  SP --> SC[\"q k^T / sqrt(d/h)<br/>(B,h,T,T)\"]\n  SC --> MK[\"masque au-dessus de la diagonale<br/>= -inf\"]\n  MK --> SM[\"softmax\"]\n  SM --> AV[\"poids x v<br/>(B,h,T,d/h)\"]\n  AV --> MG[\"fusion (B,T,d)\"]\n  MG --> PR[\"projection d x d\"]"
+    }
+  },
+  {
+    "id": "lr-schedule",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Warmup then cosine decay (relative to the peak learning rate, w = 100 warmup steps of 1000, floor 0.1): linear ramp t/w, then 0.1 + 0.5*(1-0.1)*(1+cos(pi*(t-w)/(S-w))).",
+      "fr": "Warmup puis décroissance en cosinus (relatif au taux d'apprentissage maximal, w = 100 pas d'échauffement sur 1000, plancher 0,1) : rampe linéaire t/w, puis 0,1 + 0,5*(1-0,1)*(1+cos(pi*(t-w)/(S-w)))."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "x/100",
+          "range": [
+            0,
+            100
+          ],
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.1+0.5*0.9*(1+cos(3.14159265*(x-100)/900))",
+          "range": [
+            100,
+            1000
+          ],
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "grad-clip",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Global-norm clipping with threshold c = 1: the gradient norm after clipping is min(||g||, c) (blue) against the unclipped norm (grey). The direction is kept, only the length is capped.",
+      "fr": "Écrêtage par norme globale avec seuil c = 1 : la norme du gradient après écrêtage vaut min(||g||, c) (bleu) contre la norme non écrêtée (gris). La direction est conservée, seule la longueur est plafonnée."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        4
+      ],
+      "yDomain": [
+        0,
+        4
+      ],
+      "height": 280,
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "min(x,1)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "grad-accum",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Gradient accumulation: split the batch into chunks that fit in memory, add each chunk's gradient weighted by n_k/N, and take one optimiser step; the result equals the full-batch gradient.",
+      "fr": "Accumulation de gradients : découper le lot en morceaux qui tiennent en mémoire, ajouter le gradient de chaque morceau pondéré par n_k/N et faire un seul pas d'optimiseur ; le résultat égale le gradient du lot complet."
+    },
+    "code": {
+      "en": "flowchart LR\n  FB[\"full batch of N examples\"] --> C1[\"chunk 1 (n_1)<br/>forward + backward\"]\n  FB --> C2[\"chunk 2 (n_2)<br/>forward + backward\"]\n  FB --> CK[\"chunk K (n_K)<br/>forward + backward\"]\n  C1 --> ACC[\"accumulate<br/>g = sum of (n_k/N) g_k\"]\n  C2 --> ACC\n  CK --> ACC\n  ACC --> CL[\"clip global norm\"]\n  CL --> ST[\"one AdamW step\"]\n  ST --> Z[\"zero gradients\"]",
+      "fr": "flowchart LR\n  FB[\"lot complet de N exemples\"] --> C1[\"morceau 1 (n_1)<br/>avant + arrière\"]\n  FB --> C2[\"morceau 2 (n_2)<br/>avant + arrière\"]\n  FB --> CK[\"morceau K (n_K)<br/>avant + arrière\"]\n  C1 --> ACC[\"accumuler<br/>g = somme de (n_k/N) g_k\"]\n  C2 --> ACC\n  CK --> ACC\n  ACC --> CL[\"écrêter la norme globale\"]\n  CL --> ST[\"un seul pas AdamW\"]\n  ST --> Z[\"remettre les gradients à zéro\"]"
+    }
+  }
+]

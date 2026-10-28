@@ -1,0 +1,10 @@
+{
+  "id": "seq.01.ex1",
+  "title": "conv2d en passe avant et arrière (im2col)",
+  "prompt": "Implémente une couche de convolution 2D pour un seul échantillon (en réalité une corrélation croisée, comme dans toutes les bibliothèques d'apprentissage profond).\n\n- `conv2d_forward(x, W, b, stride, pad)` avec `x` de forme `(C_in, H, W)`, `W` de forme `(C_out, C_in, K, K)`, `b` de forme `(C_out,)`. Renvoie `(out, cache)` où `out` a la forme `(C_out, H_out, W_out)`.\n- `conv2d_backward(dout, cache)` renvoie `(dx, dW, db)` avec les formes de `x`, `W`, `b`.\n\nUtilise l'idée d'im2col de la leçon : un produit matriciel en passe avant, deux produits matriciels en passe arrière, et un `col2im` qui additionne ensemble les fenêtres qui se chevauchent.",
+  "hints": [
+    "im2col : remplis x, puis pour chaque position de sortie (i, j) copie x_pad[:, i*s:i*s+K, j*s:j*s+K].reshape(-1) dans la colonne i*Wo+j. Puis out = W.reshape(Co, -1) @ cols + b[:, None].",
+    "Passe arrière sous forme matricielle : dY a la forme (Co, Ho*Wo). dW = dY @ cols.T (remodelé en W.shape), db = dY.sum(1), dcols = W.reshape(Co, -1).T @ dY.",
+    "col2im : alloue un tableau rempli de zéros et AJOUTE chaque colonne dans la fenêtre d'où elle vient (les fenêtres se chevauchent, utilise donc +=). Enfin rogne le remplissage."
+  ]
+}

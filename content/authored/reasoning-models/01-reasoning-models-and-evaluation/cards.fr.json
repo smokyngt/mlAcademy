@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.01.c1", "front": "Pourquoi une chaîne de pensée est-elle du « calcul d'inférence » ?", "back": "Chaque token généré coûte un passage avant, donc écrire plus de tokens de raisonnement dépense plus de calcul sur la question." },
+  { "id": "rsn.01.c2", "front": "Quatre étapes de la vérification d'une réponse", "back": "Extraire la réponse finale, normaliser sa notation, vérifier l'équivalence avec la référence, puis moyenner sur le jeu de données." },
+  { "id": "rsn.01.c3", "front": "Comment extraire `\\boxed{...}` avec des accolades imbriquées", "back": "Trouver le dernier `\\boxed`, sauter les espaces, attendre `{`, balayer avec un compteur de profondeur (+1 sur `{`, -1 sur `}`) jusqu'à la profondeur 0 ; renvoyer None si cela ne s'équilibre jamais." },
+  { "id": "rsn.01.c4", "front": "Replis d'extraction et quand les utiliser", "back": "Dernier nombre, texte entier, ou rien. Les replis indulgents conviennent à la mesure ; une règle stricte « boîte seule » convient aux récompenses d'entraînement car elle apprend le format." },
+  { "id": "rsn.01.c5", "front": "Récompense vérifiable", "back": "Une récompense déterministe et automatique, par exemple r = 1 si la réponse extraite est équivalente à la référence, sinon 0 ; aucun modèle de récompense appris n'est nécessaire." },
+  { "id": "rsn.01.c6", "front": "Égalité exacte contre égalité avec tolérance", "back": "Les rationnels exacts sont comparés exactement (0.3333333333 n'est pas 1/3) ; les valeurs irrationnelles (sqrt) sont comparées avec une tolérance relative serrée. Choisis et documente la politique." },
+  { "id": "rsn.01.c7", "front": "Pourquoi comparer les tuples partie par partie", "back": "(2,1) n'est pas (1,2) ; l'ordre et le nombre de parties doivent correspondre, et chaque paire est vérifiée pour l'équivalence." },
+  { "id": "rsn.01.c8", "front": "Définition de pass@k", "back": "La probabilité qu'au moins une des k réponses échantillonnées soit correcte ; avec un taux de réussite p et des échantillons indépendants, elle vaut 1-(1-p)^k." },
+  { "id": "rsn.01.c9", "front": "Estimateur pass@k sans biais", "back": "À partir de n échantillons dont c corrects : 1 - C(n-c, k) / C(n, k) ; vaut 1 quand n-c < k." },
+  { "id": "rsn.01.c10", "front": "Forme produit stable de pass@k", "back": "1 - prod_{i=n-c+1}^{n} (1 - k/i), algébriquement identique à la forme binomiale mais sûre pour de grands n." },
+  { "id": "rsn.01.c11", "front": "Pourquoi la substitution 1-(1-c/n)^k est biaisée", "back": "(1-x)^k est convexe, donc Jensen donne E[(1-c/n)^k] >= (1-p)^k ; la substitution sous-estime pass@k." },
+  { "id": "rsn.01.c12", "front": "Erreur standard d'une précision", "back": "sqrt(p(1-p)/N) ; pour 48,2 % sur 500 problèmes environ 2,2 points, donc un intervalle à 95 % vaut environ plus ou moins 4,4 points." },
+  { "id": "rsn.01.c13", "front": "Pourquoi Wilson plutôt que estimation plus/moins 1,96 ES", "back": "Pour des taux proches de 0 ou 1 ou un petit N, l'intervalle normal peut sortir de [0,1] ; Wilson reste à l'intérieur et a une meilleure couverture." },
+  { "id": "rsn.01.c14", "front": "Pièges d'évaluation à signaler", "back": "Modèle de prompt, limite de tokens (troncature), différences d'appareil/numériques, contamination du benchmark, faux positifs et négatifs du correcteur, taille d'échantillon." }
+]

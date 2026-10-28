@@ -1,0 +1,118 @@
+[
+ {
+  "id": "mf.04.q1",
+  "concept": "mf.explog",
+  "stage": "pre",
+  "prompt": "What is $2^3\\cdot2^4$ written as a single power of 2?",
+  "options": [
+   "$2^{12}$",
+   "$2^7$",
+   "$4^7$",
+   "$2^{1}$"
+  ],
+  "answer": 1,
+  "explanation": "Exponents add when you multiply powers with the same base: $2^{3+4}=2^7=128$."
+ },
+ {
+  "id": "mf.04.q2",
+  "concept": "mf.explog",
+  "kind": "numeric",
+  "prompt": "What is $\\log_2 32$?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "$2^5=32$, so the exponent needed is 5."
+ },
+ {
+  "id": "mf.04.q3",
+  "concept": "mf.explog",
+  "prompt": "$\\ln(e^{3})$ equals...",
+  "options": [
+   "$e$",
+   "$3$",
+   "$1/3$",
+   "$3e$"
+  ],
+  "answer": 1,
+  "explanation": "$\\ln$ is the inverse of $e^x$, so it returns the exponent: 3."
+ },
+ {
+  "id": "mf.04.q4",
+  "concept": "mf.explog",
+  "prompt": "$\\log(ab)$ equals...",
+  "options": [
+   "$\\log a\\cdot\\log b$",
+   "$\\log a+\\log b$",
+   "$\\log a-\\log b$",
+   "$(\\log a)^b$"
+  ],
+  "answer": 1,
+  "explanation": "Logs turn products into sums: it is the exponent rule $a^m a^n=a^{m+n}$ read backwards."
+ },
+ {
+  "id": "mf.04.q5",
+  "concept": "mf.explog",
+  "kind": "numeric",
+  "prompt": "1000 is invested at 5% per year, compounded yearly. After 10 years it is worth about (to the nearest unit)...",
+  "options": [],
+  "answer": {
+   "value": 1629,
+   "tol": 1
+  },
+  "explanation": "$1000\\cdot1.05^{10}=1628.89$."
+ },
+ {
+  "id": "mf.04.q6",
+  "concept": "mf.explog",
+  "prompt": "Which is the change-of-base formula?",
+  "options": [
+   "$\\log_b x=\\ln x\\cdot\\ln b$",
+   "$\\log_b x=\\frac{\\ln x}{\\ln b}$",
+   "$\\log_b x=\\frac{\\ln b}{\\ln x}$",
+   "$\\log_b x=\\ln(x-b)$"
+  ],
+  "answer": 1,
+  "explanation": "From $b^y=x$ take $\\ln$ of both sides: $y\\ln b=\\ln x$, so $y=\\ln x/\\ln b$."
+ },
+ {
+  "id": "mf.04.q7",
+  "concept": "mf.explog",
+  "prompt": "Why do ML systems minimise the SUM of negative log-probabilities rather than multiply the probabilities?",
+  "options": [
+   "Multiplying is not allowed",
+   "A product of many numbers below 1 underflows to 0, while a sum of logs stays finite and has simple gradients",
+   "Logs make probabilities larger",
+   "Sums are always positive"
+  ],
+  "answer": 1,
+  "explanation": "Multiplying thousands of probabilities underflows. Taking logs turns the product into a sum (log law), and the maximiser is unchanged because log is increasing."
+ },
+ {
+  "id": "mf.04.q8",
+  "concept": "mf.explog",
+  "prompt": "$(1+1/n)^n$ approaches which number as $n$ grows very large?",
+  "options": [
+   "1",
+   "2",
+   "$e\\approx2.718$",
+   "infinity"
+  ],
+  "answer": 2,
+  "explanation": "At $n=10^6$ it equals 2.71828...; the limit defines $e$."
+ },
+ {
+  "id": "mf.04.q9",
+  "concept": "mf.explog",
+  "prompt": "What is $\\ln(0)$ or $\\log$ of a negative number (real numbers)?",
+  "options": [
+   "0",
+   "1",
+   "undefined (it tends to $-\\infty$ at 0)",
+   "$e$"
+  ],
+  "answer": 2,
+  "explanation": "No power of a positive base is 0 or negative, so the logarithm does not exist there; this is why ML code adds a tiny constant inside logs."
+ }
+]

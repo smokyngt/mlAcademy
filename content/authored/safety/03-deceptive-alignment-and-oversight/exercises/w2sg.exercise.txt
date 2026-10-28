@@ -1,0 +1,88 @@
+#@@ meta
+{"id": "saf.03.ex2", "title": "Weak-to-strong: performance gap recovered", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.oversight"], "hints": ["Fit logistic regression by gradient descent: th -= lr * X.T @ (sigmoid(X @ th) - y) / n, starting from zeros.", "PGR = (strong_on_weak_labels - weak) / (ceiling - weak).", "Random label noise averages out in a linear model; a labeller that only looks at 5 features gives labels that a linear model can reproduce exactly, mistakes included."]}
+#@@ prompt
+Weak-to-strong generalisation asks: if a strong learner is trained only on labels from a weaker supervisor, how much of the strong learner's potential is recovered? The **performance gap recovered** is `PGR = (strong_on_weak - weak) / (ceiling - weak)`.
+
+Toy setting: the true label is `sign(X @ w)` with 20 features. The "strong" learner is logistic regression on all 20 features. Two kinds of weak supervisor:
+- `random`: the true label with 30% of labels flipped independently (weak accuracy 0.7).
+- `systematic`: the label from a rule that only uses the first 5 features.
+
+Implement `fit_logreg(X, y)` (300 steps of gradient descent, learning rate 0.5, from zeros), `accuracy(theta, X, y)` and `pgr(weak, strong_on_weak, ceiling)`. The helper `run(seed, mode)` (given in the starter) uses them.
+#@@ starter
+import numpy as np
+
+def fit_logreg(X, y):
+    raise NotImplementedError
+
+def accuracy(theta, X, y):
+    raise NotImplementedError
+
+def pgr(weak, strong_on_weak, ceiling):
+    raise NotImplementedError
+
+def run(seed, mode):
+    rng = np.random.default_rng(seed)
+    d = 20
+    w = rng.normal(size=d)
+    def data(n):
+        X = rng.normal(size=(n, d))
+        return X, (X @ w > 0).astype(float)
+    Xtr, ytr = data(2000)
+    Xte, yte = data(4000)
+    if mode == "random":
+        flip = rng.random(2000) < 0.3
+        yw = np.where(flip, 1 - ytr, ytr)
+        weak = 0.7
+    else:
+        yw = (Xtr[:, :5] @ w[:5] > 0).astype(float)
+        weak = float(((Xte[:, :5] @ w[:5] > 0) == yte).mean())
+    strong = accuracy(fit_logreg(Xtr, yw), Xte, yte)
+    ceiling = accuracy(fit_logreg(Xtr, ytr), Xte, yte)
+    return weak, strong, ceiling, pgr(weak, strong, ceiling)
+#@@ tests
+import numpy as np
+check("pgr formula", lambda: abs(pgr(0.6, 0.8, 1.0) - 0.5) < 1e-12)
+check("pgr is 0 when the strong model only matches the weak one", lambda: abs(pgr(0.6, 0.6, 0.9)) < 1e-12)
+wk, st, ce, g = run(0, "random")
+check("ceiling above 0.95", lambda: ce > 0.95)
+check("random weak noise: strong beats weak supervisor", lambda: st > wk + 0.15)
+check("random weak noise: PGR about 0.75", lambda: abs(g - 0.747) < 0.02)
+wk2, st2, ce2, g2 = run(0, "systematic")
+check("systematic weak error: strong model copies the weak rule (PGR near 0)", lambda: abs(g2) < 0.05)
+check("systematic weak accuracy is about 0.555", lambda: abs(wk2 - 0.555) < 0.01)
+check("random noise is recovered far better than systematic error", lambda: g > g2 + 0.5)
+#@@ solution
+import numpy as np
+
+def fit_logreg(X, y):
+    th = np.zeros(X.shape[1])
+    for _ in range(300):
+        p = 1.0 / (1.0 + np.exp(-X @ th))
+        th = th - 0.5 * X.T @ (p - y) / len(y)
+    return th
+
+def accuracy(theta, X, y):
+    return float((((X @ theta) > 0) == y).mean())
+
+def pgr(weak, strong_on_weak, ceiling):
+    return (strong_on_weak - weak) / (ceiling - weak)
+
+def run(seed, mode):
+    rng = np.random.default_rng(seed)
+    d = 20
+    w = rng.normal(size=d)
+    def data(n):
+        X = rng.normal(size=(n, d))
+        return X, (X @ w > 0).astype(float)
+    Xtr, ytr = data(2000)
+    Xte, yte = data(4000)
+    if mode == "random":
+        flip = rng.random(2000) < 0.3
+        yw = np.where(flip, 1 - ytr, ytr)
+        weak = 0.7
+    else:
+        yw = (Xtr[:, :5] @ w[:5] > 0).astype(float)
+        weak = float(((Xte[:, :5] @ w[:5] > 0) == yte).mean())
+    strong = accuracy(fit_logreg(Xtr, yw), Xte, yte)
+    ceiling = accuracy(fit_logreg(Xtr, ytr), Xte, yte)
+    return weak, strong, ceiling, pgr(weak, strong, ceiling)

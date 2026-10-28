@@ -1,0 +1,121 @@
+[
+ {
+  "id": "aud.04.q1",
+  "concept": "aud.ctc",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What is the role of the CTC blank symbol?",
+  "options": [
+   "it marks the end of the utterance",
+   "it means 'no new label at this frame' and separates repeated labels",
+   "it is always predicted during silence only",
+   "it replaces the space character"
+  ],
+  "answer": 1,
+  "explanation": "The blank lets the network emit nothing at a frame and is required between two identical consecutive labels (otherwise they would merge)."
+ },
+ {
+  "id": "aud.04.q2",
+  "concept": "aud.ctc",
+  "kind": "numeric",
+  "prompt": "What is the minimum number of frames $T$ needed to emit the target (1, 1, 1) with CTC?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0
+  },
+  "explanation": "Three labels plus a mandatory blank between each equal pair: 1 _ 1 _ 1 needs 5 frames."
+ },
+ {
+  "id": "aud.04.q3",
+  "concept": "aud.ctc",
+  "kind": "mcq",
+  "prompt": "In the forward recursion, when may a path jump from position $s-2$ to $s$?",
+  "options": [
+   "always",
+   "only if $l'_s$ is a label and $l'_s\\ne l'_{s-2}$",
+   "only if $l'_s$ is a blank",
+   "never"
+  ],
+  "answer": 1,
+  "explanation": "Skipping a blank is allowed only between two different labels; for equal labels it would merge them into one."
+ },
+ {
+  "id": "aud.04.q4",
+  "concept": "aud.ctc",
+  "kind": "numeric",
+  "prompt": "Three frames each have $p(\\text{blank})=0.6$, $p(a)=0.4$. What is $P(\\text{transcript}=a)$ under CTC?",
+  "options": [],
+  "answer": {
+   "value": 0.688,
+   "tol": 0.001
+  },
+  "explanation": "Paths collapsing to 'a': bba, bab, abb, baa, aab, aaa; total $1-0.216-0.096=0.688$ (forward algorithm gives $0.384+0.304$)."
+ },
+ {
+  "id": "aud.04.q5",
+  "concept": "aud.ctc",
+  "kind": "mcq",
+  "prompt": "In that same example greedy decoding returns...",
+  "options": [
+   "'a' because it has the highest transcript probability",
+   "'aa'",
+   "the empty string, although 'a' is more probable",
+   "an error"
+  ],
+  "answer": 2,
+  "explanation": "The most probable symbol at every frame is the blank (0.6), so the best path collapses to the empty string; its transcript probability $0.216$ is lower than $0.688$ for 'a'."
+ },
+ {
+  "id": "aud.04.q6",
+  "concept": "aud.asr",
+  "kind": "mcq",
+  "prompt": "Compared with CTC, what does an RNN-T add?",
+  "options": [
+   "a prediction network over previously emitted labels, so the next label depends on the history",
+   "a convolutional front end",
+   "a requirement for frame-level labels",
+   "autoregressive decoding with cross-attention over the whole input"
+  ],
+  "answer": 0,
+  "explanation": "The prediction network acts as an internal language model; the joiner combines it with the encoder frame. Cost: a $T\\times(U+1)\\times(V+1)$ lattice."
+ },
+ {
+  "id": "aud.04.q7",
+  "concept": "aud.asr",
+  "kind": "numeric",
+  "prompt": "Whisper receives a 30 s window as log-mel frames with a 10 ms hop. After the stride-2 convolution, how many encoder positions are there?",
+  "options": [],
+  "answer": {
+   "value": 1500,
+   "tol": 0
+  },
+  "explanation": "$30/0.01=3000$ frames, halved to 1500 (20 ms each)."
+ },
+ {
+  "id": "aud.04.q8",
+  "concept": "aud.wer",
+  "kind": "numeric",
+  "prompt": "Reference: 'the cat sat on mat'. Hypothesis: 'the cat on a mat'. What is the word error rate? (decimal)",
+  "options": [],
+  "answer": {
+   "value": 0.4,
+   "tol": 0.001
+  },
+  "explanation": "Edit distance 2 (delete 'sat', insert 'a') over 5 reference words."
+ },
+ {
+  "id": "aud.04.q9",
+  "concept": "aud.wer",
+  "kind": "mcq",
+  "prompt": "Which statement about WER is correct?",
+  "options": [
+   "it is always between 0 and 1",
+   "it can exceed 1 when the hypothesis has many insertions",
+   "it measures semantic similarity",
+   "it does not need the reference length"
+  ],
+  "answer": 1,
+  "explanation": "WER $=(S+D+I)/N$ with $N$ the number of reference words; insertions are unbounded."
+ }
+]

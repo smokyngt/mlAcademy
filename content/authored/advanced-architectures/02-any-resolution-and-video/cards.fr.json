@@ -1,0 +1,16 @@
+[
+ {"id": "adv.02.c1", "front": "Trois échecs du redimensionnement carré", "back": "Texte et visages écrasés, contenu rogné, et (avec complément) tokens gaspillés sur du blanc."},
+ {"id": "adv.02.c2", "front": "Patch-n-pack", "back": "Concaténer des séquences de patchs de longueur variable en une seule séquence, avec un masque bloc-diagonal pour que les images restent séparées."},
+ {"id": "adv.02.c3", "front": "Entrées du masque bloc-diagonal", "back": "$M_{ij}=1$ si et seulement si $i,j$ sont dans la même image ; entrées de scores $=\\sum_b n_b^2$."},
+ {"id": "adv.02.c4", "front": "AnyRes (LLaVA-NeXT)", "back": "Découper une image haute résolution en une grille de rognages de la taille de l'encodeur plus une miniature ; tokens $=(rc+1)\\times$ tokens par tuile."},
+ {"id": "adv.02.c5", "front": "Nombre de tokens en résolution dynamique native", "back": "$(H'/u)(W'/u)$ avec $u=$ patch x fusion (28 pour un patch de 14, fusion 2x2)."},
+ {"id": "adv.02.c6", "front": "M-RoPE", "back": "Positions rotatives avec un triplet (temps,ligne,col) par token, de sorte que toute résolution et toute longueur soient légales sans table de positions."},
+ {"id": "adv.02.c7", "front": "min_pixels / max_pixels", "back": "Bornes sur le nombre de pixels (donc de tokens) par image : un plancher pour les entrées minuscules, un plafond pour les énormes."},
+ {"id": "adv.02.c8", "front": "Nombre de tokens vidéo", "back": "$N=D\\,f\\,\\tau$ : durée x images par seconde x tokens par image."},
+ {"id": "adv.02.c9", "front": "Trois façons de réduire les tokens vidéo", "back": "Moins d'images (échantillonnage), moins de tokens par image (pooling), compression apprise (Q-Former ou tokens de résumé)."},
+ {"id": "adv.02.c10", "front": "Octets du cache KV", "back": "$2\\,L\\,h_{kv}\\,d_h\\,N\\,b$ ; linéaire en $N$."},
+ {"id": "adv.02.c11", "front": "FPS dynamique", "back": "Échantillonner davantage d'images là où il y a du mouvement ; exige des positions sensibles au temps (horodatages) pour rester interprétable."},
+ {"id": "adv.02.c12", "front": "Quatre voies vers la vidéo longue", "back": "Contexte brut, attention en anneau entre appareils, compression des tokens, récupération agentique (interroger des clips)."},
+ {"id": "adv.02.c13", "front": "Pourquoi le pooling est-il un compromis ?", "back": "Il réduit les tokens d'un facteur $s^2$ mais perd le détail spatial fin comme les petits textes."},
+ {"id": "adv.02.c14", "front": "Règle empirique du budget de tokens", "back": "OCR/documents environ 1000-4000, graphiques/interfaces environ 700-1000, photos environ 250-600 tokens."}
+]

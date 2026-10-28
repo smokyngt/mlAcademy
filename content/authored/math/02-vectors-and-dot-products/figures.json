@@ -1,0 +1,43 @@
+[
+  {
+    "id": "vector-angle", "after": 7, "kind": "plot",
+    "caption": { "en": "Two vectors a = (3, 1) and b = (1, 3) from the origin. The angle θ between them satisfies cos θ = a·b/(‖a‖‖b‖) = 6/10 = 0.6, so θ ≈ 53.1°.", "fr": "Deux vecteurs a = (3, 1) et b = (1, 3) partant de l'origine. L'angle θ entre eux vérifie cos θ = a·b/(‖a‖‖b‖) = 6/10 = 0,6, donc θ ≈ 53,1°." },
+    "spec": { "xDomain": [-1, 4], "yDomain": [-1, 4], "height": 340,
+      "data": [
+        { "fnType": "vector", "vector": [3, 1], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [1, 3], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" },
+        { "fnType": "points", "graphType": "polyline", "color": "#6b7280", "points": [[0.759,0.253],[0.725,0.339],[0.681,0.42],[0.627,0.496],[0.566,0.566],[0.496,0.627],[0.42,0.681],[0.339,0.725],[0.253,0.759]] }
+      ],
+      "annotations": [{ "x": 3, "text": "a" }, { "y": 3, "text": "b" }] }
+  },
+  {
+    "id": "cosine-curve", "after": 7, "kind": "plot",
+    "caption": { "en": "cos θ as a function of the angle (radians): +1 for parallel vectors (θ = 0), 0 for orthogonal ones (θ = π/2), −1 for opposite ones (θ = π).", "fr": "cos θ en fonction de l'angle (radians) : +1 pour des vecteurs parallèles (θ = 0), 0 pour des vecteurs orthogonaux (θ = π/2), −1 pour des vecteurs opposés (θ = π)." },
+    "spec": { "xDomain": [0, 3.1416], "yDomain": [-1.2, 1.2], "height": 260,
+      "data": [
+        { "fn": "cos(x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0, 1], [1.5708, 0], [3.1416, -1]] }
+      ] }
+  },
+  {
+    "id": "orthogonal-345", "after": 8, "kind": "plot",
+    "caption": { "en": "Worked example 2: a = (3, 4) and b = (4, −3) have dot product 12 − 12 = 0, so they meet at a right angle. Both have length 5.", "fr": "Exemple 2 : a = (3, 4) et b = (4, −3) ont un produit scalaire 12 − 12 = 0, donc elles forment un angle droit. Les deux ont pour longueur 5." },
+    "spec": { "xDomain": [-5, 6], "yDomain": [-5, 6], "height": 340,
+      "data": [
+        { "fnType": "vector", "vector": [3, 4], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [4, -3], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" },
+        { "fnType": "implicit", "fn": "x*x + y*y - 25", "color": "#d1d5db" }
+      ] }
+  },
+  {
+    "id": "projection-axis", "after": 8, "kind": "plot",
+    "caption": { "en": "Worked example 3: projecting a = (2, 3) onto b = (1, 0). The projection is (2, 0) (red) and the leftover (0, 3) (orange) is perpendicular to b.", "fr": "Exemple 3 : projection de a = (2, 3) sur b = (1, 0). La projection vaut (2, 0) (rouge) et le reste (0, 3) (orange) est perpendiculaire à b." },
+    "spec": { "xDomain": [-1, 4], "yDomain": [-1, 4], "height": 320,
+      "data": [
+        { "fnType": "vector", "vector": [2, 3], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [1, 0], "offset": [0, 0], "graphType": "polyline", "color": "#16a34a" },
+        { "fnType": "vector", "vector": [2, 0], "offset": [0, 0], "graphType": "polyline", "color": "#dc2626" },
+        { "fnType": "vector", "vector": [0, 3], "offset": [2, 0], "graphType": "polyline", "color": "#d97706" }
+      ] }
+  }
+]

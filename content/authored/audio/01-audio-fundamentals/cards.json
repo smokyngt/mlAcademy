@@ -1,0 +1,92 @@
+[
+ {
+  "id": "aud.01.c1",
+  "concept": "aud.waveform",
+  "front": "Waveform as data",
+  "back": "A 1-D array of samples $x[n]=s(n/f_s)$, usually float32 in $[-1,1]$; seconds $=n/f_s$."
+ },
+ {
+  "id": "aud.01.c2",
+  "concept": "aud.waveform",
+  "front": "Nyquist frequency",
+  "back": "$f_s/2$. Frequencies above it cannot be represented and alias into $[0,f_s/2]$."
+ },
+ {
+  "id": "aud.01.c3",
+  "concept": "aud.waveform",
+  "front": "Alias of a tone",
+  "back": "$r=f \\bmod f_s$; the tone appears at $\\min(r, f_s-r)$. Example: 7 kHz at 10 kHz sampling appears at 3 kHz."
+ },
+ {
+  "id": "aud.01.c4",
+  "concept": "aud.waveform",
+  "front": "Why do $f$ and $f+m f_s$ give the same samples?",
+  "back": "$e^{i2\\pi m n}=1$: the extra $m f_s$ adds whole turns between consecutive samples."
+ },
+ {
+  "id": "aud.01.c5",
+  "concept": "aud.waveform",
+  "front": "Quantisation step and noise",
+  "back": "Step $\\Delta=2/2^b$; error uniform on $[-\\Delta/2,\\Delta/2]$ with variance $\\Delta^2/12$."
+ },
+ {
+  "id": "aud.01.c6",
+  "concept": "aud.waveform",
+  "front": "SNR of a $b$-bit quantised sine of amplitude $A$",
+  "back": "$6.02\\,b+1.76+20\\log_{10}A$ dB; about 6 dB per bit, 96 dB at 16 bits."
+ },
+ {
+  "id": "aud.01.c7",
+  "concept": "aud.waveform",
+  "front": "Typical sample rates",
+  "back": "8 kHz telephone, 16 kHz speech recognition, 24 kHz modern TTS, 44.1 kHz CD/music, 48 kHz film/pro audio."
+ },
+ {
+  "id": "aud.01.c8",
+  "concept": "aud.stft",
+  "front": "DFT definition",
+  "back": "$X[k]=\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}$: correlation with a sinusoid that makes $k$ turns over the frame."
+ },
+ {
+  "id": "aud.01.c9",
+  "concept": "aud.stft",
+  "front": "Frequency of DFT bin $k$ and resolution",
+  "back": "$f_k=k f_s/N$ Hz; spacing (resolution) $f_s/N$."
+ },
+ {
+  "id": "aud.01.c10",
+  "concept": "aud.stft",
+  "front": "Why only $N/2+1$ bins for real signals?",
+  "back": "Conjugate symmetry $X[N-k]=\\overline{X[k]}$ makes the upper half redundant (`np.fft.rfft`)."
+ },
+ {
+  "id": "aud.01.c11",
+  "concept": "aud.stft",
+  "front": "Number of frames",
+  "back": "$T=1+\\lfloor(L-N)/H\\rfloor$ for signal length $L$, frame $N$, hop $H$; e.g. 10 s, 400/160 at 16 kHz gives 998."
+ },
+ {
+  "id": "aud.01.c12",
+  "concept": "aud.stft",
+  "front": "Periodic Hann window",
+  "back": "$w[n]=0.5-0.5\\cos(2\\pi n/N)$, $n=0..N-1$. Symmetric form divides by $N-1$ (`np.hanning`)."
+ },
+ {
+  "id": "aud.01.c13",
+  "concept": "aud.stft",
+  "front": "Spectral leakage",
+  "back": "Energy of a tone spreading to far-away bins because a frame has abrupt edges; tapering with a window reduces it."
+ },
+ {
+  "id": "aud.01.c14",
+  "concept": "aud.stft",
+  "front": "STFT definition and shape",
+  "back": "$X[t,k]=\\sum_n w[n]x[tH+n]e^{-i2\\pi kn/N}$; complex matrix of shape $(T, N/2+1)$."
+ },
+ {
+  "id": "aud.01.c15",
+  "concept": "aud.stft",
+  "front": "Time-frequency trade-off",
+  "back": "Window of $N/f_s$ seconds resolves $f_s/N$ Hz: long windows give fine pitch but blurry timing, short windows the reverse."
+ }
+]

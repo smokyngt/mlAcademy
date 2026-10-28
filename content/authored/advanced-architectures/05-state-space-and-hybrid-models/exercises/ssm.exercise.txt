@@ -1,0 +1,147 @@
+#@@ meta
+{"id": "adv.05.ex1", "title": "Linear recurrence, selective SSM and parallel scan", "difficulty": 4, "runtime": "pyodide", "concepts": ["adv.ssm", "adv.scan"], "hints": ["Recurrence: h = a * h + b * x[t] (elementwise over the state), y[t] = sum(c * h). The convolution kernel is K[k] = sum(c * a**k * b).", "Scan operator on pairs (a, b) meaning h -> a*h + b: combine((a1,b1),(a2,b2)) = (a1*a2, a2*b1 + b2). Hillis-Steele: for offset = 1, 2, 4, ... update elements i >= offset using the OLD values of element i-offset.", "Selective scan: per step, A_bar = exp(delta_t[:, None] * A) (D, n) and B_bar = delta_t[:, None] * B_t[None, :] (D, n); h = A_bar * h + B_bar * x_t[:, None]; y_t = h @ C_t."]}
+#@@ prompt
+Implement linear state-space recurrences in NumPy.
+
+1. `ssm_recurrent(x, a, b, c)`: one input channel, state size `n`. `x` is `(T,)`, `a, b, c` are `(n,)`. Run `h_t = a * h_{t-1} + b * x_t` (elementwise, `h_{-1} = 0`), `y_t = sum(c * h_t)`. Return `y` of shape `(T,)`.
+2. `ssm_kernel(a, b, c, T)`: the convolution kernel `K_k = sum(c * a**k * b)` for `k = 0..T-1`, shape `(T,)`.
+3. `ssm_convolution(x, a, b, c)`: the same output computed as the causal convolution `y_t = sum_{k<=t} K_k x_{t-k}`.
+4. `scan_combine(e1, e2)`: compose two affine maps `h -> a h + b`, each given as a tuple `(a, b)` (apply `e1` first, then `e2`): returns `(a1*a2, a2*b1 + b2)`.
+5. `sequential_scan(a, b)`: `a` and `b` are `(T,)` arrays; return `h` with `h_t = a_t h_{t-1} + b_t`, `h_{-1} = 0`.
+6. `parallel_scan(a, b)`: the same result computed with the Hillis-Steele inclusive scan using `scan_combine`; return `(h, steps)` where `steps` is the number of doubling rounds performed.
+7. `selective_scan(x, delta, A, B, C)`: Mamba-style selective SSM. `x` is `(T, D)`, `delta` is `(T, D)` positive step sizes, `A` is `(D, n)` negative (continuous decay rates), `B` and `C` are `(T, n)` input-dependent. Discretise per step: `A_bar = exp(delta_t[:, None] * A)`, `B_bar = delta_t[:, None] * B_t[None, :]`. State `h` is `(D, n)`: `h = A_bar * h + B_bar * x_t[:, None]`; output `y_t = h @ C_t` of shape `(D,)`. Return `(T, D)`.
+8. `hybrid_memory_gib(layout, repeats, kv_heads, head_dim, n_tokens, d_model, state_size, bytes_per_value=2)`: `layout` is a string such as `"MMMMMMMA"` (M = SSM layer, A = attention layer) repeated `repeats` times. Attention layers cache `2*kv_heads*head_dim*n_tokens*bytes` each; every SSM layer holds a fixed state of `d_model*state_size*bytes`. Return total GiB (2**30 bytes).
+#@@ starter
+import numpy as np
+
+def ssm_recurrent(x, a, b, c):
+    raise NotImplementedError
+
+def ssm_kernel(a, b, c, T):
+    raise NotImplementedError
+
+def ssm_convolution(x, a, b, c):
+    raise NotImplementedError
+
+def scan_combine(e1, e2):
+    raise NotImplementedError
+
+def sequential_scan(a, b):
+    raise NotImplementedError
+
+def parallel_scan(a, b):
+    raise NotImplementedError
+
+def selective_scan(x, delta, A, B, C):
+    raise NotImplementedError
+
+def hybrid_memory_gib(layout, repeats, kv_heads, head_dim, n_tokens, d_model, state_size, bytes_per_value=2):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+a1, b1, c1 = np.array([0.5]), np.array([1.0]), np.array([1.0])
+imp = ssm_recurrent(np.array([1., 0, 0, 0]), a1, b1, c1)
+check("impulse response is 1, 0.5, 0.25, 0.125", lambda: np.allclose(imp, [1, 0.5, 0.25, 0.125]))
+check("worked example y = 1, 2.5, 1.25, 1.625", lambda: np.allclose(ssm_recurrent(np.array([1., 2, 0, 1]), a1, b1, c1), [1, 2.5, 1.25, 1.625]))
+rng = np.random.default_rng(0)
+a = rng.uniform(0.3, 0.95, size=4); b = rng.normal(size=4); c = rng.normal(size=4)
+x = rng.normal(size=20)
+check("kernel first entries", lambda: abs(ssm_kernel(a, b, c, 5)[0] - np.sum(c * b)) < 1e-12 and abs(ssm_kernel(a, b, c, 5)[2] - np.sum(c * a ** 2 * b)) < 1e-12)
+check("convolution view equals recurrent view", lambda: np.allclose(ssm_convolution(x, a, b, c), ssm_recurrent(x, a, b, c)))
+e1, e2, e3 = (0.5, 1.0), (0.8, -2.0), (0.9, 0.3)
+check("scan_combine is associative", lambda: np.allclose(scan_combine(scan_combine(e1, e2), e3), scan_combine(e1, scan_combine(e2, e3))))
+check("scan_combine applies e1 first", lambda: np.allclose(scan_combine(e1, e2), (0.4, 0.8 * 1.0 - 2.0)))
+ta = np.array([0.5, 0.5, 0.5, 0.5]); tb = np.array([1., 2., 0., 1.])
+check("sequential scan of the worked example", lambda: np.allclose(sequential_scan(ta, tb), [1, 2.5, 1.25, 1.625]))
+hp, steps = parallel_scan(ta, tb)
+check("parallel scan equals sequential", lambda: np.allclose(hp, [1, 2.5, 1.25, 1.625]))
+check("4 elements need 2 rounds", lambda: steps == 2)
+A_ = rng.uniform(0.2, 1.1, size=37); B_ = rng.normal(size=37)
+hp2, st2 = parallel_scan(A_, B_)
+check("parallel == sequential on 37 random elements", lambda: np.allclose(hp2, sequential_scan(A_, B_)))
+check("37 elements need ceil(log2 37) = 6 rounds", lambda: st2 == 6)
+T, D, n = 6, 3, 4
+xs = rng.normal(size=(T, D)); A = -rng.uniform(0.5, 2.0, size=(D, n)); Bs = rng.normal(size=(T, n)); Cs = rng.normal(size=(T, n))
+delta = rng.uniform(0.05, 0.5, size=(T, D))
+y = selective_scan(xs, delta, A, Bs, Cs)
+h = np.zeros((D, n)); ref = []
+for t in range(T):
+    h = np.exp(delta[t][:, None] * A) * h + delta[t][:, None] * Bs[t][None, :] * xs[t][:, None]
+    ref.append(h @ Cs[t])
+check("selective scan matches a hand-written loop", lambda: y.shape == (T, D) and np.allclose(y, np.array(ref)))
+d0 = delta.copy(); d0[2, :] = 0.0
+y0 = selective_scan(xs, d0, A, Bs, Cs)
+x_changed = xs.copy(); x_changed[2] += 100.0
+y1 = selective_scan(x_changed, d0, A, Bs, Cs)
+check("delta = 0 at a step ignores that input and keeps the state (selectivity)", lambda: np.allclose(y0[2:], y1[2:]))
+dbig = delta.copy(); dbig[3, :] = 50.0
+yb = selective_scan(xs, dbig, A, Bs, Cs)
+xo = xs.copy(); xo[:3] += 10.0
+ybo = selective_scan(xo, dbig, A, Bs, Cs)
+check("large delta resets the state: earlier inputs no longer matter at that step", lambda: np.allclose(yb[3], ybo[3], atol=1e-6))
+g = hybrid_memory_gib("MMMMMMMA", 4, 32, 128, 262144, 4096, 16)
+check("Jamba-shaped hybrid (4 attention layers, 32 heads): about 16 GiB of KV", lambda: abs(g - 16.0) < 0.01)
+check("pure transformer, 32 layers MHA at 256k = 128 GiB", lambda: abs(hybrid_memory_gib("A", 32, 32, 128, 262144, 4096, 16) - 128.0) < 0.01)
+check("SSM-only memory does not depend on context length", lambda: abs(hybrid_memory_gib("M", 32, 8, 128, 1000, 4096, 16) - hybrid_memory_gib("M", 32, 8, 128, 10 ** 7, 4096, 16)) < 1e-12)
+#@@ solution
+import numpy as np
+
+def ssm_recurrent(x, a, b, c):
+    h = np.zeros_like(a, dtype=float)
+    y = np.zeros(len(x))
+    for t in range(len(x)):
+        h = a * h + b * x[t]
+        y[t] = np.sum(c * h)
+    return y
+
+def ssm_kernel(a, b, c, T):
+    return np.array([np.sum(c * a ** k * b) for k in range(T)])
+
+def ssm_convolution(x, a, b, c):
+    T = len(x)
+    K = ssm_kernel(a, b, c, T)
+    return np.array([np.sum(K[:t + 1] * x[t::-1]) for t in range(T)])
+
+def scan_combine(e1, e2):
+    return (e1[0] * e2[0], e2[0] * e1[1] + e2[1])
+
+def sequential_scan(a, b):
+    h = np.zeros(len(a))
+    prev = 0.0
+    for t in range(len(a)):
+        prev = a[t] * prev + b[t]
+        h[t] = prev
+    return h
+
+def parallel_scan(a, b):
+    A = np.array(a, dtype=float)
+    B = np.array(b, dtype=float)
+    T = len(A)
+    offset, steps = 1, 0
+    while offset < T:
+        newA, newB = A.copy(), B.copy()
+        for i in range(offset, T):
+            newA[i], newB[i] = scan_combine((A[i - offset], B[i - offset]), (A[i], B[i]))
+        A, B = newA, newB
+        offset *= 2
+        steps += 1
+    return B, steps
+
+def selective_scan(x, delta, A, B, C):
+    T, D = x.shape
+    n = A.shape[1]
+    h = np.zeros((D, n))
+    y = np.zeros((T, D))
+    for t in range(T):
+        Abar = np.exp(delta[t][:, None] * A)
+        Bbar = delta[t][:, None] * B[t][None, :]
+        h = Abar * h + Bbar * x[t][:, None]
+        y[t] = h @ C[t]
+    return y
+
+def hybrid_memory_gib(layout, repeats, kv_heads, head_dim, n_tokens, d_model, state_size, bytes_per_value=2):
+    n_attn = layout.count("A") * repeats
+    n_ssm = layout.count("M") * repeats
+    kv = n_attn * 2 * kv_heads * head_dim * n_tokens * bytes_per_value
+    st = n_ssm * d_model * state_size * bytes_per_value
+    return (kv + st) / 2 ** 30

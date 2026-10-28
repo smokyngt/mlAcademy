@@ -1,0 +1,125 @@
+[
+ {
+  "id": "vis.02.q1",
+  "concept": "vis.classification",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What should be passed to a cross-entropy loss that applies softmax internally?",
+  "options": [
+   "Raw logits",
+   "One-hot predictions",
+   "Probabilities after softmax",
+   "Normalised images"
+  ],
+  "answer": 0,
+  "explanation": "The loss fuses softmax and log; feeding probabilities applies softmax twice and gives wrong gradients."
+ },
+ {
+  "id": "vis.02.q2",
+  "concept": "vis.classification",
+  "kind": "mcq",
+  "prompt": "For softmax cross-entropy with true class $y$, the gradient with respect to logit $z_i$ is...",
+  "options": [
+   "$\\log p_i$",
+   "$1 - p_y$ for every $i$",
+   "$p_i - \\mathbf 1[i=y]$",
+   "$p_i^2$"
+  ],
+  "answer": 2,
+  "explanation": "Differentiating $-z_y+\\log\\sum_j e^{z_j}$ gives $-\\mathbf 1[i=y]+p_i$."
+ },
+ {
+  "id": "vis.02.q3",
+  "concept": "vis.classification",
+  "kind": "numeric",
+  "prompt": "Logits $(2.0,1.0,0.1)$, true class 0. What is the cross-entropy loss (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.417,
+   "tol": 0.002
+  },
+  "explanation": "$p_0=e^2/(e^2+e+e^{0.1})=0.659$, loss $=-\\ln0.659=0.417$."
+ },
+ {
+  "id": "vis.02.q4",
+  "concept": "vis.classification",
+  "kind": "mcq",
+  "prompt": "A 10-class dataset is 95% class A. A model that always predicts A has 95% accuracy. Which tool exposes the problem fastest?",
+  "options": [
+   "Training loss",
+   "Top-5 accuracy",
+   "The learning-rate schedule",
+   "The confusion matrix with per-class recall"
+  ],
+  "answer": 3,
+  "explanation": "Recall of the nine rare classes would be 0. Top-5 would even look excellent."
+ },
+ {
+  "id": "vis.02.q5",
+  "concept": "vis.classification",
+  "kind": "mcq",
+  "prompt": "Three images have logits whose true-class ranks are 1st, 2nd and 4th. What is the top-2 accuracy?",
+  "options": [
+   "1",
+   "0",
+   "2/3",
+   "1/3"
+  ],
+  "answer": 2,
+  "explanation": "The first two have the true class within the top two; the third does not."
+ },
+ {
+  "id": "vis.02.q6",
+  "concept": "vis.transfer",
+  "kind": "mcq",
+  "prompt": "You have 600 labelled photos of everyday objects (a domain close to ImageNet). The most sensible first experiment is...",
+  "options": [
+   "Freeze a pre-trained backbone and train a new linear head",
+   "Use only the first layer of a pre-trained model",
+   "Fine-tune everything with the largest learning rate that does not crash",
+   "Train a large CNN from scratch"
+  ],
+  "answer": 0,
+  "explanation": "With little data and a close domain the frozen features are the safest, cheapest floor; fine-tune afterwards if needed."
+ },
+ {
+  "id": "vis.02.q7",
+  "concept": "vis.transfer",
+  "kind": "numeric",
+  "prompt": "Layer-wise decay $\\eta_k=\\eta_{base}\\gamma^{L-k}$ with $\\gamma=0.5$, $L=4$, $\\eta_{base}=0.016$. What is the learning rate of layer $k=1$?",
+  "options": [],
+  "answer": {
+   "value": 0.002,
+   "tol": 1e-05
+  },
+  "explanation": "$0.016\\cdot0.5^{3}=0.002$."
+ },
+ {
+  "id": "vis.02.q8",
+  "concept": "vis.transfer",
+  "kind": "mcq",
+  "prompt": "Why should early layers get a smaller learning rate than later ones when fine-tuning?",
+  "options": [
+   "They have fewer parameters",
+   "They encode generic features that you want to preserve, while late layers are task-specific",
+   "BatchNorm requires it",
+   "Their gradients are always larger"
+  ],
+  "answer": 1,
+  "explanation": "Large updates to generic early features can destroy them before the new task has taught anything (catastrophic forgetting)."
+ },
+ {
+  "id": "vis.02.q9",
+  "concept": "vis.transfer",
+  "kind": "mcq",
+  "prompt": "After fine-tuning, validation accuracy is lower than the frozen linear-probe accuracy. The most likely causes are...",
+  "options": [
+   "The probe is always unbeatable",
+   "Using top-1 instead of top-5",
+   "A too-high learning rate or BatchNorm statistics problem",
+   "Too much data"
+  ],
+  "answer": 2,
+  "explanation": "Fine-tuning should not lose to its own starting point; a learning-rate or BN bug is the usual culprit."
+ }
+]

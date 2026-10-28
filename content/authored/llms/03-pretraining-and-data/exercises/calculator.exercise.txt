@@ -1,0 +1,110 @@
+#@@ meta
+{"id": "llm.03.ex2", "title": "Parameter, FLOPs and memory calculator", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.scaling", "llm.pretraining-data"], "hints": ["Per block: attention qkv 3d^2+3d, output projection d^2+d, MLP d*(m*d)+m*d and (m*d)*d+d, two LayerNorms 4d. Total 12d^2+13d for m=4. Embeddings V*d (+ctx*d for learned positions), final LayerNorm 2d, and an extra V*d if the head is not tied.", "6ND FLOPs. Compute-optimal with D = r*N: C = 6*r*N^2, so N = sqrt(C / (6 r)).", "best_split: grid over log-spaced N, set D = C / (6N), take the argmin of the loss. Training memory without activations is N * (bytes for weights + gradients + optimiser state)."]}
+#@@ prompt
+Implement a small planning calculator for a GPT-style model.
+
+- `gpt_params(V, d, L, ctx, tied=True, ffn_mult=4)`: exact parameter count of a GPT-2-style model (learned positions, biases, pre-LayerNorm, two LayerNorms per block plus a final one). If `tied` is false add a separate `V*d` output matrix.
+- `train_flops(N, D)`: the `6ND` estimate.
+- `compute_optimal(C, tokens_per_param=20)`: `(N, D)` with `D = tokens_per_param * N` and `6ND = C`.
+- `chinchilla_loss(N, D, A=406.4, B=410.7, alpha=0.34, beta=0.28, E=1.69)`: the parametric loss `A/N^alpha + B/D^beta + E`.
+- `best_split(C, points=4000)`: grid search over `log10 N` in `[6, 13]` with `D = C/(6N)`; return `(N, D, loss)` of the minimum.
+- `training_memory_bytes(N, bytes_weights=4, bytes_grads=4, bytes_opt=8)`: bytes for weights, gradients and Adam states (two moments), **excluding activations**; return a dict with those three and `"total"`.
+- `kv_cache_bytes(L, d, T, B=1, bytes_per=2)`: keys and values for every layer, token and sequence.
+- `days_to_train(C, flops_per_sec, utilisation)`: wall-clock days at the given hardware rate and utilisation.
+#@@ starter
+import numpy as np
+
+def gpt_params(V, d, L, ctx, tied=True, ffn_mult=4):
+    # TODO
+    raise NotImplementedError
+
+def train_flops(N, D):
+    # TODO
+    raise NotImplementedError
+
+def compute_optimal(C, tokens_per_param=20):
+    # TODO
+    raise NotImplementedError
+
+def chinchilla_loss(N, D, A=406.4, B=410.7, alpha=0.34, beta=0.28, E=1.69):
+    # TODO
+    raise NotImplementedError
+
+def best_split(C, points=4000):
+    # TODO
+    raise NotImplementedError
+
+def training_memory_bytes(N, bytes_weights=4, bytes_grads=4, bytes_opt=8):
+    # TODO
+    raise NotImplementedError
+
+def kv_cache_bytes(L, d, T, B=1, bytes_per=2):
+    # TODO
+    raise NotImplementedError
+
+def days_to_train(C, flops_per_sec, utilisation):
+    # TODO
+    raise NotImplementedError
+
+print(gpt_params(50257, 768, 12, 1024))
+#@@ tests
+import numpy as np
+check("GPT-2 small, tied head: 124,439,808", lambda: gpt_params(50257, 768, 12, 1024) == 124439808)
+check("GPT-2 small, separate head: 163,037,184", lambda: gpt_params(50257, 768, 12, 1024, tied=False) == 163037184, "untied adds V*d = 38,597,376")
+check("tiny model count", lambda: gpt_params(10, 4, 1, 8) == 10 * 4 + 8 * 4 + (12 * 16 + 13 * 4) + 2 * 4)
+check("6ND", lambda: train_flops(124439808, 10e9) == 6 * 124439808 * 10e9)
+N, D = compute_optimal(5.88e23)
+check("compute-optimal at 5.88e23 FLOPs is the 70B / 1.4T point", lambda: abs(N / 7.0e10 - 1) < 1e-3 and abs(D / 1.4e12 - 1) < 1e-3)
+check("optimal pair spends exactly C", lambda: abs(6 * N * D / 5.88e23 - 1) < 1e-12)
+check("loss formula", lambda: abs(chinchilla_loss(70e9, 1.4e12) - 1.9366) < 1e-3 and abs(chinchilla_loss(175e9, 300e9) - 2.0023) < 1e-3)
+Nb, Db, Lb = best_split(5.88e23)
+check("best split spends the budget", lambda: abs(6 * Nb * Db / 5.88e23 - 1) < 1e-9)
+check("best split is no worse than the 20 tokens/param rule", lambda: Lb <= chinchilla_loss(N, D) + 1e-12)
+check("optimum is flat: the 20 tokens/param rule is within 0.01 nats", lambda: chinchilla_loss(N, D) - Lb < 0.01)
+check("with these fitted constants the grid optimum uses more than 20 tokens per parameter", lambda: Db / Nb > 20)
+m = training_memory_bytes(124439808)
+check("training memory 16 bytes/param", lambda: m["total"] == 16 * 124439808 and m["weights"] == 4 * 124439808 and m["opt"] == 8 * 124439808)
+check("mixed layout", lambda: training_memory_bytes(10, 2, 2, 12)["total"] == 160)
+check("KV cache GPT-2 small, 1024 tokens, fp32", lambda: kv_cache_bytes(12, 768, 1024, bytes_per=4) == 75497472)
+check("KV cache scales with batch", lambda: kv_cache_bytes(12, 768, 1024, B=4) == 4 * kv_cache_bytes(12, 768, 1024))
+check("days to train", lambda: abs(days_to_train(7.46638848e18, 1e14, 0.4) - 7.46638848e18 / (4e13 * 86400)) < 1e-9)
+#@@ solution
+import numpy as np
+
+def gpt_params(V, d, L, ctx, tied=True, ffn_mult=4):
+    m = ffn_mult
+    block = (3 * d * d + 3 * d) + (d * d + d) + (d * m * d + m * d) + (m * d * d + d) + 4 * d
+    total = V * d + ctx * d + L * block + 2 * d
+    if not tied:
+        total += V * d
+    return total
+
+def train_flops(N, D):
+    return 6 * N * D
+
+def compute_optimal(C, tokens_per_param=20):
+    N = (C / (6 * tokens_per_param)) ** 0.5
+    return N, tokens_per_param * N
+
+def chinchilla_loss(N, D, A=406.4, B=410.7, alpha=0.34, beta=0.28, E=1.69):
+    return A / N ** alpha + B / D ** beta + E
+
+def best_split(C, points=4000):
+    Ns = np.logspace(6, 13, points)
+    Ds = C / (6 * Ns)
+    Ls = chinchilla_loss(Ns, Ds)
+    i = int(np.argmin(Ls))
+    return float(Ns[i]), float(Ds[i]), float(Ls[i])
+
+def training_memory_bytes(N, bytes_weights=4, bytes_grads=4, bytes_opt=8):
+    out = {"weights": N * bytes_weights, "grads": N * bytes_grads, "opt": N * bytes_opt}
+    out["total"] = out["weights"] + out["grads"] + out["opt"]
+    return out
+
+def kv_cache_bytes(L, d, T, B=1, bytes_per=2):
+    return 2 * L * d * T * B * bytes_per
+
+def days_to_train(C, flops_per_sec, utilisation):
+    return C / (flops_per_sec * utilisation) / 86400
+
+print(gpt_params(50257, 768, 12, 1024))

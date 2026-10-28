@@ -1,0 +1,16 @@
+[
+  { "id": "cml.08.c1", "front": "Distance de $x$ à l'hyperplan $f(x)=\\langle w,x\\rangle+b=0$", "back": "$|f(x)|/\\|w\\|$ ; pour un point bien classé $y\\,f(x)/\\|w\\|$." },
+  { "id": "cml.08.c2", "front": "Représentation canonique et marge", "back": "Mettre à l'échelle pour que le point le plus proche ait $yf(x)=1$ ; tous les points vérifient $yf(x)\\ge1$ et la marge vaut $1/\\|w\\|$." },
+  { "id": "cml.08.c3", "front": "SVM à marge dure (primal)", "back": "$\\min_{w,b}\\tfrac12\\|w\\|^2$ s.t. $y_n(\\langle w,x_n\\rangle+b)\\ge1$ pour tout $n$." },
+  { "id": "cml.08.c4", "front": "SVM à marge souple (primal)", "back": "$\\min\\tfrac12\\|w\\|^2+C\\sum\\xi_n$ s.t. $y_nf(x_n)\\ge1-\\xi_n$, $\\xi_n\\ge0$." },
+  { "id": "cml.08.c5", "front": "Signification de l'écart $\\xi_n$", "back": "0 : correct et hors de la marge ; $(0,1]$ : dans la marge, correct ; $>1$ : mal classé. $\\sum\\xi$ majore le nombre d'erreurs." },
+  { "id": "cml.08.c6", "front": "Perte charnière (hinge)", "back": "$\\max\\{0,1-y f(x)\\}$ : nulle au-delà de la marge, linéaire dedans ; majorant convexe de la perte 0-1." },
+  { "id": "cml.08.c7", "front": "SVM à marge souple comme perte régularisée", "back": "$\\tfrac12\\|w\\|^2+C\\sum_n\\max\\{0,1-y_nf(x_n)\\}$ : le terme de marge est le régularisateur." },
+  { "id": "cml.08.c8", "front": "Conditions de stationnarité du lagrangien de la SVM", "back": "$w=\\sum\\alpha_ny_nx_n$, $\\sum\\alpha_ny_n=0$, $C-\\alpha_n-\\gamma_n=0$ (donc $\\alpha_n\\le C$)." },
+  { "id": "cml.08.c9", "front": "SVM duale", "back": "$\\min_\\alpha\\tfrac12\\sum_{ij}\\alpha_i\\alpha_jy_iy_j\\langle x_i,x_j\\rangle-\\sum\\alpha_i$ s.t. $\\sum\\alpha_iy_i=0$, $0\\le\\alpha_i\\le C$." },
+  { "id": "cml.08.c10", "front": "Vecteurs de support", "back": "Points d'entraînement avec $\\alpha_n>0$ : sur la marge ($0<\\alpha<C$) ou dans/violant la marge ($\\alpha=C$). Les autres n'affectent pas $w$." },
+  { "id": "cml.08.c11", "front": "Récupérer le biais $b$", "back": "À partir d'un vecteur de support de marge : $b=y_n-\\langle w,x_n\\rangle$ ; moyenne sur plusieurs pour la stabilité." },
+  { "id": "cml.08.c12", "front": "Astuce du noyau", "back": "Remplacer $\\langle x_i,x_j\\rangle$ par $k(x_i,x_j)=\\langle\\phi(x_i),\\phi(x_j)\\rangle$ ; prédiction $f(x)=\\sum\\alpha_ny_nk(x_n,x)+b$." },
+  { "id": "cml.08.c13", "front": "Noyau RBF et son paramètre", "back": "$k(x,z)=\\exp(-\\gamma\\|x-z\\|^2)$, espace de variables de dimension infinie ; un grand $\\gamma$ est local et sujet au surapprentissage." },
+  { "id": "cml.08.c14", "front": "Sous-gradient de l'objectif de la SVM (forme lam)", "back": "$g_w=\\lambda w-\\frac1N\\sum_{n:\\,y_nf(x_n)<1}y_nx_n$, $g_b=-\\frac1N\\sum_{\\text{viol}}y_n$ ; utilise un pas décroissant." }
+]

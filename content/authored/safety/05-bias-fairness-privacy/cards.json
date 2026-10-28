@@ -1,0 +1,92 @@
+[
+ {
+  "id": "saf.05.c1",
+  "concept": "saf.fairness-criteria",
+  "front": "Representational vs allocational harm",
+  "back": "Representational: stereotypes, erasure, demeaning portrayal. Allocational: unequal distribution of resources or opportunities."
+ },
+ {
+  "id": "saf.05.c2",
+  "concept": "saf.fairness-criteria",
+  "front": "Three families of bias metric",
+  "back": "Embedding-based (associations in representations), probability-based (likelihoods of stereotypical vs counter-stereotypical text), generated-text-based (downstream outputs)."
+ },
+ {
+  "id": "saf.05.c3",
+  "concept": "saf.fairness-criteria",
+  "front": "Why intersectional evaluation",
+  "back": "Bias may appear only for combinations of attributes; single-axis tests miss it."
+ },
+ {
+  "id": "saf.05.c4",
+  "concept": "saf.fairness-criteria",
+  "front": "Demographic parity",
+  "back": "P(Yhat=1 | A=a) equal across groups; ignores the true outcome."
+ },
+ {
+  "id": "saf.05.c5",
+  "concept": "saf.fairness-criteria",
+  "front": "Equalised odds",
+  "back": "Equal TPR and FPR across groups: P(Yhat=1 | Y=y, A=a) the same for y=0 and y=1."
+ },
+ {
+  "id": "saf.05.c6",
+  "concept": "saf.fairness-criteria",
+  "front": "Predictive parity (conditional use accuracy)",
+  "back": "Equal precision across groups: P(Y=1 | Yhat=1, A=a) the same."
+ },
+ {
+  "id": "saf.05.c7",
+  "concept": "saf.fairness-criteria",
+  "front": "PPV from TPR, FPR and base rate",
+  "back": "PPV = TPR*p / (TPR*p + FPR*(1-p)), increasing in p."
+ },
+ {
+  "id": "saf.05.c8",
+  "concept": "saf.fairness-criteria",
+  "front": "Impossibility under unequal base rates",
+  "back": "Equalised odds, equal precision and within-group calibration cannot all hold except for a perfect or degenerate classifier."
+ },
+ {
+  "id": "saf.05.c9",
+  "concept": "saf.fairness-criteria",
+  "front": "Individual fairness",
+  "back": "|f(x)-f(x')| <= L d(x,x'): similar individuals receive similar decisions, with d a task-specific similarity metric."
+ },
+ {
+  "id": "saf.05.c10",
+  "concept": "saf.fairness-criteria",
+  "front": "Counterfactual fairness",
+  "back": "The decision is unchanged if the protected attribute were counterfactually altered, in a given causal model."
+ },
+ {
+  "id": "saf.05.c11",
+  "concept": "saf.differential-privacy",
+  "front": "(epsilon, delta)-DP",
+  "back": "P(M(D) in S) <= e^eps P(M(D') in S) + delta for neighbouring D, D' and all events S."
+ },
+ {
+  "id": "saf.05.c12",
+  "concept": "saf.differential-privacy",
+  "front": "Sensitivity",
+  "back": "The largest change in the query value from changing one record; noise is scaled to it."
+ },
+ {
+  "id": "saf.05.c13",
+  "concept": "saf.differential-privacy",
+  "front": "Laplace mechanism",
+  "back": "Add Lap(sensitivity/eps) noise; gives pure eps-DP because the density ratio is at most exp(sensitivity/b)."
+ },
+ {
+  "id": "saf.05.c14",
+  "concept": "saf.differential-privacy",
+  "front": "Gaussian mechanism calibration",
+  "back": "sigma >= sensitivity * sqrt(2 ln(1.25/delta)) / eps for eps < 1 (conservative sufficient condition); privacy loss is Gaussian."
+ },
+ {
+  "id": "saf.05.c15",
+  "concept": "saf.differential-privacy",
+  "front": "DP-SGD recipe",
+  "back": "Per-example gradients, clip to norm C, sum, add N(0, sigma^2 C^2 I), update; an accountant tracks the total (epsilon, delta)."
+ }
+]

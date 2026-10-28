@@ -1,0 +1,214 @@
+[
+  {
+    "id": "reg-families",
+    "after": 1,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Regularisation as a map: the problem is the train/test gap, and each family removes one way of memorising.",
+      "fr": "La régularisation en un schéma : le problème est l'écart entre entraînement et test, et chaque famille supprime une façon de mémoriser."
+    },
+    "code": {
+      "en": "flowchart TD\n  O[\"Overfitting: train loss low, test loss high\"] --> W[\"Penalise weights: L2 weight decay, L1\"]\n  O --> D[\"Inject noise: dropout\"]\n  O --> E[\"Stop early: best validation epoch\"]\n  O --> A[\"Enlarge data: augmentation\"]\n  O --> C[\"Constrain architecture: normalisation, weight sharing\"]\n  W --> R[\"Smaller test loss, smaller gap\"]\n  D --> R\n  E --> R\n  A --> R\n  C --> R\n  R -.->|\"too much\"| U[\"Underfitting\"]",
+      "fr": "flowchart TD\n  O[\"Surapprentissage : perte d'entraînement basse, perte de test haute\"] --> W[\"Pénaliser les poids : L2 weight decay, L1\"]\n  O --> D[\"Injecter du bruit : dropout\"]\n  O --> E[\"S'arrêter tôt : meilleure époque en validation\"]\n  O --> A[\"Agrandir les données : augmentation\"]\n  O --> C[\"Contraindre l'architecture : normalisation, partage de poids\"]\n  W --> R[\"Perte de test plus faible, écart réduit\"]\n  D --> R\n  E --> R\n  A --> R\n  C --> R\n  R -.->|\"trop fort\"| U[\"Sous-apprentissage\"]"
+    }
+  },
+  {
+    "id": "l1-l2-shapes",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The 1-D example: minimise (w - 3)²/2 (green) with a penalty. L2 with lambda = 0.5 (blue) moves the minimum from 3 to 2; L1 with lambda = 0.5 (orange) moves it to 2.5. The dots mark each minimum.",
+      "fr": "L'exemple 1-D : minimiser (w - 3)²/2 (vert) avec une pénalité. L2 avec lambda = 0,5 (bleu) déplace le minimum de 3 à 2 ; L1 avec lambda = 0,5 (orange) le déplace à 2,5. Les points marquent chaque minimum."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        5
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "height": 320,
+      "title": "objective versus w",
+      "data": [
+        {
+          "fn": "0.5*(x - 3)^2",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "0.5*(x - 3)^2 + 0.25*x^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5*(x - 3)^2 + 0.5*abs(x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              3,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              1.5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2.5,
+              1.375
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "soft-threshold",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Optimal weight versus penalty strength lambda for the same problem. L2 (blue) shrinks proportionally, 3/(1 + lambda), and never reaches zero. L1 (orange) subtracts a constant, max(3 - lambda, 0), and is exactly zero for lambda of 3 or more.",
+      "fr": "Poids optimal en fonction de la force lambda de la pénalité, pour le même problème. L2 (bleu) réduit proportionnellement, 3/(1 + lambda), sans jamais atteindre zéro. L1 (orange) retranche une constante, max(3 - lambda, 0), et vaut exactement zéro dès lambda supérieur ou égal à 3."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        6
+      ],
+      "yDomain": [
+        -0.2,
+        3.2
+      ],
+      "height": 300,
+      "title": "w* versus lambda",
+      "data": [
+        {
+          "fn": "3/(1 + x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "max(3 - x, 0)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dropout-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Inverted dropout. Training: a Bernoulli keep-mask is drawn and the surviving activations are rescaled by 1/(1-p), so the expectation is unchanged. The backward pass reuses the same mask. Evaluation: identity, nothing to rescale.",
+      "fr": "Dropout inversé. Entraînement : on tire un masque de Bernoulli et les activations survivantes sont remises à l'échelle par 1/(1-p), donc l'espérance est inchangée. La passe arrière réutilise le même masque. Évaluation : identité, rien à rééchelonner."
+    },
+    "code": {
+      "en": "flowchart LR\n  a[\"activations a (B,n)\"] --> T{\"training?\"}\n  T -->|\"yes\"| Mk[\"mask m ~ Bernoulli(1-p) (B,n)\"]\n  Mk --> Mul[\"a_tilde = m * a / (1-p)\"]\n  a --> Mul\n  Mul --> Nx[\"next layer\"]\n  T -->|\"no, model.eval()\"| Id[\"a unchanged\"]\n  Id --> Nx\n  Mk -.->|\"same mask\"| Bw[\"backward: dA = m * dA_tilde / (1-p)\"]",
+      "fr": "flowchart LR\n  a[\"activations a (B,n)\"] --> T{\"entraînement ?\"}\n  T -->|\"oui\"| Mk[\"masque m ~ Bernoulli(1-p) (B,n)\"]\n  Mk --> Mul[\"a_tilde = m * a / (1-p)\"]\n  a --> Mul\n  Mul --> Nx[\"couche suivante\"]\n  T -->|\"non, model.eval()\"| Id[\"a inchangé\"]\n  Id --> Nx\n  Mk -.->|\"même masque\"| Bw[\"arrière : dA = m * dA_tilde / (1-p)\"]"
+    }
+  },
+  {
+    "id": "dropout-variance",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The noise added by inverted dropout: Var(a_tilde)/a² = p/(1-p). It is 1/9 at p = 0.1, equal to the signal at p = 0.5 (the dot), and grows quickly beyond.",
+      "fr": "Le bruit ajouté par le dropout inversé : Var(a_tilde)/a² = p/(1-p). Il vaut 1/9 pour p = 0,1, autant que le signal pour p = 0,5 (le point), et croît vite au-delà."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        0.9
+      ],
+      "yDomain": [
+        0,
+        9
+      ],
+      "height": 280,
+      "title": "Var(a_tilde) / a²",
+      "data": [
+        {
+          "fn": "x/(1 - x)",
+          "color": "#7c3aed"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.5,
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "early-stopping",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Schematic early stopping curves (illustrative shapes, not measurements): training loss (blue) keeps falling while validation loss (orange) falls then rises as the network starts fitting noise. Keep the checkpoint at the validation minimum, near epoch 13 here.",
+      "fr": "Courbes schématiques d'arrêt précoce (formes illustratives, pas des mesures) : la perte d'entraînement (bleu) continue de baisser tandis que la perte de validation (orange) baisse puis remonte quand le réseau ajuste le bruit. On garde le point de sauvegarde au minimum de validation, vers l'époque 13 ici."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        1.8
+      ],
+      "height": 300,
+      "title": "loss versus epoch (schematic)",
+      "data": [
+        {
+          "fn": "0.05 + 1.4*exp(-x/6)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.35 + 1.2*exp(-x/4) + 0.012*x",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 13,
+          "text": "stop here"
+        }
+      ]
+    }
+  }
+]

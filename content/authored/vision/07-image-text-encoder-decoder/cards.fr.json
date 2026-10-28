@@ -1,0 +1,17 @@
+[
+  {"id": "vis.07.c1", "front": "Architecture de légendage (Show and Tell)", "back": "Un CNN encode l'image ; un décodeur RNN émet un mot par pas avec un softmax sur le vocabulaire ; entraîné par entropie croisée."},
+  {"id": "vis.07.c2", "front": "Entrée du décodeur au pas t dans la session pratique", "back": "Concaténation du plongement du mot précédent et du vecteur de caractéristiques d'image."},
+  {"id": "vis.07.c3", "front": "Pourquoi forçage de l'enseignant, remplissage et masquage ?", "back": "Entraîner sur l'entropie croisée du mot suivant avec les vrais mots précédents ; remplir pour mettre les légendes en lots et exclure les positions remplies de la perte."},
+  {"id": "vis.07.c4", "front": "Formules de l'attention douce", "back": "$e_i=a_i^\\top W h_{t-1}$, $\\alpha=\\operatorname{softmax}(e)$, $\\hat z=\\sum_i\\alpha_i a_i$. Formes $(R,)$, $(R,)$, $(D,)$."},
+  {"id": "vis.07.c5", "front": "Attention douce vs dure", "back": "Douce : moyenne pondérée, dérivable. Dure : choisir une région, non dérivable, entraînée avec REINFORCE."},
+  {"id": "vis.07.c6", "front": "Pourquoi l'attention sur des régions ?", "back": "Évite de comprimer l'image en un seul vecteur ; chaque mot peut regarder la région pertinente."},
+  {"id": "vis.07.c7", "front": "Échantillonnage à température", "back": "$p'_i=p_i^{1/t}/\\sum_j p_j^{1/t}$. $t<1$ affûte, $t>1$ aplatit, $t=1$ est inchangé."},
+  {"id": "vis.07.c8", "front": "Recherche en faisceau vs échantillonnage", "back": "L'échantillonnage tire les mots au hasard ; la recherche en faisceau garde les meilleures légendes partielles. Le cours cite la recherche en faisceau comme amélioration."},
+  {"id": "vis.07.c9", "front": "BLEU-1", "back": "Précision de unigrammes écrêtée multipliée par la pénalité de brièveté $\\min(1,e^{1-\\rho/|c|})$ avec $\\rho$ la longueur de la référence la plus proche."},
+  {"id": "vis.07.c10", "front": "Pourquoi écrêter les comptes dans BLEU ?", "back": "Pour que répéter un mot qui correspond ('the the the') ne puisse pas gonfler la précision."},
+  {"id": "vis.07.c11", "front": "Limites de BLEU pour les légendes", "back": "Pas de synonymes, pas d'ordre des mots, aucune vérification que les relations entre objets sont justes."},
+  {"id": "vis.07.c12", "front": "Question-réponse visuelle", "back": "Entrée : image et question ; sortie : réponse. Exige un modèle d'image, un modèle de texte, leur interaction et un peu de raisonnement."},
+  {"id": "vis.07.c13", "front": "Architecture typique de VQA", "back": "Caractéristiques CNN de l'image et encodage RNN de la question, fusionnés, puis un classifieur sur les réponses fréquentes (ou un générateur)."},
+  {"id": "vis.07.c14", "front": "Biais des jeux de données de VQA", "back": "A priori comme 'tennis' 41 % pour 'what sport'. VQA 2.0 équilibre les réponses entre les images ; VQA-CP décale les a priori entre l'entraînement et le test."},
+  {"id": "vis.07.c15", "front": "Référence a priori de réponses", "back": "Répondre toujours la réponse d'entraînement la plus fréquente ; un modèle qui en est proche n'utilise pas l'image."}
+]

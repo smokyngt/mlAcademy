@@ -1,0 +1,43 @@
+[
+  {
+    "id": "f2n.06.q1", "concept": "calc.chain", "stage": "pre",
+    "prompt": "If $y=(3x+1)^2$, what is $dy/dx$ at $x=1$?",
+    "kind": "numeric", "options": [], "answer": { "value": 24, "tol": 0.001 },
+    "explanation": "Let $u=3x+1$. Then $dy/du=2u=8$ at $x=1$ ($u=4$) and $du/dx=3$, so $dy/dx=8\\cdot3=24$."
+  },
+  {
+    "id": "f2n.06.q2", "concept": "calc.jacobian",
+    "prompt": "$f:\\mathbb{R}^5\\to\\mathbb{R}^3$. What is the shape of its Jacobian?",
+    "options": ["$5\\times3$", "$3\\times5$", "$3\\times3$", "$15\\times1$"],
+    "answer": 1,
+    "explanation": "$(J_f)_{ij}=\\partial f_i/\\partial x_j$ has one row per output ($m=3$) and one column per input ($n=5$)."
+  },
+  {
+    "id": "f2n.06.q3", "concept": "calc.jacobian",
+    "prompt": "For $h=g\\circ f$ with $f:\\mathbb{R}^n\\to\\mathbb{R}^m$ and $g:\\mathbb{R}^m\\to\\mathbb{R}^k$, the Jacobian of $h$ is...",
+    "options": ["$J_f J_g$", "$J_g J_f$ (evaluated at $f(x)$)", "$J_g+J_f$", "$J_g\\odot J_f$"],
+    "answer": 1,
+    "explanation": "Linearise each map and compose: $(k\\times m)(m\\times n)=(k\\times n)$. The other order does not even have compatible shapes in general."
+  },
+  {
+    "id": "f2n.06.q4", "concept": "calc.jacobian",
+    "prompt": "$y=Wx$, $W\\in\\mathbb{R}^{m\\times n}$, upstream gradient $g=\\nabla_yL\\in\\mathbb{R}^m$. What is $\\nabla_xL$?",
+    "options": ["$Wg$", "$W^\\top g$", "$g x^\\top$", "$x g^\\top$"],
+    "answer": 1,
+    "explanation": "$J=W$ and the vector-Jacobian product is $J^\\top g=W^\\top g\\in\\mathbb{R}^n$. $gx^\\top$ is $\\nabla_WL$, not $\\nabla_xL$. $Wg$ is not even defined unless $m=n$."
+  },
+  {
+    "id": "f2n.06.q5", "concept": "calc.jacobian",
+    "prompt": "Same setting. What is the shape of $\\nabla_WL=g x^\\top$?",
+    "options": ["$n\\times m$", "$m\\times n$", "$m$", "$n$"],
+    "answer": 1,
+    "explanation": "$g$ is $m\\times1$ and $x^\\top$ is $1\\times n$, so the outer product is $m\\times n$: the same shape as $W$, as every gradient must be."
+  },
+  {
+    "id": "f2n.06.q6", "concept": "calc.chain",
+    "prompt": "Elementwise $y=\\phi(z)$ with upstream gradient $g$. Which is $\\nabla_zL$?",
+    "options": ["$\\phi'(z)\\,g$ as a matrix-vector product with a full Jacobian", "$g\\odot\\phi'(z)$", "$g/\\phi'(z)$", "$\\phi(g)$"],
+    "answer": 1,
+    "explanation": "The Jacobian is diagonal, $\\operatorname{diag}(\\phi'(z))$, so multiplying by it is an elementwise product. Option A is equivalent in value but wasteful: it would build an $m\\times m$ matrix."
+  }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "vis.05.ex1",
+ "title": "Formes du plongement de patchs et perte NT-Xent",
+ "prompt": "- `patchify(img, p)` : image `(C, H, W)` avec `H, W` divisibles par `p` -> `(N, C*p*p)` avec `N = (H/p)*(W/p)`. Les patchs sont dans l'ordre de la grille ligne par ligne ; à l'intérieur d'un patch les pixels sont aplatis dans l'ordre `(C, p, p)`.\n- `unpatchify(patches, C, H, W, p)` : l'inverse exact.\n- `patch_embed(img, p, Wp, bp)` : `patchify(img, p) @ Wp + bp`, de forme `(N, D)` pour `Wp` de forme `(C*p*p, D)`.\n- `n_tokens(H, W, p, cls=True)` : nombre de tokens du transformer (patchs plus un token de classe optionnel).\n- `nt_xent(z1, z2, tau)` : la perte SimCLR pour deux lots de plongements `z1, z2` de forme `(N, d)` où `z1[i]` et `z2[i]` sont deux vues de la même image. Normalise à la longueur unité, utilise la similarité cosinus divisée par `tau`, exclus l'auto-similarité, paire positive = l'autre vue, négatifs = toutes les autres `2N - 2` vues ; renvoie la perte moyenne sur les `2N` ancres.",
+ "hints": [
+  "patchify : remodèle (C, H, W) en (C, H/p, p, W/p, p), transpose en (H/p, W/p, C, p, p), puis remodèle en (N, C*p*p). unpatchify inverse chaque étape.",
+  "nt_xent : empile Z = [z1; z2] (2N, d), normalise les lignes en L2, S = Z @ Z.T / tau, mets la diagonale à -inf pour qu'une vue ne soit jamais son propre négatif, et le positif de la ligne i est la ligne (i + N) mod 2N.",
+  "Utilise log-sum-exp pour la stabilité : loss_i = logsumexp(S[i]) - S[i, pos(i)]. Fais la moyenne sur les 2N lignes."
+ ]
+}

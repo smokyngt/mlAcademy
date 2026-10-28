@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.01.c1", "concept": "alg.functions", "front": "How do you read $f:\\mathbb{R}^n\\to\\mathbb{R}^m$?", "back": "$f$ takes a vector of $n$ real numbers and returns a vector of $m$ real numbers. Check these sizes before anything else." },
+  { "id": "f2n.01.c2", "concept": "alg.functions", "front": "Define $(g\\circ f)(x)$. When is it defined?", "back": "$(g\\circ f)(x)=g(f(x))$: apply $f$ first. Defined when the output space of $f$ matches the input space of $g$." },
+  { "id": "f2n.01.c3", "concept": "alg.summation", "front": "Linearity of summation", "back": "$\\sum_i(\\alpha a_i+\\beta b_i)=\\alpha\\sum_i a_i+\\beta\\sum_i b_i$" },
+  { "id": "f2n.01.c4", "concept": "alg.exp-log", "front": "Why do ML systems use log-likelihoods?", "back": "A product of many probabilities underflows to 0 in floating point; $\\ln\\prod p_i=\\sum\\ln p_i$ is a well-scaled sum." },
+  { "id": "f2n.01.c5", "concept": "alg.exp-log", "front": "Stable $\\ln\\sum_i e^{x_i}$", "back": "$m+\\ln\\sum_i e^{x_i-m}$ with $m=\\max_i x_i$. All exponents become $\\le 0$ so nothing overflows." }
+]

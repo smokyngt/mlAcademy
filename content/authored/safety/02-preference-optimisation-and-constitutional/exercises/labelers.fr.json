@@ -1,0 +1,10 @@
+{
+  "id": "saf.02.ex2",
+  "title": "Erreur aléatoire contre erreur systématique de l'annotateur",
+  "prompt": "Une étiquette de préférence par paires dit laquelle de deux réponses est la meilleure. L'écart de qualité réel d'un élément est `d` ; les réponses diffèrent aussi par leur longueur de `l` (les deux suivent une loi normale centrée réduite, indépendantes).\n\n- Un **annotateur humain** vote `sign(d + sigma*eps)` avec un bruit indépendant frais `eps` par annotateur.\n- Un **annotateur IA** lit la réponse et produit `sign(d + c*l)` : peu de bruit, mais il s'appuie sur la longueur.\n\nImplémente `make_items(T, seed)` -> `(d, l)`, `human_accuracy(d, k, sigma, rng)` (majorité de `k` annotateurs, `k` impair ; fraction des éléments où le signe de la majorité est égal à `sign(d)`), et `ai_accuracy(d, l, c)`.",
+  "hints": [
+    "Génère d (écart de qualité réel) et l (écart de longueur) comme des lois normales centrées réduites indépendantes. Un vote humain est sign(d + sigma*noise) avec un bruit frais par annotateur.",
+    "Vote majoritaire : somme les votes +-1 sur k annotateurs (k impair) et prends le signe.",
+    "L'annotateur IA est une fonction déterministe de l'élément : sign(d + c*l). Lui demander à nouveau ne change rien."
+  ]
+}

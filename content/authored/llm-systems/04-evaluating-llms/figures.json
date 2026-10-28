@@ -1,0 +1,190 @@
+[
+  {
+    "id": "dcg-discount",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The nDCG discount 1 / log2(i + 1) against the rank i. A relevant document at rank 1 counts fully (1.0), at rank 3 it counts 0.5, at rank 7 only 1/3: a smooth decay rather than a cliff.",
+      "fr": "La décote de nDCG 1 / log2(i + 1) selon le rang i. Un document pertinent au rang 1 compte pleinement (1,0), au rang 3 il compte 0,5, au rang 7 seulement 1/3 : une décroissance douce plutôt qu'une falaise."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        10
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "title": "discount 1 / log2(rank + 1)",
+      "data": [
+        {
+          "fn": "1/(log(x+1)/log(2))",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              3,
+              0.5
+            ],
+            [
+              7,
+              0.3333
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "elo-expected",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Elo expected score of the winner: E = 1 / (1 + 10^((R_l - R_w)/400)) against the rating gap R_w - R_l. A gap of 0 gives 0.5 and a gap of 400 points gives about 0.91.",
+      "fr": "Score espéré Elo du gagnant : E = 1 / (1 + 10^((R_l - R_w)/400)) selon l'écart de classement R_w - R_l. Un écart de 0 donne 0,5 et un écart de 400 points donne environ 0,91."
+    },
+    "spec": {
+      "xDomain": [
+        -800,
+        800
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "height": 300,
+      "title": "expected score vs rating gap R_w - R_l",
+      "data": [
+        {
+          "fn": "1/(1+10^(-x/400))",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.5
+            ],
+            [
+              400,
+              0.909
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.5,
+          "text": "equal ratings"
+        }
+      ]
+    }
+  },
+  {
+    "id": "eval-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "An evaluation pipeline for a RAG system: three versioned sets feed the system, retrieval and generation are scored separately, judges are validated on human labels, and the verdict uses intervals and a paired comparison rather than bare means.",
+      "fr": "Un pipeline d'évaluation pour un système RAG : trois jeux versionnés alimentent le système, la récupération et la génération sont notées séparément, les juges sont validés sur des étiquettes humaines, et le verdict repose sur des intervalles et une comparaison appariée plutôt que sur de simples moyennes."
+    },
+    "code": {
+      "en": "flowchart LR\n  G[\"golden set<br/>50-100 cases\"] --> S[\"system under test<br/>retriever + LLM\"]\n  A[\"adversarial set<br/>20-50 cases\"] --> S\n  D[\"distribution sample<br/>100-200 real queries\"] --> S\n  S --> RT[\"retrieval metrics<br/>recall@k, MRR, nDCG@k\"]\n  S --> GN[\"generation metrics<br/>faithfulness, correctness\"]\n  GN --> J[\"LLM judge<br/>random order, rubric,<br/>validated on human labels\"]\n  RT --> V[\"per-item score vectors (n,)\"]\n  J --> V\n  V --> SL[\"slices: language, doc type,<br/>query length\"]\n  V --> BS[\"bootstrap or Wilson CI<br/>paired comparison A - B\"]\n  SL --> DEC{\"decision rule<br/>fixed in advance\"}\n  BS --> DEC",
+      "fr": "flowchart LR\n  G[\"jeu doré<br/>50-100 cas\"] --> S[\"système testé<br/>récupérateur + LLM\"]\n  A[\"jeu adversarial<br/>20-50 cas\"] --> S\n  D[\"échantillon de la distribution<br/>100-200 vraies requêtes\"] --> S\n  S --> RT[\"métriques de récupération<br/>rappel@k, MRR, nDCG@k\"]\n  S --> GN[\"métriques de génération<br/>fidélité, exactitude\"]\n  GN --> J[\"juge LLM<br/>ordre aléatoire, grille,<br/>validé sur étiquettes humaines\"]\n  RT --> V[\"vecteurs de scores par item (n,)\"]\n  J --> V\n  V --> SL[\"tranches : langue, type de doc,<br/>longueur de requête\"]\n  V --> BS[\"IC bootstrap ou Wilson<br/>comparaison appariée A - B\"]\n  SL --> DEC{\"règle de décision<br/>fixée à l'avance\"}\n  BS --> DEC"
+    }
+  },
+  {
+    "id": "bootstrap-paired",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The paired bootstrap: take the per-item differences d_i = a_i - b_i, resample them with replacement B times, and read the percentile interval of the resampled means. Items that both systems get right or wrong cancel; only disagreements matter.",
+      "fr": "Le bootstrap apparié : prendre les différences par item d_i = a_i - b_i, les rééchantillonner avec remise B fois et lire l'intervalle en percentiles des moyennes rééchantillonnées. Les items réussis ou ratés par les deux systèmes s'annulent ; seuls les désaccords comptent."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"a: system A correctness (n,)\"] --> DF[\"d = a - b (n,)\"]\n  B[\"b: system B correctness (n,)\"] --> DF\n  DF --> RS[\"draw index matrix (B, n)<br/>with replacement\"]\n  RS --> MN[\"means of resamples (B,)\"]\n  MN --> CI[\"quantiles alpha/2 and 1 - alpha/2<br/>example: +0.07, CI [-0.01, +0.15]\"]\n  DF --> DIS[\"count disagreements<br/>example: 12 A-only vs 5 B-only\"]",
+      "fr": "flowchart LR\n  A[\"a : exactitude du système A (n,)\"] --> DF[\"d = a - b (n,)\"]\n  B[\"b : exactitude du système B (n,)\"] --> DF\n  DF --> RS[\"tirer la matrice d'indices (B, n)<br/>avec remise\"]\n  RS --> MN[\"moyennes des rééchantillons (B,)\"]\n  MN --> CI[\"quantiles alpha/2 et 1 - alpha/2<br/>exemple : +0.07, IC [-0.01, +0.15]\"]\n  DF --> DIS[\"compter les désaccords<br/>exemple : 12 A seul vs 5 B seul\"]"
+    }
+  },
+  {
+    "id": "wilson-width",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Width of the 95 percent Wilson interval for an observed accuracy of 0.9 as the number of items n grows: 17 points at n = 50, about 8.3 at n = 200 and 3.7 at n = 1000. The width shrinks like 1 / sqrt(n): four times more items halve it.",
+      "fr": "Largeur de l'intervalle de Wilson à 95 % pour une exactitude observée de 0,9 quand le nombre d'items n croît : 17 points à n = 50, environ 8,3 à n = 200 et 3,7 à n = 1000. La largeur décroît en 1 / sqrt(n) : quatre fois plus d'items la divisent par deux."
+    },
+    "spec": {
+      "xDomain": [
+        20,
+        1000
+      ],
+      "yDomain": [
+        0,
+        0.3
+      ],
+      "height": 320,
+      "title": "Wilson 95% interval width, p = 0.9, vs n",
+      "data": [
+        {
+          "fn": "2*1.96*sqrt(0.9*0.1/x + 1.96^2/(4*x^2))/(1+1.96^2/x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              50,
+              0.171
+            ],
+            [
+              200,
+              0.083
+            ],
+            [
+              1000,
+              0.037
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "rag-diagnosis",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Locating a RAG error with separate metrics: first ask whether the answer passage was retrieved, then whether the answer is faithful to it, then whether it matches the reference. This is why recall@k alone cannot certify an answer.",
+      "fr": "Localiser une erreur de RAG avec des métriques séparées : d'abord le passage-réponse a-t-il été récupéré, ensuite la réponse lui est-elle fidèle, enfin correspond-elle à la référence. C'est pourquoi le rappel@k seul ne peut pas certifier une réponse."
+    },
+    "code": {
+      "en": "flowchart TB\n  W[\"wrong answer reported\"] --> Q1{\"relevant chunk in top-k?<br/>recall@k, MRR\"}\n  Q1 -- no --> F1[\"retrieval failure<br/>chunking, embedder, k, hybrid\"]\n  Q1 -- yes --> Q2{\"answer supported by the passages?<br/>faithfulness\"}\n  Q2 -- no --> F2[\"generation failure<br/>prompt, model ignores context\"]\n  Q2 -- yes --> Q3{\"matches the reference?<br/>correctness\"}\n  Q3 -- no --> F3[\"reference or judge problem,<br/>or multi-hop question\"]\n  Q3 -- yes --> OK[\"not an error on this item\"]",
+      "fr": "flowchart TB\n  W[\"réponse fausse signalée\"] --> Q1{\"chunk pertinent dans le top-k ?<br/>rappel@k, MRR\"}\n  Q1 -- non --> F1[\"échec de récupération<br/>découpage, embedder, k, hybride\"]\n  Q1 -- oui --> Q2{\"réponse appuyée par les passages ?<br/>fidélité\"}\n  Q2 -- non --> F2[\"échec de génération<br/>prompt, le modèle ignore le contexte\"]\n  Q2 -- oui --> Q3{\"correspond à la référence ?<br/>exactitude\"}\n  Q3 -- non --> F3[\"problème de référence ou de juge,<br/>ou question multi-saut\"]\n  Q3 -- oui --> OK[\"pas une erreur sur cet item\"]"
+    }
+  }
+]

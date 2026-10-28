@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.08.q1",
+    "prompt": "Minimiser l'erreur quadratique moyenne équivaut au maximum de vraisemblance sous quel modèle de bruit ?",
+    "options": ["Bernoulli", "Gaussien à variance constante", "Uniforme", "Laplace"],
+    "explanation": "Avec $y=f_\\theta(x)+\\varepsilon$, $\\varepsilon\\sim\\mathcal{N}(0,\\sigma^2)$, la NLL vaut $\\sum(y-f)^2/(2\\sigma^2)$ plus une constante. (Un modèle de Laplace donne plutôt l'erreur absolue.)"
+  },
+  {
+    "id": "f2n.08.q2",
+    "prompt": "Un classifieur binaire renvoie $p=0.8$ pour un exemple dont la vraie étiquette est $y=1$. Quelle est la perte d'entropie croisée (logarithme naturel) ?",
+    "options": [],
+    "explanation": "$L=-\\ln 0.8\\approx0.2231$."
+  },
+  {
+    "id": "f2n.08.q3",
+    "prompt": "Pour sigmoïde + entropie croisée binaire, $\\partial L/\\partial z$ vaut...",
+    "options": ["$p(1-p)$", "$p-y$", "$y-p$", "$-y/p$"],
+    "explanation": "$\\frac{\\partial L}{\\partial p}\\cdot p(1-p)=\\big(-\\tfrac yp+\\tfrac{1-y}{1-p}\\big)p(1-p)=p-y$. (L'option C est l'opposé, qui ferait monter la perte.)"
+  },
+  {
+    "id": "f2n.08.q4",
+    "prompt": "Un modèle à 10 classes aux sorties d'allure aléatoire commence l'entraînement. Quelle entropie croisée initiale attends-tu ?",
+    "options": [],
+    "explanation": "Des prédictions uniformes $p_k=1/10$ donnent $L=-\\ln(1/10)=\\ln10\\approx2.3026$. Si la perte du premier pas est loin de $\\ln K$, soupçonne un bug ou une mauvaise échelle initiale."
+  },
+  {
+    "id": "f2n.08.q5",
+    "prompt": "Tu calcules `np.log(softmax(z))` avec $z=(1000,0)$ et obtiens `-inf` pour la deuxième classe. Le correctif robuste est...",
+    "options": ["utiliser float16", "calculer directement $z_k-\\operatorname{logsumexp}(z)$ (log-softmax)", "écrêter les probabilités à 1e-3", "diviser les logits par 1000"],
+    "explanation": "$\\ln p_k=z_k-\\operatorname{logsumexp}(z)$ ne forme jamais de probabilité minuscule. L'écrêtage ou le changement d'échelle modifie les sorties du modèle."
+  },
+  {
+    "id": "f2n.08.q6",
+    "prompt": "Pour un batch de $B$ exemples et $K$ classes, avec l'entropie croisée moyenne, quelles sont la forme et l'échelle de $\\nabla_ZL$ ?",
+    "options": ["$B\\times K$, égal à $P-Y$", "$B\\times K$, égal à $(P-Y)/B$", "$K$, égal à $\\sum_b(P-Y)$", "scalaire"],
+    "explanation": "Le gradient de chaque ligne est $p-\\text{onehot}$, et la moyenne sur le batch divise par $B$."
+  }
+]

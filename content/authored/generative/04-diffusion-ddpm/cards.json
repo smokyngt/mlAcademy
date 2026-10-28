@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.04.c1",
+  "concept": "gen.diffusion",
+  "front": "Forward step",
+  "back": "$x_t=\\sqrt{1-\\beta_t}\\,x_{t-1}+\\sqrt{\\beta_t}\\,\\varepsilon$."
+ },
+ {
+  "id": "gen.04.c2",
+  "concept": "gen.diffusion",
+  "front": "$\\alpha_t$ and $\\bar\\alpha_t$",
+  "back": "$\\alpha_t=1-\\beta_t$, $\\bar\\alpha_t=\\prod_{s\\le t}\\alpha_s$."
+ },
+ {
+  "id": "gen.04.c3",
+  "concept": "gen.diffusion",
+  "front": "Closed-form forward marginal",
+  "back": "$x_t=\\sqrt{\\bar\\alpha_t}\\,x_0+\\sqrt{1-\\bar\\alpha_t}\\,\\varepsilon$, $\\varepsilon\\sim\\mathcal N(0,I)$."
+ },
+ {
+  "id": "gen.04.c4",
+  "concept": "gen.diffusion",
+  "front": "Standard linear schedule",
+  "back": "$\\beta_t$ from $10^{-4}$ to $0.02$ over $T=1000$; then $\\bar\\alpha_T\\approx4\\times10^{-5}$."
+ },
+ {
+  "id": "gen.04.c5",
+  "concept": "gen.diffusion",
+  "front": "True reverse posterior",
+  "back": "$q(x_{t-1}|x_t,x_0)=\\mathcal N(\\tilde\\mu_t,\\tilde\\beta_tI)$, $\\tilde\\beta_t=\\frac{1-\\bar\\alpha_{t-1}}{1-\\bar\\alpha_t}\\beta_t$."
+ },
+ {
+  "id": "gen.04.c6",
+  "concept": "gen.diffusion",
+  "front": "Reverse mean in terms of the noise",
+  "back": "$\\tilde\\mu_t=\\frac1{\\sqrt{\\alpha_t}}\\big(x_t-\\frac{\\beta_t}{\\sqrt{1-\\bar\\alpha_t}}\\varepsilon\\big)$."
+ },
+ {
+  "id": "gen.04.c7",
+  "concept": "gen.diffusion",
+  "front": "Simple DDPM loss",
+  "back": "$\\mathbb E\\|\\varepsilon-\\varepsilon_\\theta(\\sqrt{\\bar\\alpha_t}x_0+\\sqrt{1-\\bar\\alpha_t}\\varepsilon,t)\\|^2$."
+ },
+ {
+  "id": "gen.04.c8",
+  "concept": "gen.diffusion",
+  "front": "Sampling step",
+  "back": "$x_{t-1}=\\frac1{\\sqrt{\\alpha_t}}(x_t-\\frac{\\beta_t}{\\sqrt{1-\\bar\\alpha_t}}\\varepsilon_\\theta)+\\sigma_tz$; no noise at the last step."
+ },
+ {
+  "id": "gen.04.c9",
+  "concept": "gen.diffusion",
+  "front": "Why is the training loss a KL sum?",
+  "back": "The diffusion ELBO is a sum of per-step KLs between Gaussians, which reduce to squared mean differences."
+ },
+ {
+  "id": "gen.04.c10",
+  "concept": "gen.diffusion",
+  "front": "Link to the score",
+  "back": "$\\varepsilon_\\theta\\approx-\\sqrt{1-\\bar\\alpha_t}\\,\\nabla_{x_t}\\log q(x_t)$."
+ },
+ {
+  "id": "gen.04.c11",
+  "concept": "gen.diffusion",
+  "front": "Marginal for Gaussian data $\\mathcal N(m_0,s_0^2)$",
+  "back": "$x_t\\sim\\mathcal N(\\sqrt{\\bar\\alpha_t}m_0,\\ \\bar\\alpha_ts_0^2+1-\\bar\\alpha_t)$."
+ },
+ {
+  "id": "gen.04.c12",
+  "concept": "gen.diffusion",
+  "front": "Optimal $\\mathbb E[x_0|x_t]$ for Gaussian data",
+  "back": "$m_0+\\frac{\\sqrt{\\bar\\alpha_t}s_0^2}{\\bar\\alpha_ts_0^2+1-\\bar\\alpha_t}(x_t-\\sqrt{\\bar\\alpha_t}m_0)$."
+ },
+ {
+  "id": "gen.04.c13",
+  "concept": "gen.diffusion",
+  "front": "Why diffusion sampling is slow",
+  "back": "$T$ sequential network evaluations; fixes: fewer-step samplers, distillation, flow matching."
+ },
+ {
+  "id": "gen.04.c14",
+  "concept": "gen.diffusion",
+  "front": "Why is denoising easier than generating?",
+  "back": "Each step makes a small correction; at high noise the mean is a good guess, at low noise the change is local."
+ }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.10.q1",
+    "prompt": "$Z=XW$ avec $X:(B,n)$, $W:(n,m)$ et un gradient amont $\\bar Z:(B,m)$. Que vaut $\\bar W$ ?",
+    "options": ["$\\bar Z X^\\top$", "$X^\\top\\bar Z$", "$X\\bar Z^\\top$", "$\\bar Z^\\top X^\\top$"],
+    "explanation": "$\\bar W_{jk}=\\sum_bX_{bj}\\bar Z_{bk}=(X^\\top\\bar Z)_{jk}$, de forme $(n\\times B)(B\\times m)=(n\\times m)$, la forme de $W$."
+  },
+  {
+    "id": "f2n.10.q2",
+    "prompt": "Même contexte. Quel est le gradient par rapport à l'entrée, $\\bar X$ ?",
+    "options": ["$\\bar ZW^\\top$", "$W\\bar Z$", "$W^\\top\\bar Z$", "$\\bar Z^\\top W$"],
+    "explanation": "$\\bar X_{bj}=\\sum_k\\bar Z_{bk}W_{jk}=(\\bar ZW^\\top)_{bj}$, de forme $(B\\times m)(m\\times n)=(B\\times n)$."
+  },
+  {
+    "id": "f2n.10.q3",
+    "prompt": "Dans le déroulé numérique de la leçon, que vaut $\\bar a_1$ sachant que $\\bar z_2=-0.52498$ et $w_2=2$ ?",
+    "options": [],
+    "explanation": "$z_2=w_2a_1+b_2$, donc $\\partial z_2/\\partial a_1=w_2$ et $\\bar a_1=\\bar z_2w_2=-0.52498\\cdot2=-1.04996$."
+  },
+  {
+    "id": "f2n.10.q4",
+    "prompt": "$\\bar b_2$ pour un batch se calcule comme...",
+    "options": ["la première ligne de $\\bar Z_2$", "$\\sum_b(\\bar Z_2)_{b,:}$, en sommant sur l'axe du batch", "$\\bar Z_2$ lui-même, de forme $(B,K)$", "$\\bar Z_2W_2^\\top$"],
+    "explanation": "Le même vecteur de biais est ajouté à chaque exemple, donc son gradient est la somme des gradients par exemple : forme $(K,)$."
+  },
+  {
+    "id": "f2n.10.q5",
+    "prompt": "Quels tenseurs la passe avant doit-elle mettre en cache pour la passe arrière de `Z1=X@W1+b1; A1=relu(Z1); Z2=A1@W2+b2` ?",
+    "options": ["Seulement la perte finale", "$X$, $Z_1$ (masque ReLU), $A_1$ et la sortie softmax $P$", "Seulement les poids", "Rien : les gradients peuvent être recalculés à partir de la seule perte"],
+    "explanation": "$\\bar W_1$ a besoin de $X$, la passe arrière de ReLU a besoin de $Z_1$, $\\bar W_2$ a besoin de $A_1$ et le gradient de la perte a besoin de $P$. C'est la mémoire d'activations de l'entraînement."
+  },
+  {
+    "id": "f2n.10.q6",
+    "prompt": "Ton gradient analytique pour $W_1$ coïncide avec les différences finies à un facteur constant exact $B$ près. Le bug le plus probable est...",
+    "options": ["un mauvais taux d'apprentissage", "un $1/B$ manquant (ou en trop) venant de la moyenne sur le batch dans le gradient de la perte", "ReLU n'étant pas différentiable", "l'utilisation de float32"],
+    "explanation": "Un facteur constant égal à la taille du batch pointe directement vers la moyenne sur le batch : $\\bar Z_2=(P-Y)/B$. Les différences finies mesurent le vrai gradient de la perte moyenne."
+  }
+]

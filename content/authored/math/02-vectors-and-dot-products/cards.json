@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.02.c1", "concept": "la.dot", "front": "Two formulas for the dot product", "back": "$a\\cdot b=\\sum_i a_ib_i=\\|a\\|\\|b\\|\\cos\\theta$ (equal by the law of cosines)." },
+  { "id": "f2n.02.c2", "concept": "la.dot", "front": "Projection of $a$ onto $b$", "back": "$\\dfrac{a\\cdot b}{b\\cdot b}\\,b$. The residual $a-\\operatorname{proj}_b a$ is orthogonal to $b$." },
+  { "id": "f2n.02.c3", "concept": "la.dot", "front": "Cosine similarity: what does it ignore?", "back": "Vector length. $\\cos\\theta=\\dfrac{a\\cdot b}{\\|a\\|\\|b\\|}$ depends only on direction." },
+  { "id": "f2n.02.c4", "concept": "la.dot", "front": "Cauchy–Schwarz", "back": "$|a\\cdot b|\\le\\|a\\|\\|b\\|$, equality iff one vector is a scalar multiple of the other." },
+  { "id": "f2n.02.c5", "concept": "la.vector", "front": "`a * b` vs `a @ b` for vectors", "back": "`*` is elementwise (length $n$ result); `@` is the dot product (scalar)." }
+]

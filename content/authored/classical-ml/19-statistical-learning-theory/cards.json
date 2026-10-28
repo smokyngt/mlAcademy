@@ -1,0 +1,17 @@
+[
+  { "id": "cml.19.c1", "concept": "ml.slt", "front": "True risk vs empirical risk", "back": "$R(h)=\\mathbb E\\,\\ell(h(x),y)$ over the data distribution; $\\hat R_n(h)=\\frac1n\\sum_i\\ell(h(x_i),y_i)$ on the sample. Gap $=R-\\hat R_n$." },
+  { "id": "cml.19.c2", "concept": "ml.slt", "front": "Why is the ERM training error optimistic?", "back": "The hypothesis is selected using the data; the best-looking one among many benefits from luck. A hypothesis fixed in advance has an unbiased empirical risk." },
+  { "id": "cml.19.c3", "concept": "ml.slt", "front": "Hoeffding's inequality", "back": "For independent variables in $[0,1]$: $P(|\\bar Z-\\mu|\\ge\\varepsilon)\\le2e^{-2n\\varepsilon^2}$." },
+  { "id": "cml.19.c4", "concept": "ml.slt", "front": "The union bound", "back": "$P(\\cup A_j)\\le\\sum_jP(A_j)$. It turns a per-hypothesis guarantee into a guarantee over all $M$ hypotheses, at the cost of a factor $M$ in the failure probability." },
+  { "id": "cml.19.c5", "concept": "ml.slt", "front": "Finite-class generalisation bound", "back": "With probability $\\ge1-\\delta$, for all $h$: $|R-\\hat R_n|\\le\\sqrt{\\ln(2M/\\delta)/(2n)}$. Grows like $\\sqrt{\\ln M}$." },
+  { "id": "cml.19.c6", "concept": "ml.slt", "front": "ERM excess risk for a finite class", "back": "$R(\\hat h)\\le R(h^\\star)+2\\varepsilon$ where $\\varepsilon$ is the uniform deviation width." },
+  { "id": "cml.19.c7", "concept": "ml.vc", "front": "Shattering", "back": "A set of $m$ points is shattered if the class realises all $2^m$ labelings of it." },
+  { "id": "cml.19.c8", "concept": "ml.vc", "front": "VC dimension", "back": "Largest $d$ such that SOME set of $d$ points is shattered. Needs one shattered example and an impossibility proof for $d+1$." },
+  { "id": "cml.19.c9", "concept": "ml.vc", "front": "VC dimension of intervals; half-planes in $\\mathbb R^2$", "back": "Intervals on a line: 2 (labeling 1,0,1 impossible). Half-planes in the plane: 3; in $\\mathbb R^p$ linear classifiers with bias: $p+1$." },
+  { "id": "cml.19.c10", "concept": "ml.vc", "front": "Sauer's lemma", "back": "Growth function $\\Pi(n)\\le(en/d)^d$ for $n\\ge d$: labelings grow polynomially, not exponentially, beyond the VC dimension." },
+  { "id": "cml.19.c11", "concept": "ml.vc", "front": "Shape of the VC bound", "back": "$R\\le\\hat R_n+\\sqrt{(d(\\ln(2n/d)+1)+\\ln(4/\\delta))/n}$ (constants vary): penalty about $\\sqrt{d\\ln n/n}$, so want $n\\gg d$." },
+  { "id": "cml.19.c12", "concept": "ml.vc", "front": "Empirical Rademacher complexity", "back": "$\\mathbb E_\\sigma\\max_h\\frac1n\\sum_i\\sigma_ih(x_i)$: how well the class fits random $\\pm1$ labels. 0 for one hypothesis, 1 if it can realise every labeling." },
+  { "id": "cml.19.c13", "concept": "ml.vc", "front": "Massart's lemma", "back": "For $M$ hypotheses with values $\\pm1$: Rademacher complexity $\\le\\sqrt{2\\ln M/n}$." },
+  { "id": "cml.19.c14", "concept": "ml.slt", "front": "Structural risk minimisation and regularisation", "back": "SRM: nested classes, minimise training error plus a complexity penalty. Regularisation $\\hat R_n+\\lambda\\Omega(h)$ is the continuous version (e.g. $\\|w\\|^2$)." },
+  { "id": "cml.19.c15", "concept": "ml.vc", "front": "No free lunch and deep nets", "back": "No algorithm wins on all problems, so assumptions are needed. For deep nets the uniform VC bound is vacuous yet they generalise; the explanation is an open research area." }
+]

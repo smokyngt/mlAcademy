@@ -1,0 +1,10 @@
+{
+  "id": "saf.04.ex2",
+  "title": "Vérificateur de flux d'information pour les plans d'agent",
+  "prompt": "L'injection de prompt indirecte fonctionne parce qu'un contenu récupéré par un agent (une page web, un e-mail) peut orienter ce que l'agent fait ensuite. Une idée de défense classique est le **contrôle de flux d'information** : attacher une étiquette à chaque valeur, propager les étiquettes dans le calcul, et les vérifier avant les effets de bord.\n\nTout ici est un jouet bénin : les plans sont des listes d'étapes abstraites, sans texte réel.\n\nTypes d'étapes :\n- `{\"op\": \"read\", \"out\": v, \"label\": L}` où `L` vaut `\"user\"`, `\"untrusted\"` ou `\"private\"` ;\n- `{\"op\": \"compute\", \"out\": v, \"inputs\": [v1, v2, ...]}` (la sortie porte l'union des étiquettes des entrées) ;\n- `{\"op\": \"send\", \"inputs\": [...], \"to\": \"internal\" | \"external\"}`.\n\nImplémente `run_plan(plan)` -> liste de verdicts, un par étape `send` dans l'ordre, avec ces règles pour un envoi : interne -> `\"allow\"` ; externe dont les entrées portent à la fois `untrusted` et `private` -> `\"block\"` ; externe avec `untrusted` seulement -> `\"confirm\"` (un humain doit ratifier) ; sinon `\"allow\"`.\n\nImplémente aussi `trifecta(caps)` : un système est dans la combinaison risquée si ses capacités (un ensemble de chaînes) incluent à la fois `\"reads_private\"`, `\"reads_untrusted\"` et `\"sends_external\"`.",
+  "hints": [
+    "Garde un dict var -> ensemble d'étiquettes. 'read' fixe l'étiquette de sa sortie ; 'compute' prend l'union des étiquettes de ses entrées.",
+    "Pour une étape 'send', fais l'union des étiquettes de ses entrées, puis applique les règles dans l'ordre : interne -> allow ; externe avec untrusted ET private -> block ; externe avec untrusted -> confirm ; sinon allow.",
+    "trifecta(caps) est vrai seulement si les trois capacités sont présentes ; chacun des trois retraits individuels doit le rendre faux."
+  ]
+}

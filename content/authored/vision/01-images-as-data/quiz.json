@@ -1,0 +1,118 @@
+[
+ {
+  "id": "vis.01.q1",
+  "concept": "vis.image-tensor",
+  "stage": "pre",
+  "prompt": "A decoded RGB photo loaded with PIL has shape (480, 640, 3). Which statement is correct?",
+  "options": [
+   "It is in HWC layout: height 480, width 640, 3 channels",
+   "It has 480 channels",
+   "It is a batch of 480 images",
+   "It is in CHW layout"
+  ],
+  "answer": 0,
+  "explanation": "Files and PIL use height-width-channels; PyTorch convolutions expect (3, 480, 640) per image."
+ },
+ {
+  "id": "vis.01.q2",
+  "concept": "vis.image-tensor",
+  "prompt": "Which array operation converts an HWC array to CHW?",
+  "options": [
+   "img.reshape(3, H, W)",
+   "img[::-1]",
+   "img.transpose(2, 0, 1)",
+   "img.T"
+  ],
+  "answer": 2,
+  "explanation": "transpose(2,0,1) moves the channel axis to the front without changing the data order within each plane; reshape would scramble pixels across channels."
+ },
+ {
+  "id": "vis.01.q3",
+  "concept": "vis.image-tensor",
+  "kind": "numeric",
+  "prompt": "Pixel value 210 in the red channel, ImageNet mean 0.485 and std 0.229. What is the standardised value $(210/255-0.485)/0.229$? (3 decimals)",
+  "options": [],
+  "answer": {
+   "value": 1.478,
+   "tol": 0.005
+  },
+  "explanation": "$210/255=0.8235$; $(0.8235-0.485)/0.229=1.478$."
+ },
+ {
+  "id": "vis.01.q4",
+  "concept": "vis.image-tensor",
+  "prompt": "Why is grayscale computed as $0.299R+0.587G+0.114B$ rather than the plain mean?",
+  "options": [
+   "The weights make the result an integer",
+   "Blue pixels are noisier",
+   "It is faster to compute",
+   "The eye is most sensitive to green, so green is weighted most"
+  ],
+  "answer": 3,
+  "explanation": "The weights approximate human luminance perception."
+ },
+ {
+  "id": "vis.01.q5",
+  "concept": "vis.filter",
+  "kind": "numeric",
+  "prompt": "A valid (no padding, stride 1) $3\\times3$ filter is applied to a $28\\times28$ image. How many rows does the output have?",
+  "options": [],
+  "answer": {
+   "value": 26,
+   "tol": 0
+  },
+  "explanation": "$H-k_h+1=28-3+1=26$."
+ },
+ {
+  "id": "vis.01.q6",
+  "concept": "vis.filter",
+  "prompt": "Why does the Sobel-x kernel give zero on a region of constant brightness?",
+  "options": [
+   "Its weights sum to zero, so a constant window cancels out",
+   "It only reads the left column",
+   "It ignores the middle row",
+   "It is normalised by the local variance"
+  ],
+  "answer": 0,
+  "explanation": "Constant window value $c$ gives $c\\cdot\\sum K=0$; a step edge breaks the symmetry between left and right columns."
+ },
+ {
+  "id": "vis.01.q7",
+  "concept": "vis.filter",
+  "prompt": "Deep-learning 'convolution' layers actually compute...",
+  "options": [
+   "a max over the window",
+   "a Fourier transform",
+   "a true convolution with a flipped kernel",
+   "cross-correlation (no kernel flip)"
+  ],
+  "answer": 3,
+  "explanation": "The kernel is not flipped; since the kernel is learned, the network just learns the flipped version if it needs it."
+ },
+ {
+  "id": "vis.01.q8",
+  "concept": "vis.image-tensor",
+  "prompt": "You must resize a segmentation label image whose pixel values are class ids. Which interpolation is appropriate?",
+  "options": [
+   "Bicubic",
+   "Nearest neighbour",
+   "Bilinear",
+   "Lanczos"
+  ],
+  "answer": 1,
+  "explanation": "Any blending interpolation invents values (for example class 1.5) that are not valid class ids; nearest neighbour copies existing ids."
+ },
+ {
+  "id": "vis.01.q9",
+  "concept": "vis.augment",
+  "prompt": "Which augmentation is most likely to break the labels of a handwritten-digit dataset?",
+  "options": [
+   "Small random translation",
+   "Adding mild noise",
+   "Rotation by 180 degrees",
+   "Slight brightness change"
+  ],
+  "answer": 2,
+  "explanation": "A 6 rotated by 180 degrees looks like a 9; augmentations must preserve the label."
+ }
+]

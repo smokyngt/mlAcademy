@@ -1,0 +1,74 @@
+#@@ meta
+{"id": "cml.18.ex2", "title": "Split conformal prediction and empirical coverage", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.conformal"], "hints": ["k = ceil((n + 1) * (1 - alpha)); if k > n return np.inf; otherwise np.sort(scores)[k - 1].", "In one trial: fit least squares on the training part, compute |y - pred| on the calibration part, take q, then measure how often |y_test - pred_test| <= q on fresh test data.", "Average the per-trial coverages. The mean should sit between 1 - alpha and 1 - alpha + 1/(n + 1), up to simulation noise."]}
+#@@ prompt
+Implement split conformal prediction for absolute-residual scores.
+
+- `conformal_q(scores, alpha)`: the `k`-th smallest score with `k = ceil((n+1)(1-alpha))`; return `np.inf` if `k > n`.
+- `conformal_interval(pred, q)` -> `(lower, upper)` arrays.
+- `coverage_trials(n_train, n_cal, alpha, trials, seed)`: for each trial draw fresh data with `make_data` (provided), fit a line `y = a + b x` by least squares on the training part, compute `q` on a separate calibration part, and measure coverage of the interval on 2000 fresh test points. Return the array of `trials` coverages.
+
+`make_data(m, rng)` is heavy-tailed on purpose (Student-t noise with input-dependent scale): conformal does not care.
+#@@ starter
+import numpy as np
+
+def make_data(m, rng):
+    x = rng.uniform(-1, 1, m)
+    y = 2 * x + (0.2 + 0.4 * np.abs(x)) * rng.standard_t(3, m)
+    return x, y
+
+def conformal_q(scores, alpha):
+    raise NotImplementedError
+
+def conformal_interval(pred, q):
+    raise NotImplementedError
+
+def coverage_trials(n_train, n_cal, alpha, trials, seed):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+s = np.arange(1.0, 20.0)
+check("n=19, alpha=0.1 -> k=18 -> 18th smallest", lambda: conformal_q(s, 0.1) == 18.0)
+check("n=49, alpha=0.1 -> k=45", lambda: conformal_q(np.arange(1.0, 50.0), 0.1) == 45.0)
+check("too few points returns inf", lambda: np.isinf(conformal_q(np.arange(5.0), 0.1)))
+check("score order does not matter", lambda: conformal_q(s[::-1].copy(), 0.1) == 18.0)
+lo, hi = conformal_interval(np.array([0.0, 1.0]), 0.5)
+check("interval is pred +- q", lambda: np.allclose(lo, [-0.5, 0.5]) and np.allclose(hi, [0.5, 1.5]))
+cov = coverage_trials(100, 100, 0.1, 300, 0)
+check("returns one coverage per trial", lambda: np.shape(cov) == (300,))
+check("mean coverage is at least 1 - alpha (minus noise)", lambda: cov.mean() > 0.9 - 0.01)
+check("mean coverage is at most 1 - alpha + 1/(n+1) (plus noise)", lambda: cov.mean() < 0.9 + 1 / 101 + 0.01)
+check("single trials vary (finite calibration set)", lambda: cov.std() > 0.01)
+cov19 = coverage_trials(100, 19, 0.1, 300, 1)
+check("n=19 also gives about 0.90", lambda: abs(cov19.mean() - 0.9) < 0.02)
+#@@ solution
+import numpy as np
+
+def make_data(m, rng):
+    x = rng.uniform(-1, 1, m)
+    y = 2 * x + (0.2 + 0.4 * np.abs(x)) * rng.standard_t(3, m)
+    return x, y
+
+def conformal_q(scores, alpha):
+    n = len(scores)
+    k = int(np.ceil((n + 1) * (1 - alpha)))
+    if k > n:
+        return np.inf
+    return np.sort(scores)[k - 1]
+
+def conformal_interval(pred, q):
+    return pred - q, pred + q
+
+def coverage_trials(n_train, n_cal, alpha, trials, seed):
+    rng = np.random.default_rng(seed)
+    out = []
+    for _ in range(trials):
+        x, y = make_data(n_train, rng)
+        A = np.c_[np.ones(n_train), x]
+        w = np.linalg.lstsq(A, y, rcond=None)[0]
+        xc, yc = make_data(n_cal, rng)
+        q = conformal_q(np.abs(yc - (w[0] + w[1] * xc)), alpha)
+        xt, yt = make_data(2000, rng)
+        pred = w[0] + w[1] * xt
+        lo, hi = conformal_interval(pred, q)
+        out.append(np.mean((yt >= lo) & (yt <= hi)))
+    return np.array(out)

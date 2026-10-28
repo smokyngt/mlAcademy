@@ -1,0 +1,103 @@
+#@@ meta
+{"id": "cml.11.ex1", "title": "Feature transforms fitted on the training split only", "difficulty": 2, "runtime": "pyodide", "concepts": ["ml.features", "ml.leakage"], "hints": ["Standardizer.fit stores mean and std computed from the TRAIN array only; transform applies them to any array. Replace a zero std by 1 so constant columns do not divide by zero.", "OneHot.fit stores the sorted unique categories of the train values. transform builds a (n, n_categories) 0/1 matrix; a category not seen in fit gives a row of zeros.", "MedianImputer.fit: median of each column ignoring NaN (np.nanmedian). transform: fill NaN with that train median and append one 0/1 column per feature saying 'was missing'. cross(a, b): join the two labels with '|'."]}
+#@@ prompt
+Implement a tiny preprocessing toolkit. Every object has `fit` (learn statistics from the **training** data only) and `transform` (apply them to any data), so that test data never influences the statistics.
+
+- `Standardizer`: `fit(X)` stores per-column mean and standard deviation (population std, a zero std becomes 1); `transform(X)` returns $(X-\mu)/\sigma$.
+- `OneHot`: `fit(values)` learns the sorted list of categories; `transform(values)` returns an `(n, n_categories)` 0/1 float matrix. Unseen categories give an all-zero row.
+- `MedianImputer`: `fit(X)` stores column medians ignoring NaN; `transform(X)` returns the matrix with NaN replaced by the train median, followed by one indicator column per original column (1 if it was missing).
+- `cross(a, b)`: list of strings `"a_i|b_i"` (a feature cross of two categorical features).
+- `hash_index(s, n_buckets)`: deterministic hashing trick, $\left(\sum_i \mathrm{ord}(s_i)\,31^{\,i}\right) \bmod n_{\text{buckets}}$ using Python integers.
+#@@ starter
+import numpy as np
+
+class Standardizer:
+    def fit(self, X):
+        raise NotImplementedError
+    def transform(self, X):
+        raise NotImplementedError
+
+class OneHot:
+    def fit(self, values):
+        raise NotImplementedError
+    def transform(self, values):
+        raise NotImplementedError
+
+class MedianImputer:
+    def fit(self, X):
+        raise NotImplementedError
+    def transform(self, X):
+        raise NotImplementedError
+
+def cross(a, b):
+    raise NotImplementedError
+
+def hash_index(s, n_buckets):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+tr = np.array([[10.], [12.], [14.]]); te = np.array([[30.]])
+sc = Standardizer().fit(tr)
+check("train columns have mean 0 and std 1", lambda: abs(sc.transform(tr).mean()) < 1e-12 and abs(sc.transform(tr).std() - 1) < 1e-12)
+check("test point scaled with TRAIN statistics: z = 11.02", lambda: abs(sc.transform(te)[0, 0] - 18 / np.sqrt(8 / 3)) < 1e-9)
+allx = np.vstack([tr, te]); leaky = Standardizer().fit(allx)
+check("a scaler fitted on train+test would hide the outlier (z = 1.70)", lambda: abs(leaky.transform(te)[0, 0] - 13.5 / np.sqrt(62.75)) < 1e-9)
+check("constant column does not produce NaN", lambda: np.all(np.isfinite(Standardizer().fit(np.ones((4, 2))).transform(np.ones((4, 2))))))
+oh = OneHot().fit(["red", "blue", "red", "green"])
+M = oh.transform(["red", "blue", "purple"])
+check("one-hot shape (3, 3)", lambda: M.shape == (3, 3))
+check("red -> [0,0,1], blue -> [1,0,0]", lambda: M[0].tolist() == [0, 0, 1] and M[1].tolist() == [1, 0, 0])
+check("unseen category -> all zeros", lambda: M[2].tolist() == [0, 0, 0])
+Xm = np.array([[1., 10.], [np.nan, 20.], [3., np.nan], [5., 40.]])
+im = MedianImputer().fit(Xm)
+T = im.transform(np.array([[np.nan, np.nan], [2., 7.]]))
+check("train medians are 3 and 20", lambda: np.allclose(T[0, :2], [3., 20.]))
+check("indicator columns are appended", lambda: T.shape == (2, 4) and T[0, 2:].tolist() == [1, 1] and T[1, 2:].tolist() == [0, 0])
+check("non-missing values are untouched", lambda: np.allclose(T[1, :2], [2., 7.]))
+check("cross of two categorical features", lambda: cross(["Single", "Married"], ["0", "2"]) == ["Single|0", "Married|2"])
+check("hash_index is deterministic and in range", lambda: hash_index("brand_42", 1000) == hash_index("brand_42", 1000) and 0 <= hash_index("new_brand", 1000) < 1000)
+check("hash_index value for 'ab' with 100 buckets", lambda: hash_index("ab", 100) == (97 + 98 * 31) % 100)
+#@@ solution
+import numpy as np
+
+class Standardizer:
+    def fit(self, X):
+        X = np.asarray(X, dtype=float)
+        self.mean_ = X.mean(axis=0)
+        std = X.std(axis=0)
+        self.std_ = np.where(std == 0, 1.0, std)
+        return self
+    def transform(self, X):
+        return (np.asarray(X, dtype=float) - self.mean_) / self.std_
+
+class OneHot:
+    def fit(self, values):
+        self.categories_ = sorted(set(values))
+        self.index_ = {c: i for i, c in enumerate(self.categories_)}
+        return self
+    def transform(self, values):
+        M = np.zeros((len(values), len(self.categories_)))
+        for r, v in enumerate(values):
+            j = self.index_.get(v)
+            if j is not None:
+                M[r, j] = 1.0
+        return M
+
+class MedianImputer:
+    def fit(self, X):
+        self.median_ = np.nanmedian(np.asarray(X, dtype=float), axis=0)
+        return self
+    def transform(self, X):
+        X = np.asarray(X, dtype=float)
+        miss = np.isnan(X)
+        filled = np.where(miss, self.median_[None, :], X)
+        return np.hstack([filled, miss.astype(float)])
+
+def cross(a, b):
+    return [f"{x}|{y}" for x, y in zip(a, b)]
+
+def hash_index(s, n_buckets):
+    h = 0
+    for i, ch in enumerate(s):
+        h += ord(ch) * 31 ** i
+    return h % n_buckets

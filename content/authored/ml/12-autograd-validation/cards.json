@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.12.c1", "concept": "nn.autograd", "front": "Reverse-mode autodiff in two phases", "back": "Forward: evaluate and record the graph. Backward: seed $\\bar L=1$ and visit nodes in reverse topological order, accumulating `parent.grad += local_derivative * node.grad`." },
+  { "id": "f2n.12.c2", "concept": "nn.autograd", "front": "Forward vs reverse mode cost", "back": "Forward: one pass per input (a Jacobian column). Reverse: one pass per output (a row). Loss is scalar, so reverse." },
+  { "id": "f2n.12.c3", "concept": "nn.autograd", "front": "Why `+=` in backward?", "back": "A node used by several consumers receives one contribution per path; they must sum (multivariate chain rule)." },
+  { "id": "f2n.12.c4", "concept": "nn.autograd", "front": "Validate against PyTorch", "back": "Same forward in float64 with `requires_grad=True`, call `.backward()`, compare `.grad` to your gradients; expect ~1e-10." },
+  { "id": "f2n.12.c5", "concept": "nn.autograd", "front": "PyTorch gradient pitfalls", "back": "Gradients accumulate (zero them); in-place ops can break backward; `detach`/`no_grad` cut the graph; only leaves get `.grad`." }
+]

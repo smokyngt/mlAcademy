@@ -1,0 +1,16 @@
+[
+  { "id": "ops.01.c1", "front": "Qu'est-ce qui définit un problème de ML ?", "back": "Des entrées, des sorties et une fonction objectif qui guide l'apprentissage." },
+  { "id": "ops.01.c2", "front": "Pourquoi une métrique de ML doit-elle être reliée à une métrique métier ?", "back": "Les entreprises se soucient du chiffre d'affaires, de la rétention ou des coûts économisés ; les métriques de ML sont des proxys dont le lien avec ces résultats doit être démontré, souvent par une expérience." },
+  { "id": "ops.01.c3", "front": "Les quatre exigences d'un système de ML", "back": "Fiabilité, passage à l'échelle, maintenabilité, adaptabilité." },
+  { "id": "ops.01.c4", "front": "Que signifie le fait que les systèmes de ML échouent silencieusement ?", "back": "Le code s'exécute sans erreur alors que les prédictions sont fausses, donc les utilisateurs et les opérateurs peuvent ne pas s'en apercevoir." },
+  { "id": "ops.01.c5", "front": "Latence contre débit", "back": "Latence : temps entre la requête et la réponse. Débit : requêtes traitées par unité de temps." },
+  { "id": "ops.01.c6", "front": "Débit d'un serveur avec batching", "back": "$B\\cdot1000/t$ requêtes par seconde pour une taille de lot $B$ prenant $t$ ms." },
+  { "id": "ops.01.c7", "front": "Pourquoi utiliser des percentiles plutôt que la latence moyenne ?", "back": "La latence est une distribution ; une valeur aberrante fausse la moyenne, alors que p50/p90/p99 décrivent l'utilisateur typique et le pire cas." },
+  { "id": "ops.01.c8", "front": "Percentile au rang le plus proche", "back": "Trier $n$ valeurs et retourner celle de rang 1-indexé $\\lceil q n/100\\rceil$." },
+  { "id": "ops.01.c9", "front": "Cadrage en classification ou en régression", "back": "Produire une catégorie ou un nombre ; l'un peut souvent être converti en l'autre par regroupement en tranches ou par seuillage." },
+  { "id": "ops.01.c10", "front": "Pourquoi le multilabel est-il plus difficile que le multiclasse ?", "back": "Le nombre d'étiquettes vraies varie, donc transformer des probabilités en ensemble d'étiquettes demande une règle, et les annotateurs sont davantage en désaccord." },
+  { "id": "ops.01.c11", "front": "Découpler les objectifs", "back": "Entraîner un modèle par objectif et mélanger les scores $\\alpha s_1+\\beta s_2$ au moment du classement, pour que le compromis change sans réentraînement." },
+  { "id": "ops.01.c12", "front": "Front de Pareto", "back": "Éléments non dominés par un autre élément au moins aussi bon sur tous les objectifs et strictement meilleur sur un." },
+  { "id": "ops.01.c13", "front": "Trois façons de passer à l'échelle pour un système de ML", "back": "En complexité du modèle, en volume de trafic, et en nombre de modèles (par exemple un par client)." },
+  { "id": "ops.01.c14", "front": "En quoi la production diffère de la recherche", "back": "Nombreuses parties prenantes, latence d'inférence prioritaire sur la vitesse d'entraînement, données qui dérivent, et exigences d'équité/interprétabilité." }
+]

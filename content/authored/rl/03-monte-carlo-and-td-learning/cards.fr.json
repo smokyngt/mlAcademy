@@ -1,0 +1,16 @@
+[
+  { "id": "rl.03.c1", "front": "Estimation de valeur Monte Carlo", "back": "Moyenner les retours observés après les visites de $s$ : $V(s)\\leftarrow V(s)+\\alpha(G_t-V(s))$." },
+  { "id": "rl.03.c2", "front": "MC première visite vs toutes visites", "back": "Première visite : seule la première visite de $s$ par épisode est utilisée ; toutes visites : toutes les visites. Les deux convergent vers $V^\\pi$." },
+  { "id": "rl.03.c3", "front": "Limites de Monte Carlo", "back": "Exige des épisodes qui se terminent, ne met à jour qu'à la fin, forte variance, et les états jamais visités ne sont jamais appris." },
+  { "id": "rl.03.c4", "front": "Mise à jour TD(0)", "back": "$V(s_t)\\leftarrow V(s_t)+\\alpha[r_{t+1}+\\gamma V(s_{t+1})-V(s_t)]$." },
+  { "id": "rl.03.c5", "front": "Erreur TD $\\delta_t$", "back": "$r_{t+1}+\\gamma V(s_{t+1})-V(s_t)$ : nulle en espérance à la vraie fonction de valeur." },
+  { "id": "rl.03.c6", "front": "Bootstrap", "back": "Mettre à jour une estimation à l'aide d'une autre estimation (la valeur de l'état suivant) plutôt que d'un retour complet observé." },
+  { "id": "rl.03.c7", "front": "Biais-variance du MC vs TD", "back": "Cible MC : non biaisée, forte variance. Cible TD : variance plus faible, biaisée par l'estimation courante (le biais diminue à mesure que l'apprentissage avance)." },
+  { "id": "rl.03.c8", "front": "Erreur MC en termes d'erreurs TD", "back": "Avec $V$ fixé, $G_t-V(s_t)=\\sum_{k\\ge0}\\gamma^k\\delta_{t+k}$." },
+  { "id": "rl.03.c9", "front": "Mise à jour SARSA", "back": "$Q(s,a)\\leftarrow Q+\\alpha[r+\\gamma Q(s',a')-Q(s,a)]$ avec $a'$ l'action réellement prise ; sur la politique." },
+  { "id": "rl.03.c10", "front": "Mise à jour Q-learning", "back": "$Q(s,a)\\leftarrow Q+\\alpha[r+\\gamma\\max_{a'}Q(s',a')-Q(s,a)]$ ; hors politique, apprend $Q^*$." },
+  { "id": "rl.03.c11", "front": "Sur la politique vs hors politique", "back": "Sur la politique : apprendre la valeur de la politique qui génère les données. Hors politique : apprendre une politique cible (p. ex. gloutonne) à partir de données d'une autre politique de comportement." },
+  { "id": "rl.03.c12", "front": "Résultat du cliff walking", "back": "Le Q-learning apprend le chemin le plus court le long du bord de la falaise mais tombe pendant l'exploration ; SARSA apprend un chemin plus long et plus sûr et gagne plus de récompense en ligne." },
+  { "id": "rl.03.c13", "front": "Que faire à une transition terminale", "back": "Supprimer le terme de bootstrap : cible $=r$ (la valeur d'un état terminal est 0)." },
+  { "id": "rl.03.c14", "front": "Pas de Robbins-Monro", "back": "$\\sum\\alpha_t=\\infty$ et $\\sum\\alpha_t^2<\\infty$ garantissent la convergence du TD tabulaire ; un petit $\\alpha$ constant est utilisé en pratique." }
+]

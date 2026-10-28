@@ -1,0 +1,121 @@
+#@@ meta
+{"id": "f2n.11.ex1", "title": "Train an MLP on half-moons", "difficulty": 4, "runtime": "pyodide", "concepts": ["nn.training", "opt.gradient-descent", "nn.backprop"], "hints": ["init_params: W1 ~ N(0, 2/n_in) of shape (n_in, hidden), b1 = zeros(hidden), W2 ~ N(0, 2/hidden) of shape (hidden, n_out), b2 = zeros(n_out). Use np.random.default_rng(seed).", "sgd_step returns a NEW tuple: tuple(p - lr * g for p, g in zip(params, grads)).", "train: loop `epochs` times: loss, grads = forward_backward(params, X, y); params = sgd_step(params, grads, lr); history.append(loss)."]}
+#@@ prompt
+`make_moons` and `forward_backward` (the backprop from the previous lesson) are provided. You write the rest:
+
+- `init_params(n_in, hidden, n_out, seed)` - He initialisation, zero biases. Return `(W1, b1, W2, b2)`.
+- `sgd_step(params, grads, lr)` - return updated parameters (do not modify the inputs).
+- `train(X, y, hidden, lr, epochs, seed)` - full-batch gradient descent. Return `(params, history)` where `history` is the list of losses.
+- `accuracy(params, X, y)` - fraction of examples classified correctly (argmax of the logits).
+
+Goal: > 95% training accuracy with `hidden=16, lr=0.5, epochs=400`. Then experiment: what happens with `lr=5`? with `lr=0.001`?
+#@@ starter
+import numpy as np
+
+def make_moons(n=200, noise=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2; n2 = n - n1
+    t1 = np.pi * rng.random(n1); t2 = np.pi * rng.random(n2)
+    X = np.vstack([np.c_[np.cos(t1), np.sin(t1)], np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]])
+    X = X + noise * rng.normal(size=X.shape)
+    y = np.r_[np.zeros(n1), np.ones(n2)].astype(int)
+    return X, y
+
+def forward_backward(params, X, y):
+    """Provided: returns (loss, grads) with grads in the same order as params."""
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y] + 1e-300)))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2; db2 = dZ2.sum(0)
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, (X.T @ dZ1, dZ1.sum(0), dW2, db2)
+
+def init_params(n_in, hidden, n_out, seed=0):
+    raise NotImplementedError
+
+def sgd_step(params, grads, lr):
+    raise NotImplementedError
+
+def train(X, y, hidden=16, lr=0.5, epochs=400, seed=0):
+    raise NotImplementedError
+
+def accuracy(params, X, y):
+    raise NotImplementedError
+
+X, y = make_moons()
+params, history = train(X, y)
+print("final loss", history[-1], "accuracy", accuracy(params, X, y))
+#@@ tests
+import numpy as np
+p = init_params(1000, 50, 3, seed=1)
+check("init_params returns 4 arrays with the right shapes", lambda: [a.shape for a in p] == [(1000, 50), (50,), (50, 3), (3,)])
+check("W1 has std near sqrt(2/n_in)", lambda: abs(p[0].std() / np.sqrt(2 / 1000) - 1) < 0.1, "He init: std = sqrt(2 / n_in)")
+check("biases start at zero", lambda: not p[1].any() and not p[3].any())
+check("same seed gives the same init", lambda: np.array_equal(init_params(4, 4, 2, 7)[0], init_params(4, 4, 2, 7)[0]))
+q = (np.ones(2), np.ones(2)); g = (np.ones(2), np.ones(2)); q0 = (q[0].copy(), q[1].copy())
+new = sgd_step(q, g, 0.1)
+check("sgd_step applies theta - lr*g", lambda: np.allclose(new[0], 0.9) and np.allclose(new[1], 0.9))
+check("sgd_step does not modify its input", lambda: np.array_equal(q[0], q0[0]), "Return new arrays instead of using -=")
+X, y = make_moons()
+params, history = train(X, y, hidden=16, lr=0.5, epochs=400, seed=0)
+check("history has one loss per epoch", lambda: len(history) == 400)
+check("loss decreases substantially", lambda: history[-1] < 0.5 * history[0])
+check("accuracy > 95% on the moons", lambda: accuracy(params, X, y) > 0.95, "Try checking the initialisation scale and the update sign")
+check("accuracy is a fraction in [0,1]", lambda: 0.0 <= accuracy(params, X, y) <= 1.0)
+Xs, ys = make_moons(n=8, noise=0.05, seed=3)
+ps, hs = train(Xs, ys, hidden=16, lr=0.5, epochs=600, seed=0)
+check("overfits 8 examples to 100% (pipeline sanity test)", lambda: accuracy(ps, Xs, ys) == 1.0)
+#@@ solution
+import numpy as np
+
+def make_moons(n=200, noise=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2; n2 = n - n1
+    t1 = np.pi * rng.random(n1); t2 = np.pi * rng.random(n2)
+    X = np.vstack([np.c_[np.cos(t1), np.sin(t1)], np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]])
+    X = X + noise * rng.normal(size=X.shape)
+    y = np.r_[np.zeros(n1), np.ones(n2)].astype(int)
+    return X, y
+
+def forward_backward(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y] + 1e-300)))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2; db2 = dZ2.sum(0)
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, (X.T @ dZ1, dZ1.sum(0), dW2, db2)
+
+def init_params(n_in, hidden, n_out, seed=0):
+    rng = np.random.default_rng(seed)
+    W1 = rng.normal(0, np.sqrt(2.0 / n_in), (n_in, hidden))
+    W2 = rng.normal(0, np.sqrt(2.0 / hidden), (hidden, n_out))
+    return (W1, np.zeros(hidden), W2, np.zeros(n_out))
+
+def sgd_step(params, grads, lr):
+    return tuple(p - lr * g for p, g in zip(params, grads))
+
+def train(X, y, hidden=16, lr=0.5, epochs=400, seed=0):
+    params = init_params(X.shape[1], hidden, int(y.max()) + 1, seed)
+    history = []
+    for _ in range(epochs):
+        loss, grads = forward_backward(params, X, y)
+        params = sgd_step(params, grads, lr)
+        history.append(loss)
+    return params, history
+
+def accuracy(params, X, y):
+    W1, b1, W2, b2 = params
+    logits = np.maximum(0, X @ W1 + b1) @ W2 + b2
+    return float(np.mean(logits.argmax(axis=1) == y))
+
+X, y = make_moons()
+params, history = train(X, y)
+print("final loss", history[-1], "accuracy", accuracy(params, X, y))

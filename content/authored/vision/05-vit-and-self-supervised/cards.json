@@ -1,0 +1,17 @@
+[
+  {"id": "vis.05.c1", "concept": "vis.patch-embed", "front": "ViT pipeline", "back": "Patchify, linear projection to width $D$, prepend class token, add positional embedding, $L$ pre-norm transformer blocks, head on the class token."},
+  {"id": "vis.05.c2", "concept": "vis.patch-embed", "front": "Number of patches", "back": "$N=(H/p)(W/p)$; each patch has $Cp^2$ values. $224$ and $p=16$ give $196$ (197 tokens with the class token)."},
+  {"id": "vis.05.c3", "concept": "vis.patch-embed", "front": "Patch embedding as a convolution", "back": "A conv with kernel $p$, stride $p$ and $D$ output channels equals the linear projection of each flattened patch."},
+  {"id": "vis.05.c4", "concept": "vis.patch-embed", "front": "Patch size trade-off", "back": "Smaller patches: more tokens, finer detail, attention cost $\\propto(N+1)^2$ (halving $p$ multiplies it by 16). Larger: faster, coarser."},
+  {"id": "vis.05.c5", "concept": "vis.patch-embed", "front": "Class token", "back": "Learned vector prepended to the sequence; its final state is the global image representation fed to the classifier."},
+  {"id": "vis.05.c6", "concept": "vis.patch-embed", "front": "ViT vs CNN inductive bias", "back": "CNN: locality and translation equivariance built in. ViT: learned, so it needs more data or stronger recipes (DeiT augmentation, pre-training)."},
+  {"id": "vis.05.c7", "concept": "vis.patch-embed", "front": "DeiT recipe ingredients", "back": "Heavy augmentation (RandAugment, mixup, CutMix, random erasing), stochastic depth, repeated augmentation, optional distillation from a CNN."},
+  {"id": "vis.05.c8", "concept": "vis.contrastive", "front": "Three self-supervised families", "back": "Contrastive (SimCLR, MoCo, CLIP), teacher-student (DINO, BYOL), masked reconstruction (MAE, BEiT)."},
+  {"id": "vis.05.c9", "concept": "vis.contrastive", "front": "NT-Xent loss", "back": "$\\ell_i=-\\log\\frac{\\exp(s_{i,i^+}/\\tau)}{\\sum_{k\\ne i}\\exp(s_{ik}/\\tau)}$ with cosine similarity $s$, averaged over all $2N$ views."},
+  {"id": "vis.05.c10", "concept": "vis.contrastive", "front": "Chance-level NT-Xent", "back": "$\\log(2N-1)$ when every similarity is equal (a $(2N-1)$-way guess)."},
+  {"id": "vis.05.c11", "concept": "vis.contrastive", "front": "Role of temperature", "back": "Small $\\tau$ sharpens the softmax and emphasises hard negatives; large $\\tau$ weighs all negatives alike."},
+  {"id": "vis.05.c12", "concept": "vis.contrastive", "front": "Why large batches for SimCLR?", "back": "More negatives per anchor make the task harder and more informative; MoCo uses a queue of past embeddings instead."},
+  {"id": "vis.05.c13", "concept": "vis.contrastive", "front": "DINO", "back": "Student matches an EMA teacher on another view; centring and sharpening of the teacher output prevent collapse; no negatives."},
+  {"id": "vis.05.c14", "concept": "vis.contrastive", "front": "MAE", "back": "Mask about 75% of patches, encode the visible ones, small decoder reconstructs masked pixels (MSE on masked patches); discard the decoder after pre-training."},
+  {"id": "vis.05.c15", "concept": "vis.contrastive", "front": "Linear-probe evaluation", "back": "Freeze the encoder, train one linear classifier on labels, report top-1; a clean measure of feature quality."}
+]

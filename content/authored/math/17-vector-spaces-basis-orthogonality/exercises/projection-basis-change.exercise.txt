@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "math.17.ex2", "title": "Projection matrices and change of basis", "difficulty": 3, "runtime": "pyodide", "concepts": ["la.projection", "la.basis"], "hints": ["projection_matrix: B @ np.linalg.solve(B.T @ B, B.T) avoids the explicit inverse.", "is_projection returns (idempotent, symmetric): np.allclose(P @ P, P) and np.allclose(P, P.T).", "to_coords solves S c = x with np.linalg.solve; matrix_in_basis is S^-1 M S (use solve(S, M @ S))."]}
+#@@ prompt
+Implement:
+
+- `projection_matrix(B)` - the orthogonal projection onto the column space of `B` (shape `(n, m)`, independent columns): `B (B^T B)^-1 B^T`.
+- `project(B, x)` - the projection of `x` without building the full `n x n` matrix.
+- `is_projection(P)` - a tuple `(idempotent, symmetric)` of Python bools for `P @ P == P` and `P == P.T` (use `np.allclose`).
+- `to_coords(S, x)` / `from_coords(S, c)` - coordinates of `x` with respect to the basis in the columns of `S`, and back.
+- `matrix_in_basis(S, M)` - the matrix `S^-1 M S` of the same linear map in the new basis.
+#@@ starter
+import numpy as np
+
+def projection_matrix(B):
+    raise NotImplementedError
+
+def project(B, x):
+    raise NotImplementedError
+
+def is_projection(P):
+    raise NotImplementedError
+
+def to_coords(S, x):
+    raise NotImplementedError
+
+def from_coords(S, c):
+    raise NotImplementedError
+
+def matrix_in_basis(S, M):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+B = np.array([[1, 0], [1, 1], [1, 2.]])
+x = np.array([6., 0., 0.])
+P = projection_matrix(B)
+check("book example: P = (1/6)[[5,2,-1],[2,2,2],[-1,2,5]]", lambda: np.allclose(P, np.array([[5, 2, -1], [2, 2, 2], [-1, 2, 5]]) / 6))
+check("projection of (6,0,0) is (5,2,-1)", lambda: np.allclose(P @ x, [5, 2, -1]) and np.allclose(project(B, x), [5, 2, -1]))
+check("error length is sqrt(6)", lambda: abs(np.linalg.norm(x - P @ x) - np.sqrt(6)) < 1e-9)
+check("error is orthogonal to the columns of B", lambda: np.allclose(B.T @ (x - P @ x), 0))
+check("P^2 = P and P^T = P", lambda: is_projection(P) == (True, True))
+check("trace(P) = dim of the subspace = 2", lambda: abs(np.trace(P) - 2) < 1e-9)
+check("eigenvalues are 0 and 1 only", lambda: np.allclose(np.sort(np.linalg.eigvalsh(P)), [0, 1, 1]))
+check("a non-projection is detected", lambda: is_projection(np.array([[1., 1.], [0., 0.]])) == (True, False) and is_projection(np.eye(2) * 2) == (False, True))
+rng = np.random.default_rng(3)
+Br = rng.normal(size=(7, 3))
+Pr = projection_matrix(Br)
+check("random 7x3: P^2 = P, P^T = P, rank 3", lambda: is_projection(Pr) == (True, True) and np.linalg.matrix_rank(Pr) == 3)
+xr = rng.normal(size=7)
+check("project() agrees with P @ x", lambda: np.allclose(project(Br, xr), Pr @ xr))
+check("projecting twice changes nothing", lambda: np.allclose(project(Br, project(Br, xr)), project(Br, xr)))
+S = np.array([[1., 1.], [0., 1.]])
+check("coords of (3,2) in basis S are (1,2)", lambda: np.allclose(to_coords(S, np.array([3., 2.])), [1, 2]))
+M = np.array([[2., 1.], [0., 3.]])
+check("S^-1 M S = diag(2,3)", lambda: np.allclose(matrix_in_basis(S, M), np.diag([2., 3.])))
+Sr = rng.normal(size=(4, 4)) + 4 * np.eye(4)
+v = rng.normal(size=4)
+check("round trip x -> coords -> x", lambda: np.allclose(from_coords(Sr, to_coords(Sr, v)), v))
+Mr = rng.normal(size=(4, 4))
+check("map in new basis acts on coordinates the same way", lambda: np.allclose(matrix_in_basis(Sr, Mr) @ to_coords(Sr, v), to_coords(Sr, Mr @ v)))
+check("similar matrices share trace and determinant", lambda: abs(np.trace(matrix_in_basis(Sr, Mr)) - np.trace(Mr)) < 1e-9 and abs(np.linalg.det(matrix_in_basis(Sr, Mr)) - np.linalg.det(Mr)) < 1e-6)
+#@@ solution
+import numpy as np
+
+def projection_matrix(B):
+    return B @ np.linalg.solve(B.T @ B, B.T)
+
+def project(B, x):
+    return B @ np.linalg.solve(B.T @ B, B.T @ x)
+
+def is_projection(P):
+    return bool(np.allclose(P @ P, P)), bool(np.allclose(P, P.T))
+
+def to_coords(S, x):
+    return np.linalg.solve(S, x)
+
+def from_coords(S, c):
+    return S @ c
+
+def matrix_in_basis(S, M):
+    return np.linalg.solve(S, M @ S)

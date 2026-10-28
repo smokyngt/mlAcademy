@@ -1,0 +1,10 @@
+{
+  "id": "cml.08.ex1",
+  "title": "SVM linéaire par descente de sous-gradient sur la perte charnière",
+  "prompt": "Entraîne une SVM linéaire dans le primal. Les étiquettes sont dans $\\{-1,+1\\}$. L'objectif est\n$$J(w,b)=\\frac\\lambda2\\|w\\|^2+\\frac1N\\sum_n\\max\\{0,\\,1-y_n(\\langle w,x_n\\rangle+b)\\}.$$\n\n- `hinge(y, f)` perte charnière élément par élément pour des étiquettes `y` et des scores `f`.\n- `svm_objective(w, b, X, y, lam)` renvoie $J$.\n- `svm_subgradient(w, b, X, y, lam)` renvoie `(gw, gb)` comme donné dans la leçon (seuls les violateurs de marge, c'est-à-dire $y f<1$, contribuent au terme de données).\n- `svm_fit(X, y, lam=0.01, lr=0.5, epochs=500)` exécute une descente de sous-gradient sur le lot complet à partir de $w=0,b=0$ avec le pas $\\eta_t=\\text{lr}/(1+0.05t)$ et renvoie `(w, b)`.\n- `margin(w)` renvoie $1/\\|w\\|$.",
+  "hints": [
+    "hinge(y, f) = np.maximum(0, 1 - y * f) ; objectif = lam / 2 * w @ w + hinge(...).mean().",
+    "Violateurs : mask = y * (X @ w + b) < 1. gw = lam * w - (y[mask, None] * X[mask]).sum(0) / N ; gb = -y[mask].sum() / N.",
+    "Boucle d'entraînement : step = lr / (1 + 0.05 * t) ; w -= step * gw ; b -= step * gb."
+  ]
+}

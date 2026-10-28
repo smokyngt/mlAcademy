@@ -1,0 +1,11 @@
+{
+  "id": "math.14.ex1",
+  "title": "Transformée inverse, rejet, échantillonnage préférentiel et Metropolis",
+  "prompt": "Implémente avec NumPy uniquement :\n\n- `exp_inverse(u, lam)` - échantillons exponentiels par transformée inverse à partir d'un `u` uniforme.\n- `rejection_beta22(n, seed)` - échantillons acceptés de la densité `6x(1-x)` sur `[0,1]` en utilisant `n` propositions de `Uniform(0,1)` et la borne `M = 1.5` (renvoie un tableau de longueur d'environ `2n/3`).\n- `mc_pi(n, seed)` - estimation de pi par Monte Carlo : `rng.random((n, 2))`, 4 fois la fraction avec `x^2+y^2 <= 1`.\n- `tail_naive(n, seed)` et `tail_importance(n, seed)` - deux estimations de `P(Z > 3)` pour une normale standard `Z` : Monte Carlo simple, et échantillonnage préférentiel depuis `N(3, 1)` avec les poids `p/q`.\n- `metropolis(logp, n, step, seed)` - Metropolis à marche aléatoire depuis `x0 = 0` ; renvoie `(chain, acceptance_rate)` ; `logp` est le log d'une densité non normalisée.",
+  "hints": [
+    "exp_inverse(u, lam) = -log(1 - u) / lam.",
+    "rejection_beta22 : tire x = rng.random(n) et u = rng.random(n), accepte là où u < 6 x (1-x) / 1.5, renvoie x[mask]. La moyenne doit valoir environ 0.5, la variance environ 0.05.",
+    "importance_tail : tire q ~ N(3,1) ; poids w = exp(-q^2/2 + (q-3)^2/2) = p(q)/q(q) ; estimation = mean((q > 3) * w).",
+    "metropolis : propose xp = x + step*normal ; accepte si log(uniform) < logp(xp) - logp(x) ; ajoute toujours le x courant."
+  ]
+}

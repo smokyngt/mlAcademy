@@ -1,0 +1,10 @@
+{
+  "id": "res.01.ex2",
+  "title": "Vérificateur de déterminisme et vérificateur de complétude de rapport",
+  "prompt": "Deux vérificateurs dont toute reproduction a besoin.\n\n**1. `determinism_check(fn, seed, repeats=3)`** appelle `fn(seed)` `repeats` fois et renvoie un dict `{\"deterministic\": bool, \"max_abs_diff\": float}`. `fn` renvoie un nombre ou un tableau. `deterministic` n'est vrai que lorsque chaque répétition égale la première sortie **exactement** (différence 0.0). `max_abs_diff` est la plus grande différence absolue entre une répétition quelconque et la première (0.0 si identiques).\n\n**2. `report_completeness(report, required)`** prend un rapport de reproduction (un dict) et la liste des noms de champs requis. Un champ compte comme *manquant* lorsque sa clé est absente, que sa valeur est `None`, ou que c'est une chaîne, une liste ou un dict vide (un rapport honnête écrit `\"none\"` plutôt qu'une liste vide d'écarts). Renvoie `{\"missing\": [...], \"score\": float}` où `missing` garde l'ordre de `required` et `score = 1 - len(missing) / len(required)`.",
+  "hints": [
+    "determinism_check : appelle fn(seed) `repeats` fois, convertis chaque sortie avec np.asarray(..., dtype=float), compare chacune à la première.",
+    "max_abs_diff = le plus grand np.max(np.abs(out - first)) sur les répétitions ; déterministe signifie qu'il vaut exactement 0.0.",
+    "report_completeness : un champ est manquant si la clé est absente, si la valeur est None, ou si la valeur est une chaîne, une liste ou un dict vide."
+  ]
+}

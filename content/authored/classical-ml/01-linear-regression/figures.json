@@ -1,0 +1,57 @@
+[
+  {
+    "id": "projection",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "Least squares as projection in a toy 2-D space. The grey line is the set of everything the model can predict (the column space of X). The target y = (2, 3) (blue) is projected onto it: the fit Xw = (2.8, 1.4) (green), and the residual r = y − Xw = (−0.8, 1.6) (red) meets the line at a right angle, which is exactly Xᵀr = 0.", "fr": "Les moindres carrés comme projection dans un espace 2-D jouet. La droite grise est l'ensemble de tout ce que le modèle peut prédire (l'espace des colonnes de X). La cible y = (2, 3) (bleu) est projetée dessus : l'ajustement Xw = (2,8 ; 1,4) (vert), et le résidu r = y − Xw = (−0,8 ; 1,6) (rouge) rencontre la droite à angle droit, c'est exactement Xᵀr = 0." },
+    "spec": {
+      "xDomain": [-1, 4], "yDomain": [-0.5, 3.5], "height": 340,
+      "data": [
+        { "fn": "x/2", "color": "#9ca3af" },
+        { "fnType": "vector", "vector": [2, 3], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [2.8, 1.4], "offset": [0, 0], "graphType": "polyline", "color": "#16a34a" },
+        { "fnType": "vector", "vector": [-0.8, 1.6], "offset": [2.8, 1.4], "graphType": "polyline", "color": "#dc2626" }
+      ]
+    }
+  },
+  {
+    "id": "worked-fit",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "The worked example: points (0,1), (1,2), (2,2) and the least-squares line y = 1.167 + 0.5x. The red segments are the residuals (−0.167, 0.333, −0.167); they sum to zero and are orthogonal to the x column.", "fr": "L'exemple traité : les points (0,1), (1,2), (2,2) et la droite des moindres carrés y = 1,167 + 0,5x. Les segments rouges sont les résidus (−0,167 ; 0,333 ; −0,167) ; leur somme est nulle et ils sont orthogonaux à la colonne x." },
+    "spec": {
+      "xDomain": [-0.5, 2.5], "yDomain": [0.5, 2.8], "height": 300,
+      "data": [
+        { "fn": "1.1667 + 0.5*x", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[0, 1], [0, 1.1667]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[1, 2], [1, 1.6667]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[2, 2], [2, 2.1667]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 5 }, "points": [[0, 1], [1, 2], [2, 2]] }
+      ]
+    }
+  },
+  {
+    "id": "ridge-shrinkage",
+    "after": 6,
+    "kind": "plot",
+    "caption": { "en": "Ridge shrinkage for a single feature. From (xᵀx + λ)w = xᵀy, w(λ) = xᵀy/(xᵀx + λ). Here xᵀy = xᵀx (so OLS gives w = 1): the weight decays toward 0 as λ grows, faster when the feature carries little variance (orange, xᵀx = 1) than a lot (blue, xᵀx = 4). x-axis: λ.", "fr": "Rétrécissement ridge pour une seule variable. De (xᵀx + λ)w = xᵀy, w(λ) = xᵀy/(xᵀx + λ). Ici xᵀy = xᵀx (donc MCO donne w = 1) : le poids décroît vers 0 quand λ augmente, plus vite si la variable porte peu de variance (orange, xᵀx = 1) que beaucoup (bleu, xᵀx = 4). Axe x : λ." },
+    "spec": {
+      "xDomain": [0, 10], "yDomain": [0, 1.1], "height": 300,
+      "data": [
+        { "fn": "4/(4+x)", "color": "#2563eb" },
+        { "fn": "1/(1+x)", "color": "#d97706" }
+      ],
+      "annotations": [{ "y": 1, "text": "OLS: w = 1 (lambda = 0)" }]
+    }
+  },
+  {
+    "id": "solve-flow",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": { "en": "From data to weights: OLS and ridge differ only by the λI added to XᵀX. Solve the linear system; never invert.", "fr": "Des données aux poids : MCO et ridge ne diffèrent que par le λI ajouté à XᵀX. On résout le système linéaire, on n'inverse jamais." },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N,d)\"] --> G[\"X^T X (d,d)\"]\n  X --> B[\"X^T y (d)\"]\n  Y[\"y (N)\"] --> B\n  G --> OLS[\"OLS: solve X^T X w = X^T y\"]\n  G --> R[\"add lambda I\"] --> RR[\"Ridge: solve (X^T X + lambda I) w = X^T y\"]\n  B --> OLS\n  B --> RR\n  OLS --> W1[\"w (d)\"]\n  RR --> W2[\"w shrunk (d)\"]",
+      "fr": "flowchart LR\n  X[\"X (N,d)\"] --> G[\"X^T X (d,d)\"]\n  X --> B[\"X^T y (d)\"]\n  Y[\"y (N)\"] --> B\n  G --> OLS[\"MCO : résoudre X^T X w = X^T y\"]\n  G --> R[\"ajouter lambda I\"] --> RR[\"Ridge : résoudre (X^T X + lambda I) w = X^T y\"]\n  B --> OLS\n  B --> RR\n  OLS --> W1[\"w (d)\"]\n  RR --> W2[\"w rétréci (d)\"]"
+    }
+  }
+]

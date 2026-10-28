@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.05.q1",
+  "prompt": "Combien de radians valent 180 degrés ?",
+  "options": [
+   "$\\pi/2$",
+   "$\\pi$",
+   "$2\\pi$",
+   "$180$"
+  ],
+  "explanation": "Un demi-tour vaut $\\pi$ radians (un tour complet vaut $2\\pi$)."
+ },
+ {
+  "id": "mf.05.q2",
+  "prompt": "Que vaut $\\sin(\\pi/6)$ ?",
+  "options": [],
+  "explanation": "Dans un triangle 30-60-90, le côté opposé à 30 degrés vaut la moitié de l'hypoténuse."
+ },
+ {
+  "id": "mf.05.q3",
+  "prompt": "Sur le cercle unité, le point d'angle $\\theta$ a pour coordonnées...",
+  "options": [
+   "$(\\sin\\theta,\\cos\\theta)$",
+   "$(\\cos\\theta,\\sin\\theta)$",
+   "$(\\tan\\theta,1)$",
+   "$(\\theta,\\theta)$"
+  ],
+  "explanation": "Par définition, $\\cos\\theta$ est la coordonnée horizontale et $\\sin\\theta$ la verticale."
+ },
+ {
+  "id": "mf.05.q4",
+  "prompt": "$\\sin^2\\theta+\\cos^2\\theta$ est égal à...",
+  "options": [],
+  "explanation": "Le point $(\\cos\\theta,\\sin\\theta)$ est sur le cercle unité, donc par Pythagore la somme de ses coordonnées au carré vaut 1."
+ },
+ {
+  "id": "mf.05.q5",
+  "prompt": "La période de $\\sin(3x)$ est...",
+  "options": [
+   "$2\\pi$",
+   "$3\\cdot2\\pi$",
+   "$2\\pi/3$",
+   "$\\pi/3$"
+  ],
+  "explanation": "$\\sin(3x)$ se répète quand $3x$ avance de $2\\pi$, c'est-à-dire quand $x$ avance de $2\\pi/3$."
+ },
+ {
+  "id": "mf.05.q6",
+  "prompt": "La matrice de rotation d'angle $\\theta$ est $\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$. Où va le point $(1,0)$ pour $\\theta=\\pi/2$ ?",
+  "options": [
+   "$(1,0)$",
+   "$(0,1)$",
+   "$(-1,0)$",
+   "$(0,-1)$"
+  ],
+  "explanation": "La première colonne donne l'image de $(1,0)$ : $(\\cos\\frac\\pi2,\\sin\\frac\\pi2)=(0,1)$."
+ },
+ {
+  "id": "mf.05.q7",
+  "prompt": "$\\tan\\theta$ est défini comme...",
+  "options": [
+   "$\\cos\\theta/\\sin\\theta$",
+   "$\\sin\\theta/\\cos\\theta$",
+   "$\\sin\\theta\\cos\\theta$",
+   "$1/\\sin\\theta$"
+  ],
+  "explanation": "Pente du rayon : vertical sur horizontal, donc $\\tan\\theta=\\sin\\theta/\\cos\\theta$ ; non défini là où $\\cos\\theta=0$."
+ },
+ {
+  "id": "mf.05.q8",
+  "prompt": "Quelle identité est la formule d'addition d'angles pour le sinus ?",
+  "options": [
+   "$\\sin(a+b)=\\sin a+\\sin b$",
+   "$\\sin(a+b)=\\sin a\\cos b+\\cos a\\sin b$",
+   "$\\sin(a+b)=\\cos a\\cos b-\\sin a\\sin b$",
+   "$\\sin(a+b)=\\sin a\\sin b$"
+  ],
+  "explanation": "C'est l'identité qui fait que deux rotations se composent en une seule rotation d'angle $a+b$."
+ },
+ {
+  "id": "mf.05.q9",
+  "prompt": "Une onde $A\\sin(2\\pi ft)$ avec $f=5$ accomplit combien de cycles en une unité de temps ?",
+  "options": [],
+  "explanation": "La fréquence est le nombre de cycles par unité de temps ; la période est $1/5$."
+ }
+]

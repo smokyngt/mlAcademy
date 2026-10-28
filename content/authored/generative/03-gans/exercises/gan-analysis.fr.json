@@ -1,0 +1,10 @@
+{
+ "id": "gen.03.ex1",
+ "title": "Théorie des GAN et pas de gradient sur un jouet",
+ "prompt": "Analyse numériquement le jeu des GAN (NumPy uniquement).\n\nPartie discrète (distributions données sous forme de vecteurs de probabilités) : `optimal_discriminator(pd, pg)`, `kl(p, q)`, `js(p, q)` (Jensen-Shannon), et `value(pd, pg, D)` $=\\sum p_d\\log D+\\sum p_g\\log(1-D)$.\n\nDistances : `w1_samples(a, b)` est la distance de Wasserstein-1 en 1-D entre deux échantillons de même taille (différence absolue moyenne des valeurs triées).\n\nAnalyse de gradient : `grad_saturating(s)` et `grad_nonsaturating(s)` sont les dérivées par rapport au logit du discriminateur $s$ de $\\log(1-\\sigma(s))$ et de $-\\log\\sigma(s)$. Pour le GAN jouet (générateur $\\theta+z$, discriminateur $\\sigma(ax+b)$), implémente `d_loss`, `d_grads`, `g_loss`, `g_grad` (non saturante) et `train_toy`, qui alterne une étape du discriminateur et une étape du générateur par descente de gradient simple, en utilisant un `np.random.default_rng(seed)` initialisé : à chaque itération, tire `xr = rng.normal(3,1,batch)` puis `z = rng.normal(0,1,batch)`.",
+ "hints": [
+  "D* = pd/(pd+pg) ; la divergence JS utilise le mélange m=(p+q)/2.",
+  "dL_D/da = mean(-(1-D(xr))*xr) + mean(D(xf)*xf) ; dL_G/dtheta = mean(-(1-D(G(z)))*a).",
+  "Dans train_toy, mets d'abord D à jour avec fake = theta+z, puis fais l'étape du générateur en utilisant a, b mis à jour."
+ ]
+}

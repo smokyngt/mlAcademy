@@ -1,0 +1,96 @@
+[
+ {
+  "id": "vis.05.q1",
+  "prompt": "Un ViT découpe une image $224\\times224$ en patchs $16\\times16$. Combien de tokens de patchs en résulte-t-il (avant d'ajouter un token de classe) ?",
+  "options": [
+   "196",
+   "14",
+   "49",
+   "256"
+  ],
+  "explanation": "$(224/16)^2=14^2=196$."
+ },
+ {
+  "id": "vis.05.q2",
+  "prompt": "Diviser par deux la taille de patch de 16 à 8 change la taille de chaque matrice d'attention d'un facteur...",
+  "options": [
+   "2",
+   "8",
+   "16",
+   "4"
+  ],
+  "explanation": "Les tokens quadruplent, et les entrées d'attention évoluent comme le carré des tokens : $4^2=16$."
+ },
+ {
+  "id": "vis.05.q3",
+  "prompt": "Pourquoi un ViT ajoute-t-il des plongements positionnels ?",
+  "options": [
+   "Pour réduire le nombre de tokens",
+   "L'attention seule est équivariante par permutation et ne peut pas savoir d'où vient un patch",
+   "Pour faire se chevaucher les patchs",
+   "Pour normaliser les couleurs"
+  ],
+  "explanation": "Sans positions, mélanger les patchs ne changerait pas l'ensemble des sorties d'attention (il ne ferait que les réordonner)."
+ },
+ {
+  "id": "vis.05.q4",
+  "prompt": "Quelle affirmation sur le biais inductif est correcte ?",
+  "options": [
+   "Les ViT intègrent la localité ; les CNN non",
+   "Aucun ne dépend de la taille des données",
+   "Les deux ont des biais identiques",
+   "Les CNN intègrent la localité et l'équivariance par translation ; les ViT doivent les apprendre"
+  ],
+  "explanation": "Le partage de poids et les petits noyaux donnent ces a priori aux CNN ; un ViT simple en a peu, c'est pourquoi les recettes et le pré-entraînement comptent."
+ },
+ {
+  "id": "vis.05.q5",
+  "prompt": "Dans SimCLR, qu'est-ce qui constitue une paire positive ?",
+  "options": [
+   "Une image et sa légende",
+   "Deux images de la même étiquette de classe",
+   "Deux augmentations aléatoires de la même image",
+   "Des images adjacentes d'une vidéo quelconque"
+  ],
+  "explanation": "Aucune étiquette n'est utilisée ; l'appariement vient du processus d'augmentation."
+ },
+ {
+  "id": "vis.05.q6",
+  "prompt": "Un lot a $N=8$ images, donc $2N=16$ vues. Si toutes les similarités sont égales, la perte NT-Xent vaut $\\log(2N-1)$. Quelle est-elle (3 décimales) ?",
+  "options": [],
+  "explanation": "$\\ln15=2.708$."
+ },
+ {
+  "id": "vis.05.q7",
+  "prompt": "Que fait la baisse de la température $\\tau$ dans NT-Xent ?",
+  "options": [
+   "Elle supprime le besoin de négatifs",
+   "Elle change la dimension du plongement",
+   "Elle aplatit le softmax pour que tous les négatifs pèsent pareil",
+   "Elle affûte le softmax, en se concentrant sur les négatifs les plus difficiles"
+  ],
+  "explanation": "Diviser les similarités par un petit $\\tau$ fait dominer les grandes similarités dans le softmax et le gradient."
+ },
+ {
+  "id": "vis.05.q8",
+  "prompt": "Comment DINO évite-t-il l'effondrement vers une sortie constante sans négatifs ?",
+  "options": [
+   "Le dropout",
+   "Un enseignant EMA centré et affûté",
+   "Le lissage d'étiquettes",
+   "De plus grandes tailles de lot"
+  ],
+  "explanation": "Le centrage empêche une dimension de dominer ; l'affûtage empêche l'effondrement vers une sortie uniforme."
+ },
+ {
+  "id": "vis.05.q9",
+  "prompt": "Pourquoi MAE masque-t-il 75 % des patchs alors que BERT masque 15 % des tokens ?",
+  "options": [
+   "Les images sont plus grandes",
+   "Cela n'accélère que le décodeur",
+   "Les pixels voisins sont très redondants, donc un faible ratio peut se résoudre par interpolation",
+   "Les ViT ne peuvent pas traiter plus de tokens"
+  ],
+  "explanation": "Les patchs d'image portent peu d'information au-delà de leur voisinage ; un masquage agressif force des représentations sémantiques."
+ }
+]

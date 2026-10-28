@@ -1,0 +1,144 @@
+#@@ meta
+{"id": "rl.03.ex2", "title": "SARSA versus Q-learning on a cliff", "difficulty": 3, "runtime": "pyodide", "concepts": ["rl.td"], "hints": ["Both updates compute td_error = target - Q[s, a] and then do Q[s, a] += alpha * td_error. They differ only in the target.", "If done is True the target is just r (no bootstrap).", "SARSA target: r + gamma * Q[s2, a2]. Q-learning target: r + gamma * Q[s2].max()."]}
+#@@ prompt
+A 4x8 cliff-walking grid: you start at the bottom-left corner and must reach the bottom-right corner. Every step costs -1; stepping onto the cliff (bottom row, columns 1..6) costs -100 and sends you back to the start. The agent explores with epsilon-greedy ($\varepsilon=0.1$).
+
+`step` and `train` are given. Implement the two TD control updates (modify `Q` in place and return the TD error):
+
+- `sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma)` -> on-policy: bootstrap from the action `a2` actually chosen next.
+- `q_learning_update(Q, s, a, r, s2, done, alpha, gamma)` -> off-policy: bootstrap from the best action in `s2`.
+
+The tests train both on the same seeds and compare the greedy paths and the online reward.
+#@@ starter
+import numpy as np
+
+ROWS, COLS = 4, 8
+START, GOAL = (ROWS - 1) * COLS, ROWS * COLS - 1
+
+def step(s, a):
+    r, c = divmod(s, COLS)
+    dr, dc = [(-1, 0), (0, 1), (1, 0), (0, -1)][a]
+    r2 = min(max(r + dr, 0), ROWS - 1); c2 = min(max(c + dc, 0), COLS - 1)
+    if r2 == ROWS - 1 and 1 <= c2 <= COLS - 2:
+        return START, -100.0, False
+    s2 = r2 * COLS + c2
+    return s2, -1.0, s2 == GOAL
+
+def sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma):
+    raise NotImplementedError
+
+def q_learning_update(Q, s, a, r, s2, done, alpha, gamma):
+    raise NotImplementedError
+
+def train(algo, n_episodes, seed, eps=0.1, alpha=0.5, gamma=1.0):
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((ROWS * COLS, 4)); returns = []
+    def act(s):
+        if rng.random() < eps:
+            return int(rng.integers(4))
+        return int(np.argmax(Q[s] + 1e-9 * rng.random(4)))
+    for _ in range(n_episodes):
+        s = START; a = act(s); G = 0.0
+        for _ in range(500):
+            s2, r, done = step(s, a)
+            a2 = act(s2)
+            G += r
+            if algo == "sarsa":
+                sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma)
+            else:
+                q_learning_update(Q, s, a, r, s2, done, alpha, gamma)
+            s, a = s2, a2
+            if done:
+                break
+        returns.append(G)
+    return Q, returns
+
+def greedy_path(Q):
+    s = START; path = [s]
+    for _ in range(60):
+        s, _, done = step(s, int(np.argmax(Q[s]))); path.append(s)
+        if done:
+            break
+    return path
+#@@ tests
+import numpy as np
+Q = np.zeros((32, 4)); Q[5, :] = [0.0, 2.0, 1.0, -1.0]
+Qa = Q.copy()
+err = sarsa_update(Qa, 3, 1, -1.0, 5, 3, False, 0.5, 0.9)
+check("SARSA bootstraps from the chosen action a2=3 (Q=-1)", lambda: abs(Qa[3, 1] - 0.5 * (-1.0 + 0.9 * (-1.0))) < 1e-12)
+check("SARSA returns the TD error", lambda: abs(err - (-1.0 + 0.9 * (-1.0))) < 1e-12)
+Qb = Q.copy()
+q_learning_update(Qb, 3, 1, -1.0, 5, False, 0.5, 0.9)
+check("Q-learning bootstraps from the max (2.0)", lambda: abs(Qb[3, 1] - 0.5 * (-1.0 + 0.9 * 2.0)) < 1e-12)
+Qc = Q.copy()
+q_learning_update(Qc, 3, 1, 10.0, 5, True, 0.5, 0.9)
+check("terminal transitions do not bootstrap", lambda: abs(Qc[3, 1] - 5.0) < 1e-12)
+Qd = Q.copy(); sarsa_update(Qd, 3, 1, 10.0, 5, 1, True, 0.5, 0.9)
+check("SARSA terminal transitions do not bootstrap", lambda: abs(Qd[3, 1] - 5.0) < 1e-12)
+
+res_s = [train("sarsa", 300, sd) for sd in range(3)]
+res_q = [train("q", 300, sd) for sd in range(3)]
+on_s = np.mean([np.mean(r[1][-100:]) for r in res_s])
+on_q = np.mean([np.mean(r[1][-100:]) for r in res_q])
+check("Q-learning greedy path is the shortest (10 cells) for every seed", lambda: all(len(greedy_path(r[0])) == 10 for r in res_q))
+check("Q-learning's path goes up one row and then hugs the cliff (row 2)", lambda: all(greedy_path(r[0])[1] == START - COLS and all(p // COLS == 2 for p in greedy_path(r[0])[1:-2]) for r in res_q))
+check("SARSA's greedy paths are longer (they keep away from the cliff)", lambda: np.mean([len(greedy_path(r[0])) for r in res_s]) > 11)
+check("while exploring, SARSA earns more reward than Q-learning", lambda: on_s > on_q + 3)
+check("both learn something sensible (better than -100 per episode)", lambda: on_s > -60 and on_q > -60)
+#@@ solution
+import numpy as np
+
+ROWS, COLS = 4, 8
+START, GOAL = (ROWS - 1) * COLS, ROWS * COLS - 1
+
+def step(s, a):
+    r, c = divmod(s, COLS)
+    dr, dc = [(-1, 0), (0, 1), (1, 0), (0, -1)][a]
+    r2 = min(max(r + dr, 0), ROWS - 1); c2 = min(max(c + dc, 0), COLS - 1)
+    if r2 == ROWS - 1 and 1 <= c2 <= COLS - 2:
+        return START, -100.0, False
+    s2 = r2 * COLS + c2
+    return s2, -1.0, s2 == GOAL
+
+def sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma):
+    target = r if done else r + gamma * Q[s2, a2]
+    td_error = target - Q[s, a]
+    Q[s, a] += alpha * td_error
+    return td_error
+
+def q_learning_update(Q, s, a, r, s2, done, alpha, gamma):
+    target = r if done else r + gamma * Q[s2].max()
+    td_error = target - Q[s, a]
+    Q[s, a] += alpha * td_error
+    return td_error
+
+def train(algo, n_episodes, seed, eps=0.1, alpha=0.5, gamma=1.0):
+    rng = np.random.default_rng(seed)
+    Q = np.zeros((ROWS * COLS, 4)); returns = []
+    def act(s):
+        if rng.random() < eps:
+            return int(rng.integers(4))
+        return int(np.argmax(Q[s] + 1e-9 * rng.random(4)))
+    for _ in range(n_episodes):
+        s = START; a = act(s); G = 0.0
+        for _ in range(500):
+            s2, r, done = step(s, a)
+            a2 = act(s2)
+            G += r
+            if algo == "sarsa":
+                sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma)
+            else:
+                q_learning_update(Q, s, a, r, s2, done, alpha, gamma)
+            s, a = s2, a2
+            if done:
+                break
+        returns.append(G)
+    return Q, returns
+
+def greedy_path(Q):
+    s = START; path = [s]
+    for _ in range(60):
+        s, _, done = step(s, int(np.argmax(Q[s]))); path.append(s)
+        if done:
+            break
+    return path

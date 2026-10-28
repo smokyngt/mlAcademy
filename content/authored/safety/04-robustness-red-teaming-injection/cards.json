@@ -1,0 +1,92 @@
+[
+ {
+  "id": "saf.04.c1",
+  "concept": "saf.red-teaming",
+  "front": "Attack success rate (ASR)",
+  "back": "Fraction of test behaviours for which an attack elicited a policy-violating output according to a judge; depends on behaviours, attack, query budget and judge."
+ },
+ {
+  "id": "saf.04.c2",
+  "concept": "saf.red-teaming",
+  "front": "Wilson score interval",
+  "back": "Interval for a proportion k/n: centre (p + z^2/2n)/(1+z^2/n), half-width z/(1+z^2/n) * sqrt(p(1-p)/n + z^2/4n^2). Stays inside [0,1]."
+ },
+ {
+  "id": "saf.04.c3",
+  "concept": "saf.red-teaming",
+  "front": "Zero observed successes",
+  "back": "Not zero risk: with 0 of 50 the 95% Wilson upper bound is about 7.1%."
+ },
+ {
+  "id": "saf.04.c4",
+  "concept": "saf.red-teaming",
+  "front": "Budgeted ASR",
+  "back": "Fraction of behaviours broken within k queries; non-decreasing in k; always report the budget."
+ },
+ {
+  "id": "saf.04.c5",
+  "concept": "saf.red-teaming",
+  "front": "Static versus adaptive evaluation",
+  "back": "Static: fixed attacks. Adaptive: attacker knows the defence and picks the best; report the union over attacks."
+ },
+ {
+  "id": "saf.04.c6",
+  "concept": "saf.red-teaming",
+  "front": "Sample size for a rate estimate",
+  "back": "n ~ z^2 p(1-p) / h^2 for half-width h (385 for p = 0.5, h = 0.05)."
+ },
+ {
+  "id": "saf.04.c7",
+  "concept": "saf.red-teaming",
+  "front": "Many-shot jailbreaking",
+  "back": "Long-context attack with many in-context examples; success follows a power law in the number of shots and shares a mechanism with benign in-context learning."
+ },
+ {
+  "id": "saf.04.c8",
+  "concept": "saf.red-teaming",
+  "front": "Why encoding attacks work",
+  "back": "Safety filters operate on tokens or meaning; the model can read shapes or encodings the filter does not recognise. Reading ability and vulnerability correlate."
+ },
+ {
+  "id": "saf.04.c9",
+  "concept": "saf.red-teaming",
+  "front": "Iterative black-box red-teaming",
+  "back": "An attacker model proposes prompts, sees replies and a judge's score and refines; needs only query access."
+ },
+ {
+  "id": "saf.04.c10",
+  "concept": "saf.red-teaming",
+  "front": "Llama Guard-style classifier",
+  "back": "Fine-tuned model labelling inputs/outputs against a hazard taxonomy; can sit before, after or around the model; needs per-deployment false-positive checks."
+ },
+ {
+  "id": "saf.04.c11",
+  "concept": "saf.red-teaming",
+  "front": "Probes, detectors, harnesses (scanner architecture)",
+  "back": "Probes generate test inputs, detectors score outputs, harnesses run the pairs and report; static probes age as models are patched."
+ },
+ {
+  "id": "saf.04.c12",
+  "concept": "saf.prompt-injection",
+  "front": "Direct versus indirect prompt injection",
+  "back": "Direct: the user supplies hostile text. Indirect: it sits in retrieved or tool content that the application feeds to the model."
+ },
+ {
+  "id": "saf.04.c13",
+  "concept": "saf.prompt-injection",
+  "front": "Three delivery routes of indirect injection",
+  "back": "Retrieval (RAG), inbox/document workflows, and tool outputs."
+ },
+ {
+  "id": "saf.04.c14",
+  "concept": "saf.prompt-injection",
+  "front": "Information-flow control for agents",
+  "back": "Label content by trust, propagate labels, require ratification before side effects triggered by untrusted content; containment over prevention."
+ },
+ {
+  "id": "saf.04.c15",
+  "concept": "saf.prompt-injection",
+  "front": "Three-leg risk check for agents",
+  "back": "Private-data access + untrusted-content exposure + external communication. Removing any one breaks the exfiltration chain."
+ }
+]

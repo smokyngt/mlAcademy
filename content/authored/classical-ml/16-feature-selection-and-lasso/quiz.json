@@ -1,0 +1,125 @@
+[
+ {
+  "id": "cml.16.q1",
+  "concept": "ml.featsel",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which family trains a model on candidate subsets to score them?",
+  "options": [
+   "Wrapper methods",
+   "Filter methods",
+   "Embedded methods",
+   "None of them"
+  ],
+  "answer": 0,
+  "explanation": "Wrappers (forward selection, RFE) evaluate subsets by fitting models, which is accurate but costly."
+ },
+ {
+  "id": "cml.16.q2",
+  "concept": "ml.featsel",
+  "kind": "mcq",
+  "prompt": "A feature $x$ is symmetric around 0 and $y=x^2$. The Pearson correlation is about 0 but the mutual information is large. What does this show?",
+  "options": [
+   "MI is broken",
+   "x is irrelevant",
+   "MI detects non-linear dependence that correlation misses",
+   "The data are too small"
+  ],
+  "answer": 2,
+  "explanation": "Correlation only measures linear association; MI measures any statistical dependence."
+ },
+ {
+  "id": "cml.16.q3",
+  "concept": "ml.lasso",
+  "kind": "mcq",
+  "prompt": "Why does the L1 penalty produce exact zeros while L2 does not?",
+  "options": [
+   "L1 is non-convex",
+   "The L1 ball has corners on the axes, and the soft-threshold update clips small coefficients to exactly 0",
+   "L2 ignores large weights",
+   "L1 uses fewer features by definition"
+  ],
+  "answer": 1,
+  "explanation": "$w_j=S(\\rho_j,\\lambda)/z_j$ is zero whenever $|\\rho_j|\\le\\lambda$; the ridge update $\\rho_j/(z_j+\\lambda)$ is only a rescaling."
+ },
+ {
+  "id": "cml.16.q4",
+  "concept": "ml.lasso",
+  "kind": "numeric",
+  "prompt": "Compute the soft-threshold $S(\\rho,\\lambda)$ for $\\rho=-3$ and $\\lambda=1$.",
+  "options": [],
+  "answer": {
+   "value": -2,
+   "tol": 0.001
+  },
+  "explanation": "$\\operatorname{sign}(-3)\\max(3-1,0)=-2$."
+ },
+ {
+  "id": "cml.16.q5",
+  "concept": "ml.lasso",
+  "kind": "numeric",
+  "prompt": "With standardised columns, $n=4$, $X_{:1}^\\top y=6$ and $X_{:2}^\\top y=-10$ (other columns smaller in absolute value). What is $\\lambda_{\\max}$ for the objective $\\frac1{2n}\\|y-Xw\\|^2+\\lambda\\|w\\|_1$?",
+  "options": [],
+  "answer": {
+   "value": 2.5,
+   "tol": 0.001
+  },
+  "explanation": "$\\lambda_{\\max}=\\max_j|X_{:j}^\\top y|/n=10/4=2.5$."
+ },
+ {
+  "id": "cml.16.q6",
+  "concept": "ml.lasso",
+  "kind": "mcq",
+  "prompt": "As $\\lambda$ decreases from $\\lambda_{\\max}$ to 0 along the path...",
+  "options": [
+   "All features enter at once",
+   "Coefficients grow without bound",
+   "The solution becomes the zero vector",
+   "Features enter one by one, ending near the least-squares solution"
+  ],
+  "answer": 3,
+  "explanation": "At $\\lambda_{\\max}$ the model is empty; smaller penalties allow more coefficients to become non-zero."
+ },
+ {
+  "id": "cml.16.q7",
+  "concept": "ml.lasso",
+  "kind": "mcq",
+  "prompt": "Lasso coefficients on the selected features are compared with ordinary least squares on the same features. Typically they are...",
+  "options": [
+   "Shrunken (biased) towards zero",
+   "Larger in magnitude",
+   "Identical",
+   "Random"
+  ],
+  "answer": 0,
+  "explanation": "The penalty subtracts $\\lambda$ from each correlation, so selection costs bias."
+ },
+ {
+  "id": "cml.16.q8",
+  "concept": "ml.featsel",
+  "kind": "mcq",
+  "prompt": "Two highly correlated informative features are given to the lasso. What is the typical behaviour?",
+  "options": [
+   "Both always get equal weight",
+   "Both are always dropped",
+   "One may be picked arbitrarily and the choice can change between subsamples",
+   "The algorithm fails to converge"
+  ],
+  "answer": 2,
+  "explanation": "The penalty can be met equally well by either one; this instability is what stability selection measures."
+ },
+ {
+  "id": "cml.16.q9",
+  "concept": "ml.featsel",
+  "kind": "mcq",
+  "prompt": "You run feature selection on the full dataset and afterwards cross-validate the model on the selected columns. The problem is...",
+  "options": [
+   "None; selection is unsupervised",
+   "Leakage: selection used the held-out labels, inflating the CV score",
+   "The model will underfit",
+   "Cross-validation cannot be used with fewer columns"
+  ],
+  "answer": 1,
+  "explanation": "Selection that uses $y$ is a fitted step and must be repeated inside each training fold."
+ }
+]

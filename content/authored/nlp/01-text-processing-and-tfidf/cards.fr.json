@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.01.c1","front":"Nomme les étapes usuelles de prétraitement dans l'ordre","back":"Normaliser (casse, Unicode), tokeniser, éventuellement retirer les mots vides, éventuellement raciniser ou lemmatiser."},
+ {"id":"nlp.01.c2","front":"Racinisation vs lemmatisation","back":"La racinisation coupe les suffixes par règles (rapide, peut donner des non-mots comme poni). La lemmatisation utilise un lexique et la catégorie grammaticale pour renvoyer la forme du dictionnaire (ran -> run)."},
+ {"id":"nlp.01.c3","front":"Pourquoi définir un mot est-il difficile ?","back":"Mots composés (pomme de terre), clitiques (aujourd'hui, don't), composés allemands, URL et hashtags : l'espace n'est pas une frontière fiable."},
+ {"id":"nlp.01.c4","front":"Que sont <UNK> et <PAD> ?","back":"Tokens spéciaux : <UNK> représente les mots hors vocabulaire, <PAD> complète les séquences à une longueur commune."},
+ {"id":"nlp.01.c5","front":"Matrice de sac de mots et sa forme","back":"$X\\in\\mathbb{N}^{N\\times|V|}$, entrée = compte du token $j$ dans le document $d$. L'ordre est écarté."},
+ {"id":"nlp.01.c6","front":"Pourquoi les matrices de sac de mots sont-elles creuses ?","back":"Un document utilise peu de tokens distincts parmi $|V|$ (souvent $10^4$-$10^6$), donc la plupart des entrées sont nulles ; stocker (ligne, colonne, valeur)."},
+ {"id":"nlp.01.c7","front":"Formule d'IDF lissée","back":"$\\mathrm{idf}_j=\\ln\\frac{1+N}{1+\\mathrm{df}_j}+1$ (défaut de scikit-learn)."},
+ {"id":"nlp.01.c8","front":"Intuition derrière l'IDF","back":"Auto-information de voir le token dans un document : les mots omniprésents en portent peu, les mots rares en portent beaucoup ; le log garde l'échelle raisonnable."},
+ {"id":"nlp.01.c9","front":"Pourquoi normaliser en L2 les lignes TF-IDF ?","back":"Supprime l'effet de la longueur du document et fait de la similarité cosinus un simple produit scalaire."},
+ {"id":"nlp.01.c10","front":"Similarité cosinus","back":"$\\frac{a\\cdot b}{\\|a\\|\\|b\\|}$, entre 0 et 1 pour des vecteurs non négatifs ; l'angle, pas la longueur."},
+ {"id":"nlp.01.c11","front":"Qu'ajoute un n-gramme à un sac de mots ?","back":"L'ordre local : des bigrammes comme not_good deviennent des caractéristiques, au prix de jusqu'à $|V|^n$ caractéristiques possibles."},
+ {"id":"nlp.01.c12","front":"Où le vectoriseur doit-il être ajusté ?","back":"Sur le découpage d'entraînement uniquement ; réutiliser son vocabulaire et son IDF sur la validation et le test pour éviter les fuites."},
+ {"id":"nlp.01.c13","front":"Principale limite des vecteurs de comptage creux","back":"Aucune notion de sens : car et automobile sont des colonnes sans lien. Les plongements denses y répondent."},
+ {"id":"nlp.01.c14","front":"Quand retirer les mots vides est-il nuisible ?","back":"Quand les petits mots portent le signal, par exemple retirer not en analyse de sentiment."}
+]

@@ -1,0 +1,16 @@
+[
+ {"id": "adv.01.c1", "front": "Nombre de tokens de patchs pour une image HxW, patch p", "back": "$\\lfloor H/p\\rfloor\\lfloor W/p\\rfloor$ ; diviser $p$ par deux ou doubler le côté le quadruple."},
+ {"id": "adv.01.c2", "front": "Tokens pour ViT-L/14 à 336 et à 224", "back": "576 et 256."},
+ {"id": "adv.01.c3", "front": "Pourquoi les tokens visuels coûtent-ils plus que leur nombre ne le suggère ?", "back": "Ils se trouvent dans le contexte du LLM : l'attention est quadratique en la longueur totale et chaque token ajoute des entrées de cache KV dans chaque couche."},
+ {"id": "adv.01.c4", "front": "Trois parties d'un VLM", "back": "Encodeur de vision (style CLIP/SigLIP), connecteur (MLP ou Q-Former), LLM."},
+ {"id": "adv.01.c5", "front": "Projecteur MLP de LLaVA", "back": "Linear-GELU-Linear appliqué par patch : $(N,d_{vis})\\to(N,d_{llm})$. Un token par patch, aucun goulot d'étranglement."},
+ {"id": "adv.01.c6", "front": "Le Q-Former en une phrase", "back": "Un ensemble fixe de requêtes apprenables fait de l'attention croisée sur les caractéristiques des patchs et produit $n_q$ tokens de résumé."},
+ {"id": "adv.01.c7", "front": "Formule d'attention croisée pour des requêtes apprenables", "back": "$A=\\operatorname{softmax}(Q_0W_Q(FW_K)^\\top/\\sqrt{d_k})$ de forme $(n_q,N)$ ; out $=A(FW_V)$."},
+ {"id": "adv.01.c8", "front": "Étape 1 de LLaVA", "back": "Geler l'encodeur et le LLM ; entraîner le projecteur sur des paires image-légende avec la perte LM."},
+ {"id": "adv.01.c9", "front": "Étape 2 de LLaVA", "back": "Réglage par instructions visuelles : entraîner le projecteur et le LLM (complet ou LoRA) sur des conversations d'images de style instruction."},
+ {"id": "adv.01.c10", "front": "Comment les données d'instruction de LLaVA ont-elles été produites ?", "back": "Un GPT-4 purement textuel a reçu des légendes et des boîtes d'images et a écrit des conversations, des descriptions et des questions de raisonnement ; aucun humain n'a regardé les images."},
+ {"id": "adv.01.c11", "front": "Pertes de l'étape 1 de BLIP-2", "back": "Contrastive image-texte, appariement image-texte, génération de texte ancrée dans l'image ; seul le Q-Former s'entraîne, pas de LLM."},
+ {"id": "adv.01.c12", "front": "Quand un Q-Former bat-il un projecteur MLP ?", "back": "Quand les images sont grandes et que le contexte est le goulot d'étranglement : il plafonne les tokens à $n_q$ quelle que soit la résolution."},
+ {"id": "adv.01.c13", "front": "Espace de conception d'un VLM à cinq axes", "back": "Encodeur d'image, connecteur, modèle de langage, données d'entraînement, calendrier de résolution."},
+ {"id": "adv.01.c14", "front": "Piège en comparant des VLM", "back": "Ne pas égaliser le nombre de tokens visuels et la taille du LLM ; les scores de benchmark mélangent raisonnement textuel et vision."}
+]

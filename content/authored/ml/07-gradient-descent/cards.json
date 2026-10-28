@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.07.c1", "concept": "opt.gradient-descent", "front": "Gradient descent update", "back": "$\\theta_{t+1}=\\theta_t-\\eta\\nabla L(\\theta_t)$. Since $L(\\theta-\\eta g)\\approx L-\\eta\\|g\\|^2$, it decreases $L$ for small $\\eta$." },
+  { "id": "f2n.07.c2", "concept": "opt.gradient-descent", "front": "Convergence range of GD on $\\frac12\\lambda\\theta^2$", "back": "$0<\\eta<2/\\lambda$. Factor $1-\\eta\\lambda$ per step; oscillation when $\\eta>1/\\lambda$." },
+  { "id": "f2n.07.c3", "concept": "opt.gradient-descent", "front": "Condition number and best rate", "back": "$\\kappa=\\lambda_{\\max}/\\lambda_{\\min}$. Best $\\eta=2/(\\lambda_{\\max}+\\lambda_{\\min})$ gives contraction $(\\kappa-1)/(\\kappa+1)$." },
+  { "id": "f2n.07.c4", "concept": "opt.gradient-descent", "front": "Why is a mini-batch gradient a valid estimate?", "back": "Its expectation equals the full gradient (unbiased); variance decreases like $1/b$." },
+  { "id": "f2n.07.c5", "concept": "opt.gradient-descent", "front": "Loss becomes NaN early in training", "back": "Most likely the learning rate exceeds the stability limit: cut it 10x, then check data and initial scale." }
+]

@@ -1,0 +1,16 @@
+[
+ {"id": "adv.05.c1", "front": "Récurrence linéaire d'un SSM", "back": "$h_t=a\\odot h_{t-1}+b\\,x_t,\\ y_t=c^\\top h_t$ : mémoire constante et temps O(1) par token."},
+ {"id": "adv.05.c2", "front": "Discrétisation par blocage d'ordre zéro", "back": "$\\bar A=e^{\\Delta A}$, $\\bar B=A^{-1}(e^{\\Delta A}-I)B\\approx\\Delta B$ pour $\\Delta A$ petit."},
+ {"id": "adv.05.c3", "front": "Vue par convolution d'un SSM", "back": "$y_t=\\sum_kK_kx_{t-k}$ avec $K_k=c^\\top\\mathrm{diag}(a)^kb$ ; valide seulement si les paramètres sont invariants dans le temps."},
+ {"id": "adv.05.c4", "front": "Qu'est-ce qui rend Mamba sélectif ?", "back": "$\\Delta_t,B_t,C_t$ sont calculés à partir de l'entrée $x_t$."},
+ {"id": "adv.05.c5", "front": "Rôle de $\\Delta_t$", "back": "Porte d'oubli : petit = ignorer le token et garder l'état ; grand = réinitialiser l'état et écrire le token courant."},
+ {"id": "adv.05.c6", "front": "Pourquoi les SSM purs sont-ils en retard sur la récupération ?", "back": "L'état a une taille fixe, donc les détails exacts d'un long historique sont comprimés et perdus."},
+ {"id": "adv.05.c7", "front": "Élément de scan", "back": "L'application affine $h\\mapsto a_th+b_t$ stockée comme la paire $(a_t,b_t)$."},
+ {"id": "adv.05.c8", "front": "Opérateur de combinaison du scan", "back": "$(a_1,b_1)\\circ$ puis $(a_2,b_2)=(a_1a_2,\\ a_2b_1+b_2)$ ; associatif."},
+ {"id": "adv.05.c9", "front": "Pourquoi l'associativité compte", "back": "Les produits préfixes peuvent être parenthésés arbitrairement, donc la récurrence peut être calculée en $\\lceil\\log_2T\\rceil$ tours parallèles."},
+ {"id": "adv.05.c10", "front": "Coût du scan de Hillis-Steele", "back": "$\\lceil\\log_2T\\rceil$ tours, $O(T\\log T)$ de travail ; le scan de Blelloch est efficace en travail, $O(T)$."},
+ {"id": "adv.05.c11", "front": "Disposition de Jamba", "back": "Blocs de 8 : 7 Mamba + 1 attention, feed-forward MoE une couche sur deux ; contexte de 256k sur un seul GPU de 80 Go."},
+ {"id": "adv.05.c12", "front": "Pourquoi hybrider ?", "back": "Les couches d'attention donnent un rappel exact et un suivi d'état ; les couches SSM donnent un traitement de masse peu coûteux à mémoire constante."},
+ {"id": "adv.05.c13", "front": "Mémoire KV d'un hybride", "back": "Seules les couches d'attention ont un cache : 4 couches sur 32 signifient environ 1/8 du KV du transformer pur à nombre de têtes égal."},
+ {"id": "adv.05.c14", "front": "Forme de l'état dans un SSM sélectif", "back": "$h_t\\in\\mathbb{R}^{D\\times n}$ (canaux x taille d'état), indépendant de la longueur de séquence."}
+]

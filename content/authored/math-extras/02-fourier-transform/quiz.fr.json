@@ -1,0 +1,81 @@
+[
+ {
+  "id": "mx.02.q1",
+  "prompt": "Que mesure le coefficient DFT $X[k]$ ?",
+  "options": [
+   "Le $k$-ième échantillon du signal",
+   "La quantité de l'onde tournante à $k$ tours sur la fenêtre présente dans le signal (amplitude et phase)",
+   "La dérivée à l'échantillon $k$",
+   "L'erreur d'échantillonnage"
+  ],
+  "explanation": "$X[k]$ corrèle le signal avec $e^{-2\\pi ikn/N}$ ; son module est l'intensité et son angle la phase."
+ },
+ {
+  "id": "mx.02.q2",
+  "prompt": "Pour $x=(1,2,3,4,0,0,0,0)$, que vaut $X[0]$ ?",
+  "options": [],
+  "explanation": "$X[0]=\\sum_n x[n]=10$ (N fois la moyenne)."
+ },
+ {
+  "id": "mx.02.q3",
+  "prompt": "Quel fait fait fonctionner la DFT inverse ?",
+  "options": [
+   "Les racines de l'unité somment à zéro sauf si l'exposant est un multiple de $N$ (orthogonalité)",
+   "Les sinus sont des fonctions impaires",
+   "Le signal est réel",
+   "$N$ est une puissance de 2"
+  ],
+  "explanation": "$\\sum_n\\omega^{jn}=N\\delta_{j\\equiv0}$ isole un coefficient quand on multiplie par $\\omega^{-ln}$."
+ },
+ {
+  "id": "mx.02.q4",
+  "prompt": "Un signal réel a $N=16$ échantillons. Le signal $\\cos(2\\pi\\cdot5n/16)$ a une amplitude de 1. Que vaut $|X[5]|$ ?",
+  "options": [],
+  "explanation": "$|X[k]|=NA/2=16\\cdot1/2=8$."
+ },
+ {
+  "id": "mx.02.q5",
+  "prompt": "La FFT réduit le coût de la DFT de...",
+  "options": [
+   "$O(N)$ à $O(\\log N)$",
+   "$O(N^3)$ à $O(N^2)$",
+   "$O(N^2)$ à $O(N\\log N)$",
+   "$O(N\\log N)$ à $O(N)$"
+  ],
+  "explanation": "Séparer récursivement en moitiés paire et impaire donne $\\log_2N$ niveaux de travail en $O(N)$."
+ },
+ {
+  "id": "mx.02.q6",
+  "prompt": "Fréquence d'échantillonnage 8000 Hz, $N=1024$ échantillons. Quel est l'espacement des cases en Hz ?",
+  "options": [],
+  "explanation": "$\\Delta f=f_s/N=8000/1024=7.8125$."
+ },
+ {
+  "id": "mx.02.q7",
+  "prompt": "Un son de 7 Hz est échantillonné à 10 Hz. À quelle fréquence (Hz) apparaît-il ?",
+  "options": [],
+  "explanation": "Nyquist vaut 5 Hz ; le son se replie à $10-7=3$ Hz."
+ },
+ {
+  "id": "mx.02.q8",
+  "prompt": "Comment obtenir une résolution fréquentielle plus fine ?",
+  "options": [
+   "Compléter le signal par des zéros",
+   "Enregistrer un signal plus long (un $T$ plus grand)",
+   "Seulement abaisser la fréquence d'échantillonnage",
+   "Utiliser plus de facteurs de rotation"
+  ],
+  "explanation": "$\\Delta f=1/T$. Le zero padding ne fait qu'interpoler le spectre."
+ },
+ {
+  "id": "mx.02.q9",
+  "prompt": "Le théorème de convolution dit que la DFT d'une convolution circulaire est...",
+  "options": [
+   "la convolution des DFT",
+   "la somme des DFT",
+   "le produit terme à terme des DFT",
+   "la DFT de la somme"
+  ],
+  "explanation": "$\\mathrm{DFT}(a\\circledast b)=\\mathrm{DFT}(a)\\cdot\\mathrm{DFT}(b)$."
+ }
+]

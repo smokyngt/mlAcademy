@@ -1,0 +1,54 @@
+[
+  {
+    "id": "clip-pipeline",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Classical clip classification: frame-level MFCCs (T x K) are pooled over time into one fixed-size vector (means and standard deviations, 2K numbers), then compared by cosine similarity to the training clips and classified by a k-nearest-neighbour vote.",
+      "fr": "Classification classique d'un clip : les MFCC par trame (T x K) sont agrégés dans le temps en un vecteur de taille fixe (moyennes et écarts types, 2K nombres), puis comparés par similarité cosinus aux clips d'entraînement et classés par vote des k plus proches voisins."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"clip (variable length)\"] --> C[\"MFCC C (T, K)\"]\n  C --> Z[\"z = [means, stds]<br/>(2K)\"]\n  Z --> S[\"cosine vs all training z<br/>(N_test, N_train)\"]\n  S --> K[\"top-k vote\"]\n  K --> Y[\"label\"]",
+      "fr": "flowchart LR\n  A[\"clip (durée variable)\"] --> C[\"MFCC C (T, K)\"]\n  C --> Z[\"z = [moyennes, écarts types]<br/>(2K)\"]\n  Z --> S[\"cosinus vs tous les z d'entraînement<br/>(N_test, N_train)\"]\n  S --> K[\"vote des k meilleurs\"]\n  K --> Y[\"étiquette\"]"
+    }
+  },
+  {
+    "id": "knn-accuracy",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Test accuracy of k-NN on the lesson's noisy four-class problem (30 clips per class, seed 0): k = 3 beats k = 1 because averaging over neighbours smooths out noise.",
+      "fr": "Précision en test de k-NN sur le problème bruité à quatre classes de la leçon (30 clips par classe, graine 0) : k = 3 bat k = 1 car la moyenne sur les voisins lisse le bruit."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"k-NN test accuracy\"\n  x-axis [\"k=1\", \"k=3\", \"k=5\"]\n  y-axis \"accuracy\" 0 --> 1\n  bar [0.775, 0.9, 0.875]",
+      "fr": "xychart-beta\n  title \"Précision de k-NN en test\"\n  x-axis [\"k=1\", \"k=3\", \"k=5\"]\n  y-axis \"précision\" 0 --> 1\n  bar [0.775, 0.9, 0.875]"
+    }
+  },
+  {
+    "id": "cnn-shapes",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The small log-mel CNN of the lesson with the shape at every stage (channels, time, mel): two 2x2 max-pools halve each axis, global average pooling removes the dependence on clip length. 99 122 parameters for 50 classes.",
+      "fr": "Le petit CNN log-mel de la leçon avec la forme à chaque étape (canaux, temps, mel) : deux max-pools 2x2 divisent chaque axe par deux, le pooling moyen global supprime la dépendance à la durée du clip. 99 122 paramètres pour 50 classes."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"input<br/>(1, 100, 80)\"] --> C1[\"conv 3x3 + ReLU<br/>(32, 100, 80)\"]\n  C1 --> P1[\"max-pool 2x2<br/>(32, 50, 40)\"]\n  P1 --> C2[\"conv 3x3 + ReLU<br/>(64, 50, 40)\"]\n  C2 --> P2[\"max-pool 2x2<br/>(64, 25, 20)\"]\n  P2 --> C3[\"conv 3x3 + ReLU<br/>(128, 25, 20)\"]\n  C3 --> GP[\"global avg pool<br/>(128,)\"]\n  GP --> FC[\"linear<br/>(50,)\"]",
+      "fr": "flowchart LR\n  I[\"entrée<br/>(1, 100, 80)\"] --> C1[\"conv 3x3 + ReLU<br/>(32, 100, 80)\"]\n  C1 --> P1[\"max-pool 2x2<br/>(32, 50, 40)\"]\n  P1 --> C2[\"conv 3x3 + ReLU<br/>(64, 50, 40)\"]\n  C2 --> P2[\"max-pool 2x2<br/>(64, 25, 20)\"]\n  P2 --> C3[\"conv 3x3 + ReLU<br/>(128, 25, 20)\"]\n  C3 --> GP[\"pooling moyen global<br/>(128,)\"]\n  GP --> FC[\"linéaire<br/>(50,)\"]"
+    }
+  },
+  {
+    "id": "specaugment",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "SpecAugment on a log-mel image: erase a random band of frequencies and a random band of time frames. Masks only erase, so the label stays valid.",
+      "fr": "SpecAugment sur une image log-mel : effacer une bande aléatoire de fréquences et une bande aléatoire de trames. Les masques ne font qu'effacer, l'étiquette reste donc valide."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"log-mel S (T, M)\"] --> FM[\"frequency mask<br/>width f in 0..F\"]\n  FM --> TM[\"time mask<br/>width t in 0..T_max\"]\n  TM --> O[\"augmented S, same label\"]",
+      "fr": "flowchart LR\n  S[\"log-mel S (T, M)\"] --> FM[\"masque fréquentiel<br/>largeur f dans 0..F\"]\n  FM --> TM[\"masque temporel<br/>largeur t dans 0..T_max\"]\n  TM --> O[\"S augmenté, même étiquette\"]"
+    }
+  }
+]

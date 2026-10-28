@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.01.c1",
+  "concept": "gen.taxonomy",
+  "front": "Discriminative vs generative model",
+  "back": "Discriminative: $p(y\\mid x)$. Generative: $p(x)$ or $p(x,y)$, so it can sample (and classify via Bayes)."
+ },
+ {
+  "id": "gen.01.c2",
+  "concept": "gen.taxonomy",
+  "front": "Two jobs of a generative model",
+  "back": "Density estimation (evaluate $p_\\theta(x)$) and sampling ($x\\sim p_\\theta$)."
+ },
+ {
+  "id": "gen.01.c3",
+  "concept": "gen.taxonomy",
+  "front": "Maximum likelihood objective",
+  "back": "$\\max_\\theta\\frac1N\\sum_i\\log p_\\theta(x_i)$."
+ },
+ {
+  "id": "gen.01.c4",
+  "concept": "gen.taxonomy",
+  "front": "MLE and KL divergence",
+  "back": "MLE minimises $\\mathrm{KL}(p_\\text{data}\\|p_\\theta)$ because the entropy $H(p_\\text{data})$ does not depend on $\\theta$."
+ },
+ {
+  "id": "gen.01.c5",
+  "concept": "gen.taxonomy",
+  "front": "Average negative log-likelihood",
+  "back": "$-\\frac1N\\sum_i\\log p_\\theta(x_i)$; lower is better; use held-out data."
+ },
+ {
+  "id": "gen.01.c6",
+  "concept": "gen.taxonomy",
+  "front": "Autoregressive factorisation",
+  "back": "$p(x)=\\prod_j p(x_j\\mid x_{<j})$: exact likelihood, sequential sampling."
+ },
+ {
+  "id": "gen.01.c7",
+  "concept": "gen.taxonomy",
+  "front": "Latent-variable model",
+  "back": "$p(x)=\\int p(x\\mid z)p(z)\\,dz$; the integral is usually intractable."
+ },
+ {
+  "id": "gen.01.c8",
+  "concept": "gen.taxonomy",
+  "front": "Implicit generative model",
+  "back": "Defines a sampler $x=G(z)$ but no density (GANs)."
+ },
+ {
+  "id": "gen.01.c9",
+  "concept": "gen.taxonomy",
+  "front": "Ancestral sampling",
+  "back": "Sample the latent first, then $x$ given the latent."
+ },
+ {
+  "id": "gen.01.c10",
+  "concept": "gen.taxonomy",
+  "front": "Generative classification",
+  "back": "$p(y\\mid x)\\propto p(x\\mid y)p(y)$ (Bayes' rule)."
+ },
+ {
+  "id": "gen.01.c11",
+  "concept": "gen.taxonomy",
+  "front": "Why a density can exceed 1",
+  "back": "It is a density per unit volume, not a probability; only integrals are probabilities."
+ },
+ {
+  "id": "gen.01.c12",
+  "concept": "gen.taxonomy",
+  "front": "Quality vs coverage",
+  "back": "Quality: are samples realistic? Coverage/diversity: does the model reach all the data? Metrics may measure only one."
+ },
+ {
+  "id": "gen.01.c13",
+  "concept": "gen.taxonomy",
+  "front": "Log-sum-exp",
+  "back": "$\\log\\sum_k e^{a_k}=m+\\log\\sum_k e^{a_k-m}$ with $m=\\max a$; avoids overflow in mixture log-densities."
+ },
+ {
+  "id": "gen.01.c14",
+  "concept": "gen.taxonomy",
+  "front": "Why diffusion followed GANs and VAEs",
+  "back": "VAEs give blurry samples, GANs are unstable and drop modes; diffusion has one stable loss and a likelihood bound."
+ }
+]

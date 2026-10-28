@@ -1,0 +1,354 @@
+[
+  {
+    "id": "components",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "An additive decomposition y = T + S + R on a toy series: a linear trend T (blue), a weekly seasonal pattern S with period 7 (orange) and their sum (green). Real series add noise R on top.",
+      "fr": "Une décomposition additive y = T + S + R sur une série jouet : tendance linéaire T (bleu), motif saisonnier hebdomadaire S de période 7 (orange) et leur somme (vert). Une vraie série ajoute du bruit R."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        28
+      ],
+      "yDomain": [
+        -3,
+        12
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "0.3*x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1.5*sin(2*3.14159*x/7)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.3*x + 1.5*sin(2*3.14159*x/7)",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "acf-ar1",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Theoretical autocorrelation of an AR(1) process, rho_k = phi^k, at integer lags k: a slow geometric decay for phi = 0.8 (blue) and a fast one for phi = 0.3 (orange). White noise would sit at 0 for every k >= 1.",
+      "fr": "Autocorrélation théorique d'un processus AR(1), rho_k = phi^k, aux retards entiers k : décroissance géométrique lente pour phi = 0,8 (bleu) et rapide pour phi = 0,3 (orange). Un bruit blanc resterait à 0 pour tout k >= 1."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        -0.1,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.8
+            ],
+            [
+              2,
+              0.64
+            ],
+            [
+              3,
+              0.512
+            ],
+            [
+              4,
+              0.4096
+            ],
+            [
+              5,
+              0.3277
+            ],
+            [
+              6,
+              0.2621
+            ],
+            [
+              7,
+              0.2097
+            ],
+            [
+              8,
+              0.1678
+            ],
+            [
+              9,
+              0.1342
+            ],
+            [
+              10,
+              0.1074
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.8
+            ],
+            [
+              2,
+              0.64
+            ],
+            [
+              3,
+              0.512
+            ],
+            [
+              4,
+              0.4096
+            ],
+            [
+              5,
+              0.3277
+            ],
+            [
+              6,
+              0.2621
+            ],
+            [
+              7,
+              0.2097
+            ],
+            [
+              8,
+              0.1678
+            ],
+            [
+              9,
+              0.1342
+            ],
+            [
+              10,
+              0.1074
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.3
+            ],
+            [
+              2,
+              0.09
+            ],
+            [
+              3,
+              0.027
+            ],
+            [
+              4,
+              0.0081
+            ],
+            [
+              5,
+              0.0024
+            ],
+            [
+              6,
+              0.0007
+            ],
+            [
+              7,
+              0.0002
+            ],
+            [
+              8,
+              0.0001
+            ],
+            [
+              9,
+              0
+            ],
+            [
+              10,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.3
+            ],
+            [
+              2,
+              0.09
+            ],
+            [
+              3,
+              0.027
+            ],
+            [
+              4,
+              0.0081
+            ],
+            [
+              5,
+              0.0024
+            ],
+            [
+              6,
+              0.0007
+            ],
+            [
+              7,
+              0.0002
+            ],
+            [
+              8,
+              0.0001
+            ],
+            [
+              9,
+              0
+            ],
+            [
+              10,
+              0
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0,
+          "text": "white noise: r_k ≈ 0"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ar-loop",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Fitting an AR(p) model and forecasting recursively: lagged copies of the series become the design matrix, least squares gives the weights, and each forecast is fed back as if it were observed.",
+      "fr": "Ajuster un modèle AR(p) et prévoir récursivement : des copies décalées de la série forment la matrice de conception, les moindres carrés donnent les poids, et chaque prévision est réinjectée comme si elle était observée."
+    },
+    "code": {
+      "en": "flowchart LR\n  Y[\"series y (n,)\"] --> L[\"lagged copies\\nrow t: [1, y(t-1) ... y(t-p)]\"]\n  L --> X[\"design matrix X (n-p, p+1)\\ntarget t (n-p,)\"]\n  X --> N[\"normal equations\\nXᵀX w = Xᵀt\"]\n  N --> Wt[\"w = (c, phi1 ... phip) (p+1,)\"]\n  Wt --> F[\"one-step forecast\\ny_hat = c + phi1 y(n-1) + ... \"]\n  F -->|\"append y_hat to the series\"| L2[\"shift window by 1\"]\n  L2 --> F\n  F --> H[\"h-step forecast\\nerrors compound, tends to mean mu\"]",
+      "fr": "flowchart LR\n  Y[\"série y (n,)\"] --> L[\"copies décalées\\nligne t : [1, y(t-1) ... y(t-p)]\"]\n  L --> X[\"matrice de conception X (n-p, p+1)\\ncible t (n-p,)\"]\n  X --> N[\"équations normales\\nXᵀX w = Xᵀt\"]\n  N --> Wt[\"w = (c, phi1 ... phip) (p+1,)\"]\n  Wt --> F[\"prévision à un pas\\ny_chap = c + phi1 y(n-1) + ... \"]\n  F -->|\"ajouter y_chap à la série\"| L2[\"décaler la fenêtre de 1\"]\n  L2 --> F\n  F --> H[\"prévision à h pas\\nles erreurs s'accumulent, retour vers la moyenne mu\"]"
+    }
+  },
+  {
+    "id": "ar1-forecast",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Recursive forecasts of the worked-example AR(1) (c = 3.6579, phi = 0.2895): starting from the last value 7, the forecast decays geometrically to the mean mu = c/(1 - phi) = 5.1485 (dashed level). The first step gives 5.6842.",
+      "fr": "Prévisions récursives de l'AR(1) de l'exemple (c = 3,6579, phi = 0,2895) : partant de la dernière valeur 7, la prévision décroît géométriquement vers la moyenne mu = c/(1 - phi) = 5,1485 (niveau en pointillé). Le premier pas donne 5,6842."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        8
+      ],
+      "yDomain": [
+        4.5,
+        7.5
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "5.1485 + 1.8515*exp(-1.2395*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "5.1485",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              5.6842
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 5.1485,
+          "text": "mean mu"
+        }
+      ]
+    }
+  },
+  {
+    "id": "random-vs-walk",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Why a random split leaks: shuffled folds let the model train on days after the ones it is tested on, while walk-forward always trains strictly on the past.",
+      "fr": "Pourquoi un découpage aléatoire fuit : des plis mélangés laissent le modèle s'entraîner sur des jours postérieurs à ceux testés, alors que le walk-forward s'entraîne strictement sur le passé."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph RND[\"random k-fold (invalid)\"]\n    direction LR\n    r1[\"train: days 1-3, 5-6\"] --> r2[\"test: day 4\"]\n    r3[\"day 5, 6 are the FUTURE of day 4\\nleakage, optimistic score\"]\n    r2 --- r3\n  end\n  subgraph WF[\"walk-forward (valid)\"]\n    direction LR\n    w1[\"train: days 1-3\"] --> w2[\"predict day 4\"]\n    w2 --> w3[\"train: days 1-4\"] --> w4[\"predict day 5\"]\n  end",
+      "fr": "flowchart TB\n  subgraph RND[\"k-fold aléatoire (invalide)\"]\n    direction LR\n    r1[\"entraînement : jours 1-3, 5-6\"] --> r2[\"test : jour 4\"]\n    r3[\"les jours 5, 6 sont le FUTUR du jour 4\\nfuite, score optimiste\"]\n    r2 --- r3\n  end\n  subgraph WF[\"walk-forward (valide)\"]\n    direction LR\n    w1[\"entraînement : jours 1-3\"] --> w2[\"prévoir le jour 4\"]\n    w2 --> w3[\"entraînement : jours 1-4\"] --> w4[\"prévoir le jour 5\"]\n  end"
+    }
+  }
+]

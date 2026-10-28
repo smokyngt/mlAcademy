@@ -1,0 +1,10 @@
+{
+  "id": "cml.01.ex1",
+  "title": "Moindres carrés et ridge à partir des équations normales",
+  "prompt": "Implémente :\n\n- `add_intercept(X)` - ajoute en tête une colonne de uns.\n- `fit_ols(X, y)` - résous les équations normales avec `np.linalg.solve`.\n- `fit_ridge(X, y, lam)` - la solution ridge (pénalise tous les poids ; l'appelant décide pour l'ordonnée à l'origine).\n- `predict(X, w)` et `r2(y, y_hat)` = $1-\\sum(y-\\hat y)^2/\\sum(y-\\bar y)^2$.",
+  "hints": [
+    "add_intercept : np.column_stack([np.ones(len(X)), X]).",
+    "fit_ols : np.linalg.solve(X.T @ X, X.T @ y). N'utilise pas np.linalg.inv.",
+    "fit_ridge : pareil, mais résous (X.T @ X + lam * np.eye(d)) w = X.T @ y."
+  ]
+}

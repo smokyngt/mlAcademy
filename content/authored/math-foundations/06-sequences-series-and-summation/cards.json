@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.06.c1",
+  "concept": "mf.series",
+  "front": "Sequence",
+  "back": "An ordered list of numbers $a_1,a_2,a_3,\\dots$, a function of the position $n$."
+ },
+ {
+  "id": "mf.06.c2",
+  "concept": "mf.series",
+  "front": "Arithmetic sequence",
+  "back": "Constant difference $d$: $a_n=a_1+(n-1)d$."
+ },
+ {
+  "id": "mf.06.c3",
+  "concept": "mf.series",
+  "front": "Geometric sequence",
+  "back": "Constant ratio $r$: $a_n=a_1r^{n-1}$."
+ },
+ {
+  "id": "mf.06.c4",
+  "concept": "mf.series",
+  "front": "Series and partial sum",
+  "back": "A series is a sum of terms; $S_n=a_1+\\dots+a_n$ is its $n$-th partial sum."
+ },
+ {
+  "id": "mf.06.c5",
+  "concept": "mf.series",
+  "front": "Arithmetic sum",
+  "back": "$S_n=\\frac n2(a_1+a_n)=\\frac n2\\big(2a_1+(n-1)d\\big)$ (Gauss pairing)."
+ },
+ {
+  "id": "mf.06.c6",
+  "concept": "mf.series",
+  "front": "Geometric sum",
+  "back": "$S_n=a\\frac{1-r^n}{1-r}$ for $r\\ne1$."
+ },
+ {
+  "id": "mf.06.c7",
+  "concept": "mf.series",
+  "front": "Infinite geometric series",
+  "back": "$\\sum_{k\\ge0}ar^k=\\frac{a}{1-r}$ if $|r|<1$; diverges otherwise."
+ },
+ {
+  "id": "mf.06.c8",
+  "concept": "mf.series",
+  "front": "Sigma notation",
+  "back": "$\\sum_{k=m}^{n}a_k=a_m+a_{m+1}+\\dots+a_n$; $k$ is a dummy index."
+ },
+ {
+  "id": "mf.06.c9",
+  "concept": "mf.series",
+  "front": "Product notation",
+  "back": "$\\prod_{k=1}^{n}a_k=a_1a_2\\cdots a_n$; $n!=\\prod_{k=1}^nk$."
+ },
+ {
+  "id": "mf.06.c10",
+  "concept": "mf.series",
+  "front": "Sum of first $n$ squares",
+  "back": "$\\sum_{k=1}^nk^2=\\frac{n(n+1)(2n+1)}6$."
+ },
+ {
+  "id": "mf.06.c11",
+  "concept": "mf.series",
+  "front": "Convergence",
+  "back": "A series converges if its partial sums approach a finite limit."
+ },
+ {
+  "id": "mf.06.c12",
+  "concept": "mf.series",
+  "front": "Terms to zero is not enough",
+  "back": "The harmonic series $\\sum1/k$ has terms $\\to0$ yet diverges (grows like $\\ln n$)."
+ },
+ {
+  "id": "mf.06.c13",
+  "concept": "mf.series",
+  "front": "Sum properties",
+  "back": "$\\sum(a_k+b_k)=\\sum a_k+\\sum b_k$ and $\\sum ca_k=c\\sum a_k$ (linearity)."
+ },
+ {
+  "id": "mf.06.c14",
+  "concept": "mf.series",
+  "front": "Loops vs closed forms",
+  "back": "Closed forms replace $n$ additions by a formula; in NumPy `np.sum`/`np.cumsum` replace explicit Python loops."
+ }
+]

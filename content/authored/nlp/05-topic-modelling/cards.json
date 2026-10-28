@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.05.c1","concept":"nlp.topic-models","front":"LDA in one sentence","back":"Documents are mixtures of topics and topics are distributions over words; both have Dirichlet priors."},
+ {"id":"nlp.05.c2","concept":"nlp.topic-models","front":"LDA generative story","back":"Draw $\\phi_k\\sim\\mathrm{Dir}(\\beta)$, $\\theta_d\\sim\\mathrm{Dir}(\\alpha)$; for each word: $z\\sim\\theta_d$, $w\\sim\\phi_z$."},
+ {"id":"nlp.05.c3","concept":"nlp.topic-models","front":"Dirichlet distribution","back":"A distribution over probability vectors; $\\alpha<1$ favours sparse vectors, $\\alpha>1$ near-uniform ones. Conjugate to the categorical."},
+ {"id":"nlp.05.c4","concept":"nlp.topic-models","front":"Gibbs sampling","back":"Resample one variable at a time from its conditional given all others; leaves the joint invariant and is always accepted; needs ergodicity (no zero conditionals)."},
+ {"id":"nlp.05.c5","concept":"nlp.topic-models","front":"Collapsed Gibbs update for LDA","back":"$P(z_{di}=k)\\propto(n_{dk}+\\alpha)\\frac{n_{kw}+\\beta}{n_k+V\\beta}$ with the current token removed from the counts."},
+ {"id":"nlp.05.c6","concept":"nlp.topic-models","front":"Why 'collapsed'?","back":"$\\theta$ and $\\phi$ are integrated out thanks to Dirichlet-multinomial conjugacy; only the assignments $z$ are sampled."},
+ {"id":"nlp.05.c7","concept":"nlp.topic-models","front":"Estimating theta and phi after sampling","back":"$\\hat\\theta_{dk}=\\frac{n_{dk}+\\alpha}{N_d+K\\alpha}$, $\\hat\\phi_{kw}=\\frac{n_{kw}+\\beta}{n_k+V\\beta}$."},
+ {"id":"nlp.05.c8","concept":"nlp.topic-models","front":"Shapes in LDA","back":"ndk $(D,K)$, nkw $(K,V)$, nk $(K,)$, theta $(D,K)$, phi $(K,V)$; rows of theta, phi sum to 1."},
+ {"id":"nlp.05.c9","concept":"nlp.topic-models","front":"What input does LDA expect?","back":"Raw word counts (bag of words), after removing stop words and very rare/frequent terms; not TF-IDF."},
+ {"id":"nlp.05.c10","concept":"nlp.topic-models","front":"Topic coherence","back":"Score of how often a topic's top words co-occur in real text (NPMI-based, e.g. c_v). Higher is better."},
+ {"id":"nlp.05.c11","concept":"nlp.topic-models","front":"Topic diversity","back":"Fraction of distinct words among the top words of all topics; low values mean redundant topics."},
+ {"id":"nlp.05.c12","concept":"nlp.topic-models","front":"BERTopic pipeline","back":"Sentence embeddings -> UMAP reduction -> HDBSCAN clustering (with outlier label) -> class-based TF-IDF to name topics."},
+ {"id":"nlp.05.c13","concept":"nlp.topic-models","front":"LDA vs BERTopic","back":"LDA: mixtures, long documents, cheap. BERTopic: short text, semantic topics, hard assignment, embedding cost and truncation."},
+ {"id":"nlp.05.c14","concept":"nlp.topic-models","front":"Is the choice of K learned?","back":"No, K is a hyperparameter: compare several values by coherence and by reading the topics; check stability over seeds."}
+]

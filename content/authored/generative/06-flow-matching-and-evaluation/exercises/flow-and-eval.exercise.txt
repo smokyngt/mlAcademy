@@ -1,0 +1,134 @@
+#@@ meta
+{"id": "gen.06.ex1", "title": "Flow matching, Frechet distance, precision/recall and Elo", "difficulty": 4, "runtime": "pyodide", "concepts": ["gen.flow-matching", "gen.eval"], "hints": ["optimal_velocity: -m + cov/var*(x - (1-t)m) with var=(1-t)^2 s^2+t^2 and cov = t-(1-t)s^2.", "trace of sqrt(S1 S2) = sum of sqrt of eigenvalues of S1^{1/2} S2 S1^{1/2}; clip tiny negative eigenvalues to 0.", "k-NN radius of a point is its (k+1)-th smallest distance within its own set (index k after sorting, since index 0 is itself)."]}
+#@@ prompt
+Implement the pieces of flow matching and generator evaluation (NumPy only).
+
+Flow matching: `fm_interp`, `fm_target`, `optimal_velocity(x, t, m, s)` (the exact optimal field for $x_0\sim\mathcal N(m,s^2)$, $x_1\sim\mathcal N(0,1)$) and `euler_sample(n, v_fn, steps, rng)` that integrates from $t=1$ down to $0$ with equal steps.
+
+Evaluation: `sqrtm_psd`, `frechet_distance(mu1, S1, mu2, S2)` (use the eigenvalues of $S_1^{1/2}S_2S_1^{1/2}$ for the trace term), `fid_from_features(a, b)`, `precision_recall(real, fake, k)` using k-NN balls, and Elo: `elo_expected`, `elo_update(ra, rb, score_a, k=32)` returning both new ratings.
+#@@ starter
+import numpy as np
+
+def fm_interp(x0, x1, t):
+    raise NotImplementedError
+
+def fm_target(x0, x1):
+    raise NotImplementedError
+
+def optimal_velocity(x, t, m, s):
+    raise NotImplementedError
+
+def euler_sample(n, v_fn, steps, rng):
+    raise NotImplementedError
+
+def sqrtm_psd(S):
+    raise NotImplementedError
+
+def frechet_distance(mu1, S1, mu2, S2):
+    raise NotImplementedError
+
+def fid_from_features(a, b):
+    raise NotImplementedError
+
+def knn_radii(X, k):
+    raise NotImplementedError
+
+def precision_recall(real, fake, k=3):
+    raise NotImplementedError
+
+def elo_expected(ra, rb):
+    raise NotImplementedError
+
+def elo_update(ra, rb, score_a, k=32):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+m, s = 3.0, 0.5
+check("interpolation endpoints and target", lambda: fm_interp(2.0, 5.0, 0.0) == 2.0 and fm_interp(2.0, 5.0, 1.0) == 5.0 and fm_target(2.0, 5.0) == 3.0)
+check("optimal velocity formula: v*(1.5, 0.4) = -3.3", lambda: abs(optimal_velocity(1.5, 0.4, m, s) + 3.3) < 1e-9)
+rng = np.random.default_rng(0)
+x0 = rng.normal(m, s, 2000000); x1 = rng.normal(size=2000000)
+xt = fm_interp(x0, x1, 0.4); sel = np.abs(xt - 1.5) < 0.01
+check("Monte Carlo conditional mean of x1-x0 matches the formula", lambda: abs((x1 - x0)[sel].mean() - optimal_velocity(1.5, 0.4, m, s)) < 0.05)
+res = {}
+for n in (1, 2, 4, 20, 100):
+    xs = euler_sample(20000, lambda x, t: optimal_velocity(x, t, m, s), n, np.random.default_rng(0))
+    res[n] = (xs.mean(), xs.std())
+check("1 Euler step collapses everything to the data mean", lambda: abs(res[1][0] - 3.0) < 1e-9 and res[1][1] < 1e-9)
+check("std grows with steps: 0.199, 0.339, 0.462, 0.491", lambda: abs(res[2][1] - 0.1992) < 0.005 and abs(res[4][1] - 0.3392) < 0.005 and abs(res[20][1] - 0.4624) < 0.005 and abs(res[100][1] - 0.4907) < 0.005)
+check("means stay at 3", lambda: all(abs(res[n][0] - 3.0) < 0.02 for n in res))
+S1 = np.array([[2, .3], [.3, 1.]]); S2 = np.array([[1, 0], [0, 1.5]])
+check("Frechet distance: 1-D example = 5", lambda: abs(frechet_distance(np.array([0.]), np.array([[1.]]), np.array([2.]), np.array([[4.]])) - 5.0) < 1e-9)
+check("Frechet distance of identical Gaussians is 0", lambda: abs(frechet_distance(np.zeros(2), S1, np.zeros(2), S1)) < 1e-9)
+check("Frechet distance 2-D example = 5.252", lambda: abs(frechet_distance(np.zeros(2), S1, np.array([1., 2.]), S2) - 5.2520434) < 1e-6)
+check("Frechet distance is symmetric", lambda: abs(frechet_distance(np.zeros(2), S1, np.array([1., 2.]), S2) - frechet_distance(np.array([1., 2.]), S2, np.zeros(2), S1)) < 1e-9)
+fid = {}
+for N in (20, 100, 1000, 10000):
+    r = np.random.default_rng(1)
+    fid[N] = fid_from_features(r.normal(size=(N, 8)), r.normal(size=(N, 8)))
+check("same-distribution FID shrinks with N: 2.64, 0.554, 0.0497, 0.0052", lambda: abs(fid[20] - 2.6415) < 1e-3 and abs(fid[100] - 0.554) < 1e-3 and abs(fid[1000] - 0.0497) < 1e-3 and abs(fid[10000] - 0.0052) < 1e-3 and fid[20] > fid[100] > fid[1000] > fid[10000])
+rng = np.random.default_rng(0)
+real = rng.normal(size=(400, 2))
+good = precision_recall(real, rng.normal(size=(400, 2)))
+coll = precision_recall(real, rng.normal(0, 0.1, size=(400, 2)))
+far = precision_recall(real, rng.normal(size=(400, 2)) + np.array([5, 0]))
+check("matching distribution: precision 0.9825, recall 0.975", lambda: abs(good[0] - 0.9825) < 1e-9 and abs(good[1] - 0.975) < 1e-9)
+check("collapsed generator: precision 1.0, recall 0.035", lambda: abs(coll[0] - 1.0) < 1e-9 and abs(coll[1] - 0.035) < 1e-9)
+check("far-away generator: both low (0.0625, 0.0875)", lambda: abs(far[0] - 0.0625) < 1e-9 and abs(far[1] - 0.0875) < 1e-9)
+check("Elo: equal ratings, A wins -> 1016 / 984", lambda: elo_update(1000, 1000, 1) == (1016.0, 984.0))
+check("Elo: 200-point favourite expected 0.760 and gains 7.7", lambda: abs(elo_expected(1200, 1000) - 0.7597) < 1e-3 and abs(elo_update(1200, 1000, 1)[0] - 1207.69) < 0.01)
+check("Elo is zero-sum", lambda: abs(sum(elo_update(1100, 1300, 0)) - 2400) < 1e-9)
+#@@ solution
+import numpy as np
+
+def fm_interp(x0, x1, t):
+    return (1 - t) * x0 + t * x1
+
+def fm_target(x0, x1):
+    return x1 - x0
+
+def optimal_velocity(x, t, m, s):
+    var = (1 - t) ** 2 * s ** 2 + t ** 2
+    mean = (1 - t) * m
+    cov = t - (1 - t) * s ** 2
+    return -m + cov / var * (x - mean)
+
+def euler_sample(n, v_fn, steps, rng):
+    x = rng.normal(size=n)
+    dt = 1.0 / steps
+    for k in range(steps):
+        t = 1 - k * dt
+        x = x - dt * v_fn(x, t)
+    return x
+
+def sqrtm_psd(S):
+    w, V = np.linalg.eigh((S + S.T) / 2)
+    return (V * np.sqrt(np.clip(w, 0, None))) @ V.T
+
+def frechet_distance(mu1, S1, mu2, S2):
+    r = sqrtm_psd(S1)
+    M = r @ S2 @ r
+    tr = np.sqrt(np.clip(np.linalg.eigvalsh((M + M.T) / 2), 0, None)).sum()
+    return float(np.sum((mu1 - mu2) ** 2) + np.trace(S1) + np.trace(S2) - 2 * tr)
+
+def fid_from_features(a, b):
+    return frechet_distance(a.mean(0), np.cov(a, rowvar=False), b.mean(0), np.cov(b, rowvar=False))
+
+def knn_radii(X, k):
+    D = np.linalg.norm(X[:, None] - X[None], axis=-1)
+    return np.sort(D, axis=1)[:, k]
+
+def precision_recall(real, fake, k=3):
+    rr = knn_radii(real, k)
+    rf = knn_radii(fake, k)
+    D = np.linalg.norm(fake[:, None] - real[None], axis=-1)
+    prec = np.mean((D <= rr[None]).any(1))
+    rec = np.mean((D.T <= rf[None]).any(1))
+    return prec, rec
+
+def elo_expected(ra, rb):
+    return 1.0 / (1.0 + 10 ** ((rb - ra) / 400.0))
+
+def elo_update(ra, rb, score_a, k=32):
+    e = elo_expected(ra, rb)
+    return ra + k * (score_a - e), rb + k * ((1 - score_a) - (1 - e))

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "cml.16.c1",
+  "concept": "ml.featsel",
+  "front": "Filter vs wrapper vs embedded",
+  "back": "Filter: score features alone, no model. Wrapper: search subsets using model performance. Embedded: selection happens during training (L1, trees)."
+ },
+ {
+  "id": "cml.16.c2",
+  "concept": "ml.featsel",
+  "front": "Mutual information",
+  "back": "$I(X;Y)=\\sum p(x,y)\\ln\\frac{p(x,y)}{p(x)p(y)}\\ge0$; zero iff independent; catches non-linear dependence."
+ },
+ {
+  "id": "cml.16.c3",
+  "concept": "ml.featsel",
+  "front": "Weakness of filters",
+  "back": "They score features one at a time, so they miss interactions and keep redundant copies."
+ },
+ {
+  "id": "cml.16.c4",
+  "concept": "ml.featsel",
+  "front": "Forward selection and RFE",
+  "back": "Forward: greedily add the feature that helps most. RFE: fit, drop the weakest features, refit. Both cost many fits."
+ },
+ {
+  "id": "cml.16.c5",
+  "concept": "ml.featsel",
+  "front": "Bias of tree split importance",
+  "back": "It favours high-cardinality features (an id column splits well); cross-check with permutation importance."
+ },
+ {
+  "id": "cml.16.c6",
+  "concept": "ml.featsel",
+  "front": "Why is selection part of the pipeline?",
+  "back": "It uses the labels; fit it inside each CV fold or the score is optimistic."
+ },
+ {
+  "id": "cml.16.c7",
+  "concept": "ml.lasso",
+  "front": "Lasso objective",
+  "back": "$\\frac1{2n}\\|y-Xw\\|^2+\\lambda\\|w\\|_1$ with standardised $X$ and centred $y$."
+ },
+ {
+  "id": "cml.16.c8",
+  "concept": "ml.lasso",
+  "front": "Bishop's regulariser family",
+  "back": "$\\frac\\lambda2\\sum_j|w_j|^q$: $q=2$ weight decay/ridge, $q=1$ lasso; equivalent to $\\sum|w_j|^q\\le\\eta$."
+ },
+ {
+  "id": "cml.16.c9",
+  "concept": "ml.lasso",
+  "front": "Soft-threshold operator",
+  "back": "$S(\\rho,\\lambda)=\\operatorname{sign}(\\rho)\\max(|\\rho|-\\lambda,0)$."
+ },
+ {
+  "id": "cml.16.c10",
+  "concept": "ml.lasso",
+  "front": "Lasso coordinate update",
+  "back": "$w_j=S(\\rho_j,\\lambda)/z_j$, $\\rho_j=\\frac1nX_{:j}^\\top r^{(j)}$, $z_j=\\frac1nX_{:j}^\\top X_{:j}$."
+ },
+ {
+  "id": "cml.16.c11",
+  "concept": "ml.lasso",
+  "front": "$\\lambda_{\\max}$",
+  "back": "$\\max_j|X_{:j}^\\top y|/n$: smallest penalty giving $w=0$."
+ },
+ {
+  "id": "cml.16.c12",
+  "concept": "ml.lasso",
+  "front": "KKT conditions of the lasso",
+  "back": "With $g=\\frac1nX^\\top(y-Xw)$: $g_j=\\lambda\\,\\mathrm{sign}(w_j)$ if $w_j\\ne0$, $|g_j|\\le\\lambda$ otherwise."
+ },
+ {
+  "id": "cml.16.c13",
+  "concept": "ml.lasso",
+  "front": "Why standardise before the lasso?",
+  "back": "The penalty treats all weights alike, so feature scale would change who is penalised."
+ },
+ {
+  "id": "cml.16.c14",
+  "concept": "ml.lasso",
+  "front": "Stability selection",
+  "back": "Run the lasso on many random half-samples; report each feature's selection frequency and keep those near 1."
+ },
+ {
+  "id": "cml.16.c15",
+  "concept": "ml.lasso",
+  "front": "Cost of lasso shrinkage",
+  "back": "Estimates are biased towards zero; refit least squares on the selected set (relaxed lasso) to reduce the bias."
+ }
+]

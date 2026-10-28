@@ -1,0 +1,16 @@
+[
+  { "id": "cml.09.c1", "concept": "ml.knn", "front": "kNN classification rule", "back": "Find the $k$ training points closest to $x$ and predict their majority class (regression: their mean target)." },
+  { "id": "cml.09.c2", "concept": "ml.knn", "front": "Why kNN posterior is $K_c/K$", "back": "Local densities $p(x|c)=K_c/(N_cV)$, $p(x)=K/(NV)$, $p(c)=N_c/N$; Bayes' theorem cancels $N_c$, $V$, $N$." },
+  { "id": "cml.09.c3", "concept": "ml.knn", "front": "Effect of $k$ in kNN", "back": "Smoothing parameter: small $k$ is low bias/high variance, large $k$ is high bias/low variance; choose by validation." },
+  { "id": "cml.09.c4", "concept": "ml.knn", "front": "Cover-Hart bound", "back": "As $N\\to\\infty$ the 1-NN error rate is at most twice the minimum achievable (Bayes) error." },
+  { "id": "cml.09.c5", "concept": "ml.knn", "front": "Why scale features for kNN?", "back": "Euclidean distance sums squared raw differences, so large-unit features dominate. Standardise with training statistics." },
+  { "id": "cml.09.c6", "concept": "ml.knn", "front": "Curse of dimensionality for kNN", "back": "In high dimensions all points are nearly equally distant, neighbourhoods are no longer local, and $O(Nd)$ search per query is costly." },
+  { "id": "cml.09.c7", "concept": "ml.knn", "front": "Cost profile of kNN", "back": "No training; stores all data; each prediction computes $N$ distances ($O(Nd)$) unless an index is used." },
+  { "id": "cml.09.c8", "concept": "ml.naive-bayes", "front": "Bayes' rule for classification", "back": "$p(C_k|x)\\propto p(C_k)\\,p(x|C_k)$; predict the class with the largest value." },
+  { "id": "cml.09.c9", "concept": "ml.naive-bayes", "front": "Naive Bayes assumption", "back": "Features are conditionally independent given the class: $p(x|C_k)=\\prod_ip(x_i|C_k)$." },
+  { "id": "cml.09.c10", "concept": "ml.naive-bayes", "front": "Naive Bayes prediction in log space", "back": "$\\hat y=\\arg\\max_k\\ \\log p(C_k)+\\sum_i\\log p(x_i|C_k)$; for multinomial: `X @ log_theta.T + log_prior`." },
+  { "id": "cml.09.c11", "concept": "ml.naive-bayes", "front": "Multinomial NB parameters with smoothing", "back": "$\\theta_{ki}=(n_{ki}+\\alpha)/(\\sum_in_{ki}+\\alpha V)$, $n_{ki}$ = count of word $i$ in class $k$." },
+  { "id": "cml.09.c12", "concept": "ml.naive-bayes", "front": "Why Laplace smoothing?", "back": "An unseen word would give probability 0 and wipe out the whole product; the pseudo-count $\\alpha$ keeps all probabilities positive (a Dirichlet prior)." },
+  { "id": "cml.09.c13", "concept": "ml.naive-bayes", "front": "Gaussian naive Bayes", "back": "Per class and feature: mean $\\mu_{ki}$, variance $\\sigma_{ki}^2$; $\\log p(x_i|C_k)=-\\frac12\\log(2\\pi\\sigma^2)-\\frac{(x_i-\\mu)^2}{2\\sigma^2}$." },
+  { "id": "cml.09.c14", "concept": "ml.naive-bayes", "front": "Why naive Bayes still works / where it fails", "back": "Only the argmax matters and few parameters means low variance; fails when correlated features carry the label signal (e.g. XOR) and probabilities are over-confident." }
+]

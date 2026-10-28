@@ -1,0 +1,127 @@
+#@@ meta
+{"id": "seq.01.ex1", "title": "conv2d forward and backward (im2col)", "difficulty": 4, "runtime": "pyodide", "concepts": ["seq.conv", "nn.backprop"], "hints": ["im2col: pad x, then for each output position (i, j) copy x_pad[:, i*s:i*s+K, j*s:j*s+K].reshape(-1) into column i*Wo+j. Then out = W.reshape(Co, -1) @ cols + b[:, None].", "Backward in matrix form: dY has shape (Co, Ho*Wo). dW = dY @ cols.T (reshape to W.shape), db = dY.sum(1), dcols = W.reshape(Co, -1).T @ dY.", "col2im: allocate a zero padded array and ADD each column back into the window it came from (windows overlap, so use +=). Finally crop the padding."]}
+#@@ prompt
+Implement a single-sample 2D convolution layer (really cross-correlation, as in every deep-learning library).
+
+- `conv2d_forward(x, W, b, stride, pad)` with `x` of shape `(C_in, H, W)`, `W` of shape `(C_out, C_in, K, K)`, `b` of shape `(C_out,)`. Return `(out, cache)` where `out` has shape `(C_out, H_out, W_out)`.
+- `conv2d_backward(dout, cache)` returns `(dx, dW, db)` with the shapes of `x`, `W`, `b`.
+
+Use the im2col idea from the lesson: one matrix product forward, two matrix products backward, and a `col2im` that adds overlapping windows back together.
+#@@ starter
+import numpy as np
+
+def im2col(x, K, stride, pad):
+    """x: (C, H, W) -> cols: (C*K*K, Ho*Wo), plus Ho, Wo."""
+    raise NotImplementedError
+
+def col2im(cols, x_shape, K, stride, pad):
+    """Inverse scatter-add of im2col: returns an array of shape x_shape."""
+    raise NotImplementedError
+
+def conv2d_forward(x, W, b, stride=1, pad=0):
+    raise NotImplementedError
+
+def conv2d_backward(dout, cache):
+    raise NotImplementedError
+
+rng = np.random.default_rng(0)
+x = rng.normal(size=(2, 6, 6)); W = rng.normal(size=(3, 2, 3, 3)); b = rng.normal(size=3)
+out, cache = conv2d_forward(x, W, b, stride=2, pad=1)
+print("out shape:", out.shape)
+#@@ tests
+import numpy as np
+
+def naive(x, W, b, s, p):
+    C, H, Wd = x.shape
+    Co, _, K, _ = W.shape
+    xp = np.pad(x, ((0, 0), (p, p), (p, p)))
+    Ho = (H + 2 * p - K) // s + 1; Wo = (Wd + 2 * p - K) // s + 1
+    o = np.zeros((Co, Ho, Wo))
+    for c in range(Co):
+        for i in range(Ho):
+            for j in range(Wo):
+                o[c, i, j] = np.sum(xp[:, i * s:i * s + K, j * s:j * s + K] * W[c]) + b[c]
+    return o
+
+rng = np.random.default_rng(1)
+cases = [(1, 0), (1, 1), (2, 1), (2, 0)]
+x = rng.normal(size=(2, 7, 7)); W = rng.normal(size=(3, 2, 3, 3)); b = rng.normal(size=3)
+for s, p in cases:
+    out, _ = conv2d_forward(x, W, b, s, p)
+    check(f"forward matches naive loops (stride {s}, pad {p})", lambda out=out, s=s, p=p: out.shape == naive(x, W, b, s, p).shape and np.allclose(out, naive(x, W, b, s, p)), "check the output size (H-K+2P)//S+1 and the window offsets")
+
+# the 5x5 worked example of the lesson
+X5 = np.array([[1,2,0,1,2],[0,1,3,1,0],[2,1,0,2,1],[1,0,2,1,3],[2,1,1,0,1]], float)[None]
+K5 = np.array([[1,0,-1],[2,0,-2],[1,0,-1]], float)[None, None]
+o5, _ = conv2d_forward(X5, K5, np.zeros(1), 1, 0)
+check("lesson worked example (5x5 input, Sobel kernel)", lambda: np.allclose(o5[0], [[-3, 0, 3], [0, -3, 0], [1, -2, -3]]), "Y[0,0] = -3 by hand")
+
+def loss_fn(x, W, b, s, p, R):
+    return float(np.sum(conv2d_forward(x, W, b, s, p)[0] * R))
+
+for s, p in cases:
+    out, cache = conv2d_forward(x, W, b, s, p)
+    R = rng.normal(size=out.shape)
+    dx, dW, db = conv2d_backward(R, cache)
+    check(f"gradient shapes (stride {s}, pad {p})", lambda: dx.shape == x.shape and dW.shape == W.shape and db.shape == b.shape)
+    def num(which, idxs):
+        g = np.zeros(len(idxs))
+        for n, idx in enumerate(idxs):
+            args = [x.copy(), W.copy(), b.copy()]
+            args[which][idx] += 1e-6
+            fp = loss_fn(args[0], args[1], args[2], s, p, R)
+            args = [x.copy(), W.copy(), b.copy()]
+            args[which][idx] -= 1e-6
+            fm = loss_fn(args[0], args[1], args[2], s, p, R)
+            g[n] = (fp - fm) / 2e-6
+        return g
+    ix = [tuple(int(rng.integers(0, d)) for d in x.shape) for _ in range(12)]
+    iw = [tuple(int(rng.integers(0, d)) for d in W.shape) for _ in range(12)]
+    ib = [(k,) for k in range(3)]
+    check(f"dx matches finite differences (stride {s}, pad {p})", lambda: np.allclose(dx[tuple(zip(*ix))], num(0, ix), atol=1e-6, rtol=1e-5), "col2im must ADD overlapping windows and drop the padding")
+    check(f"dW matches finite differences (stride {s}, pad {p})", lambda: np.allclose(dW[tuple(zip(*iw))], num(1, iw), atol=1e-6, rtol=1e-5))
+    check(f"db matches finite differences (stride {s}, pad {p})", lambda: np.allclose(db, num(2, ib), atol=1e-6, rtol=1e-5))
+#@@ solution
+import numpy as np
+
+def im2col(x, K, stride, pad):
+    C, H, W = x.shape
+    xp = np.pad(x, ((0, 0), (pad, pad), (pad, pad)))
+    Ho = (H + 2 * pad - K) // stride + 1
+    Wo = (W + 2 * pad - K) // stride + 1
+    cols = np.zeros((C * K * K, Ho * Wo))
+    for i in range(Ho):
+        for j in range(Wo):
+            cols[:, i * Wo + j] = xp[:, i * stride:i * stride + K, j * stride:j * stride + K].reshape(-1)
+    return cols, Ho, Wo
+
+def col2im(cols, x_shape, K, stride, pad):
+    C, H, W = x_shape
+    Ho = (H + 2 * pad - K) // stride + 1
+    Wo = (W + 2 * pad - K) // stride + 1
+    xp = np.zeros((C, H + 2 * pad, W + 2 * pad))
+    for i in range(Ho):
+        for j in range(Wo):
+            xp[:, i * stride:i * stride + K, j * stride:j * stride + K] += cols[:, i * Wo + j].reshape(C, K, K)
+    return xp[:, pad:pad + H, pad:pad + W]
+
+def conv2d_forward(x, W, b, stride=1, pad=0):
+    Co, Ci, K, _ = W.shape
+    cols, Ho, Wo = im2col(x, K, stride, pad)
+    out = W.reshape(Co, -1) @ cols + b[:, None]
+    return out.reshape(Co, Ho, Wo), (cols, x.shape, W, stride, pad)
+
+def conv2d_backward(dout, cache):
+    cols, x_shape, W, stride, pad = cache
+    Co, Ci, K, _ = W.shape
+    dY = dout.reshape(Co, -1)
+    dW = (dY @ cols.T).reshape(W.shape)
+    db = dY.sum(axis=1)
+    dcols = W.reshape(Co, -1).T @ dY
+    dx = col2im(dcols, x_shape, K, stride, pad)
+    return dx, dW, db
+
+rng = np.random.default_rng(0)
+x = rng.normal(size=(2, 6, 6)); W = rng.normal(size=(3, 2, 3, 3)); b = rng.normal(size=3)
+out, cache = conv2d_forward(x, W, b, stride=2, pad=1)
+print("out shape:", out.shape)

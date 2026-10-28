@@ -1,0 +1,56 @@
+[
+  {
+    "id": "seq.02.q1",
+    "prompt": "Quelle est la similarité cosinus entre deux vecteurs one-hot de mots différents ?",
+    "options": ["1", "$1/\\sqrt2$", "$-1$", "0"],
+    "explanation": "Des vecteurs one-hot différents sont orthogonaux, donc leur produit scalaire (et leur cosinus) vaut 0 ; ils sont tous à distance euclidienne $\\sqrt2$. Les codes one-hot ne portent aucune notion de similarité."
+  },
+  {
+    "id": "seq.02.q2",
+    "prompt": "L'hypothèse distributionnelle dit que...",
+    "options": ["les mots à l'orthographe semblable ont des sens semblables", "les mots apparaissant dans des contextes semblables ont des sens semblables", "les mots fréquents portent le plus de sens", "chaque mot a exactement un sens"],
+    "explanation": "« On reconnaît un mot à la compagnie qu'il fréquente » (Firth). Skip-gram en fait une tâche de prédiction."
+  },
+  {
+    "id": "seq.02.q3",
+    "prompt": "Dans la perte skip-gram à échantillonnage négatif, le gradient par rapport au vrai vecteur de contexte $u_o$ est...",
+    "options": ["$\\sigma(s_o)\\,v_c$", "$(1-\\sigma(s_o))\\,v_c$", "$\\sigma(s_o)\\,u_o$", "$(\\sigma(s_o)-1)\\,v_c$"],
+    "explanation": "$\\partial\\ell/\\partial s_o=\\sigma(s_o)-1$ et $s_o=u_o\\cdot v_c$, donc $\\partial\\ell/\\partial u_o=(\\sigma(s_o)-1)v_c$. La descente de gradient déplace $u_o$ vers $v_c$."
+  },
+  {
+    "id": "seq.02.q4",
+    "prompt": "Avec tous les vecteurs de plongement nuls et $k=5$ négatifs, quelle est la perte à échantillonnage négatif d'une paire (à 3 décimales) ?",
+    "options": [],
+    "explanation": "Chaque score vaut 0, $\\sigma(0)=1/2$, donc chacun des $1+k=6$ termes vaut $\\ln2$ : $6\\ln2=4.159$."
+  },
+  {
+    "id": "seq.02.q5",
+    "prompt": "Pourquoi utiliser l'échantillonnage négatif plutôt que le softmax complet sur le vocabulaire ?",
+    "options": ["Le softmax complet ne peut pas être dérivé", "Il réduit le coût par paire de $O(nd)$ à $O((k+1)d)$", "Il garantit des plongements orthogonaux", "Il supprime le besoin de deux tables de plongements"],
+    "explanation": "Le normalisateur du softmax somme sur les $n$ mots ; l'échantillonnage négatif ne touche que le vrai contexte et $k$ mots échantillonnés."
+  },
+  {
+    "id": "seq.02.q6",
+    "prompt": "Un échantillon négatif dont le score $s_j=u_j\\cdot v_c$ est déjà très négatif (p. ex. $-8$) contribue...",
+    "options": ["un grand gradient, parce qu'il est loin de $v_c$", "presque aucun gradient, puisque $\\sigma(s_j)\\approx0$", "un gradient valant exactement 1", "un gradient négatif qui l'attire vers $v_c$"],
+    "explanation": "$g_j=\\sigma(s_j)\\approx3\\times10^{-4}$ : le modèle a déjà raison pour ce négatif, il est donc à peine mis à jour."
+  },
+  {
+    "id": "seq.02.q7",
+    "prompt": "GloVe modélise $\\log P(k\\mid i)\\approx w_i^\\top\\tilde w_k$. Que nous apporte le logarithme ?",
+    "options": ["Il rend la matrice symétrique", "Il transforme les rapports $P(k|i)/P(k|j)$ en différences $(w_i-w_j)^\\top\\tilde w_k$, reliant les analogies aux décalages vectoriels", "Il supprime le besoin de vecteurs de contexte", "Il fait dominer les mots fréquents"],
+    "explanation": "$\\log(P(k|i)/P(k|j))=\\log P(k|i)-\\log P(k|j)\\approx(w_i-w_j)^\\top\\tilde w_k$."
+  },
+  {
+    "id": "seq.02.q8",
+    "prompt": "Quel problème la représentation par n-grammes de caractères de fastText résout-elle ?",
+    "options": ["Les mots que le modèle n'a jamais vus obtiennent quand même un vecteur grâce à leurs n-grammes", "Elle rend l'entraînement plus rapide que word2vec", "Elle supprime le besoin d'un corpus", "Elle sépare les antonymes"],
+    "explanation": "Un vecteur de mot est la somme de ses vecteurs de n-grammes, donc un mot jamais vu comme « whereupon » partage des n-grammes avec « where » et atterrit près de lui."
+  },
+  {
+    "id": "seq.02.q9",
+    "prompt": "Pour résoudre l'analogie man : king :: woman : ? par le plus proche voisin de $v_{king}-v_{man}+v_{woman}$, tu dois...",
+    "options": ["utiliser la distance euclidienne sur les vecteurs bruts", "exclure les trois mots de la requête des candidats", "faire la moyenne avec le vecteur de « queen »", "normaliser par la taille du corpus"],
+    "explanation": "Le vecteur résultat est généralement très proche de l'une des entrées (souvent « king » lui-même), donc les mots de la requête sont exclus lors du classement."
+  }
+]

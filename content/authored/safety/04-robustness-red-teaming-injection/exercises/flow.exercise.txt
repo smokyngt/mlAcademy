@@ -1,0 +1,91 @@
+#@@ meta
+{"id": "saf.04.ex2", "title": "Information-flow checker for agent plans", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.prompt-injection"], "hints": ["Keep a dict var -> set of labels. 'read' sets the label of its output; 'compute' takes the union of its inputs' labels.", "For a 'send' step, union the labels of its inputs, then apply the rules in order: internal -> allow; external with untrusted AND private -> block; external with untrusted -> confirm; otherwise allow.", "trifecta(caps) is true only if all three capabilities are present; each of the three single removals must make it false."]}
+#@@ prompt
+Indirect prompt injection works because content fetched by an agent (a web page, an email) can steer what the agent does next. A classical defence idea is **information-flow control**: attach a label to every value, propagate labels through computation, and check them before side effects.
+
+Everything here is a benign toy: plans are lists of abstract steps, with no real text.
+
+Step types:
+- `{"op": "read", "out": v, "label": L}` where `L` is `"user"`, `"untrusted"` or `"private"`;
+- `{"op": "compute", "out": v, "inputs": [v1, v2, ...]}` (the output carries the union of the input labels);
+- `{"op": "send", "inputs": [...], "to": "internal" | "external"}`.
+
+Implement `run_plan(plan)` -> list of verdicts, one per `send` step in order, using these rules for a send: internal -> `"allow"`; external whose inputs carry both `untrusted` and `private` -> `"block"`; external with `untrusted` only -> `"confirm"` (a human must ratify); otherwise `"allow"`.
+
+Also implement `trifecta(caps)`: a system is in the risky combination if its capabilities (a set of strings) include all of `"reads_private"`, `"reads_untrusted"` and `"sends_external"`.
+#@@ starter
+def run_plan(plan):
+    raise NotImplementedError
+
+def trifecta(caps):
+    raise NotImplementedError
+#@@ tests
+p1 = [
+    {"op": "read", "out": "q", "label": "user"},
+    {"op": "read", "out": "page", "label": "untrusted"},
+    {"op": "compute", "out": "summary", "inputs": ["q", "page"]},
+    {"op": "send", "inputs": ["summary"], "to": "internal"},
+]
+check("internal send is allowed", lambda: run_plan(p1) == ["allow"])
+p2 = [
+    {"op": "read", "out": "page", "label": "untrusted"},
+    {"op": "compute", "out": "reply", "inputs": ["page"]},
+    {"op": "send", "inputs": ["reply"], "to": "external"},
+]
+check("external send influenced by untrusted content needs confirmation", lambda: run_plan(p2) == ["confirm"])
+p3 = [
+    {"op": "read", "out": "page", "label": "untrusted"},
+    {"op": "read", "out": "inbox", "label": "private"},
+    {"op": "compute", "out": "digest", "inputs": ["page", "inbox"]},
+    {"op": "send", "inputs": ["digest"], "to": "external"},
+]
+check("untrusted + private to external is blocked", lambda: run_plan(p3) == ["block"])
+p4 = [
+    {"op": "read", "out": "q", "label": "user"},
+    {"op": "read", "out": "inbox", "label": "private"},
+    {"op": "compute", "out": "digest", "inputs": ["q", "inbox"]},
+    {"op": "send", "inputs": ["digest"], "to": "external"},
+    {"op": "send", "inputs": ["q"], "to": "external"},
+]
+check("private data without untrusted influence is allowed; so is a clean value", lambda: run_plan(p4) == ["allow", "allow"])
+p5 = [
+    {"op": "read", "out": "page", "label": "untrusted"},
+    {"op": "send", "inputs": ["page"], "to": "external"},
+    {"op": "read", "out": "inbox", "label": "private"},
+    {"op": "send", "inputs": ["inbox"], "to": "external"},
+    {"op": "compute", "out": "mix", "inputs": ["page", "inbox"]},
+    {"op": "send", "inputs": ["mix"], "to": "external"},
+]
+check("labels do not leak backwards in time", lambda: run_plan(p5) == ["confirm", "allow", "block"])
+full = {"reads_private", "reads_untrusted", "sends_external"}
+check("all three capabilities form the risky combination", lambda: trifecta(full) is True)
+check("removing any one capability makes it false", lambda: all(trifecta(full - {c}) is False for c in full))
+check("extra capabilities do not matter", lambda: trifecta(full | {"runs_code"}) is True)
+#@@ solution
+def run_plan(plan):
+    labels = {}
+    verdicts = []
+    for step in plan:
+        if step["op"] == "read":
+            labels[step["out"]] = {step["label"]}
+        elif step["op"] == "compute":
+            s = set()
+            for v in step["inputs"]:
+                s |= labels.get(v, set())
+            labels[step["out"]] = s
+        elif step["op"] == "send":
+            s = set()
+            for v in step["inputs"]:
+                s |= labels.get(v, set())
+            if step["to"] == "internal":
+                verdicts.append("allow")
+            elif "untrusted" in s and "private" in s:
+                verdicts.append("block")
+            elif "untrusted" in s:
+                verdicts.append("confirm")
+            else:
+                verdicts.append("allow")
+    return verdicts
+
+def trifecta(caps):
+    return {"reads_private", "reads_untrusted", "sends_external"} <= set(caps)

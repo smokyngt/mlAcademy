@@ -1,0 +1,10 @@
+{
+  "id": "ops.02.ex1",
+  "title": "Échantillonnage par réservoir et stratifié",
+  "prompt": "Deux échantillonneurs dont tu as besoin quand les données ne tiennent pas en mémoire ou quand une classe est rare.\n\n- `reservoir_sample(stream, k, rng)` : étant donné un itérable quelconque `stream` de longueur inconnue et un générateur NumPy `rng`, retourne une liste de `k` éléments telle que **chaque** élément du flux ait la même probabilité `k/n` d'être conservé (`n` = longueur du flux jusqu'ici). Utilise un seul passage et une mémoire O(k). Si le flux a moins de `k` éléments, retourne-les tous.\n- `stratified_sample(labels, frac, rng)` : retourne le tableau **trié** des indices d'un échantillon qui contient `round(frac * count)` éléments (au moins 1) de chaque classe, tirés sans remise.",
+  "hints": [
+    "Réservoir : garde les k premiers éléments ; pour l'élément d'indice 0-indexé n >= k, tire j = rng.integers(0, n + 1) et, si j < k, écrase reservoir[j].",
+    "Stratifié : pour chaque classe, prends round(frac * count) de ses indices (au moins 1) sans remise, avec rng.choice(idx, size, replace=False).",
+    "Retourne des indices triés pour que le résultat soit facile à comparer."
+  ]
+}

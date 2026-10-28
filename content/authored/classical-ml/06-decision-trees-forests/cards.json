@@ -1,0 +1,16 @@
+[
+  { "id": "cml.06.c1", "concept": "ml.trees", "front": "Gini impurity of a node", "back": "$G=\\sum_k p_k(1-p_k)=1-\\sum_k p_k^2$; 0 for a pure node, 0.5 for a 50/50 two-class node." },
+  { "id": "cml.06.c2", "concept": "ml.trees", "front": "Entropy of a node", "back": "$H=-\\sum_k p_k\\log_2 p_k$ in bits; 0 if pure, 1 bit for a 50/50 two-class node." },
+  { "id": "cml.06.c3", "concept": "ml.trees", "front": "Impurity decrease of a split", "back": "$\\Delta=I(\\text{parent})-\\frac{n_L}{n}I(L)-\\frac{n_R}{n}I(R)$." },
+  { "id": "cml.06.c4", "concept": "ml.trees", "front": "Which thresholds does a tree test for a numeric feature?", "back": "Midpoints between consecutive distinct sorted values: at most $n-1$ candidates, since only those change the partition." },
+  { "id": "cml.06.c5", "concept": "ml.trees", "front": "Why is tree growth called greedy?", "back": "It takes the best split at the current node and never revisits it; the globally best tree is computationally infeasible to find." },
+  { "id": "cml.06.c6", "concept": "ml.trees", "front": "Leaf prediction in a regression tree", "back": "The mean of the training targets in the leaf; it minimises squared error for that region." },
+  { "id": "cml.06.c7", "concept": "ml.trees", "front": "Cost-complexity pruning criterion", "back": "$C(T)=\\sum_\\tau Q_\\tau(T)+\\lambda|T|$: leaf errors plus a price per leaf; $\\lambda$ chosen by cross-validation." },
+  { "id": "cml.06.c8", "concept": "ml.trees", "front": "Main weaknesses of a single tree", "back": "High variance (unstable structure), axis-aligned boundaries, piecewise-constant outputs that do not extrapolate." },
+  { "id": "cml.06.c9", "concept": "ml.bagging", "front": "Bagging", "back": "Train $M$ models on bootstrap samples (size $N$, with replacement) and average or vote; reduces variance." },
+  { "id": "cml.06.c10", "concept": "ml.bagging", "front": "Variance of an average of $M$ correlated models", "back": "$\\rho\\sigma^2+\\frac{1-\\rho}{M}\\sigma^2$: more models cannot remove the $\\rho\\sigma^2$ term." },
+  { "id": "cml.06.c11", "concept": "ml.bagging", "front": "What makes a random forest different from bagged trees?", "back": "Each split considers only a random subset of features (about $\\sqrt d$ for classification), which decorrelates the trees." },
+  { "id": "cml.06.c12", "concept": "ml.bagging", "front": "Out-of-bag fraction of a bootstrap sample", "back": "$(1-1/N)^N\\to e^{-1}\\approx36.8\\%$ of rows are left out; $63.2\\%$ of distinct rows are in the sample." },
+  { "id": "cml.06.c13", "concept": "ml.bagging", "front": "Out-of-bag error", "back": "Error of predictions made for each row using only the trees that did not train on it: a free validation estimate." },
+  { "id": "cml.06.c14", "concept": "ml.bagging", "front": "Does adding more trees to a forest overfit?", "back": "No: it only shrinks the $\\frac{1-\\rho}{M}\\sigma^2$ term and plateaus; tree depth and leaf size control overfitting." }
+]

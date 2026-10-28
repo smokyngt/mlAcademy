@@ -1,0 +1,126 @@
+#@@ meta
+{"id": "llm.04.ex2", "title": "A LoRA linear layer: forward, backward, merge", "difficulty": 4, "runtime": "pyodide", "concepts": ["llm.lora", "nn.backprop", "la.svd"], "hints": ["Convention: W is (d_out, d_in), A is (r, d_in), B is (d_out, r), s = alpha / r, and y = x @ W.T + s * (x @ A.T) @ B.T. Cache h = x @ A.T for the backward pass.", "With G = dL/dy of shape (B, d_out): dB = s * G.T @ h, dA = s * (G @ B).T @ x, dx = G @ W + s * (G @ B) @ A. Note that dA = 0 when B = 0.", "Merging: W_merged = W + s * B @ A. Parameter count of the adapter: r * (d_out + d_in)."]}
+#@@ prompt
+Implement a LoRA-adapted linear layer in NumPy. The pretrained `W` of shape `(d_out, d_in)` is **frozen**; only `A` (shape `(r, d_in)`) and `B` (shape `(d_out, r)`) are trained, and the layer computes
+
+$$y = xW^\top + \tfrac{\alpha}{r}\,xA^\top B^\top .$$
+
+- `lora_init(d_out, d_in, r, rng)`: `A ~ N(0, 1/d_in)`, `B = 0`.
+- `lora_forward(x, W, A, B, alpha)` returns `(y, h)` with `h = x @ A.T` cached.
+- `lora_backward(G, x, h, W, A, B, alpha)` returns `(dx, dA, dB)` given the upstream gradient `G = dL/dy`.
+- `lora_param_count(d_out, d_in, r)`.
+- `merge(W, A, B, alpha)` returns the merged weight so that `x @ W_merged.T` equals the adapter output.
+- `fit_lora(x, y_target, W, r, alpha, lr, steps, seed)` trains `A, B` by gradient descent on `0.5 * sum((y - y_target)^2) / len(x)` and returns `(A, B, losses)`.
+#@@ starter
+import numpy as np
+
+def lora_init(d_out, d_in, r, rng):
+    # TODO
+    raise NotImplementedError
+
+def lora_forward(x, W, A, B, alpha):
+    # TODO
+    raise NotImplementedError
+
+def lora_backward(G, x, h, W, A, B, alpha):
+    # TODO
+    raise NotImplementedError
+
+def lora_param_count(d_out, d_in, r):
+    # TODO
+    raise NotImplementedError
+
+def merge(W, A, B, alpha):
+    # TODO
+    raise NotImplementedError
+
+def fit_lora(x, y_target, W, r, alpha, lr, steps, seed):
+    # TODO
+    raise NotImplementedError
+
+print(lora_param_count(4096, 4096, 16))
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+d_out, d_in, r, alpha = 6, 5, 2, 4.0
+W = rng.normal(size=(d_out, d_in))
+x = rng.normal(size=(7, d_in))
+A, B = lora_init(d_out, d_in, r, rng)
+check("shapes of A and B", lambda: A.shape == (r, d_in) and B.shape == (d_out, r))
+check("B starts at zero", lambda: np.all(B == 0) and np.any(A != 0))
+y0, h0 = lora_forward(x, W, A, B, alpha)
+check("at initialisation the adapted layer equals the frozen layer", lambda: np.allclose(y0, x @ W.T))
+G = rng.normal(size=y0.shape)
+dx0, dA0, dB0 = lora_backward(G, x, h0, W, A, B, alpha)
+check("with B = 0 the gradient of A vanishes but the gradient of B does not", lambda: np.allclose(dA0, 0) and np.linalg.norm(dB0) > 1e-3, "dA = s * (G @ B).T @ x")
+B1 = rng.normal(size=B.shape) * 0.5
+A1 = A + 0.1
+y1, h1 = lora_forward(x, W, A1, B1, alpha)
+check("forward formula", lambda: np.allclose(y1, x @ W.T + (alpha / r) * (x @ A1.T) @ B1.T))
+def loss_of(xx, AA, BB):
+    return float(np.sum(lora_forward(xx, W, AA, BB, alpha)[0] * G))
+dx, dA, dB = lora_backward(G, x, h1, W, A1, B1, alpha)
+def num(f, P):
+    g = np.zeros_like(P)
+    for idx in np.ndindex(*P.shape):
+        a = P.copy(); b = P.copy(); a[idx] += 1e-6; b[idx] -= 1e-6
+        g[idx] = (f(a) - f(b)) / 2e-6
+    return g
+check("dA matches finite differences", lambda: np.allclose(dA, num(lambda P: loss_of(x, P, B1), A1), atol=1e-6))
+check("dB matches finite differences", lambda: np.allclose(dB, num(lambda P: loss_of(x, A1, P), B1), atol=1e-6))
+check("dx matches finite differences", lambda: np.allclose(dx, num(lambda P: loss_of(P, A1, B1), x), atol=1e-6))
+check("parameter count r*(d_out+d_in)", lambda: lora_param_count(4096, 4096, 16) == 131072)
+check("0.78% of a 4096x4096 matrix at rank 16", lambda: abs(lora_param_count(4096, 4096, 16) / (4096 * 4096) - 0.0078125) < 1e-12)
+Wm = merge(W, A1, B1, alpha)
+check("merged weight reproduces the adapter output", lambda: np.allclose(x @ Wm.T, y1))
+check("the update has rank at most r", lambda: np.linalg.matrix_rank(Wm - W) <= r)
+rng2 = np.random.default_rng(0)
+Wt = rng2.normal(size=(8, 10)); delta = 0.5 * rng2.normal(size=(8, 2)) @ rng2.normal(size=(2, 10))
+xt = rng2.normal(size=(200, 10)); yt = xt @ (Wt + delta).T
+A2, B2, l2 = fit_lora(xt, yt, Wt, r=2, alpha=4.0, lr=0.05, steps=3000, seed=1)
+check("rank 2 recovers a rank-2 update exactly", lambda: l2[-1] < 1e-8 * l2[0], "a rank-2 target needs r >= 2")
+A3, B3, l3 = fit_lora(xt, yt, Wt, r=1, alpha=2.0, lr=0.05, steps=3000, seed=1)
+check("rank 1 cannot represent a rank-2 update", lambda: l3[-1] > 0.05 * l3[0])
+check("the frozen W is not modified by the trainer", lambda: np.array_equal(Wt, np.random.default_rng(0).normal(size=(8, 10))))
+#@@ solution
+import numpy as np
+
+def lora_init(d_out, d_in, r, rng):
+    A = rng.normal(0.0, 1.0 / np.sqrt(d_in), size=(r, d_in))
+    B = np.zeros((d_out, r))
+    return A, B
+
+def lora_forward(x, W, A, B, alpha):
+    s = alpha / A.shape[0]
+    h = x @ A.T
+    return x @ W.T + s * (h @ B.T), h
+
+def lora_backward(G, x, h, W, A, B, alpha):
+    s = alpha / A.shape[0]
+    GB = G @ B
+    dB = s * G.T @ h
+    dA = s * GB.T @ x
+    dx = G @ W + s * GB @ A
+    return dx, dA, dB
+
+def lora_param_count(d_out, d_in, r):
+    return r * (d_out + d_in)
+
+def merge(W, A, B, alpha):
+    return W + (alpha / A.shape[0]) * B @ A
+
+def fit_lora(x, y_target, W, r, alpha, lr, steps, seed):
+    rng = np.random.default_rng(seed)
+    A, B = lora_init(W.shape[0], W.shape[1], r, rng)
+    n = len(x)
+    losses = []
+    for _ in range(steps):
+        y, h = lora_forward(x, W, A, B, alpha)
+        E = y - y_target
+        losses.append(0.5 * float(np.sum(E ** 2)) / n)
+        _, dA, dB = lora_backward(E / n, x, h, W, A, B, alpha)
+        A = A - lr * dA
+        B = B - lr * dB
+    return A, B, losses
+
+print(lora_param_count(4096, 4096, 16))

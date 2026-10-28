@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "vis.03.ex2", "title": "Matching detections and computing average precision", "difficulty": 4, "runtime": "pyodide", "concepts": ["vis.map", "vis.iou"], "hints": ["Process detections from highest to lowest score. Each ground-truth box can be claimed once: a detection is a true positive if its best-IoU ground truth has IoU >= thr and is not yet claimed; otherwise it is a false positive.", "Cumulative TP / (rank) gives precision, cumulative TP / n_gt gives recall. Make precision monotone by taking a running maximum from the right (np.maximum.accumulate on the reversed array).", "AP = sum over ranks of (recall_i - recall_{i-1}) * envelope_precision_i, with recall_{-1} = 0. Average it over thresholds for mAP@[.5:.95]-style numbers."]}
+#@@ prompt
+Evaluate a detector for **one class** on **one image set** (boxes are `(x1, y1, x2, y2)`).
+
+- `match_detections(det_boxes, det_scores, gt_boxes, thr)`: return a list of 0/1 flags, one per detection, **ordered by decreasing score**: 1 = true positive, 0 = false positive. Each ground-truth box may be claimed by at most one detection (the highest-scoring one); a detection matches its **best-IoU** ground truth, and counts only if that IoU is `>= thr` and the box is unclaimed.
+- `average_precision(tp_flags, n_gt)`: area under the precision-recall curve using the all-points rule: precision made monotone non-increasing from the right (the "envelope"), then summed over recall increments.
+- `ap_over_thresholds(det_boxes, det_scores, gt_boxes, thrs)`: mean AP over a list of IoU thresholds.
+#@@ starter
+import numpy as np
+
+def iou(a, b):
+    iw = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    ih = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = iw * ih
+    ua = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / ua if ua > 0 else 0.0
+
+def match_detections(det_boxes, det_scores, gt_boxes, thr):
+    raise NotImplementedError
+
+def average_precision(tp_flags, n_gt):
+    raise NotImplementedError
+
+def ap_over_thresholds(det_boxes, det_scores, gt_boxes, thrs):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("worked example: flags [1,1,0,1,0], 4 ground truths -> AP 0.6875", lambda: abs(average_precision([1, 1, 0, 1, 0], 4) - 0.6875) < 1e-12)
+check("perfect detector has AP 1", lambda: abs(average_precision([1, 1, 1], 3) - 1.0) < 1e-12)
+check("no detections: AP 0", lambda: average_precision([], 3) == 0.0)
+check("only false positives: AP 0", lambda: average_precision([0, 0, 0], 2) == 0.0)
+check("a missed ground truth caps recall: [1,1] with 4 GT -> 0.5", lambda: abs(average_precision([1, 1], 4) - 0.5) < 1e-12)
+check("ranking matters: TP first beats TP last", lambda: average_precision([1, 0], 1) > average_precision([0, 1], 1))
+gts = [(0, 0, 10, 10), (20, 20, 30, 30), (50, 50, 60, 60), (70, 70, 80, 80)]
+dets = [(0, 0, 10, 10), (21, 21, 31, 31), (100, 100, 110, 110), (0, 1, 10, 11), (50, 50, 59, 59)]
+scs = [0.95, 0.9, 0.8, 0.7, 0.6]
+check("match flags at IoU 0.5: det 3 is a duplicate (FP), det 2 is far away (FP)", lambda: list(match_detections(dets, scs, gts, 0.5)) == [1, 1, 0, 0, 1])
+check("flags are ordered by score even if inputs are shuffled", lambda: list(match_detections(dets[::-1], scs[::-1], gts, 0.5)) == [1, 1, 0, 0, 1])
+check("AP of that example = 0.25 + 0.25 + 0.25*0.6 = 0.65", lambda: abs(average_precision([1, 1, 0, 0, 1], 4) - 0.65) < 1e-12)
+check("a stricter IoU threshold (0.9) turns near misses into false positives", lambda: sum(match_detections(dets, scs, gts, 0.9)) == 1)
+check("ap_over_thresholds is non-increasing in strictness", lambda: ap_over_thresholds(dets, scs, gts, [0.5]) >= ap_over_thresholds(dets, scs, gts, [0.5, 0.9]))
+check("ap_over_thresholds([0.5]) equals plain AP at 0.5", lambda: abs(ap_over_thresholds(dets, scs, gts, [0.5]) - 0.65) < 1e-12)
+#@@ solution
+import numpy as np
+
+def iou(a, b):
+    iw = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    ih = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = iw * ih
+    ua = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / ua if ua > 0 else 0.0
+
+def match_detections(det_boxes, det_scores, gt_boxes, thr):
+    order = np.argsort(-np.asarray(det_scores, dtype=float), kind="stable")
+    claimed = set()
+    flags = []
+    for i in order:
+        ious = [iou(det_boxes[i], g) for g in gt_boxes]
+        if ious:
+            j = int(np.argmax(ious))
+            if ious[j] >= thr and j not in claimed:
+                claimed.add(j)
+                flags.append(1)
+                continue
+        flags.append(0)
+    return flags
+
+def average_precision(tp_flags, n_gt):
+    if len(tp_flags) == 0 or n_gt == 0:
+        return 0.0
+    tp = np.cumsum(np.asarray(tp_flags, dtype=float))
+    precision = tp / np.arange(1, len(tp) + 1)
+    recall = tp / n_gt
+    envelope = np.maximum.accumulate(precision[::-1])[::-1]
+    prev = np.concatenate([[0.0], recall[:-1]])
+    return float(np.sum((recall - prev) * envelope))
+
+def ap_over_thresholds(det_boxes, det_scores, gt_boxes, thrs):
+    return float(np.mean([average_precision(match_detections(det_boxes, det_scores, gt_boxes, t), len(gt_boxes)) for t in thrs]))

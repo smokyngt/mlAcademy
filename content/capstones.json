@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cap.mlp-from-scratch",
+    "title": "Capstone 1: A validated neural network from scratch",
+    "brief": "Build, train and rigorously validate a two-layer neural network without autograd, then explain it and probe where it breaks. You are done only when every criterion has written evidence you would be comfortable defending to a reviewer.",
+    "criteria": [
+      { "id": "gradients", "text": "Your backward pass equals both finite differences and PyTorch autograd.", "evidence": "Paste the maximum relative error from your gradient check and from the float64 PyTorch comparison (lesson 12 exercise). State the network sizes and batch used." },
+      { "id": "derivation", "text": "You can derive every gradient and every shape yourself.", "evidence": "Write the derivation of dW1, db1, dW2, db2 in your own words with shapes, as if teaching someone who knows only lessons 1-6." },
+      { "id": "experiments", "text": "You ran a controlled experiment on the learning rate (or width, or initialisation) and interpreted it.", "evidence": "Give a table of learning rates and final loss/accuracy over at least 3 seeds each, then explain what theory (lesson 7) predicts about the largest stable rate." },
+      { "id": "failure", "text": "You found and explained a failure case.", "evidence": "Describe a setting where training fails (diverges, stalls at ln K, dead ReLUs...), what diagnostic exposed it, and the fix." },
+      { "id": "limits", "text": "You can state the limits of your implementation.", "evidence": "List at least three things the from-scratch version does not do that a production framework does (e.g. numerical safeguards, performance, generality) and how you would test each." }
+    ]
+  }
+]

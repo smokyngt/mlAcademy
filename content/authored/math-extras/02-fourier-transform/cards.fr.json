@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mx.02.c1",
+  "front": "Définition de la DFT",
+  "back": "$X[k]=\\sum_{n=0}^{N-1}x[n]e^{-2\\pi ikn/N}$."
+ },
+ {
+  "id": "mx.02.c2",
+  "front": "DFT inverse",
+  "back": "$x[n]=\\frac1N\\sum_kX[k]e^{+2\\pi ikn/N}$ : signe opposé et facteur $1/N$."
+ },
+ {
+  "id": "mx.02.c3",
+  "front": "Pourquoi la DFT est-elle inversible ?",
+  "back": "$F_{kn}=\\omega^{-kn}$ vérifie $F^HF=NI$ : $F/\\sqrt N$ est unitaire (une rotation dans $\\mathbb{C}^N$)."
+ },
+ {
+  "id": "mx.02.c4",
+  "front": "Symétrie conjuguée",
+  "back": "Pour $x$ réel : $X[N-k]=\\overline{X[k]}$ ; seules les cases $0..N/2$ sont indépendantes."
+ },
+ {
+  "id": "mx.02.c5",
+  "front": "Amplitude à partir d'une case",
+  "back": "Un cosinus réel d'amplitude $A$ à la case $k$ donne $|X[k]|=NA/2$, donc $A=2|X[k]|/N$."
+ },
+ {
+  "id": "mx.02.c6",
+  "front": "Récurrence de la FFT",
+  "back": "$X[k]=E[k]+t_kO[k]$, $X[k+N/2]=E[k]-t_kO[k]$ avec $t_k=e^{-2\\pi ik/N}$."
+ },
+ {
+  "id": "mx.02.c7",
+  "front": "Coût de la DFT contre la FFT",
+  "back": "DFT $O(N^2)$ ; FFT $O(N\\log N)$ (environ 10 240 contre 1 048 576 opérations pour $N=1024$)."
+ },
+ {
+  "id": "mx.02.c8",
+  "front": "Fréquence et espacement des cases",
+  "back": "$f_k=kf_s/N$ ; espacement $\\Delta f=f_s/N=1/T$."
+ },
+ {
+  "id": "mx.02.c9",
+  "front": "Fréquence de Nyquist",
+  "back": "$f_s/2$ : la fréquence la plus haute représentable par des échantillons à la fréquence $f_s$."
+ },
+ {
+  "id": "mx.02.c10",
+  "front": "Repliement spectral (aliasing)",
+  "back": "Un son à $f$ au-dessus de $f_s/2$ apparaît à $\\min(f\\bmod f_s,\\ f_s-f\\bmod f_s)$ ; échantillons identiques, impossible à défaire ensuite."
+ },
+ {
+  "id": "mx.02.c11",
+  "front": "Le zero padding augmente-t-il la résolution ?",
+  "back": "Non. Il interpole le spectre ; la résolution est fixée par la durée de l'enregistrement."
+ },
+ {
+  "id": "mx.02.c12",
+  "front": "Fuite spectrale",
+  "back": "Énergie qui se répand sur les cases voisines quand la fenêtre ne contient pas un nombre entier de périodes ; réduite par des fenêtres lisses."
+ },
+ {
+  "id": "mx.02.c13",
+  "front": "Théorème de convolution",
+  "back": "$\\mathrm{DFT}(a\\circledast b)=\\mathrm{DFT}(a)\\,\\mathrm{DFT}(b)$ terme à terme ; convolution en $O(N\\log N)$ via FFT."
+ },
+ {
+  "id": "mx.02.c14",
+  "front": "Spectrogramme",
+  "back": "Modules des DFT de courtes fenêtres qui se chevauchent : matrice (trames x cases de fréquence) ; échange résolution temporelle contre résolution fréquentielle."
+ }
+]

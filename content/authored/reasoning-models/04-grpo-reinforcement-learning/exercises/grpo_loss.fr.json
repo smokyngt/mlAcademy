@@ -1,0 +1,10 @@
+{
+  "id": "rsn.04.ex2",
+  "title": "La perte GRPO et son gradient, vérifiés numériquement",
+  "prompt": "Implémente l'objectif GRPO sur une **politique jouet tabulaire**, assez petite pour que tu puisses vérifier le gradient numériquement. Un rollout est une séquence de `T` tokens tirés d'un vocabulaire de taille `V` ; la politique a des logits indépendants `theta` de forme `(T, V)` par position (donc `pi(y) = prod_t softmax(theta[t])[y_t]`). `Y` a la forme `(G, T)` : `G` rollouts échantillonnés pour un prompt.\n\n- `seq_logprobs(theta, Y)` -> forme `(G,)` : la log-probabilité de séquence de chaque rollout (somme sur les positions).\n- `pg_loss_simple(adv, logps)` -> scalaire : la perte de base du livre `-(adv * logps).mean()`.\n- `grpo_loss_grad(theta, Y, adv, old_logp, ref_logp, clip_eps, beta)` -> `(loss, grad)` où, avec `ratio_i = exp(logp_i - old_logp_i)`,\n\n$$\n\\text{loss}=-\\frac1G\\sum_i\\min\\bigl(\\rho_iA_i,\\ \\operatorname{clip}(\\rho_i,1-\\epsilon,1+\\epsilon)A_i\\bigr)+\\beta\\,\\frac1G\\sum_i(\\text{logp}_i-\\text{ref\\_logp}_i)\n$$\n\net `grad` a la forme de `theta` et est le gradient **analytique** de cette perte par rapport à `theta`. `adv`, `old_logp` et `ref_logp` sont des constantes (aucun gradient ne leur parvient).",
+  "hints": [
+    "Log-probabilité de séquence du rollout i : somme sur les positions t de log_softmax(theta[t])[Y[i, t]]. C'est la quantité que la perte différencie.",
+    "d logp_i / d theta[t, v] = 1[Y[i, t] == v] - softmax(theta[t])[v] (le gradient softmax-entropie croisée que tu connais de la rétropropagation).",
+    "Par rollout, objective_i = min(ratio_i * A_i, clip(ratio_i, 1-eps, 1+eps) * A_i). Sa dérivée par rapport à logp_i vaut ratio_i * A_i quand le terme non clippé est (faiblement) le plus petit, et 0 quand le terme clippé est strictement plus petit (le clipping en fait une constante). La perte est -mean(objective) + beta * mean(logp - ref_logp), donc dLoss/dlogp_i = (-g_i + beta) / G."
+  ]
+}

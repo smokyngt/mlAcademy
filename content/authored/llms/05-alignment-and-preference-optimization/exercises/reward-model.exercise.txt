@@ -1,0 +1,107 @@
+#@@ meta
+{"id": "llm.05.ex1", "title": "Bradley-Terry loss and a linear reward model", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.reward-model", "ml.logreg", "ml.loss"], "hints": ["P(a preferred over b) = sigmoid(r_a - r_b). The loss for a pair is -log sigmoid(r_w - r_l) = log(1 + exp(-(r_w - r_l))); use np.logaddexp(0, -d) for stability.", "With d = r_w - r_l: dL/dr_w = -sigmoid(-d) and dL/dr_l = +sigmoid(-d). Average over the n pairs by dividing by n.", "Linear reward r = phi @ theta. The gradient of the mean loss is (phi_w - phi_l).T @ dL/dd / n with dL/dd = -sigmoid(-d); this is logistic regression on the feature differences."]}
+#@@ prompt
+Train a reward model from pairwise preferences.
+
+- `sigmoid(x)` (stable for large |x|).
+- `pref_prob(r_a, r_b)`: Bradley-Terry probability that `a` is preferred to `b`.
+- `bt_loss(r_w, r_l)`: mean of `-log sigmoid(r_w - r_l)` over the pairs (arrays of rewards of the chosen and rejected responses).
+- `bt_grads(r_w, r_l)`: gradients of that mean loss with respect to `r_w` and `r_l` (arrays of the same shape).
+- `train_reward(phi_w, phi_l, lr, steps)`: a **linear** reward `r = phi @ theta` on feature matrices `phi_w, phi_l` of shape `(n, k)`; start from `theta = 0`, run gradient descent on the mean Bradley-Terry loss, return `theta`.
+- `pair_accuracy(theta, phi_w, phi_l)`: fraction of pairs where the chosen response gets the higher reward.
+#@@ starter
+import numpy as np
+
+def sigmoid(x):
+    # TODO
+    raise NotImplementedError
+
+def pref_prob(r_a, r_b):
+    # TODO
+    raise NotImplementedError
+
+def bt_loss(r_w, r_l):
+    # TODO
+    raise NotImplementedError
+
+def bt_grads(r_w, r_l):
+    # TODO: return (d_rw, d_rl)
+    raise NotImplementedError
+
+def train_reward(phi_w, phi_l, lr=0.5, steps=500):
+    # TODO
+    raise NotImplementedError
+
+def pair_accuracy(theta, phi_w, phi_l):
+    # TODO
+    raise NotImplementedError
+
+print(pref_prob(1.5, 0.5))
+#@@ tests
+import numpy as np
+check("sigmoid values and stability", lambda: abs(sigmoid(0) - 0.5) < 1e-12 and sigmoid(-1000) == 0.0 and sigmoid(1000) == 1.0)
+check("P(a>b) for a reward gap of 1", lambda: abs(pref_prob(1.5, 0.5) - 0.7311) < 1e-4)
+check("equal rewards give probability 1/2 and loss ln 2", lambda: abs(pref_prob(2.0, 2.0) - 0.5) < 1e-12 and abs(bt_loss(np.array([2.0]), np.array([2.0])) - np.log(2)) < 1e-12)
+check("loss for a gap of 1 is 0.3133", lambda: abs(bt_loss(np.array([1.5]), np.array([0.5])) - 0.3133) < 1e-4)
+check("loss is stable for huge margins", lambda: np.isfinite(bt_loss(np.array([1e4]), np.array([-1e4]))) and np.isfinite(bt_loss(np.array([-1e4]), np.array([1e4]))))
+check("loss depends only on the difference", lambda: abs(bt_loss(np.array([1.5]), np.array([0.5])) - bt_loss(np.array([101.5]), np.array([100.5]))) < 1e-9)
+rw = np.array([1.5, 0.2, -0.3]); rl = np.array([0.5, 0.9, -1.0])
+gw, gl = bt_grads(rw, rl)
+check("gradient values for a gap of 1: -0.2689 / +0.2689 (per pair, divided by n)", lambda: abs(gw[0] * 3 + 0.2689) < 1e-4 and abs(gl[0] * 3 - 0.2689) < 1e-4)
+check("gradients are equal and opposite", lambda: np.allclose(gw, -gl))
+def fd(f, x):
+    g = np.zeros_like(x)
+    for i in range(len(x)):
+        a = x.copy(); b = x.copy(); a[i] += 1e-6; b[i] -= 1e-6
+        g[i] = (f(a) - f(b)) / 2e-6
+    return g
+check("d r_w matches finite differences", lambda: np.allclose(gw, fd(lambda v: bt_loss(v, rl), rw), atol=1e-7))
+check("d r_l matches finite differences", lambda: np.allclose(gl, fd(lambda v: bt_loss(rw, v), rl), atol=1e-7))
+rng = np.random.default_rng(0)
+k, n = 5, 400
+true = np.array([2.0, -1.0, 0.5, 0.0, 1.0])
+A = rng.normal(size=(n, k)); B = rng.normal(size=(n, k))
+pa = 1 / (1 + np.exp(-(A - B) @ true))
+chosen = rng.random(n) < pa
+phi_w = np.where(chosen[:, None], A, B); phi_l = np.where(chosen[:, None], B, A)
+theta = train_reward(phi_w, phi_l, lr=0.5, steps=500)
+check("reward model fits noisy preferences (accuracy > 0.78; even the true reward only reaches about 0.83 because the labels are noisy)", lambda: pair_accuracy(theta, phi_w, phi_l) > 0.78)
+check("the learned direction matches the true one (cosine > 0.95)", lambda: theta @ true / (np.linalg.norm(theta) * np.linalg.norm(true)) > 0.95)
+check("training lowered the loss below ln 2", lambda: bt_loss(phi_w @ theta, phi_l @ theta) < 0.6)
+#@@ solution
+import numpy as np
+
+def sigmoid(x):
+    x = np.asarray(x, dtype=float)
+    out = np.empty_like(x)
+    pos = x >= 0
+    out[pos] = 1.0 / (1.0 + np.exp(-x[pos]))
+    e = np.exp(x[~pos])
+    out[~pos] = e / (1.0 + e)
+    return out if out.ndim else float(out)
+
+def pref_prob(r_a, r_b):
+    return float(sigmoid(r_a - r_b))
+
+def bt_loss(r_w, r_l):
+    d = np.asarray(r_w, dtype=float) - np.asarray(r_l, dtype=float)
+    return float(np.mean(np.logaddexp(0.0, -d)))
+
+def bt_grads(r_w, r_l):
+    d = np.asarray(r_w, dtype=float) - np.asarray(r_l, dtype=float)
+    g = -sigmoid(-d) / d.size
+    return g, -g
+
+def train_reward(phi_w, phi_l, lr=0.5, steps=500):
+    theta = np.zeros(phi_w.shape[1])
+    diff = phi_w - phi_l
+    for _ in range(steps):
+        d = diff @ theta
+        dd = -sigmoid(-d) / len(d)
+        theta = theta - lr * (diff.T @ dd)
+    return theta
+
+def pair_accuracy(theta, phi_w, phi_l):
+    return float(np.mean(phi_w @ theta > phi_l @ theta))
+
+print(pref_prob(1.5, 0.5))

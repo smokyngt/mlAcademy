@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "vis.05.ex1", "title": "Patch embedding shapes and the NT-Xent loss", "difficulty": 4, "runtime": "pyodide", "concepts": ["vis.patch-embed", "vis.contrastive"], "hints": ["patchify: reshape (C, H, W) to (C, H/p, p, W/p, p), transpose to (H/p, W/p, C, p, p), then reshape to (N, C*p*p). unpatchify reverses each step.", "nt_xent: stack Z = [z1; z2] (2N, d), L2-normalise rows, S = Z @ Z.T / tau, set the diagonal to -inf so a view is never its own negative, and the positive of row i is row (i + N) mod 2N.", "Use log-sum-exp for stability: loss_i = logsumexp(S[i]) - S[i, pos(i)]. Average over all 2N rows."]}
+#@@ prompt
+- `patchify(img, p)`: image `(C, H, W)` with `H, W` divisible by `p` -> `(N, C*p*p)` with `N = (H/p)*(W/p)`. Patches are in row-major grid order; inside a patch the pixels are flattened in `(C, p, p)` order.
+- `unpatchify(patches, C, H, W, p)`: the exact inverse.
+- `patch_embed(img, p, Wp, bp)`: `patchify(img, p) @ Wp + bp`, shape `(N, D)` for `Wp` of shape `(C*p*p, D)`.
+- `n_tokens(H, W, p, cls=True)`: number of transformer tokens (patches plus an optional class token).
+- `nt_xent(z1, z2, tau)`: the SimCLR loss for two batches of embeddings `z1, z2` of shape `(N, d)` where `z1[i]` and `z2[i]` are two views of the same image. Normalise to unit length, use cosine similarity divided by `tau`, exclude self-similarity, positive pair = the other view, negatives = all other `2N - 2` views; return the mean loss over all `2N` anchors.
+#@@ starter
+import numpy as np
+
+def patchify(img, p):
+    raise NotImplementedError
+
+def unpatchify(patches, C, H, W, p):
+    raise NotImplementedError
+
+def patch_embed(img, p, Wp, bp):
+    raise NotImplementedError
+
+def n_tokens(H, W, p, cls=True):
+    raise NotImplementedError
+
+def nt_xent(z1, z2, tau):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+img = np.arange(16, dtype=float).reshape(1, 4, 4)
+P = patchify(img, 2)
+check("4x4 image, p=2 -> 4 patches of 4 numbers", lambda: P.shape == (4, 4))
+check("first patch is the top-left 2x2 block [0,1,4,5]", lambda: list(P[0]) == [0, 1, 4, 5])
+check("second patch is the top-right block [2,3,6,7]", lambda: list(P[1]) == [2, 3, 6, 7])
+check("third patch is the bottom-left block [8,9,12,13]", lambda: list(P[2]) == [8, 9, 12, 13])
+rng = np.random.default_rng(0)
+big = rng.normal(size=(3, 32, 48))
+check("patchify -> unpatchify round trip", lambda: np.allclose(unpatchify(patchify(big, 16), 3, 32, 48, 16), big))
+check("patchify shape (6, 768) for 3x32x48 and p=16", lambda: patchify(big, 16).shape == (6, 768))
+Wp = rng.normal(size=(768, 10)); bp = rng.normal(size=10)
+check("patch_embed shape (6, 10)", lambda: patch_embed(big, 16, Wp, bp).shape == (6, 10))
+check("n_tokens(224,224,16) = 197 with class token", lambda: n_tokens(224, 224, 16) == 197)
+check("n_tokens(224,224,16,cls=False) = 196", lambda: n_tokens(224, 224, 16, cls=False) == 196)
+check("halving the patch size quadruples the patches", lambda: n_tokens(224, 224, 8, cls=False) == 4 * n_tokens(224, 224, 16, cls=False))
+z = np.eye(2)
+check("identical orthogonal views, tau 0.5 -> log(1 + 2 e^-2) = 0.2395", lambda: abs(nt_xent(z, z, 0.5) - np.log(1 + 2 * np.exp(-2))) < 1e-9)
+check("scale of embeddings does not matter", lambda: abs(nt_xent(5 * z, 0.1 * z, 0.5) - nt_xent(z, z, 0.5)) < 1e-9)
+a = rng.normal(size=(8, 16))
+good = nt_xent(a, a + 0.01 * rng.normal(size=a.shape), 0.1)
+bad = nt_xent(a, rng.normal(size=a.shape), 0.1)
+check("aligned views give a much lower loss than unrelated views", lambda: good < bad - 1.0)
+check("loss of random embeddings is near log(2N-1) at a high temperature", lambda: abs(nt_xent(a, rng.normal(size=a.shape), 100.0) - np.log(15)) < 0.05)
+#@@ solution
+import numpy as np
+
+def patchify(img, p):
+    C, H, W = img.shape
+    x = img.reshape(C, H // p, p, W // p, p)
+    x = x.transpose(1, 3, 0, 2, 4)
+    return x.reshape((H // p) * (W // p), C * p * p)
+
+def unpatchify(patches, C, H, W, p):
+    x = patches.reshape(H // p, W // p, C, p, p)
+    x = x.transpose(2, 0, 3, 1, 4)
+    return x.reshape(C, H, W)
+
+def patch_embed(img, p, Wp, bp):
+    return patchify(img, p) @ Wp + bp
+
+def n_tokens(H, W, p, cls=True):
+    return (H // p) * (W // p) + (1 if cls else 0)
+
+def nt_xent(z1, z2, tau):
+    N = len(z1)
+    Z = np.concatenate([z1, z2], axis=0)
+    Z = Z / np.linalg.norm(Z, axis=1, keepdims=True)
+    S = Z @ Z.T / tau
+    np.fill_diagonal(S, -np.inf)
+    pos = (np.arange(2 * N) + N) % (2 * N)
+    m = S.max(axis=1, keepdims=True)
+    lse = (m + np.log(np.exp(S - m).sum(axis=1, keepdims=True))).ravel()
+    return float(np.mean(lse - S[np.arange(2 * N), pos]))

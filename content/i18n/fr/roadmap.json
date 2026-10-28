@@ -1,0 +1,214 @@
+{
+  "stages": {
+    "I": "Fondations mathématiques",
+    "II": "Optimisation et apprentissage statistique",
+    "III": "Machine learning classique",
+    "IV": "Fondamentaux du deep learning",
+    "V": "Architectures avancées",
+    "VI": "Ingénierie et entraînement des LLM",
+    "VII": "Niveau expert et recherche",
+    "+": "Spécialisations (ajoutées au-delà de la liste initiale)"
+  },
+  "topics": {
+    "Arithmetic, algebra, equations, inequalities": { "name": "Arithmétique, algèbre, équations, inéquations" },
+    "Functions, graphs, notation": { "name": "Fonctions, graphes, notations" },
+    "Exponents, logarithms": { "name": "Exposants, logarithmes" },
+    "Trigonometry": { "name": "Trigonométrie" },
+    "Summation notation and sequences": { "name": "Notation de sommation et suites" },
+    "Vectors and vector operations": { "name": "Vecteurs et opérations vectorielles" },
+    "Matrices and matrix multiplication": { "name": "Matrices et produit matriciel" },
+    "Linear systems": { "name": "Systèmes linéaires" },
+    "Linear transformations": { "name": "Transformations linéaires" },
+    "Vector spaces, subspaces, basis, rank, dimension": {
+      "name": "Espaces vectoriels, sous-espaces, bases, rang, dimension",
+      "note": "Sous-espaces, bases, dimension, théorème du rang et changement de base (math.17)."
+    },
+    "Orthogonality and projections": {
+      "name": "Orthogonalité et projections",
+      "note": "Projections, bases orthonormées, Gram-Schmidt et QR (math.17)."
+    },
+    "Eigenvalues and eigenvectors": { "name": "Valeurs propres et vecteurs propres" },
+    "Singular value decomposition": { "name": "Décomposition en valeurs singulières" },
+    "Limits and continuity": { "name": "Limites et continuité" },
+    "Derivatives and differentiation rules": { "name": "Dérivées et règles de dérivation" },
+    "Partial derivatives and gradients": { "name": "Dérivées partielles et gradients" },
+    "Jacobians and the chain rule": { "name": "Jacobiennes et règle de la chaîne" },
+    "Hessians and second-order methods": { "name": "Hessiennes et méthodes du second ordre" },
+    "Integrals relevant to ML": { "name": "Intégrales utiles en ML" },
+    "Probability fundamentals, conditional probability, Bayes": { "name": "Bases des probabilités, probabilité conditionnelle, Bayes" },
+    "Random variables, expectation, variance, covariance": { "name": "Variables aléatoires, espérance, variance, covariance" },
+    "Estimation, confidence intervals, hypothesis testing": { "name": "Estimation, intervalles de confiance, tests d'hypothèses" },
+    "Numerical precision and stability": { "name": "Précision et stabilité numériques" },
+    "Objective and loss functions": { "name": "Fonctions objectif et fonctions de perte" },
+    "Maximum likelihood estimation": { "name": "Estimation par maximum de vraisemblance" },
+    "Convexity and optimisation geometry": { "name": "Convexité et géométrie de l'optimisation" },
+    "Gradient descent": { "name": "Descente de gradient" },
+    "SGD and momentum": { "name": "SGD et momentum" },
+    "RMSProp, Adam, optimisers": { "name": "RMSProp, Adam, optimiseurs" },
+    "Learning-rate schedules": { "name": "Planification du taux d'apprentissage" },
+    "Regularisation": { "name": "Régularisation" },
+    "Constrained optimisation, Lagrange multipliers": { "name": "Optimisation sous contraintes, multiplicateurs de Lagrange" },
+    "Bias-variance, overfitting, generalisation": { "name": "Biais-variance, surapprentissage, généralisation" },
+    "Bayesian reasoning": { "name": "Raisonnement bayésien" },
+    "Entropy, cross-entropy, KL divergence": { "name": "Entropie, entropie croisée, divergence KL" },
+    "Data preparation and feature engineering": { "name": "Préparation des données et feature engineering" },
+    "Linear regression": { "name": "Régression linéaire" },
+    "Logistic regression and classification": { "name": "Régression logistique et classification" },
+    "Decision trees and random forests": { "name": "Arbres de décision et forêts aléatoires" },
+    "Gradient boosting and ensembles": { "name": "Gradient boosting et méthodes d'ensemble" },
+    "Support vector machines": { "name": "Machines à vecteurs de support" },
+    "Naive Bayes": { "name": "Bayes naïf" },
+    "k-nearest neighbours": { "name": "k plus proches voisins" },
+    "Clustering, k-means, Gaussian mixtures": { "name": "Clustering, k-means, mélanges gaussiens" },
+    "PCA and dimensionality reduction": { "name": "ACP et réduction de dimension" },
+    "Model evaluation, cross-validation, tuning": { "name": "Évaluation des modèles, validation croisée, réglage des hyperparamètres" },
+    "Imbalanced datasets": { "name": "Jeux de données déséquilibrés" },
+    "Calibration and uncertainty": {
+      "name": "Calibration et incertitude",
+      "note": "Calibration, temperature scaling, ensembles, régression bayésienne et prédiction conforme (cml.18)."
+    },
+    "Interpretability": { "name": "Interprétabilité" },
+    "Statistical learning theory": {
+      "name": "Théorie de l'apprentissage statistique",
+      "note": "ERM, Hoeffding, dimension VC, complexité de Rademacher et SRM (cml.19)."
+    },
+    "Perceptrons and multi-layer networks": { "name": "Perceptrons et réseaux multicouches" },
+    "Forward propagation": { "name": "Propagation avant" },
+    "Backpropagation, derived": { "name": "Rétropropagation, démonstration complète" },
+    "Automatic differentiation, computational graphs": { "name": "Différentiation automatique, graphes de calcul" },
+    "Weight initialisation": { "name": "Initialisation des poids" },
+    "Activation functions": { "name": "Fonctions d'activation" },
+    "Batch and layer normalisation": { "name": "Normalisation par batch et par couche" },
+    "Dropout and regularisation": { "name": "Dropout et régularisation" },
+    "Vanishing/exploding gradients": { "name": "Gradients qui disparaissent ou explosent" },
+    "Gradient checking and debugging training": { "name": "Vérification des gradients et débogage de l'entraînement" },
+    "PyTorch tensor semantics": { "name": "Sémantique des tenseurs PyTorch" },
+    "GPU computation and mixed precision": {
+      "name": "Calcul sur GPU et précision mixte",
+      "note": "Le modèle d'exécution, la hiérarchie mémoire, le roofline et la précision mixte sont enseignés et calculés ; les exercices s'exécutent sur CPU, donc sans véritable run sur GPU."
+    },
+    "Convolutional networks": { "name": "Réseaux convolutifs" },
+    "RNNs, LSTMs, GRUs, sequence models": { "name": "RNN, LSTM, GRU, modèles de séquences" },
+    "Embeddings": { "name": "Embeddings" },
+    "Attention and self-attention": { "name": "Attention et self-attention" },
+    "Multi-head attention": { "name": "Attention multi-têtes" },
+    "Positional encodings and RoPE": { "name": "Encodages positionnels et RoPE" },
+    "Transformer blocks, encoder/decoder-only": { "name": "Blocs transformer, encodeur seul / décodeur seul" },
+    "Causal masking, residuals": { "name": "Masquage causal, connexions résiduelles" },
+    "RMSNorm, LayerNorm, gated MLPs": { "name": "RMSNorm, LayerNorm, MLP à portes" },
+    "KV caching and autoregressive generation": { "name": "Cache KV et génération autorégressive" },
+    "Tokenisation and building a tokenizer": { "name": "Tokenisation et construction d'un tokenizer" },
+    "Decoder-only transformer from scratch": { "name": "Transformer décodeur seul from scratch" },
+    "Pre-training a small language model": {
+      "name": "Pré-entraînement d'un petit modèle de langage",
+      "note": "Un petit GPT est entraîné de bout en bout à l'échelle d'un CPU (llm.07) ; ce n'est pas un entraînement à grande échelle."
+    },
+    "Datasets and pre-processing": { "name": "Jeux de données et prétraitement" },
+    "Distributed training, scaling laws": { "name": "Entraînement distribué, lois d'échelle" },
+    "Fine-tuning and instruction tuning": { "name": "Fine-tuning et instruction tuning" },
+    "LoRA and low-rank adaptation": { "name": "LoRA et adaptation de bas rang" },
+    "Quantisation and inference optimisation": { "name": "Quantification et optimisation de l'inférence" },
+    "Speculative decoding, mixture of experts": { "name": "Décodage spéculatif, mixture of experts" },
+    "Evaluation and benchmarking": { "name": "Évaluation et benchmarks" },
+    "Data quality and contamination": {
+      "name": "Qualité des données et contamination",
+      "note": "Classifieurs de qualité, déduplication et décontamination (llm.08)."
+    },
+    "Alignment and preference optimisation": { "name": "Alignement et optimisation des préférences" },
+    "Retrieval-augmented generation": { "name": "Génération augmentée par la recherche (RAG)" },
+    "Embeddings, vector search, hybrid retrieval, reranking": { "name": "Embeddings, recherche vectorielle, recherche hybride, reranking" },
+    "Evaluating retrieval and generation": { "name": "Évaluer la recherche et la génération" },
+    "Reading research papers systematically": { "name": "Lire des articles de recherche de façon systématique" },
+    "Reproducing published experiments": {
+      "name": "Reproduire des expériences publiées",
+      "note": "Une méthode (res.01) et un projet de reproduction avec ablations."
+    },
+    "Ablations and experimental design": { "name": "Ablations et conception expérimentale" },
+    "Statistical significance of results": { "name": "Significativité statistique des résultats" },
+    "Reasoning-model training and evaluation": { "name": "Entraînement et évaluation des modèles de raisonnement" },
+    "Complexity, profiling, performance": {
+      "name": "Complexité, profilage, performance",
+      "note": "Complexité, décompte des FLOP et de la mémoire, profilage et analyse roofline (gpu.02) ; modélisés sur CPU."
+    },
+    "CUDA and GPU execution": {
+      "name": "CUDA et exécution sur GPU",
+      "note": "Grilles, blocs, warps, coalescence et occupancy sont enseignés comme concepts avec des exercices de calcul ; aucun code CUDA n'est compilé ni exécuté ici."
+    },
+    "Designing and evaluating original experiments": {
+      "name": "Concevoir et évaluer des expériences originales",
+      "note": "Puissance statistique, comparaisons multiples, conception d'ablations (res.02)."
+    },
+    "Computer vision: images, transfer learning, detection, segmentation, ViT, CLIP, captioning": { "name": "Vision par ordinateur : images, transfer learning, détection, segmentation, ViT, CLIP, génération de légendes" },
+    "Natural language processing before transformers": { "name": "Traitement automatique du langage avant les transformers" },
+    "Generative models: VAE, GAN, diffusion, flow matching": { "name": "Modèles génératifs : VAE, GAN, diffusion, flow matching" },
+    "Reinforcement learning: bandits to PPO": {
+      "name": "Apprentissage par renforcement : des bandits à PPO",
+      "note": "Les jeux et le RL multi-agents (leçons 10 à 12 de la phase 09 de la source) sont seulement mentionnés."
+    },
+    "Speech and audio: STFT, MFCC, CTC, TTS": { "name": "Parole et audio : STFT, MFCC, CTC, TTS" },
+    "Modern architectures: VLMs, MoE, long-context attention, state-space models": { "name": "Architectures modernes : VLM, MoE, attention à long contexte, modèles d'espace d'états" },
+    "LLM applications: prompting, structured outputs, context, evaluation, guardrails": { "name": "Applications des LLM : prompting, sorties structurées, contexte, évaluation, garde-fous" },
+    "ML systems and operations: data, deployment, monitoring, drift": {
+      "name": "Systèmes et opérations ML : données, déploiement, monitoring, drift",
+      "note": "Les chapitres 10 (infrastructure) et 11 (côté humain) du livre ne sont pas couverts."
+    },
+    "Safety, alignment, fairness, privacy and governance": {
+      "name": "Sûreté, alignement, équité, vie privée et gouvernance",
+      "note": "Le contenu réglementaire est un résumé daté des notes de cours et doit être vérifié auprès des sources officielles."
+    },
+    "Complex numbers, Fourier, graphs, Markov chains": { "name": "Nombres complexes, Fourier, graphes, chaînes de Markov" },
+    "Time series and anomaly detection": { "name": "Séries temporelles et détection d'anomalies" },
+    "Sampling and Monte Carlo": { "name": "Échantillonnage et Monte Carlo" },
+    "Tensors, norms and distances": { "name": "Tenseurs, normes et distances" }
+  },
+  "platform": [
+    {
+      "area": "Vérification",
+      "item": "L'auteur de ce code n'a jamais regardé l'interface web dans un vrai navigateur. La mise en page, les couleurs et les interactions n'ont pas été testées visuellement ; le typecheck, le build, les tests d'API, les tests de rendu côté serveur et un crawl de chargement des modules ont en revanche été exécutés."
+    },
+    {
+      "area": "Exécution",
+      "item": "Le runner Docker (PyTorch) n'a jamais tourné de bout en bout : le démon Docker était arrêté. Les exercices PyTorch ont été vérifiés avec un Python local à la place."
+    },
+    {
+      "area": "Langue",
+      "item": "Les textes de l'interface existent en français et en anglais et le serveur peut servir des leçons, quiz et cartes traduits, mais aucun texte de cours n'est encore traduit : toutes les leçons, tous les quiz, toutes les flashcards et tous les énoncés d'exercices sont uniquement en anglais."
+    },
+    {
+      "area": "Sources",
+      "item": "Les 17 premières leçons (des fonctions à l'ACP) ont été écrites à partir de connaissances générales ; leurs citations de la bibliothèque ne sont que des renvois. Elles n'ont pas encore été revérifiées par rapport aux sources. Les leçons suivantes ont été écrites après lecture des pages ou fichiers cités, souvent seulement les premières sections des leçons du dépôt : la liste de sources de chaque leçon l'indique."
+    },
+    {
+      "area": "Sources",
+      "item": "Plusieurs chiffres des leçons propres à la bibliothèque contredisaient leur code ou l'arithmétique (exemples trouvés : un nombre de paramètres de CNN, un débit de codec, un ratio de loi d'échelle, une affirmation sur le biais du FID). Quand un auteur l'a remarqué, la leçon le signale ; d'autres erreurs peuvent subsister."
+    },
+    {
+      "area": "Contenu",
+      "item": "Les leçons s'appuient sur des exercices exécutés dans un Python local. Ils n'ont pas été chronométrés dans le runtime WebAssembly du navigateur ; les plus lourds (CTC, Griffin-Lim, Gibbs, boucles DQN) risquent d'y être lents."
+    },
+    {
+      "area": "Pédagogie",
+      "item": "Les pondérations de maîtrise (quiz 0,3, exercice 0,5, carte 0,15) et les seuils sont des heuristiques raisonnables, non calibrées. Pas de difficulté adaptative ni de pratique espacée des exercices."
+    },
+    {
+      "area": "Labo",
+      "item": "Les cellules de notebook sont de simples zones de texte : pas de tracé de graphiques (matplotlib n'est pas disponible dans le runtime), pas de coloration syntaxique, pas d'autocomplétion. Les projets sous forme de longs notebooks en plusieurs étapes ne sont pas encore construits."
+    },
+    {
+      "area": "Sécurité",
+      "item": "Les résultats du runtime navigateur sont rapportés par le client et crus tels quels par le serveur : acceptable pour un seul utilisateur local, pas pour un déploiement partagé. Aucune authentification."
+    },
+    {
+      "area": "Données",
+      "item": "Pas d'export/import ni de sauvegarde de la progression (elle est stockée dans data/academy.db)."
+    },
+    {
+      "area": "Accessibilité",
+      "item": "Des libellés et des rôles ont été ajoutés, mais aucun audit d'accessibilité (contraste, parcours au clavier, lecteur d'écran) n'a été réalisé."
+    },
+    {
+      "area": "Projet final",
+      "item": "Un seul projet final, auto-évalué. Rien ne note les preuves écrites."
+    }
+  ]
+}

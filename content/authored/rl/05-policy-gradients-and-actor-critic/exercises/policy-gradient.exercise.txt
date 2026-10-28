@@ -1,0 +1,97 @@
+#@@ meta
+{"id": "rl.05.ex1", "title": "The policy gradient, a baseline and finite differences", "difficulty": 4, "runtime": "pyodide", "concepts": ["rl.policy-gradient"], "hints": ["grad_log_pi for a softmax policy: onehot(a) - pi.", "exact_gradient: J = sum_a pi_a r_a, and dJ/dtheta_k = pi_k (r_k - J).", "pg_expectation enumerates actions: sum_a pi_a (r_a - b) grad_log_pi(theta, a). estimator_variance = sum_a pi_a ||(r_a - b) g_a||^2 - ||mean||^2."]}
+#@@ prompt
+A 3-armed bandit with a **softmax policy** $\pi_\theta(a)=\operatorname{softmax}(\theta)_a$, $\theta\in\mathbb{R}^3$, and deterministic arm rewards `r`. The objective is $J(\theta)=\sum_a\pi_\theta(a)r_a$.
+
+Implement:
+
+- `softmax(theta)` (numerically stable).
+- `grad_log_pi(theta, a)` -> $\nabla_\theta\log\pi_\theta(a)$, shape `(3,)`.
+- `expected_return(theta, r)` -> $J(\theta)$.
+- `exact_gradient(theta, r)` -> the closed form $\partial J/\partial\theta_k=\pi_k(r_k-J)$.
+- `pg_expectation(theta, r, b)` -> the policy-gradient theorem written as an exact expectation, $\sum_a\pi(a)(r_a-b)\nabla\log\pi(a)$.
+- `reinforce_estimate(theta, actions, rewards, b)` -> the sample average of $(R-b)\nabla\log\pi(a)$ over sampled actions/rewards.
+- `estimator_variance(theta, r, b)` -> the total variance (sum over the 3 coordinates) of one sample of $(R-b)\nabla\log\pi(a)$.
+#@@ starter
+import numpy as np
+
+def softmax(theta):
+    raise NotImplementedError
+
+def grad_log_pi(theta, a):
+    raise NotImplementedError
+
+def expected_return(theta, r):
+    raise NotImplementedError
+
+def exact_gradient(theta, r):
+    raise NotImplementedError
+
+def pg_expectation(theta, r, b):
+    raise NotImplementedError
+
+def reinforce_estimate(theta, actions, rewards, b):
+    raise NotImplementedError
+
+def estimator_variance(theta, r, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+theta = np.array([0.2, -0.1, 0.5]); r = np.array([10.0, 12.0, 11.0])
+check("softmax sums to 1 and is stable for huge logits", lambda: abs(softmax(theta).sum() - 1) < 1e-12 and np.all(np.isfinite(softmax(np.array([1000.0, 0.0, -1000.0])))))
+check("grad log pi sums to zero", lambda: abs(grad_log_pi(theta, 1).sum()) < 1e-12)
+def fd_log(a):
+    out = np.zeros(3)
+    for i in range(3):
+        e = np.zeros(3); e[i] = 1e-6
+        out[i] = (np.log(softmax(theta + e)[a]) - np.log(softmax(theta - e)[a])) / 2e-6
+    return out
+check("grad log pi matches finite differences", lambda: all(np.allclose(grad_log_pi(theta, a), fd_log(a), atol=1e-6) for a in range(3)))
+check("J is the policy-weighted reward (about 10.916)", lambda: abs(expected_return(theta, r) - 10.916140775) < 1e-6)
+num = np.array([(expected_return(theta + 1e-6 * np.eye(3)[i], r) - expected_return(theta - 1e-6 * np.eye(3)[i], r)) / 2e-6 for i in range(3)])
+check("closed-form gradient matches finite differences", lambda: np.allclose(exact_gradient(theta, r), num, atol=1e-6))
+check("policy gradient theorem: expectation of (R) grad log pi equals the gradient", lambda: np.allclose(pg_expectation(theta, r, 0.0), exact_gradient(theta, r), atol=1e-9))
+check("a baseline does not change the expected gradient", lambda: np.allclose(pg_expectation(theta, r, 5.0), exact_gradient(theta, r), atol=1e-9) and np.allclose(pg_expectation(theta, r, expected_return(theta, r)), exact_gradient(theta, r), atol=1e-9))
+J = expected_return(theta, r)
+v0 = estimator_variance(theta, r, 0.0); vJ = estimator_variance(theta, r, J)
+check("variance without baseline is about 78.16", lambda: abs(v0 - 78.1633577) < 1e-3)
+check("variance with baseline b=J is about 0.2824", lambda: abs(vJ - 0.2823997) < 1e-3)
+check("baseline cuts the variance by more than 100x", lambda: v0 > 100 * vJ)
+rng = np.random.default_rng(0)
+acts = rng.choice(3, size=20000, p=softmax(theta)); rews = r[acts]
+est0 = reinforce_estimate(theta, acts, rews, 0.0); estJ = reinforce_estimate(theta, acts, rews, J)
+check("sampled REINFORCE estimate (no baseline) is close to the true gradient", lambda: np.max(np.abs(est0 - exact_gradient(theta, r))) < 0.3)
+check("sampled estimate with baseline is much closer", lambda: np.max(np.abs(estJ - exact_gradient(theta, r))) < 0.02)
+check("gradient ascent on J increases it", lambda: expected_return(theta + 0.1 * exact_gradient(theta, r), r) > J)
+#@@ solution
+import numpy as np
+
+def softmax(theta):
+    z = theta - np.max(theta)
+    e = np.exp(z)
+    return e / e.sum()
+
+def grad_log_pi(theta, a):
+    g = -softmax(theta)
+    g[a] += 1.0
+    return g
+
+def expected_return(theta, r):
+    return float(softmax(theta) @ r)
+
+def exact_gradient(theta, r):
+    p = softmax(theta)
+    return p * (r - p @ r)
+
+def pg_expectation(theta, r, b):
+    p = softmax(theta)
+    return sum(p[a] * (r[a] - b) * grad_log_pi(theta, a) for a in range(len(theta)))
+
+def reinforce_estimate(theta, actions, rewards, b):
+    return np.mean([(R - b) * grad_log_pi(theta, a) for a, R in zip(actions, rewards)], axis=0)
+
+def estimator_variance(theta, r, b):
+    p = softmax(theta)
+    mean = pg_expectation(theta, r, b)
+    second = sum(p[a] * np.sum(((r[a] - b) * grad_log_pi(theta, a)) ** 2) for a in range(len(theta)))
+    return float(second - np.sum(mean ** 2))

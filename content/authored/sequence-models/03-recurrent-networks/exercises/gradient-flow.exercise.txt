@@ -1,0 +1,83 @@
+#@@ meta
+{"id": "seq.03.ex2", "title": "Vanishing and exploding gradients, spectral radius and clipping", "difficulty": 3, "runtime": "pyodide", "concepts": ["seq.rnn", "seq.rnn-gradients", "la.eigen"], "hints": ["make_whh: draw a normal matrix G, compute its spectral radius max|eigvals(G)| with np.linalg.eigvals and return G * rho / radius.", "jacobian_norm: the per-step Jacobian is J_t = diag(1 - h_t**2) @ Whh (tanh case) or Whh (linear case). Multiply them in the order J_T ... J_1 and take np.linalg.norm(M, 2) (largest singular value).", "clip_by_global_norm: total = sqrt(sum of squares of every entry of every array). If total > max_norm multiply every array by max_norm/total (all arrays by the SAME factor)."]}
+#@@ prompt
+Measure how fast the gradient path $\partial h_T/\partial h_0$ shrinks or grows, then implement gradient clipping.
+
+1. `make_whh(H, rho, seed)`: a random `(H, H)` matrix rescaled so that its **spectral radius** (largest eigenvalue magnitude) equals `rho`.
+2. `jacobian_norm(Whh, T, linear)`: the largest singular value of $\partial h_T/\partial h_0=J_T\cdots J_1$. With `linear=True` use $J_t=W_{hh}$ (no activation). With `linear=False` run the tanh RNN $h_t=\tanh(W_{xh}x_t+W_{hh}h_{t-1})$ for `T` steps with $W_{xh}\sim N(0,1)^{H\times3}$ and $x_t\sim N(0,0.1^2)$ (seed 1, drawn in that order) and use $J_t=\mathrm{diag}(1-h_t^2)W_{hh}$.
+3. `orthogonal_init(H, seed)`: an orthogonal matrix (QR of a Gaussian matrix).
+4. `clip_by_global_norm(grads, max_norm)`: returns `(clipped_list, total_norm_before)`; all arrays are scaled by the same factor, only if the total norm exceeds `max_norm`.
+#@@ starter
+import numpy as np
+
+def make_whh(H, rho, seed=0):
+    raise NotImplementedError
+
+def jacobian_norm(Whh, T, linear=False, seed=1, in_scale=0.1):
+    raise NotImplementedError
+
+def orthogonal_init(H, seed=0):
+    raise NotImplementedError
+
+def clip_by_global_norm(grads, max_norm):
+    raise NotImplementedError
+
+for rho in (0.5, 0.9, 1.0, 1.5):
+    W = make_whh(16, rho)
+    print(rho, ["%.1e" % jacobian_norm(W, T, linear=True) for T in (10, 50)])
+#@@ tests
+import numpy as np
+W = make_whh(16, 0.5)
+check("spectral radius is rho", lambda: abs(np.max(np.abs(np.linalg.eigvals(W))) - 0.5) < 1e-9)
+for rho in (0.5, 0.9, 1.5):
+    W = make_whh(16, rho)
+    for T in (20, 50):
+        r = jacobian_norm(W, T, linear=True) / rho ** T
+        check(f"linear: ||J||_2 tracks rho^T (rho={rho}, T={T})", lambda r=r: 0.5 < r < 5, "for the linear RNN dh_T/dh_0 = Whh^T")
+check("rho=0.5 vanishes", lambda: jacobian_norm(make_whh(16, 0.5), 50, linear=True) < 1e-12)
+check("rho=1.5 explodes", lambda: jacobian_norm(make_whh(16, 1.5), 50, linear=True) > 1e6)
+check("tanh rho=0.5 also vanishes", lambda: jacobian_norm(make_whh(16, 0.5), 50) < 1e-12)
+check("tanh derivative only shrinks: rho=1.5 never above the linear case", lambda: jacobian_norm(make_whh(16, 1.5), 100) < 1e-10 * jacobian_norm(make_whh(16, 1.5), 100, linear=True))
+Q = orthogonal_init(16)
+check("orthogonal matrix", lambda: np.allclose(Q @ Q.T, np.eye(16)))
+check("orthogonal: linear gradient norm stays 1 for T=100", lambda: abs(jacobian_norm(Q, 100, linear=True) - 1) < 1e-8)
+g = [np.array([3.0, 0.0]), np.array([[0.0, 4.0]])]
+cl, tot = clip_by_global_norm(g, 1.0)
+check("total norm before clipping", lambda: abs(tot - 5.0) < 1e-12)
+check("clipped to norm 1 with direction kept", lambda: abs(np.sqrt(sum((a ** 2).sum() for a in cl)) - 1) < 1e-12 and np.allclose(cl[0], [0.6, 0.0]) and np.allclose(cl[1], [[0.0, 0.8]]))
+cl2, _ = clip_by_global_norm(g, 10.0)
+check("no change below the threshold", lambda: np.allclose(cl2[0], g[0]) and np.allclose(cl2[1], g[1]))
+check("input arrays not modified in place", lambda: np.allclose(g[0], [3.0, 0.0]))
+#@@ solution
+import numpy as np
+
+def make_whh(H, rho, seed=0):
+    G = np.random.default_rng(seed).normal(size=(H, H))
+    return G * (rho / np.max(np.abs(np.linalg.eigvals(G))))
+
+def jacobian_norm(Whh, T, linear=False, seed=1, in_scale=0.1):
+    H = Whh.shape[0]
+    if linear:
+        return float(np.linalg.norm(np.linalg.matrix_power(Whh, T), 2))
+    rng = np.random.default_rng(seed)
+    Wxh = rng.normal(0, 1.0, (H, 3))
+    h = np.zeros(H)
+    M = np.eye(H)
+    for _ in range(T):
+        x = rng.normal(0, in_scale, 3)
+        h = np.tanh(Wxh @ x + Whh @ h)
+        M = (np.diag(1 - h ** 2) @ Whh) @ M
+    return float(np.linalg.norm(M, 2))
+
+def orthogonal_init(H, seed=0):
+    Q, _ = np.linalg.qr(np.random.default_rng(seed).normal(size=(H, H)))
+    return Q
+
+def clip_by_global_norm(grads, max_norm):
+    total = float(np.sqrt(sum((g ** 2).sum() for g in grads)))
+    scale = max_norm / total if total > max_norm else 1.0
+    return [g * scale for g in grads], total
+
+for rho in (0.5, 0.9, 1.0, 1.5):
+    W = make_whh(16, rho)
+    print(rho, ["%.1e" % jacobian_norm(W, T, linear=True) for T in (10, 50)])

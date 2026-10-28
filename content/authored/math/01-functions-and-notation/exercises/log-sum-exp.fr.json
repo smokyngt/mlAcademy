@@ -1,0 +1,10 @@
+{
+  "id": "f2n.01.ex1",
+  "title": "Log-vraisemblance stable et log-sum-exp",
+  "prompt": "Implémente deux fonctions avec NumPy.\n\n1. `log_likelihood(p)` prend un tableau 1D de probabilités et renvoie $\\sum_i \\ln p_i$.\n2. `log_sum_exp(x)` prend un tableau 1D et renvoie $\\ln\\sum_i e^{x_i}$ **sans débordement**, en utilisant le décalage par le maximum démontré dans la leçon.\n\nLa formule naïve `np.log(np.sum(np.exp(x)))` échoue pour de grandes entrées. La tienne ne doit pas échouer.",
+  "hints": [
+    "np.log transforme chaque probabilité en son logarithme ; additionne-les ensuite avec np.sum.",
+    "Pour log_sum_exp, soustrais m = np.max(x) avant d'appeler np.exp, puis rajoute m après le logarithme.",
+    "Ta réponse doit rester finie pour x = [1000, 1000]. Vérifie que np.exp(1000) seul donnerait inf."
+  ]
+}

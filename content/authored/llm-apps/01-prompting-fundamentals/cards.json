@@ -1,0 +1,86 @@
+[
+ {
+  "id": "app.01.c1",
+  "concept": "app.prompting",
+  "front": "Prompt, in one sentence",
+  "back": "The token context that conditions the model's next-token distribution; it narrows the set of plausible continuations."
+ },
+ {
+  "id": "app.01.c2",
+  "concept": "app.prompting",
+  "front": "The four levers of prompting",
+  "back": "Instructions, role/context, examples (few-shot), room to reason (chain-of-thought)."
+ },
+ {
+  "id": "app.01.c3",
+  "concept": "app.prompting",
+  "front": "System vs user vs prefill",
+  "back": "System: persistent rules, placed first. User: this turn's task. Prefill: the first words of the reply, written by you, to steer format."
+ },
+ {
+  "id": "app.01.c4",
+  "concept": "app.prompting",
+  "front": "Why delimit data from instructions?",
+  "back": "So text inside the data is not read as an instruction; it also is the first defence against prompt injection."
+ },
+ {
+  "id": "app.01.c5",
+  "concept": "app.prompting",
+  "front": "How many few-shot examples, and which?",
+  "back": "Typically 3-5; similar to the input, covering every label, matching difficulty. Test 0/3/5 on your own data."
+ },
+ {
+  "id": "app.01.c6",
+  "concept": "app.prompting",
+  "front": "Why does chain-of-thought help mechanically?",
+  "back": "Each generated token becomes input for the next, so written steps are extra computation; a single token has a fixed compute budget."
+ },
+ {
+  "id": "app.01.c7",
+  "concept": "app.prompting",
+  "front": "Cost of chain-of-thought",
+  "back": "More output tokens (money, latency) and the risk of a fluent but wrong or unfaithful chain."
+ },
+ {
+  "id": "app.01.c8",
+  "concept": "app.prompting",
+  "front": "Field order in structured output",
+  "back": "Put reasoning before the answer, otherwise the model commits to the answer first."
+ },
+ {
+  "id": "app.01.c9",
+  "concept": "app.self-consistency",
+  "front": "Self-consistency",
+  "back": "Sample n reasoning chains at temperature > 0, extract each final answer, return the most frequent."
+ },
+ {
+  "id": "app.01.c10",
+  "concept": "app.self-consistency",
+  "front": "Majority-vote accuracy formula",
+  "back": "$A(p,n)=\\sum_{k>n/2}\\binom{n}{k}p^k(1-p)^{n-k}$ for odd n, independent samples, distinct wrong answers."
+ },
+ {
+  "id": "app.01.c11",
+  "concept": "app.self-consistency",
+  "front": "When does voting help or hurt?",
+  "back": "Helps if $p>1/2$ (tends to 1), neutral at $p=1/2$, hurts if $p<1/2$; fails when errors agree."
+ },
+ {
+  "id": "app.01.c12",
+  "concept": "app.self-consistency",
+  "front": "Cost of self-consistency",
+  "back": "About n times the generation cost (and latency unless sampled in parallel)."
+ },
+ {
+  "id": "app.01.c13",
+  "concept": "app.self-consistency",
+  "front": "Tree-of-thought in one line",
+  "back": "Search over partial solutions: propose several thoughts, evaluate, prune, continue from the best."
+ },
+ {
+  "id": "app.01.c14",
+  "concept": "app.prompting",
+  "front": "Why must prompts be tested?",
+  "back": "Outputs are stochastic and model-dependent; a few good examples are anecdotes, a scored test set is evidence."
+ }
+]

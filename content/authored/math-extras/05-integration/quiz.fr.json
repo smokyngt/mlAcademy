@@ -1,0 +1,92 @@
+[
+ {
+  "id": "mx.05.q1",
+  "prompt": "Le théorème fondamental de l'analyse dit que $\\int_a^bf(x)dx=$ ...",
+  "options": [
+   "$f(b)-f(a)$",
+   "$G(b)-G(a)$ pour toute primitive $G$ de $f$",
+   "$f'(b)-f'(a)$",
+   "$(b-a)f(a)$"
+  ],
+  "explanation": "Intégrer défait dériver : l'aire est la variation nette d'une primitive."
+ },
+ {
+  "id": "mx.05.q2",
+  "prompt": "Évalue $\\int_0^12x\\,e^{x^2}dx$ (substitue $u=x^2$). Donne la valeur numérique.",
+  "options": [],
+  "explanation": "$\\int_0^1e^udu=e-1$."
+ },
+ {
+  "id": "mx.05.q3",
+  "prompt": "Évalue $\\int_0^1x\\,e^xdx$ par intégration par parties.",
+  "options": [],
+  "explanation": "$[xe^x]_0^1-\\int_0^1e^x=e-(e-1)=1$."
+ },
+ {
+  "id": "mx.05.q4",
+  "prompt": "Une densité de probabilité $p(x)$ doit vérifier...",
+  "options": [
+   "$p(x)\\le1$ partout",
+   "$p(x)\\ge0$ et $\\int p(x)dx=1$",
+   "$p(x)=P(X=x)$",
+   "$\\sum p=1$ sur une grille"
+  ],
+  "explanation": "Non négative et d'aire unité ; la hauteur peut dépasser 1."
+ },
+ {
+  "id": "mx.05.q5",
+  "prompt": "Pour une variable continue, $P(X=x)$ pour une valeur exacte $x$ est...",
+  "options": [
+   "égale à $p(x)$",
+   "positive mais petite",
+   "nulle",
+   "non définie"
+  ],
+  "explanation": "Un point isolé a une largeur nulle, donc une aire nulle."
+ },
+ {
+  "id": "mx.05.q6",
+  "prompt": "Une densité uniforme sur $[0.9,1.6]$ a quelle hauteur ?",
+  "options": [],
+  "explanation": "$1/(1.6-0.9)=1/0.7$ ; une densité peut dépasser 1."
+ },
+ {
+  "id": "mx.05.q7",
+  "prompt": "L'astuce pour calculer $\\int e^{-x^2/2}dx$ consiste à...",
+  "options": [
+   "dériver sous le signe somme",
+   "l'élever au carré, l'écrire comme une intégrale double et passer en coordonnées polaires",
+   "utiliser une fois l'intégration par parties",
+   "l'approcher par une parabole"
+  ],
+  "explanation": "$I^2=\\iint e^{-(x^2+y^2)/2}=2\\pi\\int_0^\\infty e^{-r^2/2}r\\,dr=2\\pi$."
+ },
+ {
+  "id": "mx.05.q8",
+  "prompt": "Doubler le nombre d'intervalles dans la méthode des trapèzes réduit l'erreur d'environ...",
+  "options": [
+   "2",
+   "4",
+   "16",
+   "$\\sqrt2$"
+  ],
+  "explanation": "Erreur $O(h^2)$ : diviser $h$ par deux divise l'erreur par 4. Simpson ($O(h^4)$) donne 16."
+ },
+ {
+  "id": "mx.05.q9",
+  "prompt": "Pourquoi utilise-t-on Monte-Carlo pour les espérances en grande dimension ?",
+  "options": [
+   "Il est plus précis que Simpson en 1D",
+   "Son erreur $\\sim n^{-1/2}$ ne dépend pas de la dimension, alors que les grilles demandent $m^d$ points",
+   "Il ne demande aucune évaluation de fonction",
+   "Il est exact"
+  ],
+  "explanation": "Le coût d'une grille explose avec $d$ ; Monte-Carlo garde son taux."
+ },
+ {
+  "id": "mx.05.q10",
+  "prompt": "Monte-Carlo avec $n=100$ échantillons a une erreur standard de $0.1$. Quelle erreur standard attends-tu avec $n=10000$ échantillons ?",
+  "options": [],
+  "explanation": "L'erreur varie en $1/\\sqrt n$ : 100 fois plus d'échantillons, 10 fois moins d'erreur."
+ }
+]

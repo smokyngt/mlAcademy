@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "app.06.ex1", "title": "A cost and latency calculator for a multi-stage LLM pipeline", "difficulty": 2, "runtime": "pyodide", "concepts": ["app.production"], "hints": ["Stage cost = (in_tokens * price_in + out_tokens * price_out) / 1e6. Stage latency = ttft + out_tokens / tps (just ttft when out_tokens is 0).", "Stages that share the same non-None 'group' run in parallel: the group costs the SUM of its stage costs but only the MAX of its latencies. Stages with group None run one after another.", "Expected cost with retries: attempt k (k = 0, 1, ...) happens with probability p**k, so cost * sum_{k<max_attempts} p**k."]}
+#@@ prompt
+Before you build an LLM feature, price it and time it on paper. A request flows through several **stages** (input guard, retrieval, main generation, output guard). Each stage is a dict with `name`, `in_tokens`, `out_tokens`, `price_in`, `price_out` (dollars per million tokens), `ttft` (seconds to first token) and `tps` (generated tokens per second), plus `group` (`None`, or a label shared by stages that run **in parallel**).
+
+Implement:
+
+- `stage_cost(s)` and `stage_latency(s)` (latency = `ttft + out_tokens/tps`; with zero output tokens it is just `ttft`).
+- `pipeline(stages)` -> `{"cost", "latency"}`: costs add up; latency adds up across sequential steps, where each parallel group counts once with the **maximum** latency of its members. Steps are ordered by first appearance.
+- `retry_expected_cost(cost, p_fail, max_attempts)`: expected spend when each attempt independently fails with probability `p_fail` and you retry up to `max_attempts` attempts in total (a failed attempt is still billed).
+- `monthly_cost(request_cost, users, requests_per_user_per_day, days=30)`.
+- `meets_budget(result, max_latency, max_cost)` -> bool (both limits inclusive).
+#@@ starter
+def stage_cost(s):
+    raise NotImplementedError
+
+def stage_latency(s):
+    raise NotImplementedError
+
+def pipeline(stages):
+    raise NotImplementedError
+
+def retry_expected_cost(cost, p_fail, max_attempts):
+    raise NotImplementedError
+
+def monthly_cost(request_cost, users, requests_per_user_per_day, days=30):
+    raise NotImplementedError
+
+def meets_budget(result, max_latency, max_cost):
+    raise NotImplementedError
+#@@ tests
+guard_in = dict(name="guard_in", in_tokens=300, out_tokens=20, price_in=0.25, price_out=1.25, ttft=0.15, tps=200, group="pre")
+embed = dict(name="embed", in_tokens=50, out_tokens=0, price_in=0.02, price_out=0.0, ttft=0.05, tps=1, group="pre")
+main = dict(name="main", in_tokens=3000, out_tokens=400, price_in=3.0, price_out=15.0, ttft=0.6, tps=80, group=None)
+guard_out = dict(name="guard_out", in_tokens=450, out_tokens=10, price_in=0.25, price_out=1.25, ttft=0.15, tps=200, group=None)
+check("main stage costs $0.015", lambda: abs(stage_cost(main) - 0.015) < 1e-12)
+check("main stage latency is 0.6 + 400/80 = 5.6 s", lambda: abs(stage_latency(main) - 5.6) < 1e-12)
+check("zero output tokens: latency is just ttft", lambda: abs(stage_latency(embed) - 0.05) < 1e-12)
+res = pipeline([guard_in, embed, main, guard_out])
+check("pipeline cost sums all four stages", lambda: abs(res["cost"] - 0.015226) < 1e-9)
+check("parallel group counts once, with its slowest member (0.25 s)", lambda: abs(res["latency"] - (0.25 + 5.6 + 0.2)) < 1e-9)
+seq = pipeline([dict(guard_in, group=None), dict(embed, group=None), main, guard_out])
+check("run sequentially, the same stages are 0.05 s slower", lambda: abs(seq["latency"] - res["latency"] - 0.05) < 1e-9)
+check("parallelism does not change the bill", lambda: abs(seq["cost"] - res["cost"]) < 1e-12)
+check("no failures: expected cost is the cost", lambda: abs(retry_expected_cost(0.015, 0.0, 3) - 0.015) < 1e-12)
+check("p=0.5, 3 attempts: 1.75x", lambda: abs(retry_expected_cost(1.0, 0.5, 3) - 1.75) < 1e-12)
+check("one attempt means no retries", lambda: abs(retry_expected_cost(2.0, 0.9, 1) - 2.0) < 1e-12)
+check("10k users x 10 requests x 30 days at $0.015226", lambda: abs(monthly_cost(res["cost"], 10000, 10) - 45678.0) < 1e-6)
+check("fits a 6.5 s / $0.02 budget", lambda: meets_budget(res, 6.5, 0.02) is True)
+check("fails a 5 s latency budget", lambda: meets_budget(res, 5.0, 0.02) is False)
+check("fails a $0.01 cost budget", lambda: meets_budget(res, 10.0, 0.01) is False)
+check("budget limits are inclusive", lambda: meets_budget({"cost": 0.01, "latency": 2.0}, 2.0, 0.01) is True)
+#@@ solution
+def stage_cost(s):
+    return (s["in_tokens"] * s["price_in"] + s["out_tokens"] * s["price_out"]) / 1e6
+
+def stage_latency(s):
+    return s["ttft"] + (s["out_tokens"] / s["tps"] if s["out_tokens"] else 0.0)
+
+def pipeline(stages):
+    steps = {}
+    order = []
+    for i, s in enumerate(stages):
+        key = s["group"] if s["group"] is not None else ("__seq__", i)
+        if key not in steps:
+            steps[key] = []
+            order.append(key)
+        steps[key].append(s)
+    cost = sum(stage_cost(s) for s in stages)
+    latency = sum(max(stage_latency(s) for s in steps[k]) for k in order)
+    return {"cost": cost, "latency": latency}
+
+def retry_expected_cost(cost, p_fail, max_attempts):
+    return cost * sum(p_fail ** k for k in range(max_attempts))
+
+def monthly_cost(request_cost, users, requests_per_user_per_day, days=30):
+    return request_cost * users * requests_per_user_per_day * days
+
+def meets_budget(result, max_latency, max_cost):
+    return result["latency"] <= max_latency and result["cost"] <= max_cost

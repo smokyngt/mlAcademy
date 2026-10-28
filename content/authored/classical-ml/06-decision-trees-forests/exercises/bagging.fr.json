@@ -1,0 +1,10 @@
+{
+  "id": "cml.06.ex2",
+  "title": "Bagging et erreur hors-sac",
+  "prompt": "Un arbre de régression à profondeur limitée (`fit_reg_tree`, `pred_reg_tree`) est fourni. Construis du bagging autour de lui.\n\n- `bootstrap_indices(n, rng)` renvoie `n` indices tirés avec remise.\n- `oob_mask(idx, n)` renvoie un tableau booléen `(n,)`, True pour les lignes **absentes** de `idx`.\n- `bagging_fit(X, y, B, seed, max_depth=4)` renvoie `(trees, masks)` avec `B` arbres, chacun entraîné sur son propre échantillon bootstrap (un seul `np.random.default_rng(seed)` partagé dans la boucle), et les masques OOB correspondants.\n- `bagging_predict(trees, X)` renvoie la prédiction moyenne sur les arbres, de forme `(len(X),)`.\n- `oob_predict(trees, masks, X)` renvoie, pour chaque ligne, la prédiction moyenne des seuls arbres pour lesquels cette ligne est hors-sac (NaN s'il n'y en a aucun).\n- `oob_mse(y, pred)` est l'erreur quadratique moyenne en ignorant les entrées NaN.",
+  "hints": [
+    "bootstrap : rng.integers(0, n, size=n) tire des indices avec remise.",
+    "oob_mask(idx, n) : mask = np.ones(n, bool); mask[idx] = False.",
+    "Pour la prédiction OOB de la ligne i, moyenne uniquement sur les arbres dont le masque OOB vaut True en i : accumule des tableaux de sommes et de comptes de forme (n,), puis divise ; les lignes jamais hors-sac restent NaN."
+  ]
+}

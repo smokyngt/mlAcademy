@@ -1,0 +1,10 @@
+[
+  { "id": "mf.python", "title": "Python basics", "description": "Variables, lists, loops, conditionals and functions in Python.", "stage": "I", "prereqs": [] },
+  { "id": "mf.numpy", "title": "NumPy arrays, shapes and broadcasting", "description": "Creating, indexing and slicing arrays, vectorised arithmetic, axis reductions, shapes and broadcasting.", "stage": "I", "prereqs": [] },
+  { "id": "mf.algebra", "title": "Numbers, algebra and equations", "description": "Number types, order of operations, powers and roots, fractions and percentages, linear equations, inequalities, 2x2 systems and mathematical notation.", "stage": "I", "prereqs": [] },
+  { "id": "mf.functions", "title": "Functions and graphs", "description": "Domain and range, linear, quadratic and polynomial functions, graph transformations, composition and inverse functions.", "stage": "I", "prereqs": [] },
+  { "id": "mf.explog", "title": "Exponentials and logarithms from zero", "description": "Exponent laws, compound growth, the number e, logarithms and their laws, change of base, and the use of logs in cross-entropy and log-likelihood.", "stage": "I", "prereqs": [] },
+  { "id": "mf.trig", "title": "Trigonometry and the unit circle", "description": "Radians, sine, cosine, tangent, the unit circle, identities, rotation matrices and periodic waves.", "stage": "I", "prereqs": [] },
+  { "id": "mf.series", "title": "Sequences, series and summation", "description": "Arithmetic and geometric sequences and series, sigma and product notation, convergence of geometric series and the harmonic series.", "stage": "I", "prereqs": [] },
+  { "id": "mf.limits", "title": "Limits and continuity", "description": "Intuitive and epsilon-delta limits, one-sided limits, limit laws, continuity and the limit definition of the derivative.", "stage": "I", "prereqs": [] }
+]

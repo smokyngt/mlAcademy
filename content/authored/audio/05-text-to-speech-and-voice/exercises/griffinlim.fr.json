@@ -1,0 +1,10 @@
+{
+  "id": "aud.05.ex1",
+  "title": "STFT, STFT inverse et reconstruction de phase par Griffin-Lim",
+  "prompt": "Reconstruis une forme d'onde à partir d'un spectrogramme de module.\n\n- `stft(x, n_fft=256, hop=64)` -> complexe `(frames, n_fft//2+1)` ; le signal est complété par réflexion de `n_fft//2` des deux côtés (trames centrées) et une fenêtre de Hann **périodique** est utilisée.\n- `istft(S, n_fft=256, hop=64, length=None)` -> l'inverse au sens des moindres carrés : recouvrement-addition pondéré (fenêtre à nouveau les trames issues de la FFT inverse, somme, divise par la somme des fenêtres au carré), rogné à la longueur d'origine (`n_fft//2` échantillons retirés à chaque extrémité).\n- `spectral_convergence(S_hat, mag)` = `||abs(S_hat) - mag||_F / ||mag||_F`.\n- `griffin_lim(mag, n_fft=256, hop=64, n_iter=100, seed=0, length=None)` : pars d'une phase aléatoire `mag * exp(2j*pi*rng.random(mag.shape))` avec `rng = np.random.default_rng(seed)`, itère (STFT inverse, STFT, garde la phase, restaure le module) et renvoie la forme d'onde du spectrogramme final.\n- `invert_mel(M, fb)` -> estimation du module linéaire à partir d'un spectrogramme de **puissance** mel `M` de forme `(T, n_mels)` : `sqrt(max(0, M @ pinv(fb).T))`.",
+  "hints": [
+    "stft : complète le signal de n_fft//2 des deux côtés avec mode='reflect', découpe-le en trames avec le saut hop, multiplie par la fenêtre de Hann périodique, np.fft.rfft le long de l'axe 1.",
+    "istft : frames = np.fft.irfft(S, n=n_fft, axis=1) * hann ; additionne-les par recouvrement à i*hop dans y, ajoute hann**2 dans un second tampon wsum, divise y par np.maximum(wsum, 1e-8), puis retire n_fft//2 échantillons aux deux extrémités (et coupe à `length` si donné).",
+    "griffin_lim : S = mag * exp(2j*pi*rng.random(mag.shape)) avec rng = np.random.default_rng(seed) ; répète n_iter fois : x = istft(S) ; S = mag * exp(1j * angle(stft(x))) ; renvoie enfin istft(S)."
+  ]
+}

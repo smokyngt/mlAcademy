@@ -1,0 +1,157 @@
+[
+  {
+    "id": "ppv-base-rate",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why fairness criteria conflict: with equal TPR = 0.8 and FPR = 0.1 in two groups (equalised odds), precision PPV = TPR p / (TPR p + FPR (1-p)) still rises with the base rate p, so groups with different base rates cannot also have equal precision.",
+      "fr": "Pourquoi les critères d'équité entrent en conflit : avec les mêmes TPR = 0,8 et FPR = 0,1 dans deux groupes (cotes égalisées), la précision PPV = TPR p / (TPR p + FPR (1-p)) croît quand même avec le taux de base p ; des groupes de taux de base différents ne peuvent donc pas avoir aussi la même précision."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "p",
+      "data": [
+        {
+          "fn": "0.8*x/(0.8*x + 0.1*(1 - x))",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "reliability",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "A reliability diagram for calibration: a calibrated score s satisfies P(Y=1 | S=s) = s, the diagonal (grey). Illustrative points (red) from an over-confident model sit below the diagonal at high scores. Calibration within groups requires this to hold for every group.",
+      "fr": "Un diagramme de fiabilité pour la calibration : un score calibré s vérifie P(Y=1 | S=s) = s, la diagonale (gris). Des points illustratifs (rouge) d'un modèle trop confiant sont sous la diagonale pour les scores élevés. La calibration par groupe exige que cela vaille pour chaque groupe."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "S",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              0.1,
+              0.12
+            ],
+            [
+              0.3,
+              0.28
+            ],
+            [
+              0.5,
+              0.42
+            ],
+            [
+              0.7,
+              0.55
+            ],
+            [
+              0.9,
+              0.7
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.1,
+              0.12
+            ],
+            [
+              0.3,
+              0.28
+            ],
+            [
+              0.5,
+              0.42
+            ],
+            [
+              0.7,
+              0.55
+            ],
+            [
+              0.9,
+              0.7
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "laplace",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Laplace noise density 1/(2b) exp(-|x|/b) for the Laplace mechanism, with scale b = Delta/epsilon. Smaller epsilon (stronger privacy) means larger b: the orange curve (b = 2) is wider and flatter than the blue one (b = 1).",
+      "fr": "Densité du bruit de Laplace 1/(2b) exp(-|x|/b) pour le mécanisme de Laplace, d'échelle b = Delta/epsilon. Un epsilon plus petit (vie privée plus forte) donne un b plus grand : la courbe orange (b = 2) est plus large et plus plate que la bleue (b = 1)."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        -8,
+        8
+      ],
+      "yDomain": [
+        0,
+        0.55
+      ],
+      "title": "x",
+      "data": [
+        {
+          "fn": "exp(-abs(x)/1)/2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-abs(x)/2)/4",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dp-sgd",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One DP-SGD step: per-example gradients are clipped to L2 norm C so each example moves the sum by at most C, Gaussian noise N(0, sigma^2 C^2 I) is added to the sum, the result is divided by the batch size, and a privacy accountant tracks the total (epsilon, delta) across steps.",
+      "fr": "Un pas de DP-SGD : les gradients par exemple sont tronqués à la norme L2 C pour que chaque exemple déplace la somme d'au plus C, du bruit gaussien N(0, sigma^2 C^2 I) est ajouté à la somme, le résultat est divisé par la taille du lot, et un comptable de confidentialité suit le (epsilon, delta) total au fil des pas."
+    },
+    "code": {
+      "en": "flowchart LR\n  B[\"mini-batch\"] --> G[\"per-example gradients g_i\"]\n  G --> CL[\"clip: g_i x min(1, C/||g_i||)\"]\n  CL --> SM[\"sum\"]\n  SM --> NZ[\"add N(0, sigma^2 C^2 I)\"]\n  NZ --> DV[\"divide by batch size\"]\n  DV --> ST[\"optimiser step\"]\n  ST -.-> AC[\"privacy accountant: total (epsilon, delta)\"]",
+      "fr": "flowchart LR\n  B[\"mini-lot\"] --> G[\"gradients par exemple g_i\"]\n  G --> CL[\"tronquer : g_i x min(1, C/||g_i||)\"]\n  CL --> SM[\"somme\"]\n  SM --> NZ[\"ajouter N(0, sigma^2 C^2 I)\"]\n  NZ --> DV[\"diviser par la taille du lot\"]\n  DV --> ST[\"pas de l'optimiseur\"]\n  ST -.-> AC[\"comptable de confidentialité : (epsilon, delta) total\"]"
+    }
+  }
+]

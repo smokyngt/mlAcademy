@@ -1,0 +1,10 @@
+{
+  "id": "cml.12.ex1",
+  "title": "EM pour un mélange gaussien unidimensionnel",
+  "prompt": "Implémente l'EM pour $p(x)=\\sum_{k=1}^K \\pi_k\\,\\mathcal N(x\\mid\\mu_k,\\sigma_k^2)$ sur des données 1-D `x` de forme `(N,)`. Les paramètres sont des tableaux `pi, mu, var` de forme `(K,)` (`var` est la variance $\\sigma^2$).\n\n- `gauss_pdf(x, mu, var)` -> matrice `(N, K)` de $\\mathcal N(x_n\\mid\\mu_k,\\sigma_k^2)$.\n- `e_step(x, pi, mu, var)` -> responsabilités `r` de forme `(N, K)` (les lignes somment à 1).\n- `m_step(x, r, min_var=1e-6)` -> `(pi, mu, var)` : $N_k=\\sum_n r_{nk}$, $\\mu_k=\\frac1{N_k}\\sum_n r_{nk}x_n$, $\\sigma_k^2=\\frac1{N_k}\\sum_n r_{nk}(x_n-\\mu_k)^2$ avec la nouvelle $\\mu_k$, $\\pi_k=N_k/N$ ; les variances sont plafonnées par le bas à `min_var`.\n- `loglik(x, pi, mu, var)` -> $\\sum_n\\log\\sum_k\\pi_k\\mathcal N(x_n\\mid\\mu_k,\\sigma_k^2)$.\n- `em_1d(x, pi, mu, var, iters=50, min_var=1e-6)` -> `(pi, mu, var, history)` où `history[t]` est la log-vraisemblance avant la mise à jour de l'itération `t`.",
+  "hints": [
+    "gauss_pdf(x, mu, var) pour x de forme (N,) et mu, var de forme (K,) : utilise le broadcasting x[:, None] - mu[None, :] pour obtenir une matrice (N, K).",
+    "Étape E : w = pi * gauss_pdf(...) de forme (N, K) ; r = w / w.sum(axis=1, keepdims=True). Étape M : Nk = r.sum(0) ; mu = (r * x[:, None]).sum(0) / Nk ; var utilise la NOUVELLE mu ; pi = Nk / N.",
+    "em_1d : enregistre loglik AVANT chaque mise à jour (donc history[0] est la valeur initiale), puis fais l'étape E et l'étape M ; borne var par le bas avec np.maximum(var, min_var)."
+  ]
+}

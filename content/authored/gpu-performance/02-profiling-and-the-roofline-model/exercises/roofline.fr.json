@@ -1,0 +1,10 @@
+{
+  "id": "gpu.02.ex1",
+  "title": "Une calculatrice roofline et la loi d'Amdahl",
+  "prompt": "Implémente une petite calculatrice roofline. Le matériel est un dict `hw = {\"peak\": FLOP/s, \"bw\": octets/s}`.\n\n- `ridge(hw)` : l'intensité arithmétique (FLOP/octet) où le toit devient plat.\n- `attainable(hw, intensity)` : `min(peak, bw * intensity)`.\n- `matmul_cost(M, N, K, elem_bytes)` -> `(flops, bytes)` en supposant que chaque matrice traverse la mémoire une fois : `flops = 2*M*N*K`, `bytes = elem_bytes * (M*K + K*N + M*N)`.\n- `softmax_cost(R, C, elem_bytes)` -> `(5*R*C, 2*R*C*elem_bytes)` (lu une fois, écrit une fois, 5 FLOPs par élément selon notre convention).\n- `layernorm_cost(R, C, elem_bytes)` -> `(8*R*C, 2*R*C*elem_bytes)` (convention : 8 FLOPs par élément, paramètres ignorés).\n- `analyse(hw, ops)` : `ops` est une liste de `(name, flops, bytes)`. Renvoie une liste de dicts avec les clés `name`, `intensity`, `bound` (`\"memory\"` si l'intensité est sous le point de crête, sinon `\"compute\"`), `time` (`max(flops/peak, bytes/bw)`), et `utilisation` (`flops / time / peak`).\n- `amdahl(p, s)` : accélération globale quand une fraction `p` du temps est accélérée d'un facteur `s`. Ajoute aussi `amdahl_limit(p)` (quand `s` tend vers l'infini) et `pipeline_speedup(times, speedups)` : l'étape `i` prend `times[i]` et est accélérée de `speedups[i]` ; renvoie l'ancien total sur le nouveau total.",
+  "hints": [
+    "Le point de crête vaut peak_flops / bandwidth. Le débit atteignable est min(peak, bandwidth * intensity). Le temps d'une opération est max(flops / peak, bytes / bandwidth).",
+    "Matmul (M,K)@(K,N) : flops = 2*M*N*K, bytes = elem * (M*K + K*N + M*N). Couche linéaire sur un batch B : matmul avec M = B.",
+    "Amdahl : speedup = 1 / ((1 - p) + p / s). Pour un pipeline d'étapes, le nouveau temps total est somme(t_i / s_i) ; l'accélération globale est ancien total / nouveau total."
+  ]
+}

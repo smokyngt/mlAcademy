@@ -1,0 +1,65 @@
+[
+ {
+  "id": "adv.01.q1",
+  "prompt": "Un ViT avec une taille de patch de 14 encode une image 336x336. Combien de tokens de patchs produit-il ?",
+  "options": ["336", "576", "1176", "24"],
+  "explanation": "$336/14=24$ patchs par côté, donc $24\\times24=576$."
+ },
+ {
+  "id": "adv.01.q2",
+  "prompt": "L'AnyRes de LLaVA-NeXT utilise une grille 2x2 de tuiles 336x336 plus une miniature globale, 576 tokens chacune. Combien de tokens visuels ?",
+  "options": [],
+  "explanation": "$(4+1)\\times576=2880$."
+ },
+ {
+  "id": "adv.01.q3",
+  "prompt": "Tu divises par deux le côté du patch (14 à 7) à taille d'image fixe. Le nombre de tokens visuels devient...",
+  "options": ["2 fois plus grand", "inchangé", "4 fois plus grand", "la moitié"],
+  "explanation": "Les deux dimensions de la grille doublent, donc le nombre est multiplié par 4."
+ },
+ {
+  "id": "adv.01.q4",
+  "prompt": "Quelle est la propriété déterminante de la longueur de sortie d'un Q-Former ?",
+  "options": [
+    "Elle est égale au nombre de patchs de l'image",
+    "Elle est égale au nombre de requêtes apprenables, quelle que soit la taille de l'image",
+    "Elle est égale au nombre de tokens de texte",
+    "Elle croît avec la longueur de l'instruction"
+  ],
+  "explanation": "Chaque requête apprenable produit une ligne de sortie (une moyenne pondérée de valeurs de patchs), donc la sortie a $n_q$ tokens."
+ },
+ {
+  "id": "adv.01.q5",
+  "prompt": "À l'étape 1 de LLaVA (alignement), quelles parties sont entraînées ?",
+  "options": [
+    "Seulement le projecteur",
+    "L'encodeur de vision et le LLM, pas le projecteur",
+    "Tout",
+    "Seulement la dernière couche du LLM"
+  ],
+  "explanation": "L'encodeur et le LLM sont gelés ; le projecteur MLP apprend à envoyer les caractéristiques visuelles dans l'espace d'embedding du LLM sur des données de légendes."
+ },
+ {
+  "id": "adv.01.q6",
+  "prompt": "Les ablations (MM1, Idefics2) à nombre de tokens visuels fixe ont surtout trouvé que...",
+  "options": [
+    "le type de connecteur est le facteur dominant",
+    "le type de connecteur compte peu comparé à l'encodeur, aux données et à la résolution",
+    "le Q-Former bat toujours le MLP de 10 points",
+    "la taille du LLM n'a pas d'importance"
+  ],
+  "explanation": "À nombre de tokens égal, un MLP à 2 couches était à environ un point d'un Q-Former ; l'encodeur, le mélange de données et la résolution faisaient davantage bouger les scores."
+ },
+ {
+  "id": "adv.01.q7",
+  "prompt": "Un projecteur envoie $d_{vis}=1024$ vers $4096$ puis $4096$ vers $4096$, avec des biais. Combien de paramètres (en millions, à une décimale) ?",
+  "options": [],
+  "explanation": "$1024\\cdot4096+4096+4096\\cdot4096+4096=20{,}979{,}712\\approx21.0$ M."
+ },
+ {
+  "id": "adv.01.q8",
+  "prompt": "Réduire les tokens visuels de 576 à 32 quand le texte est négligeable réduit le coût des scores d'attention par couche d'environ...",
+  "options": ["18x", "324x", "32x", "576x"],
+  "explanation": "L'attention est quadratique en la longueur de séquence : $(576/32)^2=324$. Le coût du feed-forward n'est que linéaire, 18x."
+ }
+]

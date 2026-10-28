@@ -1,0 +1,147 @@
+[
+  {
+    "id": "mha-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Multi-head attention as a reshape flow. Reshape first, then transpose; heads become a batch-like axis, and the merge is the exact inverse before W_O.",
+      "fr": "L'attention multi-têtes comme flux de remises en forme. D'abord reshape, ensuite transpose ; les têtes deviennent un axe de type lot et la fusion est l'inverse exact avant W_O."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (B,T,d)\"] --> P[\"W_Q, W_K, W_V<br/>each (d,d)\"]\n  P --> QKV[\"Q, K, V<br/>(B,T,d)\"]\n  QKV --> RS[\"reshape<br/>(B,T,h,d_h)\"]\n  RS --> TR[\"transpose<br/>(B,h,T,d_h)\"]\n  TR --> AT[\"per head: scores (B,h,T,T)<br/>+ mask, softmax, x V\"]\n  AT --> OH[\"(B,h,T,d_h)\"]\n  OH --> TB[\"transpose<br/>(B,T,h,d_h)\"]\n  TB --> MG[\"reshape merge<br/>(B,T,d)\"]\n  MG --> WO[\"W_O (d,d)\"]\n  WO --> Y[\"out (B,T,d)\"]",
+      "fr": "flowchart LR\n  X[\"X (B,T,d)\"] --> P[\"W_Q, W_K, W_V<br/>chacune (d,d)\"]\n  P --> QKV[\"Q, K, V<br/>(B,T,d)\"]\n  QKV --> RS[\"reshape<br/>(B,T,h,d_h)\"]\n  RS --> TR[\"transpose<br/>(B,h,T,d_h)\"]\n  TR --> AT[\"par tête : scores (B,h,T,T)<br/>+ masque, softmax, x V\"]\n  AT --> OH[\"(B,h,T,d_h)\"]\n  OH --> TB[\"transpose<br/>(B,T,h,d_h)\"]\n  TB --> MG[\"reshape de fusion<br/>(B,T,d)\"]\n  MG --> WO[\"W_O (d,d)\"]\n  WO --> Y[\"sortie (B,T,d)\"]"
+    }
+  },
+  {
+    "id": "heads-subspaces",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Heads as subspaces for d = 768, h = 12 (d_h = 64): each head reads its own slice of the projected columns; heads meet only in W_O.",
+      "fr": "Les têtes comme sous-espaces pour d = 768, h = 12 (d_h = 64) : chaque tête lit sa propre tranche de colonnes projetées ; les têtes ne se rencontrent que dans W_O."
+    },
+    "code": {
+      "en": "flowchart TB\n  X[\"X (B,T,768)\"] --> H1[\"head 1: columns 0..63<br/>Q1, K1, V1 (B,T,64)\"]\n  X --> H2[\"head 2: columns 64..127<br/>(B,T,64)\"]\n  X --> HN[\"head 12: columns 704..767<br/>(B,T,64)\"]\n  H1 --> C[\"concat (B,T,768)\"]\n  H2 --> C\n  HN --> C\n  C --> WO[\"W_O (768,768)<br/>sum of per-head contributions\"]",
+      "fr": "flowchart TB\n  X[\"X (B,T,768)\"] --> H1[\"tête 1 : colonnes 0..63<br/>Q1, K1, V1 (B,T,64)\"]\n  X --> H2[\"tête 2 : colonnes 64..127<br/>(B,T,64)\"]\n  X --> HN[\"tête 12 : colonnes 704..767<br/>(B,T,64)\"]\n  H1 --> C[\"concat (B,T,768)\"]\n  H2 --> C\n  HN --> C\n  C --> WO[\"W_O (768,768)<br/>somme des contributions des têtes\"]"
+    }
+  },
+  {
+    "id": "causal-mask",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The causal mask for T = 4. Query i (vertical) may attend to key j (horizontal) only when j <= i (green: M = 0); the red points above the diagonal get M = -infinity and a softmax weight of exactly 0.",
+      "fr": "Le masque causal pour T = 4. La requête i (verticale) ne peut regarder la clé j (horizontale) que si j <= i (vert : M = 0) ; les points rouges au-dessus de la diagonale reçoivent M = -infini et un poids softmax exactement nul."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 8
+          },
+          "points": [
+            [
+              1,
+              1
+            ],
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              3
+            ],
+            [
+              3,
+              3
+            ],
+            [
+              1,
+              4
+            ],
+            [
+              2,
+              4
+            ],
+            [
+              3,
+              4
+            ],
+            [
+              4,
+              4
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 8
+          },
+          "points": [
+            [
+              2,
+              1
+            ],
+            [
+              3,
+              1
+            ],
+            [
+              4,
+              1
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              4,
+              2
+            ],
+            [
+              4,
+              3
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "mask-softmax",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Masks are added to the scores before the softmax; causal (T,T) and padding (B,1,1,T) masks broadcast over batch and heads. A row with every key masked gives 0/0 = NaN.",
+      "fr": "Les masques s'ajoutent aux scores avant le softmax ; les masques causal (T,T) et de remplissage (B,1,1,T) se diffusent sur le lot et les têtes. Une ligne dont toutes les clés sont masquées donne 0/0 = NaN."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"scores S<br/>(B,h,T,T)\"] --> ADD((\"+\"))\n  C[\"causal M (T,T)<br/>-inf where j > i\"] --> ADD\n  PD[\"padding M (B,1,1,T)<br/>-inf at pad keys\"] --> ADD\n  ADD --> SM[\"softmax per row<br/>exp(-inf) = 0\"]\n  SM --> A[\"weights A (B,h,T,T)<br/>rows sum to 1\"]\n  SM -.-> NAN[\"every key masked in a row<br/>0/0 = NaN\"]",
+      "fr": "flowchart LR\n  S[\"scores S<br/>(B,h,T,T)\"] --> ADD((\"+\"))\n  C[\"M causal (T,T)<br/>-inf où j > i\"] --> ADD\n  PD[\"M de remplissage (B,1,1,T)<br/>-inf aux clés de remplissage\"] --> ADD\n  ADD --> SM[\"softmax par ligne<br/>exp(-inf) = 0\"]\n  SM --> A[\"poids A (B,h,T,T)<br/>lignes de somme 1\"]\n  SM -.-> NAN[\"toutes les clés masquées dans une ligne<br/>0/0 = NaN\"]"
+    }
+  }
+]

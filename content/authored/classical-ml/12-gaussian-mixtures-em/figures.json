@@ -1,0 +1,62 @@
+[
+  {
+    "id": "gmm-density",
+    "after": 3,
+    "kind": "plot",
+    "caption": { "en": "A Gaussian mixture is a weighted sum of Gaussian densities. The fitted model of the running example, p(x) = 0.29 N(x | −2.75, 0.06) + 0.28 N(x | −0.50, 0.25) + 0.43 N(x | 3.64, 1.63) (red), is the sum of three weighted bumps (blue, orange, green: each π_k N(x | μ_k, σ²_k)). The black dots are the seven data points X = {−3, −2.5, −1, 0, 2, 4, 5}.", "fr": "Un mélange gaussien est une somme pondérée de densités gaussiennes. Le modèle ajusté de l'exemple fil rouge, p(x) = 0,29 N(x | −2,75 ; 0,06) + 0,28 N(x | −0,50 ; 0,25) + 0,43 N(x | 3,64 ; 1,63) (rouge), est la somme de trois bosses pondérées (bleu, orange, vert : chacune π_k N(x | μ_k, σ²_k)). Les points noirs sont les sept données X = {−3 ; −2,5 ; −1 ; 0 ; 2 ; 4 ; 5}." },
+    "spec": {
+      "xDomain": [-5, 7], "yDomain": [-0.05, 0.6], "height": 340,
+      "data": [
+        { "fn": "0.29*exp(-(x+2.75)^2/(2*0.06))/sqrt(6.2832*0.06)", "color": "#2563eb" },
+        { "fn": "0.28*exp(-(x+0.5)^2/(2*0.25))/sqrt(6.2832*0.25)", "color": "#d97706" },
+        { "fn": "0.43*exp(-(x-3.64)^2/(2*1.63))/sqrt(6.2832*1.63)", "color": "#16a34a" },
+        { "fn": "0.29*exp(-(x+2.75)^2/(2*0.06))/sqrt(6.2832*0.06) + 0.28*exp(-(x+0.5)^2/(2*0.25))/sqrt(6.2832*0.25) + 0.43*exp(-(x-3.64)^2/(2*1.63))/sqrt(6.2832*1.63)", "color": "#dc2626" },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 4 }, "points": [[-3, 0], [-2.5, 0], [-1, 0], [0, 0], [2, 0], [4, 0], [5, 0]] }
+      ]
+    }
+  },
+  {
+    "id": "latent-graph",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": { "en": "The latent-variable view and ancestral sampling: draw the hidden component z from the weights π, then draw x from that component's Gaussian. Marginalising z gives the mixture density.", "fr": "La vue à variable latente et l'échantillonnage ancestral : tirer la composante cachée z selon les poids π, puis tirer x dans la gaussienne de cette composante. Marginaliser z donne la densité du mélange." },
+    "code": {
+      "en": "flowchart LR\n  PI[\"weights pi_k\"] --> Z((\"z : which component (hidden)\"))\n  Z --> X((\"x : observed\"))\n  MU[\"means mu_k, covariances Sigma_k\"] --> X\n  X --> M[\"marginal: p(x) = sum_k pi_k N(x | mu_k, Sigma_k)\"]",
+      "fr": "flowchart LR\n  PI[\"poids pi_k\"] --> Z((\"z : quelle composante (cachée)\"))\n  Z --> X((\"x : observé\"))\n  MU[\"moyennes mu_k, covariances Sigma_k\"] --> X\n  X --> M[\"marginale : p(x) = somme_k pi_k N(x | mu_k, Sigma_k)\"]"
+    }
+  },
+  {
+    "id": "em-loop",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": { "en": "The EM loop. E-step: responsibilities by Bayes' theorem. M-step: responsibility-weighted means, covariances and weights. The log-likelihood never decreases, so we stop when it stops improving.", "fr": "La boucle EM. Étape E : responsabilités par le théorème de Bayes. Étape M : moyennes, covariances et poids pondérés par les responsabilités. La log-vraisemblance ne décroît jamais, on s'arrête donc quand elle cesse de progresser." },
+    "code": {
+      "en": "flowchart TD\n  I[\"Initialise pi_k, mu_k, Sigma_k (e.g. from k-means)\"] --> E[\"E-step: r_nk = pi_k N(x_n | mu_k, Sigma_k) / sum_j pi_j N(x_n | mu_j, Sigma_j)\"]\n  E --> M[\"M-step: N_k = sum_n r_nk\\nmu_k = sum_n r_nk x_n / N_k\\nSigma_k = weighted covariance\\npi_k = N_k / N\"]\n  M --> L[\"log-likelihood = sum_n log sum_k pi_k N(x_n | mu_k, Sigma_k)\"]\n  L --> C{\"improved?\"}\n  C -->|\"yes\"| E\n  C -->|\"no\"| D[\"Converged: a local maximum\"]",
+      "fr": "flowchart TD\n  I[\"Initialiser pi_k, mu_k, Sigma_k (p. ex. par k-means)\"] --> E[\"Étape E : r_nk = pi_k N(x_n | mu_k, Sigma_k) / somme_j pi_j N(x_n | mu_j, Sigma_j)\"]\n  E --> M[\"Étape M : N_k = somme_n r_nk\\nmu_k = somme_n r_nk x_n / N_k\\nSigma_k = covariance pondérée\\npi_k = N_k / N\"]\n  M --> L[\"log-vraisemblance = somme_n log somme_k pi_k N(x_n | mu_k, Sigma_k)\"]\n  L --> C{\"amélioration ?\"}\n  C -->|\"oui\"| E\n  C -->|\"non\"| D[\"Convergence : un maximum local\"]"
+    }
+  },
+  {
+    "id": "jensen-bound",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": { "en": "Why EM never decreases the log-likelihood: the E-step makes the lower bound F touch ℓ, the M-step raises F, and ℓ is at least F.", "fr": "Pourquoi EM ne diminue jamais la log-vraisemblance : l'étape E rend la borne inférieure F tangente à ℓ, l'étape M relève F, et ℓ est au moins égal à F." },
+    "code": {
+      "en": "flowchart LR\n  A[\"l(theta_t)\"] -->|\"E-step: q = r(theta_t), bound touches\"| B[\"F(q, theta_t) = l(theta_t)\"]\n  B -->|\"M-step: maximise Q\"| C[\"F(q, theta_t+1) >= F(q, theta_t)\"]\n  C -->|\"Jensen: l >= F\"| D[\"l(theta_t+1) >= l(theta_t)\"]",
+      "fr": "flowchart LR\n  A[\"l(theta_t)\"] -->|\"Étape E : q = r(theta_t), la borne touche\"| B[\"F(q, theta_t) = l(theta_t)\"]\n  B -->|\"Étape M : maximiser Q\"| C[\"F(q, theta_t+1) >= F(q, theta_t)\"]\n  C -->|\"Jensen : l >= F\"| D[\"l(theta_t+1) >= l(theta_t)\"]"
+    }
+  },
+  {
+    "id": "soft-vs-hard",
+    "after": 7,
+    "kind": "plot",
+    "caption": { "en": "Soft versus hard assignment for two centres at 1 and 11 with equal weights and variance 4. The responsibility of component 1 is r₁(x) = 1/(1 + e^(−(15 − 2.5x))) (blue, soft, EM); k-means is the hard step at x = 6 (orange). At x = 5, r₁ = 0.924, not 1. A smaller variance makes the blue curve steeper, approaching the step.", "fr": "Affectation douce contre dure pour deux centres en 1 et 11, poids égaux et variance 4. La responsabilité de la composante 1 est r₁(x) = 1/(1 + e^(−(15 − 2,5x))) (bleu, douce, EM) ; k-means est l'échelon dur en x = 6 (orange). En x = 5, r₁ = 0,924 et non 1. Une variance plus petite rend la courbe bleue plus raide, jusqu'à l'échelon." },
+    "spec": {
+      "xDomain": [-2, 14], "yDomain": [-0.05, 1.05], "height": 300,
+      "data": [
+        { "fn": "1/(1+exp(-(15-2.5*x)))", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "polyline", "color": "#d97706", "points": [[-2, 1], [6, 1], [6, 0], [14, 0]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[5, 0.924]] }
+      ]
+    }
+  }
+]

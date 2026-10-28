@@ -1,0 +1,91 @@
+[
+ {
+  "id": "cml.13.q1",
+  "prompt": "Pourquoi un découpage aléatoire entraînement/test est-il invalide pour la prévision ?",
+  "options": [
+   "Le modèle peut s'entraîner sur des observations postérieures aux points de test, ce qui fait fuiter le futur",
+   "Cela rend l'ensemble de test trop petit",
+   "Les découpages aléatoires suppriment la tendance",
+   "Les séries temporelles n'ont pas d'étiquettes"
+  ],
+  "explanation": "Les points temporels voisins sont dépendants ; s'entraîner sur t+1 en testant sur t donne des scores optimistes qu'un vrai prédicteur ne pourrait jamais obtenir."
+ },
+ {
+  "id": "cml.13.q2",
+  "prompt": "Une série présente une tendance haussière régulière. Quelle affirmation est vraie ?",
+  "options": [
+   "Elle est stationnaire parce que la variance est constante",
+   "La différenciation la rend plus longue",
+   "Elle n'est pas stationnaire car sa moyenne dépend du temps ; la différenciation y remédie souvent",
+   "La stationnarité ne concerne que la saisonnalité"
+  ],
+  "explanation": "La stationnarité faible exige une moyenne indépendante du temps. Les différences premières $y_t-y_{t-1}$ suppriment une tendance linéaire."
+ },
+ {
+  "id": "cml.13.q3",
+  "prompt": "Pour $y=(2,4,3,5,4,6,5,7)$, la somme des produits décalés au décalage 1 vaut 2.25 et $\\sum d_t^2=18$. Quelle est l'autocorrélation empirique $r_1$ ?",
+  "options": [],
+  "explanation": "$r_1=2.25/18=0.125$."
+ },
+ {
+  "id": "cml.13.q4",
+  "prompt": "Des données quotidiennes montrent un pic d'autocorrélation au décalage 7 par-dessus une lente décroissance. Cela suggère...",
+  "options": [
+   "Un bruit blanc pur",
+   "Un motif saisonnier hebdomadaire",
+   "Un bug dans le code",
+   "Qu'aucun modèle ne peut être ajusté"
+  ],
+  "explanation": "Un pic au décalage saisonnier signifie que la série ressemble à elle-même une semaine plus tôt."
+ },
+ {
+  "id": "cml.13.q5",
+  "prompt": "Ajuster un AR($p$) par moindres carrés revient à...",
+  "options": [
+   "Regrouper (clustering) des valeurs décalées",
+   "Calculer la FFT",
+   "Maximiser l'autocorrélation",
+   "Une régression linéaire dont les variables sont les $p$ valeurs précédentes de la série et une ordonnée à l'origine"
+  ],
+  "explanation": "Chaque cible $y_t$ est régressée sur $[1,y_{t-1},\\dots,y_{t-p}]$ ; la solution résout $X^\\top X\\mathbf w=X^\\top\\mathbf t$."
+ },
+ {
+  "id": "cml.13.q6",
+  "prompt": "Une série de $n=100$ points est ajustée par un AR(3). Combien y a-t-il d'équations d'entraînement (lignes de la matrice de conception) ?",
+  "options": [],
+  "explanation": "Les $p=3$ premières valeurs n'ont pas d'historique complet, donc $m=n-p=97$."
+ },
+ {
+  "id": "cml.13.q7",
+  "prompt": "Pour un AR(1) stationnaire avec $\\phi_1=0.8$, l'autocorrélation théorique au décalage 3 vaut...",
+  "options": [
+   "0.512",
+   "0.8",
+   "0.24",
+   "0"
+  ],
+  "explanation": "$\\rho_k=\\phi_1^k$, donc $0.8^3=0.512$."
+ },
+ {
+  "id": "cml.13.q8",
+  "prompt": "En validation walk-forward, la prédiction pour l'instant $t$ peut utiliser...",
+  "options": [
+   "Toutes les données, pour obtenir le meilleur modèle",
+   "Uniquement les observations postérieures à $t$",
+   "Uniquement les observations aux instants antérieurs à $t$",
+   "Un sous-ensemble aléatoire de tous les instants"
+  ],
+  "explanation": "Un prédicteur placé à l'instant $t$ ne connaît que le passé ; s'ajuster sur quoi que ce soit de plus tardif est une fuite."
+ },
+ {
+  "id": "cml.13.q9",
+  "prompt": "Ton modèle AR a une MAE de 0.9 et la prévision naïve de la dernière valeur a une MAE de 0.8 en validation walk-forward. Que conclus-tu ?",
+  "options": [
+   "Le modèle AR est meilleur parce qu'il est plus complexe",
+   "Le modèle AR n'apporte rien par rapport à la persistance sur ces données",
+   "Les prévisions naïves ne peuvent pas être évaluées",
+   "La validation doit être fausse"
+  ],
+  "explanation": "Un modèle qui perd face à une référence triviale n'a rien appris d'utile ; vérifie la stationnarité, l'ordre du décalage et les données."
+ }
+]

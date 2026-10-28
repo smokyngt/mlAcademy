@@ -1,0 +1,16 @@
+[
+  { "id": "cml.06.c1", "front": "Impureté de Gini d'un nœud", "back": "$G=\\sum_k p_k(1-p_k)=1-\\sum_k p_k^2$ ; 0 pour un nœud pur, 0.5 pour un nœud à deux classes 50/50." },
+  { "id": "cml.06.c2", "front": "Entropie d'un nœud", "back": "$H=-\\sum_k p_k\\log_2 p_k$ en bits ; 0 si pur, 1 bit pour un nœud à deux classes 50/50." },
+  { "id": "cml.06.c3", "front": "Diminution d'impureté d'une coupure", "back": "$\\Delta=I(\\text{parent})-\\frac{n_L}{n}I(L)-\\frac{n_R}{n}I(R)$." },
+  { "id": "cml.06.c4", "front": "Quels seuils un arbre teste-t-il pour une variable numérique ?", "back": "Les milieux entre valeurs distinctes triées consécutives : au plus $n-1$ candidats, puisque seuls ceux-là changent la partition." },
+  { "id": "cml.06.c5", "front": "Pourquoi dit-on que la croissance de l'arbre est gloutonne ?", "back": "Elle prend la meilleure coupure au nœud courant et ne la revoit jamais ; trouver l'arbre globalement optimal est infaisable en calcul." },
+  { "id": "cml.06.c6", "front": "Prédiction d'une feuille dans un arbre de régression", "back": "La moyenne des cibles d'entraînement dans la feuille ; elle minimise l'erreur quadratique pour cette région." },
+  { "id": "cml.06.c7", "front": "Critère d'élagage coût-complexité", "back": "$C(T)=\\sum_\\tau Q_\\tau(T)+\\lambda|T|$ : erreurs des feuilles plus un prix par feuille ; $\\lambda$ choisi par validation croisée." },
+  { "id": "cml.06.c8", "front": "Principales faiblesses d'un arbre seul", "back": "Variance élevée (structure instable), frontières alignées sur les axes, sorties constantes par morceaux qui n'extrapolent pas." },
+  { "id": "cml.06.c9", "front": "Bagging", "back": "Entraîner $M$ modèles sur des échantillons bootstrap (taille $N$, avec remise) et moyenner ou voter ; réduit la variance." },
+  { "id": "cml.06.c10", "front": "Variance d'une moyenne de $M$ modèles corrélés", "back": "$\\rho\\sigma^2+\\frac{1-\\rho}{M}\\sigma^2$ : davantage de modèles ne peut pas supprimer le terme $\\rho\\sigma^2$." },
+  { "id": "cml.06.c11", "front": "Qu'est-ce qui distingue une forêt aléatoire d'arbres bagging ?", "back": "Chaque coupure ne considère qu'un sous-ensemble aléatoire de variables (environ $\\sqrt d$ pour la classification), ce qui décorrèle les arbres." },
+  { "id": "cml.06.c12", "front": "Fraction hors-sac d'un échantillon bootstrap", "back": "$(1-1/N)^N\\to e^{-1}\\approx36.8\\%$ des lignes sont laissées de côté ; $63.2\\%$ des lignes distinctes sont dans l'échantillon." },
+  { "id": "cml.06.c13", "front": "Erreur hors-sac", "back": "Erreur des prédictions faites pour chaque ligne avec les seuls arbres qui ne se sont pas entraînés dessus : une estimation de validation gratuite." },
+  { "id": "cml.06.c14", "front": "Ajouter des arbres à une forêt provoque-t-il du surapprentissage ?", "back": "Non : cela ne fait que réduire le terme $\\frac{1-\\rho}{M}\\sigma^2$ et plafonne ; la profondeur des arbres et la taille des feuilles contrôlent le surapprentissage." }
+]

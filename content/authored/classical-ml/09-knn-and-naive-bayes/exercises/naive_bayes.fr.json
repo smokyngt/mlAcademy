@@ -1,0 +1,10 @@
+{
+  "id": "cml.09.ex2",
+  "title": "Bayes naïf multinomial et gaussien en espace logarithmique",
+  "prompt": "Implémente le Bayes naïf pour des variables de comptage et pour des variables continues. Les classes sont `0..C-1`.\n\n- `mnb_fit(X, y, alpha=1.0)` renvoie `(log_prior, log_theta)` de formes `(C,)` et `(C, V)`, avec le lissage de Laplace $\\theta_{ki}=(n_{ki}+\\alpha)/(\\sum_in_{ki}+\\alpha V)$.\n- `mnb_scores(X, log_prior, log_theta)` renvoie les log a posteriori non normalisés `(N, C)`.\n- `softmax_rows(S)` transforme les scores en probabilités a posteriori, ligne par ligne et de façon numériquement stable.\n- `mnb_predict(X, log_prior, log_theta)` renvoie la classe d'argmax.\n- `gnb_fit(X, y)` renvoie `(log_prior, mu, var)` avec `mu, var` de forme `(C, d)` ; utilise la variance de population plus `1e-9`.\n- `gnb_scores(X, log_prior, mu, var)` renvoie les log a posteriori `(N, C)` à une constante près ; `gnb_predict` renvoie l'argmax.",
+  "hints": [
+    "mnb_fit : pour chaque classe c, counts_c = X[y == c].sum(0) + alpha ; log_theta[c] = log(counts_c / counts_c.sum()). log_prior = log(fréquence de classe).",
+    "scores = X @ log_theta.T + log_prior a pour forme (N, C) ; a posteriori = softmax sur les classes (soustrais d'abord le maximum de la ligne).",
+    "gnb_fit : moyennes et variances par classe (np.var, variance de population) plus un plancher de 1e-9 ; log-vraisemblance = -0.5*log(2*pi*var) - (x-mu)**2/(2*var), sommée sur les variables."
+  ]
+}

@@ -1,0 +1,179 @@
+#@@ meta
+{"id": "llm.08.ex1", "title": "Heuristic filters, a bag-of-words quality classifier and PII scrubbing", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.quality-filtering", "llm.pii", "ml.logreg"], "hints": ["doc_stats: split on whitespace for words; alpha_frac = alphabetic characters / all characters; repeat_frac = 1 - len(set(trigrams))/len(trigrams) over consecutive word triples (0 if there are none). failed_rules returns the names 'length', 'word_len', 'alpha', 'symbols', 'repetition' for each rule that fails.", "Loss = mean binary cross-entropy + 0.5*l2*||w||^2. With p = sigmoid(Xw+b): grad_w = X^T (p - y)/N + l2*w and grad_b = sum(p - y)/N. Vocabulary: lowercase words matched by [a-z0-9']+, counted by document frequency (each word once per document).", "PII: EMAIL like [A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+ then a dot and 2+ letters; PHONE: optional country code, then (555) 123-4567 or 555-123-4567; IPv4: four octets 0-255 with lookarounds so that 1.2.3.4.5 and 999.1.1.1 do not match. Use pattern.subn(placeholder, text) to substitute and count."]}
+#@@ prompt
+Build the three cheapest layers of a data-quality stack.
+
+1. **Heuristic filters.** `doc_stats(text)` returns `n_words`, `mean_word_len`, `alpha_frac` (alphabetic characters / all characters), `symbol_frac` (characters in `#{}[]<>|^~@$%&*=_` / all characters) and `repeat_frac` (`1 - unique/total` over consecutive word trigrams, 0 if fewer than three words). `failed_rules(text, cfg)` returns the list of failed rule names from `length`, `word_len`, `alpha`, `symbols`, `repetition` (thresholds in `DEFAULT_CFG`).
+2. **A learned quality score.** `build_vocab(docs, min_count)` (sorted lowercase words matching `[a-z0-9']+` that occur in at least `min_count` documents), `bow(docs, vocab)` (binary presence matrix), `logreg_loss_grad(w, b, X, y, l2)` returning `(loss, grad_w, grad_b)` for L2-regularised logistic regression, and `train_quality_classifier` (plain full-batch gradient descent) returning `(w, b, loss_history)`.
+3. **PII scrubbing.** `PII_PATTERNS` (a list of `(NAME, compiled_regex)` for `EMAIL`, `PHONE`, `IP`) and `scrub_pii(text)` returning `(scrubbed_text, counts)`, replacing each match with `<NAME>`.
+#@@ starter
+import re
+import numpy as np
+
+def doc_stats(text):
+    raise NotImplementedError
+
+DEFAULT_CFG = {"min_words": 8, "max_words": 2000, "min_mean_len": 3.0, "max_mean_len": 10.0,
+               "min_alpha": 0.6, "max_symbol": 0.1, "max_repeat": 0.3}
+
+def failed_rules(text, cfg=DEFAULT_CFG):
+    raise NotImplementedError
+
+def build_vocab(docs, min_count=2):
+    raise NotImplementedError
+
+def bow(docs, vocab):
+    raise NotImplementedError
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
+
+def logreg_loss_grad(w, b, X, y, l2):
+    raise NotImplementedError
+
+def train_quality_classifier(X, y, lr=0.5, epochs=300, l2=1e-3):
+    raise NotImplementedError
+
+PII_PATTERNS = []   # list of (NAME, compiled regex): EMAIL, PHONE, IP
+
+def scrub_pii(text):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+import re
+s = doc_stats("The cat sat on the mat. The cat sat on the mat.")
+check("doc_stats word count and mean word length", lambda: s["n_words"] == 12 and abs(s["mean_word_len"] - 3.0) < 0.4)
+check("repeat_frac = 1 - unique/total word trigrams", lambda: abs(doc_stats("a b c a b c a b c")["repeat_frac"] - (1 - 3 / 7)) < 1e-12)
+check("symbol_frac counts symbol characters", lambda: abs(doc_stats("#### abcd")["symbol_frac"] - 4 / 9) < 1e-12)
+clean = "The river flows through the old city and reaches the sea after a long journey across the plain."
+check("clean prose passes every rule", lambda: failed_rules(clean) == [])
+check("too short fails length", lambda: "length" in failed_rules("ok then"))
+check("symbol soup fails symbols and alpha", lambda: {"symbols", "alpha"} <= set(failed_rules("|||| #### {{{{ @@@@ $$$$ %%%% ^^^^ &&&& **** ==== ____ <<<< >>>> [[[[ ]]]] |||| ####")))
+check("looped text fails repetition", lambda: "repetition" in failed_rules("the cat sat on the mat " * 6))
+spam = "buy buy buy cheap cheap cheap click here click here click here now now now free free free offer offer offer"
+check("keyword stuffing slips past the cheap heuristics (a classifier is needed)", lambda: failed_rules(spam) == [])
+
+# synthetic quality data
+rng = np.random.default_rng(0)
+func = ["the", "of", "and", "in", "to", "a", "is", "for", "with", "on"]
+shared = [f"item{i}" for i in range(60)]
+goodw = [f"theory{i}" for i in range(80)] + ["river", "history", "energy", "species", "city", "cell", "law", "music"]
+badw = [f"deal{i}" for i in range(60)] + ["buy", "cheap", "click", "free", "offer", "winner", "casino", "discount"]
+def make_doc(kind):
+    pool = goodw if kind == 1 else badw
+    out = []
+    for _ in range(25):
+        u = rng.random()
+        out.append(rng.choice(func) if u < 0.4 else rng.choice(shared) if u < 0.65 else rng.choice(pool))
+    return " ".join(out)
+labels = np.array([i % 2 for i in range(600)])
+docs = [make_doc(k) for k in labels]
+tr_d, te_d, tr_y, te_y = docs[:400], docs[400:], labels[:400].astype(float), labels[400:].astype(float)
+vocab = build_vocab(tr_d, min_count=2)
+Xtr, Xte = bow(tr_d, vocab), bow(te_d, vocab)
+check("vocabulary is sorted, unique, min_count respected", lambda: vocab == sorted(set(vocab)) and "the" in vocab)
+check("bow is binary with shape (docs, vocab)", lambda: Xtr.shape == (400, len(vocab)) and set(np.unique(Xtr)) <= {0.0, 1.0})
+check("a document containing 'buy' has that column set", lambda: Xtr[[i for i, d in enumerate(tr_d) if "buy" in d.split()][0], vocab.index("buy")] == 1.0)
+rs = np.random.default_rng(5)
+w0 = rs.normal(size=Xtr.shape[1]) * 0.1; b0 = 0.2
+loss0, gw, gb = logreg_loss_grad(w0, b0, Xtr, tr_y, 0.01)
+def _fd():
+    for j in rs.choice(len(w0), 5, replace=False):
+        e = np.zeros_like(w0); e[j] = 1e-6
+        num = (logreg_loss_grad(w0 + e, b0, Xtr, tr_y, 0.01)[0] - logreg_loss_grad(w0 - e, b0, Xtr, tr_y, 0.01)[0]) / 2e-6
+        if abs(num - gw[j]) > 1e-6: return False
+    num_b = (logreg_loss_grad(w0, b0 + 1e-6, Xtr, tr_y, 0.01)[0] - logreg_loss_grad(w0, b0 - 1e-6, Xtr, tr_y, 0.01)[0]) / 2e-6
+    return abs(num_b - gb) < 1e-6
+check("gradient matches finite differences (weights and bias)", _fd)
+w, b, hist = train_quality_classifier(Xtr, tr_y)
+acc = float(np.mean((sigmoid(Xte @ w + b) > 0.5) == (te_y == 1)))
+print("held-out accuracy", acc, "final loss", round(hist[-1], 4), "vocab", len(vocab))
+check("training loss decreases monotonically", lambda: all(hist[i + 1] <= hist[i] + 1e-12 for i in range(len(hist) - 1)))
+check("held-out accuracy >= 0.95", lambda: acc >= 0.95)
+top_bad = [vocab[i] for i in np.argsort(w)[:12]]
+top_good = [vocab[i] for i in np.argsort(w)[-12:]]
+print("most negative:", top_bad[:6], "most positive:", top_good[-6:])
+check("spam words get the most negative weights", lambda: sum(t.startswith("deal") or t in {"buy", "cheap", "click", "free", "offer", "winner", "casino", "discount"} for t in top_bad) >= 10)
+check("good words get the most positive weights", lambda: sum(t.startswith("theory") or t in {"river", "history", "energy", "species", "city", "cell", "law", "music"} for t in top_good) >= 10)
+t = "Contact jane.doe@example.org or call (555) 123-4567 / 555-987-6543 from 192.168.1.20. Version 1.2.3.4.5 released 2024-05-01 costs 3.14."
+out, counts = scrub_pii(t)
+print(out)
+check("one email replaced", lambda: "<EMAIL>" in out and counts["EMAIL"] == 1 and "@" not in out)
+check("two phone numbers replaced", lambda: counts["PHONE"] == 2 and "555" not in out)
+check("IPv4 replaced even before a full stop", lambda: counts["IP"] == 1 and "192.168" not in out)
+check("version strings, dates and decimals are left alone", lambda: "1.2.3.4.5" in out and "2024-05-01" in out and "3.14" in out)
+check("999.1.1.1 is not an IP address", lambda: scrub_pii("host 999.1.1.1 down")[0] == "host 999.1.1.1 down")
+#@@ solution
+import re
+import numpy as np
+
+def doc_stats(text):
+    words = text.split()
+    n = len(words)
+    chars = len(text)
+    alpha = sum(c.isalpha() for c in text)
+    sym = sum(c in "#{}[]<>|^~@$%&*=_" for c in text)
+    tri = [tuple(words[i:i + 3]) for i in range(n - 2)]
+    rep = 1 - len(set(tri)) / len(tri) if tri else 0.0
+    return {"n_words": n,
+            "mean_word_len": sum(len(w) for w in words) / n if n else 0.0,
+            "alpha_frac": alpha / chars if chars else 0.0,
+            "symbol_frac": sym / chars if chars else 0.0,
+            "repeat_frac": rep}
+
+DEFAULT_CFG = {"min_words": 8, "max_words": 2000, "min_mean_len": 3.0, "max_mean_len": 10.0,
+               "min_alpha": 0.6, "max_symbol": 0.1, "max_repeat": 0.3}
+
+def failed_rules(text, cfg=DEFAULT_CFG):
+    s = doc_stats(text)
+    f = []
+    if s["n_words"] < cfg["min_words"] or s["n_words"] > cfg["max_words"]: f.append("length")
+    if not (cfg["min_mean_len"] <= s["mean_word_len"] <= cfg["max_mean_len"]): f.append("word_len")
+    if s["alpha_frac"] < cfg["min_alpha"]: f.append("alpha")
+    if s["symbol_frac"] > cfg["max_symbol"]: f.append("symbols")
+    if s["repeat_frac"] > cfg["max_repeat"]: f.append("repetition")
+    return f
+
+def build_vocab(docs, min_count=2):
+    cnt = {}
+    for d in docs:
+        for w in set(re.findall(r"[a-z0-9']+", d.lower())):
+            cnt[w] = cnt.get(w, 0) + 1
+    return sorted(w for w, c in cnt.items() if c >= min_count)
+
+def bow(docs, vocab):
+    idx = {w: i for i, w in enumerate(vocab)}
+    X = np.zeros((len(docs), len(vocab)))
+    for r, d in enumerate(docs):
+        for w in set(re.findall(r"[a-z0-9']+", d.lower())):
+            if w in idx: X[r, idx[w]] = 1.0
+    return X
+
+def sigmoid(z): return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
+
+def logreg_loss_grad(w, b, X, y, l2):
+    p = sigmoid(X @ w + b)
+    eps = 1e-12
+    loss = -np.mean(y * np.log(p + eps) + (1 - y) * np.log(1 - p + eps)) + 0.5 * l2 * np.sum(w * w)
+    r = (p - y) / len(y)
+    return loss, X.T @ r + l2 * w, r.sum()
+
+def train_quality_classifier(X, y, lr=0.5, epochs=300, l2=1e-3):
+    w = np.zeros(X.shape[1]); b = 0.0; hist = []
+    for _ in range(epochs):
+        loss, gw, gb = logreg_loss_grad(w, b, X, y, l2)
+        w -= lr * gw; b -= lr * gb; hist.append(loss)
+    return w, b, hist
+
+PII_PATTERNS = [
+    ("EMAIL", re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")),
+    ("PHONE", re.compile(r"(?<![\d.])(?:\+?\d{1,2}[ -])?(?:\(\d{3}\)\s?|\d{3}[ -])\d{3}[ -]\d{4}(?!\d)")),
+    ("IP", re.compile(r"(?<![\d.])(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)(?!\d)(?!\.\d)")),
+]
+
+def scrub_pii(text):
+    counts = {}
+    for name, pat in PII_PATTERNS:
+        text, k = pat.subn(f"<{name}>", text)
+        counts[name] = k
+    return text, counts

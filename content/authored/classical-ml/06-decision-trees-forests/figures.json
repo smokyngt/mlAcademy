@@ -1,0 +1,50 @@
+[
+  {
+    "id": "impurity-curves",
+    "after": 3,
+    "kind": "plot",
+    "caption": { "en": "Impurity of a two-class node as a function of the fraction p of one class: Gini G = 2p(1 − p) (blue, max 0.5) and entropy H = −p log₂p − (1 − p) log₂(1 − p) (orange, max 1 bit). Both are 0 for a pure node and largest at p = 0.5; the worked example's parent (p = 0.6) has G = 0.48, H = 0.971.", "fr": "Impureté d'un nœud à deux classes en fonction de la fraction p d'une classe : Gini G = 2p(1 − p) (bleu, max 0,5) et entropie H = −p log₂p − (1 − p) log₂(1 − p) (orange, max 1 bit). Les deux valent 0 pour un nœud pur et sont maximales en p = 0,5 ; le parent de l'exemple traité (p = 0,6) a G = 0,48, H = 0,971." },
+    "spec": {
+      "xDomain": [0, 1], "yDomain": [0, 1.1], "height": 300,
+      "data": [
+        { "fn": "2*x*(1-x)", "color": "#2563eb" },
+        { "fn": "-(x*log(x) + (1-x)*log(1-x))/log(2)", "color": "#d97706" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[0.6, 0.48], [0.6, 0.971]] }
+      ]
+    }
+  },
+  {
+    "id": "split-tree",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": { "en": "The worked example as a tree. The greedy split x ≤ 5.5 turns a parent with Gini 0.48 into a left child with Gini 0.32 and a pure right child: gain = 0.48 − (5/10)·0.32 − (5/10)·0 = 0.32.", "fr": "L'exemple traité sous forme d'arbre. La coupure gloutonne x ≤ 5,5 transforme un parent de Gini 0,48 en un enfant gauche de Gini 0,32 et un enfant droit pur : gain = 0,48 − (5/10)·0,32 − (5/10)·0 = 0,32." },
+    "code": {
+      "en": "flowchart TD\n  R[\"Root: 10 points (4 zeros, 6 ones)\\nGini 0.48\"] -->|\"x <= 5.5 : yes\"| L[\"Left: 5 points (4 zeros, 1 one)\\nGini 0.32 -> predict 0\"]\n  R -->|\"x > 5.5 : no\"| RR[\"Right: 5 points (5 ones)\\nGini 0 -> predict 1\"]\n  L -.->|\"could split again (x <= 2.5 ...)\"| L2[\"deeper nodes\"]",
+      "fr": "flowchart TD\n  R[\"Racine : 10 points (4 zéros, 6 uns)\\nGini 0,48\"] -->|\"x <= 5,5 : oui\"| L[\"Gauche : 5 points (4 zéros, 1 un)\\nGini 0,32 -> prédire 0\"]\n  R -->|\"x > 5,5 : non\"| RR[\"Droite : 5 points (5 uns)\\nGini 0 -> prédire 1\"]\n  L -.->|\"peut encore être coupé (x <= 2,5 ...)\"| L2[\"nœuds plus profonds\"]"
+    }
+  },
+  {
+    "id": "forest-variance",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "Variance of an average of M trees with individual variance σ² = 1 and pairwise correlation ρ: ρσ² + (1 − ρ)σ²/M. With uncorrelated trees (ρ = 0, blue) it keeps falling like 1/M; with ρ = 0.3 (orange) or 0.6 (red) it hits the floor ρσ². This is why random forests decorrelate trees. x-axis: M.", "fr": "Variance d'une moyenne de M arbres de variance individuelle σ² = 1 et de corrélation ρ deux à deux : ρσ² + (1 − ρ)σ²/M. Avec des arbres non corrélés (ρ = 0, bleu) elle continue de baisser en 1/M ; avec ρ = 0,3 (orange) ou 0,6 (rouge) elle atteint le plancher ρσ². C'est pourquoi les forêts aléatoires décorrèlent les arbres. Axe x : M." },
+    "spec": {
+      "xDomain": [1, 30], "yDomain": [0, 1.05], "height": 300,
+      "data": [
+        { "fn": "1/x", "color": "#2563eb" },
+        { "fn": "0.3 + 0.7/x", "color": "#d97706" },
+        { "fn": "0.6 + 0.4/x", "color": "#dc2626" }
+      ]
+    }
+  },
+  {
+    "id": "bagging-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": { "en": "A random forest: each tree sees a bootstrap sample (about 63.2% of the distinct rows) and, at every split, a random subset of features. The out-of-bag rows of each tree give a free validation estimate.", "fr": "Une forêt aléatoire : chaque arbre voit un échantillon bootstrap (environ 63,2 % des lignes distinctes) et, à chaque coupure, un sous-ensemble aléatoire de variables. Les lignes hors-échantillon de chaque arbre donnent une estimation de validation gratuite." },
+    "code": {
+      "en": "flowchart LR\n  D[\"Training set (N rows)\"] --> B1[\"Bootstrap 1\"]\n  D --> B2[\"Bootstrap 2\"]\n  D --> BM[\"Bootstrap M\"]\n  B1 --> T1[\"Tree 1\\n(random m features per split)\"]\n  B2 --> T2[\"Tree 2\\n(random m features per split)\"]\n  BM --> TM[\"Tree M\\n(random m features per split)\"]\n  T1 --> V[\"Vote / average\"]\n  T2 --> V\n  TM --> V\n  V --> P[\"Prediction\"]\n  D -.->|\"rows left out of a tree\"| O[\"OOB error\"]",
+      "fr": "flowchart LR\n  D[\"Jeu d'entraînement (N lignes)\"] --> B1[\"Bootstrap 1\"]\n  D --> B2[\"Bootstrap 2\"]\n  D --> BM[\"Bootstrap M\"]\n  B1 --> T1[\"Arbre 1\\n(m variables aléatoires par coupure)\"]\n  B2 --> T2[\"Arbre 2\\n(m variables aléatoires par coupure)\"]\n  BM --> TM[\"Arbre M\\n(m variables aléatoires par coupure)\"]\n  T1 --> V[\"Vote / moyenne\"]\n  T2 --> V\n  TM --> V\n  V --> P[\"Prédiction\"]\n  D -.->|\"lignes laissées de côté par un arbre\"| O[\"Erreur OOB\"]"
+    }
+  }
+]

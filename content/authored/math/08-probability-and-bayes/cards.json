@@ -1,0 +1,14 @@
+[
+  { "id": "math.08.c1", "concept": "prob.basics", "front": "Sum rule", "back": "$p(x)=\\sum_y p(x,y)$ (or $\\int p(x,y)\\,dy$): marginalise out $y$." },
+  { "id": "math.08.c2", "concept": "prob.basics", "front": "Product rule", "back": "$p(x,y)=p(y\\mid x)\\,p(x)=p(x\\mid y)\\,p(y)$." },
+  { "id": "math.08.c3", "concept": "prob.basics", "front": "Conditional probability", "back": "$p(y\\mid x)=p(x,y)/p(x)$: a fraction within the sub-population where $x$ holds." },
+  { "id": "math.08.c4", "concept": "prob.basics", "front": "Bayes' theorem", "back": "$p(x\\mid y)=\\dfrac{p(y\\mid x)\\,p(x)}{p(y)}$: posterior = likelihood × prior / evidence." },
+  { "id": "math.08.c5", "concept": "prob.basics", "front": "Evidence (marginal likelihood)", "back": "$p(y)=\\sum_x p(y\\mid x)p(x)$: normalises the posterior." },
+  { "id": "math.08.c6", "concept": "prob.basics", "front": "Independence", "back": "$p(x,y)=p(x)p(y)$, i.e. $p(y\\mid x)=p(y)$." },
+  { "id": "math.08.c7", "concept": "prob.basics", "front": "Base-rate fallacy", "back": "Ignoring a low prior: even an accurate test gives mostly false positives for a rare condition." },
+  { "id": "math.08.c8", "concept": "prob.basics", "front": "Is the likelihood a distribution over the hypothesis?", "back": "No: $p(y\\mid x)$ sums to 1 over the data $y$, not over $x$." },
+  { "id": "math.08.c9", "concept": "prob.basics", "front": "Prior equal to 0", "back": "That hypothesis can never be revived by evidence; give plausible ones non-zero prior." },
+  { "id": "math.08.c10", "concept": "prob.basics", "front": "Sequential Bayesian updating", "back": "Today's posterior is tomorrow's prior; for independent data the order does not matter." },
+  { "id": "math.08.c11", "concept": "prob.basics", "front": "pmf vs pdf vs cdf", "back": "pmf $P(X=x)$ discrete; pdf $p(x)$ continuous (can exceed 1); cdf $P(X\\le x)$." },
+  { "id": "math.08.c12", "concept": "prob.basics", "front": "Stored joint table shapes", "back": "$P:(n,m)$; $p(x)=P.\\text{sum}(1)$, $p(y)=P.\\text{sum}(0)$, $p(y\\mid x)=P/P.\\text{sum}(1,\\text{keepdims})$." }
+]

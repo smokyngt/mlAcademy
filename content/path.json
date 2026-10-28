@@ -1,0 +1,362 @@
+{
+  "_doc": "THE learning path, beginner to expert, in two parts. Modules are taught in order; lessons inside a module are in order. Ids that do not exist yet are skipped (never shown as fake lessons). Any authored lesson not listed here is appended to a 'More' module so nothing is ever hidden.",
+  "levels": [
+    "beginner",
+    "intermediate",
+    "advanced",
+    "expert"
+  ],
+  "parts": [
+    {
+      "id": "math",
+      "modules": [
+        {
+          "id": "m-b1",
+          "level": "beginner",
+          "title": "Start here: programming, algebra, functions, limits",
+          "items": [
+            "mf.01",
+            "mf.02",
+            "mf.03",
+            "mf.04",
+            "mf.05",
+            "mf.06",
+            "mf.07"
+          ]
+        },
+        {
+          "id": "m-b2",
+          "level": "beginner",
+          "title": "Vectors and matrices",
+          "items": [
+            "f2n.01",
+            "f2n.02",
+            "f2n.03"
+          ]
+        },
+        {
+          "id": "m-b3",
+          "level": "beginner",
+          "title": "Calculus for learning: derivatives to the chain rule",
+          "items": [
+            "f2n.04",
+            "f2n.05",
+            "f2n.06"
+          ]
+        },
+        {
+          "id": "m-i1",
+          "level": "intermediate",
+          "title": "Linear algebra, deeper",
+          "items": [
+            "math.11",
+            "math.17",
+            "math.07",
+            "math.16"
+          ]
+        },
+        {
+          "id": "m-i2",
+          "level": "intermediate",
+          "title": "Probability and statistics",
+          "items": [
+            "math.08",
+            "math.09",
+            "math.13",
+            "math.14"
+          ]
+        },
+        {
+          "id": "m-i3",
+          "level": "intermediate",
+          "title": "Information theory, optimisation, numerics",
+          "items": [
+            "math.10",
+            "math.12",
+            "math.15"
+          ]
+        },
+        {
+          "id": "m-a1",
+          "level": "advanced",
+          "title": "Mathematical toolbox: complex numbers, Fourier, graphs, Markov chains, integrals",
+          "items": [
+            "mx.01",
+            "mx.02",
+            "mx.03",
+            "mx.04",
+            "mx.05"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ml",
+      "modules": [
+        {
+          "id": "l-b1",
+          "level": "beginner",
+          "title": "Learning as optimisation",
+          "items": [
+            "f2n.07",
+            "f2n.08"
+          ]
+        },
+        {
+          "id": "l-b2",
+          "level": "beginner",
+          "title": "Your first models: regression, classification, clustering, PCA",
+          "items": [
+            "cml.01",
+            "cml.02",
+            "cml.03",
+            "cml.04",
+            "cml.05"
+          ]
+        },
+        {
+          "id": "l-i1",
+          "level": "intermediate",
+          "title": "More classical models",
+          "items": [
+            "cml.06",
+            "cml.07",
+            "cml.08",
+            "cml.09"
+          ]
+        },
+        {
+          "id": "l-i2",
+          "level": "intermediate",
+          "title": "Doing machine learning properly",
+          "items": [
+            "cml.10",
+            "cml.11",
+            "cml.12",
+            "cml.15",
+            "cml.16",
+            "cml.18",
+            "cml.19"
+          ]
+        },
+        {
+          "id": "l-i3",
+          "level": "intermediate",
+          "title": "Time series, anomalies, interpretation",
+          "items": [
+            "cml.13",
+            "cml.14",
+            "cml.17"
+          ]
+        },
+        {
+          "id": "l-i4",
+          "level": "intermediate",
+          "title": "Neural networks from scratch",
+          "items": [
+            "f2n.09",
+            "f2n.10",
+            "f2n.11",
+            "f2n.12"
+          ]
+        },
+        {
+          "id": "l-i5",
+          "level": "intermediate",
+          "title": "The deep learning toolkit",
+          "items": [
+            "dl.01",
+            "dl.02",
+            "dl.03",
+            "dl.04"
+          ]
+        },
+        {
+          "id": "l-a1",
+          "level": "advanced",
+          "title": "Images: convolutions and vision",
+          "items": [
+            "seq.01",
+            "vis.01",
+            "vis.02",
+            "vis.03",
+            "vis.04",
+            "vis.05",
+            "vis.06",
+            "vis.07"
+          ]
+        },
+        {
+          "id": "l-a2",
+          "level": "advanced",
+          "title": "Language and sequences before transformers",
+          "items": [
+            "nlp.01",
+            "nlp.02",
+            "seq.02",
+            "nlp.04",
+            "nlp.03",
+            "seq.03",
+            "seq.04",
+            "seq.05",
+            "nlp.05",
+            "nlp.06"
+          ]
+        },
+        {
+          "id": "l-a3",
+          "level": "advanced",
+          "title": "Attention and the transformer",
+          "items": [
+            "trf.01",
+            "trf.02",
+            "trf.03",
+            "trf.04",
+            "trf.05"
+          ]
+        },
+        {
+          "id": "l-a4",
+          "level": "advanced",
+          "title": "Generative models",
+          "items": [
+            "gen.01",
+            "gen.02",
+            "gen.03",
+            "gen.04",
+            "gen.05",
+            "gen.06"
+          ]
+        },
+        {
+          "id": "l-a5",
+          "level": "advanced",
+          "title": "Reinforcement learning",
+          "items": [
+            "rl.01",
+            "rl.02",
+            "rl.03",
+            "rl.04",
+            "rl.05",
+            "rl.06"
+          ]
+        },
+        {
+          "id": "l-a6",
+          "level": "advanced",
+          "title": "Speech and audio",
+          "items": [
+            "aud.01",
+            "aud.02",
+            "aud.03",
+            "aud.04",
+            "aud.05"
+          ]
+        },
+        {
+          "id": "l-e1",
+          "level": "expert",
+          "title": "Building and aligning language models",
+          "items": [
+            "llm.01",
+            "llm.02",
+            "llm.03",
+            "llm.08",
+            "llm.07",
+            "llm.04",
+            "llm.05",
+            "llm.06"
+          ]
+        },
+        {
+          "id": "l-e2",
+          "level": "expert",
+          "title": "Fast inference, retrieval and evaluation",
+          "items": [
+            "sys.01",
+            "sys.02",
+            "sys.03",
+            "sys.04"
+          ]
+        },
+        {
+          "id": "l-e3",
+          "level": "expert",
+          "title": "Modern and multimodal architectures",
+          "items": [
+            "adv.01",
+            "adv.02",
+            "adv.03",
+            "adv.04",
+            "adv.05",
+            "adv.06"
+          ]
+        },
+        {
+          "id": "l-e4",
+          "level": "expert",
+          "title": "LLM applications",
+          "items": [
+            "app.01",
+            "app.02",
+            "app.03",
+            "app.04",
+            "app.05",
+            "app.06"
+          ]
+        },
+        {
+          "id": "l-e5",
+          "level": "expert",
+          "title": "ML systems and operations",
+          "items": [
+            "ops.01",
+            "ops.02",
+            "ops.03",
+            "ops.04",
+            "ops.05",
+            "ops.06"
+          ]
+        },
+        {
+          "id": "l-e8",
+          "level": "expert",
+          "title": "GPUs, CUDA and performance engineering",
+          "items": [
+            "gpu.01",
+            "gpu.02",
+            "gpu.03"
+          ]
+        },
+        {
+          "id": "l-e6",
+          "level": "expert",
+          "title": "Reasoning models and research practice",
+          "items": [
+            "rsn.01",
+            "rsn.02",
+            "rsn.03",
+            "rsn.04",
+            "rsn.05",
+            "sys.05",
+            "res.01",
+            "res.02"
+          ]
+        },
+        {
+          "id": "l-e7",
+          "level": "expert",
+          "title": "Safety, alignment, fairness and privacy",
+          "items": [
+            "saf.01",
+            "saf.02",
+            "saf.03",
+            "saf.04",
+            "saf.05",
+            "saf.06"
+          ]
+        }
+      ]
+    }
+  ]
+}

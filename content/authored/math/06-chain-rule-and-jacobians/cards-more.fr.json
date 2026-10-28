@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.06.c14", "front": "Règle de la chaîne avec plusieurs chemins", "back": "Somme, sur chaque chemin, du produit des dérivées locales." },
+  { "id": "f2n.06.c15", "front": "Coefficient de la jacobienne", "back": "$(J_f)_{ij}=\\partial f_i/\\partial x_j$." },
+  { "id": "f2n.06.c16", "front": "Image au premier ordre avec une jacobienne", "back": "$f(x+\\delta)\\approx f(x)+J_f(x)\\delta$." },
+  { "id": "f2n.06.c17", "front": "Produit vecteur-jacobienne", "back": "$\\nabla_xL=J_f^\\top g$ avec $g=\\nabla_yL$." },
+  { "id": "f2n.06.c18", "front": "Arrière de $y=Wx$ par rapport à $W$", "back": "$gx^\\top$, de la forme de $W$." },
+  { "id": "f2n.06.c19", "front": "Arrière de $y=z+b$", "back": "$\\nabla_zL=\\nabla_bL=g$ (la jacobienne est $I$)." },
+  { "id": "f2n.06.c20", "front": "Jacobienne d'une application terme à terme", "back": "Diagonale : $\\operatorname{diag}(\\phi'(z))$." },
+  { "id": "f2n.06.c21", "front": "Règle de la chaîne : $y=\\sigma(wx+b)$, $dy/dw$", "back": "$\\sigma'(z)\\,x$ avec $z=wx+b$." },
+  { "id": "f2n.06.c22", "front": "Pourquoi l'ordre inverse est peu coûteux pour une perte scalaire", "back": "Un seul balayage arrière donne le gradient de tous les paramètres." }
+]

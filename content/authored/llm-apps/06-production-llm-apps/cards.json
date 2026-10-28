@@ -1,0 +1,92 @@
+[
+ {
+  "id": "app.06.c1",
+  "concept": "app.production",
+  "front": "Prototype vs production",
+  "back": "The model is a small part; the gap is gateway, guardrails, caching, retries, fallbacks, streaming, observability and budgets."
+ },
+ {
+  "id": "app.06.c2",
+  "concept": "app.production",
+  "front": "Pipeline request flow",
+  "back": "Gateway, input guardrails, prompt router, cache, retrieval/tools and model call, output guardrails, logging and cost tracking, streamed response."
+ },
+ {
+  "id": "app.06.c3",
+  "concept": "app.production",
+  "front": "Stage cost and latency",
+  "back": "$\\text{cost}=(n_{in}c_{in}+n_{out}c_{out})/10^6$; $\\text{latency}=\\tau+n_{out}/v$."
+ },
+ {
+  "id": "app.06.c4",
+  "concept": "app.production",
+  "front": "Parallel stages",
+  "back": "Cost adds; latency is the max of the group. Sequential steps add latency."
+ },
+ {
+  "id": "app.06.c5",
+  "concept": "app.production",
+  "front": "Why output tokens dominate",
+  "back": "Latency is linear in generated tokens and output tokens cost more than input tokens."
+ },
+ {
+  "id": "app.06.c6",
+  "concept": "app.production",
+  "front": "Expected cost with retries",
+  "back": "$\\text{cost}\\,(1-p^k)/(1-p)$ for failure probability p and k attempts (failed attempts billed)."
+ },
+ {
+  "id": "app.06.c7",
+  "concept": "app.production",
+  "front": "Reliability toolkit",
+  "back": "Timeouts, capped retries with backoff and jitter on idempotent calls, fallbacks, streaming, budgets, request ids."
+ },
+ {
+  "id": "app.06.c8",
+  "concept": "app.production",
+  "front": "What a trace records",
+  "back": "Per-stage spans with prompt version, model, tokens, cache hit, retrieval ids, tool calls, guardrail verdicts, latency, cost."
+ },
+ {
+  "id": "app.06.c9",
+  "concept": "app.agent-graph",
+  "front": "Agent graph parts",
+  "back": "State, nodes (state to partial update), edges (static or conditional), reducers (how updates merge)."
+ },
+ {
+  "id": "app.06.c10",
+  "concept": "app.agent-graph",
+  "front": "ReAct as a graph",
+  "back": "Nodes agent and tools; conditional edge agent -> tools if a tool call is pending else end; edge tools -> agent."
+ },
+ {
+  "id": "app.06.c11",
+  "concept": "app.agent-graph",
+  "front": "Reducer pitfall",
+  "back": "Without an append reducer on messages, the next update overwrites the history silently."
+ },
+ {
+  "id": "app.06.c12",
+  "concept": "app.agent-graph",
+  "front": "Four graph capabilities",
+  "back": "Checkpointing, interrupts (human in the loop), streaming of events, time-travel from past checkpoints."
+ },
+ {
+  "id": "app.06.c13",
+  "concept": "app.agent-graph",
+  "front": "Why cap steps",
+  "back": "A runaway loop would otherwise be unbounded in cost and time; return status max_steps."
+ },
+ {
+  "id": "app.06.c14",
+  "concept": "app.agent-graph",
+  "front": "MCP primitives",
+  "back": "Tools (actions), resources (URI-addressed content), prompts (templates), exposed by servers to a host's clients over JSON-RPC."
+ },
+ {
+  "id": "app.06.c15",
+  "concept": "app.agent-graph",
+  "front": "What MCP does not do",
+  "back": "Choose tools, make untrusted content safe, or replace approvals and least privilege."
+ }
+]

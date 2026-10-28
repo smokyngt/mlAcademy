@@ -1,0 +1,11 @@
+{
+  "id": "mf.07.ex1",
+  "title": "Exploration numérique des limites",
+  "prompt": "Explore numériquement les limites et la continuité.\n\n- `one_sided(f, a, h=1e-6)` : renvoie `(f(a - h), f(a + h))`.\n- `limit_estimate(f, a)` : utilise `h = 1e-6` ; si les deux valeurs unilatérales diffèrent de moins de `1e-4`, renvoie leur moyenne, sinon renvoie `None` (pas de limite).\n- `is_continuous_at(f, a)` : `True` seulement si `f(a)` peut être évalué (pas d'exception, fini), si la limite existe et si `abs(f(a) - limit) < 1e-4`.\n- `delta_for_epsilon(f, a, L, eps)` : essaie `delta = 1, 1/2, 1/4, ...` et renvoie le premier tel que `|f(x) - L| < eps` pour 2001 points d'échantillonnage `x` dans `[a - delta, a + delta]` avec `x != a`.\n- `diff_quotient(f, x, h)` : $(f(x+h)-f(x))/h$.\n- `derivative_estimate(f, x)` : le taux d'accroissement avec `h = 1e-6`.",
+  "hints": [
+    "one_sided(f, a, h) : renvoie (f(a - h), f(a + h)).",
+    "limit_estimate : left, right = one_sided(f, a, 1e-6) ; si abs(left - right) < 1e-4 renvoie (left + right)/2 sinon None.",
+    "is_continuous_at : entoure f(a) d'un try/except (ZeroDivisionError, ValueError) ; puis compare avec limit_estimate.",
+    "delta_for_epsilon : essaie delta = 1, 1/2, 1/4, ... ; pour chacun, échantillonne x = np.linspace(a-delta, a+delta, 2001) en excluant a lui-même ; accepte le premier delta tel que tous les |f(x)-L| < eps."
+  ]
+}

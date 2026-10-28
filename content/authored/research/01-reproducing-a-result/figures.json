@@ -1,0 +1,71 @@
+[
+  {
+    "id": "repro-lifecycle",
+    "after": 2,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The lifecycle of a small-scale reproduction: one claim, an explicit setup table, a compute plan that fits the budget, several seeds, a comparison of ranges, and a report whose core is the list of deviations.",
+      "fr": "Le cycle de vie d'une reproduction à petite échelle : une affirmation, un tableau de configuration explicite, un plan de calcul qui tient dans le budget, plusieurs graines, une comparaison de plages, et un rapport dont le coeur est la liste des écarts."
+    },
+    "code": {
+      "en": "flowchart LR\n  C[\"1. choose one claim<br/>setting, A vs B, metric, direction\"] --> S[\"2. extract the exact setup<br/>unreported details become<br/>logged assumptions\"]\n  S --> PL[\"3. plan compute<br/>R = configs x seeds,<br/>R x minutes at most budget\"]\n  PL --> RUN[\"run all seeds<br/>both arms, same seeds\"]\n  RUN --> CMP[\"4. compare with the paper<br/>mean, sd, 95% interval\"]\n  CMP --> REP[\"5. report<br/>deviations, verdict, limits\"]",
+      "fr": "flowchart LR\n  C[\"1. choisir une affirmation<br/>cadre, A contre B, métrique, sens\"] --> S[\"2. extraire la configuration exacte<br/>les détails absents deviennent<br/>des hypothèses consignées\"]\n  S --> PL[\"3. planifier le calcul<br/>R = configs x graines,<br/>R x minutes au plus le budget\"]\n  PL --> RUN[\"exécuter toutes les graines<br/>deux bras, mêmes graines\"]\n  RUN --> CMP[\"4. comparer à l'article<br/>moyenne, écart-type, intervalle à 95 %\"]\n  CMP --> REP[\"5. rapporter<br/>écarts, verdict, limites\"]"
+    }
+  },
+  {
+    "id": "repro-verdict",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The verdict rule: the paper's number r is compared with your 95% interval first, then with a tolerance fixed before running. Only a miss on both is reported as not reproduced.",
+      "fr": "La règle du verdict : le nombre r de l'article est comparé d'abord à votre intervalle à 95 %, puis à une tolérance fixée avant l'exécution. Seul un échec aux deux est rapporté comme non reproduit."
+    },
+    "code": {
+      "en": "flowchart TD\n  A[\"paper number r<br/>my n runs: mean, sd s\"] --> B{\"r inside<br/>mean +- t * s / sqrt(n)?\"}\n  B -->|yes| R1[\"reproduced\"]\n  B -->|no| C{\"|mean - r| at most tau<br/>(tau fixed before running)?\"}\n  C -->|yes| R2[\"within tolerance<br/>say so explicitly\"]\n  C -->|no| R3[\"not reproduced:<br/>a finding, then diagnose\"]",
+      "fr": "flowchart TD\n  A[\"nombre r de l'article<br/>mes n exécutions : moyenne, écart-type s\"] --> B{\"r dans<br/>mean +- t * s / sqrt(n)?\"}\n  B -->|oui| R1[\"reproduit\"]\n  B -->|non| C{\"|mean - r| au plus tau<br/>(tau fixé avant l'exécution) ?\"}\n  C -->|oui| R2[\"dans la tolérance<br/>à dire explicitement\"]\n  C -->|non| R3[\"non reproduit :<br/>un résultat, puis diagnostic\"]"
+    }
+  },
+  {
+    "id": "sem-shrink",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Spread of one run versus uncertainty of your mean, in units of the sample sd s: a single run varies by s (grey), the mean of n runs by s/sqrt(n) (blue). The paper's single number should be compared with mean +- 2s, not with the interval of the mean.",
+      "fr": "Dispersion d'une exécution contre incertitude de votre moyenne, en unités de l'écart-type s : une seule exécution varie de s (gris), la moyenne de n exécutions de s/sqrt(n) (bleu). Le nombre unique de l'article se compare à moyenne +- 2s, pas à l'intervalle de la moyenne."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        30
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 280,
+      "data": [
+        {
+          "fn": "1/sqrt(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "color": "#9ca3af"
+        }
+      ]
+    }
+  },
+  {
+    "id": "repro-failure-order",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Why reproductions fail, in the order to check (cheapest first), ending with a stopping rule fixed in advance.",
+      "fr": "Pourquoi les reproductions échouent, dans l'ordre de vérification (le moins cher d'abord), avec une règle d'arrêt fixée à l'avance."
+    },
+    "code": {
+      "en": "flowchart TD\n  N[\"my number disagrees with the paper\"] --> a[\"1. unreported details:<br/>init, warmup, weight decay, filtering\"]\n  a --> b[\"2. different evaluation:<br/>recompute the baseline with my code\"]\n  b --> c[\"3. data leakage,<br/>theirs or mine\"]\n  c --> d[\"4. seeds and variance:<br/>best-of-N or a lucky run\"]\n  d --> e[\"5. non-determinism:<br/>hardware, library versions\"]\n  e --> f[\"6. scale: effect absent at my size\"]\n  f --> g[\"7. claim weaker than its summary\"]\n  g --> STOP[\"stop rule:<br/>report not reproduced and what was tried\"]",
+      "fr": "flowchart TD\n  N[\"mon nombre diffère de celui de l'article\"] --> a[\"1. détails non rapportés :<br/>init, warmup, weight decay, filtrage\"]\n  a --> b[\"2. évaluation différente :<br/>recalculer la référence avec mon code\"]\n  b --> c[\"3. fuite de données,<br/>la leur ou la mienne\"]\n  c --> d[\"4. graines et variance :<br/>meilleur de N ou exécution chanceuse\"]\n  d --> e[\"5. non-déterminisme :<br/>matériel, versions de bibliothèques\"]\n  e --> f[\"6. échelle : effet absent à ma taille\"]\n  f --> g[\"7. affirmation plus faible que son résumé\"]\n  g --> STOP[\"règle d'arrêt :<br/>rapporter non reproduit et ce qui a été essayé\"]"
+    }
+  }
+]

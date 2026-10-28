@@ -1,0 +1,53 @@
+[
+  {
+    "id": "split-protocol",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": { "en": "The measuring protocol: fit on train, choose settings on validation (or with k-fold CV on the training data), and touch the test set once at the very end.", "fr": "Le protocole de mesure : ajuster sur l'entraînement, choisir les réglages sur la validation (ou par validation croisée k blocs sur les données d'entraînement), et ne toucher le test qu'une fois, à la toute fin." },
+    "code": {
+      "en": "flowchart LR\n  D[\"All data\"] --> TR[\"Train\"]\n  D --> VA[\"Validation\"]\n  D --> TE[\"Test (sealed)\"]\n  TR -->|\"fit weights\"| M[\"Model(settings)\"]\n  VA -->|\"measure, pick best settings\"| M\n  M -->|\"retrain with best settings\"| F[\"Final model\"]\n  F -->|\"once\"| TE\n  TE --> R[\"Reported number\"]",
+      "fr": "flowchart LR\n  D[\"Toutes les données\"] --> TR[\"Entraînement\"]\n  D --> VA[\"Validation\"]\n  D --> TE[\"Test (scellé)\"]\n  TR -->|\"ajuster les poids\"| M[\"Modèle(réglages)\"]\n  VA -->|\"mesurer, choisir les meilleurs réglages\"| M\n  M -->|\"réentraîner avec les meilleurs réglages\"| F[\"Modèle final\"]\n  F -->|\"une seule fois\"| TE\n  TE --> R[\"Nombre rapporté\"]"
+    }
+  },
+  {
+    "id": "kfold",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": { "en": "k-fold cross-validation with k = 3: every point is used for validation exactly once; the three errors are averaged.", "fr": "Validation croisée à k = 3 blocs : chaque point sert exactement une fois à la validation ; les trois erreurs sont moyennées." },
+    "code": {
+      "en": "flowchart TB\n  subgraph R1[\"Round 1\"]\n    direction LR\n    A1[\"Fold 1: validate\"] --- B1[\"Fold 2: train\"] --- C1[\"Fold 3: train\"]\n  end\n  subgraph R2[\"Round 2\"]\n    direction LR\n    A2[\"Fold 1: train\"] --- B2[\"Fold 2: validate\"] --- C2[\"Fold 3: train\"]\n  end\n  subgraph R3[\"Round 3\"]\n    direction LR\n    A3[\"Fold 1: train\"] --- B3[\"Fold 2: train\"] --- C3[\"Fold 3: validate\"]\n  end\n  R1 --> E[\"mean of the 3 errors\"]\n  R2 --> E\n  R3 --> E",
+      "fr": "flowchart TB\n  subgraph R1[\"Tour 1\"]\n    direction LR\n    A1[\"Bloc 1 : validation\"] --- B1[\"Bloc 2 : entraînement\"] --- C1[\"Bloc 3 : entraînement\"]\n  end\n  subgraph R2[\"Tour 2\"]\n    direction LR\n    A2[\"Bloc 1 : entraînement\"] --- B2[\"Bloc 2 : validation\"] --- C2[\"Bloc 3 : entraînement\"]\n  end\n  subgraph R3[\"Tour 3\"]\n    direction LR\n    A3[\"Bloc 1 : entraînement\"] --- B3[\"Bloc 2 : entraînement\"] --- C3[\"Bloc 3 : validation\"]\n  end\n  R1 --> E[\"moyenne des 3 erreurs\"]\n  R2 --> E\n  R3 --> E"
+    }
+  },
+  {
+    "id": "train-test-error",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "The real experiment (table values): training MSE (blue) only falls with the polynomial degree, test MSE (orange) is U-shaped with its minimum near degree 3, next to the noise floor σ² = 0.01. x-axis: degree (1, 3, 9, 15).", "fr": "L'expérience réelle (valeurs du tableau) : l'EQM d'entraînement (bleu) ne fait que baisser avec le degré du polynôme, l'EQM de test (orange) a une forme en U avec un minimum près du degré 3, au voisinage du plancher de bruit σ² = 0,01. Axe x : degré (1, 3, 9, 15)." },
+    "spec": {
+      "xDomain": [0, 16], "yDomain": [0, 0.05], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[1, 0.042], [3, 0.0081], [9, 0.0045], [15, 0.0035]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#d97706", "points": [[1, 0.036], [3, 0.0103], [9, 0.0153], [15, 0.0173]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[1, 0.042], [3, 0.0081], [9, 0.0045], [15, 0.0035]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#d97706", "attr": { "r": 4 }, "points": [[1, 0.036], [3, 0.0103], [9, 0.0153], [15, 0.0173]] }
+      ],
+      "annotations": [{ "y": 0.01, "text": "noise floor sigma^2 = 0.01" }]
+    }
+  },
+  {
+    "id": "bias-variance",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "Schematic of the decomposition test error = bias² + variance + σ² as complexity grows (x-axis, arbitrary units; curves are illustrative, not measured). Bias² (blue) falls, variance (orange) rises, and their sum plus the constant noise (red) is U-shaped.", "fr": "Schéma de la décomposition erreur de test = biais² + variance + σ² quand la complexité croît (axe x, unités arbitraires ; courbes illustratives, non mesurées). Le biais² (bleu) baisse, la variance (orange) monte, et leur somme plus le bruit constant (rouge) a une forme en U." },
+    "spec": {
+      "xDomain": [0.5, 10], "yDomain": [0, 2.5], "height": 320,
+      "data": [
+        { "fn": "2/(x^2)", "color": "#2563eb" },
+        { "fn": "x^2/80", "color": "#d97706" },
+        { "fn": "2/(x^2) + x^2/80 + 0.2", "color": "#dc2626" }
+      ],
+      "annotations": [{ "y": 0.2, "text": "irreducible noise sigma^2" }]
+    }
+  }
+]

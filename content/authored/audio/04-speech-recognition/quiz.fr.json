@@ -1,0 +1,81 @@
+[
+ {
+  "id": "aud.04.q1",
+  "prompt": "Quel est le rôle du symbole blank de la CTC ?",
+  "options": [
+   "il marque la fin de l'énoncé",
+   "il signifie « pas de nouvelle étiquette à cette trame » et sépare les étiquettes répétées",
+   "il n'est prédit que pendant le silence",
+   "il remplace le caractère espace"
+  ],
+  "explanation": "Le blank permet au réseau de ne rien émettre à une trame et il est requis entre deux étiquettes identiques consécutives (sinon elles fusionneraient)."
+ },
+ {
+  "id": "aud.04.q2",
+  "prompt": "Quel est le nombre minimal de trames $T$ nécessaire pour émettre la cible (1, 1, 1) avec la CTC ?",
+  "options": [],
+  "explanation": "Trois étiquettes plus un blank obligatoire entre chaque paire égale : 1 _ 1 _ 1 exige 5 trames."
+ },
+ {
+  "id": "aud.04.q3",
+  "prompt": "Dans la récurrence avant, quand un chemin peut-il sauter de la position $s-2$ à $s$ ?",
+  "options": [
+   "toujours",
+   "seulement si $l'_s$ est une étiquette et $l'_s\\ne l'_{s-2}$",
+   "seulement si $l'_s$ est un blank",
+   "jamais"
+  ],
+  "explanation": "Sauter un blank n'est permis qu'entre deux étiquettes différentes ; pour des étiquettes égales cela les fusionnerait en une seule."
+ },
+ {
+  "id": "aud.04.q4",
+  "prompt": "Trois trames ont chacune $p(\\text{blank})=0.6$, $p(a)=0.4$. Quelle est $P(\\text{transcript}=a)$ sous la CTC ?",
+  "options": [],
+  "explanation": "Chemins se réduisant à « a » : bba, bab, abb, baa, aab, aaa ; total $1-0.216-0.096=0.688$ (l'algorithme avant donne $0.384+0.304$)."
+ },
+ {
+  "id": "aud.04.q5",
+  "prompt": "Dans ce même exemple, le décodage glouton renvoie...",
+  "options": [
+   "« a » parce qu'elle a la plus grande probabilité de transcription",
+   "« aa »",
+   "la chaîne vide, bien que « a » soit plus probable",
+   "une erreur"
+  ],
+  "explanation": "Le symbole le plus probable à chaque trame est le blank (0,6), donc le meilleur chemin se réduit à la chaîne vide ; sa probabilité de transcription $0.216$ est inférieure à $0.688$ pour « a »."
+ },
+ {
+  "id": "aud.04.q6",
+  "prompt": "Par rapport à la CTC, qu'ajoute un RNN-T ?",
+  "options": [
+   "un réseau de prédiction sur les étiquettes déjà émises, de sorte que l'étiquette suivante dépend de l'historique",
+   "un front-end convolutif",
+   "une exigence d'étiquettes au niveau des trames",
+   "un décodage autorégressif avec cross-attention sur toute l'entrée"
+  ],
+  "explanation": "Le réseau de prédiction joue le rôle de modèle de langage interne ; le joiner le combine avec la trame de l'encodeur. Coût : un treillis $T\\times(U+1)\\times(V+1)$."
+ },
+ {
+  "id": "aud.04.q7",
+  "prompt": "Whisper reçoit une fenêtre de 30 s sous forme de trames log-mel avec un saut de 10 ms. Après la convolution de pas 2, combien y a-t-il de positions d'encodeur ?",
+  "options": [],
+  "explanation": "$30/0.01=3000$ trames, divisées par deux : 1500 (20 ms chacune)."
+ },
+ {
+  "id": "aud.04.q8",
+  "prompt": "Référence : « the cat sat on mat ». Hypothèse : « the cat on a mat ». Quel est le taux d'erreur sur les mots ? (décimal)",
+  "options": [],
+  "explanation": "Distance d'édition 2 (supprimer « sat », insérer « a ») sur 5 mots de référence."
+ },
+ {
+  "id": "aud.04.q9",
+  "prompt": "Quelle affirmation sur le WER est correcte ?",
+  "options": [
+   "il est toujours compris entre 0 et 1",
+   "il peut dépasser 1 quand l'hypothèse a beaucoup d'insertions",
+   "il mesure la similarité sémantique",
+   "il n'a pas besoin de la longueur de la référence"
+  ],
+  "explanation": "WER $=(S+D+I)/N$ avec $N$ le nombre de mots de référence ; les insertions ne sont pas bornées."
+ }
+]

@@ -1,0 +1,118 @@
+#@@ meta
+{"id": "aud.03.ex2", "title": "SpecAugment masks, mixup and a CNN shape/parameter audit", "difficulty": 3, "runtime": "pyodide", "concepts": ["aud.specaugment", "aud.classify"], "hints": ["time_mask zeroes spec[t0:t0+t, :] on a COPY; freq_mask zeroes spec[:, f0:f0+f, ...]. Never modify the input array.", "spec_augment: for each mask draw the width with rng.integers(0, max_width + 1) and the start with rng.integers(0, size - width + 1).", "conv_out_len(i,k,s,p) = (i + 2p - k)//s + 1. A conv layer has c_in*c_out*k*k + c_out parameters; a linear layer d_in*d_out + d_out."]}
+#@@ prompt
+Implement the augmentation and bookkeeping tools of an audio CNN pipeline:
+
+- `time_mask(spec, t, t0, fill=0.0)` and `freq_mask(spec, f, f0, fill=0.0)`: return a **copy** of the `(T, F)` spectrogram with `t` rows starting at `t0` (or `f` columns starting at `f0`) replaced by `fill`.
+- `spec_augment(spec, rng, n_time=2, T_max=20, n_freq=2, F_max=10, fill=0.0)`: apply `n_freq` frequency masks, then `n_time` time masks; each width is drawn uniformly from `0..max_width` (use `rng.integers(0, max_width + 1)`) and each start uniformly so the mask fits inside the array.
+- `mixup(x1, y1, x2, y2, lam)` -> `(lam*x1 + (1-lam)*x2, lam*y1 + (1-lam)*y2)`.
+- `conv_out_len(i, k, s=1, p=0)`, `conv_params(c_in, c_out, k)`, `linear_params(d_in, d_out)`.
+- `audio_cnn_audit(T, F, n_classes)` -> `(shapes, n_params)` for the 3-block CNN of the lesson: Conv3x3(pad 1)->32, MaxPool2, Conv3x3->64, MaxPool2, Conv3x3->128, global average pool, Linear. `shapes` is the list of `(channels, time, mel)` after conv1, pool1, conv2, pool2, conv3.
+#@@ starter
+import numpy as np
+
+def time_mask(spec, t, t0, fill=0.0):
+    raise NotImplementedError
+
+def freq_mask(spec, f, f0, fill=0.0):
+    raise NotImplementedError
+
+def spec_augment(spec, rng, n_time=2, T_max=20, n_freq=2, F_max=10, fill=0.0):
+    raise NotImplementedError
+
+def mixup(x1, y1, x2, y2, lam):
+    raise NotImplementedError
+
+def conv_out_len(i, k, s=1, p=0):
+    raise NotImplementedError
+
+def conv_params(c_in, c_out, k):
+    raise NotImplementedError
+
+def linear_params(d_in, d_out):
+    raise NotImplementedError
+
+def audio_cnn_audit(T, F, n_classes):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+s = np.ones((10, 6))
+a = freq_mask(time_mask(s, 3, 7), 1, 3)
+check("worked example: 25 cells zeroed, sum 35", lambda: a.sum() == 35.0 and (a == 0).sum() == 25)
+check("masks do not modify the input", lambda: s.sum() == 60.0)
+check("time_mask zeroes rows 7..9", lambda: np.all(time_mask(s, 3, 7)[7:] == 0) and np.all(time_mask(s, 3, 7)[:7] == 1))
+check("fill value is used", lambda: np.all(freq_mask(s, 2, 0, fill=-5.0)[:, :2] == -5.0))
+
+rng = np.random.default_rng(1)
+spec = rng.normal(size=(100, 80)) + 5.0
+spec0 = spec.copy()
+out = spec_augment(spec, np.random.default_rng(3), n_time=2, T_max=20, n_freq=2, F_max=10)
+check("output has the same shape and the input is untouched", lambda: out.shape == spec.shape and np.isclose(spec.sum(), spec0.sum()))
+zero_rows = np.where(np.all(out == 0, axis=1))[0]
+zero_cols = np.where(np.all(out == 0, axis=0))[0]
+check("at most 2*20 rows and 2*10 columns are masked", lambda: len(zero_rows) <= 40 and len(zero_cols) <= 20)
+check("unmasked cells are unchanged", lambda: np.allclose(out[np.ix_(np.setdiff1d(np.arange(100), zero_rows), np.setdiff1d(np.arange(80), zero_cols))], spec[np.ix_(np.setdiff1d(np.arange(100), zero_rows), np.setdiff1d(np.arange(80), zero_cols))]))
+check("same seed gives the same augmentation", lambda: np.array_equal(out, spec_augment(spec, np.random.default_rng(3))))
+many = [spec_augment(spec, np.random.default_rng(i), 1, 20, 0, 10) for i in range(30)]
+widths = [int(np.all(m == 0, axis=1).sum()) for m in many]
+check("time-mask widths stay within 0..T_max and vary", lambda: max(widths) <= 20 and len(set(widths)) > 5)
+check("masked rows are contiguous", lambda: all(np.all(np.diff(np.where(np.all(m == 0, axis=1))[0]) == 1) for m in many))
+
+xm, ym = mixup(np.array([1.0, 0.0]), np.array([1.0, 0.0]), np.array([0.0, 2.0]), np.array([0.0, 1.0]), 0.7)
+check("mixup inputs and soft labels", lambda: np.allclose(xm, [0.7, 0.6]) and np.allclose(ym, [0.7, 0.3]))
+
+check("conv_out_len examples", lambda: conv_out_len(100, 3, 1, 1) == 100 and conv_out_len(100, 3, 1, 0) == 98 and conv_out_len(100, 2, 2, 0) == 50 and conv_out_len(10, 3, 2, 1) == 5)
+check("parameter counts", lambda: conv_params(1, 32, 3) == 320 and conv_params(32, 64, 3) == 18496 and conv_params(64, 128, 3) == 73856 and linear_params(128, 50) == 6450)
+shapes, n = audio_cnn_audit(100, 80, 50)
+check("shape trace", lambda: shapes == [(32, 100, 80), (32, 50, 40), (64, 50, 40), (64, 25, 20), (128, 25, 20)])
+check("total parameters are 99122 (about 0.1M, not 3M)", lambda: n == 99122)
+#@@ solution
+import numpy as np
+
+def time_mask(spec, t, t0, fill=0.0):
+    out = spec.copy()
+    out[t0:t0 + t, :] = fill
+    return out
+
+def freq_mask(spec, f, f0, fill=0.0):
+    out = spec.copy()
+    out[:, f0:f0 + f] = fill
+    return out
+
+def spec_augment(spec, rng, n_time=2, T_max=20, n_freq=2, F_max=10, fill=0.0):
+    out = spec.copy()
+    T, F = spec.shape
+    for _ in range(n_freq):
+        f = int(rng.integers(0, F_max + 1))
+        f0 = int(rng.integers(0, F - f + 1))
+        out = freq_mask(out, f, f0, fill)
+    for _ in range(n_time):
+        t = int(rng.integers(0, T_max + 1))
+        t0 = int(rng.integers(0, T - t + 1))
+        out = time_mask(out, t, t0, fill)
+    return out
+
+def mixup(x1, y1, x2, y2, lam):
+    return lam * x1 + (1 - lam) * x2, lam * y1 + (1 - lam) * y2
+
+def conv_out_len(i, k, s=1, p=0):
+    return (i + 2 * p - k) // s + 1
+
+def conv_params(c_in, c_out, k):
+    return c_in * c_out * k * k + c_out
+
+def linear_params(d_in, d_out):
+    return d_in * d_out + d_out
+
+def audio_cnn_audit(T, F, n_classes):
+    shapes = []
+    t, f = T, F
+    shapes.append((32, conv_out_len(t, 3, 1, 1), conv_out_len(f, 3, 1, 1)))
+    t, f = conv_out_len(t, 2, 2), conv_out_len(f, 2, 2)
+    shapes.append((32, t, f))
+    shapes.append((64, conv_out_len(t, 3, 1, 1), conv_out_len(f, 3, 1, 1)))
+    t, f = conv_out_len(t, 2, 2), conv_out_len(f, 2, 2)
+    shapes.append((64, t, f))
+    shapes.append((128, conv_out_len(t, 3, 1, 1), conv_out_len(f, 3, 1, 1)))
+    n = conv_params(1, 32, 3) + conv_params(32, 64, 3) + conv_params(64, 128, 3) + linear_params(128, n_classes)
+    return shapes, n

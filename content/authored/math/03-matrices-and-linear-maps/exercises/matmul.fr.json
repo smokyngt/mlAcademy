@@ -1,0 +1,10 @@
+{
+  "id": "f2n.03.ex1",
+  "title": "Multiplication matricielle et rotation à partir de zéro",
+  "prompt": "1. Implémente `matmul(A, B)` avec des boucles explicites sur `i` et `j` (tu peux utiliser `np.sum` pour le produit scalaire intérieur). **N'utilise ni `@` ni `np.dot`.** Elle doit lever `ValueError` quand les dimensions intérieures ne coïncident pas.\n2. Implémente `rotation(theta)` qui renvoie la matrice de rotation $2\\times2$ dans le sens trigonométrique.",
+  "hints": [
+    "Vérifie d'abord A.shape[1] == B.shape[0] et lève une ValueError avec un message clair sinon.",
+    "C[i, j] = somme sur k de A[i, k] * B[k, j] - c'est np.sum(A[i, :] * B[:, j]).",
+    "rotation(theta) : la première colonne est (cos, sin), la seconde est (-sin, cos)."
+  ]
+}

@@ -1,0 +1,77 @@
+[
+ {
+  "id": "cml.16.c1",
+  "front": "Filtre vs wrapper vs intégrée",
+  "back": "Filtre : noter les variables seules, sans modèle. Wrapper : chercher des sous-ensembles via la performance du modèle. Intégrée : la sélection a lieu pendant l'entraînement (L1, arbres)."
+ },
+ {
+  "id": "cml.16.c2",
+  "front": "Information mutuelle",
+  "back": "$I(X;Y)=\\sum p(x,y)\\ln\\frac{p(x,y)}{p(x)p(y)}\\ge0$ ; nulle ssi indépendance ; détecte la dépendance non linéaire."
+ },
+ {
+  "id": "cml.16.c3",
+  "front": "Faiblesse des filtres",
+  "back": "Ils notent les variables une par une, donc ils ratent les interactions et gardent des copies redondantes."
+ },
+ {
+  "id": "cml.16.c4",
+  "front": "Sélection ascendante et RFE",
+  "back": "Ascendante : ajouter gloutonnement la variable qui aide le plus. RFE : ajuster, retirer les variables les plus faibles, réajuster. Les deux coûtent beaucoup d'ajustements."
+ },
+ {
+  "id": "cml.16.c5",
+  "front": "Biais de l'importance d'arbre par coupures",
+  "back": "Elle favorise les variables à forte cardinalité (une colonne d'identifiants coupe bien) ; recouper avec l'importance par permutation."
+ },
+ {
+  "id": "cml.16.c6",
+  "front": "Pourquoi la sélection fait-elle partie du pipeline ?",
+  "back": "Elle utilise les étiquettes ; l'ajuster à l'intérieur de chaque pli de validation croisée, sinon le score est optimiste."
+ },
+ {
+  "id": "cml.16.c7",
+  "front": "Objectif du lasso",
+  "back": "$\\frac1{2n}\\|y-Xw\\|^2+\\lambda\\|w\\|_1$ avec $X$ standardisé et $y$ centré."
+ },
+ {
+  "id": "cml.16.c8",
+  "front": "Famille de régulariseurs de Bishop",
+  "back": "$\\frac\\lambda2\\sum_j|w_j|^q$ : $q=2$ décroissance des poids/ridge, $q=1$ lasso ; équivalent à $\\sum|w_j|^q\\le\\eta$."
+ },
+ {
+  "id": "cml.16.c9",
+  "front": "Opérateur de seuillage doux",
+  "back": "$S(\\rho,\\lambda)=\\operatorname{sign}(\\rho)\\max(|\\rho|-\\lambda,0)$."
+ },
+ {
+  "id": "cml.16.c10",
+  "front": "Mise à jour par coordonnée du lasso",
+  "back": "$w_j=S(\\rho_j,\\lambda)/z_j$, $\\rho_j=\\frac1nX_{:j}^\\top r^{(j)}$, $z_j=\\frac1nX_{:j}^\\top X_{:j}$."
+ },
+ {
+  "id": "cml.16.c11",
+  "front": "$\\lambda_{\\max}$",
+  "back": "$\\max_j|X_{:j}^\\top y|/n$ : plus petite pénalité donnant $w=0$."
+ },
+ {
+  "id": "cml.16.c12",
+  "front": "Conditions KKT du lasso",
+  "back": "Avec $g=\\frac1nX^\\top(y-Xw)$ : $g_j=\\lambda\\,\\mathrm{sign}(w_j)$ si $w_j\\ne0$, $|g_j|\\le\\lambda$ sinon."
+ },
+ {
+  "id": "cml.16.c13",
+  "front": "Pourquoi standardiser avant le lasso ?",
+  "back": "La pénalité traite tous les poids pareillement, donc l'échelle des variables changerait qui est pénalisé."
+ },
+ {
+  "id": "cml.16.c14",
+  "front": "Sélection par stabilité",
+  "back": "Lancer le lasso sur de nombreux demi-échantillons aléatoires ; rapporter la fréquence de sélection de chaque variable et garder celles proches de 1."
+ },
+ {
+  "id": "cml.16.c15",
+  "front": "Coût du rétrécissement du lasso",
+  "back": "Les estimations sont biaisées vers zéro ; réajuster les moindres carrés sur l'ensemble sélectionné (lasso relaxé) pour réduire le biais."
+ }
+]

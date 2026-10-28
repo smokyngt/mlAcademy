@@ -1,0 +1,17 @@
+[
+  { "id": "ops.04.c1", "front": "Pourquoi commencer par le modèle le plus simple ?", "back": "Il se déploie plus tôt (validant le pipeline de serving), est plus facile à déboguer, et sert de baseline aux modèles complexes." },
+  { "id": "ops.04.c2", "front": "Le piège de l'état de l'art", "back": "Le gagnant d'un benchmark peut être trop lent ou coûteux, ou pas meilleur sur tes données ; préfère une solution plus simple qui fonctionne." },
+  { "id": "ops.04.c3", "front": "Vote majoritaire de $n$ classifieurs indépendants d'accuracy $p$", "back": "$\\sum_{k>n/2}\\binom nk p^k(1-p)^{n-k}$ ; trois à 0,7 donnent 0,784." },
+  { "id": "ops.04.c4", "front": "Bagging, boosting, stacking", "back": "Bagging : échantillons bootstrap, vote ou moyenne. Boosting : repondération séquentielle vers les erreurs. Stacking : un méta-apprenant combine les apprenants de base." },
+  { "id": "ops.04.c5", "front": "Suivi d'expériences contre versionnage", "back": "Le suivi enregistre la progression et les résultats des exécutions ; le versionnage enregistre le code, les données, la configuration et l'environnement pour les reproduire." },
+  { "id": "ops.04.c6", "front": "SGD synchrone contre asynchrone", "back": "Sync attend tous les workers (stragglers). Async met à jour au fil de l'arrivée des gradients (gradients périmés)." },
+  { "id": "ops.04.c7", "front": "Parallélisme de données contre de modèle", "back": "Données : copies du modèle sur différents fragments de données. Modèle : différentes parties d'un modèle sur différentes machines (le pipelining réduit le temps mort)." },
+  { "id": "ops.04.c8", "front": "Cinq baselines utiles", "back": "Aléatoire, heuristique simple, règle zéro (majorité), humaine, et la solution existante." },
+  { "id": "ops.04.c9", "front": "Formules de la baseline aléatoire", "back": "$F_1=\\frac{2pq}{p+q}$ et accuracy $=pq+(1-p)(1-q)$ pour une prévalence $p$ et un taux de prédiction positive $q$." },
+  { "id": "ops.04.c10", "front": "Test de perturbation", "back": "Ajouter un bruit réaliste aux entrées de test et mesurer la chute de performance ; préférer les modèles qui restent précis." },
+  { "id": "ops.04.c11", "front": "Test d'invariance", "back": "Changer un champ qui ne doit pas compter (nom, attribut protégé) et compter les prédictions modifiées." },
+  { "id": "ops.04.c12", "front": "Test d'attente directionnelle", "back": "Changer une entrée d'une manière dont l'effet a une direction connue (une plus grande taille de terrain ne peut pas baisser le prix) et compter les violations." },
+  { "id": "ops.04.c13", "front": "Évaluation par tranche", "back": "Calculer les métriques sur des sous-ensembles des données (mobile, région, classe rare) parce que les agrégats cachent des échecs." },
+  { "id": "ops.04.c14", "front": "Paradoxe de Simpson", "back": "Un modèle peut gagner dans chaque groupe mais perdre au global parce que les groupes ont des poids différents dans les totaux." },
+  { "id": "ops.04.c15", "front": "Trois façons de trouver des tranches", "back": "Heuristiques du domaine, analyse d'erreurs, et chercheurs automatiques de tranches (recherche en faisceau, clustering, arbres de décision)." }
+]

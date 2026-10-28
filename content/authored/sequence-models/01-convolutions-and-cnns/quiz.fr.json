@@ -1,0 +1,86 @@
+[
+  {
+    "id": "seq.01.q1",
+    "prompt": "Une convolution $3\\times3$ avec $C_{in}=16$, $C_{out}=32$ et un biais. Combien de paramètres ?",
+    "options": [
+      "$32\\cdot9+32=320$",
+      "$32\\cdot16\\cdot9+32=4640$",
+      "$16\\cdot9+16=160$",
+      "$32\\cdot16\\cdot9\\cdot H\\cdot W$"
+    ],
+    "explanation": "$C_{out}C_{in}K^2+C_{out}=32\\cdot16\\cdot9+32=4640$. Le nombre ne dépend pas de la taille de l'image."
+  },
+  {
+    "id": "seq.01.q2",
+    "prompt": "Hauteur d'entrée 32, noyau 5, remplissage 2, pas 2. Quelle est la hauteur de sortie ?",
+    "options": [],
+    "explanation": "$\\lfloor(32-5+4)/2\\rfloor+1=\\lfloor15.5\\rfloor+1=16$."
+  },
+  {
+    "id": "seq.01.q3",
+    "prompt": "Pourquoi le gradient des poids $\\bar W$ d'une couche de convolution est-il une **somme sur les positions de sortie** ?",
+    "options": [
+      "Parce que la perte est sommée sur le batch",
+      "À cause du biais",
+      "Parce que le pooling moyenne les gradients",
+      "Parce que les mêmes poids de noyau sont utilisés à chaque position de sortie, donc leurs contributions s'additionnent (règle de la chaîne sur des paramètres partagés)"
+    ],
+    "explanation": "Le partage de paramètres signifie que $W_{o,c,u,v}$ apparaît dans chaque $Y_{o,i,j}$, donc $\\bar W=\\sum_{i,j}\\bar Y_{o,i,j}\\tilde x_{c,iS+u,jS+v}$."
+  },
+  {
+    "id": "seq.01.q4",
+    "prompt": "Dans `col2im`, les fenêtres qui se chevauchent doivent être combinées par...",
+    "options": [
+      "affectation (la dernière fenêtre gagne)",
+      "moyenne",
+      "addition (scatter-add)",
+      "maximum"
+    ],
+    "explanation": "Un pixel couvert par plusieurs fenêtres influence plusieurs sorties ; son gradient est la somme des contributions."
+  },
+  {
+    "id": "seq.01.q5",
+    "prompt": "En utilisant l'exemple détaillé de la leçon (entrée 5x5, noyau de type Sobel, gradient amont fait de uns), que vaut $\\bar b$ ?",
+    "options": [],
+    "explanation": "$\\bar b=\\sum_{i,j}\\bar Y_{ij}=9$ puisqu'il y a $3\\times3=9$ positions de sortie."
+  },
+  {
+    "id": "seq.01.q6",
+    "prompt": "Champ récepteur (un axe) d'une unité après une convolution $3\\times3$ de pas 1, puis un max-pool $2\\times2$ de pas 2, puis une convolution $3\\times3$ de pas 1.",
+    "options": [],
+    "explanation": "Départ $r=1,j=1$. conv3 : $r=3$. pool2 : $r=3+1\\cdot1=4$, $j=2$. conv3 : $r=4+2\\cdot2=8$."
+  },
+  {
+    "id": "seq.01.q7",
+    "prompt": "Pourquoi deux convolutions $3\\times3$ empilées battent-elles une convolution $5\\times5$ (même champ récepteur) dans VGG ?",
+    "options": [
+      "Elles ont plus de paramètres",
+      "Elles n'ont besoin d'aucun remplissage",
+      "Elles sont invariantes par translation alors que $5\\times5$ ne l'est pas",
+      "Elles ont moins de paramètres ($18C^2$ contre $25C^2$) et une non-linéarité de plus"
+    ],
+    "explanation": "Les deux voient un morceau $5\\times5$. Deux couches $3\\times3$ coûtent $2\\cdot9C^2$ poids, et la ReLU entre elles ajoute de l'expressivité."
+  },
+  {
+    "id": "seq.01.q8",
+    "prompt": "Pour un bloc résiduel $y=x+F(x)$, la jacobienne $\\partial y/\\partial x$ vaut...",
+    "options": [
+      "$I+\\partial F/\\partial x$, donc le gradient a toujours un chemin d'identité direct",
+      "$\\partial F/\\partial x$",
+      "$I\\cdot\\partial F/\\partial x$",
+      "0 si $F$ est petit"
+    ],
+    "explanation": "Dériver $x+F(x)$ donne $I+F'(x)$. Le terme identité copie le gradient amont inchangé vers les couches précédentes."
+  },
+  {
+    "id": "seq.01.q9",
+    "prompt": "Passe arrière du max pooling (fenêtre $2\\times2$) : le gradient d'une sortie va...",
+    "options": [
+      "aux quatre positions d'entrée à parts égales",
+      "au minimum de la fenêtre",
+      "uniquement à la position de l'arg-max de la fenêtre",
+      "nulle part : le pooling bloque les gradients"
+    ],
+    "explanation": "Seule l'entrée maximale affecte la sortie (localement), donc elle reçoit tout le gradient ; les autres reçoivent 0."
+  }
+]

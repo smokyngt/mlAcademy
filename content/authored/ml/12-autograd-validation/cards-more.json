@@ -1,0 +1,62 @@
+[
+ {
+  "id": "f2n.12.c14",
+  "concept": "nn.autograd",
+  "front": "Leaf tensor",
+  "back": "A tensor created by the user with `requires_grad=True`; only leaves get `.grad`."
+ },
+ {
+  "id": "f2n.12.c15",
+  "concept": "nn.autograd",
+  "front": "`torch.no_grad()`",
+  "back": "Stops graph recording: no gradients, less memory; use in evaluation."
+ },
+ {
+  "id": "f2n.12.c16",
+  "concept": "nn.autograd",
+  "front": "`.detach()`",
+  "back": "Returns a tensor cut from the graph; gradients do not flow through."
+ },
+ {
+  "id": "f2n.12.c17",
+  "concept": "nn.autograd",
+  "front": "Gradient accumulation in PyTorch",
+  "back": "`backward()` adds to `.grad`; call `zero_grad()` each step."
+ },
+ {
+  "id": "f2n.12.c18",
+  "concept": "nn.autograd",
+  "front": "Forward mode cost",
+  "back": "One pass per input (a Jacobian column)."
+ },
+ {
+  "id": "f2n.12.c19",
+  "concept": "nn.autograd",
+  "front": "Reverse mode cost",
+  "back": "One pass per output (a Jacobian row)."
+ },
+ {
+  "id": "f2n.12.c20",
+  "concept": "nn.autograd",
+  "front": "Memory cost of reverse mode",
+  "back": "Must store forward activations needed by local derivatives."
+ },
+ {
+  "id": "f2n.12.c21",
+  "concept": "nn.autograd",
+  "front": "Local rule for $c=\\tanh a$",
+  "back": "$\\bar a\\mathrel{+}=(1-c^2)\\bar c$."
+ },
+ {
+  "id": "f2n.12.c22",
+  "concept": "nn.autograd",
+  "front": "Local rule for $c=a^p$",
+  "back": "$\\bar a\\mathrel{+}=p\\,a^{p-1}\\bar c$."
+ },
+ {
+  "id": "f2n.12.c23",
+  "concept": "nn.autograd",
+  "front": "Why float64 for gradient comparison?",
+  "back": "float32 agrees only to ~1e-6; float64 exposes subtle bugs."
+ }
+]

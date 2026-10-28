@@ -1,0 +1,82 @@
+#@@ meta
+{"id": "cml.07.ex1", "title": "Gradient boosting with regression stumps", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.boosting"], "hints": ["fit_stump: for each feature and each midpoint threshold, the best constants are the means of r on each side; score = total squared error; keep the smallest (ties: first found).", "gb_fit: F = full(n, y.mean()); each round r = y - F, stump = fit_stump(X, r), F += lr * predict_stump(stump, X); record mean((y - F)**2) after the update.", "gb_predict(model, X, lr): start from model['f0'] and add lr * predict_stump(s, X) for each stump."]}
+#@@ prompt
+Implement gradient boosting for squared loss.
+
+- `fit_stump(X, r)` returns `(j, t, left_value, right_value)`: the single split (`X[:, j] <= t`) that minimises the squared error of predicting the mean of `r` on each side. Candidate thresholds are midpoints between consecutive distinct sorted values.
+- `predict_stump(s, X)` returns an array `(N,)`.
+- `gb_fit(X, y, n_rounds, lr)` returns `(model, history)`: `model = {"f0": y.mean(), "stumps": [...]}` and `history[m]` is the training MSE after round `m+1`. Each round fits a stump to the current residuals $r=y-F$ and sets $F\leftarrow F+\text{lr}\cdot h$.
+- `gb_predict(model, X, lr)` returns the ensemble prediction.
+#@@ starter
+import numpy as np
+
+def fit_stump(X, r):
+    raise NotImplementedError
+
+def predict_stump(s, X):
+    raise NotImplementedError
+
+def gb_fit(X, y, n_rounds, lr):
+    raise NotImplementedError
+
+def gb_predict(model, X, lr):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([1, 2, 3, 4, 5, 6.]).reshape(-1, 1); y = np.array([1., 1.2, 0.9, 3., 3.2, 2.8])
+j, t, lv, rv = fit_stump(x, y - y.mean())
+check("worked example: first split at 3.5", lambda: j == 0 and abs(t - 3.5) < 1e-12)
+check("worked example: leaf values -0.983 and +0.983", lambda: abs(lv + 0.98333333) < 1e-6 and abs(rv - 0.98333333) < 1e-6)
+model, hist = gb_fit(x, y, 3, 0.5)
+check("starts from the mean 2.0167", lambda: abs(model["f0"] - 2.0166666667) < 1e-9)
+check("worked example MSE after 1, 2, 3 rounds", lambda: np.allclose(hist, [0.262847, 0.081545, 0.036220], atol=1e-5))
+check("prediction after 3 rounds is 1.156 / 2.877", lambda: np.allclose(gb_predict(model, x, 0.5), [1.156] * 3 + [2.877] * 3, atol=1e-3))
+check("predict matches the last training MSE", lambda: abs(np.mean((y - gb_predict(model, x, 0.5)) ** 2) - hist[-1]) < 1e-12)
+rng = np.random.default_rng(0)
+X = rng.uniform(-3, 3, size=(200, 1)); yy = np.sin(X[:, 0]) + rng.normal(0, 0.2, 200)
+m1, h1 = gb_fit(X, yy, 100, 0.1)
+check("training MSE decreases every round", lambda: all(b <= a + 1e-12 for a, b in zip(h1, h1[1:])))
+check("fits the sine well", lambda: h1[-1] < 0.08)
+m2, h2 = gb_fit(X, yy, 20, 0.1)
+check("shrinkage: same lr, fewer rounds is less fit", lambda: h2[-1] > h1[-1])
+m3, h3 = gb_fit(X, yy, 20, 1.0)
+check("larger learning rate fits faster", lambda: h3[-1] < h2[-1])
+Xt = rng.uniform(-3, 3, size=(300, 1)); yt = np.sin(Xt[:, 0]) + rng.normal(0, 0.2, 300)
+check("generalises: test MSE well below variance of y", lambda: np.mean((yt - gb_predict(m1, Xt, 0.1)) ** 2) < 0.1)
+X2 = rng.normal(size=(100, 3)); y2 = 3 * X2[:, 1] + 0.0 * X2[:, 0]
+check("stump picks the informative feature", lambda: fit_stump(X2, y2 - y2.mean())[0] == 1)
+#@@ solution
+import numpy as np
+
+def fit_stump(X, r):
+    best = None
+    for j in range(X.shape[1]):
+        u = np.unique(X[:, j])
+        for t in (u[:-1] + u[1:]) / 2:
+            L = X[:, j] <= t
+            lv, rv = r[L].mean(), r[~L].mean()
+            sse = ((r[L] - lv) ** 2).sum() + ((r[~L] - rv) ** 2).sum()
+            if best is None or sse < best[0] - 1e-12:
+                best = (sse, j, float(t), float(lv), float(rv))
+    return best[1:]
+
+def predict_stump(s, X):
+    j, t, lv, rv = s
+    return np.where(X[:, j] <= t, lv, rv)
+
+def gb_fit(X, y, n_rounds, lr):
+    f0 = float(y.mean())
+    F = np.full(len(y), f0)
+    stumps, history = [], []
+    for _ in range(n_rounds):
+        s = fit_stump(X, y - F)
+        F = F + lr * predict_stump(s, X)
+        stumps.append(s)
+        history.append(float(np.mean((y - F) ** 2)))
+    return {"f0": f0, "stumps": stumps}, history
+
+def gb_predict(model, X, lr):
+    F = np.full(len(X), model["f0"])
+    for s in model["stumps"]:
+        F = F + lr * predict_stump(s, X)
+    return F

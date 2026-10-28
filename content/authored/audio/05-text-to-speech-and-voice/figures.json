@@ -1,0 +1,67 @@
+[
+  {
+    "id": "length-regulator",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "FastSpeech-style duration modelling: a duration predictor gives an integer number of frames d_u per phoneme, and the length regulator repeats each phoneme vector d_u times. Durations (2, 3, 1, 2) turn U = 4 phonemes into T = 8 frames, with no alignment to learn.",
+      "fr": "Modélisation des durées à la FastSpeech : un prédicteur de durée donne un nombre entier de trames d_u par phonème, et le régulateur de longueur répète chaque vecteur de phonème d_u fois. Les durées (2, 3, 1, 2) transforment U = 4 phonèmes en T = 8 trames, sans alignement à apprendre."
+    },
+    "code": {
+      "en": "flowchart LR\n  H[\"phoneme states H<br/>(U=4, d)\"] --> DP[\"duration predictor<br/>d = (2, 3, 1, 2)\"]\n  DP --> LR[\"length regulator<br/>np.repeat(H, d)\"]\n  LR --> HT[\"expanded (T=8, d)\"]\n  HT --> DEC[\"decoder, in parallel\"]\n  DEC --> MEL[\"mel frames (T, M)\"]",
+      "fr": "flowchart LR\n  H[\"états de phonèmes H<br/>(U=4, d)\"] --> DP[\"prédicteur de durée<br/>d = (2, 3, 1, 2)\"]\n  DP --> LR[\"régulateur de longueur<br/>np.repeat(H, d)\"]\n  LR --> HT[\"séquence étendue (T=8, d)\"]\n  HT --> DEC[\"décodeur, en parallèle\"]\n  DEC --> MEL[\"trames mel (T, M)\"]"
+    }
+  },
+  {
+    "id": "hifigan-upsampling",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A GAN vocoder turns mel frames into samples in parallel with transposed convolutions whose upsampling factors multiply to the hop length: 8 x 8 x 2 x 2 = 256, so one mel frame becomes 256 samples (10.7 ms at 24 kHz).",
+      "fr": "Un vocodeur GAN transforme les trames mel en échantillons en parallèle avec des convolutions transposées dont les facteurs de suréchantillonnage se multiplient jusqu'au saut : 8 x 8 x 2 x 2 = 256, donc une trame mel devient 256 échantillons (10,7 ms à 24 kHz)."
+    },
+    "code": {
+      "en": "flowchart LR\n  M[\"mel<br/>(T, 80)\"] --> U1[\"x8\"] --> U2[\"x8\"] --> U3[\"x2\"] --> U4[\"x2\"]\n  U4 --> W[\"waveform<br/>(T x 256,)\"]\n  W -.-> D[\"discriminators on short windows<br/>+ mel loss + feature matching\"]",
+      "fr": "flowchart LR\n  M[\"mel<br/>(T, 80)\"] --> U1[\"x8\"] --> U2[\"x8\"] --> U3[\"x2\"] --> U4[\"x2\"]\n  U4 --> W[\"signal<br/>(T x 256,)\"]\n  W -.-> D[\"discriminateurs sur fenêtres courtes<br/>+ perte mel + appariement de caractéristiques\"]"
+    }
+  },
+  {
+    "id": "rvq",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Residual vector quantisation in a neural codec: each codebook quantises the residual left by the previous one. With Q codebooks of K entries at f frames per second the bitrate is f x Q x log2(K): 75 x 8 x 10 = 6000 bit/s.",
+      "fr": "Quantification vectorielle résiduelle dans un codec neuronal : chaque dictionnaire quantifie le résidu laissé par le précédent. Avec Q dictionnaires de K entrées à f trames par seconde le débit vaut f x Q x log2(K) : 75 x 8 x 10 = 6000 bit/s."
+    },
+    "code": {
+      "en": "flowchart LR\n  E[\"encoder output z\"] --> Q1[\"codebook 1: q1\"]\n  Q1 -->|\"r1 = z - q1\"| Q2[\"codebook 2: q2\"]\n  Q2 -->|\"r2 = r1 - q2\"| Q3[\"codebook 3 ... Q\"]\n  Q1 --> T[\"tokens (t, Q)\"]\n  Q2 --> T\n  Q3 --> T\n  T --> DEC[\"decoder to waveform\"]",
+      "fr": "flowchart LR\n  E[\"sortie de l'encodeur z\"] --> Q1[\"dictionnaire 1 : q1\"]\n  Q1 -->|\"r1 = z - q1\"| Q2[\"dictionnaire 2 : q2\"]\n  Q2 -->|\"r2 = r1 - q2\"| Q3[\"dictionnaire 3 ... Q\"]\n  Q1 --> T[\"jetons (t, Q)\"]\n  Q2 --> T\n  Q3 --> T\n  T --> DEC[\"décodeur vers le signal\"]"
+    }
+  },
+  {
+    "id": "griffin-lim",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Griffin-Lim: start from the target magnitude with a guessed phase, go back to a waveform, look at its spectrogram, keep the new phase but restore the target magnitude, and repeat.",
+      "fr": "Griffin-Lim : partir du module cible avec une phase devinée, revenir à un signal, regarder son spectrogramme, garder la nouvelle phase mais restaurer le module cible, et recommencer."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"target magnitude |S|<br/>+ guessed phase\"] --> I[\"inverse STFT<br/>to waveform\"]\n  I --> F[\"STFT\"]\n  F --> K[\"keep phase, restore |S|\"]\n  K -->|\"repeat\"| I",
+      "fr": "flowchart LR\n  A[\"module cible |S|<br/>+ phase devinée\"] --> I[\"STFT inverse<br/>vers le signal\"]\n  I --> F[\"STFT\"]\n  F --> K[\"garder la phase, restaurer |S|\"]\n  K -->|\"répéter\"| I"
+    }
+  },
+  {
+    "id": "voice-cloning",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Voice cloning by conditioning: a speaker encoder summarises a short reference clip into an embedding that is fed to the acoustic model together with the text, so changing the embedding changes the voice.",
+      "fr": "Clonage de voix par conditionnement : un encodeur de locuteur résume un court extrait de référence en un plongement fourni au modèle acoustique avec le texte ; changer le plongement change la voix."
+    },
+    "code": {
+      "en": "flowchart LR\n  REF[\"reference clip\"] --> SE[\"speaker encoder\"]\n  SE --> EMB[\"speaker embedding\"]\n  TXT[\"text<br/>to phonemes\"] --> AM[\"acoustic model\"]\n  EMB -.-> AM\n  AM -->|\"mel\"| VOC[\"vocoder\"]\n  VOC --> W[\"speech in the reference voice\"]",
+      "fr": "flowchart LR\n  REF[\"extrait de référence\"] --> SE[\"encodeur de locuteur\"]\n  SE --> EMB[\"plongement du locuteur\"]\n  TXT[\"texte<br/>vers phonèmes\"] --> AM[\"modèle acoustique\"]\n  EMB -.-> AM\n  AM -->|\"mel\"| VOC[\"vocodeur\"]\n  VOC --> W[\"parole dans la voix de référence\"]"
+    }
+  }
+]

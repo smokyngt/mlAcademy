@@ -1,0 +1,10 @@
+{
+  "id": "f2n.02.ex1",
+  "title": "Produit scalaire, norme, similarité cosinus, projection",
+  "prompt": "Implémente quatre fonctions **sans** appeler `np.dot`, `@` ni `np.linalg.norm` (construis-les à partir de `np.sum`, `*` et `np.sqrt`) :\n\n- `dot(a, b)` : somme des produits.\n- `norm(a)` : longueur euclidienne.\n- `cosine_similarity(a, b)`.\n- `project(a, b)` : la projection de `a` sur `b` (un vecteur).",
+  "hints": [
+    "dot(a, b) vaut np.sum(a * b) ; norm(a) est la racine carrée de dot(a, a).",
+    "cosine_similarity divise dot(a,b) par le produit des normes.",
+    "project(a, b) renvoie (dot(a,b) / dot(b,b)) * b, un vecteur de même forme que b."
+  ]
+}

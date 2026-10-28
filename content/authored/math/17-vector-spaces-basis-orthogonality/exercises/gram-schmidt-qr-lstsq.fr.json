@@ -1,0 +1,11 @@
+{
+  "id": "math.17.ex1",
+  "title": "Gram-Schmidt, QR et moindres carrés sur un problème mal conditionné",
+  "prompt": "Implémente, sans appeler `np.linalg.qr` ni `np.linalg.lstsq` dans ton propre code :\n\n- `gram_schmidt(A)` - Gram-Schmidt modifié pour une matrice `(n, m)` à colonnes indépendantes. Renvoie `Q` `(n, m)` à colonnes orthonormées et `R` `(m, m)` triangulaire supérieure à diagonale positive, de sorte que `A = Q @ R`.\n- `back_substitute(R, b)` - résous `R x = b` pour `R` triangulaire supérieure.\n- `lstsq_qr(A, b)` - moindres carrés via `R x = Q^T b`. Mise en garde : avec Gram-Schmidt, la perte d'orthogonalité rend `Q.T @ b` sensiblement imprécis ici (erreur d'environ `1e-7`). Le remède standard est d'appliquer Gram-Schmidt à la matrice augmentée `[A | b]` ; la dernière colonne du `R` obtenu est alors `Q^T b` calculé de façon stable (c'est l'astuce classique des moindres carrés par Gram-Schmidt modifié). `np.linalg.qr` évite le problème avec des réflexions de Householder.\n- `lstsq_normal(A, b)` - moindres carrés via les équations normales `A^T A x = A^T b` (utilise `np.linalg.solve`, pas une inverse explicite).\n\nLes tests comparent tes `Q`, `R` à `np.linalg.qr` au signe près, puis ajustent un polynôme de degré 7 à 40 points de `[0, 1]` (matrice de Vandermonde, conditionnement d'environ `1e5`) et comparent la précision des deux méthodes.",
+  "hints": [
+    "Gram-Schmidt modifié : copie A dans V ; pour k dans range(m) : R[k,k] = norm(V[:,k]) ; Q[:,k] = V[:,k]/R[k,k] ; pour j > k : R[k,j] = Q[:,k] @ V[:,j] ; V[:,j] -= R[k,j]*Q[:,k].",
+    "back_substitute : boucle sur i de m-1 à 0 : x[i] = (b[i] - R[i, i+1:] @ x[i+1:]) / R[i, i].",
+    "lstsq_qr : un simple Q.T @ b perd en précision avec Gram-Schmidt (Q n'est orthogonale qu'à ~1e-12). Applique plutôt gram_schmidt à la matrice augmentée [A | b] : la dernière colonne de R donne Q^T b de façon stable. Puis back_substitute(R[:m,:m], R[:m,m]).",
+    "lstsq_normal : np.linalg.solve(A.T @ A, A.T @ b)."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "saf.05.ex2",
+  "title": "Mécanismes de confidentialité différentielle et vérification empirique",
+  "prompt": "Un algorithme aléatoire `M` est (epsilon, delta)-différentiellement privé si, pour des jeux de données voisins `D, D'` et tout événement `S` : `P(M(D) in S) <= exp(epsilon) * P(M(D') in S) + delta`.\n\nImplémente :\n\n- `laplace_release(value, sensitivity, eps, rng, size)` : `value` plus un bruit de Laplace d'échelle `sensitivity/eps`, `size` tirages indépendants.\n- `gaussian_sigma(sensitivity, eps, delta)` : la calibration classique `sensitivity*sqrt(2*ln(1.25/delta))/eps` (valable pour `eps < 1`).\n- `gaussian_release(value, sigma, rng, size)`.\n- `dp_violation(x_d, x_dp, eps, delta, thresholds)` : à partir d'échantillons de `M(D)` et `M(D')`, le plus grand excès de l'inégalité (eps, delta) sur les événements `S = {x > t}`, dans les deux sens (positif signifie une violation détectée, à l'erreur d'échantillonnage près).\n- `clip_rows(G, C)` : ramène chaque ligne des gradients par exemple `G` de forme `(B, d)` à une norme L2 d'au plus `C`.\n- `dp_sgd_sum(G, C, sigma, rng)` : le gradient agrégé bruité `sum(clip_rows(G, C)) + N(0, (sigma*C)^2 I)`, de forme `(d,)`.\n- `basic_composition(eps_list, delta_list)` : (epsilon, delta) total d'une publication séquentielle par addition.\n\nLa requête est un comptage de sensibilité 1 ; les jeux de données voisins donnent des comptes 100 et 101.",
+  "hints": [
+    "Mécanisme de Laplace : ajoute un bruit de Laplace d'échelle sensitivity/epsilon. Gaussien : sigma = sensitivity*sqrt(2*ln(1.25/delta))/epsilon.",
+    "Écrêtage par exemple : multiplie chaque ligne par min(1, C/||row||). Alors retirer ou ajouter une ligne déplace la somme d'au plus C en norme L2.",
+    "dp_violation : pour chaque seuil t compare P'(x>t) à exp(eps)*P(x>t)+delta, et P(x>t) à exp(eps)*P'(x>t)+delta ; retourne le plus grand excès."
+  ]
+}

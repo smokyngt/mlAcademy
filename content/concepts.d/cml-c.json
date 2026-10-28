@@ -1,0 +1,10 @@
+[
+  { "id": "ml.eval-metrics", "title": "Classification and regression evaluation metrics", "description": "Confusion matrix, accuracy pitfalls, precision/recall/F1, MAE/RMSE/R squared, baselines, cost-based thresholds and choosing a metric from the business cost.", "stage": "III", "prereqs": ["prob.basics", "ml.logreg", "ml.generalization"] },
+  { "id": "ml.roc-auc", "title": "ROC curves, AUC and precision-recall curves", "description": "Threshold sweeps, ROC and precision-recall curves, and AUC as the probability that a random positive outscores a random negative.", "stage": "III", "prereqs": ["ml.eval-metrics"] },
+  { "id": "ml.calibration", "title": "Probability calibration", "description": "Reliability diagrams, expected calibration error and the Brier score; ranking versus honest probabilities.", "stage": "III", "prereqs": ["ml.eval-metrics", "ml.logreg"] },
+  { "id": "ml.features", "title": "Feature engineering", "description": "Scaling, categorical encoding, hashing, feature crosses, missing-value handling and feature selection.", "stage": "III", "prereqs": ["ml.generalization", "ml.logreg"] },
+  { "id": "ml.imbalance", "title": "Class imbalance", "description": "Why rare classes are hard and how resampling, class weights, cost-sensitive loss and threshold moving address it.", "stage": "III", "prereqs": ["ml.eval-metrics", "ml.logreg"] },
+  { "id": "ml.leakage", "title": "Data leakage", "description": "How information from test data, the future or the label contaminates training, and how to split and preprocess to prevent it.", "stage": "III", "prereqs": ["ml.generalization", "ml.features"] },
+  { "id": "ml.gmm", "title": "Gaussian mixture models", "description": "Mixture densities, the latent component variable, soft clustering, covariance structure and singularities.", "stage": "III", "prereqs": ["ml.kmeans", "prob.rv"] },
+  { "id": "ml.em", "title": "The EM algorithm", "description": "E-step responsibilities, M-step updates, monotone increase of the log-likelihood and initialisation for latent-variable models.", "stage": "III", "prereqs": ["ml.gmm", "prob.basics", "info.entropy"] }
+]

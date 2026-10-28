@@ -1,0 +1,134 @@
+[
+  {
+    "id": "logit-gradient",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Forward and backward pass of a linear probe on frozen features, with shapes. The gradient with respect to the logits is simply P - Y; the weight gradient is X^T (P - Y) / N.",
+      "fr": "Passe avant et arrière d'une sonde linéaire sur des descripteurs gelés, avec les formes. Le gradient par rapport aux logits est simplement P - Y ; celui des poids est X^T (P - Y) / N."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N,d)<br/>frozen features\"] --> Z[\"Z = XW + b<br/>(N,C)\"]\n  W[\"W (d,C), b (C,)\"] --> Z\n  Z --> P[\"P = softmax(Z)<br/>(N,C)\"]\n  P --> L[\"cross-entropy with Y (N,C)\"]\n  P -. \"P - Y\" .-> G[\"dZ = (P - Y) / N<br/>(N,C)\"]\n  G -. \"X^T dZ\" .-> GW[\"dW (d,C)\"]\n  G -. \"sum over rows\" .-> GB[\"db (C,)\"]",
+      "fr": "flowchart LR\n  X[\"X (N,d)<br/>descripteurs gelés\"] --> Z[\"Z = XW + b<br/>(N,C)\"]\n  W[\"W (d,C), b (C,)\"] --> Z\n  Z --> P[\"P = softmax(Z)<br/>(N,C)\"]\n  P --> L[\"entropie croisée avec Y (N,C)\"]\n  P -. \"P - Y\" .-> G[\"dZ = (P - Y) / N<br/>(N,C)\"]\n  G -. \"X^T dZ\" .-> GW[\"dW (d,C)\"]\n  G -. \"sum over rows\" .-> GB[\"db (C,)\"]"
+    }
+  },
+  {
+    "id": "ce-curve",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Cross-entropy loss -log p of the correct class as a function of its probability. The three worked-example rows are marked: p = 0.659 gives 0.417, p = 0.258 gives 1.353, p = 0.054 gives 2.910. Confident mistakes are punished heavily.",
+      "fr": "Perte d'entropie croisée -log p de la bonne classe en fonction de sa probabilité. Les trois lignes de l'exemple travaillé sont marquées : p = 0,659 donne 0,417, p = 0,258 donne 1,353, p = 0,054 donne 2,910. Les erreurs confiantes sont lourdement punies."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        4
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "-log(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.659,
+              0.417
+            ],
+            [
+              0.258,
+              1.353
+            ],
+            [
+              0.054,
+              2.91
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "transfer-regimes",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The two transfer regimes. Feature extraction: the pre-trained backbone is frozen and only a new head learns. Fine-tuning: the backbone is trainable too, with smaller learning rates for earlier stages.",
+      "fr": "Les deux régimes de transfert. Extraction de descripteurs : le backbone pré-entraîné est gelé et seule une nouvelle tête apprend. Fine-tuning : le backbone est aussi entraîné, avec des taux plus faibles pour les premiers étages."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph FE[\"Feature extraction (linear probe)\"]\n    direction LR\n    i1[\"(N,3,H,W)\"] --> b1[\"backbone FROZEN\"] --> f1[\"(N,d)\"] --> h1[\"new head Linear(d,C) TRAINED\"] --> l1[\"logits (N,C)\"]\n  end\n  subgraph FT[\"Fine-tuning with per-layer learning rates\"]\n    direction LR\n    i2[\"(N,3,H,W)\"] --> s0[\"stem + stage 1<br/>lr tiny\"] --> s1[\"middle stages<br/>lr small\"] --> s2[\"last stage<br/>lr medium\"] --> h2[\"head<br/>lr base\"] --> l2[\"logits (N,C)\"]\n  end\n  style b1 fill:#e5e7eb,stroke:#6b7280\n  style h1 fill:#dcfce7,stroke:#16a34a\n  style s0 fill:#fee2e2,stroke:#dc2626\n  style s1 fill:#ffedd5,stroke:#d97706\n  style s2 fill:#fef9c3,stroke:#ca8a04\n  style h2 fill:#dcfce7,stroke:#16a34a",
+      "fr": "flowchart LR\n  subgraph FE[\"Extraction de descripteurs (sonde linéaire)\"]\n    direction LR\n    i1[\"(N,3,H,W)\"] --> b1[\"backbone GELÉ\"] --> f1[\"(N,d)\"] --> h1[\"nouvelle tête Linear(d,C) ENTRAÎNÉE\"] --> l1[\"logits (N,C)\"]\n  end\n  subgraph FT[\"Fine-tuning avec taux par couche\"]\n    direction LR\n    i2[\"(N,3,H,W)\"] --> s0[\"stem + étage 1<br/>lr tiny\"] --> s1[\"étages intermédiaires<br/>lr small\"] --> s2[\"dernier étage<br/>lr medium\"] --> h2[\"tête<br/>lr base\"] --> l2[\"logits (N,C)\"]\n  end\n  style b1 fill:#e5e7eb,stroke:#6b7280\n  style h1 fill:#dcfce7,stroke:#16a34a\n  style s0 fill:#fee2e2,stroke:#dc2626\n  style s1 fill:#ffedd5,stroke:#d97706\n  style s2 fill:#fef9c3,stroke:#ca8a04\n  style h2 fill:#dcfce7,stroke:#16a34a"
+    }
+  },
+  {
+    "id": "layerwise-lr",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Layer-wise learning-rate decay eta_k = eta_base * 0.75^(12 - k) for L = 12 blocks, shown as a multiple of the head rate. Block 0 gets 0.032 of it (3.17e-5 for a head rate of 1e-3), block 4 gets 0.100, block 8 gets 0.316, block 11 gets 0.75.",
+      "fr": "Décroissance du taux d'apprentissage par couche eta_k = eta_base * 0,75^(12 - k) pour L = 12 blocs, en multiple du taux de la tête. Le bloc 0 reçoit 0,032 de ce taux (3,17e-5 pour un taux de tête de 1e-3), le bloc 4 reçoit 0,100, le bloc 8 0,316, le bloc 11 0,75."
+    },
+    "spec": {
+      "xDomain": [
+        -0.5,
+        12.5
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "0.75^(12-x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.0317
+            ],
+            [
+              4,
+              0.1
+            ],
+            [
+              8,
+              0.3164
+            ],
+            [
+              11,
+              0.75
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "head: eta_base"
+        }
+      ]
+    }
+  }
+]

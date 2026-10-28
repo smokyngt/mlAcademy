@@ -1,0 +1,10 @@
+{
+  "id": "ops.04.ex1",
+  "title": "Métriques par tranche, baselines et ensembles",
+  "prompt": "L'accuracy agrégée cache des échecs. Implémente :\n\n- `slice_metrics(y_true, y_pred, slice_ids)` -> dict `{slice_id: (n, accuracy)}`.\n- `worst_slice(metrics, min_n)` -> l'identifiant de la tranche ayant l'accuracy la plus basse parmi les tranches d'au moins `min_n` exemples (égalités : le plus petit identifiant).\n- `random_baseline(p, q)` -> `(f1, accuracy)` d'un modèle qui prédit la classe positive avec la probabilité `q`, indépendamment de l'entrée, quand la classe positive a une prévalence `p`.\n- `majority_accuracy(p, n)` -> accuracy d'un vote majoritaire sur `n` (impair) classifieurs indépendants qui sont chacun corrects avec la probabilité `p`.",
+  "hints": [
+    "slice_metrics : boucle sur np.unique(slice_ids) ; une tranche de n éléments avec c corrects a pour accuracy c/n.",
+    "Baseline aléatoire qui prédit positif avec la probabilité q sur des données de prévalence positive p : precision = p, recall = q, accuracy = p*q + (1-p)*(1-q).",
+    "Majorité de n classifieurs indépendants : somme sur k > n/2 de C(n,k) p^k (1-p)^(n-k). math.comb est disponible."
+  ]
+}

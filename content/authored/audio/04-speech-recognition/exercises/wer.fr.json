@@ -1,0 +1,10 @@
+{
+  "id": "aud.04.ex2",
+  "title": "Taux d'erreur sur les mots à partir de la table de distance d'édition",
+  "prompt": "Implémente les métriques standard de l'ASR avec NumPy/Python pur :\n\n- `edit_distance_table(ref, hyp)` -> tableau d'entiers `(len(ref)+1, len(hyp)+1)` (fonctionne sur des listes de mots ou des chaînes de caractères).\n- `edit_ops(ref, hyp)` -> `(S, D, I)` trouvé en remontant la table ; privilégie d'abord le mouvement diagonal, puis la suppression, puis l'insertion. Seul le total `S+D+I` est unique ; les tests ne vérifient la répartition que sur des cas non ambigus.\n- `normalize(text)` -> liste de mots : minuscules, ponctuation supprimée.\n- `wer(ref, hyp)` -> `(S + D + I) / N` sur des listes de mots normalisées (`N` = nombre de mots de référence, au moins 1).\n- `cer(ref, hyp)` -> la même chose sur les caractères du texte normalisé sans espaces.\n- `rnnt_lattice_floats(T, U, V1)` et `ctc_matrix_floats(T, V1)` -> nombre de valeurs d'un treillis de transducteur `T x (U+1) x V1` et d'une matrice de probabilités CTC `T x V1`.",
+  "hints": [
+    "Table d de forme (n+1, m+1) : d[i,0]=i, d[0,j]=j, d[i,j] = min(d[i-1,j]+1, d[i,j-1]+1, d[i-1,j-1] + (ref[i-1] != hyp[j-1])).",
+    "edit_ops : pars de (n, m) et remonte. Si le mouvement diagonal explique d[i,j], c'est une correspondance/substitution ; sinon si d[i,j] == d[i-1,j]+1 c'est une suppression ; sinon une insertion.",
+    "normalize : mets en minuscules et ne garde que les lettres, chiffres et espaces (supprime la ponctuation), puis découpe sur les espaces. wer = distance / nombre de mots de référence."
+  ]
+}

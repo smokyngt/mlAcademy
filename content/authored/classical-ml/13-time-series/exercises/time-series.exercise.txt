@@ -1,0 +1,83 @@
+#@@ meta
+{"id": "cml.13.ex1", "title": "ACF, AR(p) by least squares and walk-forward forecasting", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.timeseries", "ml.autoreg"], "hints": ["acf: centre the series, d = y - y.mean(); lag k is (d[k:] @ d[:n-k]) / (d @ d). Lag 0 must be exactly 1.", "fit_ar: row for target y[t] is [1, y[t-1], ..., y[t-p]] for t = p..n-1. Build columns y[p-j : n-j] for j = 1..p, add a column of ones, and call np.linalg.lstsq.", "walk_forward_ar: for each t from start to n-1, fit on y[:t] ONLY, then predict y[t] from the last p values of y[:t]."]}
+#@@ prompt
+Implement four small tools with NumPy.
+
+- `acf(y, max_lag)` -> array of length `max_lag + 1`, the sample autocorrelation (centre by the overall mean; divide every lag by `sum((y - mean)**2)`). `acf[0]` is 1.
+- `fit_ar(y, p)` -> `(c, phi)` where `c` is the intercept and `phi` has shape `(p,)`, fitted by ordinary least squares on the model `y[t] = c + phi[0]*y[t-1] + ... + phi[p-1]*y[t-p]`.
+- `forecast_ar(history, c, phi, h)` -> array of `h` forecasts made recursively: each forecast is appended to the history and used for the next step.
+- `walk_forward_ar(y, start, p)` -> array of one-step-ahead predictions for `y[start], ..., y[n-1]`. The prediction for `y[t]` must be made from a model fitted on `y[:t]` only (expanding window).
+#@@ starter
+import numpy as np
+
+def acf(y, max_lag):
+    raise NotImplementedError
+
+def fit_ar(y, p):
+    raise NotImplementedError
+
+def forecast_ar(history, c, phi, h):
+    raise NotImplementedError
+
+def walk_forward_ar(y, start, p):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+y = np.array([2., 4, 3, 5, 4, 6, 5, 7])
+a = acf(y, 3)
+check("acf worked example [1, 0.125, 0.4722, -0.2361]", lambda: np.allclose(a, [1, 0.125, 17 / 36, -17 / 72], atol=1e-6))
+c, phi = fit_ar(y, 1)
+check("AR(1) worked example c = 3.6579, phi = 0.2895", lambda: abs(c - 3.6578947) < 1e-5 and abs(phi[0] - 0.2894737) < 1e-5)
+check("phi has shape (p,)", lambda: np.asarray(phi).shape == (1,))
+check("one-step forecast of the worked example = 5.6842", lambda: abs(forecast_ar(y, c, phi, 1)[0] - 5.6842105) < 1e-5)
+check("two-step forecast reuses the first forecast", lambda: abs(forecast_ar(y, c, phi, 2)[1] - (c + phi[0] * (c + phi[0] * 7))) < 1e-9)
+rng = np.random.default_rng(0)
+n = 400
+e = rng.normal(size=n)
+z = np.zeros(n)
+for t in range(2, n):
+    z[t] = 0.5 * z[t - 1] + 0.3 * z[t - 2] + e[t]
+c2, phi2 = fit_ar(z, 2)
+check("recovers AR(2) coefficients 0.5 and 0.3", lambda: np.allclose(phi2, [0.5, 0.3], atol=0.1))
+check("acf of an AR(2) decays slowly and is positive", lambda: np.all(acf(z, 4)[1:] > 0.3))
+pred = walk_forward_ar(z, 300, 2)
+check("walk-forward returns n - start predictions", lambda: pred.shape == (100,))
+mae_ar = np.mean(np.abs(pred - z[300:]))
+mae_naive = np.mean(np.abs(z[299:-1] - z[300:]))
+check("AR(2) beats the naive last-value forecast", lambda: mae_ar < mae_naive)
+z2 = z.copy()
+z2[300:] += 50.0
+check("no leakage: changing the future does not change the first prediction", lambda: abs(walk_forward_ar(z2, 300, 2)[0] - pred[0]) < 1e-9)
+#@@ solution
+import numpy as np
+
+def acf(y, max_lag):
+    y = np.asarray(y, float)
+    d = y - y.mean()
+    den = d @ d
+    return np.array([d[k:] @ d[:len(d) - k] / den for k in range(max_lag + 1)])
+
+def fit_ar(y, p):
+    y = np.asarray(y, float)
+    n = len(y)
+    X = np.column_stack([np.ones(n - p)] + [y[p - j:n - j] for j in range(1, p + 1)])
+    w = np.linalg.lstsq(X, y[p:], rcond=None)[0]
+    return w[0], w[1:]
+
+def forecast_ar(history, c, phi, h):
+    hist = list(np.asarray(history, float))
+    p = len(phi)
+    out = []
+    for _ in range(h):
+        nxt = c + sum(phi[j] * hist[-1 - j] for j in range(p))
+        out.append(nxt)
+        hist.append(nxt)
+    return np.array(out)
+
+def walk_forward_ar(y, start, p):
+    y = np.asarray(y, float)
+    preds = []
+    for t in range(start, len(y)):
+        c, phi = fit_ar(y[:t], p)
+        preds.append(forecast_ar(y[:t], c, phi, 1)[0])
+    return np.array(preds)

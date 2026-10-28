@@ -1,0 +1,17 @@
+[
+  { "id": "dl.01.c1", "front": "Mise à jour du momentum (forme des bibliothèques)", "back": "$v\\leftarrow\\mu v+g$, $\\theta\\leftarrow\\theta-\\eta v$." },
+  { "id": "dl.01.c2", "front": "Pas effectif du momentum avec un gradient constant", "back": "$\\eta/(1-\\mu)$ : dix fois plus grand pour $\\mu=0.9$." },
+  { "id": "dl.01.c3", "front": "Direction de Nesterov", "back": "$g_t+\\mu v_t$ au lieu de $v_t$ : elle utilise le gradient au point d'anticipation, freinant plus tôt avant le dépassement." },
+  { "id": "dl.01.c4", "front": "Limite de stabilité de la descente de gradient sur une quadratique", "back": "$\\eta<2/\\lambda_{\\max}$. Le meilleur pas constant est $2/(\\lambda_{\\max}+\\lambda_{\\min})$ avec le taux $(\\kappa-1)/(\\kappa+1)$." },
+  { "id": "dl.01.c5", "front": "Taux par pas : GD contre heavy ball sur une quadratique", "back": "GD : $(\\kappa-1)/(\\kappa+1)$. Heavy ball : $(\\sqrt\\kappa-1)/(\\sqrt\\kappa+1)$. Les itérations évoluent comme $\\kappa$ contre $\\sqrt\\kappa$." },
+  { "id": "dl.01.c6", "front": "Mise à jour de RMSProp", "back": "$s\\leftarrow\\beta s+(1-\\beta)g^2$, $\\theta\\leftarrow\\theta-\\eta\\,g/(\\sqrt s+\\varepsilon)$." },
+  { "id": "dl.01.c7", "front": "Moments d'Adam", "back": "$m\\leftarrow\\beta_1m+(1-\\beta_1)g$, $v\\leftarrow\\beta_2v+(1-\\beta_2)g^2$ ; valeurs par défaut $0.9$, $0.999$, $\\varepsilon=10^{-8}$." },
+  { "id": "dl.01.c8", "front": "Pourquoi la correction de biais ?", "back": "$\\mathbb{E}[v_t]=\\sigma^2(1-\\beta_2^t)$ pour des gradients stationnaires, car le départ à zéro est intégré dans la moyenne. Divise par $1-\\beta^t$ pour une estimation non biaisée." },
+  { "id": "dl.01.c9", "front": "Taille du premier pas d'Adam", "back": "$\\hat m_1/\\sqrt{\\hat v_1}=\\mathrm{sign}(g)$, donc environ $\\eta$ par coordonnée quelle que soit l'échelle du gradient." },
+  { "id": "dl.01.c10", "front": "Mise à jour d'AdamW", "back": "$\\theta\\leftarrow\\theta-\\eta\\hat m/(\\sqrt{\\hat v}+\\varepsilon)-\\eta\\lambda\\theta$. La décroissance n'est pas divisée par $\\sqrt{\\hat v}$." },
+  { "id": "dl.01.c11", "front": "Mémoire de l'optimiseur pour Adam", "back": "Deux tenseurs supplémentaires ($m$, $v$) de la forme des paramètres, plus le gradient : environ 3 fois le nombre de paramètres." },
+  { "id": "dl.01.c12", "front": "Formule warmup + cosinus", "back": "$\\eta_{\\max}t/W$ pour $t<W$ ; puis $\\eta_{\\min}+\\tfrac12(\\eta_{\\max}-\\eta_{\\min})(1+\\cos(\\pi\\frac{t-W}{T-W}))$." },
+  { "id": "dl.01.c13", "front": "Pourquoi faire un warmup avec un optimiseur adaptatif ?", "back": "Les estimations précoces du second moment reposent sur peu de gradients et sont bruitées ; un grand pas sur une mauvaise estimation d'échelle peut déstabiliser l'entraînement. De petits pas laissent les statistiques se stabiliser." },
+  { "id": "dl.01.c14", "front": "Écrêtage du gradient par la norme", "back": "Si $\\|g\\|_2>c$, remplace $g$ par $g\\,c/\\|g\\|_2$. Exemple : $\\|G\\|=5$, $c=1$ multiplie par $1/5$." },
+  { "id": "dl.01.c15", "front": "Piège : taux d'apprentissage constant avec RMSProp ou Adam près d'un optimum", "back": "Le pas normalisé reste d'environ $\\eta$ par coordonnée même quand les gradients s'annulent, donc l'itéré sautille ; fais décroître le taux d'apprentissage." }
+]

@@ -1,0 +1,118 @@
+[
+ {
+  "id": "saf.06.q1",
+  "concept": "saf.capability-evals",
+  "stage": "pre",
+  "prompt": "Why are dual-use capability benchmarks built from multiple-choice 'proxy' questions?",
+  "options": [
+   "Multiple choice is always more accurate",
+   "Models cannot answer open questions",
+   "They let capability be measured without asking the model to produce anything harmful",
+   "Regulators forbid free-form tests"
+  ],
+  "answer": 2,
+  "explanation": "The questions test proximate knowledge in a 'yellow zone' and never request harmful output."
+ },
+ {
+  "id": "saf.06.q2",
+  "concept": "saf.capability-evals",
+  "prompt": "Which statement about a low benchmark score is most defensible?",
+  "options": [
+   "It may reflect weak elicitation, so it is best treated as a lower bound on capability",
+   "It proves the capability is absent",
+   "It proves the model is safe to deploy",
+   "It is irrelevant to risk"
+  ],
+  "answer": 0,
+  "explanation": "Elicitation effort matters; evaluations should be best-effort and report bounds."
+ },
+ {
+  "id": "saf.06.q3",
+  "concept": "saf.capability-evals",
+  "prompt": "A threshold is 10% success. A model gets 8 successes in 100 trials; the Wilson 95% upper bound is 0.150. Under the conservative rule, what do you conclude?",
+  "options": [
+   "The model is below the threshold",
+   "The model is exactly at 8% so no action is needed",
+   "The threshold must be raised",
+   "You cannot rule out that the model reaches the threshold"
+  ],
+  "answer": 3,
+  "explanation": "Act if the upper bound reaches the threshold."
+ },
+ {
+  "id": "saf.06.q4",
+  "concept": "saf.capability-evals",
+  "prompt": "Success rates are 30/50 with assistance and 12/50 without. What is the uplift (risk ratio)?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 2.5,
+   "tol": 0.01
+  },
+  "explanation": "(30/50)/(12/50) = 0.6/0.24 = 2.5."
+ },
+ {
+  "id": "saf.06.q5",
+  "concept": "saf.watermarking",
+  "prompt": "In a green-list text watermark with $\\gamma=0.5$, a text of $T=100$ scored pairs contains 70 green tokens. What is the z-score?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 4.0,
+   "tol": 0.01
+  },
+  "explanation": "$(70-50)/\\sqrt{100\\cdot0.25}=20/5=4$."
+ },
+ {
+  "id": "saf.06.q6",
+  "concept": "saf.watermarking",
+  "prompt": "Why does detection of a watermarked text get stronger with length?",
+  "options": [
+   "The expected z-score grows like $\\sqrt{T}$ because the green excess accumulates over more tokens",
+   "Longer texts use a bigger key",
+   "The hash gets more random",
+   "The threshold falls automatically"
+  ],
+  "answer": 0,
+  "explanation": "E[z] = (f - gamma) sqrt(T) / sqrt(gamma (1 - gamma))."
+ },
+ {
+  "id": "saf.06.q7",
+  "concept": "saf.watermarking",
+  "prompt": "A detector finds no watermark in a text. What can be concluded?",
+  "options": [
+   "The text is human-written",
+   "Only that it does not carry this key's watermark; it may be human-written or from another generator",
+   "The text is safe",
+   "The key has been stolen"
+  ],
+  "answer": 1,
+  "explanation": "Watermarks are model- and key-specific; absence is not evidence of authenticity."
+ },
+ {
+  "id": "saf.06.q8",
+  "concept": "saf.watermarking",
+  "prompt": "Which edit most directly erodes a green-list watermark?",
+  "options": [
+   "Adding a title",
+   "Changing font",
+   "Reading the text aloud",
+   "Replacing many tokens (paraphrase or translation), since each replaced token spoils two scored pairs"
+  ],
+  "answer": 3,
+  "explanation": "Green status depends on the previous token, so substitutions affect adjacent pairs."
+ },
+ {
+  "id": "saf.06.q9",
+  "concept": "saf.governance",
+  "prompt": "How should you treat the dates and thresholds of the regulatory overview in this lesson?",
+  "options": [
+   "As current legal advice",
+   "As permanent",
+   "As reported in course notes from early 2026 and to be checked against official sources",
+   "As applicable only in the US"
+  ],
+  "answer": 2,
+  "explanation": "Regulation moves; the lesson was not based on primary legal texts."
+ }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "rl.06.ex2",
+ "title": "Un modèle de récompense de Bradley-Terry et la récompense du RLHF",
+ "prompt": "Les humains comparent des paires de réponses ; un **modèle de récompense** (RM) transforme ces comparaisons en un score scalaire. Ici le RM est linéaire sur des vecteurs de caractéristiques : $R_w(x)=w\\cdot x$ avec `w` de forme `(d,)`. Une paire est `(x_pos, x_neg)` où `x_pos` est la réponse préférée (tableaux de forme `(N, d)`).\n\nImplémente :\n\n- `bt_loss(w, Xp, Xn)` -> la perte de Bradley-Terry $-\\frac1N\\sum_i\\log\\sigma\\big(R_w(x^+_i)-R_w(x^-_i)\\big)$.\n- `bt_grad(w, Xp, Xn)` -> son gradient, de forme `(d,)`.\n- `train_rm(Xp, Xn, lr, steps)` -> les poids après descente de gradient depuis zéro.\n- `pairwise_accuracy(w, Xp, Xn)` -> la fraction de paires avec `R(x_pos) > R(x_neg)`.\n- `rlhf_reward(r, logp_policy, logp_ref, beta)` -> la récompense façonnée $r-\\beta(\\log\\pi_\\theta-\\log\\pi_{\\text{ref}})$ utilisée dans PPO (une estimation échantillonnée d'une pénalité KL).",
+ "hints": [
+  "La marge d'une paire est m = (x_pos - x_neg) @ w, de forme (N,). La perte est mean(log(1 + exp(-m))), c'est-à-dire -log sigmoid(m) ; utilise np.logaddexp(0, -m) pour la stabilité.",
+  "Gradient : d loss / d w = -mean((1 - sigmoid(m)) * (x_pos - x_neg), axis=0).",
+  "rlhf_reward = r - beta * (logp_policy - logp_ref), terme à terme."
+ ]
+}

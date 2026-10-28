@@ -1,0 +1,102 @@
+#@@ meta
+{"id": "trf.03.ex1", "title": "Sinusoidal encodings and RoPE: test the relative-shift property", "difficulty": 4, "runtime": "pyodide", "concepts": ["trf.position", "trf.rope"], "hints": ["sinusoidal: angle[p, i] = p / base**(2*i/d) for i in range(d//2); put sin in the even columns and cos in the odd columns.", "rope: theta_i = base**(-2*i/d_h); angle = pos[:, None] * theta[None, :]; for each pair (a, b) = (x[..., 0::2], x[..., 1::2]) return (a*cos - b*sin, a*sin + b*cos) interleaved back.", "rel_shift_gap: compute rope(q, pos)[m] @ rope(k, pos)[n] for several (m, n) with the same offset after shifting both by s, and return the largest absolute difference between the two scores."]}
+#@@ prompt
+Implement:
+
+- `sinusoidal(T, d, base=10000.0)`: the `(T, d)` table with `PE[p, 2i] = sin(p / base**(2i/d))` and `PE[p, 2i+1] = cos(...)`.
+- `rope(x, pos, base=10000.0)`: rotate every consecutive coordinate pair of `x` (shape `(..., T, d_h)`, `d_h` even) by the angle `pos * base**(-2i/d_h)`. `pos` is an integer array of shape `(T,)`. The output has the same shape as `x`.
+- `rel_shift_gap(d_h, shift, seed=0)`: draw one random `q` and one random `k` of length `d_h` (`rng.normal`, `q` first), and return the maximum over pairs `(m, n)` in `0..9` of `abs(score(m, n) - score(m + shift, n + shift))`, where `score(m, n) = rope(q-row at m) . rope(k-row at n)`. For correct RoPE it is at floating-point noise level.
+#@@ starter
+import numpy as np
+
+def sinusoidal(T, d, base=10000.0):
+    # TODO
+    raise NotImplementedError
+
+def rope(x, pos, base=10000.0):
+    # TODO
+    raise NotImplementedError
+
+def rel_shift_gap(d_h, shift, seed=0):
+    rng = np.random.default_rng(seed)
+    q = rng.normal(size=d_h); k = rng.normal(size=d_h)
+    # TODO: use rope on (T, d_h) arrays that repeat q and k at every position
+    raise NotImplementedError
+
+print(np.round(sinusoidal(4, 4), 4))
+print(rel_shift_gap(8, 100))
+#@@ tests
+import numpy as np
+pe = sinusoidal(4, 4)
+check("sinusoidal table matches the lesson", lambda: pe.shape == (4, 4) and np.allclose(pe, [[0, 1, 0, 1], [0.8415, 0.5403, 0.01, 1.0], [0.9093, -0.4161, 0.02, 0.9998], [0.1411, -0.99, 0.03, 0.9996]], atol=1e-4), "sin in even columns, cos in odd columns, omega_i = 10000**(-2i/d)")
+P = sinusoidal(20, 8)
+def shift_is_rotation():
+    k = 3
+    for i in range(4):
+        w = 10000.0 ** (-2 * i / 8)
+        R = np.array([[np.cos(k * w), np.sin(k * w)], [-np.sin(k * w), np.cos(k * w)]])
+        for p in range(10):
+            if not np.allclose(R @ P[p, 2 * i:2 * i + 2], P[p + k, 2 * i:2 * i + 2]):
+                return False
+    return True
+check("shift by k is a pairwise rotation of the sinusoids", shift_is_rotation)
+rng = np.random.default_rng(3)
+x = rng.normal(size=(2, 3, 5, 8))
+y = rope(x, np.arange(5))
+check("rope keeps the shape", lambda: y.shape == x.shape)
+check("position 0 is the identity", lambda: np.allclose(y[..., 0, :], x[..., 0, :]))
+check("rope preserves vector norms", lambda: np.allclose(np.linalg.norm(y, axis=-1), np.linalg.norm(x, axis=-1)), "each pair is rotated, never scaled")
+q2 = np.array([[1., 2.]]); k2 = np.array([[3., 1.]])
+def score(m, n):
+    th = 0.5
+    c, s = np.cos(m * th), np.sin(m * th)
+    qm = np.array([q2[0, 0] * c - q2[0, 1] * s, q2[0, 0] * s + q2[0, 1] * c])
+    c, s = np.cos(n * th), np.sin(n * th)
+    kn = np.array([k2[0, 0] * c - k2[0, 1] * s, k2[0, 0] * s + k2[0, 1] * c])
+    return qm @ kn
+check("lesson 2-D example: offset 1 gives 1.9908", lambda: abs(score(2, 1) - 1.9908) < 1e-3 and abs(score(3, 0) + 4.6338) < 1e-3)
+check("relative shift gap is zero (shift 100)", lambda: rel_shift_gap(8, 100) < 1e-9, "the score must depend on m-n only")
+check("relative shift gap is zero (other seed, d_h=16)", lambda: rel_shift_gap(16, 37, seed=5) < 1e-9)
+def shifted_scores_equal():
+    d = 8; Q = rng.normal(size=(6, d)); K = rng.normal(size=(6, d))
+    S1 = rope(Q, np.arange(6)) @ rope(K, np.arange(6)).T
+    S2 = rope(Q, np.arange(6) + 50) @ rope(K, np.arange(6) + 50).T
+    return np.allclose(S1, S2)
+check("whole score matrix is invariant to a global position shift", shifted_scores_equal)
+#@@ solution
+import numpy as np
+
+def sinusoidal(T, d, base=10000.0):
+    p = np.arange(T)[:, None]
+    i = np.arange(d // 2)[None, :]
+    ang = p / base ** (2 * i / d)
+    pe = np.zeros((T, d))
+    pe[:, 0::2] = np.sin(ang)
+    pe[:, 1::2] = np.cos(ang)
+    return pe
+
+def rope(x, pos, base=10000.0):
+    d = x.shape[-1]
+    th = base ** (-2 * np.arange(d // 2) / d)
+    ang = np.asarray(pos)[:, None] * th[None, :]
+    c, s = np.cos(ang), np.sin(ang)
+    out = np.empty_like(x, dtype=float)
+    a, b = x[..., 0::2], x[..., 1::2]
+    out[..., 0::2] = a * c - b * s
+    out[..., 1::2] = a * s + b * c
+    return out
+
+def rel_shift_gap(d_h, shift, seed=0):
+    rng = np.random.default_rng(seed)
+    q = rng.normal(size=d_h); k = rng.normal(size=d_h)
+    T = 10 + shift
+    Q = rope(np.tile(q, (T, 1)), np.arange(T))
+    K = rope(np.tile(k, (T, 1)), np.arange(T))
+    worst = 0.0
+    for m in range(10):
+        for n in range(10):
+            worst = max(worst, abs(Q[m] @ K[n] - Q[m + shift] @ K[n + shift]))
+    return float(worst)
+
+print(np.round(sinusoidal(4, 4), 4))
+print(rel_shift_gap(8, 100))

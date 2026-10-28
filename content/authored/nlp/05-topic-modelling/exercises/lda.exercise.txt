@@ -1,0 +1,102 @@
+#@@ meta
+{"id": "nlp.05.ex1", "title": "A tiny LDA with collapsed Gibbs sampling", "difficulty": 4, "runtime": "pyodide", "concepts": ["nlp.topic-models"], "hints": ["conditional: p = (ndk_d + alpha) * (nkw_w + beta) / (nk + V * beta), then divide by p.sum(). The counts passed in already exclude the current token.", "Per token: remove it (ndk[d,k]-=1, nkw[k,w]-=1, nk[k]-=1), sample k with rng.choice(K, p=conditional(...)), then add it back to the new topic.", "theta = (ndk + alpha) / (Nd + K*alpha), phi = (nkw + beta) / (nk + V*beta); diversity = number of distinct words among the top-n words of all topics / (K*n)."]}
+#@@ prompt
+Implement a minimal LDA and its read-outs.
+
+- `conditional(ndk_d, nkw_w, nk, alpha, beta, V)` -> vector `(K,)` summing to 1: the probability of each topic for the current token, given counts that EXCLUDE that token (`ndk_d`: tokens of this document per topic, `nkw_w`: how often this word is assigned to each topic, `nk`: tokens per topic).
+- `lda_gibbs(docs, K, V, alpha, beta, iters, seed)` -> `(ndk, nkw)` with shapes `(D, K)` and `(K, V)` after `iters` sweeps. Use `rng = np.random.default_rng(seed)`; initialise topics at random.
+- `estimate(ndk, nkw, alpha, beta)` -> `(theta, phi)` with shapes `(D, K)` and `(K, V)`.
+- `top_words(phi, n)` -> list of K lists with the ids of the `n` most probable words of each topic.
+- `topic_diversity(tops)` -> distinct words over all topics divided by the total number of listed words.
+#@@ starter
+import numpy as np
+
+def conditional(ndk_d, nkw_w, nk, alpha, beta, V):
+    raise NotImplementedError
+
+def lda_gibbs(docs, K, V, alpha, beta, iters, seed):
+    raise NotImplementedError
+
+def estimate(ndk, nkw, alpha, beta):
+    raise NotImplementedError
+
+def top_words(phi, n):
+    raise NotImplementedError
+
+def topic_diversity(tops):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+p = conditional(np.array([3., 1.]), np.array([4., 0.]), np.array([10., 8.]), 0.1, 0.01, 8)
+check("worked example conditional (0.99890, 0.00110)", lambda: np.allclose(p, [0.99890, 0.00110], atol=1e-4))
+check("conditional sums to 1", lambda: abs(p.sum() - 1) < 1e-12)
+check("symmetric when counts are equal", lambda: np.allclose(conditional(np.ones(3), np.ones(3), np.ones(3) * 5, 0.5, 0.1, 10), 1 / 3))
+
+r = np.random.default_rng(0)
+docs = []
+for d in range(8):
+    grp = 0 if d < 4 else 1
+    docs.append([int(x) for x in r.choice(np.arange(4) + 4 * grp, size=20)])
+docs.append([int(x) for x in r.choice(np.arange(8), size=20)])
+K, V = 2, 8
+ndk, nkw = lda_gibbs(docs, K, V, 0.1, 0.01, 60, 0)
+check("shapes", lambda: ndk.shape == (9, 2) and nkw.shape == (2, 8))
+check("document counts match document lengths", lambda: np.allclose(ndk.sum(axis=1), [len(d) for d in docs]))
+check("total word counts = number of tokens", lambda: abs(nkw.sum() - 180) < 1e-9)
+check("counts are non-negative integers", lambda: (ndk >= 0).all() and (nkw >= 0).all() and np.allclose(ndk, np.round(ndk)))
+theta, phi = estimate(ndk, nkw, 0.1, 0.01)
+check("theta and phi rows sum to 1", lambda: np.allclose(theta.sum(1), 1) and np.allclose(phi.sum(1), 1))
+tops = top_words(phi, 4)
+check("topics separate the two word groups", lambda: sorted(sorted(map(int, t)) for t in tops) == [[0, 1, 2, 3], [4, 5, 6, 7]])
+check("diversity of separated topics = 1", lambda: topic_diversity(tops) == 1.0)
+check("diversity of repeated topics = 0.5", lambda: topic_diversity([[0, 1], [0, 1]]) == 0.5)
+check("sport documents share one dominant topic", lambda: len({int(np.argmax(theta[d])) for d in range(4)}) == 1 and theta[:4].max(1).min() > 0.95)
+check("cooking documents use the other topic", lambda: int(np.argmax(theta[0])) != int(np.argmax(theta[4])) and theta[4:8].max(1).min() > 0.95)
+ndk2, nkw2 = lda_gibbs(docs, K, V, 0.1, 0.01, 60, 3)
+check("another seed also separates the topics", lambda: sorted(sorted(map(int, t)) for t in top_words(estimate(ndk2, nkw2, 0.1, 0.01)[1], 4)) == [[0, 1, 2, 3], [4, 5, 6, 7]])
+#@@ solution
+import numpy as np
+
+def conditional(ndk_d, nkw_w, nk, alpha, beta, V):
+    p = (ndk_d + alpha) * (nkw_w + beta) / (nk + V * beta)
+    return p / p.sum()
+
+def lda_gibbs(docs, K, V, alpha, beta, iters, seed):
+    rng = np.random.default_rng(seed)
+    ndk = np.zeros((len(docs), K))
+    nkw = np.zeros((K, V))
+    nk = np.zeros(K)
+    z = [rng.integers(K, size=len(d)) for d in docs]
+    for d, doc in enumerate(docs):
+        for i, w in enumerate(doc):
+            k = z[d][i]
+            ndk[d, k] += 1
+            nkw[k, w] += 1
+            nk[k] += 1
+    for _ in range(iters):
+        for d, doc in enumerate(docs):
+            for i, w in enumerate(doc):
+                k = z[d][i]
+                ndk[d, k] -= 1
+                nkw[k, w] -= 1
+                nk[k] -= 1
+                k = rng.choice(K, p=conditional(ndk[d], nkw[:, w], nk, alpha, beta, V))
+                z[d][i] = k
+                ndk[d, k] += 1
+                nkw[k, w] += 1
+                nk[k] += 1
+    return ndk, nkw
+
+def estimate(ndk, nkw, alpha, beta):
+    K = ndk.shape[1]
+    V = nkw.shape[1]
+    theta = (ndk + alpha) / (ndk.sum(axis=1, keepdims=True) + K * alpha)
+    phi = (nkw + beta) / (nkw.sum(axis=1, keepdims=True) + V * beta)
+    return theta, phi
+
+def top_words(phi, n):
+    return [list(np.argsort(-row)[:n]) for row in phi]
+
+def topic_diversity(tops):
+    flat = [int(w) for t in tops for w in t]
+    return len(set(flat)) / len(flat)

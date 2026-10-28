@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.03.q1",
+    "prompt": "$A$ est $3\\times4$ et $B$ est $4\\times2$. Quelle est la forme de $AB$ ?",
+    "options": ["$3\\times2$", "$4\\times4$", "$2\\times3$", "$AB$ n'est pas défini"],
+    "explanation": "$(m\\times n)(n\\times p)=(m\\times p)$ avec $m=3,n=4,p=2$. Les tailles intérieures (4 et 4) coïncident et disparaissent."
+  },
+  {
+    "id": "f2n.03.q2",
+    "prompt": "$A$ est $3\\times4$ et $B$ est $3\\times4$. Quel produit est défini ?",
+    "options": ["$AB$", "$BA$", "$A^\\top B$", "$A^\\top B^\\top$"],
+    "explanation": "$A^\\top$ est $4\\times3$ et $B$ est $3\\times4$, donc $A^\\top B$ est défini et vaut $4\\times4$. $AB$ et $BA$ exigeraient $4=3$ ; $A^\\top B^\\top$ est $(4\\times3)(4\\times3)$, également incompatible. (Remarque : $AB^\\top$, non proposé, serait aussi défini : $(3\\times4)(4\\times3)$.)"
+  },
+  {
+    "id": "f2n.03.q3",
+    "prompt": "Calcule le coefficient (2,1) (ligne 2, colonne 1) de $\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}\\begin{pmatrix}5&6\\\\7&8\\end{pmatrix}$.",
+    "options": [],
+    "explanation": "La ligne 2 de la première matrice est $(3,4)$, la colonne 1 de la seconde est $(5,7)$ : $3\\cdot5+4\\cdot7=15+28=43$."
+  },
+  {
+    "id": "f2n.03.q4",
+    "prompt": "Une matrice $2\\times2$ envoie $e_1=(1,0)$ sur $(2,0)$ et $e_2=(0,1)$ sur $(0,3)$. De quelle matrice s'agit-il ?",
+    "options": ["$\\begin{pmatrix}2&3\\\\0&0\\end{pmatrix}$", "$\\begin{pmatrix}2&0\\\\0&3\\end{pmatrix}$", "$\\begin{pmatrix}0&2\\\\3&0\\end{pmatrix}$", "$\\begin{pmatrix}1&1\\\\2&3\\end{pmatrix}$"],
+    "explanation": "Les colonnes de la matrice sont les images des vecteurs de base : colonne 1 $=(2,0)$, colonne 2 $=(0,3)$. Elle étire $x$ d'un facteur 2 et $y$ d'un facteur 3."
+  },
+  {
+    "id": "f2n.03.q5",
+    "prompt": "Quelle affirmation est vraie pour des matrices générales dont les deux produits existent ?",
+    "options": ["$AB=BA$", "$(AB)^\\top=A^\\top B^\\top$", "$(AB)^\\top=B^\\top A^\\top$", "$(AB)^\\top=BA$"],
+    "explanation": "Transposer inverse l'ordre d'un produit. $A^\\top B^\\top$ a généralement la mauvaise forme ou de mauvaises valeurs."
+  },
+  {
+    "id": "f2n.03.q6",
+    "prompt": "Quelle application n'est PAS linéaire ?",
+    "options": ["$x\\mapsto 3x$ sur $\\mathbb{R}$", "$x\\mapsto Ax$ pour une matrice $A$ fixée", "$x\\mapsto Ax+b$ avec $b\\ne0$", "la rotation autour de l'origine"],
+    "explanation": "Une application linéaire doit envoyer $0$ sur $0$. Avec $b\\neq0$, $0\\mapsto b$, donc $x\\mapsto Ax+b$ est affine, pas linéaire. Une couche de neurones est une application affine suivie d'une non-linéarité."
+  }
+]

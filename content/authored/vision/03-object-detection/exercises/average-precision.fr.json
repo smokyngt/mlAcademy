@@ -1,0 +1,10 @@
+{
+ "id": "vis.03.ex2",
+ "title": "Apparier les détections et calculer la précision moyenne",
+ "prompt": "Évalue un détecteur pour **une classe** sur **un ensemble d'images** (les boîtes sont `(x1, y1, x2, y2)`).\n\n- `match_detections(det_boxes, det_scores, gt_boxes, thr)` : renvoie une liste d'indicateurs 0/1, un par détection, **classés par score décroissant** : 1 = vrai positif, 0 = faux positif. Chaque boîte de vérité terrain peut être revendiquée par au plus une détection (celle de score le plus élevé) ; une détection s'apparie à sa vérité terrain d'**IoU maximal**, et ne compte que si cette IoU est `>= thr` et que la boîte n'est pas déjà revendiquée.\n- `average_precision(tp_flags, n_gt)` : aire sous la courbe précision-rappel avec la règle de tous les points : précision rendue monotone non croissante à partir de la droite (l'« enveloppe »), puis sommée sur les incréments de rappel.\n- `ap_over_thresholds(det_boxes, det_scores, gt_boxes, thrs)` : AP moyenne sur une liste de seuils d'IoU.",
+ "hints": [
+  "Traite les détections du score le plus haut au plus bas. Chaque boîte de vérité terrain ne peut être revendiquée qu'une fois : une détection est un vrai positif si sa vérité terrain d'IoU maximal a une IoU >= thr et n'est pas encore revendiquée ; sinon c'est un faux positif.",
+  "Le cumul de TP / (rang) donne la précision, le cumul de TP / n_gt donne le rappel. Rends la précision monotone en prenant un maximum courant depuis la droite (np.maximum.accumulate sur le tableau inversé).",
+  "AP = somme sur les rangs de (rappel_i - rappel_{i-1}) * précision_enveloppe_i, avec rappel_{-1} = 0. Fais la moyenne sur les seuils pour obtenir des nombres de type mAP@[.5:.95]."
+ ]
+}

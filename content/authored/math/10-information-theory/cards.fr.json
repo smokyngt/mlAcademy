@@ -1,0 +1,17 @@
+[
+  { "id": "math.10.c1", "front": "Contenu informationnel d'un événement", "back": "$h(x)=-\\log p(x)$ : les événements rares en apportent plus ; les événements indépendants s'additionnent parce que les logs transforment les produits en sommes." },
+  { "id": "math.10.c2", "front": "Entropie", "back": "$H[p]=-\\sum_xp(x)\\log p(x)$ : surprise moyenne = longueur de code moyenne minimale. $0\\le H\\le\\log M$." },
+  { "id": "math.10.c3", "front": "Bits contre nats", "back": "Les bits utilisent $\\log_2$, les nats utilisent $\\ln$ ; $1$ nat $=1.443$ bits. Les bibliothèques de ML utilisent les nats." },
+  { "id": "math.10.c4", "front": "Entropie d'une distribution uniforme sur $M$ états", "back": "$\\log M$, le maximum. Une masse ponctuelle a une entropie nulle." },
+  { "id": "math.10.c5", "front": "L'exemple à 8 états", "back": "Probabilités $\\frac12,\\frac14,\\frac18,\\frac1{16},4\\times\\frac1{64}$ : entropie 2 bits ; des longueurs de code $1,2,3,4,6,6,6,6$ donnent une moyenne de 2 bits contre 3 pour un code plat." },
+  { "id": "math.10.c6", "front": "Entropie croisée", "back": "$H(p,q)=-\\sum_xp(x)\\log q(x)$ : longueur de code moyenne quand la vérité est $p$ et que le code est construit pour $q$." },
+  { "id": "math.10.c7", "front": "Divergence KL et sa décomposition", "back": "$\\mathrm{KL}(p\\|q)=\\sum p\\log\\frac pq=H(p,q)-H(p)$." },
+  { "id": "math.10.c8", "front": "Preuve que $\\mathrm{KL}\\ge0$", "back": "Utilise $\\ln x\\le x-1$ avec $x=q/p$ : $-\\mathrm{KL}=\\sum p\\ln\\frac qp\\le\\sum(q-p)\\le0$. Égalité si et seulement si $q=p$." },
+  { "id": "math.10.c9", "front": "Pourquoi $\\ln x\\le x-1$ ?", "back": "$g(x)=x-1-\\ln x$ a pour dérivée $g'=1-1/x$, un minimum unique en $x=1$ avec $g(1)=0$." },
+  { "id": "math.10.c10", "front": "La KL est-elle symétrique ?", "back": "Non. $\\mathrm{KL}(p\\|q)\\ne\\mathrm{KL}(q\\|p)$ en général (par ex. $0.531$ contre $0.737$ bits pour $(0.9,0.1)$ contre $(0.5,0.5)$)." },
+  { "id": "math.10.c11", "front": "Perte d'entropie croisée avec une étiquette one-hot", "back": "$-\\ln q_c$, le log-probabilité négatif de la vraie classe. Sur un jeu de données : la log-vraisemblance négative." },
+  { "id": "math.10.c12", "front": "Minimisation de la KL et maximum de vraisemblance", "back": "$\\mathrm{KL}(p\\|q_\\theta)=\\text{const}-\\mathbb E_p[\\ln q_\\theta]\\approx\\text{const}+\\mathrm{NLL}/N$, donc les deux ont le même minimiseur." },
+  { "id": "math.10.c13", "front": "Information mutuelle", "back": "$I[x,y]=\\mathrm{KL}(p(x,y)\\|p(x)p(y))=H[x]-H[x|y]\\ge0$ ; nulle si et seulement si indépendantes." },
+  { "id": "math.10.c14", "front": "Perplexité", "back": "$\\exp$ de l'entropie croisée moyenne (nats). Une uniforme sur $K$ options donne exactement $K$." },
+  { "id": "math.10.c15", "front": "Entropie croisée softmax stable", "back": "Soustrais $\\max z$ des logits, puis $-(z_c-\\log\\sum e^{z_k})$ (log-sum-exp) ; ne prends jamais le $\\log$ d'une probabilité qui peut valoir 0." }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "nlp.04.ex1",
+ "title": "Modèle de langage bigramme, lissage et perplexité",
+ "prompt": "Implémente un modèle de langage bigramme sur des phrases tokenisées par espaces.\n\n- `build_counts(sentences)` -> `(uni, bi, ctx)` sous forme de `collections.Counter`. Complète chaque phrase avec `<s>` et `</s>`. `uni` compte les tokens prédits (tout ce qui suit `<s>`, y compris `</s>`), `ctx` compte les tokens utilisés comme contexte (tout sauf `</s>`), `bi` compte les paires adjacentes.\n- `p_mle(a, b, uni, bi, ctx)` = `c(a,b)/c(a)` (0 si le contexte n'a pas été vu).\n- `p_addk(a, b, uni, bi, ctx, k)` en utilisant `|V| = len(uni)`.\n- `p_interp(a, b, uni, bi, ctx, lam)` = `lam * p_mle + (1 - lam) * probabilité unigramme`.\n- `p_stupid(a, b, uni, bi, ctx, alpha=0.4)` : l'estimation MLE du bigramme si le bigramme a été vu, sinon `alpha` fois la probabilité unigramme.\n- `perplexity(sentences, prob)` où `prob(a, b)` est une fonction d'un bigramme ; renvoie `inf` si une probabilité est nulle.",
+ "hints": [
+  "Complète chaque phrase : t = ['<s>'] + s.split() + ['</s>']. uni compte t[1:], ctx compte t[:-1], bi compte les paires zip(t[:-1], t[1:]).",
+  "add-k : (bi[(a,b)] + k) / (ctx[a] + k * V) avec V = len(uni). interpolation : lam * mle + (1 - lam) * uni[b] / sum(uni.values()).",
+  "perplexité = exp(-moyenne de log p) sur TOUS les tokens prédits de TOUTES les phrases (y compris </s>) ; si un p vaut 0, renvoie float('inf')."
+ ]
+}

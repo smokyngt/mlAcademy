@@ -1,0 +1,10 @@
+{
+  "id": "res.01.ex1",
+  "title": "Un harnais de reproductibilité",
+  "prompt": "Tu reproduis un chiffre publié. Construis les pièces d'un harnais minimal (la valeur critique de Student `t_crit` est fournie).\n\n- `run_seeds(fn, seeds)` -> tableau flottant 1-D `[fn(s) for s in seeds]`.\n- `summarize(x)` -> dict avec `n`, `mean`, `sd` (écart type d'échantillon, `ddof=1`), `lo`, `hi` où `[lo, hi]` est l'intervalle de confiance de Student à 95 % de la moyenne : `mean +- t_crit(n-1) * sd / sqrt(n)`.\n- `paired_summary(a, b)` -> `summarize(a - b)` pour deux tableaux produits avec les mêmes graines.\n- `compare_to_reported(x, reported, tol)` -> l'un de\n  - `\"reproduced\"` : le chiffre rapporté se trouve dans l'intervalle à 95 % de tes exécutions ;\n  - `\"within_tolerance\"` : il se trouve hors de l'intervalle mais `abs(mean - reported) <= tol` ;\n  - `\"not_reproduced\"` : sinon.",
+  "hints": [
+    "run_seeds appelle simplement fn(seed) pour chaque graine et renvoie np.array(..., dtype=float).",
+    "summarize : sd utilise ddof=1, demi-largeur = t_crit(n-1) * sd / sqrt(n), lo = mean - half, hi = mean + half.",
+    "compare_to_reported : teste d'abord lo <= reported <= hi, puis abs(mean - reported) <= tol, sinon 'not_reproduced'."
+  ]
+}

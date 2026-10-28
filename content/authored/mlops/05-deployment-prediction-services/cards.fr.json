@@ -1,0 +1,16 @@
+[
+  { "id": "ops.05.c1", "front": "Prédiction par lots contre prédiction en ligne", "back": "Le batch précalcule et stocke les prédictions (haut débit, périmé, entrées connues à l'avance). L'en ligne calcule à la requête (frais, n'importe quelle entrée, latence sur le chemin critique)." },
+  { "id": "ops.05.c2", "front": "Features batch (statiques) contre en flux (dynamiques)", "back": "Les features statiques changent lentement et sont calculées en batch ; les features dynamiques changent vite et viennent du traitement en flux." },
+  { "id": "ops.05.c3", "front": "Pourquoi deux pipelines pour l'entraînement et le serving sont dangereux", "back": "Ils peuvent dériver l'un de l'autre et produire des features différentes, une source courante de bogues silencieux en production." },
+  { "id": "ops.05.c4", "front": "Mythe du déploiement : la performance reste la même si on n'y touche pas", "back": "Faux : le vieillissement logiciel et le décalage de distribution des données dégradent les modèles ; demande-toi à quelle fréquence tu peux mettre à jour." },
+  { "id": "ops.05.c5", "front": "Récurrence de Lindley", "back": "start = max(arrivée, fin précédente) ; finish = start + service ; latence = finish - arrivée." },
+  { "id": "ops.05.c6", "front": "Latence moyenne M/M/1", "back": "$W=1/(\\mu-\\lambda)$ pour $\\lambda<\\mu$ ; utilisation $\\rho=\\lambda/\\mu$." },
+  { "id": "ops.05.c7", "front": "Pourquoi une forte utilisation est dangereuse", "back": "Le délai de file croît comme $1/(\\mu-\\lambda)$ et la queue (p99) vaut plusieurs fois la moyenne." },
+  { "id": "ops.05.c8", "front": "Règle du batching dynamique", "back": "Démarrer un lot quand il est plein ou quand la plus ancienne requête a attendu max_wait, mais pas avant que le serveur soit libre." },
+  { "id": "ops.05.c9", "front": "Capacité d'un serveur avec batching", "back": "$B/(a+bB)$ requêtes par seconde pour une taille de lot $B$, un coût fixe $a$ et un coût par élément $b$." },
+  { "id": "ops.05.c10", "front": "Quantification", "back": "Représenter les poids avec moins de bits (32 vers 16 ou 8) : plus petit, plus rapide, mais plage limitée et erreur d'arrondi." },
+  { "id": "ops.05.c11", "front": "Quantification int8 symétrique", "back": "$q=\\mathrm{round}(w/s)$ avec $s=\\max|w|/127$ ; erreur par poids d'au plus $s/2$." },
+  { "id": "ops.05.c12", "front": "Distillation de connaissances", "back": "Entraîner un petit modèle élève à imiter un grand professeur ; déployer l'élève." },
+  { "id": "ops.05.c13", "front": "Élagage (pruning)", "back": "Retirer ou mettre à zéro les paramètres les moins utiles, donnant un réseau creux qui se stocke dans moins d'espace." },
+  { "id": "ops.05.c14", "front": "Compromis edge contre cloud", "back": "Edge : hors ligne, sans latence réseau, privé, peu coûteux pour le fournisseur ; mais matériel faible et opérations plus difficiles. Cloud : facile et puissant mais coûteux et dépendant du réseau." }
+]

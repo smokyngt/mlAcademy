@@ -1,0 +1,67 @@
+[
+  {
+    "id": "hmm-graph",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A first-order HMM: hidden tags form a Markov chain (transition matrix A, shape (K,K)); each tag emits its own word (emission matrix B, shape (K,V)). Only the words are observed.",
+      "fr": "Un HMM d'ordre 1 : les étiquettes cachées forment une chaîne de Markov (matrice de transition A, forme (K,K)) ; chaque étiquette émet son propre mot (matrice d'émission B, forme (K,V)). Seuls les mots sont observés."
+    },
+    "code": {
+      "en": "flowchart LR\n  PI[\"pi (K,)\"] --> t1((\"t_1\"))\n  t1 -->|\"A (K,K)\"| t2((\"t_2\"))\n  t2 -->|\"A\"| t3((\"t_3\"))\n  t1 -->|\"B (K,V)\"| x1[\"x_1 the\"]\n  t2 -->|\"B\"| x2[\"x_2 fish\"]\n  t3 -->|\"B\"| x3[\"x_3 bark\"]\n  style x1 fill:#e5e7eb,stroke:#6b7280\n  style x2 fill:#e5e7eb,stroke:#6b7280\n  style x3 fill:#e5e7eb,stroke:#6b7280",
+      "fr": "flowchart LR\n  PI[\"pi (K,)\"] --> t1((\"t_1\"))\n  t1 -->|\"A (K,K)\"| t2((\"t_2\"))\n  t2 -->|\"A\"| t3((\"t_3\"))\n  t1 -->|\"B (K,V)\"| x1[\"x_1 the\"]\n  t2 -->|\"B\"| x2[\"x_2 fish\"]\n  t3 -->|\"B\"| x3[\"x_3 bark\"]\n  style x1 fill:#e5e7eb,stroke:#6b7280\n  style x2 fill:#e5e7eb,stroke:#6b7280\n  style x3 fill:#e5e7eb,stroke:#6b7280"
+    }
+  },
+  {
+    "id": "viterbi-trellis",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Viterbi trellis of the worked example (the fish bark). Each cell holds delta_i(k), the best partial-path probability ending in tag k; solid arrows are the winning back-pointers. The best final cell is VERB with 0.027216, giving DET, NOUN, VERB.",
+      "fr": "Le treillis de Viterbi de l'exemple travaillé (the fish bark). Chaque cellule contient delta_i(k), la meilleure probabilité d'un chemin partiel finissant en k ; les flèches pleines sont les pointeurs arrière gagnants. La meilleure cellule finale est VERB avec 0,027216, d'où DET, NOUN, VERB."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph S1[\"i=1: the\"]\n    direction TB\n    D1[\"DET 0.42\"]\n    N1[\"NOUN 0\"]\n    V1[\"VERB 0\"]\n  end\n  subgraph S2[\"i=2: fish\"]\n    direction TB\n    D2[\"DET 0\"]\n    N2[\"NOUN 0.1134\"]\n    V2[\"VERB 0.0063\"]\n  end\n  subgraph S3[\"i=3: bark\"]\n    direction TB\n    D3[\"DET 0\"]\n    N3[\"NOUN 0.010206\"]\n    V3[\"VERB 0.027216\"]\n  end\n  D1 ==> N2\n  D1 --> V2\n  N2 --> N3\n  N2 ==> V3\n  V2 -.-> N3\n  style D1 fill:#dcfce7,stroke:#16a34a\n  style N2 fill:#dcfce7,stroke:#16a34a\n  style V3 fill:#dcfce7,stroke:#16a34a",
+      "fr": "flowchart LR\n  subgraph S1[\"i=1: the\"]\n    direction TB\n    D1[\"DET 0.42\"]\n    N1[\"NOUN 0\"]\n    V1[\"VERB 0\"]\n  end\n  subgraph S2[\"i=2: fish\"]\n    direction TB\n    D2[\"DET 0\"]\n    N2[\"NOUN 0.1134\"]\n    V2[\"VERB 0.0063\"]\n  end\n  subgraph S3[\"i=3: bark\"]\n    direction TB\n    D3[\"DET 0\"]\n    N3[\"NOUN 0.010206\"]\n    V3[\"VERB 0.027216\"]\n  end\n  D1 ==> N2\n  D1 --> V2\n  N2 --> N3\n  N2 ==> V3\n  V2 -.-> N3\n  style D1 fill:#dcfce7,stroke:#16a34a\n  style N2 fill:#dcfce7,stroke:#16a34a\n  style V3 fill:#dcfce7,stroke:#16a34a"
+    }
+  },
+  {
+    "id": "viterbi-step",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One Viterbi cell: delta_i(k) = [max_j delta_(i-1)(j) A_jk] * B_(k, x_i), with the back-pointer psi_i(k) = argmax_j. Cost O(n K^2) instead of K^n.",
+      "fr": "Une cellule de Viterbi : delta_i(k) = [max_j delta_(i-1)(j) A_jk] * B_(k, x_i), avec le pointeur arrière psi_i(k) = argmax_j. Coût O(n K^2) au lieu de K^n."
+    },
+    "code": {
+      "en": "flowchart LR\n  DP[\"delta_(i-1) (K,)\"] --> CA[\"cand = delta_(i-1)[:,None] + log A<br/>(K,K)\"]\n  LA[\"log A (K,K)\"] --> CA\n  CA --> MX[\"max over j<br/>and argmax over j\"]\n  MX --> PS[\"psi_i (K,)<br/>back-pointers\"]\n  MX --> AD[\"+ log B[:, x_i]\"]\n  AD --> DN[\"delta_i (K,)\"]",
+      "fr": "flowchart LR\n  DP[\"delta_(i-1) (K,)\"] --> CA[\"cand = delta_(i-1)[:,None] + log A<br/>(K,K)\"]\n  LA[\"log A (K,K)\"] --> CA\n  CA --> MX[\"max over j<br/>et argmax sur j\"]\n  MX --> PS[\"psi_i (K,)<br/>pointeurs arrière\"]\n  MX --> AD[\"+ log B[:, x_i]\"]\n  AD --> DN[\"delta_i (K,)\"]"
+    }
+  },
+  {
+    "id": "bio-ner",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "BIO encoding turns entity extraction into sequence labelling: B-X begins an entity of type X, I-X continues it, O is outside. Decoding the tags gives the spans PER and LOC.",
+      "fr": "L'encodage BIO transforme l'extraction d'entités en étiquetage de séquence : B-X commence une entité de type X, I-X la continue, O est à l'extérieur. Décoder les étiquettes donne les empans PER et LOC."
+    },
+    "code": {
+      "en": "flowchart LR\n  w1[\"Maria\"] --- t1[\"B-PER\"]\n  w2[\"Lopez\"] --- t2[\"I-PER\"]\n  w3[\"visited\"] --- t3[\"O\"]\n  w4[\"New\"] --- t4[\"B-LOC\"]\n  w5[\"York\"] --- t5[\"I-LOC\"]\n  t1 --> e1[\"span PER: Maria Lopez\"]\n  t2 --> e1\n  t4 --> e2[\"span LOC: New York\"]\n  t5 --> e2",
+      "fr": "flowchart LR\n  w1[\"Maria\"] --- t1[\"B-PER\"]\n  w2[\"Lopez\"] --- t2[\"I-PER\"]\n  w3[\"visited\"] --- t3[\"O\"]\n  w4[\"New\"] --- t4[\"B-LOC\"]\n  w5[\"York\"] --- t5[\"I-LOC\"]\n  t1 --> e1[\"empan PER: Maria Lopez\"]\n  t2 --> e1\n  t4 --> e2[\"empan LOC: New York\"]\n  t5 --> e2"
+    }
+  },
+  {
+    "id": "neural-tagger",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Modern taggers keep the HMM skeleton: a neural encoder produces per-word tag scores, an optional CRF layer adds transition scores, and Viterbi decodes the best sequence.",
+      "fr": "Les étiqueteurs modernes gardent le squelette du HMM : un encodeur neuronal produit des scores d'étiquette par mot, une couche CRF optionnelle ajoute des scores de transition, et Viterbi décode la meilleure séquence."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"words x_1..x_n\"] --> EM[\"embeddings (n,d)\"]\n  EM --> EN[\"BiLSTM / transformer\"]\n  EN --> SCO[\"per-word tag scores (n,K)\"]\n  SCO --> CRF[\"CRF transition scores (K,K)\"]\n  CRF --> VT[\"Viterbi\"]\n  VT --> TG[\"tag sequence (n,)\"]",
+      "fr": "flowchart LR\n  X[\"mots x_1..x_n\"] --> EM[\"embeddings (n,d)\"]\n  EM --> EN[\"BiLSTM / transformer\"]\n  EN --> SCO[\"scores d'étiquette par mot (n,K)\"]\n  SCO --> CRF[\"scores de transition CRF (K,K)\"]\n  CRF --> VT[\"Viterbi\"]\n  VT --> TG[\"séquence d'étiquettes (n,)\"]"
+    }
+  }
+]

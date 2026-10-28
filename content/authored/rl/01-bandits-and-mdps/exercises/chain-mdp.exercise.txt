@@ -1,0 +1,73 @@
+#@@ meta
+{"id": "rl.01.ex2", "title": "Simulate an MDP and estimate a value", "difficulty": 2, "runtime": "pyodide", "concepts": ["rl.mdp"], "hints": ["Sample the next state with rng.choice(n, p=P[s, a]).", "The reward of the step is R[s, a, s2]; add it to the return with weight gamma**t where t counts steps from 0.", "mc_value is just the mean of many rollout returns."]}
+#@@ prompt
+A chain MDP has states `0..n-1`; the last one is terminal. Action 1 ("right") moves one step right with probability `p` and otherwise stays; action 0 moves left (or stays at 0) with probability `p`. Reaching the last state gives reward 1.
+
+`make_chain` is given. Implement:
+
+- `rollout(P, R, policy, s0, gamma, rng)` -> the discounted return of one episode starting in `s0`, following the deterministic `policy` (an int array: action per state) until the terminal state.
+- `mc_value(P, R, policy, s0, gamma, n_episodes, seed)` -> the mean return over `n_episodes` rollouts.
+
+The tests compare your estimate with the closed form $V(0)=\frac1\gamma\big(\frac{p\gamma}{1-(1-p)\gamma}\big)^{n-1}$ for the always-right policy.
+#@@ starter
+import numpy as np
+
+def make_chain(n=5, p=0.8):
+    P = np.zeros((n, 2, n)); R = np.zeros((n, 2, n))
+    for s in range(n - 1):
+        P[s, 1, s + 1] = p; P[s, 1, s] += 1 - p
+        P[s, 0, max(s - 1, 0)] += p; P[s, 0, s] += 1 - p
+    R[n - 2, 1, n - 1] = 1.0
+    P[n - 1, :, n - 1] = 1.0
+    return P, R
+
+def rollout(P, R, policy, s0, gamma, rng):
+    raise NotImplementedError
+
+def mc_value(P, R, policy, s0, gamma, n_episodes, seed=0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+P, R = make_chain(5, 0.8)
+right = np.ones(5, dtype=int)
+left = np.zeros(5, dtype=int)
+check("P rows sum to 1", lambda: np.allclose(P.sum(axis=2), 1.0))
+p1, R1 = make_chain(2, 1.0)
+check("deterministic one-step chain returns exactly 1", lambda: rollout(p1, R1, np.array([1, 1]), 0, 0.9, np.random.default_rng(0)) == 1.0)
+p3, R3 = make_chain(3, 1.0)
+check("deterministic two-step chain returns gamma", lambda: abs(rollout(p3, R3, np.array([1, 1, 1]), 0, 0.9, np.random.default_rng(0)) - 0.9) < 1e-12)
+check("starting in the terminal state gives return 0", lambda: rollout(P, R, right, 4, 0.9, np.random.default_rng(0)) == 0.0)
+exact = (1 / 0.9) * (0.8 * 0.9 / (1 - 0.2 * 0.9)) ** 4
+check("closed form is about 0.6605", lambda: abs(exact - 0.6605) < 1e-3)
+est = mc_value(P, R, right, 0, 0.9, 4000, seed=0)
+check("MC estimate matches the closed form within 0.02", lambda: abs(est - exact) < 0.02)
+check("same seed is reproducible", lambda: mc_value(P, R, right, 0, 0.9, 200, seed=3) == mc_value(P, R, right, 0, 0.9, 200, seed=3))
+check("going left is worth less than going right", lambda: mc_value(P, R, left, 0, 0.9, 300, seed=1) < est)
+#@@ solution
+import numpy as np
+
+def make_chain(n=5, p=0.8):
+    P = np.zeros((n, 2, n)); R = np.zeros((n, 2, n))
+    for s in range(n - 1):
+        P[s, 1, s + 1] = p; P[s, 1, s] += 1 - p
+        P[s, 0, max(s - 1, 0)] += p; P[s, 0, s] += 1 - p
+    R[n - 2, 1, n - 1] = 1.0
+    P[n - 1, :, n - 1] = 1.0
+    return P, R
+
+def rollout(P, R, policy, s0, gamma, rng, max_steps=500):
+    n = P.shape[0]
+    s, G, disc = s0, 0.0, 1.0
+    for _ in range(max_steps):
+        if s == n - 1:
+            break
+        a = policy[s]
+        s2 = int(rng.choice(n, p=P[s, a]))
+        G += disc * R[s, a, s2]
+        disc *= gamma
+        s = s2
+    return G
+
+def mc_value(P, R, policy, s0, gamma, n_episodes, seed=0):
+    rng = np.random.default_rng(seed)
+    return float(np.mean([rollout(P, R, policy, s0, gamma, rng) for _ in range(n_episodes)]))

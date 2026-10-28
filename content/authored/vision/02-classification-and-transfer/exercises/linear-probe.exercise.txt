@@ -1,0 +1,83 @@
+#@@ meta
+{"id": "vis.02.ex1", "title": "Top-k accuracy, a linear probe and layer-wise learning rates", "difficulty": 3, "runtime": "pyodide", "concepts": ["vis.classification", "vis.transfer"], "hints": ["topk_accuracy: np.argsort(-logits, axis=1)[:, :k] gives the k best classes per row; a sample counts if its label is among them.", "Softmax regression gradient: P = softmax(X @ W + b); dW = X.T @ (P - Y_onehot) / N and db = (P - Y_onehot).mean(0). Subtract the row max before exp for stability.", "layerwise_lrs: layer k (0 = earliest, L = head) gets base_lr * decay ** (L - k). trainable_layers(epoch, n_layers): the head (index n_layers) is always trainable; each epoch unfreezes one more layer counting back from the end."]}
+#@@ prompt
+You will implement the evaluation and the transfer-learning logic of a classifier, on **frozen features** (the backbone is simulated by a fixed feature matrix).
+
+- `topk_accuracy(logits, y, k)`: fraction of rows whose true label is among the `k` largest logits.
+- `fit_linear_probe(X, y, n_classes, lr, steps)`: train softmax regression `softmax(X @ W + b)` by full-batch gradient descent starting from zeros; return `(W, b)` with `W` of shape `(d, n_classes)`. The features `X` are never modified (they are frozen).
+- `layerwise_lrs(base_lr, decay, n_layers)`: list of `n_layers + 1` learning rates, index `0` = earliest backbone layer, index `n_layers` = the head, with `lr_k = base_lr * decay ** (n_layers - k)`.
+- `trainable_layers(epoch, n_layers)`: set of layer indices that are trainable at a given epoch under progressive unfreezing: epoch 0 trains only the head (index `n_layers`), epoch 1 also the last backbone layer (index `n_layers - 1`), and so on, never below index 0.
+#@@ starter
+import numpy as np
+
+def topk_accuracy(logits, y, k):
+    raise NotImplementedError
+
+def fit_linear_probe(X, y, n_classes, lr=0.5, steps=300):
+    raise NotImplementedError
+
+def layerwise_lrs(base_lr, decay, n_layers):
+    raise NotImplementedError
+
+def trainable_layers(epoch, n_layers):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+lg = np.array([[2.0, 1.0, 0.1], [0.1, 0.2, 3.0], [1.0, 1.5, 1.2]])
+y = np.array([0, 1, 0])
+check("top-1 accuracy is 1/3", lambda: abs(topk_accuracy(lg, y, 1) - 1 / 3) < 1e-9)
+check("top-2 accuracy is 2/3", lambda: abs(topk_accuracy(lg, y, 2) - 2 / 3) < 1e-9)
+check("top-3 accuracy is 1 when k = number of classes", lambda: topk_accuracy(lg, y, 3) == 1.0)
+rng = np.random.default_rng(0)
+C, d = 4, 12
+means = rng.normal(size=(C, d)) * 1.5
+ytr = rng.integers(0, C, 400); yte = rng.integers(0, C, 300)
+Xtr = means[ytr] + rng.normal(size=(400, d)); Xte = means[yte] + rng.normal(size=(300, d))
+Xtr_copy = Xtr.copy()
+W, b = fit_linear_probe(Xtr, ytr, C)
+check("W has shape (d, C) and b has shape (C,)", lambda: W.shape == (d, C) and np.shape(b) == (C,))
+check("the frozen features are left untouched", lambda: np.array_equal(Xtr, Xtr_copy))
+check("probe reaches > 0.9 accuracy on held-out features", lambda: topk_accuracy(Xte @ W + b, yte, 1) > 0.9)
+W0, b0 = fit_linear_probe(Xtr, ytr, C, steps=1)
+check("more steps do not hurt training accuracy", lambda: topk_accuracy(Xtr @ W + b, ytr, 1) >= topk_accuracy(Xtr @ W0 + b0, ytr, 1))
+def _ce(Z, yy):
+    Z = Z - Z.max(1, keepdims=True)
+    P = np.exp(Z) / np.exp(Z).sum(1, keepdims=True)
+    return -np.log(P[np.arange(len(yy)), yy]).mean()
+check("probe loss after training is below log(C)", lambda: _ce(Xtr @ W + b, ytr) < np.log(C))
+lrs = layerwise_lrs(1e-3, 0.75, 12)
+check("13 learning rates (12 layers + head)", lambda: len(lrs) == 13)
+check("head gets the base learning rate", lambda: abs(lrs[-1] - 1e-3) < 1e-15)
+check("layer 0 gets base * 0.75**12 = 3.17e-5", lambda: abs(lrs[0] - 1e-3 * 0.75 ** 12) < 1e-15)
+check("learning rates increase with depth", lambda: all(a < b for a, b in zip(lrs, lrs[1:])))
+check("epoch 0 trains only the head", lambda: trainable_layers(0, 4) == {4})
+check("epoch 2 trains layers 2, 3 and the head", lambda: trainable_layers(2, 4) == {2, 3, 4})
+check("unfreezing stops at layer 0", lambda: trainable_layers(50, 4) == {0, 1, 2, 3, 4})
+#@@ solution
+import numpy as np
+
+def topk_accuracy(logits, y, k):
+    top = np.argsort(-logits, axis=1)[:, :k]
+    return float(np.mean([y[i] in top[i] for i in range(len(y))]))
+
+def fit_linear_probe(X, y, n_classes, lr=0.5, steps=300):
+    N, d = X.shape
+    W = np.zeros((d, n_classes))
+    b = np.zeros(n_classes)
+    Y = np.eye(n_classes)[y]
+    for _ in range(steps):
+        Z = X @ W + b
+        Z = Z - Z.max(axis=1, keepdims=True)
+        P = np.exp(Z)
+        P = P / P.sum(axis=1, keepdims=True)
+        G = (P - Y) / N
+        W = W - lr * (X.T @ G)
+        b = b - lr * G.sum(axis=0)
+    return W, b
+
+def layerwise_lrs(base_lr, decay, n_layers):
+    return [base_lr * decay ** (n_layers - k) for k in range(n_layers + 1)]
+
+def trainable_layers(epoch, n_layers):
+    lowest = max(0, n_layers - epoch)
+    return set(range(lowest, n_layers + 1))

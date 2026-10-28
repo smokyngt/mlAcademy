@@ -1,0 +1,64 @@
+[
+  {
+    "id": "dl.04.q1", "concept": "dl.pytorch", "stage": "pre", "kind": "mcq",
+    "prompt": "Three calls of `(2*p).sum().backward()` on a parameter `p` with no `zero_grad()` in between. What is `p.grad` afterwards?",
+    "options": ["2", "6", "0", "3"],
+    "answer": 1,
+    "explanation": "Gradients accumulate into `.grad`: each call adds 2, giving 6. That is why the loop calls `zero_grad()` every step."
+  },
+  {
+    "id": "dl.04.q2", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "What is the shape of `nn.Linear(2, 16).weight`?",
+    "options": ["(2, 16)", "(16, 2)", "(16,)", "(2,)"],
+    "answer": 1,
+    "explanation": "PyTorch stores `(out_features, in_features)` and computes $xW^\\top+b$, so the NumPy `W` of shape `(n_in, n_out)` is its transpose."
+  },
+  {
+    "id": "dl.04.q3", "concept": "dl.pytorch", "stage": "check", "kind": "numeric",
+    "prompt": "How many parameters does `nn.Sequential(Linear(50,30), ReLU, Linear(30,20), ReLU, Linear(20,3))` have?",
+    "answer": {"value": 2213, "tol": 0.5},
+    "explanation": "$50\\cdot30+30+30\\cdot20+20+20\\cdot3+3=2213$."
+  },
+  {
+    "id": "dl.04.q4", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "What should be passed to `F.cross_entropy`?",
+    "options": ["Softmax probabilities and one-hot floats", "Raw logits and integer (long) class labels", "Sigmoid outputs", "Log-probabilities and floats"],
+    "answer": 1,
+    "explanation": "It applies log-softmax internally; feeding probabilities gives silently wrong gradients."
+  },
+  {
+    "id": "dl.04.q5", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "Why does float16 mixed-precision training usually need loss scaling while bfloat16 does not?",
+    "options": ["float16 is slower", "float16 has a narrow range (smallest normal about $6\\times10^{-5}$) so small gradients underflow; bfloat16 has float32's exponent range", "bfloat16 has more mantissa bits", "float16 cannot store negative numbers"],
+    "answer": 1,
+    "explanation": "Scaling the loss moves small gradients into float16's representable range; bfloat16 shares float32's range."
+  },
+  {
+    "id": "dl.04.q6", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "For evaluation you should call:",
+    "options": ["Nothing special", "`model.eval()` and wrap the forward pass in `torch.no_grad()`", "Only `torch.no_grad()`", "Only `model.eval()`"],
+    "answer": 1,
+    "explanation": "`eval()` switches dropout and batch norm to inference behaviour; `no_grad()` stops recording the graph. They do different things."
+  },
+  {
+    "id": "dl.04.q7", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "What does `torch.from_numpy(a)` do compared with `torch.tensor(a)`?",
+    "options": ["Both copy", "`from_numpy` shares memory with the array, `tensor` copies", "`tensor` shares, `from_numpy` copies", "Both share memory"],
+    "answer": 1,
+    "explanation": "Modifying the NumPy array changes a tensor made with `from_numpy`."
+  },
+  {
+    "id": "dl.04.q8", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "To resume training after a crash you must checkpoint:",
+    "options": ["Only the model `state_dict`", "The model `state_dict`, the optimiser state (e.g. Adam's $m$, $v$, step), the epoch, and any scheduler", "Only the data loader", "Only the loss history"],
+    "answer": 1,
+    "explanation": "Parameters alone lose Adam's moment estimates and the schedule position."
+  },
+  {
+    "id": "dl.04.q9", "concept": "dl.pytorch", "stage": "check", "kind": "mcq",
+    "prompt": "You get \"Expected all tensors to be on the same device\". Most likely cause?",
+    "options": ["Wrong learning rate", "The model was moved with `.to(device)` but a batch (or the labels) was not", "Too many workers", "Wrong dtype of the loss"],
+    "answer": 1,
+    "explanation": "The model moves once; every batch must be moved too."
+  }
+]

@@ -1,0 +1,139 @@
+[
+ {
+  "id": "cml.14.q1",
+  "concept": "ml.anomaly",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why is anomaly detection usually framed as modelling normal data rather than training a classifier?",
+  "options": [
+   "Anomalies are rare and keep changing, so there are few or no representative labels",
+   "Classifiers cannot output probabilities",
+   "Normal data is always Gaussian",
+   "Anomalies are always errors"
+  ],
+  "answer": 0,
+  "explanation": "With 0.1% anomalies, and new kinds appearing tomorrow, a supervised model has almost nothing to learn from; modelling normality generalises to unseen anomalies."
+ },
+ {
+  "id": "cml.14.q2",
+  "concept": "ml.anomaly",
+  "kind": "mcq",
+  "prompt": "The ten values 10, 11, 9, 10, 12, 10, 11, 9, 10, 50 have a classical z-score of about 2.99 for the value 50. This illustrates...",
+  "options": [
+   "The z-score is robust",
+   "The data are Gaussian",
+   "Masking: the outlier inflates the mean and standard deviation",
+   "Contamination"
+  ],
+  "answer": 2,
+  "explanation": "Mean 14.2 and standard deviation 11.96 are dragged up by 50 itself, so the test fails to flag it; the median/MAD version gives 26.98."
+ },
+ {
+  "id": "cml.14.q3",
+  "concept": "ml.anomaly",
+  "kind": "numeric",
+  "prompt": "For the same data the median is 10 and the MAD is 1. What is the robust z-score $0.6745\\,(x-\\tilde x)/\\mathrm{MAD}$ of the value 50?",
+  "options": [],
+  "answer": {
+   "value": 26.98,
+   "tol": 0.02
+  },
+  "explanation": "$0.6745\\times40=26.98$."
+ },
+ {
+  "id": "cml.14.q4",
+  "concept": "ml.anomaly",
+  "kind": "mcq",
+  "prompt": "Mahalanobis distance can flag a point whose every coordinate is ordinary because...",
+  "options": [
+   "It uses the median",
+   "It accounts for the correlation between features through $\\Sigma^{-1}$",
+   "It ignores the mean",
+   "It uses random splits"
+  ],
+  "answer": 1,
+  "explanation": "A point violating the correlation structure is far from the data ellipse even if each marginal is typical."
+ },
+ {
+  "id": "cml.14.q5",
+  "concept": "ml.anomaly",
+  "kind": "mcq",
+  "prompt": "Whitening $u=L^{-1}(x-\\mu)$ with $\\Sigma=LL^\\top$ shows that $D(x)^2$ equals...",
+  "options": [
+   "The sum of the diagonal of $\\Sigma$",
+   "The determinant of $\\Sigma$",
+   "The largest eigenvalue",
+   "The squared Euclidean norm $\\|u\\|^2$ of the whitened vector"
+  ],
+  "answer": 3,
+  "explanation": "$\\|u\\|^2=(x-\\mu)^\\top L^{-\\top}L^{-1}(x-\\mu)=(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)$."
+ },
+ {
+  "id": "cml.14.q6",
+  "concept": "ml.iforest",
+  "kind": "mcq",
+  "prompt": "In an isolation forest an anomaly typically has...",
+  "options": [
+   "A short average path length, hence a score close to 1",
+   "A long average path length",
+   "The same path length as normal points",
+   "No path"
+  ],
+  "answer": 0,
+  "explanation": "Sparse, different points are cut off from the rest after few random splits."
+ },
+ {
+  "id": "cml.14.q7",
+  "concept": "ml.iforest",
+  "kind": "numeric",
+  "prompt": "An isolation tree built on $\\psi=2$ points: what is $c(2)$?",
+  "options": [],
+  "answer": {
+   "value": 1,
+   "tol": 0
+  },
+  "explanation": "By definition $c(2)=1$ (one split separates two points)."
+ },
+ {
+  "id": "cml.14.q8",
+  "concept": "ml.iforest",
+  "kind": "mcq",
+  "prompt": "The isolation score $2^{-E[h(x)]/c(\\psi)}$ equals 0.5 when...",
+  "options": [
+   "$E[h]=0$",
+   "$E[h]=2c(\\psi)$",
+   "$E[h]=c(\\psi)$",
+   "$E[h]=1$"
+  ],
+  "answer": 2,
+  "explanation": "$2^{-1}=0.5$: the point is as hard to isolate as an average point."
+ },
+ {
+  "id": "cml.14.q9",
+  "concept": "ml.anomaly",
+  "kind": "mcq",
+  "prompt": "What does the `contamination` parameter of a detector do?",
+  "options": [
+   "Changes how the scores are computed",
+   "Sets the threshold so that about that fraction of points is flagged",
+   "Removes anomalies from training data",
+   "Controls the number of trees"
+  ],
+  "answer": 1,
+  "explanation": "Scores are unchanged; contamination only chooses the cut-off, i.e. how many alerts you receive."
+ },
+ {
+  "id": "cml.14.q10",
+  "concept": "ml.anomaly",
+  "kind": "mcq",
+  "prompt": "With 1000 transactions of which 3 are fraud, a detector flags its top 10. Eight of the top 10 are not fraud. Which metric reports this best?",
+  "options": [
+   "Accuracy (99.2% or more)",
+   "ROC-AUC alone",
+   "Training loss",
+   "Precision@10 = 0.2"
+  ],
+  "answer": 3,
+  "explanation": "Accuracy is dominated by the normal class; precision at the review budget measures the actual usefulness."
+ }
+]

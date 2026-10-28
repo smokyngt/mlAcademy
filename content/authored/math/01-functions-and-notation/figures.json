@@ -1,0 +1,40 @@
+[
+  {
+    "id": "function-families", "after": 6, "kind": "plot",
+    "caption": { "en": "The functions met in this course: x² (blue), exp (orange), ln (green) and ReLU (red). exp and ln are mirror images across the line y = x.", "fr": "Les fonctions rencontrées dans ce cours : x² (bleu), exp (orange), ln (vert) et ReLU (rouge). exp et ln sont symétriques par rapport à la droite y = x." },
+    "spec": { "xDomain": [-3, 5], "yDomain": [-3, 6], "height": 340,
+      "data": [
+        { "fn": "x^2", "color": "#2563eb" },
+        { "fn": "exp(x)", "color": "#d97706" },
+        { "fn": "log(x)", "color": "#16a34a" },
+        { "fn": "max(0, x)", "color": "#dc2626" },
+        { "fn": "x", "color": "#9ca3af" }
+      ] }
+  },
+  {
+    "id": "composition-layers", "after": 6, "kind": "mermaid",
+    "caption": { "en": "Composition: a three-layer network is f3 ∘ f2 ∘ f1. The output space of each function must be the input space of the next.", "fr": "Composition : un réseau à trois couches est f3 ∘ f2 ∘ f1. L'espace de sortie de chaque fonction doit être l'espace d'entrée de la suivante." },
+    "code": {
+      "en": "flowchart LR\n  X[\"x in R^n\"] -->|\"f1\"| H1[\"h1 in R^m1\"] -->|\"f2\"| H2[\"h2 in R^m2\"] -->|\"f3\"| Y[\"y in R^m3\"]\n  Y -->|\"loss L\"| S[\"scalar in R\"]",
+      "fr": "flowchart LR\n  X[\"x dans R^n\"] -->|\"f1\"| H1[\"h1 dans R^m1\"] -->|\"f2\"| H2[\"h2 dans R^m2\"] -->|\"f3\"| Y[\"y dans R^m3\"]\n  Y -->|\"perte L\"| S[\"scalaire dans R\"]"
+    }
+  },
+  {
+    "id": "log-product-to-sum", "after": 7, "kind": "mermaid",
+    "caption": { "en": "The log detour: instead of multiplying many small numbers directly (which underflows), take logs, add, and (only if needed) exponentiate back.", "fr": "Le détour par le log : au lieu de multiplier directement beaucoup de petits nombres (ce qui provoque un underflow), on prend les logs, on additionne, et on repasse à l'exponentielle seulement si nécessaire." },
+    "code": {
+      "en": "flowchart LR\n  P[\"product a*b*c\\n(underflows)\"] -->|\"ln\"| S[\"ln a + ln b + ln c\\n(ordinary number)\"]\n  S -->|\"exp (optional)\"| P2[\"product recovered\"]\n  P -.->|\"direct multiplication\"| Z[\"0.0 in float64\"]",
+      "fr": "flowchart LR\n  P[\"produit a*b*c\\n(underflow)\"] -->|\"ln\"| S[\"ln a + ln b + ln c\\n(nombre ordinaire)\"]\n  S -->|\"exp (optionnel)\"| P2[\"produit retrouvé\"]\n  P -.->|\"multiplication directe\"| Z[\"0.0 en float64\"]"
+    }
+  },
+  {
+    "id": "log-curve-underflow", "after": 9, "kind": "plot",
+    "caption": { "en": "ln(x) grows slowly and sends tiny probabilities to moderate negative numbers: ln(0.1) ≈ −2.30, so 400 such factors give about −921 instead of 10^−400.", "fr": "ln(x) croît lentement et envoie les probabilités minuscules vers des nombres négatifs modérés : ln(0,1) ≈ −2,30, donc 400 facteurs de ce type donnent environ −921 au lieu de 10^−400." },
+    "spec": { "xDomain": [0, 1.2], "yDomain": [-6, 1], "height": 280,
+      "data": [
+        { "fn": "log(x)", "color": "#16a34a" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0.1, -2.3026], [0.5, -0.6931]] }
+      ],
+      "annotations": [{ "x": 1, "text": "ln 1 = 0" }] }
+  }
+]

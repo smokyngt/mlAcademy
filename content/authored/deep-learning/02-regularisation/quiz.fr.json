@@ -1,0 +1,54 @@
+[
+  {
+    "id": "dl.02.q1",
+    "prompt": "Dans le dropout inversé avec une probabilité d'élimination $p$, par quel facteur les activations conservées sont-elles multipliées pendant l'entraînement ?",
+    "options": ["$p$", "$1-p$", "$1/(1-p)$", "$1/p$"],
+    "explanation": "$\\mathbb{E}[m]=1-p$, donc diviser par $1-p$ maintient $\\mathbb{E}[\\tilde a]=a$ et le réseau d'évaluation n'a besoin d'aucun rééchelonnement."
+  },
+  {
+    "id": "dl.02.q2",
+    "prompt": "Une activation $a=3$ traverse un dropout inversé avec $p=0.5$. Quelle est la variance de la sortie $\\tilde a$ ?",
+    "explanation": "$\\operatorname{Var}=a^2\\,p/(1-p)=9\\cdot1=9$."
+  },
+  {
+    "id": "dl.02.q3",
+    "prompt": "Dans la passe arrière d'une couche de dropout, que doit-il se passer ?",
+    "options": ["Tirer un nouveau masque", "Réutiliser le masque de la passe avant : les unités éliminées reçoivent un gradient nul, les unités conservées reçoivent le gradient entrant multiplié par $1/(1-p)$", "Laisser passer le gradient inchangé", "Diviser par $p$"],
+    "explanation": "L'application avant est $\\tilde a=c\\odot a$ avec un $c$ fixe ; son gradient est $c\\odot\\partial L/\\partial\\tilde a$."
+  },
+  {
+    "id": "dl.02.q4",
+    "prompt": "La régularisation L2 $\\tfrac\\lambda2\\|\\theta\\|^2$ correspond à quel a priori sur les poids ?",
+    "options": ["Uniforme", "Gaussien centré, avec $\\lambda=\\sigma^2/\\tau^2$", "Laplace", "Bernoulli"],
+    "explanation": "L'opposé du logarithme d'une gaussienne centrée est quadratique. Un a priori de Laplace donnerait la pénalité L1."
+  },
+  {
+    "id": "dl.02.q5",
+    "prompt": "Minimise $\\tfrac12(w-3)^2+\\tfrac{\\lambda}{2}w^2$ avec $\\lambda=0.5$. Quel est le minimiseur ?",
+    "explanation": "$(w-3)+\\lambda w=0\\Rightarrow w=3/(1+\\lambda)=2$."
+  },
+  {
+    "id": "dl.02.q6",
+    "prompt": "Minimise $\\tfrac12(w-3)^2+\\lambda|w|$ avec $\\lambda=4$. Quel est le minimiseur ?",
+    "options": ["3", "-1", "0", "0.6"],
+    "explanation": "Seuillage doux : $\\mathrm{sign}(3)\\max(3-4,0)=0$. L1 peut mettre un poids exactement à zéro ; L2 ne le fait jamais."
+  },
+  {
+    "id": "dl.02.q7",
+    "prompt": "Quelle affirmation sur l'arrêt précoce est correcte ?",
+    "options": ["S'arrêter quand la perte d'entraînement cesse de diminuer", "S'arrêter au minimum de la perte sur un ensemble de validation mis de côté et conserver ce point de sauvegarde ; ne pas choisir l'epoch sur l'ensemble de test", "S'arrêter toujours après 10 epochs", "Cela ne fonctionne qu'avec la SGD"],
+    "explanation": "La perte d'entraînement continue de baisser tandis que la perte de validation remonte une fois que le réseau commence à ajuster le bruit. Sélectionner sur l'ensemble de test le ferait fuiter."
+  },
+  {
+    "id": "dl.02.q8",
+    "prompt": "Pourquoi entraîner sur des copies aléatoirement bruitées des entrées est-il plus que de simples données supplémentaires ?",
+    "options": ["Ce n'est pas le cas ; ce ne sont que des données supplémentaires", "Au second ordre, cela ajoute une pénalité sur la sensibilité de la sortie du modèle à la perturbation, c'est-à-dire un régulariseur de régularité", "Cela abaisse le taux d'apprentissage", "Cela supprime le besoin d'un ensemble de validation"],
+    "explanation": "Développer la perte au second ordre en une perturbation de moyenne nulle donne $E+\\lambda\\Omega$ (Bishop éq. 5.131)."
+  },
+  {
+    "id": "dl.02.q9",
+    "prompt": "Dans l'expérience à petites données, le dropout seul a laissé l'écart entraînement/test presque inchangé tandis que L2 et l'augmentation par bruit d'entrée ont réduit la perte de test d'un facteur dix environ. Quelle est la meilleure lecture ?",
+    "options": ["Le dropout ne fonctionne jamais", "Le dropout n'est pas un remède universel : avec peu de points et un réseau large, il peut encore être mémorisé ; les effets dépendent de la largeur, de la taille des données et de la durée d'entraînement", "Le code du dropout était faux", "L2 est toujours meilleur"],
+    "explanation": "Le tableau rapporte un seul cadre jouet. Le choix du régulariseur est une question empirique, validée sur des données mises de côté."
+  }
+]

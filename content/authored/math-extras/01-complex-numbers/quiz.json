@@ -1,0 +1,131 @@
+[
+ {
+  "id": "mx.01.q1",
+  "concept": "mx.complex",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "The imaginary unit $i$ is defined by...",
+  "options": [
+   "$i=\\sqrt{2}$",
+   "$i^2=-1$",
+   "$i=1/0$",
+   "$i=-1$"
+  ],
+  "answer": 1,
+  "explanation": "$i$ is a number with $i^2=-1$; geometrically a quarter turn."
+ },
+ {
+  "id": "mx.01.q2",
+  "concept": "mx.complex",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "What is the modulus $|3+4i|$?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "$\\sqrt{3^2+4^2}=5$."
+ },
+ {
+  "id": "mx.01.q3",
+  "concept": "mx.complex",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Multiplying two complex numbers in polar form...",
+  "options": [
+   "adds lengths, multiplies angles",
+   "adds both",
+   "multiplies lengths, adds angles",
+   "multiplies both"
+  ],
+  "answer": 2,
+  "explanation": "$r_1e^{i\\theta_1}r_2e^{i\\theta_2}=r_1r_2e^{i(\\theta_1+\\theta_2)}$."
+ },
+ {
+  "id": "mx.01.q4",
+  "concept": "mx.complex",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Compute the real part of $(1+2i)(3-i)$.",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "$3-i+6i-2i^2=5+5i$."
+ },
+ {
+  "id": "mx.01.q5",
+  "concept": "mx.euler",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which step of the derivation of Euler's formula separates $\\cos\\theta$ from $\\sin\\theta$?",
+  "options": [
+   "Differentiating twice",
+   "Setting $\\theta=\\pi$",
+   "Taking the conjugate",
+   "Grouping even powers of $i\\theta$ (real) and odd powers (imaginary) in the exponential series"
+  ],
+  "answer": 3,
+  "explanation": "Powers of $i$ cycle $1,i,-1,-i$, so even terms are real and odd terms imaginary."
+ },
+ {
+  "id": "mx.01.q6",
+  "concept": "mx.euler",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "What is $e^{i\\pi}$ (a real number)?",
+  "options": [],
+  "answer": {
+   "value": -1,
+   "tol": 0.001
+  },
+  "explanation": "$\\cos\\pi+i\\sin\\pi=-1$."
+ },
+ {
+  "id": "mx.01.q7",
+  "concept": "mx.roots-unity",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What is the sum of the $n$-th roots of unity for $n\\ge2$?",
+  "options": [
+   "$n$",
+   "$1$",
+   "$0$",
+   "$-1$"
+  ],
+  "answer": 2,
+  "explanation": "Geometric series $(1-\\omega^n)/(1-\\omega)=0$; the polygon is balanced around the origin."
+ },
+ {
+  "id": "mx.01.q8",
+  "concept": "mx.roots-unity",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A 2D rotation by $90^\\circ$ has eigenvalues...",
+  "options": [
+   "$1$ and $-1$",
+   "$\\pm i$",
+   "$0$ and $1$",
+   "none, because it has no real eigenvector"
+  ],
+  "answer": 1,
+  "explanation": "$\\lambda^2+1=0$, so $\\lambda=\\pm i=e^{\\pm i\\pi/2}$. No real eigenvector, but complex eigenvalues exist."
+ },
+ {
+  "id": "mx.01.q9",
+  "concept": "mx.roots-unity",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A real matrix has eigenvalue $0.6+0.8i$. Another eigenvalue is necessarily...",
+  "options": [
+   "$-0.6-0.8i$",
+   "$1$",
+   "$0.8+0.6i$",
+   "$0.6-0.8i$"
+  ],
+  "answer": 3,
+  "explanation": "Complex eigenvalues of real matrices come in conjugate pairs. Its modulus is 1: a pure rotation."
+ }
+]

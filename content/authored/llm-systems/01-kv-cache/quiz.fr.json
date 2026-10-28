@@ -1,0 +1,91 @@
+[
+ {
+  "id": "sys.01.q1",
+  "prompt": "Sans cache KV, qu'est-ce qui est recalculé à chaque pas de décodage ?",
+  "options": [
+   "Rien ; le cache est intégré à l'attention",
+   "Les clés et les valeurs (et les requêtes) de tous les tokens jusqu'ici",
+   "Seulement le token le plus récent",
+   "Seulement le softmax"
+  ],
+  "explanation": "Une boucle naïve refait passer tout le préfixe dans le modèle, alors que les clés et les valeurs des anciens tokens n'ont pas changé."
+ },
+ {
+  "id": "sys.01.q2",
+  "prompt": "La mémoire du cache KV croît linéairement avec quelle paire ?",
+  "options": [
+   "Le nombre de tokens d'entraînement et d'epochs",
+   "La température et le top-k",
+   "La longueur de séquence et la taille de batch",
+   "La taille du vocabulaire et le taux d'apprentissage"
+  ],
+  "explanation": "octets = 2 L n_kv d_h T b B : linéaire en T et en B."
+ },
+ {
+  "id": "sys.01.q3",
+  "prompt": "Cache KV en GiB pour L=32, n_kv=32, d_h=128, T=4096, fp16 (2 octets), batch 1 ?",
+  "options": [],
+  "explanation": "2*32*32*128*4096*2 = 2,147,483,648 octets = 2 GiB."
+ },
+ {
+  "id": "sys.01.q4",
+  "prompt": "Même modèle mais avec GQA, n_kv=8. Cache KV en GiB ?",
+  "options": [],
+  "explanation": "Le cache est proportionnel à n_kv : 2 GiB * 8/32 = 0.5 GiB."
+ },
+ {
+  "id": "sys.01.q5",
+  "prompt": "Quelle phase est limitée par la bande passante mémoire ?",
+  "options": [
+   "Aucune, elles sont limitées par la latence",
+   "Le decode : un token par pas mais tous les poids et le cache sont lus",
+   "Le prefill d'un long prompt",
+   "Les deux sont limitées par le calcul"
+  ],
+  "explanation": "Le decode a très peu d'opérations par octet déplacé. Le prefill amortit chaque lecture de poids sur de nombreux tokens."
+ },
+ {
+  "id": "sys.01.q6",
+  "prompt": "Que change l'attention à requêtes groupées ?",
+  "options": [
+   "La température du softmax",
+   "Elle supprime les valeurs",
+   "Plusieurs têtes de requête partagent une même tête clé/valeur",
+   "Le nombre de couches"
+  ],
+  "explanation": "Les requêtes gardent leur nombre de têtes ; les têtes K et V sont partagées par groupes, ce qui réduit le cache de la taille du groupe."
+ },
+ {
+  "id": "sys.01.q7",
+  "prompt": "Un modèle jouet en float64 avec cache diffère de la version sans cache de 1e-6. Que conclus-tu ?",
+  "options": [
+   "C'est normal, la mise en cache est approximative",
+   "Le cache a besoin de plus de couches",
+   "Le softmax est aléatoire",
+   "Il y a un bug : la différence devrait être d'environ 1e-12 ou moins"
+  ],
+  "explanation": "Les clés et les valeurs sont des nombres identiques, donc seuls les arrondis en virgule flottante peuvent différer (environ 1e-15 en float64)."
+ },
+ {
+  "id": "sys.01.q8",
+  "prompt": "Pour d=4096, d_h=128, t=1000, le rapport de FLOPs naïf/avec cache par pas est d'environ...",
+  "options": [
+   "930",
+   "2",
+   "10",
+   "1000000"
+  ],
+  "explanation": "(6 t d d_h + 2 t (t+1) d_h) / (6 d d_h + 4 t d_h) vaut environ 930 ; il tend vers t pour t grand."
+ },
+ {
+  "id": "sys.01.q9",
+  "prompt": "Pourquoi le cache KV n'est-il pas utilisé pendant l'entraînement ?",
+  "options": [
+   "Il est aussi utilisé à l'entraînement",
+   "Toute la séquence est traitée en parallèle avec un masque causal, donc rien n'est régénéré pas à pas",
+   "Les gradients ne peuvent pas le traverser",
+   "Il nécessite de l'int8"
+  ],
+  "explanation": "L'entraînement calcule toutes les positions en une fois ; le cache n'économise du travail que lorsque les tokens arrivent un par un."
+ }
+]

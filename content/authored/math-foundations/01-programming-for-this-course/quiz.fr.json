@@ -1,0 +1,96 @@
+[
+ {
+  "id": "mf.01.q1",
+  "prompt": "Que produit `[x*x for x in range(4)]` ?",
+  "options": [
+   "[0, 1, 4, 9]",
+   "[1, 4, 9, 16]",
+   "[0, 1, 2, 3]",
+   "[0, 2, 4, 6]"
+  ],
+  "explanation": "`range(4)` donne 0,1,2,3 (il s'arrête avant 4), et chacun est élevé au carré."
+ },
+ {
+  "id": "mf.01.q2",
+  "prompt": "Après `a = [1, 2, 3]`, `b = a` et `b.append(4)`, que vaut `len(a)` ?",
+  "options": [
+   "3",
+   "4",
+   "1",
+   "une erreur"
+  ],
+  "explanation": "`b = a` ne copie pas la liste : les deux noms pointent vers la même liste, donc ajouter un élément via `b` change ce que voit `a`."
+ },
+ {
+  "id": "mf.01.q3",
+  "prompt": "Que vaut `np.arange(10)[2:5]` ?",
+  "options": [
+   "[2, 3, 4, 5]",
+   "[3, 4, 5]",
+   "[2, 3, 4]",
+   "[2, 5]"
+  ],
+  "explanation": "Une tranche `start:stop` inclut start et exclut stop."
+ },
+ {
+  "id": "mf.01.q4",
+  "prompt": "`A` a pour forme (3, 4). Quelle est la forme de `A.sum(axis=0)` ?",
+  "options": [
+   "(3,)",
+   "(4,)",
+   "(3, 4)",
+   "()"
+  ],
+  "explanation": "`axis=0` additionne en descendant les lignes et supprime l'axe 0, ce qui laisse les 4 sommes de colonnes."
+ },
+ {
+  "id": "mf.01.q5",
+  "prompt": "Les formes (3, 1) et (1, 4) sont combinées avec `+`. Quelle forme obtient-on ?",
+  "options": [
+   "(3, 4)",
+   "(4, 3)",
+   "erreur",
+   "(1, 1)"
+  ],
+  "explanation": "Le broadcasting étire chaque axe de taille 1 pour correspondre à l'autre : (3,4)."
+ },
+ {
+  "id": "mf.01.q6",
+  "prompt": "`a = np.array([1, 2, 3])`. Que vaut `a * 2` ?",
+  "options": [
+   "[1, 2, 3, 1, 2, 3]",
+   "[2, 4, 6]",
+   "[2, 2, 2]",
+   "une erreur"
+  ],
+  "explanation": "L'arithmétique NumPy se fait élément par élément. (Une liste Python multipliée par 2 répéterait la liste à la place.)"
+ },
+ {
+  "id": "mf.01.q7",
+  "prompt": "`np.arange(12).reshape(3, 4)[1, 2]` est égal à...",
+  "options": [],
+  "explanation": "La ligne 1 est [4,5,6,7] ; son élément d'indice 2 vaut 6."
+ },
+ {
+  "id": "mf.01.q8",
+  "prompt": "Une fonction n'a pas d'instruction `return`. Que te donne son appel ?",
+  "options": [
+   "0",
+   "une erreur",
+   "`None`",
+   "une liste vide"
+  ],
+  "explanation": "Les fonctions Python renvoient `None` sauf si un `return` dit autrement : une cause classique des bugs « mon résultat est None »."
+ },
+ {
+  "id": "mf.01.q9",
+  "prompt": "`np.array([1,2,3]) + np.array([10,20])` lève une erreur parce que...",
+  "options": [
+   "NumPy interdit l'addition de tableaux",
+   "les formes (3,) et (2,) sont incompatibles",
+   "les tableaux contiennent des entiers",
+   "le second tableau est trop court pour être diffusé, mais NumPy le complète avec des zéros"
+  ],
+  "explanation": "Le broadcasting exige des tailles égales ou une taille de 1 sur chaque axe. 3 et 2 ne sont ni l'un ni l'autre, donc NumPy lève une erreur de forme."
+ }
+]

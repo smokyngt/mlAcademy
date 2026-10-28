@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.08.q1", "concept": "ml.loss", "stage": "pre",
+    "prompt": "Minimising mean squared error is equivalent to maximum likelihood under which noise model?",
+    "options": ["Bernoulli", "Gaussian with constant variance", "Uniform", "Laplace"],
+    "answer": 1,
+    "explanation": "With $y=f_\\theta(x)+\\varepsilon$, $\\varepsilon\\sim\\mathcal{N}(0,\\sigma^2)$, the NLL is $\\sum(y-f)^2/(2\\sigma^2)$ plus a constant. (A Laplace model gives absolute error instead.)"
+  },
+  {
+    "id": "f2n.08.q2", "concept": "ml.loss",
+    "prompt": "A binary classifier outputs $p=0.8$ for an example whose true label is $y=1$. What is the cross-entropy loss (natural log)?",
+    "kind": "numeric", "options": [], "answer": { "value": 0.2231, "tol": 0.001 },
+    "explanation": "$L=-\\ln 0.8\\approx0.2231$."
+  },
+  {
+    "id": "f2n.08.q3", "concept": "ml.loss",
+    "prompt": "For sigmoid + binary cross-entropy, $\\partial L/\\partial z$ equals...",
+    "options": ["$p(1-p)$", "$p-y$", "$y-p$", "$-y/p$"],
+    "answer": 1,
+    "explanation": "$\\frac{\\partial L}{\\partial p}\\cdot p(1-p)=\\big(-\\tfrac yp+\\tfrac{1-y}{1-p}\\big)p(1-p)=p-y$. (Option C is the negative, which would ascend the loss.)"
+  },
+  {
+    "id": "f2n.08.q4", "concept": "ml.loss",
+    "prompt": "A 10-class model with random-looking outputs begins training. Which initial cross-entropy do you expect?",
+    "kind": "numeric", "options": [], "answer": { "value": 2.3026, "tol": 0.02 },
+    "explanation": "Uniform predictions $p_k=1/10$ give $L=-\\ln(1/10)=\\ln10\\approx2.3026$. If your first-step loss is far from $\\ln K$, suspect a bug or a bad initial scale."
+  },
+  {
+    "id": "f2n.08.q5", "concept": "ml.loss",
+    "prompt": "You compute `np.log(softmax(z))` with $z=(1000,0)$ and get `-inf` for the second class. The robust fix is...",
+    "options": ["use float16", "compute $z_k-\\operatorname{logsumexp}(z)$ (log-softmax) directly", "clip probabilities to 1e-3", "divide logits by 1000"],
+    "answer": 1,
+    "explanation": "$\\ln p_k=z_k-\\operatorname{logsumexp}(z)$ never forms a tiny probability. Clipping or rescaling changes the model's outputs."
+  },
+  {
+    "id": "f2n.08.q6", "concept": "ml.loss",
+    "prompt": "For a batch of $B$ examples and $K$ classes, with mean cross-entropy, what are the shape and scale of $\\nabla_ZL$?",
+    "options": ["$B\\times K$, equal to $P-Y$", "$B\\times K$, equal to $(P-Y)/B$", "$K$, equal to $\\sum_b(P-Y)$", "scalar"],
+    "answer": 1,
+    "explanation": "Each row's gradient is $p-\\text{onehot}$, and the mean over the batch divides by $B$."
+  }
+]

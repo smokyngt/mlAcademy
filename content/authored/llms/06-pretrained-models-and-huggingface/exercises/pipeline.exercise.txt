@@ -1,0 +1,193 @@
+#@@ meta
+{"id": "llm.06.ex1", "title": "An offline pipeline (tokenizer, model, decoder), an auto-class registry and a model-card checker", "difficulty": 3, "runtime": "pyodide", "concepts": ["tal.hub-ecosystem"], "hints": ["batch_encode: encode every text, pad with pad_id up to the longest, and return ids (B,T) and a 0/1 mask of the same shape.", "Pipeline.__call__: if the input is a str, wrap it in a list, run tokenizer -> model -> decoder per row, and return a single result for a str and a list for a list.", "check_model_card returns a sorted list of strings: 'missing:<field>' for an absent field, 'empty:<field>' for an empty value, 'bad_metric:<name>' for a metric that is not a number in [0, 1]."]}
+#@@ prompt
+You will rebuild, with fakes and no network, the three ideas of the HuggingFace workflow: a **pipeline** (tokenizer, then model, then decoder), an **auto-class** (the config says which class to build) and a **model card** (documentation that must contain required fields).
+
+The fakes `WordTokenizer` (partly given) and `BagOfWordsSentiment` are provided in the starter. Implement:
+
+1. `WordTokenizer.encode(text)`: lowercase, split on whitespace, map each word to its id, unknown words to `unk_id`.
+2. `WordTokenizer.batch_encode(texts)`: returns `(ids, mask)`, NumPy int arrays of shape `(B, T)` where `T` is the longest encoded text; padding uses `pad_id` and `mask` is 1 for real tokens, 0 for padding.
+3. `classification_decoder(logits, labels)`: given logits `(K,)` return `{"label": labels[argmax], "score": softmax probability of that label}`.
+4. `Pipeline(tokenizer, model, decoder)` with `__call__(inputs)`: for a `str` return one decoded result; for a list of strs return a list of results. The model is called once per call on the whole batch: `model(ids, mask)` returns logits `(B, K)`.
+5. `register(model_type)` (class decorator storing the class in `REGISTRY`) and `auto_from_config(config)`: look up `config["model_type"]` and return `cls(config)`. An unknown type must raise `KeyError` whose message lists the known types.
+6. `check_model_card(card)`: required fields are `license`, `language`, `intended_use`, `limitations`, `training_data`, `metrics`. Report `missing:<field>` if absent, `empty:<field>` if the value is empty (empty string, list or dict), and `bad_metric:<name>` for each entry of `metrics` whose value is not a number in [0, 1] (booleans do not count as numbers). Return the sorted list of problems; an empty list means the card is acceptable.
+#@@ starter
+import numpy as np
+
+class WordTokenizer:
+    def __init__(self, vocab, unk="[UNK]", pad="[PAD]"):
+        self.vocab = dict(vocab)
+        self.unk_id = self.vocab[unk]
+        self.pad_id = self.vocab[pad]
+        self.inv = {i: w for w, i in self.vocab.items()}
+
+    def encode(self, text):
+        # TODO
+        raise NotImplementedError
+
+    def batch_encode(self, texts):
+        # TODO
+        raise NotImplementedError
+
+    def decode(self, ids):
+        return " ".join(self.inv[i] for i in ids if i != self.pad_id)
+
+class BagOfWordsSentiment:
+    """Fake model: logits (B, 2) = masked sum of per-token score vectors."""
+    def __init__(self, table):
+        self.table = np.asarray(table, dtype=float)   # (V, 2)
+    def __call__(self, ids, mask):
+        return (self.table[ids] * mask[..., None]).sum(axis=1)
+
+def classification_decoder(logits, labels):
+    # TODO
+    raise NotImplementedError
+
+class Pipeline:
+    def __init__(self, tokenizer, model, decoder):
+        self.tokenizer, self.model, self.decoder = tokenizer, model, decoder
+    def __call__(self, inputs):
+        # TODO
+        raise NotImplementedError
+
+REGISTRY = {}
+
+def register(model_type):
+    # TODO: return a decorator that stores the class in REGISTRY
+    raise NotImplementedError
+
+def auto_from_config(config):
+    # TODO
+    raise NotImplementedError
+
+REQUIRED = ["license", "language", "intended_use", "limitations", "training_data", "metrics"]
+
+def check_model_card(card):
+    # TODO
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+vocab = {"[PAD]": 0, "[UNK]": 1, "good": 2, "bad": 3, "movie": 4, "not": 5}
+tok = WordTokenizer(vocab)
+table = [[0, 0], [0, 0], [-1, 2], [2, -1], [0, 0], [0.5, -0.5]]
+model = BagOfWordsSentiment(table)
+labels = ["NEGATIVE", "POSITIVE"]
+check("encode lowercases and maps unknowns", lambda: tok.encode("Good MOVIE zzz") == [2, 4, 1])
+ids, mask = tok.batch_encode(["good movie", "not good at all", "bad"])
+check("batch_encode shape and padding", lambda: ids.shape == (3, 4) and mask.shape == (3, 4) and ids[2].tolist() == [3, 0, 0, 0])
+check("mask marks real tokens", lambda: mask.tolist() == [[1, 1, 0, 0], [1, 1, 1, 1], [1, 0, 0, 0]])
+d = classification_decoder(np.array([0.0, 2.0]), labels)
+check("decoder picks the argmax label", lambda: d["label"] == "POSITIVE")
+check("decoder score is the softmax probability", lambda: abs(d["score"] - np.exp(2) / (1 + np.exp(2))) < 1e-9)
+check("decoder is stable for large logits", lambda: abs(classification_decoder(np.array([1000.0, 0.0]), labels)["score"] - 1.0) < 1e-9)
+pipe = Pipeline(tok, model, lambda row: classification_decoder(row, labels))
+one = pipe("good movie")
+check("single string returns one dict", lambda: isinstance(one, dict) and one["label"] == "POSITIVE")
+many = pipe(["good movie", "bad movie", "not bad"])
+check("list returns a list of the same length", lambda: isinstance(many, list) and [m["label"] for m in many] == ["POSITIVE", "NEGATIVE", "NEGATIVE"])
+check("padding does not change a prediction", lambda: abs(pipe(["bad", "not good at all"])[0]["score"] - pipe("bad")["score"]) < 1e-12, "the mask must zero out padded positions in the model (it does) and you must pass it")
+calls = []
+class Spy:
+    def __call__(self, ids, mask):
+        calls.append(ids.shape); return model(ids, mask)
+Pipeline(tok, Spy(), lambda r: r.tolist())(["good", "bad movie"])
+check("the model is called once per batch", lambda: calls == [(2, 2)])
+@register("toy-sentiment")
+class ToyModel:
+    def __init__(self, config): self.config = config
+cfg = {"model_type": "toy-sentiment", "hidden": 8}
+m = auto_from_config(cfg)
+check("auto class builds the registered class", lambda: isinstance(m, ToyModel) and m.config is cfg)
+def unknown():
+    try:
+        auto_from_config({"model_type": "nope"})
+    except KeyError as e:
+        return "toy-sentiment" in str(e)
+    return False
+check("unknown model_type raises KeyError listing known types", unknown)
+good = {"license": "apache-2.0", "language": ["en", "fr"], "intended_use": "sentiment of reviews", "limitations": "English movie reviews only",
+        "training_data": "IMDB", "metrics": {"accuracy": 0.91, "f1": 0.9}}
+check("complete card has no problems", lambda: check_model_card(good) == [])
+c = dict(good); del c["license"]; c["language"] = []; c["metrics"] = {"accuracy": 91, "f1": True, "ok": 0.5}
+check("problems are reported and sorted", lambda: check_model_card(c) == ["bad_metric:accuracy", "bad_metric:f1", "empty:language", "missing:license"])
+check("empty metrics dict is empty:metrics", lambda: check_model_card({**good, "metrics": {}}) == ["empty:metrics"])
+check("empty card lists every field", lambda: check_model_card({}) == sorted("missing:" + f for f in REQUIRED))
+#@@ solution
+import numpy as np
+
+class WordTokenizer:
+    def __init__(self, vocab, unk="[UNK]", pad="[PAD]"):
+        self.vocab = dict(vocab)
+        self.unk_id = self.vocab[unk]
+        self.pad_id = self.vocab[pad]
+        self.inv = {i: w for w, i in self.vocab.items()}
+
+    def encode(self, text):
+        return [self.vocab.get(w, self.unk_id) for w in text.lower().split()]
+
+    def batch_encode(self, texts):
+        enc = [self.encode(t) for t in texts]
+        T = max(len(e) for e in enc)
+        ids = np.full((len(enc), T), self.pad_id, dtype=int)
+        mask = np.zeros((len(enc), T), dtype=int)
+        for i, e in enumerate(enc):
+            ids[i, :len(e)] = e
+            mask[i, :len(e)] = 1
+        return ids, mask
+
+    def decode(self, ids):
+        return " ".join(self.inv[i] for i in ids if i != self.pad_id)
+
+class BagOfWordsSentiment:
+    def __init__(self, table):
+        self.table = np.asarray(table, dtype=float)
+    def __call__(self, ids, mask):
+        return (self.table[ids] * mask[..., None]).sum(axis=1)
+
+def classification_decoder(logits, labels):
+    z = np.asarray(logits, dtype=float)
+    e = np.exp(z - z.max())
+    p = e / e.sum()
+    k = int(np.argmax(p))
+    return {"label": labels[k], "score": float(p[k])}
+
+class Pipeline:
+    def __init__(self, tokenizer, model, decoder):
+        self.tokenizer, self.model, self.decoder = tokenizer, model, decoder
+    def __call__(self, inputs):
+        single = isinstance(inputs, str)
+        texts = [inputs] if single else list(inputs)
+        ids, mask = self.tokenizer.batch_encode(texts)
+        logits = self.model(ids, mask)
+        out = [self.decoder(row) for row in logits]
+        return out[0] if single else out
+
+REGISTRY = {}
+
+def register(model_type):
+    def deco(cls):
+        REGISTRY[model_type] = cls
+        return cls
+    return deco
+
+def auto_from_config(config):
+    t = config["model_type"]
+    if t not in REGISTRY:
+        raise KeyError("unknown model_type %r; known types: %s" % (t, sorted(REGISTRY)))
+    return REGISTRY[t](config)
+
+REQUIRED = ["license", "language", "intended_use", "limitations", "training_data", "metrics"]
+
+def check_model_card(card):
+    problems = []
+    for f in REQUIRED:
+        if f not in card:
+            problems.append("missing:" + f)
+        elif card[f] in ("", [], {}, None):
+            problems.append("empty:" + f)
+    m = card.get("metrics")
+    if isinstance(m, dict):
+        for name, v in m.items():
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not (0 <= v <= 1):
+                problems.append("bad_metric:" + name)
+    return sorted(problems)

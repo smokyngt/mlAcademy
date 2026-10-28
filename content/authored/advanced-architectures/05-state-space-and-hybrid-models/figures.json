@@ -1,0 +1,164 @@
+[
+  {
+    "id": "recurrence-views",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Three ways to compute the same linear recurrence h_t = a h_(t-1) + b x_t: sequentially (O(1) per generated token), as a convolution with kernel K_k = c a^k b (time-invariant case, parallel), or as a scan of affine maps (works when parameters depend on the input).",
+      "fr": "Trois manières de calculer la même récurrence linéaire h_t = a h_(t-1) + b x_t : séquentiellement (O(1) par token généré), comme une convolution de noyau K_k = c a^k b (cas invariant, parallèle), ou comme un scan d'applications affines (valable quand les paramètres dépendent de l'entrée)."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph REC[\"Recurrence: inference, O(1) memory per token\"]\n    direction LR\n    h0[\"h_t-2\"] -->|\"a\"| h1[\"h_t-1\"] -->|\"a\"| h2[\"h_t\"]\n    x1[\"x_t-1\"] -->|\"b\"| h1\n    x2[\"x_t\"] -->|\"b\"| h2\n    h2 -->|\"c\"| y2[\"y_t\"]\n  end\n  subgraph CONV[\"Convolution: training, fixed a, b, c\"]\n    direction LR\n    xs[\"x (T,)\"] --> KR[\"kernel K_k = sum_i c_i a_i^k b_i\"]\n    KR --> ys[\"y = K * x via FFT\"]\n  end\n  subgraph SCAN[\"Scan: selective Mamba, a_t b_t c_t depend on x_t\"]\n    direction LR\n    es[\"elements e_t = (a_t, b_t)\"] --> CO[\"associative combine<br/>log2 T rounds\"]\n    CO --> hs[\"h_0..h_T-1\"]\n  end",
+      "fr": "flowchart TB\n  subgraph REC[\"Récurrence : inférence, mémoire O(1) par token\"]\n    direction LR\n    h0[\"h_t-2\"] -->|\"a\"| h1[\"h_t-1\"] -->|\"a\"| h2[\"h_t\"]\n    x1[\"x_t-1\"] -->|\"b\"| h1\n    x2[\"x_t\"] -->|\"b\"| h2\n    h2 -->|\"c\"| y2[\"y_t\"]\n  end\n  subgraph CONV[\"Convolution : entraînement, a, b, c fixes\"]\n    direction LR\n    xs[\"x (T,)\"] --> KR[\"noyau K_k = somme_i c_i a_i^k b_i\"]\n    KR --> ys[\"y = K * x via FFT\"]\n  end\n  subgraph SCAN[\"Scan : Mamba sélectif, a_t b_t c_t dépendent de x_t\"]\n    direction LR\n    es[\"éléments e_t = (a_t, b_t)\"] --> CO[\"combinaison associative<br/>log2 T tours\"]\n    CO --> hs[\"h_0..h_T-1\"]\n  end"
+    }
+  },
+  {
+    "id": "impulse-kernel",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The convolution kernel K_k = a^k seen as the impulse response of the worked example (a = 0.5, b = c = 1): feeding (1, 0, 0, 0) gives 1, 0.5, 0.25, 0.125. The state fades exponentially: this is the finite memory of a fixed-size state.",
+      "fr": "Le noyau de convolution K_k = a^k vu comme réponse impulsionnelle de l'exemple (a = 0,5, b = c = 1) : l'entrée (1, 0, 0, 0) donne 1, 0,5, 0,25, 0,125. L'état s'estompe de façon exponentielle : c'est la mémoire finie d'un état de taille fixe."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        8
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "title": "kernel K_k = 0.5^k (x = lag k)",
+      "data": [
+        {
+          "fn": "0.5^x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              0.5
+            ],
+            [
+              2,
+              0.25
+            ],
+            [
+              3,
+              0.125
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "delta-gate",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Selective SSM behaviour as a function of the step Delta (A = -1, B = 1). The decay A-bar = exp(Delta A) (blue) falls from 1 to 0: a small Delta keeps the state, a large one resets it. The write B-bar = (exp(Delta A) - 1)/A (orange) rises from 0 and follows Delta (green line) for small Delta.",
+      "fr": "Comportement d'un SSM sélectif en fonction du pas Delta (A = -1, B = 1). La décroissance A-barre = exp(Delta A) (bleu) passe de 1 à 0 : un petit Delta conserve l'état, un grand Delta le réinitialise. L'écriture B-barre = (exp(Delta A) - 1)/A (orange) part de 0 et suit Delta (droite verte) pour Delta petit."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 320,
+      "title": "A-bar and B-bar vs Delta, A = -1",
+      "data": [
+        {
+          "fn": "exp(-x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1 - exp(-x)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "scan-rounds",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Hillis-Steele scan on the worked example (a = 0.5, b = (1, 2, 0, 1)). Each element (a, b) is an affine map; round r combines element i with element i - 2^r using (a1 a2, a2 b1 + b2). Two rounds for four elements; the b components (1, 2.5, 1.25, 1.625) equal the recurrence.",
+      "fr": "Le scan de Hillis-Steele sur l'exemple traité (a = 0,5, b = (1, 2, 0, 1)). Chaque élément (a, b) est une application affine ; le tour r combine l'élément i avec l'élément i - 2^r par (a1 a2, a2 b1 + b2). Deux tours pour quatre éléments ; les composantes b (1, 2,5, 1,25, 1,625) égalent la récurrence."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph R0[\"Start\"]\n    direction TB\n    a0[\"e0 = (0.5, 1)\"]\n    a1[\"e1 = (0.5, 2)\"]\n    a2[\"e2 = (0.5, 0)\"]\n    a3[\"e3 = (0.5, 1)\"]\n  end\n  subgraph R1[\"Round 1, offset 1\"]\n    direction TB\n    b0[\"(0.5, 1)\"]\n    b1[\"(0.25, 2.5)\"]\n    b2[\"(0.25, 1)\"]\n    b3[\"(0.25, 1)\"]\n  end\n  subgraph R2[\"Round 2, offset 2\"]\n    direction TB\n    c0[\"(0.5, 1)\"]\n    c1[\"(0.25, 2.5)\"]\n    c2[\"(0.0625, 1.25)\"]\n    c3[\"(0.0625, 1.625)\"]\n  end\n  a0 --> b0\n  a0 --> b1\n  a1 --> b1\n  a1 --> b2\n  a2 --> b2\n  a2 --> b3\n  a3 --> b3\n  b0 --> c0\n  b1 --> c1\n  b0 --> c2\n  b2 --> c2\n  b1 --> c3\n  b3 --> c3",
+      "fr": "flowchart LR\n  subgraph R0[\"Départ\"]\n    direction TB\n    a0[\"e0 = (0.5, 1)\"]\n    a1[\"e1 = (0.5, 2)\"]\n    a2[\"e2 = (0.5, 0)\"]\n    a3[\"e3 = (0.5, 1)\"]\n  end\n  subgraph R1[\"Tour 1, décalage 1\"]\n    direction TB\n    b0[\"(0.5, 1)\"]\n    b1[\"(0.25, 2.5)\"]\n    b2[\"(0.25, 1)\"]\n    b3[\"(0.25, 1)\"]\n  end\n  subgraph R2[\"Tour 2, décalage 2\"]\n    direction TB\n    c0[\"(0.5, 1)\"]\n    c1[\"(0.25, 2.5)\"]\n    c2[\"(0.0625, 1.25)\"]\n    c3[\"(0.0625, 1.625)\"]\n  end\n  a0 --> b0\n  a0 --> b1\n  a1 --> b1\n  a1 --> b2\n  a2 --> b2\n  a2 --> b3\n  a3 --> b3\n  b0 --> c0\n  b1 --> c1\n  b0 --> c2\n  b2 --> c2\n  b1 --> c3\n  b3 --> c3"
+    }
+  },
+  {
+    "id": "jamba-block",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A Jamba-style block of eight layers in one residual stack: 7 Mamba layers and 1 attention layer, with a mixture-of-experts feed-forward on every other layer. The position of the attention layer is illustrative. Blocks repeat to reach the full depth.",
+      "fr": "Un bloc de style Jamba de huit couches dans une pile résiduelle unique : 7 couches Mamba et 1 couche d'attention, avec un feed-forward en mélange d'experts une couche sur deux. La position de la couche d'attention est indicative. Les blocs se répètent jusqu'à la profondeur totale."
+    },
+    "code": {
+      "en": "flowchart TB\n  IN[\"input (T, d)\"] --> L1[\"layer 1: Mamba + dense MLP\"]\n  L1 --> L2[\"layer 2: Mamba + MoE FFN\"]\n  L2 --> L3[\"layer 3: Mamba + dense MLP\"]\n  L3 --> L4[\"layer 4: ATTENTION + MoE FFN<br/>exact recall, KV cache\"]\n  L4 --> L5[\"layer 5: Mamba + dense MLP\"]\n  L5 --> L6[\"layer 6: Mamba + MoE FFN\"]\n  L6 --> L7[\"layer 7: Mamba + dense MLP\"]\n  L7 --> L8[\"layer 8: Mamba + MoE FFN\"]\n  L8 --> NX[\"next block (same pattern)\"]",
+      "fr": "flowchart TB\n  IN[\"entrée (T, d)\"] --> L1[\"couche 1 : Mamba + MLP dense\"]\n  L1 --> L2[\"couche 2 : Mamba + FFN MoE\"]\n  L2 --> L3[\"couche 3 : Mamba + MLP dense\"]\n  L3 --> L4[\"couche 4 : ATTENTION + FFN MoE<br/>rappel exact, cache KV\"]\n  L4 --> L5[\"couche 5 : Mamba + MLP dense\"]\n  L5 --> L6[\"couche 6 : Mamba + FFN MoE\"]\n  L6 --> L7[\"couche 7 : Mamba + MLP dense\"]\n  L7 --> L8[\"couche 8 : Mamba + FFN MoE\"]\n  L8 --> NX[\"bloc suivant (même motif)\"]"
+    }
+  },
+  {
+    "id": "hybrid-memory",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Memory against context for 32 layers, 32 heads, d_h = 128 in BF16. Pure transformer with MHA (blue) grows to 128 GiB at 256k tokens; with GQA of 8 KV heads (orange) to 32 GiB; the Jamba-shaped hybrid with 4 attention layers (green) to 16 GiB. The SSM states add only a constant.",
+      "fr": "Mémoire selon le contexte pour 32 couches, 32 têtes, d_h = 128 en BF16. Le transformeur pur en MHA (bleu) atteint 128 GiB à 256k tokens ; avec GQA à 8 têtes KV (orange), 32 GiB ; l'hybride de forme Jamba à 4 couches d'attention (vert), 16 GiB. Les états SSM n'ajoutent qu'une constante."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        256
+      ],
+      "yDomain": [
+        0,
+        135
+      ],
+      "height": 330,
+      "title": "KV memory GiB vs context (thousands of tokens, 1k = 1024)",
+      "data": [
+        {
+          "fn": "2*32*32*128*x*1024*2/2^30",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "2*32*8*128*x*1024*2/2^30",
+          "color": "#d97706"
+        },
+        {
+          "fn": "2*4*32*128*x*1024*2/2^30",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  }
+]

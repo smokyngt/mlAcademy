@@ -1,0 +1,10 @@
+{
+  "id": "cml.08.ex2",
+  "title": "Noyaux et fonction de décision duale",
+  "prompt": "Travaille avec la représentation duale de la SVM.\n\n- `linear_kernel(A, B)`, `poly_kernel(A, B)` $=(\\langle a,b\\rangle+1)^2$ et `rbf_kernel(A, B, gamma)` $=\\exp(-\\gamma\\|a-b\\|^2)$ renvoient tous une matrice `(len(A), len(B))`.\n- `poly_features(X)` pour des entrées 2D : $\\phi(x)=(1,\\sqrt2x_1,\\sqrt2x_2,x_1^2,\\sqrt2x_1x_2,x_2^2)$, de forme `(N, 6)`, de sorte que `poly_features(A) @ poly_features(B).T == poly_kernel(A, B)`.\n- `primal_w(alpha, y, X)` renvoie $w=\\sum_n\\alpha_ny_nx_n$.\n- `dual_value(alpha, y, K)` renvoie $\\sum_i\\alpha_i-\\tfrac12\\sum_{ij}\\alpha_i\\alpha_jy_iy_jK_{ij}$.\n- `dual_decision(Kxt, alpha, y, b)` renvoie $f(x)=\\sum_n\\alpha_ny_nk(x_n,x)+b$ pour la matrice de noyau test-contre-entraînement `Kxt`.",
+  "hints": [
+    "rbf : distances au carré via (A**2).sum(1)[:, None] + (B**2).sum(1)[None, :] - 2 * A @ B.T, puis exp(-gamma * d2). Ramène à 0 les minuscules valeurs négatives.",
+    "w = ((alpha * y)[:, None] * X).sum(0). L'objectif dual est alpha.sum() - 0.5 * (alpha * y) @ K @ (alpha * y) (écrit comme une quantité à maximiser).",
+    "dual_decision(Kxt, alpha, y, b) = Kxt @ (alpha * y) + b, où Kxt a pour forme (M, N)."
+  ]
+}

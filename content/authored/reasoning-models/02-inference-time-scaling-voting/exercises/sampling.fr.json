@@ -1,0 +1,10 @@
+{
+  "id": "rsn.02.ex1",
+  "title": "Température, top-p et un échantillonneur sans graine",
+  "prompt": "Le décodage transforme les scores du token suivant (logits) en un token. Implémente les pièces avec NumPy :\n\n- `softmax_T(logits, T=1.0)` : probabilités à partir des logits divisés par la température `T` (numériquement stable). `T` doit être positif ; lève `ValueError` sinon.\n- `top_p_filter(probs, top_p)` : garde le plus petit ensemble des tokens les plus probables dont la masse cumulée atteint `top_p` (en pratique : garde un token tant que la masse *avant* lui est `< top_p` ; garde toujours le token le plus probable), met les autres à zéro (aux positions d'origine) et renormalise. `top_p=None` ou `>= 1` renvoie une copie inchangée.\n- `sample_index(probs, u)` : le tirage par inversion de la fonction de répartition : le plus petit indice `i` tel que `cumsum(probs)[i] > u`, pour un `u` uniforme dans `[0, 1)`.\n- `sampling_frequencies(probs, num=1000)` : tire avec la grille déterministe `u_j = (j + 0.5) / num` pour `j = 0..num-1` et renvoie la fraction de tirages par indice (un tableau de somme 1). Cela montre ce que fait un échantillonneur sans aucun aléa.",
+  "hints": [
+    "Soustrais le maximum avant d'exponentier pour que de grands logits ne débordent pas ; divise d'abord les logits par T.",
+    "Trie les probabilités par ordre décroissant et calcule la masse cumulée AVANT chaque token (cumsum moins la probabilité du token lui-même). Garde un token tant que cette masse préfixe est inférieure à top_p ; garde toujours le premier. Puis mets le reste à zéro dans l'ordre ORIGINAL et renormalise.",
+    "Pour échantillonner sans générateur de nombres aléatoires, prends un nombre uniforme u dans [0,1) et renvoie le plus petit indice dont la probabilité cumulée est strictement supérieure à u (np.searchsorted avec side='right')."
+  ]
+}

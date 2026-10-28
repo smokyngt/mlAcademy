@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.11.q1", "concept": "nn.training", "stage": "pre",
+    "prompt": "In which order do the steps of one training iteration happen?",
+    "options": ["update, forward, backward", "forward, backward, update", "backward, forward, update", "forward, update, backward"],
+    "answer": 1,
+    "explanation": "The loss must be computed (forward) before gradients exist (backward), and parameters change only after all gradients are known (update)."
+  },
+  {
+    "id": "f2n.11.q2", "concept": "nn.training",
+    "prompt": "A freshly initialised 5-class classifier shows initial loss 14.2. What is the most likely issue?",
+    "options": ["The model is perfectly calibrated", "The output logits have a huge scale (bad initialisation or missing normalisation); expect about $\\ln5=1.61$", "The learning rate is too small", "The dataset is too large"],
+    "answer": 1,
+    "explanation": "Uniform-ish outputs would give $\\ln K$. A much larger loss means confident, wrong predictions at init: weights are too large or the data is unscaled."
+  },
+  {
+    "id": "f2n.11.q3", "concept": "nn.training",
+    "prompt": "A correct network with enough capacity cannot drive the loss on 8 training examples to near zero. What does this indicate?",
+    "options": ["Nothing, this is normal", "A bug (labels, update sign, gradient, or learning rate), not a capacity problem", "That you need more data", "That you should add dropout"],
+    "answer": 1,
+    "explanation": "Overfitting a tiny batch is the cheapest end-to-end test of the pipeline. Failure means something is broken."
+  },
+  {
+    "id": "f2n.11.q4", "concept": "nn.training",
+    "prompt": "With momentum $\\mu=0.9$ and a constant gradient direction, the effective step size relative to plain SGD is about...",
+    "kind": "numeric", "options": [], "answer": { "value": 10, "tol": 0.5 },
+    "explanation": "The velocity accumulates a geometric series $1+\\mu+\\mu^2+\\dots=1/(1-\\mu)=10$ times the single-step gradient contribution."
+  },
+  {
+    "id": "f2n.11.q5", "concept": "nn.training",
+    "prompt": "Your loss turns into NaN after about 20 steps. Which check should come FIRST?",
+    "options": ["Add more hidden units", "Lower the learning rate (and verify no log(0) in the loss)", "Increase the batch size", "Switch to a different random seed"],
+    "answer": 1,
+    "explanation": "NaN comes from overflow (step above the stability limit) or log of zero. Lowering the learning rate is the cheapest discriminating experiment."
+  },
+  {
+    "id": "f2n.11.q6", "concept": "nn.training",
+    "prompt": "With He initialisation, a layer with 200 inputs should draw weights with standard deviation...",
+    "kind": "numeric", "options": [], "answer": { "value": 0.1, "tol": 0.001 },
+    "explanation": "$\\sigma_w=\\sqrt{2/n_{\\text{in}}}=\\sqrt{2/200}=\\sqrt{0.01}=0.1$."
+  }
+]

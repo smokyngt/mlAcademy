@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cost-threshold",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "The cost-optimal threshold t = c_FP/(c_FP + c_FN), with c_FP = 1 and the missed-positive cost c_FN on the x-axis. At equal costs t = 0.5; when a miss is 1000 times worse than a false alarm, t ≈ 0.001 (Bishop's cancer example): flag anyone with even a tiny chance.", "fr": "Le seuil optimal en coût t = c_FP/(c_FP + c_FN), avec c_FP = 1 et le coût d'un positif manqué c_FN en abscisse. À coûts égaux t = 0,5 ; quand un oubli coûte 1000 fois plus qu'une fausse alarme, t ≈ 0,001 (exemple du cancer de Bishop) : signaler quiconque a même une petite chance." },
+    "spec": {
+      "xDomain": [0, 20], "yDomain": [0, 1.05], "height": 300,
+      "data": [
+        { "fn": "1/(1+x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[1, 0.5]] }
+      ]
+    }
+  },
+  {
+    "id": "decision-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": { "en": "Inference and decision are two steps: the model estimates p(y = 1 | x), then a threshold derived from the costs turns it into an action.", "fr": "Inférence et décision sont deux étapes : le modèle estime p(y = 1 | x), puis un seuil dérivé des coûts le transforme en action." },
+    "code": {
+      "en": "flowchart LR\n  X[\"input x\"] --> M[\"model\"]\n  M --> P[\"p = P(y=1 | x)\\n(inference)\"]\n  CO[\"costs c_FP, c_FN\"] --> T[\"threshold t = c_FP / (c_FP + c_FN)\"]\n  P --> Q{\"p > t ?\"}\n  T --> Q\n  Q -->|\"yes\"| Y[\"predict 1\"]\n  Q -->|\"no\"| N[\"predict 0\"]",
+      "fr": "flowchart LR\n  X[\"entrée x\"] --> M[\"modèle\"]\n  M --> P[\"p = P(y=1 | x)\\n(inférence)\"]\n  CO[\"coûts c_FP, c_FN\"] --> T[\"seuil t = c_FP / (c_FP + c_FN)\"]\n  P --> Q{\"p > t ?\"}\n  T --> Q\n  Q -->|\"oui\"| Y[\"prédire 1\"]\n  Q -->|\"non\"| N[\"prédire 0\"]"
+    }
+  },
+  {
+    "id": "roc-curve",
+    "after": 6,
+    "kind": "plot",
+    "caption": { "en": "The ROC curve of the six-point worked example (blue staircase) against the random-ranking diagonal (grey). Points: (0,0), (0,⅓), (0,⅔), (⅓,⅔), (⅓,1), (⅔,1), (1,1). The area under it is 8/9 ≈ 0.889 = the fraction of (positive, negative) pairs ranked correctly. x-axis: FPR, y-axis: TPR.", "fr": "La courbe ROC de l'exemple traité à six points (escalier bleu) face à la diagonale du classement aléatoire (gris). Points : (0,0), (0,⅓), (0,⅔), (⅓,⅔), (⅓,1), (⅔,1), (1,1). L'aire sous la courbe est 8/9 ≈ 0,889 = la fraction de paires (positif, négatif) bien ordonnées. Axe x : TFP, axe y : TVP." },
+    "spec": {
+      "xDomain": [0, 1], "yDomain": [0, 1.05], "height": 340,
+      "data": [
+        { "fn": "x", "color": "#9ca3af" },
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0, 0], [0, 0.3333], [0, 0.6667], [0.3333, 0.6667], [0.3333, 1], [0.6667, 1], [1, 1]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[0, 0], [0, 0.3333], [0, 0.6667], [0.3333, 0.6667], [0.3333, 1], [0.6667, 1], [1, 1]] }
+      ]
+    }
+  },
+  {
+    "id": "pr-curve",
+    "after": 7,
+    "kind": "plot",
+    "caption": { "en": "The precision-recall curve of the same six-point example (blue), against the no-skill baseline equal to the positive rate 3/6 = 0.5 (grey). Walking down the sorted scores gives (recall, precision) = (⅓,1), (⅔,1), (⅔,⅔), (1,¾), (1,⅗), (1,½). Unlike ROC, the baseline moves with class balance. x-axis: recall.", "fr": "La courbe précision-rappel du même exemple à six points (bleu), face à la base sans compétence égale au taux de positifs 3/6 = 0,5 (gris). En descendant les scores triés on obtient (rappel, précision) = (⅓,1), (⅔,1), (⅔,⅔), (1,¾), (1,⅗), (1,½). Contrairement à la ROC, la base varie avec l'équilibre des classes. Axe x : rappel." },
+    "spec": {
+      "xDomain": [0, 1.05], "yDomain": [0, 1.05], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[0, 0.5], [1, 0.5]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0.3333, 1], [0.6667, 1], [0.6667, 0.6667], [1, 0.75], [1, 0.6], [1, 0.5]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 4 }, "points": [[0.3333, 1], [0.6667, 1], [0.6667, 0.6667], [1, 0.75], [1, 0.6], [1, 0.5]] }
+      ]
+    }
+  },
+  {
+    "id": "reliability-diagram",
+    "after": 8,
+    "kind": "plot",
+    "caption": { "en": "Reliability diagram of worked example 3: mean predicted probability (x) against observed frequency (y) for the three bins (0.1, 0.2), (0.6, 0.4), (0.9, 0.8). A calibrated model lies on the diagonal; the gaps give ECE = ⅓(0.1 + 0.2 + 0.1) = 0.133. The model is over-confident in the upper bins.", "fr": "Diagramme de fiabilité de l'exemple traité 3 : probabilité prédite moyenne (x) contre fréquence observée (y) pour les trois classes (0,1 ; 0,2), (0,6 ; 0,4), (0,9 ; 0,8). Un modèle calibré est sur la diagonale ; les écarts donnent ECE = ⅓(0,1 + 0,2 + 0,1) = 0,133. Le modèle est trop confiant dans les classes hautes." },
+    "spec": {
+      "xDomain": [0, 1], "yDomain": [0, 1], "height": 340,
+      "data": [
+        { "fn": "x", "color": "#9ca3af" },
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0.1, 0.2], [0.6, 0.4], [0.9, 0.8]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[0.1, 0.2], [0.6, 0.4], [0.9, 0.8]] }
+      ]
+    }
+  }
+]

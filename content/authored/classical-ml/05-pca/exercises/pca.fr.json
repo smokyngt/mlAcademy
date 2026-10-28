@@ -1,0 +1,10 @@
+{
+  "id": "cml.05.ex1",
+  "title": "L'ACP à partir de la matrice de covariance",
+  "prompt": "Implémente l'ACP avec uniquement l'algèbre linéaire de NumPy :\n\n- `pca_fit(X, k)` -> `(mean, components, eigenvalues)` : `components` a pour forme `(k, d)` (les lignes sont des directions unitaires, triées par variance décroissante), `eigenvalues` contient **toutes** les `d` valeurs propres de la covariance par ordre décroissant.\n- `transform(X, mean, components)` -> `(N, k)`.\n- `inverse_transform(Z, mean, components)` -> `(N, d)`.\n- `explained_variance_ratio(eigenvalues, k)` -> part de variance conservée par les `k` premières.",
+  "hints": [
+    "Centre d'abord : Xc = X - X.mean(axis=0). Covariance : Xc.T @ Xc / (N - 1).",
+    "np.linalg.eigh renvoie les valeurs propres par ordre croissant : inverse-les (ainsi que les colonnes de vecteurs propres) avec argsort()[::-1].",
+    "components sont les k premiers vecteurs propres en LIGNES, de forme (k, d). transform : (X - mean) @ components.T. inverse_transform : Z @ components + mean."
+  ]
+}

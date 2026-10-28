@@ -1,0 +1,10 @@
+{
+  "id": "sys.03.ex1",
+  "title": "TF-IDF, BM25, fusion de rangs réciproques et un découpeur",
+  "prompt": "Construis la boîte à outils de récupération utilisée en RAG, from scratch en NumPy.\n\n- `tokenize`, `build_vocab`, `tfidf_matrix(docs, vocab)` renvoyant la matrice `X` normalisée L2 de forme `(n_docs, n_terms)` et le vecteur `idf`.\n- `query_vector(q, vocab, idf)` et `cosine_search(qv, X, k)` renvoyant `(indices, similarities)`.\n- `bm25_scores(query, docs, k1=1.2, b=0.75)` sur une liste de documents.\n- `rrf(rankings, k=60)` (fusion de rangs réciproques) renvoyant `(fused_order, score_dict)`.\n- `chunk_words(text, size, overlap)` qui découpe par mots avec des fenêtres qui se recouvrent.",
+  "hints": [
+    "tokenize : re.findall(r\"[a-z0-9]+\", text.lower()). idf = log((1+N)/(1+df)) + 1, ligne TF-IDF = tf * idf, puis normalise chaque ligne en L2.",
+    "Score de terme BM25 : idf * tf*(k1+1) / (tf + k1*(1 - b + b*len/avgdl)) avec idf = log((N-df+0.5)/(df+0.5) + 1) ; somme sur les termes distincts de la requête qui apparaissent dans le document.",
+    "rrf : pour chaque classement, ajoute 1/(k + position) avec la position commençant à 1 ; trie par score décroissant (égalités par id). chunk_words : step = size - overlap ; arrête-toi après le chunk qui atteint le dernier mot."
+  ]
+}

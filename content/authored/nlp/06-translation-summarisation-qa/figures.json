@@ -1,0 +1,119 @@
+[
+  {
+    "id": "seq2seq-translation",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Encoder-decoder translation. The encoder reads the source; the decoder is a conditional language model P(y_t | y_(t-1)..., x) that starts from a start symbol and stops at an end symbol. Decoding is greedy (arg max) or beam search keeping the B best partial outputs.",
+      "fr": "Traduction encodeur-décodeur. L'encodeur lit la source ; le décodeur est un modèle de langage conditionnel P(y_t | y_(t-1)..., x) qui part d'un symbole de début et s'arrête à un symbole de fin. Le décodage est glouton (arg max) ou en faisceau (beam search) avec les B meilleures sorties partielles."
+    },
+    "code": {
+      "en": "flowchart LR\n  SRC[\"source tokens x\"] --> ENC[\"encoder\"]\n  ENC --> ST[\"encoder states\"]\n  ST --> DEC[\"decoder\"]\n  BOS[\"start symbol\"] --> DEC\n  DEC --> PT[\"P(y_t | y_(<t), x)<br/>softmax (V,)\"]\n  PT --> BS[\"greedy argmax or beam search B=4..5\"]\n  BS --> OUT[\"target tokens y\"]\n  OUT -. \"fed back\" .-> DEC",
+      "fr": "flowchart LR\n  SRC[\"tokens source x\"] --> ENC[\"encodeur\"]\n  ENC --> ST[\"états de l'encodeur\"]\n  ST --> DEC[\"décodeur\"]\n  BOS[\"start symbol\"] --> DEC\n  DEC --> PT[\"P(y_t | y_(<t), x)<br/>softmax (V,)\"]\n  PT --> BS[\"glouton argmax ou beam search B=4..5\"]\n  BS --> OUT[\"tokens cible y\"]\n  OUT -. \"réinjecté\" .-> DEC"
+    }
+  },
+  {
+    "id": "bleu-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "BLEU computation: clipped n-gram precisions for n = 1..N, their geometric mean, multiplied by the brevity penalty. A zero in any p_n makes unsmoothed sentence-level BLEU zero.",
+      "fr": "Calcul du BLEU : précisions n-grammes écrêtées pour n = 1..N, leur moyenne géométrique, multipliée par la pénalité de brièveté. Un zéro dans un p_n annule le BLEU phrase non lissé."
+    },
+    "code": {
+      "en": "flowchart LR\n  C[\"candidate c\"] --> NG[\"n-grams of c, n=1..4\"]\n  R[\"references r\"] --> MX[\"max_r count_r(g)\"]\n  NG --> CL[\"clip: min(count_c(g), max_r count_r(g))\"]\n  MX --> CL\n  CL --> PN[\"p_n = clipped matches / n-grams of c\"]\n  PN --> GM[\"exp( mean_n ln p_n )\"]\n  C --> BP[\"BP = 1 if |c| > rho else exp(1 - rho/|c|)\"]\n  R --> BP\n  GM --> BL[\"BLEU = BP * geometric mean\"]\n  BP --> BL",
+      "fr": "flowchart LR\n  C[\"candidat c\"] --> NG[\"n-grammes de c, n=1..4\"]\n  R[\"références r\"] --> MX[\"max_r count_r(g)\"]\n  NG --> CL[\"écrêtage : min(count_c(g), max_r count_r(g))\"]\n  MX --> CL\n  CL --> PN[\"p_n = correspondances écrêtées / n-grammes de c\"]\n  PN --> GM[\"exp( mean_n ln p_n )\"]\n  C --> BP[\"BP = 1 si |c| > rho sinon exp(1 - rho/|c|)\"]\n  R --> BP\n  GM --> BL[\"BLEU = BP * moyenne géométrique\"]\n  BP --> BL"
+    }
+  },
+  {
+    "id": "bleu-precisions",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Clipped n-gram precisions of the worked example (candidate 'the cat sat on the mat' against 'the cat is on the mat'): p1 = 0.8333, p2 = 0.6, p3 = 0.25, p4 = 0. BLEU-2 = sqrt(0.8333 x 0.6) = 0.7071, but BLEU-4 = 0 without smoothing.",
+      "fr": "Précisions n-grammes écrêtées de l'exemple travaillé (candidat « the cat sat on the mat » contre « the cat is on the mat ») : p1 = 0,8333, p2 = 0,6, p3 = 0,25, p4 = 0. BLEU-2 = sqrt(0,8333 x 0,6) = 0,7071, mais BLEU-4 = 0 sans lissage."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"p_n\"\n  x-axis [\"p1\",\"p2\",\"p3\",\"p4\"]\n  y-axis \"p_n\" 0 --> 1\n  bar [0.8333, 0.6, 0.25, 0]",
+      "fr": "xychart-beta\n  title \"p_n\"\n  x-axis [\"p1\",\"p2\",\"p3\",\"p4\"]\n  y-axis \"p_n\" 0 --> 1\n  bar [0.8333, 0.6, 0.25, 0]"
+    }
+  },
+  {
+    "id": "brevity-penalty",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The brevity penalty as a function of the length ratio |c|/rho: exp(1 - rho/|c|) below 1 (blue), and 1 once the candidate is at least as long as the closest reference (orange). The candidate 'the cat sat' against a 6-token reference has ratio 0.5 and BP = 0.3679.",
+      "fr": "La pénalité de brièveté selon le rapport de longueurs |c|/rho : exp(1 - rho/|c|) en dessous de 1 (bleu), et 1 dès que le candidat est au moins aussi long que la référence la plus proche (orange). Le candidat « the cat sat » face à une référence de 6 tokens a un rapport 0,5 et BP = 0,3679."
+    },
+    "spec": {
+      "xDomain": [
+        0.1,
+        2
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(1-1/x)",
+          "range": [
+            0.1,
+            1
+          ],
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "range": [
+            1,
+            2
+          ],
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.5,
+              0.3679
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "rouge-l-lcs",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "ROUGE-L on the worked pair: the longest common subsequence 'the cat on the mat' has length 5, so P = R = F = 5/6 = 0.8333. Matches need the same order but not adjacency.",
+      "fr": "ROUGE-L sur la paire travaillée : la plus longue sous-séquence commune « the cat on the mat » a une longueur 5, donc P = R = F = 5/6 = 0,8333. Les correspondances exigent le même ordre mais pas l'adjacence."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph CA[\"candidate\"]\n    direction TB\n    c1[\"the\"] --- c2[\"cat\"] --- c3[\"sat\"] --- c4[\"on\"] --- c5[\"the\"] --- c6[\"mat\"]\n  end\n  subgraph RE[\"reference\"]\n    direction TB\n    r1[\"the\"] --- r2[\"cat\"] --- r3[\"is\"] --- r4[\"on\"] --- r5[\"the\"] --- r6[\"mat\"]\n  end\n  c1 <-.-> r1\n  c2 <-.-> r2\n  c4 <-.-> r4\n  c5 <-.-> r5\n  c6 <-.-> r6",
+      "fr": "flowchart LR\n  subgraph CA[\"candidat\"]\n    direction TB\n    c1[\"the\"] --- c2[\"cat\"] --- c3[\"sat\"] --- c4[\"on\"] --- c5[\"the\"] --- c6[\"mat\"]\n  end\n  subgraph RE[\"référence\"]\n    direction TB\n    r1[\"the\"] --- r2[\"cat\"] --- r3[\"is\"] --- r4[\"on\"] --- r5[\"the\"] --- r6[\"mat\"]\n  end\n  c1 <-.-> r1\n  c2 <-.-> r2\n  c4 <-.-> r4\n  c5 <-.-> r5\n  c6 <-.-> r6"
+    }
+  },
+  {
+    "id": "qa-span",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Extractive QA: question and passage are encoded together, two learned vectors give a start score and an end score per token, and the best span maximises s_i + e_j with i <= j and a length cap.",
+      "fr": "QA extractive : la question et le passage sont encodés ensemble, deux vecteurs appris donnent un score de début et un score de fin par token, et le meilleur empan maximise s_i + e_j avec i <= j et une longueur maximale."
+    },
+    "code": {
+      "en": "flowchart LR\n  QP[\"[CLS] question [SEP] passage\"] --> TR[\"transformer\"]\n  TR --> H[\"h_j (n, d)\"]\n  H --> S[\"start s_j = u_s . h_j<br/>(n,)\"]\n  H --> E[\"end e_j = u_e . h_j<br/>(n,)\"]\n  S --> SP[\"argmax s_i + e_j<br/>i <= j, j-i+1 <= L_max\"]\n  E --> SP\n  SP --> AN[\"answer span\"]",
+      "fr": "flowchart LR\n  QP[\"[CLS] question [SEP] passage\"] --> TR[\"transformer\"]\n  TR --> H[\"h_j (n, d)\"]\n  H --> S[\"start s_j = u_s . h_j<br/>(n,)\"]\n  H --> E[\"end e_j = u_e . h_j<br/>(n,)\"]\n  S --> SP[\"argmax s_i + e_j<br/>i <= j, j-i+1 <= L_max\"]\n  E --> SP\n  SP --> AN[\"empan réponse\"]"
+    }
+  }
+]

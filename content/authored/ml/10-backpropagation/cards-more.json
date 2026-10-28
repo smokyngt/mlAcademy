@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.10.c14",
+  "concept": "nn.backprop",
+  "front": "Bias gradient for a batch",
+  "back": "Sum $\\bar Z$ over the batch axis."
+ },
+ {
+  "id": "f2n.10.c15",
+  "concept": "nn.backprop",
+  "front": "Input gradient of $Z=XW$",
+  "back": "$\\bar X=\\bar ZW^\\top$."
+ },
+ {
+  "id": "f2n.10.c16",
+  "concept": "nn.backprop",
+  "front": "Weight gradient of $Z=XW$",
+  "back": "$\\bar W=X^\\top\\bar Z$."
+ },
+ {
+  "id": "f2n.10.c17",
+  "concept": "nn.backprop",
+  "front": "ReLU backward",
+  "back": "$\\bar Z=\\bar A\\odot\\mathbb 1[Z>0]$."
+ },
+ {
+  "id": "f2n.10.c18",
+  "concept": "nn.backprop",
+  "front": "Why cache $Z_1$?",
+  "back": "The ReLU mask $\\mathbb 1[Z_1>0]$ is needed on the way back."
+ },
+ {
+  "id": "f2n.10.c19",
+  "concept": "nn.backprop",
+  "front": "Gradient off by exactly $B$",
+  "back": "Missing (or extra) $1/B$ from the batch mean."
+ },
+ {
+  "id": "f2n.10.c20",
+  "concept": "nn.backprop",
+  "front": "Do gradients flow equally through all layers?",
+  "back": "No: each local derivative multiplies; factors $<1$ vanish, $>1$ explode."
+ },
+ {
+  "id": "f2n.10.c21",
+  "concept": "nn.backprop",
+  "front": "Update timing",
+  "back": "Compute all gradients first, then update; never mid-backward."
+ },
+ {
+  "id": "f2n.10.c22",
+  "concept": "nn.backprop",
+  "front": "Cost of the backward pass",
+  "back": "About the same as one or two forward passes."
+ }
+]

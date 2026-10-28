@@ -1,0 +1,10 @@
+{
+ "id": "rl.05.ex1",
+ "title": "Le gradient de politique, une référence et les différences finies",
+ "prompt": "Un bandit à 3 bras avec une **politique softmax** $\\pi_\\theta(a)=\\operatorname{softmax}(\\theta)_a$, $\\theta\\in\\mathbb{R}^3$, et des récompenses de bras déterministes `r`. L'objectif est $J(\\theta)=\\sum_a\\pi_\\theta(a)r_a$.\n\nImplémente :\n\n- `softmax(theta)` (numériquement stable).\n- `grad_log_pi(theta, a)` -> $\\nabla_\\theta\\log\\pi_\\theta(a)$, de forme `(3,)`.\n- `expected_return(theta, r)` -> $J(\\theta)$.\n- `exact_gradient(theta, r)` -> la forme close $\\partial J/\\partial\\theta_k=\\pi_k(r_k-J)$.\n- `pg_expectation(theta, r, b)` -> le théorème du gradient de politique écrit comme une espérance exacte, $\\sum_a\\pi(a)(r_a-b)\\nabla\\log\\pi(a)$.\n- `reinforce_estimate(theta, actions, rewards, b)` -> la moyenne empirique de $(R-b)\\nabla\\log\\pi(a)$ sur les actions/récompenses échantillonnées.\n- `estimator_variance(theta, r, b)` -> la variance totale (somme sur les 3 coordonnées) d'un échantillon de $(R-b)\\nabla\\log\\pi(a)$.",
+ "hints": [
+  "grad_log_pi pour une politique softmax : onehot(a) - pi.",
+  "exact_gradient : J = sum_a pi_a r_a, et dJ/dtheta_k = pi_k (r_k - J).",
+  "pg_expectation énumère les actions : sum_a pi_a (r_a - b) grad_log_pi(theta, a). estimator_variance = sum_a pi_a ||(r_a - b) g_a||^2 - ||mean||^2."
+ ]
+}

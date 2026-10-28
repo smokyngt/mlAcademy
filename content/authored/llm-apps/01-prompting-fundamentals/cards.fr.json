@@ -1,0 +1,72 @@
+[
+ {
+  "id": "app.01.c1",
+  "front": "Prompt, en une phrase",
+  "back": "Le contexte de jetons qui conditionne la distribution du jeton suivant du modèle ; il restreint l'ensemble des continuations plausibles."
+ },
+ {
+  "id": "app.01.c2",
+  "front": "Les quatre leviers du prompting",
+  "back": "Instructions, rôle/contexte, exemples (few-shot), place pour raisonner (chaîne de pensée)."
+ },
+ {
+  "id": "app.01.c3",
+  "front": "Système vs utilisateur vs préremplissage",
+  "back": "Système : règles persistantes, placées en premier. Utilisateur : la tâche de ce tour. Préremplissage : les premiers mots de la réponse, écrits par toi, pour orienter le format."
+ },
+ {
+  "id": "app.01.c4",
+  "front": "Pourquoi délimiter les données des instructions ?",
+  "back": "Pour que le texte à l'intérieur des données ne soit pas lu comme une instruction ; c'est aussi la première défense contre l'injection de prompt."
+ },
+ {
+  "id": "app.01.c5",
+  "front": "Combien d'exemples few-shot, et lesquels ?",
+  "back": "Typiquement 3 à 5 ; similaires à l'entrée, couvrant chaque étiquette, de difficulté comparable. Teste 0/3/5 sur tes propres données."
+ },
+ {
+  "id": "app.01.c6",
+  "front": "Pourquoi la chaîne de pensée aide-t-elle mécaniquement ?",
+  "back": "Chaque jeton généré devient entrée du suivant, donc les étapes écrites sont du calcul supplémentaire ; un seul jeton a un budget de calcul fixe."
+ },
+ {
+  "id": "app.01.c7",
+  "front": "Coût de la chaîne de pensée",
+  "back": "Plus de jetons de sortie (argent, latence) et le risque d'une chaîne fluide mais fausse ou infidèle."
+ },
+ {
+  "id": "app.01.c8",
+  "front": "Ordre des champs en sortie structurée",
+  "back": "Mets le raisonnement avant la réponse, sinon le modèle s'engage d'abord sur la réponse."
+ },
+ {
+  "id": "app.01.c9",
+  "front": "Auto-cohérence",
+  "back": "Échantillonner n chaînes de raisonnement à température > 0, extraire chaque réponse finale, renvoyer la plus fréquente."
+ },
+ {
+  "id": "app.01.c10",
+  "front": "Formule d'exactitude du vote à la majorité",
+  "back": "$A(p,n)=\\sum_{k>n/2}\\binom{n}{k}p^k(1-p)^{n-k}$ pour n impair, échantillons indépendants, mauvaises réponses distinctes."
+ },
+ {
+  "id": "app.01.c11",
+  "front": "Quand le vote aide-t-il ou nuit-il ?",
+  "back": "Aide si $p>1/2$ (tend vers 1), neutre à $p=1/2$, nuit si $p<1/2$ ; échoue quand les erreurs concordent."
+ },
+ {
+  "id": "app.01.c12",
+  "front": "Coût de l'auto-cohérence",
+  "back": "Environ n fois le coût de génération (et la latence, sauf échantillonnage en parallèle)."
+ },
+ {
+  "id": "app.01.c13",
+  "front": "Tree-of-thought en une ligne",
+  "back": "Recherche sur des solutions partielles : proposer plusieurs pensées, évaluer, élaguer, continuer depuis les meilleures."
+ },
+ {
+  "id": "app.01.c14",
+  "front": "Pourquoi faut-il tester les prompts ?",
+  "back": "Les sorties sont stochastiques et dépendent du modèle ; quelques bons exemples sont des anecdotes, un jeu de test noté est une preuve."
+ }
+]

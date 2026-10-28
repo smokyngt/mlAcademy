@@ -1,0 +1,133 @@
+[
+ {
+  "id": "ops.06.q1",
+  "concept": "ops.drift",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "The distribution of inputs $P(X)$ changes but $P(Y\\mid X)$ stays the same. This is...",
+  "options": [
+   "covariate shift",
+   "label shift",
+   "concept drift",
+   "a degenerate feedback loop"
+  ],
+  "answer": 0,
+  "explanation": "Covariate shift: same input-to-label relation, different inputs."
+ },
+ {
+  "id": "ops.06.q2",
+  "concept": "ops.drift",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Houses with the same features now sell for less after a market change. This is...",
+  "options": [
+   "covariate shift",
+   "label shift",
+   "concept drift",
+   "a software failure"
+  ],
+  "answer": 2,
+  "explanation": "$P(Y\\mid X)$ changed while $P(X)$ did not: same input, different output."
+ },
+ {
+  "id": "ops.06.q3",
+  "concept": "ops.drift",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The two-sample KS statistic is...",
+  "options": [
+   "the difference of the means",
+   "the largest absolute gap between the two empirical CDFs",
+   "the sum of squared bin differences",
+   "the p-value of a t test"
+  ],
+  "answer": 1,
+  "explanation": "$D=\\max_x|F_a(x)-F_b(x)|$; 0 for identical samples, 1 for disjoint ones."
+ },
+ {
+  "id": "ops.06.q4",
+  "concept": "ops.drift",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A feature's mean is unchanged but its variance doubled. Which statement is true?",
+  "options": [
+   "A mean comparison and KS/PSI would all miss it",
+   "Only labels can reveal it",
+   "It cannot be a distribution shift",
+   "A mean comparison misses it; KS and PSI detect it"
+  ],
+  "answer": 3,
+  "explanation": "Means ignore spread; the CDF gap and the binned PSI both change when the shape changes."
+ },
+ {
+  "id": "ops.06.q5",
+  "concept": "ops.drift",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Reference proportions in one PSI bin are $p=0.10$ and the new proportion is $q=0.20$. What is that bin's PSI term $(q-p)\\ln(q/p)$? (natural log, 3 decimals)",
+  "options": [],
+  "answer": {
+   "value": 0.069,
+   "tol": 0.001
+  },
+  "explanation": "$0.10\\cdot\\ln 2=0.0693$."
+ },
+ {
+  "id": "ops.06.q6",
+  "concept": "ops.monitoring",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Observability, as opposed to monitoring, is about...",
+  "options": [
+   "tracking metrics over time",
+   "sending alerts by email",
+   "instrumenting the system so you can investigate why something went wrong",
+   "retraining the model"
+  ],
+  "answer": 2,
+  "explanation": "Monitoring tracks metrics; observability is the instrumentation that makes causes visible, and monitoring depends on it."
+ },
+ {
+  "id": "ops.06.q7",
+  "concept": "ops.continual",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Stateful training differs from stateless retraining in that it...",
+  "options": [
+   "continues from the previous checkpoint using only new data",
+   "trains from scratch on all data",
+   "never uses new data",
+   "requires no monitoring"
+  ],
+  "answer": 0,
+  "explanation": "Fine-tuning from the last checkpoint needs less data and compute."
+ },
+ {
+  "id": "ops.06.q8",
+  "concept": "ops.abtest",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Arm A: 100 clicks out of 1,000. Arm B: 130 clicks out of 1,000. What is the pooled two-proportion $z$ statistic (2 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 2.1,
+   "tol": 0.02
+  },
+  "explanation": "$\\hat p=0.115$, $se=\\sqrt{0.115\\cdot0.885\\cdot2/1000}=0.01427$, $z=0.03/0.01427=2.10$."
+ },
+ {
+  "id": "ops.06.q9",
+  "concept": "ops.abtest",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "You check an A/B test daily and stop at the first $|z|>1.96$. The false-positive rate (when A and B are identical) is...",
+  "options": [
+   "still 5%",
+   "below 5%",
+   "exactly 0",
+   "well above 5%"
+  ],
+  "answer": 3,
+  "explanation": "Each look gives noise another chance to cross the threshold; with ten looks it is about 20% in our simulation."
+ }
+]

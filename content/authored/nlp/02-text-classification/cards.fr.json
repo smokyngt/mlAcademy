@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.02.c1","front":"Règle de décision de Naive Bayes","back":"$\\hat c=\\arg\\max_c\\,[\\log P(c)+\\sum_i\\log\\theta_{c,w_i}]$."},
+ {"id":"nlp.02.c2","front":"Hypothèse d'indépendance naïve","back":"Les tokens sont conditionnellement indépendants sachant la classe, donc $P(x\\mid c)=\\prod_i\\theta_{c,w_i}$."},
+ {"id":"nlp.02.c3","front":"Estimation multinomiale lissée","back":"$\\theta_{c,j}=\\frac{n_{c,j}+\\alpha}{\\sum_k n_{c,k}+\\alpha|V|}$."},
+ {"id":"nlp.02.c4","front":"Pourquoi le lissage add-alpha ?","back":"Un mot non vu donnerait $\\theta=0$ et annulerait la classe ; les pseudo-comptes gardent chaque probabilité positive. Il équivaut à un a priori de Dirichlet symétrique."},
+ {"id":"nlp.02.c5","front":"Pourquoi travailler en espace logarithmique ?","back":"Les produits de nombreuses probabilités provoquent un underflow ; les logs les transforment en sommes sans changer l'arg max."},
+ {"id":"nlp.02.c6","front":"Forme des paramètres de Naive Bayes","back":"log_prior $(C,)$, log_theta $(C,V)$ ; scores pour une matrice de comptes : X @ log_theta.T + log_prior, de forme $(N,C)$."},
+ {"id":"nlp.02.c7","front":"Naive Bayes vs régression logistique sur le texte","back":"NB : comptage, rapide, bon avec peu de données, probabilités trop confiantes. RL : entraînement par gradient, un poids par caractéristique, meilleure avec plus de données et des caractéristiques corrélées."},
+ {"id":"nlp.02.c8","front":"Précision, rappel, F1","back":"$P=TP/(TP+FP)$, $R=TP/(TP+FN)$, $F_1=2PR/(P+R)$."},
+ {"id":"nlp.02.c9","front":"F1 macro vs micro","back":"Le macro moyenne les F1 par classe (les classes rares comptent également) ; le micro met en commun les comptes (les classes fréquentes dominent)."},
+ {"id":"nlp.02.c10","front":"Pourquoi l'accuracy induit-elle en erreur sur du texte déséquilibré ?","back":"Prédire la classe majoritaire donne déjà un score élevé ; vérifie la précision et le rappel de la classe minoritaire."},
+ {"id":"nlp.02.c11","front":"Remèdes au déséquilibre des classes","back":"Métriques par classe, décalage de seuil ou d'a priori, poids de classes, rééchantillonnage (découpage d'entraînement uniquement), plus de données minoritaires."},
+ {"id":"nlp.02.c12","front":"Gestion de la négation dans un sac de mots","back":"Utiliser des bigrammes, ou préfixer NOT_ aux tokens après un négateur jusqu'à la ponctuation suivante."},
+ {"id":"nlp.02.c13","front":"Qu'est-ce que l'analyse d'erreurs ?","back":"Lire les fautes de validation, les regrouper par cause (négation, sarcasme, décalage de domaine, bruit d'étiquettes) et corriger d'abord le plus gros groupe."},
+ {"id":"nlp.02.c14","front":"Pourquoi les probabilités de NB sont-elles mal calibrées ?","back":"Traiter des mots corrélés comme des comptes indépendants compte la même preuve plusieurs fois, poussant les probabilités vers 0 et 1."}
+]

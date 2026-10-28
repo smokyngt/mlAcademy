@@ -1,0 +1,10 @@
+{
+  "id": "cml.06.ex1",
+  "title": "Impureté, meilleure coupure et petit arbre de décision",
+  "prompt": "Implémente un arbre de classification à partir de zéro.\n\n- `gini(y)` et `entropy(y)` (bits, `log2`) pour un vecteur d'étiquettes entières ; un vecteur vide a une impureté de 0.\n- `best_split(X, y, criterion=\"gini\", min_samples_leaf=1)` renvoie `(feature, threshold, gain)`. Les seuils candidats sont les milieux entre valeurs distinctes triées consécutives ; le gain est l'impureté du parent moins les impuretés des fils pondérées par leur taille. Seuls des gains strictement plus grands remplacent le meilleur courant (les égalités sont donc résolues en faveur du plus petit indice de variable, puis du plus petit seuil). Si aucune coupure n'a un gain positif, renvoie `(None, None, 0.0)`.\n- `fit_tree(X, y, max_depth=3, min_samples_leaf=1, criterion=\"gini\")` renvoie un dict imbriqué (feuille : `{\"leaf\": class}` ; nœud : `{\"f\", \"t\", \"l\", \"r\"}`), où la classe majoritaire d'une feuille est la plus petite classe en cas d'égalité.\n- `predict_tree(tree, X)` renvoie un tableau d'entiers.",
+  "hints": [
+    "gini : p = np.bincount(y) / len(y); return 1 - (p**2).sum(). Pour l'entropie, retire les entrées nulles de p avant le log.",
+    "best_split : pour chaque variable, prends les valeurs de np.unique, les milieux (u[:-1]+u[1:])/2 ; masque gauche = X[:, j] <= t ; gain = parent - (nL*I(yL) + nR*I(yR))/n. Ne garde que les gains strictement meilleurs pour que les égalités aillent à la plus petite variable et au plus petit seuil.",
+    "fit_tree : renvoie une feuille {'leaf': majority_class} quand le nœud est pur, que depth == max_depth, qu'il y a moins de 2*min_samples_leaf échantillons, ou que best_split ne trouve aucun gain ; sinon {'f': j, 't': t, 'l': subtree, 'r': subtree}. Rejette les coupures qui laissent moins de min_samples_leaf lignes d'un côté."
+  ]
+}

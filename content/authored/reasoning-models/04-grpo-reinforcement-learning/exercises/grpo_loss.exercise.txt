@@ -1,0 +1,136 @@
+#@@ meta
+{"id": "rsn.04.ex2", "title": "The GRPO loss and its gradient, checked numerically", "difficulty": 5, "runtime": "pyodide", "concepts": ["rsn.grpo"], "hints": ["Sequence log-prob of rollout i: sum over positions t of log_softmax(theta[t])[Y[i, t]]. It is the quantity the loss differentiates.", "d logp_i / d theta[t, v] = 1[Y[i, t] == v] - softmax(theta[t])[v] (the softmax-cross-entropy gradient you know from backprop).", "Per rollout, objective_i = min(ratio_i * A_i, clip(ratio_i, 1-eps, 1+eps) * A_i). Its derivative with respect to logp_i is ratio_i * A_i when the unclipped term is the (weakly) smaller one, and 0 when the clipped term is strictly smaller (clipping makes it a constant). The loss is -mean(objective) + beta * mean(logp - ref_logp), so dLoss/dlogp_i = (-g_i + beta) / G."]}
+#@@ prompt
+Implement the GRPO objective on a **tabular toy policy**, small enough that you can verify the gradient numerically. A rollout is a sequence of `T` tokens drawn from a vocabulary of `V`; the policy has independent logits `theta` of shape `(T, V)` per position (so `pi(y) = prod_t softmax(theta[t])[y_t]`). `Y` has shape `(G, T)`: `G` sampled rollouts for one prompt.
+
+- `seq_logprobs(theta, Y)` -> shape `(G,)`: the sequence log-probability of each rollout (sum over positions).
+- `pg_loss_simple(adv, logps)` -> scalar: the book's basic loss `-(adv * logps).mean()`.
+- `grpo_loss_grad(theta, Y, adv, old_logp, ref_logp, clip_eps, beta)` -> `(loss, grad)` where, with `ratio_i = exp(logp_i - old_logp_i)`,
+
+$$
+\text{loss}=-\frac1G\sum_i\min\bigl(\rho_iA_i,\ \operatorname{clip}(\rho_i,1-\epsilon,1+\epsilon)A_i\bigr)+\beta\,\frac1G\sum_i(\text{logp}_i-\text{ref\_logp}_i)
+$$
+
+and `grad` has the shape of `theta` and is the **analytic** gradient of this loss with respect to `theta`. `adv`, `old_logp` and `ref_logp` are constants (no gradient flows into them).
+#@@ starter
+import numpy as np
+
+
+def log_softmax(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+
+
+def seq_logprobs(theta, Y):
+    raise NotImplementedError
+
+
+def pg_loss_simple(adv, logps):
+    raise NotImplementedError
+
+
+def grpo_loss_grad(theta, Y, adv, old_logp, ref_logp, clip_eps, beta):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+rng = np.random.default_rng(0)
+T, V, G = 3, 4, 4
+theta = rng.normal(size=(T, V))
+Y = rng.integers(0, V, size=(G, T))
+rewards = np.array([1.0, 1.0, 0.0, 0.0])
+adv = (rewards - rewards.mean()) / (rewards.std(ddof=1) + 1e-4)
+
+lp = seq_logprobs(theta, Y)
+direct = np.array([sum(np.log(np.exp(theta[t]) / np.exp(theta[t]).sum())[Y[i, t]] for t in range(T)) for i in range(G)])
+check("sequence log-probs have shape (G,) and match the definition", lambda: lp.shape == (G,) and np.allclose(lp, direct))
+check("probabilities of all sequences sum to 1 (V^T of them)", lambda: abs(sum(np.exp(seq_logprobs(theta, np.array([[a, b, c]]))[0]) for a in range(V) for b in range(V) for c in range(V)) - 1.0) < 1e-9)
+check("simple policy-gradient loss", lambda: abs(pg_loss_simple(adv, lp) - (-(adv * lp).mean())) < 1e-12)
+
+def numgrad(f, th, h=1e-6):
+    g = np.zeros_like(th)
+    for idx in np.ndindex(*th.shape):
+        tp, tm = th.copy(), th.copy()
+        tp[idx] += h
+        tm[idx] -= h
+        g[idx] = (f(tp) - f(tm)) / (2 * h)
+    return g
+
+# ratio exactly 1, no KL: the loss VALUE is zero (advantages have mean zero) but the gradient is not
+loss1, grad1 = grpo_loss_grad(theta, Y, adv, lp, lp, 0.2, 0.0)
+check("at ratio=1 the loss value is 0 (advantages sum to 0)", lambda: abs(loss1) < 1e-12)
+check("...but the gradient is not 0", lambda: np.abs(grad1).max() > 1e-3)
+check("at ratio=1 the gradient equals the simple policy-gradient loss gradient", lambda: np.allclose(grad1, numgrad(lambda th: pg_loss_simple(adv, seq_logprobs(th, Y)), theta), atol=1e-6))
+
+# four clipping regimes: A>0 & ratio>1+eps (clipped), A>0 & ratio<1-eps (flows), A<0 & ratio>1+eps (flows), A<0 & ratio<1-eps (clipped)
+old = lp + np.array([-0.5, 0.5, -0.5, 0.5])
+ratio = np.exp(lp - old)
+ref = lp + np.array([0.05, -0.1, 0.2, 0.0])
+check("setup covers both clipped and unclipped regimes", lambda: ratio[0] > 1.2 and ratio[1] < 0.8 and ratio[2] > 1.2 and ratio[3] < 0.8)
+f = lambda th: grpo_loss_grad(th, Y, adv, old, ref, 0.2, 0.05)[0]
+loss, grad = grpo_loss_grad(theta, Y, adv, old, ref, 0.2, 0.05)
+expected_obj = np.minimum(ratio * adv, np.clip(ratio, 0.8, 1.2) * adv)
+check("loss value", lambda: abs(loss - (-expected_obj.mean() + 0.05 * np.mean(lp - ref))) < 1e-12)
+check("grad shape", lambda: grad.shape == theta.shape)
+check("analytic gradient matches central differences (clipping + KL)", lambda: np.abs(grad - numgrad(f, theta)).max() < 1e-6)
+
+# clipped rollouts contribute no policy-gradient term
+loss0, grad0 = grpo_loss_grad(theta, Y[:1], adv[:1], old[:1], ref[:1], 0.2, 0.0)
+check("a clipped rollout (A>0, ratio>1.2) has zero gradient without KL", lambda: np.abs(grad0).max() < 1e-12)
+loss3, grad3 = grpo_loss_grad(theta, Y[3:], adv[3:], old[3:], ref[3:], 0.2, 0.0)
+check("A<0 with ratio<0.8 is also clipped", lambda: np.abs(grad3).max() < 1e-12)
+loss2, grad2 = grpo_loss_grad(theta, Y[2:3], adv[2:3], old[2:3], ref[2:3], 0.2, 0.0)
+check("A<0 with ratio>1.2 is NOT clipped (pessimistic min)", lambda: np.abs(grad2).max() > 1e-3)
+
+# KL only: gradient of beta * mean(logp - ref)
+_, gk = grpo_loss_grad(theta, Y, np.zeros(G), lp, ref, 0.2, 0.3)
+check("with zero advantages the gradient is only the KL term", lambda: np.allclose(gk, numgrad(lambda th: 0.3 * np.mean(seq_logprobs(th, Y) - ref), theta), atol=1e-6))
+_, gz = grpo_loss_grad(theta, Y, np.zeros(G), lp, lp, 0.2, 0.0)
+check("zero advantages and no KL give exactly zero gradient (a group with equal rewards teaches nothing)", lambda: np.abs(gz).max() < 1e-15)
+# gradient rows sum to zero: softmax logits are shift-invariant
+check("each position's gradient sums to 0 over the vocabulary", lambda: np.allclose(grad.sum(axis=1), 0.0, atol=1e-12))
+# a descent step raises logp of the rewarded rollouts and lowers the others
+step = theta - 0.5 * grad1
+lp2 = seq_logprobs(step, Y)
+check("one gradient step increases the log-prob of positive-advantage rollouts and decreases the negative ones on average", lambda: (lp2 - lp)[:2].mean() > 0 and (lp2 - lp)[2:].mean() < 0)
+#@@ solution
+import numpy as np
+
+
+def log_softmax(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    return z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+
+
+def seq_logprobs(theta, Y):
+    lp = log_softmax(theta)
+    Y = np.asarray(Y)
+    T = theta.shape[0]
+    return np.array([sum(lp[t, y[t]] for t in range(T)) for y in Y])
+
+
+def pg_loss_simple(adv, logps):
+    return float(-(np.asarray(adv) * np.asarray(logps)).mean())
+
+
+def grpo_loss_grad(theta, Y, adv, old_logp, ref_logp, clip_eps, beta):
+    Y = np.asarray(Y)
+    G, T = Y.shape
+    adv = np.asarray(adv, float)
+    lp = log_softmax(theta)
+    logp = np.array([sum(lp[t, y[t]] for t in range(T)) for y in Y])
+    ratio = np.exp(logp - old_logp)
+    unclipped = ratio * adv
+    clipped = np.clip(ratio, 1 - clip_eps, 1 + clip_eps) * adv
+    objective = np.minimum(unclipped, clipped)
+    loss = -objective.mean() + beta * np.mean(logp - ref_logp)
+    g_obj = np.where(unclipped <= clipped, ratio * adv, 0.0)
+    dL_dlogp = (-g_obj + beta) / G
+    pi = np.exp(lp)
+    grad = np.zeros_like(theta)
+    for i in range(G):
+        for t in range(T):
+            onehot = np.zeros(theta.shape[1])
+            onehot[Y[i, t]] = 1.0
+            grad[t] += dL_dlogp[i] * (onehot - pi[t])
+    return float(loss), grad

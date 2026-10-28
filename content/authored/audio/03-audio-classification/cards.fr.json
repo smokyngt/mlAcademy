@@ -1,0 +1,77 @@
+[
+ {
+  "id": "aud.03.c1",
+  "front": "Caractéristique de résumé au niveau de l'extrait",
+  "back": "Moyenne et écart type de chaque MFCC dans le temps : vecteur de taille $2K$ quelle que soit la longueur de l'extrait."
+ },
+ {
+  "id": "aud.03.c2",
+  "front": "k-NN cosinus",
+  "back": "Normaliser les vecteurs, similarité $=\\mathbf b\\cdot\\mathbf a$ ; vote parmi les $k$ extraits d'entraînement les plus similaires. Pas d'entraînement ; ignore l'échelle des vecteurs."
+ },
+ {
+  "id": "aud.03.c3",
+  "front": "Forme d'entrée d'un CNN sur spectrogramme",
+  "back": "Lot `(B, 1, T, M)` : un canal, temps par mel ; le pooling global sur temps/fréquence donne des caractéristiques indépendantes de la longueur."
+ },
+ {
+  "id": "aud.03.c4",
+  "front": "Longueur de sortie d'une convolution",
+  "back": "$o=\\lfloor(i+2p-k)/s\\rfloor+1$ pour une entrée $i$, un noyau $k$, un remplissage $p$, un pas $s$."
+ },
+ {
+  "id": "aud.03.c5",
+  "front": "Paramètres de Conv2d et de Linear",
+  "back": "Conv : $C_{in}C_{out}k^2+C_{out}$. Linear : $d_{in}d_{out}+d_{out}$."
+ },
+ {
+  "id": "aud.03.c6",
+  "front": "Pourquoi les axes d'un spectrogramme ne sont-ils pas interchangeables ?",
+  "back": "Un décalage temporel conserve l'identité du son ; un décalage en fréquence change le son. Les noyaux rectangulaires et les décalages uniquement temporels sont naturels."
+ },
+ {
+  "id": "aud.03.c7",
+  "front": "Convention de la matrice de confusion",
+  "back": "$C_{ab}$ = nombre d'extraits de vraie classe $a$ prédits comme $b$ ; lignes = vrai, colonnes = prédit."
+ },
+ {
+  "id": "aud.03.c8",
+  "front": "Précision, rappel et F1 de la classe $a$",
+  "back": "Précision $C_{aa}/\\sum_bC_{ba}$, rappel $C_{aa}/\\sum_bC_{ab}$, F1 $=2PR/(P+R)$."
+ },
+ {
+  "id": "aud.03.c9",
+  "front": "F1 macro vs exactitude",
+  "back": "Le F1 macro fait la moyenne des F1 de classe à parts égales, donc les échecs sur les classes rares apparaissent ; l'exactitude peut valoir 0,95 avec un modèle inutile."
+ },
+ {
+  "id": "aud.03.c10",
+  "front": "Quelle métrique pour quelle tâche ?",
+  "back": "Exclusives équilibrées : top-1/top-5. Multi-étiquettes (AudioSet) : mAP. Déséquilibrées : rappel par classe et F1 macro."
+ },
+ {
+  "id": "aud.03.c11",
+  "front": "Fuite de données en audio",
+  "back": "Des extraits d'un même enregistrement ou locuteur des deux côtés d'une séparation gonflent les scores ; sépare par enregistrement/locuteur (utilise des plis prédéfinis)."
+ },
+ {
+  "id": "aud.03.c12",
+  "front": "Recette SpecAugment",
+  "back": "Masque de fréquence : largeur $f\\sim U\\{0..F\\}$ à un début aléatoire ; masque temporel : largeur $t\\sim U\\{0..T_{\\max}\\}$ ; remplir avec une constante ; répéter plusieurs fois."
+ },
+ {
+  "id": "aud.03.c13",
+  "front": "Mixup",
+  "back": "$x=\\lambda x_1+(1-\\lambda)x_2$, $y=\\lambda y_1+(1-\\lambda)y_2$ ; entraîner avec l'entropie croisée contre l'étiquette douce."
+ },
+ {
+  "id": "aud.03.c14",
+  "front": "Deux règles pour une bonne augmentation",
+  "back": "Elle ne doit pas changer l'information utilisée pour l'étiquette, et elle doit imiter des distorsions réelles."
+ },
+ {
+  "id": "aud.03.c15",
+  "front": "Recette moderne par défaut",
+  "back": "Partir d'un backbone pré-entraîné (AST, BEATs, encodeur Whisper) et entraîner une petite tête plutôt que de tout entraîner depuis zéro."
+ }
+]

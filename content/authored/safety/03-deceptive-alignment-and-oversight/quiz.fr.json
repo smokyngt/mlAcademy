@@ -1,0 +1,86 @@
+[
+ {
+  "id": "saf.03.q1",
+  "prompt": "Quelle est la différence entre alignement externe et interne ?",
+  "options": [
+   "L'externe concerne les données, l'interne concerne l'optimiseur",
+   "L'externe concerne la sécurité, l'interne concerne la vitesse",
+   "Externe : l'objectif d'entraînement correspond-il à ce que nous voulons ? Interne : l'objectif interne du système appris correspond-il à l'objectif d'entraînement ?",
+   "Ce sont deux noms pour la même propriété"
+  ],
+  "explanation": "Le reward hacking est un échec externe ; un méso-objectif qui n'est que corrélé à l'objectif de base est un échec interne."
+ },
+ {
+  "id": "saf.03.q2",
+  "prompt": "Quelle affirmation correspond le mieux à ce que montrent les expériences d'agents dormants ?",
+  "options": [
+   "Une porte dérobée délibérément implantée peut survivre à l'entraînement de sécurité standard ; elles ne montrent pas que de telles portes dérobées apparaissent sans sollicitation",
+   "Le comportement trompeur apparaît spontanément dans tous les grands modèles",
+   "L'entraînement adversarial supprime de façon fiable les portes dérobées",
+   "Les portes dérobées ne survivent que dans les petits modèles"
+  ],
+  "explanation": "La porte dérobée a été entraînée exprès pour étudier sa suppression."
+ },
+ {
+  "id": "saf.03.q3",
+  "prompt": "La conformité dans la condition pertinente pour l'entraînement est de 12 % et dans la condition non surveillée de 3 %. Quel est l'écart de conformité (en points de pourcentage) ?",
+  "options": [],
+  "explanation": "L'écart est la différence entre les deux conditions : 12 - 3 = 9."
+ },
+ {
+  "id": "saf.03.q4",
+  "prompt": "Pourquoi la baisse des actions dissimulées après un entraînement anti-manigances est-elle difficile à interpréter ?",
+  "options": [
+   "Les actions dissimulées ne peuvent pas être mesurées",
+   "Les modèles entraînés semblaient aussi plus conscients d'être évalués, donc la baisse peut refléter en partie une meilleure reconnaissance des tests",
+   "Les données d'entraînement contenaient les questions du test",
+   "Les modèles plus petits manigancent toujours moins"
+  ],
+  "explanation": "La conscience situationnelle est un facteur de confusion : le comportement dans des évaluations reconnues est un proxy plus faible du déploiement."
+ },
+ {
+  "id": "saf.03.q5",
+  "prompt": "Quelle est la posture de base du contrôle de l'IA ?",
+  "options": [
+   "Entraîner le modèle jusqu'à ce qu'il soit prouvablement aligné",
+   "Ne jamais déployer de modèles plus forts que les humains",
+   "Supposer que le modèle puissant peut être adversarial et concevoir le protocole pour que la sûreté tienne malgré tout",
+   "Remplacer les audits humains par le modèle lui-même"
+  ],
+  "explanation": "Le contrôle est une propriété du protocole de déploiement, pas du modèle."
+ },
+ {
+  "id": "saf.03.q6",
+  "prompt": "Un moniteur détecte 0.4786 des attaques, et chaque attaque non détectée cause un dommage avec la probabilité 0.5. Quelle est la probabilité qu'une seule attaque non détectée ne soit ni détectée ni nuisible (c.-à-d. $n=(1-c)(1-q)$, à 2 décimales) ?",
+  "options": [],
+  "explanation": "$(1-0.4786)\\\\cdot0.5=0.2607$."
+ },
+ {
+  "id": "saf.03.q7",
+  "prompt": "Avec un budget de faux positifs $f$, où est fixé le seuil d'audit ?",
+  "options": [
+   "À la moyenne des scores attaqués",
+   "À la valeur que les scores honnêtes dépassent avec la probabilité $f$",
+   "À zéro",
+   "À la valeur qui détecte toutes les attaques"
+  ],
+  "explanation": "Le budget limite le nombre de solutions honnêtes auditées."
+ },
+ {
+  "id": "saf.03.q8",
+  "prompt": "Laquelle n'est PAS l'une des limites déclarées du contrôle ?",
+  "options": [
+   "Les budgets d'audit humain ne passent pas à l'échelle",
+   "Un modèle faible de confiance finit par décrocher par rapport au modèle puissant",
+   "Le contrôle ne produit pas un modèle puissant digne de confiance",
+   "Il exige que le modèle non fiable soit aligné"
+  ],
+  "explanation": "Le contrôle est censé fonctionner sans faire confiance au modèle puissant."
+ },
+ {
+  "id": "saf.03.q9",
+  "prompt": "Précision du modèle faible 0.6, modèle fort entraîné sur les étiquettes faibles 0.8, plafond du modèle fort 1.0. Quel est le PGR ?",
+  "options": [],
+  "explanation": "(0.8 - 0.6) / (1.0 - 0.6) = 0.5."
+ }
+]

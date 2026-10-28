@@ -1,0 +1,90 @@
+#@@ meta
+{"id": "res.01.ex1", "title": "A reproducibility harness", "difficulty": 3, "runtime": "pyodide", "concepts": ["res.reproduction"], "hints": ["run_seeds just calls fn(seed) for each seed and returns np.array(..., dtype=float).", "summarize: sd uses ddof=1, half-width = t_crit(n-1) * sd / sqrt(n), lo = mean - half, hi = mean + half.", "compare_to_reported: first test lo <= reported <= hi, then abs(mean - reported) <= tol, else 'not_reproduced'."]}
+#@@ prompt
+You are reproducing a published number. Build the pieces of a minimal harness (the Student critical value `t_crit` is given).
+
+- `run_seeds(fn, seeds)` -> 1-D float array `[fn(s) for s in seeds]`.
+- `summarize(x)` -> dict with `n`, `mean`, `sd` (sample standard deviation, `ddof=1`), `lo`, `hi` where `[lo, hi]` is the 95 percent Student-t confidence interval of the mean: `mean +- t_crit(n-1) * sd / sqrt(n)`.
+- `paired_summary(a, b)` -> `summarize(a - b)` for two arrays produced with the same seeds.
+- `compare_to_reported(x, reported, tol)` -> one of
+  - `"reproduced"`: the reported number lies inside the 95 percent interval of your runs;
+  - `"within_tolerance"`: it lies outside the interval but `abs(mean - reported) <= tol`;
+  - `"not_reproduced"`: otherwise.
+#@@ starter
+import numpy as np
+
+T975 = [12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228,
+        2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
+        2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042]
+
+def t_crit(df):
+    if df <= 30:
+        return T975[df - 1]
+    z = 1.959963984540054
+    return z + (z**3 + z) / (4 * df) + (5 * z**5 + 16 * z**3 + 3 * z) / (96 * df**2)
+
+def run_seeds(fn, seeds):
+    raise NotImplementedError
+
+def summarize(x):
+    raise NotImplementedError
+
+def paired_summary(a, b):
+    raise NotImplementedError
+
+def compare_to_reported(x, reported, tol):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([1., 2., 3., 4., 5.])
+s = summarize(x)
+check("n, mean, sd", lambda: s["n"] == 5 and abs(s["mean"] - 3) < 1e-12 and abs(s["sd"] - 1.5811388300841898) < 1e-9)
+check("interval half-width 1.963", lambda: abs((s["hi"] - s["lo"]) / 2 - 2.776 * 1.5811388300841898 / np.sqrt(5)) < 1e-9)
+r = run_seeds(lambda sd: np.random.default_rng(sd).normal(10, 1), range(4))
+check("run_seeds returns a float array of length 4", lambda: isinstance(r, np.ndarray) and r.shape == (4,) and r.dtype == float)
+check("run_seeds is deterministic", lambda: np.array_equal(r, run_seeds(lambda sd: np.random.default_rng(sd).normal(10, 1), range(4))))
+check("run_seeds uses each seed", lambda: abs(r[2] - np.random.default_rng(2).normal(10, 1)) < 1e-15)
+a = np.array([0.90, 0.91, 0.92, 0.93, 0.94])
+b = np.array([0.88, 0.90, 0.90, 0.92, 0.91])
+ps = paired_summary(a, b)
+check("paired summary summarises the differences", lambda: abs(ps["mean"] - 0.018) < 1e-12 and ps["n"] == 5)
+y = np.array([10.0, 10.2, 9.8, 10.1, 9.9])
+check("reported inside the interval", lambda: compare_to_reported(y, 10.15, 0.05) == "reproduced")
+check("outside interval but inside tolerance", lambda: compare_to_reported(y, 10.3, 0.35) == "within_tolerance")
+check("outside both", lambda: compare_to_reported(y, 11.0, 0.35) == "not_reproduced")
+big = summarize(np.random.default_rng(0).normal(0, 1, 100))
+check("df > 30 uses the corrected normal quantile", lambda: abs((big["hi"] - big["lo"]) / 2 - 1.984 * big["sd"] / 10) < 2e-3)
+#@@ solution
+import numpy as np
+
+T975 = [12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228,
+        2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
+        2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042]
+
+def t_crit(df):
+    if df <= 30:
+        return T975[df - 1]
+    z = 1.959963984540054
+    return z + (z**3 + z) / (4 * df) + (5 * z**5 + 16 * z**3 + 3 * z) / (96 * df**2)
+
+def run_seeds(fn, seeds):
+    return np.array([fn(s) for s in seeds], dtype=float)
+
+def summarize(x):
+    x = np.asarray(x, dtype=float)
+    n = len(x)
+    mean = float(x.mean())
+    sd = float(x.std(ddof=1))
+    half = t_crit(n - 1) * sd / np.sqrt(n)
+    return {"n": n, "mean": mean, "sd": sd, "lo": mean - half, "hi": mean + half}
+
+def paired_summary(a, b):
+    return summarize(np.asarray(a, dtype=float) - np.asarray(b, dtype=float))
+
+def compare_to_reported(x, reported, tol):
+    s = summarize(x)
+    if s["lo"] <= reported <= s["hi"]:
+        return "reproduced"
+    if abs(s["mean"] - reported) <= tol:
+        return "within_tolerance"
+    return "not_reproduced"

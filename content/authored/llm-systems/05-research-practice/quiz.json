@@ -1,0 +1,131 @@
+[
+ {
+  "id": "sys.05.q1",
+  "concept": "res.ablation",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "You change the learning-rate schedule AND the initialisation and accuracy improves. What can you conclude about the schedule?",
+  "options": [
+   "Both contributed equally",
+   "Nothing separately: the two changes are confounded",
+   "The schedule caused it",
+   "The initialisation caused it"
+  ],
+  "answer": 1,
+  "explanation": "An ablation changes one factor at a time; otherwise credit cannot be assigned."
+ },
+ {
+  "id": "sys.05.q2",
+  "concept": "res.ablation",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why run the same model with several random seeds?",
+  "options": [
+   "Because the loss is not differentiable",
+   "To avoid needing a test set",
+   "One run is one random draw; seed-to-seed spread can exceed the effect",
+   "To use more GPU time"
+  ],
+  "answer": 2,
+  "explanation": "Initialisation and data order change results from run to run."
+ },
+ {
+  "id": "sys.05.q3",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Accuracies over 3 seeds: 0.9, 0.8, 0.7. Sample standard deviation (ddof=1)?",
+  "answer": {
+   "value": 0.1,
+   "tol": 0.001
+  },
+  "explanation": "Deviations are 0.1, 0, -0.1; sum of squares 0.02; divide by n-1 = 2 gives 0.01; sqrt = 0.1."
+ },
+ {
+  "id": "sys.05.q4",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Paired differences over 5 seeds have mean 0.006 and sd 0.00367. The paired t statistic (2 decimals)?",
+  "answer": {
+   "value": 3.65,
+   "tol": 0.02
+  },
+  "explanation": "t = 0.006 / (0.00367 / sqrt(5)) = 3.65."
+ },
+ {
+  "id": "sys.05.q5",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Two arms run with the SAME seeds. The paired t is 3.65 while the unpaired Welch t is 0.43. Why the difference?",
+  "options": [
+   "Pairing increases the effect",
+   "Pairing cancels the shared seed-to-seed noise, leaving a consistent small difference",
+   "Welch's test is wrong",
+   "The data are different"
+  ],
+  "answer": 1,
+  "explanation": "Shared initial weights and batch order make the per-seed differences much less variable than the raw accuracies."
+ },
+ {
+  "id": "sys.05.q6",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "The paired test favours 'no warmup' by 0.5 accuracy points on a shallow tanh MLP. Which statement is best supported?",
+  "options": [
+   "Warmup always hurts",
+   "Warmup is essential for MLPs",
+   "At this learning rate and budget warmup does not help and costs about 0.5 points",
+   "Warmup is useless in general"
+  ],
+  "answer": 2,
+  "explanation": "The experiment tests one narrow regime; generalising to other models and learning rates would be unsupported."
+ },
+ {
+  "id": "sys.05.q7",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "After 3000 training steps an init-scale-0.1 network is still at 0.867 vs 0.953 for scale 1. What does this show?",
+  "options": [
+   "Small initialisation always wins",
+   "Training longer always helps",
+   "The test set is too small",
+   "The gap is not just slower training at this learning rate"
+  ],
+  "answer": 3,
+  "explanation": "A 10-fold longer run did not close the gap, ruling out the simplest 'just slower' explanation here."
+ },
+ {
+  "id": "sys.05.q8",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A table shows 29.6% (n=3 votes), 27.8% (n=5), 31.6% (n=10) on 500 problems from single runs. What is the best reading?",
+  "options": [
+   "The n=3 vs n=5 difference is within noise (SE about 2 points)",
+   "n=5 is worse than n=3 for sure",
+   "Accuracy must be monotone in n",
+   "The benchmark is contaminated"
+  ],
+  "answer": 0,
+  "explanation": "SE = sqrt(0.3*0.7/500) is about 0.02, so differences of 1-2 points from single runs are not reliable."
+ },
+ {
+  "id": "sys.05.q9",
+  "concept": "res.ablation",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In an A/B test of two deployed models, which requirement is stressed in the systems book?",
+  "options": [
+   "Only one metric may be logged",
+   "Traffic assignment must be truly random and the sample size sufficient",
+   "Both models must share the same weights",
+   "Users must be told which model they see"
+  ],
+  "answer": 1,
+  "explanation": "Selection bias in routing or too few samples invalidate the test."
+ }
+]

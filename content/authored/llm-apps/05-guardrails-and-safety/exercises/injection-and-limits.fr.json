@@ -1,0 +1,10 @@
+{
+  "id": "app.05.ex2",
+  "title": "Score d'injection, limitation de débit et solutions de repli",
+  "prompt": "Trois petites briques de la défense en profondeur d'une application, toutes déterministes.\n\n1. `injection_score(text)` -> int : la somme des poids des règles de `RULES` (regex, poids) qui correspondent au texte (insensible à la casse, chaque règle comptée une fois). `is_blocked(text, threshold)` est `score >= threshold`. `evaluate(threshold)` exécute le garde-fou sur l'ensemble étiqueté `RED_TEAM` (`(text, is_attack)`) et renvoie `(false_positive_rate, false_negative_rate)` : la part des prompts bénins bloqués et la part des attaques laissées passer.\n2. `TokenBucket(capacity, refill_per_s)` : démarre plein ; `allow(t, cost=1)` prend l'heure courante en secondes (non décroissante), recharge continûment (jamais au-dessus de `capacity`), et renvoie si la requête est admise (ne consommant `cost` jetons que si elle est admise).\n3. `with_fallback(calls)` : `calls` est une liste de fonctions sans argument (modèle principal, modèle de secours, réponse préenregistrée...). Renvoie `(result, index, errors)` pour la première qui ne lève pas d'exception, ou `(None, -1, errors)`.",
+  "hints": [
+    "injection_score : somme le poids de chaque règle dont la regex est trouvée (re.search avec re.I). Compte une règle une seule fois quel que soit le nombre de correspondances.",
+    "Seau à jetons : retiens (tokens, last_time). Dans allow(t, cost) : tokens = min(capacity, tokens + (t - last) * refill) ; si tokens >= cost soustrais-le et renvoie True. Mets toujours à jour last_time, mais ne consomme que si c'est autorisé.",
+    "with_fallback : essaie chaque fonction appelable dans l'ordre ; en cas d'exception note str(e) et continue ; renvoie (result, index_qui_a_marché, errors), ou (None, -1, errors) si toutes échouent."
+  ]
+}

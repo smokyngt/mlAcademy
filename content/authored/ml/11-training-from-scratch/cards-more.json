@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.11.c14",
+  "concept": "nn.training",
+  "front": "Overfit-a-tiny-batch test",
+  "back": "A correct network must reach ~0 loss on 8 examples; if not, there is a bug."
+ },
+ {
+  "id": "f2n.11.c15",
+  "concept": "nn.training",
+  "front": "Momentum effective step",
+  "back": "$\\eta/(1-\\mu)$ along consistent directions."
+ },
+ {
+  "id": "f2n.11.c16",
+  "concept": "nn.training",
+  "front": "Loss NaN early",
+  "back": "Learning rate too large (or log of 0); lower it 10x first."
+ },
+ {
+  "id": "f2n.11.c17",
+  "concept": "nn.training",
+  "front": "Learning-rate sweep",
+  "back": "Try $10^{-3},10^{-2},10^{-1},1$ for a few hundred steps; take the largest that does not diverge."
+ },
+ {
+  "id": "f2n.11.c18",
+  "concept": "nn.training",
+  "front": "He initialisation std",
+  "back": "$\\sqrt{2/n_{\\text{in}}}$."
+ },
+ {
+  "id": "f2n.11.c19",
+  "concept": "nn.training",
+  "front": "Mini-batch vs batch size",
+  "back": "Batch size changes noise and the best learning rate; retune when it changes."
+ },
+ {
+  "id": "f2n.11.c20",
+  "concept": "nn.training",
+  "front": "Shuffling bug",
+  "back": "Shuffle $X$ and $y$ with the same permutation."
+ },
+ {
+  "id": "f2n.11.c21",
+  "concept": "nn.training",
+  "front": "Training loss falls, accuracy flat",
+  "back": "Check label/feature alignment and class imbalance."
+ },
+ {
+  "id": "f2n.11.c22",
+  "concept": "nn.training",
+  "front": "Train/validation gap",
+  "back": "Overfitting, not a bug: regularise or get more data."
+ }
+]

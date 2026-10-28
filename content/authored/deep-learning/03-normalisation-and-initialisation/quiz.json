@@ -1,0 +1,70 @@
+[
+  {
+    "id": "dl.03.q1", "concept": "dl.init", "stage": "pre", "kind": "mcq",
+    "prompt": "A layer has $n_{in}$ inputs with second moment $s$ and independent zero-mean weights of variance $v$. What is the variance of the pre-activation?",
+    "options": ["$v\\,s$", "$n_{in}\\,v\\,s$", "$n_{in}^2\\,v\\,s$", "$v/n_{in}$"],
+    "answer": 1,
+    "explanation": "$\\mathrm{Var}(\\sum w_jx_j)=\\sum_j \\mathrm{Var}(w_j)\\mathbb{E}[x_j^2]=n_{in}\\,v\\,s$."
+  },
+  {
+    "id": "dl.03.q2", "concept": "dl.init", "stage": "check", "kind": "numeric",
+    "prompt": "He initialisation: what is the standard deviation of the weights of a ReLU layer with $n_{in}=512$? (give a decimal)",
+    "answer": {"value": 0.0625, "tol": 0.001},
+    "explanation": "$\\sqrt{2/512}=\\sqrt{1/256}=0.0625$."
+  },
+  {
+    "id": "dl.03.q3", "concept": "dl.init", "stage": "check", "kind": "mcq",
+    "prompt": "Why does ReLU need a factor 2 compared with the linear derivation ($\\mathrm{Var}(w)=1/n_{in}$)?",
+    "options": ["ReLU doubles the gradient", "ReLU zeroes about half of the units, so $\\mathbb{E}[x^2]$ is half the pre-activation variance and the weights must compensate", "ReLU is not differentiable", "The bias adds variance"],
+    "answer": 1,
+    "explanation": "$\\mathbb{E}[\\max(0,z)^2]=\\tfrac12\\mathrm{Var}(z)$ for symmetric $z$; Xavier-scale weights therefore halve the second moment per layer."
+  },
+  {
+    "id": "dl.03.q4", "concept": "dl.init", "stage": "check", "kind": "mcq",
+    "prompt": "All weights of a hidden layer are initialised to the same constant. What happens during training?",
+    "options": ["Nothing special", "All units in the layer compute the same function and get the same gradient, so they stay identical forever (symmetry is never broken)", "The layer trains faster", "The gradients explode"],
+    "answer": 1,
+    "explanation": "Random initialisation breaks the symmetry; its scale (He/Xavier) keeps the signal usable."
+  },
+  {
+    "id": "dl.03.q5", "concept": "dl.batchnorm", "stage": "check", "kind": "mcq",
+    "prompt": "For batch norm over a batch of $N$ examples with features $D$, over which axis are the mean and variance computed?",
+    "options": ["Over the features of each example", "Over the batch, separately for each feature", "Over the whole tensor", "Over the layers"],
+    "answer": 1,
+    "explanation": "Batch norm: statistics of shape $(D)$ from the $N$ examples. Layer norm uses the feature axis of each example instead."
+  },
+  {
+    "id": "dl.03.q6", "concept": "dl.batchnorm", "stage": "check", "kind": "mcq",
+    "prompt": "Which property must the batch-norm input gradient $\\bar x$ satisfy?",
+    "options": ["It is all positive", "It sums to zero over the batch for each feature (a constant shift of the inputs changes nothing)", "It equals $\\bar y$", "It is independent of $\\sigma$"],
+    "answer": 1,
+    "explanation": "From $\\bar x_i=\\frac{\\mathrm{inv}}{N}(N\\bar{\\hat x}_i-\\sum_k\\bar{\\hat x}_k-\\hat x_i\\sum_k\\bar{\\hat x}_k\\hat x_k)$, summing over $i$ cancels the first two terms and $\\sum_i\\hat x_i=0$ kills the third."
+  },
+  {
+    "id": "dl.03.q7", "concept": "dl.batchnorm", "stage": "check", "kind": "numeric",
+    "prompt": "Batch norm on one feature with batch $(1,2,3,4)$, $\\varepsilon=0$, $\\gamma=1$, $\\beta=0$. What is the normalised value of the largest element? (decimal)",
+    "answer": {"value": 1.3416, "tol": 0.001},
+    "explanation": "$\\mu=2.5$, $\\sigma=\\sqrt{1.25}=1.118$, so $(4-2.5)/1.118=1.3416$."
+  },
+  {
+    "id": "dl.03.q8", "concept": "dl.layernorm", "stage": "check", "kind": "mcq",
+    "prompt": "Why do transformers use layer norm or RMSNorm instead of batch norm?",
+    "options": ["They are more accurate on images", "They do not depend on the other examples in the batch, behave the same in training and inference, and work with batch size 1 and variable sequence lengths", "They have no parameters", "They are faster to backpropagate"],
+    "answer": 1,
+    "explanation": "Per-example statistics remove the batch dependence and the train/eval discrepancy."
+  },
+  {
+    "id": "dl.03.q9", "concept": "dl.layernorm", "stage": "check", "kind": "mcq",
+    "prompt": "How does RMSNorm differ from layer norm?",
+    "options": ["It normalises over the batch", "It divides by the root mean square without subtracting the mean (and has no shift)", "It uses the median", "It has no scale parameter"],
+    "answer": 1,
+    "explanation": "$y=\\gamma\\,x/\\sqrt{\\frac1D\\sum x^2+\\varepsilon}$."
+  },
+  {
+    "id": "dl.03.q10", "concept": "dl.init", "stage": "check", "kind": "mcq",
+    "prompt": "In a 20-layer sigmoid network without normalisation the weight-gradient norm at the first layer was about $10^{-12}$ and about $10$ at the last. What is this called, and what is a likely cure?",
+    "options": ["Exploding gradients; lower the learning rate only", "Vanishing gradients (the sigmoid derivative is at most 0.25 per layer); use ReLU with He init, normalisation or residual connections", "Overfitting; add dropout", "Dead ReLUs"],
+    "answer": 1,
+    "explanation": "Per-layer shrinkage compounds exponentially in depth."
+  }
+]

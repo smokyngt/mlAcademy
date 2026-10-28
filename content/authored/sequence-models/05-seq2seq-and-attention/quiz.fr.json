@@ -1,0 +1,107 @@
+[
+  {
+    "id": "seq.05.q1",
+    "prompt": "Dans l'encodeur-décodeur classique (sans attention), le seul accès du décodeur à la phrase source est...",
+    "options": [
+      "chaque état de l'encodeur",
+      "les tokens source directement",
+      "l'état caché final de l'encodeur, utilisé pour initialiser le décodeur",
+      "les gradients de l'encodeur"
+    ],
+    "explanation": "Le dernier état de l'encodeur initialise le décodeur ; tout ce que le décodeur sait de l'entrée doit tenir dans ce seul vecteur."
+  },
+  {
+    "id": "seq.05.q2",
+    "prompt": "Le teacher forcing signifie que, pendant l'entraînement, l'entrée du décodeur au pas $t$ est...",
+    "options": [
+      "sa propre prédiction précédente",
+      "un token aléatoire",
+      "l'état de l'encodeur $h_t$",
+      "le token cible précédent de référence (gold)"
+    ],
+    "explanation": "Les tokens de référence sont fournis comme entrées, donc une mauvaise prédiction précoce ne fait pas dérailler les pas suivants. À l'inférence, le modèle doit utiliser ses propres sorties (biais d'exposition)."
+  },
+  {
+    "id": "seq.05.q3",
+    "prompt": "Pourquoi la recherche par faisceau somme-t-elle les **log**-probabilités des pas ?",
+    "options": [
+      "Les produits de nombreuses probabilités provoquent un sous-dépassement, et le log transforme le produit en somme",
+      "Parce que les logits sont déjà des log-probabilités",
+      "Parce que cela rend la recherche exacte",
+      "Pour que les probabilités somment à 1"
+    ],
+    "explanation": "$\\log P(y\\mid x)=\\sum_k\\log P(y_k\\mid x,y_{<k})$. On somme des sorties log-softmax, pas des logits bruts."
+  },
+  {
+    "id": "seq.05.q4",
+    "prompt": "La recherche par faisceau de largeur $b=1$ équivaut à...",
+    "options": [
+      "une recherche exhaustive",
+      "un décodage glouton",
+      "un échantillonnage",
+      "un teacher forcing"
+    ],
+    "explanation": "Ne garder que la meilleure hypothèse à chaque pas revient à toujours prendre l'arg-max."
+  },
+  {
+    "id": "seq.05.q5",
+    "prompt": "Dans l'attention de Bahdanau, le score est $e_{t,i}=v^\\top\\tanh(W_as_{t-1}+U_ah_i)$. Quel est le rôle de $v$ ?",
+    "options": [
+      "il normalise les poids",
+      "c'est le plongement du décodeur",
+      "il projette le vecteur caché de dimension $A$ en un score scalaire",
+      "il masque le padding"
+    ],
+    "explanation": "$W_as_{t-1}+U_ah_i\\in\\mathbb{R}^{A}$ ; le produit scalaire avec $v\\in\\mathbb{R}^A$ donne un scalaire par position source."
+  },
+  {
+    "id": "seq.05.q6",
+    "prompt": "Dans l'exemple détaillé de la leçon, les trois scores sont $0.4430,\\;0.9242,\\;1.3672$. Quel poids d'attention reçoit la troisième position (3 décimales) ?",
+    "options": [],
+    "explanation": "$e^{1.3672}/(e^{0.4430}+e^{0.9242}+e^{1.3672})=3.924/8.001=0.4905$."
+  },
+  {
+    "id": "seq.05.q7",
+    "prompt": "Rétropropagation à travers le softmax de l'attention : étant donné $\\bar\\alpha_i=\\bar c^\\top h_i$, le gradient sur les scores est...",
+    "options": [
+      "$\\bar e_i=\\bar\\alpha_i$",
+      "$\\bar e_i=\\alpha_i\\bar\\alpha_i$",
+      "$\\bar e_i=\\bar\\alpha_i/\\alpha_i$",
+      "$\\bar e_i=\\alpha_i\\big(\\bar\\alpha_i-\\sum_j\\alpha_j\\bar\\alpha_j\\big)$"
+    ],
+    "explanation": "La jacobienne du softmax est $\\operatorname{diag}(\\alpha)-\\alpha\\alpha^\\top$, donc $\\bar e=\\alpha\\odot(\\bar\\alpha-\\alpha^\\top\\bar\\alpha)$."
+  },
+  {
+    "id": "seq.05.q8",
+    "prompt": "Les positions de padding dans la source doivent être traitées en...",
+    "options": [
+      "mettant leurs scores à $-\\infty$ (ou à un nombre très négatif) avant le softmax",
+      "mettant leurs poids à 0 après le softmax sans renormaliser",
+      "supprimant le batch",
+      "multipliant les états de l'encodeur par 0.5"
+    ],
+    "explanation": "Masquer avant le softmax leur donne un poids 0 tandis que les poids restants somment toujours à 1."
+  },
+  {
+    "id": "seq.05.q9",
+    "prompt": "Pourquoi le score par produit scalaire est-il divisé par $\\sqrt d$ dans l'attention par produit scalaire normalisé ?",
+    "options": [
+      "le produit scalaire de deux vecteurs de dimension $d$ à variance unité a pour variance $d$ ; la mise à l'échelle empêche le softmax de saturer",
+      "pour que les poids somment à 1",
+      "pour économiser de la mémoire",
+      "pour rendre l'attention invariante par permutation"
+    ],
+    "explanation": "$\\operatorname{Var}(q\\cdot k)=d$ pour des entrées indépendantes de moyenne nulle et de variance unité ; diviser par $\\sqrt d$ restaure une variance de 1."
+  },
+  {
+    "id": "seq.05.q10",
+    "prompt": "L'auto-attention sans aucune information de position est...",
+    "options": [
+      "équivariante par permutation : mélanger l'entrée mélange la sortie de la même façon",
+      "sensible à l'ordre",
+      "définie uniquement pour les RNN",
+      "identique à une convolution de largeur 3"
+    ],
+    "explanation": "Les scores ne dépendent que du contenu par paires, pas de la position, donc l'information de position doit être ajoutée séparément (encodages positionnels dans les transformers)."
+  }
+]

@@ -1,0 +1,108 @@
+[
+  {
+    "id": "regret-shape",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Schematic regret curves. Epsilon-greedy keeps exploring blindly, so its regret grows linearly in T (orange); UCB's grows like ln T (blue). The constants are illustrative, only the shapes come from the lesson.",
+      "fr": "Courbes de regret schématiques. Epsilon-greedy explore à l'aveugle, donc son regret croît linéairement en T (orange) ; celui d'UCB croît comme ln T (bleu). Les constantes sont illustratives, seules les formes viennent de la leçon."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        1,
+        1000
+      ],
+      "yDomain": [
+        0,
+        60
+      ],
+      "title": "Regret(T)",
+      "data": [
+        {
+          "fn": "0.05*x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "6*log(x)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ucb-bonus",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The UCB bonus c*sqrt(ln t / N) at t = 100: it shrinks as an arm is pulled more (N grows). c = 2 (blue) explores more than c = 1 (orange). At N = 2 and t = 12 with c = 2 the bonus is 2.229, as in the worked example.",
+      "fr": "Le bonus UCB c*sqrt(ln t / N) à t = 100 : il diminue quand le bras est tiré plus souvent (N croît). c = 2 (bleu) explore plus que c = 1 (orange). Pour N = 2, t = 12, c = 2 le bonus vaut 2,229, comme dans l'exemple."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        1,
+        100
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "title": "bonus(N)",
+      "data": [
+        {
+          "fn": "2*sqrt(log(100)/x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1*sqrt(log(100)/x)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "mdp-graph",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A tiny MDP drawn as a graph: states are nodes, each action is a labelled branch with transition probabilities P(s'|s,a) and rewards. A bandit is the special case with a single state.",
+      "fr": "Un petit MDP dessiné comme un graphe : les états sont des noeuds, chaque action est une branche étiquetée avec les probabilités de transition P(s'|s,a) et les récompenses. Un bandit est le cas particulier à un seul état."
+    },
+    "code": {
+      "en": "flowchart LR\n  S0([\"start s0\"])\n  S1([\"corridor s1\"])\n  X([\"exit (terminal)\"])\n  S0 -->|\"action go, P=0.8, r=0\"| S1\n  S0 -->|\"action go, P=0.2, r=0\"| S0\n  S1 -->|\"action go, P=0.9, r=+1\"| X\n  S1 -->|\"action back, P=1, r=0\"| S0",
+      "fr": "flowchart LR\n  S0([\"départ s0\"])\n  S1([\"couloir s1\"])\n  X([\"sortie (terminale)\"])\n  S0 -->|\"action avancer, P=0,8, r=0\"| S1\n  S0 -->|\"action avancer, P=0,2, r=0\"| S0\n  S1 -->|\"action avancer, P=0,9, r=+1\"| X\n  S1 -->|\"action reculer, P=1, r=0\"| S0"
+    }
+  },
+  {
+    "id": "discount",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Discount weight gamma^k on a reward k steps ahead. gamma = 0.9 (orange) forgets after roughly 10 steps, gamma = 0.99 (blue) after roughly 100: the effective horizon is about 1/(1-gamma).",
+      "fr": "Poids d'actualisation gamma^k d'une récompense k pas plus tard. gamma = 0,9 (orange) oublie après environ 10 pas, gamma = 0,99 (bleu) après environ 100 : l'horizon effectif est d'environ 1/(1-gamma)."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        100
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "gamma^k",
+      "data": [
+        {
+          "fn": "0.9^x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "0.99^x",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  }
+]

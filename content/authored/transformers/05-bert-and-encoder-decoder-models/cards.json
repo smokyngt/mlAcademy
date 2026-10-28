@@ -1,0 +1,17 @@
+[
+  {"id": "trf.05.c1", "concept": "tal.mlm", "front": "Masked language modelling", "back": "Hide ~15% of tokens and predict them from both sides. Loss: mean cross-entropy over the selected positions only."},
+  {"id": "trf.05.c2", "concept": "tal.mlm", "front": "The 80/10/10 rule", "back": "Of the selected tokens: 80% become the mask, 10% a random token, 10% stay unchanged. All are in the loss."},
+  {"id": "trf.05.c3", "concept": "tal.mlm", "front": "Why not always use the mask token?", "back": "The mask never appears at inference. Random and unchanged tokens force good representations at every position."},
+  {"id": "trf.05.c4", "concept": "tal.mlm", "front": "Uniform-guess MLM loss", "back": "$\\log V$ for a vocabulary of $V$ tokens: a sanity check for the initial loss."},
+  {"id": "trf.05.c5", "concept": "tal.mlm", "front": "BERT's second pre-training task (CNAM deck)", "back": "Say whether two sentences are consecutive in the corpus or independent (next-sentence prediction). Often dropped later."},
+  {"id": "trf.05.c6", "concept": "tal.bert-finetune", "front": "BERT classification head", "back": "Reads the `[CLS]` vector $(B,d)$; $W\\in\\mathbb{R}^{d\\times K}$; logits $(B,K)$."},
+  {"id": "trf.05.c7", "concept": "tal.bert-finetune", "front": "BERT tagging (NER) head", "back": "Same linear layer on each token vector: $(B,T,d)\\to(B,T,K)$."},
+  {"id": "trf.05.c8", "concept": "tal.bert-finetune", "front": "BERT span QA head", "back": "Start and end vectors give two score arrays $(B,T)$; the answer is the best span $i\\le j$ of the passage."},
+  {"id": "trf.05.c9", "concept": "tal.bert-finetune", "front": "Fine-tuning recipe", "back": "Load pre-trained encoder, add a head, train on a small labelled set with a small learning rate."},
+  {"id": "trf.05.c10", "concept": "tal.bert-finetune", "front": "Why is BERT poor for translation?", "back": "It is an encoder: it has no decoder to write output text (CNAM deck, p.21)."},
+  {"id": "trf.05.c11", "concept": "tal.denoising-seq2seq", "front": "BART in one line", "back": "Encoder-decoder pre-trained to reconstruct the original text from a corrupted version."},
+  {"id": "trf.05.c12", "concept": "tal.denoising-seq2seq", "front": "T5 span corruption", "back": "Replace spans by sentinels in the input; the target is each sentinel followed by its span, plus a closing sentinel."},
+  {"id": "trf.05.c13", "concept": "tal.denoising-seq2seq", "front": "T5 text-to-text framing", "back": "Every task is string in, string out, with a task prefix: one model and loss for many tasks."},
+  {"id": "trf.05.c14", "concept": "trf.architectures", "front": "GPT objective", "back": "Causal mask; $-\\frac1T\\sum_i\\log p(x_i\\mid x_{<i})$; a training signal at every position."},
+  {"id": "trf.05.c15", "concept": "trf.architectures", "front": "Choosing a family", "back": "Encoder: classification, tagging, extractive QA, embeddings. Decoder: free generation, few-shot. Encoder-decoder: translation, summarisation, rewriting."}
+]

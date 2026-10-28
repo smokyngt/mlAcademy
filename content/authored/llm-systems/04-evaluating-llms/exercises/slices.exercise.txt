@@ -1,0 +1,51 @@
+#@@ meta
+{"id": "sys.04.ex2", "title": "Slice-based evaluation and Simpson's paradox", "difficulty": 2, "runtime": "pyodide", "concepts": ["llm.eval"], "hints": ["slice_accuracy: for every distinct group label, average the 0/1 correctness of the items in that group (use a boolean mask).", "A reversal means: model X has the higher accuracy in every slice, but the lower overall accuracy.", "The trap is that the slices have different sizes for the two models: build the arrays with np.repeat."]}
+#@@ prompt
+Overall accuracy can hide, and even reverse, what happens inside slices of your eval set. The numbers below are the kidney-stone example reproduced in *Designing Machine Learning Systems* (Table 6-4): two models, two groups, per-item correctness `0/1`.
+
+Implement `overall_accuracy`, `slice_accuracy(correct, groups)` (dict group -> accuracy), and `simpson_reversal(cA, cB, groups_A, groups_B)` returning `True` when one model wins in every slice while the other wins overall.
+#@@ starter
+import numpy as np
+
+def overall_accuracy(correct):
+    raise NotImplementedError
+
+def slice_accuracy(correct, groups):
+    # correct: array of 0/1, groups: array of labels of the same length -> {label: accuracy}
+    raise NotImplementedError
+
+def simpson_reversal(cA, cB, gA, gB):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+# model A: group A 81/87, group B 192/263 ; model B: group A 234/270, group B 55/80
+cA = np.concatenate([np.ones(81), np.zeros(6), np.ones(192), np.zeros(71)])
+gA = np.array(["A"] * 87 + ["B"] * 263)
+cB = np.concatenate([np.ones(234), np.zeros(36), np.ones(55), np.zeros(25)])
+gB = np.array(["A"] * 270 + ["B"] * 80)
+check("overall accuracy model A = 273/350", lambda: abs(overall_accuracy(cA) - 273 / 350) < 1e-12)
+check("overall accuracy model B = 289/350", lambda: abs(overall_accuracy(cB) - 289 / 350) < 1e-12)
+sA, sB = slice_accuracy(cA, gA), slice_accuracy(cB, gB)
+check("slice accuracies model A", lambda: abs(sA["A"] - 81 / 87) < 1e-12 and abs(sA["B"] - 192 / 263) < 1e-12)
+check("slice accuracies model B", lambda: abs(sB["A"] - 234 / 270) < 1e-12 and abs(sB["B"] - 55 / 80) < 1e-12)
+check("A wins every slice", lambda: sA["A"] > sB["A"] and sA["B"] > sB["B"])
+check("B wins overall", lambda: overall_accuracy(cB) > overall_accuracy(cA))
+check("simpson_reversal detects it", lambda: simpson_reversal(cA, cB, gA, gB) is True)
+check("no reversal when the same model wins everywhere", lambda: simpson_reversal(cA, np.zeros(350), gA, gA) is False)
+#@@ solution
+import numpy as np
+
+def overall_accuracy(correct):
+    return float(np.mean(correct))
+
+def slice_accuracy(correct, groups):
+    correct = np.asarray(correct, float)
+    groups = np.asarray(groups)
+    return {str(g): float(correct[groups == g].mean()) for g in np.unique(groups)}
+
+def simpson_reversal(cA, cB, gA, gB):
+    sA, sB = slice_accuracy(cA, gA), slice_accuracy(cB, gB)
+    a_wins_all = all(sA[g] > sB[g] for g in sA)
+    b_wins_all = all(sB[g] > sA[g] for g in sA)
+    return bool((a_wins_all and overall_accuracy(cB) > overall_accuracy(cA)) or
+                (b_wins_all and overall_accuracy(cA) > overall_accuracy(cB)))

@@ -1,0 +1,10 @@
+{
+  "id": "aud.03.ex2",
+  "title": "Masques SpecAugment, mixup et audit des formes et paramètres d'un CNN",
+  "prompt": "Implémente les outils d'augmentation et de comptabilité d'un pipeline CNN audio :\n\n- `time_mask(spec, t, t0, fill=0.0)` et `freq_mask(spec, f, f0, fill=0.0)` : renvoient une **copie** du spectrogramme `(T, F)` où `t` lignes à partir de `t0` (ou `f` colonnes à partir de `f0`) sont remplacées par `fill`.\n- `spec_augment(spec, rng, n_time=2, T_max=20, n_freq=2, F_max=10, fill=0.0)` : applique `n_freq` masques de fréquence, puis `n_time` masques temporels ; chaque largeur est tirée uniformément dans `0..max_width` (utilise `rng.integers(0, max_width + 1)`) et chaque début uniformément de sorte que le masque tienne dans le tableau.\n- `mixup(x1, y1, x2, y2, lam)` -> `(lam*x1 + (1-lam)*x2, lam*y1 + (1-lam)*y2)`.\n- `conv_out_len(i, k, s=1, p=0)`, `conv_params(c_in, c_out, k)`, `linear_params(d_in, d_out)`.\n- `audio_cnn_audit(T, F, n_classes)` -> `(shapes, n_params)` pour le CNN à 3 blocs de la leçon : Conv3x3(pad 1)->32, MaxPool2, Conv3x3->64, MaxPool2, Conv3x3->128, average pooling global, Linear. `shapes` est la liste des `(canaux, temps, mel)` après conv1, pool1, conv2, pool2, conv3.",
+  "hints": [
+    "time_mask met à zéro spec[t0:t0+t, :] sur une COPIE ; freq_mask met à zéro spec[:, f0:f0+f, ...]. Ne modifie jamais le tableau d'entrée.",
+    "spec_augment : pour chaque masque, tire la largeur avec rng.integers(0, max_width + 1) et le début avec rng.integers(0, size - width + 1).",
+    "conv_out_len(i,k,s,p) = (i + 2p - k)//s + 1. Une couche de convolution a c_in*c_out*k*k + c_out paramètres ; une couche linéaire d_in*d_out + d_out."
+  ]
+}

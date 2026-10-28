@@ -1,0 +1,41 @@
+[
+  {
+    "id": "hf-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Hugging Face pipeline as three functions with shapes: the tokenizer pads and builds an attention mask, the model returns logits, and a decoder turns them into results.",
+      "fr": "Le pipeline Hugging Face comme trois fonctions avec leurs formes : le tokenizer remplit et construit un masque d'attention, le modèle renvoie des logits et un décodeur les transforme en résultats."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"texts<br/>B strings\"] --> TK[\"tokenizer<br/>pad + attention mask\"]\n  TK --> ID[\"ids (B,T)<br/>mask (B,T)\"]\n  ID --> MD[\"model\"]\n  MD --> LG[\"logits (B,K)\"]\n  LG --> DC[\"softmax + argmax\"]\n  DC --> RS[\"B results<br/>(label, score)\"]",
+      "fr": "flowchart LR\n  T[\"textes<br/>B chaînes\"] --> TK[\"tokenizer<br/>remplissage + masque d'attention\"]\n  TK --> ID[\"ids (B,T)<br/>mask (B,T)\"]\n  ID --> MD[\"modèle\"]\n  MD --> LG[\"logits (B,K)\"]\n  LG --> DC[\"softmax + argmax\"]\n  DC --> RS[\"B résultats<br/>(étiquette, score)\"]"
+    }
+  },
+  {
+    "id": "hf-sequence",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "What from_pretrained and a call actually do: the name selects configuration, weights and vocabulary from the hub, then data flows tokenizer, model, decoder.",
+      "fr": "Ce que font réellement from_pretrained et un appel : le nom sélectionne configuration, poids et vocabulaire sur le hub, puis les données passent par tokenizer, modèle, décodeur."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant C as Your code\n  participant H as Hub\n  participant T as Tokenizer\n  participant M as Model\n  C->>H: from_pretrained(name)\n  H-->>C: config, vocabulary, weights\n  C->>T: texts\n  T-->>C: ids and attention mask\n  C->>M: ids and attention mask\n  M-->>C: logits\n  C->>C: softmax, argmax, label",
+      "fr": "sequenceDiagram\n  participant C as Votre code\n  participant H as Hub\n  participant T as Tokenizer\n  participant M as Modèle\n  C->>H: from_pretrained(name)\n  H-->>C: configuration, vocabulaire, poids\n  C->>T: textes\n  T-->>C: ids et masque d'attention\n  C->>M: ids et masque d'attention\n  M-->>C: logits\n  C->>C: softmax, argmax, étiquette"
+    }
+  },
+  {
+    "id": "hf-modes",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Choosing how to use a pretrained model, from cheapest to most involved; always evaluate on your own held-out data.",
+      "fr": "Choisir comment utiliser un modèle pré-entraîné, du moins coûteux au plus engagé ; toujours évaluer sur vos propres données de test."
+    },
+    "code": {
+      "en": "flowchart TD\n  Q1{\"hub model already fits<br/>task and language?\"} -->|yes| D[\"use the pipeline directly\"]\n  Q1 -->|no| Q2{\"what labelled data do you have?\"}\n  Q2 -->|\"none, labels change often\"| Z[\"zero-shot\"]\n  Q2 -->|\"a handful of examples, LLM available\"| F[\"few-shot prompt\"]\n  Q2 -->|\"hundreds to thousands, stable task\"| FT[\"fine-tune\"]",
+      "fr": "flowchart TD\n  Q1{\"un modèle du hub convient déjà<br/>à la tâche et à la langue ?\"} -->|oui| D[\"utiliser directement le pipeline\"]\n  Q1 -->|non| Q2{\"quelles données étiquetées avez-vous ?\"}\n  Q2 -->|\"aucune, étiquettes changeantes\"| Z[\"zero-shot\"]\n  Q2 -->|\"quelques exemples, LLM disponible\"| F[\"prompt few-shot\"]\n  Q2 -->|\"centaines à milliers, tâche stable\"| FT[\"ajuster (fine-tuning)\"]"
+    }
+  }
+]

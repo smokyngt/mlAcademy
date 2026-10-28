@@ -1,0 +1,91 @@
+[
+ {
+  "id": "saf.06.q1",
+  "prompt": "Pourquoi les benchmarks de capacités à double usage sont-ils construits à partir de questions « proxys » à choix multiples ?",
+  "options": [
+   "Le choix multiple est toujours plus précis",
+   "Les modèles ne peuvent pas répondre à des questions ouvertes",
+   "Ils permettent de mesurer la capacité sans demander au modèle de produire quoi que ce soit de nuisible",
+   "Les régulateurs interdisent les tests en forme libre"
+  ],
+  "explanation": "Les questions testent des connaissances proches dans une « zone jaune » et ne demandent jamais de sortie nuisible."
+ },
+ {
+  "id": "saf.06.q2",
+  "prompt": "Quelle affirmation sur un faible score de benchmark est la plus défendable ?",
+  "options": [
+   "Il peut refléter une sollicitation faible, donc il vaut mieux le traiter comme une borne inférieure de la capacité",
+   "Il prouve que la capacité est absente",
+   "Il prouve que le modèle est sûr à déployer",
+   "Il est sans rapport avec le risque"
+  ],
+  "explanation": "L'effort de sollicitation compte ; les évaluations doivent viser le meilleur effort et rapporter des bornes."
+ },
+ {
+  "id": "saf.06.q3",
+  "prompt": "Un seuil est de 10 % de réussite. Un modèle obtient 8 succès sur 100 essais ; la borne supérieure de Wilson à 95 % est 0.150. Selon la règle conservatrice, que conclus-tu ?",
+  "options": [
+   "Le modèle est sous le seuil",
+   "Le modèle est exactement à 8 % donc aucune action n'est nécessaire",
+   "Le seuil doit être relevé",
+   "On ne peut pas exclure que le modèle atteigne le seuil"
+  ],
+  "explanation": "Agis si la borne supérieure atteint le seuil."
+ },
+ {
+  "id": "saf.06.q4",
+  "prompt": "Les taux de réussite sont 30/50 avec assistance et 12/50 sans. Quel est l'apport (rapport de risques) ?",
+  "options": [],
+  "explanation": "(30/50)/(12/50) = 0.6/0.24 = 2.5."
+ },
+ {
+  "id": "saf.06.q5",
+  "prompt": "Dans un filigrane de texte à liste verte avec $\\gamma=0.5$, un texte de $T=100$ paires évaluées contient 70 tokens verts. Quel est le z-score ?",
+  "options": [],
+  "explanation": "$(70-50)/\\sqrt{100\\cdot0.25}=20/5=4$."
+ },
+ {
+  "id": "saf.06.q6",
+  "prompt": "Pourquoi la détection d'un texte filigrané se renforce-t-elle avec la longueur ?",
+  "options": [
+   "Le z-score attendu croît comme $\\sqrt{T}$ parce que l'excès de vert s'accumule sur davantage de tokens",
+   "Les textes plus longs utilisent une clé plus grande",
+   "Le hachage devient plus aléatoire",
+   "Le seuil baisse automatiquement"
+  ],
+  "explanation": "E[z] = (f - gamma) sqrt(T) / sqrt(gamma (1 - gamma))."
+ },
+ {
+  "id": "saf.06.q7",
+  "prompt": "Un détecteur ne trouve aucun filigrane dans un texte. Que peut-on conclure ?",
+  "options": [
+   "Le texte est écrit par un humain",
+   "Seulement qu'il ne porte pas le filigrane de cette clé ; il peut être écrit par un humain ou provenir d'un autre générateur",
+   "Le texte est sûr",
+   "La clé a été volée"
+  ],
+  "explanation": "Les filigranes sont spécifiques au modèle et à la clé ; l'absence n'est pas une preuve d'authenticité."
+ },
+ {
+  "id": "saf.06.q8",
+  "prompt": "Quelle édition érode le plus directement un filigrane à liste verte ?",
+  "options": [
+   "Ajouter un titre",
+   "Changer de police",
+   "Lire le texte à voix haute",
+   "Remplacer de nombreux tokens (paraphrase ou traduction), puisque chaque token remplacé gâche deux paires évaluées"
+  ],
+  "explanation": "Le statut vert dépend du token précédent, donc les substitutions affectent les paires adjacentes."
+ },
+ {
+  "id": "saf.06.q9",
+  "prompt": "Comment faut-il traiter les dates et seuils de l'aperçu réglementaire de cette leçon ?",
+  "options": [
+   "Comme un conseil juridique à jour",
+   "Comme permanents",
+   "Comme rapportés dans des notes de cours de début 2026 et à vérifier auprès de sources officielles",
+   "Comme applicables seulement aux États-Unis"
+  ],
+  "explanation": "La réglementation bouge ; la leçon ne s'est pas appuyée sur des textes juridiques primaires."
+ }
+]

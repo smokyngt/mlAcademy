@@ -1,0 +1,59 @@
+[
+  {
+    "id": "reinforce-flow",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "REINFORCE: sample trajectories with the current policy, compute returns (minus a baseline), weight each grad log pi by its return, and take an ascent step.",
+      "fr": "REINFORCE : échantillonner des trajectoires avec la politique courante, calculer les retours (moins une base), pondérer chaque grad log pi par son retour et faire un pas de montée."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"policy pi_theta\"] -->|\"sample\"| TR[\"trajectories\"]\n  TR --> G[\"returns G_t - baseline\"]\n  G --> W[\"weight grad log pi(a given s) by the advantage\"]\n  W --> UP[\"theta <- theta + eta grad J\"]\n  UP --> P",
+      "fr": "flowchart LR\n  P[\"politique pi_theta\"] -->|\"échantillonner\"| TR[\"trajectoires\"]\n  TR --> G[\"retours G_t - base\"]\n  G --> W[\"pondérer grad log pi(a sachant s) par l'avantage\"]\n  W --> UP[\"theta <- theta + eta grad J\"]\n  UP --> P"
+    }
+  },
+  {
+    "id": "softmax-two",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Two-action softmax policy: pi(a1) = sigmoid(z) in blue and the score d log pi(a1)/dz = 1 - sigmoid(z) in orange (z is the logit gap). The score is largest when the action is unlikely, so rare actions that turn out well get the strongest push.",
+      "fr": "Politique softmax à deux actions : pi(a1) = sigmoïde(z) en bleu et le score d log pi(a1)/dz = 1 - sigmoïde(z) en orange (z est l'écart des logits). Le score est le plus grand quand l'action est improbable : les actions rares qui réussissent sont les plus poussées."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "z",
+      "data": [
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1-1/(1+exp(-x))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "advantage-spectrum",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The advantage estimators form a spectrum: Monte Carlo (unbiased, high variance), n-step, and the TD residual (low variance, biased by the critic). GAE averages them with a decay parameter.",
+      "fr": "Les estimateurs d'avantage forment un spectre : Monte Carlo (sans biais, forte variance), n pas, et résidu TD (faible variance, biaisé par le critique). GAE les moyenne avec un paramètre de décroissance."
+    },
+    "code": {
+      "en": "flowchart LR\n  MC[\"Monte Carlo: G_t - V(s_t)<br/>unbiased, high variance\"] --- NS[\"n-step<br/>in between\"] --- TD[\"TD residual delta_t<br/>low variance, biased\"]\n  NS -.->|\"GAE(gamma, lambda)\"| GA[\"exponential average\"]",
+      "fr": "flowchart LR\n  MC[\"Monte Carlo : G_t - V(s_t)<br/>sans biais, forte variance\"] --- NS[\"n pas<br/>intermédiaire\"] --- TD[\"résidu TD delta_t<br/>faible variance, biaisé\"]\n  NS -.->|\"GAE(gamma, lambda)\"| GA[\"moyenne exponentielle\"]"
+    }
+  }
+]

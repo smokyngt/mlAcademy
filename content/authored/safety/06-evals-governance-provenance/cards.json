@@ -1,0 +1,92 @@
+[
+ {
+  "id": "saf.06.c1",
+  "concept": "saf.capability-evals",
+  "front": "WMDP in one line",
+  "back": "Multiple-choice proxy benchmark (4,157 questions: bio 1,520, cyber 2,225, chem 412) of proximate hazardous-adjacent knowledge, also used for unlearning."
+ },
+ {
+  "id": "saf.06.c2",
+  "concept": "saf.capability-evals",
+  "front": "Yellow-zone questions",
+  "back": "Proximate enabling knowledge, not recipes; multi-expert review and export-control screening."
+ },
+ {
+  "id": "saf.06.c3",
+  "concept": "saf.capability-evals",
+  "front": "Novice-relative vs expert-absolute capability",
+  "back": "Relative: how much a model helps a non-expert (a multiple). Absolute: the most an expert can extract at full effort."
+ },
+ {
+  "id": "saf.06.c4",
+  "concept": "saf.capability-evals",
+  "front": "Why a benchmark is not the deployment risk",
+  "back": "Elicitation difficulty, tacit knowledge and execution barriers (procurement, equipment) all change real-world risk."
+ },
+ {
+  "id": "saf.06.c5",
+  "concept": "saf.capability-evals",
+  "front": "Conservative threshold rule",
+  "back": "Treat the capability as possibly present if the upper confidence bound of the measured rate reaches the threshold."
+ },
+ {
+  "id": "saf.06.c6",
+  "concept": "saf.capability-evals",
+  "front": "Risk ratio and its log-scale CI",
+  "back": "RR = (k1/n1)/(k0/n0); se(log RR) = sqrt(1/k1 - 1/n1 + 1/k0 - 1/n0); CI = exp(log RR +- z se)."
+ },
+ {
+  "id": "saf.06.c7",
+  "concept": "saf.capability-evals",
+  "front": "Unlearning success criteria",
+  "back": "Target benchmark near chance and only a small loss on general benchmarks."
+ },
+ {
+  "id": "saf.06.c8",
+  "concept": "saf.governance",
+  "front": "Safety case pillars",
+  "back": "Monitoring, illegibility, incapability."
+ },
+ {
+  "id": "saf.06.c9",
+  "concept": "saf.governance",
+  "front": "Preparedness Framework tracked-capability criteria (as reported)",
+  "back": "Plausible, measurable, severe, net-new, instantaneous-or-irremediable."
+ },
+ {
+  "id": "saf.06.c10",
+  "concept": "saf.governance",
+  "front": "Competitor-adjustment clause",
+  "back": "A lab may relax requirements if a competitor ships without comparable safeguards; contested as a possible race to the bottom."
+ },
+ {
+  "id": "saf.06.c11",
+  "concept": "saf.watermarking",
+  "front": "Green-list watermark generation",
+  "back": "Hash previous token + key to split vocabulary into green (fraction gamma) and red; add delta to green logits before sampling."
+ },
+ {
+  "id": "saf.06.c12",
+  "concept": "saf.watermarking",
+  "front": "Watermark detection statistic",
+  "back": "z = (g - gamma T) / sqrt(T gamma (1 - gamma)) over T scored pairs; ~N(0,1) without the watermark."
+ },
+ {
+  "id": "saf.06.c13",
+  "concept": "saf.watermarking",
+  "front": "Expected green fraction (even mass)",
+  "back": "f = gamma e^delta / (1 + gamma (e^delta - 1)); 0.881 for gamma 0.5, delta 2."
+ },
+ {
+  "id": "saf.06.c14",
+  "concept": "saf.watermarking",
+  "front": "Limits of text watermarks",
+  "back": "Weak on low-entropy text, erased by paraphrase, model- and key-specific, absence proves nothing."
+ },
+ {
+  "id": "saf.06.c15",
+  "concept": "saf.watermarking",
+  "front": "Watermark versus C2PA",
+  "back": "Watermark: embedded bits, hard to strip, few bits. C2PA: rich signed metadata, easily stripped. Used together."
+ }
+]

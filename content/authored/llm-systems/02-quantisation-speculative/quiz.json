@@ -1,0 +1,140 @@
+[
+ {
+  "id": "sys.02.q1",
+  "concept": "llm.quantization",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why can 8-bit quantisation of weights be nearly lossless while 2-bit usually is not?",
+  "options": [
+   "Weights are integers already",
+   "Each removed bit doubles the scale and quadruples the rounding MSE",
+   "8-bit uses floating point",
+   "2-bit cannot represent zero"
+  ],
+  "answer": 1,
+  "explanation": "MSE is about s^2/12 and s doubles per bit removed."
+ },
+ {
+  "id": "sys.02.q2",
+  "concept": "llm.quantization",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Speculative decoding is used mainly to reduce...",
+  "options": [
+   "training time",
+   "the number of layers",
+   "the number of expensive target-model passes per generated token",
+   "the vocabulary size"
+  ],
+  "answer": 2,
+  "explanation": "A draft proposes several tokens; the target verifies them in one pass."
+ },
+ {
+  "id": "sys.02.q3",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Symmetric int8 with max|x| = 2.54. What is the scale?",
+  "answer": {
+   "value": 0.02,
+   "tol": 0.0001
+  },
+  "explanation": "s = 2.54 / 127 = 0.02."
+ },
+ {
+  "id": "sys.02.q4",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Asymmetric 8-bit quantisation of values in [-1, 3]. What is the zero point?",
+  "answer": {
+   "value": 64,
+   "tol": 0.5
+  },
+  "explanation": "s = 4/255, z = round(1/s) = round(63.75) = 64."
+ },
+ {
+  "id": "sys.02.q5",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "One row of a weight matrix is 40 times larger than the rest. Which scheme helps most?",
+  "options": [
+   "Dropping the row",
+   "Per-row (per-channel) scales",
+   "A single global scale",
+   "Fewer bits"
+  ],
+  "answer": 1,
+  "explanation": "Per-channel scales isolate the outlier; here the MSE dropped about 65 times."
+ },
+ {
+  "id": "sys.02.q6",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "q=[0.5,0.25,0.15,0.07,0.03], p=[0.3,0.3,0.2,0.1,0.1]. What is the acceptance rate sum min(p,q)?",
+  "answer": {
+   "value": 0.8,
+   "tol": 0.001
+  },
+  "explanation": "0.3+0.25+0.15+0.07+0.03 = 0.8."
+ },
+ {
+  "id": "sys.02.q7",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "With alpha = 0.8 and N = 4 drafts, expected tokens per round?",
+  "answer": {
+   "value": 3.3616,
+   "tol": 0.01
+  },
+  "explanation": "(1 - 0.8^5)/(1 - 0.8) = 3.3616."
+ },
+ {
+  "id": "sys.02.q8",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "On rejection, the replacement token is sampled from...",
+  "options": [
+   "normalised max(0, q - p)",
+   "q",
+   "p",
+   "uniform"
+  ],
+  "answer": 0,
+  "explanation": "This residual makes the total output probability exactly q: min(p,q) + (q-p)+ = q."
+ },
+ {
+  "id": "sys.02.q9",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What does a mixture-of-experts layer NOT reduce?",
+  "options": [
+   "FLOPs of the FFN part",
+   "Memory needed to store the parameters",
+   "Compute per token",
+   "Active parameters per token"
+  ],
+  "answer": 1,
+  "explanation": "All experts must be stored even though only top-k run for each token."
+ },
+ {
+  "id": "sys.02.q10",
+  "concept": "llm.quantization",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is the KV cache more sensitive to quantisation than weights?",
+  "options": [
+   "It is stored in fp64",
+   "It is smaller",
+   "Errors in keys and values affect every later token and grow with context",
+   "It has no scale"
+  ],
+  "answer": 2,
+  "explanation": "The cache is read at every later step, so an error persists and accumulates."
+ }
+]

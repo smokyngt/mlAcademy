@@ -1,0 +1,10 @@
+{
+ "id": "gen.06.ex1",
+ "title": "Flow matching, distance de Fréchet, précision/rappel et Elo",
+ "prompt": "Implémente les éléments du flow matching et de l'évaluation des générateurs (NumPy uniquement).\n\nFlow matching : `fm_interp`, `fm_target`, `optimal_velocity(x, t, m, s)` (le champ optimal exact pour $x_0\\sim\\mathcal N(m,s^2)$, $x_1\\sim\\mathcal N(0,1)$) et `euler_sample(n, v_fn, steps, rng)` qui intègre de $t=1$ à $0$ avec des pas égaux.\n\nÉvaluation : `sqrtm_psd`, `frechet_distance(mu1, S1, mu2, S2)` (utilise les valeurs propres de $S_1^{1/2}S_2S_1^{1/2}$ pour le terme de trace), `fid_from_features(a, b)`, `precision_recall(real, fake, k)` avec des boules de k plus proches voisins, et Elo : `elo_expected`, `elo_update(ra, rb, score_a, k=32)` renvoyant les deux nouveaux classements.",
+ "hints": [
+  "optimal_velocity : -m + cov/var*(x - (1-t)m) avec var=(1-t)^2 s^2+t^2 et cov = t-(1-t)s^2.",
+  "la trace de sqrt(S1 S2) = somme des racines carrées des valeurs propres de S1^{1/2} S2 S1^{1/2} ; ramène à 0 les minuscules valeurs propres négatives.",
+  "le rayon k-NN d'un point est sa (k+1)-ième plus petite distance au sein de son propre ensemble (indice k après tri, puisque l'indice 0 est lui-même)."
+ ]
+}

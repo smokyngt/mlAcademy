@@ -1,0 +1,12 @@
+[
+  { "id": "dl.momentum", "title": "Momentum and Nesterov", "description": "Velocity accumulation that damps oscillation across narrow valleys; the Nesterov lookahead variant.", "stage": "IV", "prereqs": ["opt.gradient-descent", "nn.training"] },
+  { "id": "dl.adam", "title": "RMSProp, Adam and AdamW", "description": "Per-parameter adaptive step sizes, bias correction of the moment estimates, and decoupled weight decay.", "stage": "IV", "prereqs": ["dl.momentum"] },
+  { "id": "dl.lr-schedule", "title": "Learning-rate schedules and warmup", "description": "Step, cosine, warmup+cosine and 1cycle schedules; why Adam-style optimisers need warmup.", "stage": "IV", "prereqs": ["dl.adam"] },
+  { "id": "dl.weight-decay", "title": "L2, weight decay and L1", "description": "Penalising weight size; L2 as a Gaussian prior, L1 as a Laplace prior, and their effect on the solution.", "stage": "IV", "prereqs": ["ml.ridge", "nn.training"] },
+  { "id": "dl.dropout", "title": "Dropout", "description": "Random unit masking during training with inverted scaling so that inference needs no change.", "stage": "IV", "prereqs": ["nn.backprop", "prob.rv"] },
+  { "id": "dl.early-stopping", "title": "Early stopping and data augmentation", "description": "Regularising through the training procedure and through the data instead of the loss.", "stage": "IV", "prereqs": ["ml.generalization", "nn.training"] },
+  { "id": "dl.init", "title": "Variance-preserving initialisation", "description": "Xavier and He scaling derived from variance propagation, and vanishing/exploding gradient diagnostics.", "stage": "IV", "prereqs": ["nn.backprop", "prob.rv"] },
+  { "id": "dl.batchnorm", "title": "Batch normalisation", "description": "Normalising each feature over the batch with learned scale and shift; forward, backward, train/eval behaviour.", "stage": "IV", "prereqs": ["nn.backprop", "dl.init"] },
+  { "id": "dl.layernorm", "title": "Layer norm and RMSNorm", "description": "Per-sample normalisation across features, used in transformers; RMSNorm drops the centring.", "stage": "IV", "prereqs": ["dl.batchnorm"] },
+  { "id": "dl.pytorch", "title": "PyTorch in practice", "description": "Tensors, autograd, nn.Module, DataLoader, the standard training loop, devices, mixed precision, checkpointing.", "stage": "IV", "prereqs": ["nn.training", "nn.autograd"] }
+]

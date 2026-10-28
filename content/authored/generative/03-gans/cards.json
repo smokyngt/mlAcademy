@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.03.c1",
+  "concept": "gen.gan",
+  "front": "GAN minimax objective",
+  "back": "$\\min_G\\max_D\\ \\mathbb E_{p_\\text{data}}\\log D(x)+\\mathbb E_{p_g}\\log(1-D(x))$."
+ },
+ {
+  "id": "gen.03.c2",
+  "concept": "gen.gan",
+  "front": "Optimal discriminator",
+  "back": "$D^*(x)=p_\\text{data}(x)/(p_\\text{data}(x)+p_g(x))$."
+ },
+ {
+  "id": "gen.03.c3",
+  "concept": "gen.gan",
+  "front": "Value at the optimal discriminator",
+  "back": "$V(D^*,G)=-\\log4+2\\,\\mathrm{JS}(p_\\text{data}\\|p_g)$."
+ },
+ {
+  "id": "gen.03.c4",
+  "concept": "gen.gan",
+  "front": "Jensen-Shannon divergence",
+  "back": "$\\tfrac12\\mathrm{KL}(p\\|m)+\\tfrac12\\mathrm{KL}(q\\|m)$, $m=\\frac{p+q}2$; symmetric, in $[0,\\log2]$."
+ },
+ {
+  "id": "gen.03.c5",
+  "concept": "gen.gan",
+  "front": "Equilibrium of the game",
+  "back": "$p_g=p_\\text{data}$ and $D^*\\equiv1/2$."
+ },
+ {
+  "id": "gen.03.c6",
+  "concept": "gen.gan",
+  "front": "Non-saturating generator loss",
+  "back": "$-\\log D(G(z))$ instead of $\\log(1-D(G(z)))$; avoids vanishing gradients early on."
+ },
+ {
+  "id": "gen.03.c7",
+  "concept": "gen.gan",
+  "front": "Why the original generator loss saturates",
+  "back": "With $D=\\sigma(s)$, $\\partial\\log(1-D)/\\partial s=-D\\to0$ when $D\\approx0$."
+ },
+ {
+  "id": "gen.03.c8",
+  "concept": "gen.gan",
+  "front": "Mode collapse",
+  "back": "Generator covers few modes; the loss does not reward diversity."
+ },
+ {
+  "id": "gen.03.c9",
+  "concept": "gen.gan",
+  "front": "Why JS fails for disjoint supports",
+  "back": "JS $=\\log2$ for any separation, so the gradient is uninformative."
+ },
+ {
+  "id": "gen.03.c10",
+  "concept": "gen.gan",
+  "front": "Wasserstein-1 distance (1-D samples)",
+  "back": "Mean absolute difference of the sorted samples."
+ },
+ {
+  "id": "gen.03.c11",
+  "concept": "gen.gan",
+  "front": "WGAN critic",
+  "back": "Real-valued 1-Lipschitz $f$ maximising $\\mathbb E_{p_\\text{data}}f-\\mathbb E_{p_g}f$; Lipschitz via clipping, gradient penalty or spectral norm."
+ },
+ {
+  "id": "gen.03.c12",
+  "concept": "gen.gan",
+  "front": "Conditional GAN",
+  "back": "Condition $c$ is fed to both $G(c,z)$ and $D(c,x)$."
+ },
+ {
+  "id": "gen.03.c13",
+  "concept": "gen.gan",
+  "front": "Pix2Pix loss",
+  "back": "$-\\log D(x,G(x))+\\lambda\\|y-G(x)\\|_1$ with U-Net generator and PatchGAN discriminator."
+ },
+ {
+  "id": "gen.03.c14",
+  "concept": "gen.gan",
+  "front": "CycleGAN idea",
+  "back": "Unpaired translation using cycle consistency: $F(G(x))\\approx x$."
+ }
+]

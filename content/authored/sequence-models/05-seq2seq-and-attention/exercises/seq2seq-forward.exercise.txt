@@ -1,0 +1,145 @@
+#@@ meta
+{"id": "seq.05.ex2", "title": "Tiny seq2seq with attention: forward pass and greedy decoding", "difficulty": 4, "runtime": "pyodide", "concepts": ["seq.seq2seq", "seq.attention", "seq.rnn"], "hints": ["encode: for each source token embed it, h = tanh(Wxh @ e + Whh @ h + bh), collect all h into an array of shape (Ts, H).", "decode_step(P, Henc, s_prev, y_prev, use_attention): ctx, alpha = attention(s_prev, Henc, ...) (the PREVIOUS decoder state is the query); s = tanh(Wd @ concat([Et[y_prev], ctx]) + Ud @ s_prev + bd); logits = Wo @ concat([s, ctx]) + bo. Without attention use ctx = Henc[-1] at every step.", "Start the decoder with s_0 = Henc[-1]. Teacher forcing: feed the GOLD previous token (tgt_in) at each step. Loss: mean cross-entropy -log softmax(logits)[target]."]}
+#@@ prompt
+Build the forward pass of a small encoder-decoder with Bahdanau attention (no training, just the computation).
+
+- Encoder: embedding + tanh RNN, returns all states `Henc (Ts, H)`.
+- Decoder: one tanh RNN cell whose input is `[embedding(previous token); context]`. The context comes from additive attention with the previous decoder state as the query (`attention` is provided). With `use_attention=False` the context is the last encoder state at every step (the classic bottleneck).
+- `decode_step` returns `(s, logits, alpha)`; `decode(P, Henc, tgt_in)` runs teacher forcing and returns `(logits (Tt, Vt), alphas (Tt, Ts) or None)`.
+- `seq2seq_loss(P, src, tgt_in, tgt_out, use_attention)` returns the mean cross-entropy.
+- `greedy_decode(P, src, bos, max_len)` feeds back its own arg-max predictions (inference, no teacher forcing).
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def attention(s, H, Wa, Ua, v):
+    """Additive attention (provided): returns context (H,) and weights (Ts,)."""
+    u = np.tanh(s @ Wa.T + H @ Ua.T)
+    alpha = softmax(u @ v)
+    return alpha @ H, alpha
+
+def init_params(Vs, Vt, d=6, H=8, A=7, seed=0):
+    r = np.random.default_rng(seed)
+    g = lambda *shape: r.normal(0, 0.1, shape)
+    return dict(Es=g(Vs, d), Et=g(Vt, d), Wxh=g(H, d), Whh=g(H, H), bh=np.zeros(H),
+                Wd=g(H, d + H), Ud=g(H, H), bd=np.zeros(H),
+                Wa=g(A, H), Ua=g(A, H), v=g(A),
+                Wo=g(Vt, 2 * H), bo=np.zeros(Vt))
+
+def encode(P, src):
+    raise NotImplementedError
+
+def decode_step(P, Henc, s_prev, y_prev, use_attention=True):
+    raise NotImplementedError
+
+def decode(P, Henc, tgt_in, use_attention=True):
+    raise NotImplementedError
+
+def seq2seq_loss(P, src, tgt_in, tgt_out, use_attention=True):
+    raise NotImplementedError
+
+def greedy_decode(P, src, bos, max_len, use_attention=True):
+    raise NotImplementedError
+
+P = init_params(10, 10)
+src = np.array([3, 1, 4, 1, 5]); tgt_in = np.array([0, 2, 7, 1]); tgt_out = np.array([2, 7, 1, 9])
+print(round(seq2seq_loss(P, src, tgt_in, tgt_out), 3), "vs ln(10) =", round(np.log(10), 3))
+#@@ tests
+import numpy as np
+P = init_params(10, 10)
+src = np.array([3, 1, 4, 1, 5]); tgt_in = np.array([0, 2, 7, 1]); tgt_out = np.array([2, 7, 1, 9])
+Henc = encode(P, src)
+check("encoder states (Ts, H)", lambda: Henc.shape == (5, 8))
+check("encoder is a tanh RNN: states in (-1, 1)", lambda: np.abs(Henc).max() < 1)
+logits, alphas = decode(P, Henc, tgt_in)
+check("logits shape (Tt, Vt)", lambda: logits.shape == (4, 10))
+check("alignment matrix shape (Tt, Ts) with rows summing to 1", lambda: alphas.shape == (4, 5) and np.allclose(alphas.sum(1), 1))
+ctx0, a0 = attention(Henc[-1], Henc, P["Wa"], P["Ua"], P["v"])
+check("first step queries with s_0 = last encoder state", lambda: np.allclose(alphas[0], a0))
+loss = seq2seq_loss(P, src, tgt_in, tgt_out)
+check("initial loss is close to ln V", lambda: abs(loss - np.log(10)) < 0.15, "tiny random weights give nearly uniform predictions")
+lg2, _ = decode(P, Henc, np.array([0, 2, 7, 5]))
+check("teacher forcing is causal: changing the last gold input leaves earlier logits unchanged", lambda: np.allclose(lg2[:3], logits[:3]) and not np.allclose(lg2[3], logits[3]))
+src2 = src.copy(); src2[2] = 8
+H2 = encode(P, src2)
+_, al2 = decode(P, H2, tgt_in)
+check("changing a source token changes the alignment", lambda: not np.allclose(al2, alphas))
+check("early encoder states do not depend on later tokens", lambda: np.allclose(H2[:2], Henc[:2]))
+l_na = seq2seq_loss(P, src, tgt_in, tgt_out, use_attention=False)
+lg_na, al_na = decode(P, Henc, tgt_in, use_attention=False)
+check("no-attention baseline returns no alignment and a finite loss", lambda: al_na is None and np.isfinite(l_na) and lg_na.shape == (4, 10))
+P2 = {k: (v * 1.0) for k, v in P.items()}
+P2["Wo"] = P["Wo"] * 20
+out = greedy_decode(P2, src, 0, 6)
+check("greedy decode returns max_len token ids", lambda: len(out) == 6 and all(0 <= int(t) < 10 for t in out))
+feed = np.concatenate([[0], out[:-1]])
+lgt, _ = decode(P2, encode(P2, src), feed)
+check("teacher-forcing the greedy output reproduces the greedy arg-maxes", lambda: np.array_equal(lgt.argmax(1), out))
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    z = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def attention(s, H, Wa, Ua, v):
+    u = np.tanh(s @ Wa.T + H @ Ua.T)
+    alpha = softmax(u @ v)
+    return alpha @ H, alpha
+
+def init_params(Vs, Vt, d=6, H=8, A=7, seed=0):
+    r = np.random.default_rng(seed)
+    g = lambda *shape: r.normal(0, 0.1, shape)
+    return dict(Es=g(Vs, d), Et=g(Vt, d), Wxh=g(H, d), Whh=g(H, H), bh=np.zeros(H),
+                Wd=g(H, d + H), Ud=g(H, H), bd=np.zeros(H),
+                Wa=g(A, H), Ua=g(A, H), v=g(A),
+                Wo=g(Vt, 2 * H), bo=np.zeros(Vt))
+
+def encode(P, src):
+    h = np.zeros(P["Whh"].shape[0])
+    states = []
+    for tok in src:
+        h = np.tanh(P["Wxh"] @ P["Es"][tok] + P["Whh"] @ h + P["bh"])
+        states.append(h)
+    return np.array(states)
+
+def decode_step(P, Henc, s_prev, y_prev, use_attention=True):
+    if use_attention:
+        ctx, alpha = attention(s_prev, Henc, P["Wa"], P["Ua"], P["v"])
+    else:
+        ctx, alpha = Henc[-1], None
+    s = np.tanh(P["Wd"] @ np.concatenate([P["Et"][y_prev], ctx]) + P["Ud"] @ s_prev + P["bd"])
+    logits = P["Wo"] @ np.concatenate([s, ctx]) + P["bo"]
+    return s, logits, alpha
+
+def decode(P, Henc, tgt_in, use_attention=True):
+    s = Henc[-1]
+    all_logits, all_alpha = [], []
+    for y_prev in tgt_in:
+        s, logits, alpha = decode_step(P, Henc, s, y_prev, use_attention)
+        all_logits.append(logits); all_alpha.append(alpha)
+    return np.array(all_logits), (np.array(all_alpha) if use_attention else None)
+
+def seq2seq_loss(P, src, tgt_in, tgt_out, use_attention=True):
+    logits, _ = decode(P, encode(P, src), tgt_in, use_attention)
+    z = logits - logits.max(axis=1, keepdims=True)
+    logp = z - np.log(np.exp(z).sum(axis=1, keepdims=True))
+    return float(-np.mean(logp[np.arange(len(tgt_out)), tgt_out]))
+
+def greedy_decode(P, src, bos, max_len, use_attention=True):
+    Henc = encode(P, src)
+    s, y, out = Henc[-1], bos, []
+    for _ in range(max_len):
+        s, logits, _ = decode_step(P, Henc, s, y, use_attention)
+        y = int(np.argmax(logits))
+        out.append(y)
+    return np.array(out)
+
+P = init_params(10, 10)
+src = np.array([3, 1, 4, 1, 5]); tgt_in = np.array([0, 2, 7, 1]); tgt_out = np.array([2, 7, 1, 9])
+print(round(seq2seq_loss(P, src, tgt_in, tgt_out), 3), "vs ln(10) =", round(np.log(10), 3))

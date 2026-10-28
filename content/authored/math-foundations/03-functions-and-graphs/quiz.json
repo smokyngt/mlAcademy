@@ -1,0 +1,117 @@
+[
+ {
+  "id": "mf.03.q1",
+  "concept": "mf.functions",
+  "stage": "pre",
+  "kind": "numeric",
+  "prompt": "For $f(x)=2x^2-3$, what is $f(-2)$?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "$f(-2)=2\\cdot4-3=5$."
+ },
+ {
+  "id": "mf.03.q2",
+  "concept": "mf.functions",
+  "prompt": "What is the natural domain of $f(x)=\\sqrt{x-1}$ (real numbers only)?",
+  "options": [
+   "all real $x$",
+   "$x\\ge1$",
+   "$x>1$ only",
+   "$x\\le1$"
+  ],
+  "answer": 1,
+  "explanation": "The expression under a square root must be non-negative: $x-1\\ge0$, so $x\\ge1$ (including $x=1$)."
+ },
+ {
+  "id": "mf.03.q3",
+  "concept": "mf.functions",
+  "kind": "numeric",
+  "prompt": "The line through $(0,1)$ and $(2,5)$ has slope...",
+  "options": [],
+  "answer": {
+   "value": 2,
+   "tol": 0.001
+  },
+  "explanation": "Rise over run: $(5-1)/(2-0)=2$."
+ },
+ {
+  "id": "mf.03.q4",
+  "concept": "mf.functions",
+  "prompt": "The parabola $y=x^2-4x+3$ has its vertex at $x=$...",
+  "options": [
+   "1",
+   "2",
+   "3",
+   "4"
+  ],
+  "answer": 1,
+  "explanation": "The vertex of $ax^2+bx+c$ is at $x=-b/(2a)=4/2=2$ (value $-1$). The roots are 1 and 3, symmetric around 2."
+ },
+ {
+  "id": "mf.03.q5",
+  "concept": "mf.functions",
+  "prompt": "If $g(x)=f(x-3)$, the graph of $g$ is the graph of $f$...",
+  "options": [
+   "shifted 3 units left",
+   "shifted 3 units right",
+   "shifted 3 units up",
+   "stretched by 3"
+  ],
+  "answer": 1,
+  "explanation": "The output at $x$ equals $f$'s output at $x-3$, so every feature moves 3 to the right (the counter-intuitive sign)."
+ },
+ {
+  "id": "mf.03.q6",
+  "concept": "mf.functions",
+  "kind": "numeric",
+  "prompt": "With $f(x)=x+1$ and $g(x)=2x$, what is $(f\\circ g)(3)$?",
+  "options": [],
+  "answer": {
+   "value": 7,
+   "tol": 0.001
+  },
+  "explanation": "$g(3)=6$ first, then $f(6)=7$. ($g\\circ f$ would give $2\\cdot4=8$: order matters.)"
+ },
+ {
+  "id": "mf.03.q7",
+  "concept": "mf.functions",
+  "prompt": "The inverse of $f(x)=3x-6$ is...",
+  "options": [
+   "$\\frac{x}{3}+6$",
+   "$\\frac{x+6}{3}$",
+   "$\\frac{x}{3}-2$",
+   "$3x+6$"
+  ],
+  "answer": 1,
+  "explanation": "Solve $y=3x-6$ for $x$: $x=(y+6)/3$. Check: $f((y+6)/3)=y$."
+ },
+ {
+  "id": "mf.03.q8",
+  "concept": "mf.functions",
+  "prompt": "Which function has NO inverse on all of $\\mathbb R$?",
+  "options": [
+   "$f(x)=2x+1$",
+   "$f(x)=x^3$",
+   "$f(x)=x^2$",
+   "$f(x)=x+5$"
+  ],
+  "answer": 2,
+  "explanation": "$x^2$ sends both $2$ and $-2$ to $4$, so an output does not determine the input (it fails the horizontal-line test)."
+ },
+ {
+  "id": "mf.03.q9",
+  "concept": "mf.functions",
+  "prompt": "Which relation is NOT a function of $x$?",
+  "options": [
+   "$y=x^2$",
+   "$y=|x|$",
+   "$x^2+y^2=1$",
+   "$y=2x$"
+  ],
+  "answer": 2,
+  "explanation": "For $x=0$ the circle has two outputs $y=\\pm1$. A function gives exactly one output per input."
+ }
+]

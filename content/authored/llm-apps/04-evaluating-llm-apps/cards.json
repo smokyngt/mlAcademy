@@ -1,0 +1,86 @@
+[
+ {
+  "id": "app.04.c1",
+  "concept": "app.eval",
+  "front": "Eval set ingredients",
+  "back": "Real (anonymised) inputs, known failures, edge cases; reference or acceptance rule; tags for slicing; dev and held-out splits; versioned."
+ },
+ {
+  "id": "app.04.c2",
+  "concept": "app.eval",
+  "front": "Three kinds of scorers",
+  "back": "Deterministic checks, reference metrics (cheap, meaning-blind), LLM-as-judge (semantic, costly, biased)."
+ },
+ {
+  "id": "app.04.c3",
+  "concept": "app.eval",
+  "front": "Anchored rubric",
+  "back": "Each score level is tied to observable behaviour, e.g. '5: correct, direct, cites source; 1: factual error'."
+ },
+ {
+  "id": "app.04.c4",
+  "concept": "app.eval",
+  "front": "Position bias",
+  "back": "A pairwise judge may favour the first or second answer; run both orders and keep consistent verdicts."
+ },
+ {
+  "id": "app.04.c5",
+  "concept": "app.eval",
+  "front": "Verbosity and self-preference bias",
+  "back": "Judges may favour longer text or text in their own style; control length, use a different judge model."
+ },
+ {
+  "id": "app.04.c6",
+  "concept": "app.eval",
+  "front": "Cohen's kappa",
+  "back": "$\\kappa=(p_o-p_e)/(1-p_e)$ with $p_e=\\sum_c P_h(c)P_j(c)$: agreement beyond chance."
+ },
+ {
+  "id": "app.04.c7",
+  "concept": "app.eval",
+  "front": "Paired difference",
+  "back": "$d_i=b_i-a_i$ on the same item; the mean estimates the improvement and item difficulty cancels."
+ },
+ {
+  "id": "app.04.c8",
+  "concept": "app.eval",
+  "front": "Percentile bootstrap CI",
+  "back": "Resample items with replacement B times, recompute the mean difference, take the 2.5 and 97.5 percentiles."
+ },
+ {
+  "id": "app.04.c9",
+  "concept": "app.eval",
+  "front": "Sign-flip permutation test",
+  "back": "Under H0 each non-zero difference is equally likely + or -; p = share of the 2^m sign patterns with |sum| at least the observed."
+ },
+ {
+  "id": "app.04.c10",
+  "concept": "app.eval",
+  "front": "Why zero differences are dropped",
+  "back": "Flipping the sign of 0 changes nothing, so ties carry no information about which prompt is better."
+ },
+ {
+  "id": "app.04.c11",
+  "concept": "app.eval",
+  "front": "Sample-size formula",
+  "back": "$n=\\big((z_{\\alpha/2}+z_{power})\\sigma/\\delta\\big)^2$; with 1.96 and 0.8416: delta 0.05, sd 0.4 gives 503."
+ },
+ {
+  "id": "app.04.c12",
+  "concept": "app.eval",
+  "front": "Regression gate",
+  "back": "Run the eval on every change; block if a check fails or the CI of the difference falls below an accepted margin."
+ },
+ {
+  "id": "app.04.c13",
+  "concept": "app.eval",
+  "front": "Why slice results?",
+  "back": "Averages hide regressions: one tag can collapse while the mean rises."
+ },
+ {
+  "id": "app.04.c14",
+  "concept": "app.eval",
+  "front": "Production monitoring",
+  "back": "Log inputs, outputs, tool calls, latency, cost, guardrail triggers; sample for review; track drift; add failures to the eval set."
+ }
+]

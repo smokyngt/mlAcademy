@@ -1,0 +1,146 @@
+#@@ meta
+{"id": "cml.15.ex1", "title": "Grid vs random search, successive halving and a Gaussian-process surrogate", "difficulty": 4, "runtime": "pyodide", "concepts": ["ml.tuning", "ml.bayesopt"], "hints": ["grid_search: loop over the Cartesian product of the two axes and keep the best (value, (a, b)).", "GP posterior: K = k(Xtr,Xtr) + noise*I, L = cholesky(K); alpha = K^-1 y via two triangular solves; mean = Ks.T @ alpha; v = solve(L, Ks); variance = s**2 - sum(v**2, axis=0).", "Expected improvement for maximisation: z = (mu - best)/sd; EI = (mu - best)*Phi(z) + sd*phi(z); where sd is ~0 use max(mu - best, 0)."]}
+#@@ prompt
+Everything below maximises a score. Use only NumPy and `math`.
+
+- `grid_search(f, axis_a, axis_b)` -> `(best_value, (a, b))` over the full Cartesian product.
+- `random_search(f, n, rng)` -> `(best_value, (a, b))` from `n` points drawn with `rng.uniform(0, 1, 2)` (one call per trial).
+- `successive_halving(n_configs, evaluate, eta, min_budget)` -> `(winner, schedule)`. Start with all configurations at `min_budget`; each rung evaluates every survivor with `evaluate(i, budget)`, then keeps the best `max(1, len(alive) // eta)` and multiplies the budget by `eta`. Stop when one survivor remains (it is still evaluated once at the final budget before returning). `schedule` is the list of `(n_alive, budget)` per rung.
+- `rbf(A, B, length, sigma)` -> kernel matrix `sigma**2 * exp(-0.5 * (a-b)**2 / length**2)` for 1-D arrays.
+- `gp_posterior(Xtr, ytr, Xte, length, sigma, noise)` -> `(mean, std)` of a zero-mean GP at `Xte`, computed with a Cholesky factorisation (std = sqrt of the posterior variance, clipped at 0).
+- `expected_improvement(mu, sd, best)` for maximisation.
+- `bayes_opt(fun, n_init, n_iter, seed)` -> best value found. Draw `n_init` random points in [0,1] with `np.random.default_rng(seed).uniform(0, 1, n_init)`; each iteration subtract the mean of the observed values, fit `gp_posterior` (length 0.1, sigma 1, noise 1e-6) on the candidates `np.linspace(0, 1, 201)`, add the mean back, evaluate the candidate with the largest expected improvement.
+#@@ starter
+import numpy as np
+import math
+
+def grid_search(f, axis_a, axis_b):
+    raise NotImplementedError
+
+def random_search(f, n, rng):
+    raise NotImplementedError
+
+def successive_halving(n_configs, evaluate, eta=3, min_budget=1):
+    raise NotImplementedError
+
+def rbf(A, B, length, sigma):
+    raise NotImplementedError
+
+def gp_posterior(Xtr, ytr, Xte, length, sigma, noise):
+    raise NotImplementedError
+
+def expected_improvement(mu, sd, best):
+    raise NotImplementedError
+
+def bayes_opt(fun, n_init, n_iter, seed):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+import math
+
+def f(a, b):
+    return np.exp(-(a - 0.37) ** 2 / (2 * 0.08 ** 2)) + 0.05 * np.exp(-(b - 0.6) ** 2 / (2 * 0.3 ** 2))
+
+g_val, g_arg = grid_search(f, np.array([0, .5, 1.]), np.array([0, .5, 1.]))
+check("grid 3x3 best is (0.5, 0.5) with value 0.3143", lambda: abs(g_val - 0.31435) < 1e-4 and g_arg == (0.5, 0.5))
+rs = np.array([random_search(f, 9, np.random.default_rng(s))[0] for s in range(300)])
+check("random search with the same 9 evaluations has mean best about 0.82", lambda: 0.75 < rs.mean() < 0.88)
+check("random search beats the grid in most runs (about 93%)", lambda: np.mean(rs > g_val) > 0.85)
+
+q = np.random.default_rng(7).uniform(0, 1, 27)
+
+def noisy(i, b):
+    return q[i] + np.random.default_rng(1000 * i + b).normal() * 0.5 / np.sqrt(b)
+
+w, sched = successive_halving(27, noisy, 3, 1)
+check("schedule (27,1),(9,3),(3,9),(1,27)", lambda: sched == [(27, 1), (9, 3), (3, 9), (1, 27)])
+check("total cost 108 instead of 27*27 = 729", lambda: sum(n * b for n, b in sched) == 108)
+check("the winner is among the better configurations", lambda: q[w] >= np.sort(q)[-4])
+
+K = rbf(np.array([0., 1.]), np.array([0., 1.]), 1.0, 2.0)
+check("rbf diagonal is sigma^2, off-diagonal sigma^2 exp(-1/2)", lambda: abs(K[0, 0] - 4) < 1e-12 and abs(K[0, 1] - 4 * math.exp(-0.5)) < 1e-12)
+mu, sd = gp_posterior(np.array([.1, .5, .9]), np.array([0., 1., 0.]), np.array([.1, .3, .5, .7, 1.5]), 0.15, 1.0, 1e-4)
+check("posterior mean interpolates the data", lambda: abs(mu[0]) < 1e-3 and abs(mu[2] - 1) < 1e-3)
+check("posterior mean at 0.3 is about 0.400", lambda: abs(mu[1] - 0.39997) < 1e-3)
+check("posterior std is tiny at data, 0.82 between, 1 far away", lambda: sd[0] < 0.02 and abs(sd[1] - 0.8193) < 1e-3 and abs(sd[4] - 1) < 1e-3)
+e = expected_improvement(np.array([0.5, 0.5, 2.0]), np.array([0.0, 1.0, 0.0]), 1.0)
+check("EI is 0 when certain and below best; positive with uncertainty; mu-best when certain and above", lambda: e[0] == 0 and e[1] > 0 and abs(e[2] - 1.0) < 1e-12)
+f1 = lambda x: f(x, 0.6)
+bo = np.array([bayes_opt(f1, 3, 7, s) for s in range(10)])
+rnd = np.array([max(f1(x) for x in np.random.default_rng(s).uniform(0, 1, 10)) for s in range(10)])
+check("Bayesian optimisation (10 evaluations) beats random search (10 evaluations) on average", lambda: bo.mean() > rnd.mean())
+check("Bayesian optimisation gets within 5% of the optimum 1.05 every time", lambda: bo.min() > 0.95 * 1.0488)
+#@@ solution
+import numpy as np
+import math
+
+def grid_search(f, axis_a, axis_b):
+    best = (-np.inf, None)
+    for a in axis_a:
+        for b in axis_b:
+            v = f(a, b)
+            if v > best[0]:
+                best = (v, (a, b))
+    return best
+
+def random_search(f, n, rng):
+    best = (-np.inf, None)
+    for _ in range(n):
+        a, b = rng.uniform(0, 1, 2)
+        v = f(a, b)
+        if v > best[0]:
+            best = (v, (a, b))
+    return best
+
+def successive_halving(n_configs, evaluate, eta=3, min_budget=1):
+    alive = np.arange(n_configs)
+    budget = min_budget
+    schedule = []
+    while True:
+        scores = np.array([evaluate(int(i), budget) for i in alive])
+        schedule.append((len(alive), budget))
+        if len(alive) == 1:
+            return int(alive[0]), schedule
+        keep = max(1, len(alive) // eta)
+        alive = alive[np.argsort(-scores)[:keep]]
+        budget *= eta
+
+def rbf(A, B, length, sigma):
+    A, B = np.asarray(A, float), np.asarray(B, float)
+    return sigma ** 2 * np.exp(-0.5 * (A[:, None] - B[None, :]) ** 2 / length ** 2)
+
+def gp_posterior(Xtr, ytr, Xte, length, sigma, noise):
+    K = rbf(Xtr, Xtr, length, sigma) + noise * np.eye(len(Xtr))
+    L = np.linalg.cholesky(K)
+    Ks = rbf(Xtr, Xte, length, sigma)
+    alpha = np.linalg.solve(L.T, np.linalg.solve(L, ytr))
+    mean = Ks.T @ alpha
+    v = np.linalg.solve(L, Ks)
+    var = sigma ** 2 - np.sum(v ** 2, axis=0)
+    return mean, np.sqrt(np.maximum(var, 0))
+
+def expected_improvement(mu, sd, best):
+    out = np.zeros(len(mu))
+    for i, (m, s) in enumerate(zip(mu, sd)):
+        if s < 1e-12:
+            out[i] = max(m - best, 0.0)
+        else:
+            z = (m - best) / s
+            Phi = 0.5 * (1 + math.erf(z / math.sqrt(2)))
+            phi = math.exp(-z * z / 2) / math.sqrt(2 * math.pi)
+            out[i] = (m - best) * Phi + s * phi
+    return out
+
+def bayes_opt(fun, n_init, n_iter, seed):
+    rng = np.random.default_rng(seed)
+    X = list(rng.uniform(0, 1, n_init))
+    y = [fun(x) for x in X]
+    cand = np.linspace(0, 1, 201)
+    for _ in range(n_iter):
+        ym = np.mean(y)
+        mu, sd = gp_posterior(np.array(X), np.array(y) - ym, cand, 0.1, 1.0, 1e-6)
+        ei = expected_improvement(mu + ym, sd, max(y))
+        x = cand[int(np.argmax(ei))]
+        X.append(x)
+        y.append(fun(x))
+    return max(y)

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.03.c1",
+  "concept": "mf.functions",
+  "front": "Function",
+  "back": "A rule giving exactly one output $f(x)$ for each allowed input $x$."
+ },
+ {
+  "id": "mf.03.c2",
+  "concept": "mf.functions",
+  "front": "Domain and range",
+  "back": "Domain: the allowed inputs. Range (image): the outputs actually produced."
+ },
+ {
+  "id": "mf.03.c3",
+  "concept": "mf.functions",
+  "front": "Linear function",
+  "back": "$f(x)=mx+b$: slope $m$ (change in output per unit input), intercept $b=f(0)$. Graph is a straight line."
+ },
+ {
+  "id": "mf.03.c4",
+  "concept": "mf.functions",
+  "front": "Slope from two points",
+  "back": "$m=\\frac{y_2-y_1}{x_2-x_1}$."
+ },
+ {
+  "id": "mf.03.c5",
+  "concept": "mf.functions",
+  "front": "Quadratic function",
+  "back": "$f(x)=ax^2+bx+c$, $a\\ne0$: a parabola with vertex at $x=-\\frac{b}{2a}$."
+ },
+ {
+  "id": "mf.03.c6",
+  "concept": "mf.functions",
+  "front": "Quadratic formula",
+  "back": "Roots of $ax^2+bx+c=0$: $x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}$. The discriminant $b^2-4ac$ says: >0 two roots, =0 one, <0 none (real)."
+ },
+ {
+  "id": "mf.03.c7",
+  "concept": "mf.functions",
+  "front": "Polynomial",
+  "back": "$a_nx^n+\\dots+a_1x+a_0$; degree $n$ is the largest power. At most $n$ real roots."
+ },
+ {
+  "id": "mf.03.c8",
+  "concept": "mf.functions",
+  "front": "Shift",
+  "back": "$f(x-h)$ moves the graph $h$ right; $f(x)+k$ moves it $k$ up."
+ },
+ {
+  "id": "mf.03.c9",
+  "concept": "mf.functions",
+  "front": "Scale",
+  "back": "$c\\,f(x)$ stretches vertically by $c$; $f(x/c)$ stretches horizontally by $c$."
+ },
+ {
+  "id": "mf.03.c10",
+  "concept": "mf.functions",
+  "front": "Reflect",
+  "back": "$-f(x)$ flips over the $x$-axis; $f(-x)$ flips over the $y$-axis."
+ },
+ {
+  "id": "mf.03.c11",
+  "concept": "mf.functions",
+  "front": "Composition",
+  "back": "$(f\\circ g)(x)=f(g(x))$: apply $g$ first, then $f$. Order matters."
+ },
+ {
+  "id": "mf.03.c12",
+  "concept": "mf.functions",
+  "front": "Inverse function",
+  "back": "$f^{-1}$ undoes $f$: $f^{-1}(f(x))=x$. Exists when each output comes from exactly one input; its graph mirrors $f$'s over $y=x$."
+ },
+ {
+  "id": "mf.03.c13",
+  "concept": "mf.functions",
+  "front": "Finding an inverse",
+  "back": "Write $y=f(x)$, solve for $x$, then rename."
+ },
+ {
+  "id": "mf.03.c14",
+  "concept": "mf.functions",
+  "front": "Why ML cares",
+  "back": "A model is a function with adjustable constants; a loss is a function of those constants; a layer is a composition of simple functions."
+ }
+]

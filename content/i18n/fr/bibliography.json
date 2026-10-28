@@ -1,0 +1,21 @@
+{
+  "provenance": "Il existe deux générations de leçons, et elles n'ont pas été écrites de la même façon. Les premières leçons (fonctions, vecteurs, matrices, dérivées, gradients, règle de la chaîne, descente de gradient, fonctions de perte, couches, rétropropagation, entraînement, autograd, régression linéaire, régression logistique, généralisation, k-means, ACP) ont été écrites à partir de connaissances générales, et les fichiers de la bibliothèque qu'elles citent sont des renvois vers les endroits où ton matériel traite le même sujet : leurs chapitres n'ont PAS été lus ligne à ligne (marqués « pointer only » ci-dessous). Chaque leçon suivante a été écrite après ouverture et lecture des pages ou fichiers cités (marqués « read »), avec les numéros de page notés ; les explications sont rédigées avec nos propres mots, rien n'est cité longuement. Dans tous les cas, chaque nombre, exemple résolu et solution d'exercice a été vérifié en exécutant du code (bun run verify:content). Les leçons de première génération seront revérifiées par rapport à leurs sources au fur et à mesure. Les références externes sont citées de mémoire, sans avoir été consultées : vérifie-les avant de t'y fier.",
+  "library": {
+    "math/math for ML.pdf": { "used": "Renvois vers des chapitres et des pages du PDF (chap. 2 p. 23, chap. 3 p. 76, chap. 5 p. 145, chap. 7 p. 231, chap. 8 p. 257), tirés de la table des matières du PDF lui-même." },
+    "math/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf": { "used": "Renvois vers des sections (1.2 p. 32, 4.3 p. 223, 5.1 p. 247, 5.3 p. 261), tirés de la table des matières du PDF." },
+    "math/Designing Machine Learning Systems.pdf": { "used": "Simplement inventorié ; pas encore cité par une leçon." },
+    "ai-engineering-from-scratch/phases/01-math-foundations": { "used": "Pointé depuis les leçons 1 à 6 ; les 22 leçons ont été importées telles quelles avec leurs quiz." },
+    "ai-engineering-from-scratch/phases/03-deep-learning-core": { "used": "Pointé depuis les leçons 7 à 12 ; 13 leçons importées." },
+    "LLMs-from-scratch": { "used": "Annexe A pointée depuis les leçons 10 et 12 ; notebooks des chapitres principaux importés." },
+    "reasoning-from-scratch": { "used": "Notebooks des chapitres importés ; non cités par les leçons rédigées." }
+  },
+  "external": [
+    { "for": "Initialisation de He, variance 2/n_in (leçons 9, 11)." },
+    { "for": "Initialisation qui préserve la variance, argument de mise à l'échelle en 1/n (leçon 9)." },
+    { "for": "La rétropropagation comme algorithme d'entraînement des réseaux (leçon 10)." },
+    { "for": "Modes avant et inverse, et leurs coûts (leçon 12)." },
+    { "for": "Conditionnement et analyse de la descente de gradient, stabilité du softmax, lien entre perte et vraisemblance (leçons 7, 8)." },
+    { "for": "Base de l'ordonnanceur de flashcards ; cette application utilise une variante simplifiée avec une étape de réapprentissage de 10 minutes." },
+    { "for": "Exécuter CPython et NumPy dans un bac à sable WebAssembly du navigateur." }
+  ]
+}

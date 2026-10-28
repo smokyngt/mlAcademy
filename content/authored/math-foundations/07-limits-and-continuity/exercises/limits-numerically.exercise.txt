@@ -1,0 +1,96 @@
+#@@ meta
+{"title": "Numeric limit exploration", "difficulty": 2, "concepts": ["mf.limits"], "hints": ["one_sided(f, a, h): return (f(a - h), f(a + h)).", "limit_estimate: left, right = one_sided(f, a, 1e-6); if abs(left - right) < 1e-4 return (left + right)/2 else None.", "is_continuous_at: wrap f(a) in try/except (ZeroDivisionError, ValueError); then compare with limit_estimate.", "delta_for_epsilon: try delta = 1, 1/2, 1/4, ...; for each, sample x = np.linspace(a-delta, a+delta, 2001) excluding a itself; accept the first delta where all |f(x)-L| < eps."], "id": "mf.07.ex1", "runtime": "pyodide"}
+#@@ prompt
+Explore limits and continuity numerically.
+
+- `one_sided(f, a, h=1e-6)`: return `(f(a - h), f(a + h))`.
+- `limit_estimate(f, a)`: use `h = 1e-6`; if the two one-sided values differ by less than `1e-4` return their average, otherwise return `None` (no limit).
+- `is_continuous_at(f, a)`: `True` only if `f(a)` can be evaluated (no exception, finite), the limit exists and `abs(f(a) - limit) < 1e-4`.
+- `delta_for_epsilon(f, a, L, eps)`: try `delta = 1, 1/2, 1/4, ...` and return the first one such that `|f(x) - L| < eps` for 2001 sample points `x` in `[a - delta, a + delta]` with `x != a`.
+- `diff_quotient(f, x, h)`: $(f(x+h)-f(x))/h$.
+- `derivative_estimate(f, x)`: the difference quotient at `h = 1e-6`.
+#@@ starter
+import math
+import numpy as np
+
+def one_sided(f, a, h=1e-6):
+    raise NotImplementedError
+
+def limit_estimate(f, a):
+    raise NotImplementedError
+
+def is_continuous_at(f, a):
+    raise NotImplementedError
+
+def delta_for_epsilon(f, a, L, eps):
+    raise NotImplementedError
+
+def diff_quotient(f, x, h):
+    raise NotImplementedError
+
+def derivative_estimate(f, x):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+hole = lambda x: (x * x - 1) / (x - 1)
+sinc = lambda x: math.sin(x) / x
+sgn = lambda x: abs(x) / x
+l, r = one_sided(hole, 1)
+check("one_sided on a hole: left slightly below 2, right slightly above", lambda: l < 2 < r and abs(l - 2) < 1e-5)
+check("limit at a hole is 2", lambda: abs(limit_estimate(hole, 1) - 2) < 1e-5)
+check("sin(x)/x tends to 1", lambda: abs(limit_estimate(sinc, 0) - 1) < 1e-6)
+check("|x|/x has no limit at 0", lambda: limit_estimate(sgn, 0) is None)
+check("polynomial is continuous", lambda: is_continuous_at(lambda x: x * x, 2))
+check("|x| is continuous at 0", lambda: is_continuous_at(abs, 0))
+check("a hole is not continuous (f undefined)", lambda: not is_continuous_at(hole, 1))
+check("a jump is not continuous", lambda: not is_continuous_at(lambda x: 0.0 if x < 0 else 1.0, 0))
+check("removable discontinuity with the wrong value", lambda: not is_continuous_at(lambda x: hole(x) if x != 1 else 5.0, 1))
+f = lambda x: 2 * x + 1
+d = delta_for_epsilon(f, 3, 7, 0.1)
+check("delta works for eps = 0.1", lambda: 0 < d <= 0.05)
+check("delta is not wastefully small", lambda: d >= 0.025)
+d2 = delta_for_epsilon(f, 3, 7, 0.01)
+check("smaller eps needs a smaller delta", lambda: d2 < d and d2 <= 0.005)
+check("diff quotient of x^2 at 3 with h=1", lambda: abs(diff_quotient(lambda x: x * x, 3, 1) - 7) < 1e-12)
+check("diff quotient shrinks toward 6", lambda: abs(diff_quotient(lambda x: x * x, 3, 0.001) - 6.001) < 1e-6)
+check("derivative of x^2 at 3 is about 6", lambda: abs(derivative_estimate(lambda x: x * x, 3) - 6) < 1e-4)
+check("derivative of sin at 0 is about 1", lambda: abs(derivative_estimate(math.sin, 0) - 1) < 1e-6)
+#@@ solution
+import math
+import numpy as np
+
+def one_sided(f, a, h=1e-6):
+    return (f(a - h), f(a + h))
+
+def limit_estimate(f, a):
+    left, right = one_sided(f, a, 1e-6)
+    if abs(left - right) < 1e-4:
+        return (left + right) / 2
+    return None
+
+def is_continuous_at(f, a):
+    try:
+        value = f(a)
+    except (ZeroDivisionError, ValueError):
+        return False
+    if not math.isfinite(value):
+        return False
+    lim = limit_estimate(f, a)
+    return lim is not None and abs(value - lim) < 1e-4
+
+def delta_for_epsilon(f, a, L, eps):
+    delta = 1.0
+    while delta > 1e-12:
+        xs = np.linspace(a - delta, a + delta, 2001)
+        xs = xs[xs != a]
+        if all(abs(f(x) - L) < eps for x in xs):
+            return delta
+        delta /= 2
+    return delta
+
+def diff_quotient(f, x, h):
+    return (f(x + h) - f(x)) / h
+
+def derivative_estimate(f, x):
+    return diff_quotient(f, x, 1e-6)

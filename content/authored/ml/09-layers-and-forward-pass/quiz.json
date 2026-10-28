@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.09.q1", "concept": "nn.layer", "stage": "pre",
+    "prompt": "A batch $X$ has shape $(32,100)$ and a dense layer has $W$ of shape $(100,64)$. What is the shape of `X @ W + b`?",
+    "options": ["$(32,100)$", "$(100,64)$", "$(32,64)$", "$(64,32)$"],
+    "answer": 2,
+    "explanation": "$(32\\times100)(100\\times64)=(32\\times64)$; the bias of shape $(64,)$ is broadcast across the 32 rows."
+  },
+  {
+    "id": "f2n.09.q2", "concept": "nn.layer",
+    "prompt": "How many parameters (weights and biases) does a $784\\to128\\to10$ MLP have?",
+    "kind": "numeric", "options": [], "answer": { "value": 101770, "tol": 0.5 },
+    "explanation": "$(784\\cdot128+128)+(128\\cdot10+10)=100480+1290=101770$."
+  },
+  {
+    "id": "f2n.09.q3", "concept": "nn.activation",
+    "prompt": "Why can a stack of linear layers with no activation not model XOR?",
+    "options": ["Too few parameters", "The composition $W_2W_1x$ is itself one linear map, so it can only make linear decision boundaries", "XOR needs a bias", "Linear layers have no gradients"],
+    "answer": 1,
+    "explanation": "Matrix multiplication is associative: $W_2(W_1x)=(W_2W_1)x$. XOR is not linearly separable, so no linear map solves it; a nonlinearity between layers fixes this."
+  },
+  {
+    "id": "f2n.09.q4", "concept": "nn.activation",
+    "prompt": "The largest value of the sigmoid derivative is...",
+    "kind": "numeric", "options": [], "answer": { "value": 0.25, "tol": 0.0001 },
+    "explanation": "$\\sigma'(z)=\\sigma(1-\\sigma)\\le\\frac12\\cdot\\frac12=0.25$ at $z=0$. Backpropagating through $L$ sigmoid layers can shrink gradients by $4^{-L}$."
+  },
+  {
+    "id": "f2n.09.q5", "concept": "nn.activation",
+    "prompt": "Which is the derivative of $\\tanh$?",
+    "options": ["$\\tanh(z)$", "$1-\\tanh^2(z)$", "$\\tanh(z)(1-\\tanh(z))$", "$1/\\cosh(z)$"],
+    "answer": 1,
+    "explanation": "$\\tanh'=1-\\tanh^2$ (equivalently $1/\\cosh^2$, not $1/\\cosh$). Its maximum slope is 1 at $z=0$."
+  },
+  {
+    "id": "f2n.09.q6", "concept": "nn.layer",
+    "prompt": "If $\\operatorname{Var}(z)=n\\sigma_w^2\\sigma_x^2$ and we want the variance to stay constant through a tanh layer with $n$ inputs, we should initialise weights with variance...",
+    "options": ["$\\sigma_w^2=1$", "$\\sigma_w^2=1/n$", "$\\sigma_w^2=n$", "$\\sigma_w^2=0$"],
+    "answer": 1,
+    "explanation": "Setting $n\\sigma_w^2=1$ keeps $\\operatorname{Var}(z)=\\sigma_x^2$. ReLU discards half the signal, so He init uses $2/n$. Zero weights break symmetry and learn nothing."
+  }
+]

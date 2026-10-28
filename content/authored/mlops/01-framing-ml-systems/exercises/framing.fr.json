@@ -1,0 +1,10 @@
+{
+  "id": "ops.01.ex1",
+  "title": "Percentiles de latence, batching et objectifs mélangés",
+  "prompt": "Trois petits outils pour raisonner sur les exigences d'un système de ML.\n\n- `latency_stats(lat)` -> `(mean, p50, p90, p99)` pour une liste de latences. Utilise le percentile au **rang le plus proche** : trie les valeurs et retourne celle de rang 1-indexé `ceil(q/100 * n)`.\n- `throughput_qps(batch_size, batch_ms)` -> requêtes par seconde si tu sers `batch_size` requêtes par lot et qu'un lot prend `batch_ms` millisecondes.\n- `pareto_front(quality, engagement)` -> liste triée des indices des éléments qui ne sont pas **dominés** : l'élément `j` domine `i` s'il est au moins aussi bon sur les deux scores et strictement meilleur sur un.\n- `blended_ranking(quality, engagement, alpha, beta)` -> indices des éléments triés par `alpha*quality + beta*engagement`, du meilleur au moins bon (égalités départagées par l'indice le plus petit d'abord).",
+  "hints": [
+    "Percentile au rang le plus proche : trie, prends l'élément de rang 1-indexé ceil(q/100 * n).",
+    "Débit en requêtes par seconde = batch_size * 1000 / batch_ms.",
+    "Un point est sur le front de Pareto si aucun autre point n'est >= sur les deux coordonnées et > sur au moins une."
+  ]
+}

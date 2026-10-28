@@ -1,0 +1,10 @@
+{
+  "id": "dl.03.ex1",
+  "title": "Passe avant/arrière de la batch norm avec test de gradient",
+  "prompt": "Implémente, avec NumPy uniquement :\n\n- `bn_forward(x, gamma, beta, eps=1e-5)` pour `x` de forme `(N, D)` ; renvoie `(y, cache)`.\n- `bn_backward(dy, cache)` ; renvoie `(dx, dgamma, dbeta)`.\n- `bn_eval(x, gamma, beta, run_mean, run_var, eps=1e-5)` utilisant les statistiques mobiles stockées.\n- `update_running(run, batch_stat, momentum=0.1)` renvoyant `(1-momentum)*run + momentum*batch_stat`.\n- `layer_norm(x, gamma, beta, eps=1e-5)` normalisant chaque ligne sur ses caractéristiques.\n- `he_init(fan_in, fan_out, rng)` renvoyant un tableau de forme `(fan_in, fan_out)` d'écart-type `sqrt(2/fan_in)`.\n\nL'utilitaire `numgrad` (différences centrées) est fourni ; les tests l'utilisent pour comparer ta passe arrière aux différences finies.",
+  "hints": [
+    "Passe avant : mu = x.mean(0), var = x.var(0) (variance de population, division par N), xh = (x-mu)/sqrt(var+eps), y = gamma*xh + beta. Mets en cache xh, 1/sqrt(var+eps) et gamma.",
+    "Passe arrière : dxh = dy*gamma ; dx = (inv/N) * (N*dxh - dxh.sum(0) - xh*(dxh*xh).sum(0)) ; dgamma = (dy*xh).sum(0) ; dbeta = dy.sum(0).",
+    "La layer norm est le même calcul sur l'axe 1 (keepdims=True). Init de He : std = sqrt(2/fan_in)."
+  ]
+}

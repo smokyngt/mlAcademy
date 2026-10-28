@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.04.c1", "front": "RLVR versus RLHF", "back": "RLVR utilise une récompense programmatique et vérifiable (vérificateur de réponse, tests) ; RLHF utilise un modèle de récompense appris sur des préférences humaines." },
+  { "id": "rsn.04.c2", "front": "Rollout", "back": "Une complétion échantillonnée (chaîne de pensée complète plus réponse) pour un prompt ; GRPO échantillonne un groupe de G rollouts par prompt." },
+  { "id": "rsn.04.c3", "front": "Théorème du gradient de politique pour les séquences", "back": "grad J = E[r(y) * grad log pi(y)], où log pi(y) est la SOMME des log-probabilités des tokens de la séquence." },
+  { "id": "rsn.04.c4", "front": "Pourquoi une baseline ne biaise pas le gradient", "back": "E[b grad log pi] = b * grad(sum pi) = 0 pour tout b indépendant de l'échantillon ; elle ne fait que réduire la variance." },
+  { "id": "rsn.04.c5", "front": "Avantage relatif au groupe", "back": "A_i = (r_i - mean(r)) / (std(r) + eps) sur les G rollouts d'un prompt (écart type d'échantillon, ddof = 1)." },
+  { "id": "rsn.04.c6", "front": "Avantages pour une récompense binaire", "back": "Avec k corrects sur G : sigma = sqrt(k(G-k)/(G(G-1))) ; les rollouts corrects reçoivent (1-k/G)/sigma, les faux -(k/G)/sigma." },
+  { "id": "rsn.04.c7", "front": "Quand tous les avantages GRPO sont-ils nuls ?", "back": "Quand tous les rollouts d'un prompt ont la même récompense (tous justes ou tous faux) : aucun signal d'apprentissage venant de ce prompt." },
+  { "id": "rsn.04.c8", "front": "Perte GRPO de base", "back": "L = -(1/G) sum_i A_i * sum_t log pi(y_t | x, y_<t), avantages détachés." },
+  { "id": "rsn.04.c9", "front": "Surrogat avec clipping", "back": "-(1/G) sum_i min(rho_i A_i, clip(rho_i, 1-eps, 1+eps) A_i), rho = pi_theta / pi_old ; gradient nul quand le terme clippé est strictement plus petit." },
+  { "id": "rsn.04.c10", "front": "Pourquoi la valeur de la perte est 0 au premier pas", "back": "Un ratio de 1 et des avantages de somme nulle donnent une perte scalaire nulle, mais le gradient A_i * grad log pi n'est pas nul." },
+  { "id": "rsn.04.c11", "front": "Pénalité KL dans le livre", "back": "beta * mean(logp - ref_logp) par rapport à un modèle de référence figé ; demande une seconde copie du modèle et peut déstabiliser l'entraînement quand elle est calculée sur des log-probabilités sommées." },
+  { "id": "rsn.04.c12", "front": "Récompense de correction avec encadrement obligatoire", "back": "Récompense 1 seulement si la dernière réponse encadrée est vérifiée : l'obligation d'encadrer est une récompense de format implicite." },
+  { "id": "rsn.04.c13", "front": "Récompense de format conditionnelle", "back": "format_reward *= correctness_reward pour que le formatage ne paie que pour les réponses correctes ; évite que des sorties fausses-mais-balisées égalent les justes." },
+  { "id": "rsn.04.c14", "front": "Probabilité d'un groupe sans signal", "back": "p^G + (1-p)^G pour une probabilité de succès p et G rollouts indépendants (0.17 pour p = 0.2, G = 8)." }
+]

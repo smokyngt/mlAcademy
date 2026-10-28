@@ -1,0 +1,10 @@
+{
+  "id": "cml.02.ex1",
+  "title": "Régression logistique par descente de gradient",
+  "prompt": "`X` contient déjà la colonne d'ordonnée à l'origine (première colonne de uns). Implémente :\n\n- `sigmoid(z)` (sans dépassement de capacité).\n- `loss(w, X, y, lam=0.0)` - entropie croisée moyenne plus `lam/2 * ||w[1:]||^2`.\n- `grad(w, X, y, lam=0.0)` - son gradient (ne pénalise pas `w[0]`).\n- `fit(X, y, lr, steps, lam=0.0)` - descente de gradient à partir de zéros ; renvoie `w`.\n- `predict(X, w)` - étiquettes 0/1.",
+  "hints": [
+    "sigmoid : borne z dans [-500, 500] avant np.exp pour qu'il ne déborde jamais.",
+    "loss : np.mean(np.logaddexp(0, z) - y * z) + 0.5 * lam * np.sum(w[1:] ** 2)",
+    "grad : X.T @ (sigmoid(X @ w) - y) / N, puis ajoute lam * w en mettant à zéro la première entrée (ordonnée à l'origine)."
+  ]
+}

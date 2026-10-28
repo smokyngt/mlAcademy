@@ -1,0 +1,109 @@
+[
+  {
+    "id": "quality-classifier",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Model-based quality scoring: a bag-of-words logistic regression trained on good versus spam documents scores every document; a threshold keeps or drops it, and weights stay readable.",
+      "fr": "Notation de qualité par modèle : une régression logistique sur sac de mots entraînée sur documents bons contre spam note chaque document ; un seuil le garde ou l'écarte, et les poids restent lisibles."
+    },
+    "code": {
+      "en": "flowchart LR\n  L[\"labelled good / bad documents\"] --> TR[\"train: p(good|x) = sigmoid(w.x + b)<br/>x in {0,1}^m\"]\n  D[\"all documents\"] --> X[\"bag-of-words x\"]\n  TR --> SC[\"score p(good)\"]\n  X --> SC\n  SC --> TH{\"p above threshold?\"}\n  TH -->|yes| KP[\"keep\"]\n  TH -->|no| DR[\"drop, then inspect by slice\"]",
+      "fr": "flowchart LR\n  L[\"documents étiquetés bons / mauvais\"] --> TR[\"entraîner : p(bon|x) = sigmoid(w.x + b)<br/>x in {0,1}^m\"]\n  D[\"tous les documents\"] --> X[\"sac de mots x\"]\n  TR --> SC[\"score p(bon)\"]\n  X --> SC\n  SC --> TH{\"p au-dessus du seuil ?\"}\n  TH -->|oui| KP[\"garder\"]\n  TH -->|non| DR[\"écarter, puis inspecter par tranche\"]"
+    }
+  },
+  {
+    "id": "lsh-scurve",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "LSH banding: probability that two documents with Jaccard similarity s become candidates, 1-(1-s^r)^b. 16 bands of 8 rows (blue) has its steep part near 0.71; 32x4 (orange) admits many false candidates; 8x16 (green) misses true pairs.",
+      "fr": "Bandes LSH : probabilité que deux documents de similarité de Jaccard s deviennent candidats, 1-(1-s^r)^b. 16 bandes de 8 lignes (bleu) a sa zone raide près de 0,71 ; 32x4 (orange) admet beaucoup de faux candidats ; 8x16 (vert) rate des vraies paires."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "1-(1-x^8)^16",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1-(1-x^4)^32",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1-(1-x^16)^8",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dedup-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Exact versus near-duplicate detection: hashing is linear but misses a changed ad; shingles make editing one word change up to k shingles, and MinHash plus LSH avoids comparing all pairs.",
+      "fr": "Détection exacte contre quasi-doublons : le hachage est linéaire mais rate une publicité modifiée ; avec les shingles, modifier un mot change jusqu'à k shingles, et MinHash plus LSH évite de comparer toutes les paires."
+    },
+    "code": {
+      "en": "flowchart TD\n  D[\"document\"] --> N[\"normalise: lowercase, collapse spaces\"]\n  N --> H{\"hash seen before?\"}\n  H -->|yes| X[\"exact duplicate: drop\"]\n  H -->|no| SH[\"k-shingles, MinHash signature<br/>n = br numbers\"]\n  SH --> B[\"LSH: b bands of r rows\"]\n  B --> CA{\"shares a bucket?\"}\n  CA -->|no| KP[\"keep\"]\n  CA -->|yes| V[\"exact Jaccard on shingle sets\"]\n  V --> TH{\"J above threshold?\"}\n  TH -->|yes| X2[\"near duplicate: drop\"]\n  TH -->|no| KP",
+      "fr": "flowchart TD\n  D[\"document\"] --> N[\"normaliser : minuscules, espaces réduits\"]\n  N --> H{\"hachage déjà vu ?\"}\n  H -->|oui| X[\"doublon exact : écarter\"]\n  H -->|non| SH[\"k-shingles, signature MinHash<br/>n = br numbers\"]\n  SH --> B[\"LSH : b bandes de r lignes\"]\n  B --> CA{\"partage un seau ?\"}\n  CA -->|non| KP[\"garder\"]\n  CA -->|oui| V[\"Jaccard exact sur les ensembles de shingles\"]\n  V --> TH{\"J au-dessus du seuil ?\"}\n  TH -->|oui| X2[\"quasi-doublon : écarter\"]\n  TH -->|non| KP"
+    }
+  },
+  {
+    "id": "decontam",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "N-gram decontamination: the score is the share of a benchmark item's n-grams present in the training corpus; requiring a fraction (not any match) avoids flagging items that only share a stock phrase.",
+      "fr": "Décontamination par n-grammes : le score est la part des n-grammes d'un item de benchmark présents dans le corpus d'entraînement ; exiger une fraction (et non un seul match) évite de signaler des items qui ne partagent qu'une formule banale."
+    },
+    "code": {
+      "en": "flowchart LR\n  BM[\"benchmark item\"] --> NG[\"n-grams G_item\"]\n  TR[\"training corpus\"] --> GT[\"n-grams G_train\"]\n  NG --> SC[\"score = |G_item and G_train| / |G_item|\"]\n  GT --> SC\n  SC --> D{\"score at least tau?\"}\n  D -->|yes| F[\"flag: remove from training<br/>or report as contaminated\"]\n  D -->|no| K[\"keep\"]",
+      "fr": "flowchart LR\n  BM[\"item de benchmark\"] --> NG[\"n-grams G_item\"]\n  TR[\"corpus d'entraînement\"] --> GT[\"n-grams G_train\"]\n  NG --> SC[\"score = |G_item et G_train| / |G_item|\"]\n  GT --> SC\n  SC --> D{\"score au moins tau ?\"}\n  D -->|oui| F[\"signaler : retirer de l'entraînement<br/>ou déclarer contaminé\"]\n  D -->|non| K[\"garder\"]"
+    }
+  },
+  {
+    "id": "mixture-alpha",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Temperature sampling of data sources with 1000, 100 and 10 tokens: w_i = n_i^a / sum n_j^a against a. At a = 1 weights are natural (0.901, 0.090, 0.009); at a = 0 they are equal (1/3 each). Large source blue, medium orange, small green.",
+      "fr": "Échantillonnage par température des sources de données avec 1000, 100 et 10 jetons : w_i = n_i^a / somme n_j^a en fonction de a. À a = 1 les poids sont naturels (0,901, 0,090, 0,009) ; à a = 0 ils sont égaux (1/3 chacun). Grande source en bleu, moyenne en orange, petite en vert."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(6.907755*x)/(exp(6.907755*x)+exp(4.60517*x)+exp(2.302585*x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(4.60517*x)/(exp(6.907755*x)+exp(4.60517*x)+exp(2.302585*x))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(2.302585*x)/(exp(6.907755*x)+exp(4.60517*x)+exp(2.302585*x))",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  }
+]

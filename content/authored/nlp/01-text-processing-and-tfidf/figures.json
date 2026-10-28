@@ -1,0 +1,89 @@
+[
+  {
+    "id": "text-pipeline",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The classical text-processing pipeline. Each step is lossy, so choose per task and apply the same pipeline to training and test text; unknown words map to an UNK token and short sequences are padded.",
+      "fr": "Le pipeline classique de traitement du texte. Chaque étape perd de l'information : choisissez par tâche et appliquez le même pipeline à l'entraînement et au test ; les mots inconnus deviennent un jeton UNK et les séquences courtes sont complétées."
+    },
+    "code": {
+      "en": "flowchart LR\n  R[\"raw string<br/>The cats weren't running.\"] --> N[\"normalise<br/>lowercase, unicode\"]\n  N --> TK[\"tokenise<br/>the | cats | weren't | running\"]\n  TK --> SW[\"stop words (optional)\"]\n  SW --> ST[\"stem or lemmatise (optional)<br/>cats to cat, ran to run\"]\n  ST --> U[\"UNK / PAD tokens\"]\n  U --> TOK[\"list of tokens\"]",
+      "fr": "flowchart LR\n  R[\"chaîne brute<br/>The cats weren't running.\"] --> N[\"normalisation<br/>minuscules, unicode\"]\n  N --> TK[\"tokenisation<br/>the | cats | weren't | running\"]\n  TK --> SW[\"mots vides (optionnel)\"]\n  SW --> ST[\"racinisation ou lemmatisation (optionnel)<br/>cats to cat, ran to run\"]\n  ST --> U[\"jetons UNK / PAD\"]\n  U --> TOK[\"liste de tokens\"]"
+    }
+  },
+  {
+    "id": "tfidf-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From documents to cosine similarities, with shapes. Fit the vocabulary and idf on the training split only; L2 normalisation turns cosine similarity into a plain dot product W W^T.",
+      "fr": "Des documents aux similarités cosinus, avec les formes. Le vocabulaire et l'idf sont ajustés sur le jeu d'entraînement uniquement ; la normalisation L2 transforme la similarité cosinus en simple produit scalaire W W^T."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"N documents\"] --> TK[\"tokens\"]\n  TK --> X[\"count matrix X<br/>(N,V)\"]\n  X --> DF[\"df = (X > 0).sum(0)<br/>(V,)\"]\n  DF --> IDF[\"idf = ln((1+N)/(1+df)) + 1<br/>(V,)\"]\n  X --> T1[\"T = X * idf<br/>(N,V)\"]\n  IDF --> T1\n  T1 --> W[\"divide each row by its L2 norm<br/>W (N,V)\"]\n  W --> S[\"S = W W^T<br/>(N,N)\"]",
+      "fr": "flowchart LR\n  D[\"N documents\"] --> TK[\"tokens\"]\n  TK --> X[\"matrice de comptes X<br/>(N,V)\"]\n  X --> DF[\"df = (X > 0).sum(0)<br/>(V,)\"]\n  DF --> IDF[\"idf = ln((1+N)/(1+df)) + 1<br/>(V,)\"]\n  X --> T1[\"T = X * idf<br/>(N,V)\"]\n  IDF --> T1\n  T1 --> W[\"diviser chaque ligne par sa norme L2<br/>W (N,V)\"]\n  W --> S[\"S = W W^T<br/>(N,N)\"]"
+    }
+  },
+  {
+    "id": "idf-curve",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The smoothed idf for N = 3 documents as a function of the document frequency: idf = ln(4/(1+df)) + 1. Worked example: df = 1 gives 1.6931 (dog, ran), df = 2 gives 1.2877 (cat, sat), df = 3 gives 1.0 (the): ubiquitous words keep the minimum weight 1.",
+      "fr": "L'idf lissé pour N = 3 documents en fonction de la fréquence documentaire : idf = ln(4/(1+df)) + 1. Exemple travaillé : df = 1 donne 1,6931 (dog, ran), df = 2 donne 1,2877 (cat, sat), df = 3 donne 1,0 (the) : les mots omniprésents gardent le poids minimal 1."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3.5
+      ],
+      "yDomain": [
+        0.5,
+        2.5
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "log(4/(1+x))+1",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              1.6931
+            ],
+            [
+              2,
+              1.2877
+            ],
+            [
+              3,
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "similarity-matrix",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The (3,3) cosine-similarity matrix W W^T of the worked example. Documents 1-2 and 1-3 share a content word plus 'the' (0.5443); documents 2-3 share only the stop word 'the' (0.1810).",
+      "fr": "La matrice de similarité cosinus (3,3) W W^T de l'exemple travaillé. Les documents 1-2 et 1-3 partagent un mot de contenu plus « the » (0,5443) ; les documents 2-3 ne partagent que le mot vide « the » (0,1810)."
+    },
+    "code": {
+      "en": "block-beta\n  columns 4\n  h0[\" \"] h1[\"doc 1\"] h2[\"doc 2\"] h3[\"doc 3\"]\n  r1[\"doc 1\"] a11[\"1.0000\"] a12[\"0.5443\"] a13[\"0.5443\"]\n  r2[\"doc 2\"] a21[\"0.5443\"] a22[\"1.0000\"] a23[\"0.1810\"]\n  r3[\"doc 3\"] a31[\"0.5443\"] a32[\"0.1810\"] a33[\"1.0000\"]\n  style a23 fill:#fee2e2,stroke:#dc2626\n  style a32 fill:#fee2e2,stroke:#dc2626",
+      "fr": "block-beta\n  columns 4\n  h0[\" \"] h1[\"doc 1\"] h2[\"doc 2\"] h3[\"doc 3\"]\n  r1[\"doc 1\"] a11[\"1.0000\"] a12[\"0.5443\"] a13[\"0.5443\"]\n  r2[\"doc 2\"] a21[\"0.5443\"] a22[\"1.0000\"] a23[\"0.1810\"]\n  r3[\"doc 3\"] a31[\"0.5443\"] a32[\"0.1810\"] a33[\"1.0000\"]\n  style a23 fill:#fee2e2,stroke:#dc2626\n  style a32 fill:#fee2e2,stroke:#dc2626"
+    }
+  }
+]

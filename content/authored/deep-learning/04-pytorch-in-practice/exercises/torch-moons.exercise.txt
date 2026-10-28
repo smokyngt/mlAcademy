@@ -1,0 +1,187 @@
+#@@ meta
+{"id": "dl.04.ex1", "title": "Port the from-scratch MLP to PyTorch and prove they agree", "difficulty": 3, "runtime": "docker", "concepts": ["dl.pytorch", "nn.autograd", "nn.training"], "hints": ["nn.Linear stores its weight as (out_features, in_features): the NumPy W of shape (n_in, n_out) is its transpose. Copy with torch.no_grad(): lin.weight.copy_(torch.tensor(W.T)).", "Build the model with .double() BEFORE copying weights, and use X as float64 and y as torch.long. F.cross_entropy takes logits and integer labels and averages over the batch, exactly like the NumPy loss.", "Training loop per batch: optimizer.zero_grad(); loss = F.cross_entropy(model(xb), yb); loss.backward(); optimizer.step(). Evaluate with model.eval() and torch.no_grad()."]}
+#@@ prompt
+The NumPy network from the previous lessons (`init_params`, `forward_backward`) is provided. Port it to PyTorch (CPU only).
+
+- `torch_model(params)` returns an `nn.Sequential(Linear(2,16), ReLU, Linear(16,2))` in **float64** whose weights equal the NumPy `params = (W1, b1, W2, b2)` (remember that `nn.Linear.weight` is the transpose of `W`).
+- `torch_loss_and_grads(params, X, y)` returns `(loss_float, [dW1, db1, dW2, db2])` as NumPy arrays in the **NumPy layout**, computed by PyTorch autograd. They must match `forward_backward`.
+- `train_torch(X, y, epochs=60, lr=0.03, batch_size=32, seed=0)` trains a fresh float32 model (Kaiming-normal weights, zero biases, Adam) with a `DataLoader` and the standard loop (`zero_grad`, forward, loss, `backward`, `step`); returns `(model, history)` with the mean loss of each epoch.
+- `accuracy(model, X, y)` in evaluation mode without gradient tracking.
+- `checkpoint_roundtrip(model)` saves `state_dict` into an in-memory `io.BytesIO`, loads it with `torch.load(..., weights_only=True)` into a freshly built model of the same architecture, and returns that new model.
+#@@ starter
+import io
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import TensorDataset, DataLoader
+
+def make_moons(n=200, noise=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2; n2 = n - n1
+    t1 = np.pi * rng.random(n1); t2 = np.pi * rng.random(n2)
+    X = np.vstack([np.c_[np.cos(t1), np.sin(t1)], np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]])
+    X = X + noise * rng.normal(size=X.shape)
+    y = np.r_[np.zeros(n1), np.ones(n2)].astype(int)
+    return X, y
+
+def init_params(n_in, hidden, n_out, seed=0):
+    rng = np.random.default_rng(seed)
+    return (rng.normal(0, np.sqrt(2 / n_in), (n_in, hidden)), np.zeros(hidden),
+            rng.normal(0, np.sqrt(2 / hidden), (hidden, n_out)), np.zeros(n_out))
+
+def forward_backward(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y] + 1e-300)))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2; db2 = dZ2.sum(0)
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, (X.T @ dZ1, dZ1.sum(0), dW2, db2)
+
+def torch_model(params):
+    raise NotImplementedError
+
+def torch_loss_and_grads(params, X, y):
+    raise NotImplementedError
+
+def train_torch(X, y, epochs=60, lr=0.03, batch_size=32, seed=0):
+    raise NotImplementedError
+
+def accuracy(model, X, y):
+    raise NotImplementedError
+
+def checkpoint_roundtrip(model):
+    raise NotImplementedError
+
+X, y = make_moons()
+params = init_params(2, 16, 2, 0)
+print(forward_backward(params, X, y)[0])
+#@@ tests
+import io
+import numpy as np
+import torch
+
+X, y = make_moons()
+params = init_params(2, 16, 2, 0)
+np_loss, np_grads = forward_backward(params, X, y)
+pt_loss, pt_grads = torch_loss_and_grads(params, X, y)
+check("loss matches the NumPy loss", lambda: abs(pt_loss - np_loss) < 1e-9)
+check("four gradients are returned", lambda: len(pt_grads) == 4)
+check("dW1 matches (NumPy layout, shape (2,16))", lambda: pt_grads[0].shape == (2, 16) and np.abs(pt_grads[0] - np_grads[0]).max() < 1e-9)
+check("db1 matches", lambda: np.abs(pt_grads[1] - np_grads[1]).max() < 1e-9)
+check("dW2 matches (shape (16,2))", lambda: pt_grads[2].shape == (16, 2) and np.abs(pt_grads[2] - np_grads[2]).max() < 1e-9)
+check("db2 matches", lambda: np.abs(pt_grads[3] - np_grads[3]).max() < 1e-9)
+m = torch_model(params)
+check("model is float64 and has 4 parameter tensors (2 Linear layers)", lambda: all(p.dtype == torch.float64 for p in m.parameters()) and len(list(m.parameters())) == 4)
+check("parameter count is 2*16+16+16*2+2 = 82", lambda: sum(p.numel() for p in m.parameters()) == 82)
+
+model, hist = train_torch(X, y)
+check("history has one entry per epoch", lambda: len(hist) == 60)
+check("loss decreases a lot", lambda: hist[-1] < 0.25 * hist[0])
+check("training accuracy above 97%", lambda: accuracy(model, X, y) > 0.97)
+Xt = X[:5]
+check("accuracy leaves the model in eval mode and does not track gradients", lambda: (accuracy(model, X, y), not model.training)[1])
+
+m2 = checkpoint_roundtrip(model)
+xt32 = torch.tensor(X, dtype=torch.float32)
+with torch.no_grad():
+    same = torch.equal(model.eval()(xt32), m2.eval()(xt32))
+check("checkpoint round trip gives identical outputs", lambda: same)
+check("the reloaded model is a different object", lambda: m2 is not model)
+#@@ solution
+import io
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import TensorDataset, DataLoader
+
+def make_moons(n=200, noise=0.1, seed=0):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2; n2 = n - n1
+    t1 = np.pi * rng.random(n1); t2 = np.pi * rng.random(n2)
+    X = np.vstack([np.c_[np.cos(t1), np.sin(t1)], np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]])
+    X = X + noise * rng.normal(size=X.shape)
+    y = np.r_[np.zeros(n1), np.ones(n2)].astype(int)
+    return X, y
+
+def init_params(n_in, hidden, n_out, seed=0):
+    rng = np.random.default_rng(seed)
+    return (rng.normal(0, np.sqrt(2 / n_in), (n_in, hidden)), np.zeros(hidden),
+            rng.normal(0, np.sqrt(2 / hidden), (hidden, n_out)), np.zeros(n_out))
+
+def forward_backward(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1; A1 = np.maximum(0, Z1); Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y] + 1e-300)))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2; db2 = dZ2.sum(0)
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    return loss, (X.T @ dZ1, dZ1.sum(0), dW2, db2)
+
+def _build():
+    return nn.Sequential(nn.Linear(2, 16), nn.ReLU(), nn.Linear(16, 2))
+
+def torch_model(params):
+    W1, b1, W2, b2 = params
+    model = _build().double()
+    with torch.no_grad():
+        model[0].weight.copy_(torch.tensor(W1.T)); model[0].bias.copy_(torch.tensor(b1))
+        model[2].weight.copy_(torch.tensor(W2.T)); model[2].bias.copy_(torch.tensor(b2))
+    return model
+
+def torch_loss_and_grads(params, X, y):
+    model = torch_model(params)
+    loss = F.cross_entropy(model(torch.tensor(X, dtype=torch.float64)), torch.tensor(y, dtype=torch.long))
+    loss.backward()
+    grads = [model[0].weight.grad.numpy().T.copy(), model[0].bias.grad.numpy().copy(),
+             model[2].weight.grad.numpy().T.copy(), model[2].bias.grad.numpy().copy()]
+    return float(loss.item()), grads
+
+def train_torch(X, y, epochs=60, lr=0.03, batch_size=32, seed=0):
+    torch.manual_seed(seed)
+    model = _build()
+    for layer in model:
+        if isinstance(layer, nn.Linear):
+            nn.init.kaiming_normal_(layer.weight, nonlinearity="relu")
+            nn.init.zeros_(layer.bias)
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    loader = DataLoader(TensorDataset(torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.long)),
+                        batch_size=batch_size, shuffle=True)
+    history = []
+    for _ in range(epochs):
+        model.train()
+        total, n = 0.0, 0
+        for xb, yb in loader:
+            opt.zero_grad()
+            loss = F.cross_entropy(model(xb), yb)
+            loss.backward()
+            opt.step()
+            total += loss.item() * len(yb); n += len(yb)
+        history.append(total / n)
+    return model, history
+
+def accuracy(model, X, y):
+    model.eval()
+    with torch.no_grad():
+        pred = model(torch.tensor(X, dtype=torch.float32)).argmax(1)
+    return float((pred == torch.tensor(y)).float().mean())
+
+def checkpoint_roundtrip(model):
+    buf = io.BytesIO()
+    torch.save(model.state_dict(), buf)
+    buf.seek(0)
+    new = _build()
+    new.load_state_dict(torch.load(buf, weights_only=True))
+    return new
+
+X, y = make_moons()
+params = init_params(2, 16, 2, 0)
+print(forward_backward(params, X, y)[0])

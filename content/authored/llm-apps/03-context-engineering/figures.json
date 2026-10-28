@@ -1,0 +1,41 @@
+[
+  {
+    "id": "token-budget",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The context budget of the lesson's coding assistant: 22,700 tokens, which is 17.7% of a 128K window. Tool definitions are the biggest slice; the window was not the problem, signal density is.",
+      "fr": "Le budget de contexte de l'assistant de code de la leçon : 22 700 jetons, soit 17,7 % d'une fenêtre de 128K. Les définitions d'outils sont la plus grosse part ; le problème n'était pas la fenêtre mais la densité de signal."
+    },
+    "code": {
+      "en": "pie showData title Tokens in the context window\n  \"System\" : 500\n  \"Tool definitions\" : 8000\n  \"Retrieved docs\" : 4000\n  \"History\" : 6000\n  \"Query\" : 200\n  \"Output budget\" : 4000",
+      "fr": "pie showData title Jetons dans la fenêtre de contexte\n  \"Système\" : 500\n  \"Définitions d'outils\" : 8000\n  \"Documents récupérés\" : 4000\n  \"Historique\" : 6000\n  \"Requête\" : 200\n  \"Budget de sortie\" : 4000"
+    }
+  },
+  {
+    "id": "compaction",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Compaction keeps history affordable: when the history exceeds its budget, older turns are summarised into a short note while the most recent turns stay verbatim.",
+      "fr": "La compaction garde l'historique abordable : quand l'historique dépasse son budget, les anciens tours sont résumés en une courte note tandis que les tours récents restent mot pour mot."
+    },
+    "code": {
+      "en": "flowchart LR\n  H[\"full history\"] --> C{\"over budget?\"}\n  C -->|\"no\"| KEEP[\"send as is\"]\n  C -->|\"yes\"| SPLIT[\"split: old turns / recent turns\"]\n  SPLIT --> SUM[\"summarise old turns\"]\n  SUM --> NEW[\"summary + recent turns verbatim\"]",
+      "fr": "flowchart LR\n  H[\"historique complet\"] --> C{\"au-delà du budget ?\"}\n  C -->|\"non\"| KEEP[\"envoyer tel quel\"]\n  C -->|\"oui\"| SPLIT[\"séparer : anciens tours / tours récents\"]\n  SPLIT --> SUM[\"résumer les anciens tours\"]\n  SUM --> NEW[\"résumé + tours récents tels quels\"]"
+    }
+  },
+  {
+    "id": "prefix-cache-layout",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Prefix caching: the provider reuses the computation of an identical prefix, so put stable material first and variable material last. A change early in the prompt invalidates everything after it.",
+      "fr": "Cache de préfixe : le fournisseur réutilise le calcul d'un préfixe identique, donc le contenu stable va en premier et le contenu variable en dernier. Un changement tôt dans le prompt invalide tout ce qui suit."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph CACHED[\"Cached prefix (stable)\"]\n    S[\"system\"] --> T[\"tool definitions\"] --> E[\"examples\"]\n  end\n  subgraph FRESH[\"Recomputed each call (variable)\"]\n    R[\"retrieved docs\"] --> H[\"recent history\"] --> Q[\"user query\"]\n  end\n  E --> R",
+      "fr": "flowchart LR\n  subgraph CACHED[\"Préfixe en cache (stable)\"]\n    S[\"système\"] --> T[\"définitions d'outils\"] --> E[\"exemples\"]\n  end\n  subgraph FRESH[\"Recalculé à chaque appel (variable)\"]\n    R[\"documents récupérés\"] --> H[\"historique récent\"] --> Q[\"requête utilisateur\"]\n  end\n  E --> R"
+    }
+  }
+]

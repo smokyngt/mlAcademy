@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.08.c14", "front": "Log-vraisemblance négative", "back": "$-\\sum_i\\ln p_\\theta(y_i\\mid x_i)$ ; la minimiser, c'est le maximum de vraisemblance." },
+  { "id": "f2n.08.c15", "front": "Softmax", "back": "$p_k=e^{z_k}/\\sum_je^{z_j}$ : positif, de somme 1, invariant par translation." },
+  { "id": "f2n.08.c16", "front": "Entropie croisée catégorielle", "back": "$-\\ln p_y=-z_y+\\operatorname{logsumexp}(z)$." },
+  { "id": "f2n.08.c17", "front": "Gradient de softmax + CE", "back": "$p-\\text{onehot}(y)$ (divise par $B$ pour une moyenne sur le batch)." },
+  { "id": "f2n.08.c18", "front": "Pourquoi pas l'EQM pour la classification ?", "back": "Avec une sigmoïde, le gradient porte $p(1-p)$ et s'annule quand le modèle se trompe avec assurance." },
+  { "id": "f2n.08.c19", "front": "Perte initiale d'un modèle aléatoire à 10 classes", "back": "$\\ln10\\approx2.30$." },
+  { "id": "f2n.08.c20", "front": "Log-softmax stable", "back": "$z_k-\\operatorname{logsumexp}(z)$." },
+  { "id": "f2n.08.c21", "front": "Effet des valeurs aberrantes sur l'EQM", "back": "L'erreur quadratique est dominée par les plus grosses erreurs." },
+  { "id": "f2n.08.c22", "front": "Vraisemblance de Bernoulli", "back": "$p^y(1-p)^{1-y}$." }
+]

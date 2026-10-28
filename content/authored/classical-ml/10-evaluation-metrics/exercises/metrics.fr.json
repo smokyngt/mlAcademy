@@ -1,0 +1,10 @@
+{
+  "id": "cml.10.ex1",
+  "title": "Matrice de confusion, ROC et AUC à partir de zéro",
+  "prompt": "Implémente, avec NumPy uniquement :\n\n- `confusion_counts(y, pred)` -> `(tp, fp, fn, tn)` pour des tableaux 0/1.\n- `prf(tp, fp, fn, tn)` -> `(precision, recall, f1, accuracy)` ; une métrique dont le dénominateur est 0 est renvoyée comme `0.0`.\n- `roc_curve(y, scores)` -> `(fpr, tpr)`, tous deux commençant à `0` et finissant à `1`, un point par score **distinct** (les scores égaux bougent ensemble).\n- `auc_trapz(fpr, tpr)` -> aire sous la courbe ROC par la règle des trapèzes (écris toi-même la somme).\n- `auc_pairs(y, scores)` -> $P(S^+ > S^-) + \\tfrac12 P(S^+ = S^-)$ calculée sur toutes les paires (positif, négatif).\n\nLes deux fonctions d'AUC doivent concorder.",
+  "hints": [
+    "confusion_counts : tp = sum((pred==1)&(y==1)), et ainsi de suite. Division par zéro -> renvoie 0.0 pour cette métrique.",
+    "roc_curve : trie les scores par ordre décroissant, prends les sommes cumulées de y et de 1-y, ne garde que le dernier indice de chaque série de scores égaux, ajoute le point (0, 0) en tête, et divise par le nombre de positifs / négatifs.",
+    "auc_pairs : compare chaque score positif à chaque score négatif par broadcasting : (pos[:,None] > neg[None,:]) + 0.5*(pos[:,None] == neg[None,:]) ; prends la moyenne."
+  ]
+}

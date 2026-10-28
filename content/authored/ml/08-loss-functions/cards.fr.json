@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.08.c1", "front": "L'EQM comme maximum de vraisemblance", "back": "Bruit gaussien $\\Rightarrow$ NLL $=\\sum(y-f)^2/2\\sigma^2+\\text{const}$." },
+  { "id": "f2n.08.c2", "front": "Entropie croisée binaire", "back": "$-[y\\ln p+(1-y)\\ln(1-p)]$ avec $p=\\sigma(z)$ ; $\\partial L/\\partial z=p-y$." },
+  { "id": "f2n.08.c3", "front": "Gradient de softmax + entropie croisée", "back": "$\\nabla_zL=p-\\text{onehot}(y)$ ; pour une moyenne sur le batch, divise par $B$." },
+  { "id": "f2n.08.c4", "front": "Perte attendue à l'initialisation pour $K$ classes", "back": "$\\ln K$ (prédictions uniformes). Binaire : $\\ln2\\approx0.693$." },
+  { "id": "f2n.08.c5", "front": "Log-softmax stable", "back": "$\\ln p_k=z_k-\\operatorname{logsumexp}(z)$, avec le logsumexp calculé après soustraction du maximum." }
+]

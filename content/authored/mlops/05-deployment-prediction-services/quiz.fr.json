@@ -1,0 +1,91 @@
+[
+ {
+  "id": "ops.05.q1",
+  "prompt": "Quelle tâche convient mal à la prédiction par lots ?",
+  "options": [
+   "Traduire un texte arbitraire saisi par les utilisateurs",
+   "La propension d'achat hebdomadaire de chaque client",
+   "Les scores de churn de nuit",
+   "Les recommandations de produits quotidiennes pour des utilisateurs connus"
+  ],
+  "explanation": "Le batch exige que les entrées soient connues à l'avance ; les entrées ouvertes nécessitent la prédiction en ligne."
+ },
+ {
+  "id": "ops.05.q2",
+  "prompt": "Une feature est calculée en batch sur un dataframe pour l'entraînement et sur une fenêtre glissante dans un flux pour le serving. Le principal risque est...",
+  "options": [
+   "un entraînement plus lent",
+   "trop de mémoire à l'entraînement",
+   "que les deux pipelines produisent des features différentes (train/serve skew)",
+   "seulement des factures cloud plus élevées"
+  ],
+  "explanation": "Deux pipelines maintenus séparément sont une source courante de bogues silencieux."
+ },
+ {
+  "id": "ops.05.q3",
+  "prompt": "Un serveur M/M/1 a un taux de service $\\mu=10$ requêtes/s et un taux d'arrivée $\\lambda=9$ requêtes/s. Quelle est la latence moyenne en secondes ?",
+  "options": [],
+  "explanation": "$W=1/(\\mu-\\lambda)=1/(10-9)=1$ s."
+ },
+ {
+  "id": "ops.05.q4",
+  "prompt": "Dans une file M/M/1, que devient la latence moyenne quand $\\lambda\\to\\mu$ ?",
+  "options": [
+   "Elle tend vers le temps de service",
+   "Elle croît sans borne",
+   "Elle est divisée par deux",
+   "Elle reste constante"
+  ],
+  "explanation": "$1/(\\mu-\\lambda)\\to\\infty$ : à pleine utilisation, la file est instable."
+ },
+ {
+  "id": "ops.05.q5",
+  "prompt": "Un modèle prend $0.02+0.002\\cdot\\text{size}$ s par lot. Quelle taille de lot a la capacité la plus élevée (requêtes par seconde) ?",
+  "options": [
+   "1",
+   "4",
+   "Elles sont égales",
+   "16"
+  ],
+  "explanation": "La capacité est $B/(0.02+0.002B)$ : 45,5, 143, 308 requêtes/s pour $B=1,4,16$."
+ },
+ {
+  "id": "ops.05.q6",
+  "prompt": "Pourquoi le batching dynamique utilise-t-il une attente maximale en plus d'une taille de lot maximale ?",
+  "options": [
+   "Pour économiser de la mémoire",
+   "Pour éviter la quantification",
+   "Pour borner la latence supplémentaire des requêtes qui attendent que le lot se remplisse",
+   "Pour réduire l'accuracy"
+  ],
+  "explanation": "Sans limite de temps, une requête isolée pourrait attendre indéfiniment des compagnes."
+ },
+ {
+  "id": "ops.05.q7",
+  "prompt": "Un modèle a 100 millions de paramètres stockés en flottants 32 bits. Combien de Mo occupe-t-il après une quantification 8 bits (1 Mo = $10^6$ octets) ?",
+  "options": [],
+  "explanation": "$10^8$ paramètres $\\times 1$ octet $=100$ Mo, une réduction d'un facteur 4 par rapport à 400 Mo."
+ },
+ {
+  "id": "ops.05.q8",
+  "prompt": "Dans la distillation de connaissances...",
+  "options": [
+   "un petit élève est entraîné à imiter un grand professeur",
+   "des poids sont mis à zéro sans réentraînement",
+   "le professeur est quantifié sur 1 bit",
+   "l'élève doit avoir l'architecture du professeur"
+  ],
+  "explanation": "L'élève peut avoir une architecture différente ; les sorties du professeur le guident."
+ },
+ {
+  "id": "ops.05.q9",
+  "prompt": "Quel est un avantage du déploiement edge ?",
+  "options": [
+   "Un calcul illimité",
+   "Un monitoring plus facile",
+   "Aucun besoin de compression",
+   "Pas d'aller-retour réseau et les données peuvent rester sur l'appareil"
+  ],
+  "explanation": "L'edge supprime la latence réseau et l'exposition de la vie privée, au prix d'un matériel plus faible et d'opérations plus difficiles."
+ }
+]

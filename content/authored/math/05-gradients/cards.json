@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.05.c1", "concept": "calc.gradient", "front": "Shape of $\\nabla f$ for $f:\\mathbb{R}^n\\to\\mathbb{R}$", "back": "$\\mathbb{R}^n$, the same as the input. For a matrix parameter $W$, $\\nabla_WL$ has $W$'s shape." },
+  { "id": "f2n.05.c2", "concept": "calc.gradient", "front": "Why is the gradient the steepest-ascent direction?", "back": "$D_uf=\\nabla f\\cdot u=\\|\\nabla f\\|\\cos\\theta$, maximal at $\\theta=0$; the maximal rate is $\\|\\nabla f\\|$." },
+  { "id": "f2n.05.c3", "concept": "calc.partial", "front": "How do you compute $\\partial f/\\partial x_i$?", "back": "Differentiate with respect to $x_i$ treating every other variable as a constant." },
+  { "id": "f2n.05.c4", "concept": "calc.gradient", "front": "Gradient of MSE for linear regression", "back": "$\\nabla_w\\frac1N\\|Xw-y\\|^2=\\frac2N X^\\top(Xw-y)$" },
+  { "id": "f2n.05.c5", "concept": "calc.gradient", "front": "Does $\\nabla f=0$ imply a minimum?", "back": "No: it is a stationary point (min, max or saddle). Use second-order information to tell them apart." }
+]

@@ -1,0 +1,96 @@
+#@@ meta
+{"id": "gen.04.ex1", "title": "DDPM schedule, forward noising and sampling", "difficulty": 4, "runtime": "pyodide", "concepts": ["gen.diffusion"], "hints": ["alpha_bar is np.cumprod(1 - betas); q_sample uses sqrt(abar[t]) and sqrt(1-abar[t]).", "Posterior mean = sqrt(abar_{t-1}) beta_t/(1-abar_t) x0 + sqrt(alpha_t)(1-abar_{t-1})/(1-abar_t) x_t.", "Sampling: loop t from T-1 down to 0, x = (x - beta/sqrt(1-abar)*eps)/sqrt(alpha), then add sqrt(beta)*noise unless t == 0."]}
+#@@ prompt
+Implement DDPM pieces and test them against an exact denoiser for 1-D Gaussian data $x_0\sim\mathcal N(m_0,s_0^2)$ (NumPy only).
+
+- `linear_betas(T)`, `alpha_bars(betas)`, `q_sample(x0, t, abar, eps)` (zero-based step index `t`).
+- `analytic_x0_hat(xt, t, abar, m0, s0)`: $\mathbb E[x_0|x_t]$ and `analytic_eps(...)`: the optimal noise prediction $(x_t-\sqrt{\bar\alpha_t}\hat x_0)/\sqrt{1-\bar\alpha_t}$.
+- `posterior_mean_var(x0, xt, t, betas)`: mean and variance of $q(x_{t-1}|x_t,x_0)$ (use $\bar\alpha_{-1}=1$ for the first step).
+- `sample(n, betas, eps_fn, rng)`: the ancestral sampling loop with $\sigma_t^2=\beta_t$ and no noise at the last step; `eps_fn(x, t)` returns the noise prediction.
+#@@ starter
+import numpy as np
+
+def linear_betas(T, b0=0.0001, b1=0.02):
+    raise NotImplementedError
+
+def alpha_bars(betas):
+    raise NotImplementedError
+
+def q_sample(x0, t, abar, eps):
+    raise NotImplementedError
+
+def analytic_x0_hat(xt, t, abar, m0, s0):
+    raise NotImplementedError
+
+def analytic_eps(xt, t, abar, m0, s0):
+    raise NotImplementedError
+
+def posterior_mean_var(x0, xt, t, betas):
+    raise NotImplementedError
+
+def sample(n, betas, eps_fn, rng):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+b = linear_betas(1000); ab = alpha_bars(b)
+check("schedule endpoints", lambda: abs(b[0] - 1e-4) < 1e-12 and abs(b[-1] - 0.02) < 1e-12 and len(b) == 1000)
+check("alpha_bar values 0.998, 0.897, 0.396 at steps 10,100,300", lambda: abs(ab[9] - 0.99810520) < 1e-6 and abs(ab[99] - 0.89701814) < 1e-6 and abs(ab[299] - 0.39641975) < 1e-6)
+check("alpha_bar_T ~ 4.0e-5 and decreasing", lambda: abs(ab[-1] - 4.0358e-5) < 1e-7 and np.all(np.diff(ab) < 0))
+check("two-step alpha_bar example 0.72", lambda: abs(alpha_bars(np.array([0.1, 0.2]))[1] - 0.72) < 1e-12)
+rng = np.random.default_rng(0)
+m0, s0 = 3.0, 0.5
+x0 = rng.normal(m0, s0, 200000); e = rng.normal(size=200000)
+xt = q_sample(x0, 499, ab, e)
+check("forward marginal mean/std at t=500 match theory", lambda: abs(xt.mean() - np.sqrt(ab[499]) * m0) < 0.01 and abs(xt.std() - np.sqrt(ab[499] * s0 ** 2 + 1 - ab[499])) < 0.01)
+check("analytic denoiser at t=300, x_t=2: x0hat 3.0249 and eps 0.1229", lambda: abs(analytic_x0_hat(np.array([2.0]), 299, ab, m0, s0)[0] - 3.0249) < 1e-4 and abs(analytic_eps(np.array([2.0]), 299, ab, m0, s0)[0] - 0.1229) < 1e-4)
+t = 300; x0 = rng.normal(m0, s0, 100000); e = rng.normal(size=100000); xt = q_sample(x0, t, ab, e)
+mse_opt = np.mean((e - analytic_eps(xt, t, ab, m0, s0)) ** 2)
+mse_std = np.mean((e - (xt - np.sqrt(ab[t]) * m0) / np.sqrt(ab[t] * s0 ** 2 + 1 - ab[t])) ** 2)
+check("optimal predictor has the lowest loss (about 0.139 < 0.144 < 1)", lambda: abs(mse_opt - 0.139) < 0.01 and mse_opt < mse_std < 1.0)
+# posterior mean equals the epsilon form
+tt = 200; x0v = 2.5; ev = 0.7
+xtv = q_sample(x0v, tt, ab, ev)
+mean, var = posterior_mean_var(x0v, xtv, tt, b)
+alt = (xtv - b[tt] / np.sqrt(1 - ab[tt]) * ev) / np.sqrt(1 - b[tt])
+check("posterior mean equals the noise-parameterised mean", lambda: abs(mean - alt) < 1e-10)
+check("posterior variance is below beta_t", lambda: 0 < var < b[tt])
+xs = sample(20000, b, lambda x, t: analytic_eps(x, t, ab, m0, s0), np.random.default_rng(0))
+check("sampler recovers N(3, 0.5^2): mean 3.004, std 0.4986", lambda: abs(xs.mean() - 3.0039) < 0.01 and abs(xs.std() - 0.4986) < 0.01)
+check("sampler with a zero predictor fails (std far from 0.5)", lambda: abs(sample(5000, b, lambda x, t: 0 * x, np.random.default_rng(1)).std() - 0.5) > 0.2)
+#@@ solution
+import numpy as np
+
+def linear_betas(T, b0=1e-4, b1=0.02):
+    return np.linspace(b0, b1, T)
+
+def alpha_bars(betas):
+    return np.cumprod(1 - betas)
+
+def q_sample(x0, t, abar, eps):
+    return np.sqrt(abar[t]) * x0 + np.sqrt(1 - abar[t]) * eps
+
+def analytic_x0_hat(xt, t, abar, m0, s0):
+    a = abar[t]
+    return m0 + np.sqrt(a) * s0 ** 2 / (a * s0 ** 2 + 1 - a) * (xt - np.sqrt(a) * m0)
+
+def analytic_eps(xt, t, abar, m0, s0):
+    return (xt - np.sqrt(abar[t]) * analytic_x0_hat(xt, t, abar, m0, s0)) / np.sqrt(1 - abar[t])
+
+def posterior_mean_var(x0, xt, t, betas):
+    ab = alpha_bars(betas)
+    al = 1 - betas
+    abprev = ab[t - 1] if t > 0 else 1.0
+    mean = np.sqrt(abprev) * betas[t] / (1 - ab[t]) * x0 + np.sqrt(al[t]) * (1 - abprev) / (1 - ab[t]) * xt
+    var = (1 - abprev) / (1 - ab[t]) * betas[t]
+    return mean, var
+
+def sample(n, betas, eps_fn, rng):
+    al = 1 - betas
+    ab = alpha_bars(betas)
+    x = rng.normal(size=n)
+    for t in range(len(betas) - 1, -1, -1):
+        e = eps_fn(x, t)
+        x = (x - betas[t] / np.sqrt(1 - ab[t]) * e) / np.sqrt(al[t])
+        if t > 0:
+            x = x + np.sqrt(betas[t]) * rng.normal(size=n)
+    return x

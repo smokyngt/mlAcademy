@@ -1,0 +1,16 @@
+[
+  { "id": "cml.08.c1", "concept": "ml.svm", "front": "Distance of $x$ to the hyperplane $f(x)=\\langle w,x\\rangle+b=0$", "back": "$|f(x)|/\\|w\\|$; for a correctly classified point $y\\,f(x)/\\|w\\|$." },
+  { "id": "cml.08.c2", "concept": "ml.svm", "front": "Canonical representation and margin", "back": "Scale so the closest point has $yf(x)=1$; all points satisfy $yf(x)\\ge1$ and the margin is $1/\\|w\\|$." },
+  { "id": "cml.08.c3", "concept": "ml.svm", "front": "Hard-margin SVM (primal)", "back": "$\\min_{w,b}\\tfrac12\\|w\\|^2$ s.t. $y_n(\\langle w,x_n\\rangle+b)\\ge1$ for all $n$." },
+  { "id": "cml.08.c4", "concept": "ml.svm", "front": "Soft-margin SVM (primal)", "back": "$\\min\\tfrac12\\|w\\|^2+C\\sum\\xi_n$ s.t. $y_nf(x_n)\\ge1-\\xi_n$, $\\xi_n\\ge0$." },
+  { "id": "cml.08.c5", "concept": "ml.svm", "front": "Meaning of slack $\\xi_n$", "back": "0: correct and outside margin; $(0,1]$: inside the margin, correct; $>1$: misclassified. $\\sum\\xi$ bounds the number of errors." },
+  { "id": "cml.08.c6", "concept": "ml.svm", "front": "Hinge loss", "back": "$\\max\\{0,1-y f(x)\\}$: zero beyond the margin, linear inside; convex upper bound of the 0-1 loss." },
+  { "id": "cml.08.c7", "concept": "ml.svm", "front": "Soft-margin SVM as regularised loss", "back": "$\\tfrac12\\|w\\|^2+C\\sum_n\\max\\{0,1-y_nf(x_n)\\}$: the margin term is the regulariser." },
+  { "id": "cml.08.c8", "concept": "ml.svm", "front": "Stationarity conditions of the SVM Lagrangian", "back": "$w=\\sum\\alpha_ny_nx_n$, $\\sum\\alpha_ny_n=0$, $C-\\alpha_n-\\gamma_n=0$ (hence $\\alpha_n\\le C$)." },
+  { "id": "cml.08.c9", "concept": "ml.svm", "front": "Dual SVM", "back": "$\\min_\\alpha\\tfrac12\\sum_{ij}\\alpha_i\\alpha_jy_iy_j\\langle x_i,x_j\\rangle-\\sum\\alpha_i$ s.t. $\\sum\\alpha_iy_i=0$, $0\\le\\alpha_i\\le C$." },
+  { "id": "cml.08.c10", "concept": "ml.svm", "front": "Support vectors", "back": "Training points with $\\alpha_n>0$: on the margin ($0<\\alpha<C$) or inside/violating it ($\\alpha=C$). The others do not affect $w$." },
+  { "id": "cml.08.c11", "concept": "ml.svm", "front": "Recovering the bias $b$", "back": "From a margin support vector: $b=y_n-\\langle w,x_n\\rangle$; average over several for stability." },
+  { "id": "cml.08.c12", "concept": "ml.svm", "front": "Kernel trick", "back": "Replace $\\langle x_i,x_j\\rangle$ by $k(x_i,x_j)=\\langle\\phi(x_i),\\phi(x_j)\\rangle$; prediction $f(x)=\\sum\\alpha_ny_nk(x_n,x)+b$." },
+  { "id": "cml.08.c13", "concept": "ml.svm", "front": "RBF kernel and its parameter", "back": "$k(x,z)=\\exp(-\\gamma\\|x-z\\|^2)$, infinite-dimensional feature space; large $\\gamma$ is local and prone to overfit." },
+  { "id": "cml.08.c14", "concept": "ml.svm", "front": "Subgradient of the SVM objective (lam form)", "back": "$g_w=\\lambda w-\\frac1N\\sum_{n:\\,y_nf(x_n)<1}y_nx_n$, $g_b=-\\frac1N\\sum_{\\text{viol}}y_n$; use a decaying step." }
+]

@@ -1,0 +1,10 @@
+{
+  "id": "cml.07.ex1",
+  "title": "Gradient boosting avec des souches de régression",
+  "prompt": "Implémente le gradient boosting pour la perte quadratique.\n\n- `fit_stump(X, r)` renvoie `(j, t, left_value, right_value)` : l'unique coupure (`X[:, j] <= t`) qui minimise l'erreur quadratique de la prédiction de la moyenne de `r` de chaque côté. Les seuils candidats sont les milieux entre valeurs distinctes triées consécutives.\n- `predict_stump(s, X)` renvoie un tableau `(N,)`.\n- `gb_fit(X, y, n_rounds, lr)` renvoie `(model, history)` : `model = {\"f0\": y.mean(), \"stumps\": [...]}` et `history[m]` est la MSE d'entraînement après le tour `m+1`. Chaque tour ajuste une souche sur les résidus courants $r=y-F$ et pose $F\\leftarrow F+\\text{lr}\\cdot h$.\n- `gb_predict(model, X, lr)` renvoie la prédiction de l'ensemble.",
+  "hints": [
+    "fit_stump : pour chaque variable et chaque seuil milieu, les meilleures constantes sont les moyennes de r de chaque côté ; score = erreur quadratique totale ; garde la plus petite (égalités : la première trouvée).",
+    "gb_fit : F = full(n, y.mean()); à chaque tour r = y - F, stump = fit_stump(X, r), F += lr * predict_stump(stump, X); enregistre mean((y - F)**2) après la mise à jour.",
+    "gb_predict(model, X, lr) : pars de model['f0'] et ajoute lr * predict_stump(s, X) pour chaque souche."
+  ]
+}

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.04.c1",
+  "concept": "mx.markov",
+  "front": "Markov property",
+  "back": "$P(X_{t+1}\\mid X_t,\\dots,X_0)=P(X_{t+1}\\mid X_t)$: future independent of past given the present."
+ },
+ {
+  "id": "mx.04.c2",
+  "concept": "mx.markov",
+  "front": "Transition matrix",
+  "back": "$P_{ij}=P(X_{t+1}=j\\mid X_t=i)$; entries $\\ge0$, each row sums to 1."
+ },
+ {
+  "id": "mx.04.c3",
+  "concept": "mx.markov",
+  "front": "n-step probabilities",
+  "back": "$\\mu_n=\\mu_0P^n$; $(P^n)_{ij}$ = probability of $i\\to j$ in exactly $n$ steps."
+ },
+ {
+  "id": "mx.04.c4",
+  "concept": "mx.markov",
+  "front": "Parameters of an M-th order chain",
+  "back": "$K^{M-1}(K-1)$ for general tables: exponential in the order (Bishop 13.1)."
+ },
+ {
+  "id": "mx.04.c5",
+  "concept": "mx.stationary",
+  "front": "Stationary distribution",
+  "back": "$\\pi P=\\pi$, $\\sum\\pi_i=1$: left eigenvector with eigenvalue 1."
+ },
+ {
+  "id": "mx.04.c6",
+  "concept": "mx.stationary",
+  "front": "Why eigenvalue 1 exists",
+  "back": "$P\\mathbf 1=\\mathbf 1$ (rows sum to 1); $P^\\top$ has the same eigenvalues."
+ },
+ {
+  "id": "mx.04.c7",
+  "concept": "mx.stationary",
+  "front": "Ergodic chain",
+  "back": "Irreducible and aperiodic; some power of $P$ is strictly positive."
+ },
+ {
+  "id": "mx.04.c8",
+  "concept": "mx.stationary",
+  "front": "Consequences of ergodicity",
+  "back": "Unique positive $\\pi$; $\\mu_n\\to\\pi$ from any start; time averages equal $\\pi$-averages."
+ },
+ {
+  "id": "mx.04.c9",
+  "concept": "mx.stationary",
+  "front": "Mixing rate",
+  "back": "Error $\\sim|\\lambda_2|^n$; spectral gap $1-|\\lambda_2|$ (small gap = slow mixing)."
+ },
+ {
+  "id": "mx.04.c10",
+  "concept": "mx.stationary",
+  "front": "Detailed balance",
+  "back": "$\\pi_iP_{ij}=\\pi_jP_{ji}$; sufficient for $\\pi P=\\pi$."
+ },
+ {
+  "id": "mx.04.c11",
+  "concept": "mx.stationary",
+  "front": "Metropolis-Hastings acceptance",
+  "back": "With a symmetric proposal accept $j$ with probability $\\min(1,\\pi_j/\\pi_i)$; the normalising constant cancels."
+ },
+ {
+  "id": "mx.04.c12",
+  "concept": "mx.markov",
+  "front": "Random walk spread",
+  "back": "$S_n=\\sum\\xi_i$, $\\xi_i=\\pm1$: mean 0, variance $n$, typical distance $\\sqrt n$."
+ },
+ {
+  "id": "mx.04.c13",
+  "concept": "mx.markov",
+  "front": "Poisson process",
+  "back": "Independent exponential gaps with mean $1/\\lambda$; count on $[0,T]$ is Poisson with mean and variance $\\lambda T$."
+ },
+ {
+  "id": "mx.04.c14",
+  "concept": "mx.markov",
+  "front": "Memoryless property",
+  "back": "$P(W>s+t\\mid W>s)=P(W>t)$ for exponential waiting times: the continuous-time Markov property."
+ }
+]

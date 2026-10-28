@@ -1,0 +1,16 @@
+[
+  {"id": "trf.03.c1", "concept": "trf.position", "front": "Why does a transformer need positional information?", "back": "Attention is permutation-equivariant: $Z(PX)=PZ(X)$. Without position signal, word order is invisible."},
+  {"id": "trf.03.c2", "concept": "trf.position", "front": "Sinusoidal encoding formula", "back": "$PE_{p,2i}=\\sin(p\\,\\omega_i)$, $PE_{p,2i+1}=\\cos(p\\,\\omega_i)$, $\\omega_i=10000^{-2i/d}$. Shape $(T,d)$, added to embeddings."},
+  {"id": "trf.03.c3", "concept": "trf.position", "front": "Why sine and cosine in pairs?", "back": "A shift by $k$ becomes a fixed rotation of each pair, independent of $p$: a linear map the model can learn."},
+  {"id": "trf.03.c4", "concept": "trf.position", "front": "Multi-scale frequencies", "back": "Fast pairs distinguish neighbours, slow pairs encode coarse location (like second, minute and hour hands)."},
+  {"id": "trf.03.c5", "concept": "trf.position", "front": "Learned positional embeddings", "back": "Trainable table $(T_{\\max},d)$ added to token embeddings (GPT-2). No rows beyond $T_{\\max}$; $T_{\\max}d$ parameters."},
+  {"id": "trf.03.c6", "concept": "trf.rope", "front": "RoPE in one sentence", "back": "Rotate each coordinate pair of $q$ and $k$ by an angle $m\\theta_i$ proportional to position; the dot product then depends on $m-n$ only."},
+  {"id": "trf.03.c7", "concept": "trf.rope", "front": "2-D rotation matrix and its key identities", "back": "$R(\\phi)=\\begin{pmatrix}\\cos\\phi&-\\sin\\phi\\\\\\sin\\phi&\\cos\\phi\\end{pmatrix}$; $R(\\phi)^\\top=R(-\\phi)$, $R(a)R(b)=R(a+b)$."},
+  {"id": "trf.03.c8", "concept": "trf.rope", "front": "Key RoPE property", "back": "$\\langle R_mq,R_nk\\rangle=q^\\top R_{n-m}k$; absolute positions cancel."},
+  {"id": "trf.03.c9", "concept": "trf.rope", "front": "RoPE per-pair formula", "back": "$x'_{2i}=x_{2i}c-x_{2i+1}s$, $x'_{2i+1}=x_{2i}s+x_{2i+1}c$ with $c,s=\\cos,\\sin(m\\theta_i)$, $\\theta_i=\\text{base}^{-2i/d_h}$."},
+  {"id": "trf.03.c10", "concept": "trf.rope", "front": "Does RoPE change vector norms? Add parameters?", "back": "No to both: rotations preserve norms and the angles are fixed functions of position."},
+  {"id": "trf.03.c11", "concept": "trf.rope", "front": "Where is RoPE applied?", "back": "To $Q$ and $K$ (not $V$), per head, inside every attention layer; shape stays $(B,h,T,d_h)$."},
+  {"id": "trf.03.c12", "concept": "trf.rope", "front": "RoPE 2-D score closed form", "back": "$\\cos\\phi\\,(q\\cdot k)+\\sin\\phi\\,(q_1k_2-q_2k_1)$ with $\\phi=(m-n)\\theta$."},
+  {"id": "trf.03.c13", "concept": "trf.position", "front": "ALiBi in one line", "back": "No position vectors: add a head-specific penalty $-m_h|i-j|$ to the scores; mentioned in the source lesson as good at length extrapolation."},
+  {"id": "trf.03.c14", "concept": "trf.position", "front": "Causal mask and order", "back": "The mask breaks permutation symmetry a little (a token sees only its prefix) but gives no distance information."}
+]

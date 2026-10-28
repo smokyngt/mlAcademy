@@ -1,0 +1,66 @@
+#@@ meta
+{"id": "cml.05.ex1", "title": "PCA from the covariance matrix", "difficulty": 4, "runtime": "pyodide", "concepts": ["ml.pca"], "hints": ["Centre first: Xc = X - X.mean(axis=0). Covariance: Xc.T @ Xc / (N - 1).", "np.linalg.eigh returns eigenvalues in ascending order: reverse them (and the eigenvector columns) with argsort()[::-1].", "components are the top-k eigenvectors as ROWS, shape (k, d). transform: (X - mean) @ components.T. inverse_transform: Z @ components + mean."]}
+#@@ prompt
+Implement PCA with only NumPy linear algebra:
+
+- `pca_fit(X, k)` -> `(mean, components, eigenvalues)`: `components` has shape `(k, d)` (rows are unit directions, sorted by decreasing variance), `eigenvalues` holds **all** `d` covariance eigenvalues in decreasing order.
+- `transform(X, mean, components)` -> `(N, k)`.
+- `inverse_transform(Z, mean, components)` -> `(N, d)`.
+- `explained_variance_ratio(eigenvalues, k)` -> share of variance kept by the first `k`.
+#@@ starter
+import numpy as np
+
+def pca_fit(X, k):
+    raise NotImplementedError
+
+def transform(X, mean, components):
+    raise NotImplementedError
+
+def inverse_transform(Z, mean, components):
+    raise NotImplementedError
+
+def explained_variance_ratio(eigenvalues, k):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+X = np.array([[2., 2.], [-2., -2.], [1., -1.], [-1., 1.]])
+mean, comps, vals = pca_fit(X, 1)
+check("worked example eigenvalues 16/3 and 4/3", lambda: np.allclose(vals, [16 / 3, 4 / 3]))
+check("first direction is (1,1)/sqrt 2 up to sign", lambda: abs(abs(comps[0] @ np.array([1., 1.]) / np.sqrt(2)) - 1) < 1e-9)
+check("components have shape (k, d)", lambda: comps.shape == (1, 2))
+check("explained variance ratio = 0.8", lambda: abs(explained_variance_ratio(vals, 1) - 0.8) < 1e-12)
+Z = transform(X, mean, comps)
+check("transform shape (N, k)", lambda: Z.shape == (4, 1))
+check("worked example reconstruction error = 4", lambda: abs(np.sum((X - inverse_transform(Z, mean, comps)) ** 2) - 4) < 1e-9)
+rng = np.random.default_rng(0)
+A = rng.normal(size=(200, 5)) @ rng.normal(size=(5, 5)) + np.array([3., -1., 0., 2., 5.])
+mean, comps, vals = pca_fit(A, 3)
+check("eigenvalues sorted decreasing and non-negative", lambda: np.all(np.diff(vals) <= 1e-12) and np.all(vals > -1e-9))
+check("components are orthonormal", lambda: np.allclose(comps @ comps.T, np.eye(3), atol=1e-9))
+Zr = transform(A, mean, comps)
+check("variance of each projected coordinate equals its eigenvalue", lambda: np.allclose(Zr.var(axis=0, ddof=1), vals[:3]))
+check("squared reconstruction error = (N-1) * dropped eigenvalues", lambda: abs(np.sum((A - inverse_transform(Zr, mean, comps)) ** 2) - (len(A) - 1) * vals[3:].sum()) < 1e-6)
+Xc = A - A.mean(axis=0)
+_, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+check("agrees with the SVD (eigenvalues and directions)", lambda: np.allclose(vals, s ** 2 / (len(A) - 1)) and np.allclose(np.abs(comps @ Vt[:3].T), np.eye(3), atol=1e-6))
+m5, c5, _ = pca_fit(A, 5)
+check("with k = d the reconstruction is exact", lambda: np.allclose(inverse_transform(transform(A, m5, c5), m5, c5), A))
+#@@ solution
+import numpy as np
+
+def pca_fit(X, k):
+    mean = X.mean(axis=0)
+    Xc = X - mean
+    C = Xc.T @ Xc / (len(X) - 1)
+    vals, vecs = np.linalg.eigh(C)
+    order = np.argsort(vals)[::-1]
+    return mean, vecs[:, order[:k]].T, vals[order]
+
+def transform(X, mean, components):
+    return (X - mean) @ components.T
+
+def inverse_transform(Z, mean, components):
+    return Z @ components + mean
+
+def explained_variance_ratio(eigenvalues, k):
+    return float(np.sum(eigenvalues[:k]) / np.sum(eigenvalues))

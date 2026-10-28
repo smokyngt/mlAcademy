@@ -1,0 +1,17 @@
+[
+  {"id": "vis.02.c1", "front": "Softmax et entropie croisée", "back": "$p_i=e^{z_i}/\\sum_j e^{z_j}$ ; $\\ell=-\\log p_y=-z_y+\\log\\sum_j e^{z_j}$ (soustraire $\\max z$ pour la stabilité)."},
+  {"id": "vis.02.c2", "front": "Gradient de l'entropie croisée par rapport aux logits", "back": "$p-e_y$ (prédiction moins cible one-hot)."},
+  {"id": "vis.02.c3", "front": "Précision top-k", "back": "Correcte si la vraie classe est parmi les $k$ logits les plus élevés. Le top-$C$ vaut toujours 1 ; le top-5 compte quand les classes sont quasi identiques."},
+  {"id": "vis.02.c4", "front": "Matrice de confusion", "back": "$C\\times C$, entrée $(i,j)$ = images de vraie classe $i$ prédites $j$. Diagonale = correct ; les hors-diagonales montrent quelles classes se mélangent."},
+  {"id": "vis.02.c5", "front": "Cinq invariants de la boucle d'entraînement", "back": "modes train()/eval() ; remise à zéro des gradients à chaque pas ; logits dans la perte ; no_grad à l'évaluation ; augmenter uniquement les données d'entraînement."},
+  {"id": "vis.02.c6", "front": "Mixup", "back": "$x=\\lambda x_i+(1-\\lambda)x_j$, $y=\\lambda y_i+(1-\\lambda)y_j$, $\\lambda\\sim\\mathrm{Beta}(\\alpha,\\alpha)$. Augmente la perte d'entraînement mais améliore la robustesse."},
+  {"id": "vis.02.c7", "front": "Lissage d'étiquettes", "back": "Cible $(1-\\varepsilon)e_y+\\varepsilon/C$ ; empêche des logits arbitrairement grands et améliore la calibration."},
+  {"id": "vis.02.c8", "front": "Extraction de caractéristiques vs fine-tuning", "back": "Extraction de caractéristiques : backbone gelé, seule la nouvelle tête s'entraîne. Fine-tuning : le backbone est aussi entraînable, avec un petit taux d'apprentissage."},
+  {"id": "vis.02.c9", "front": "Sonde linéaire", "back": "Entraîner une couche linéaire sur des caractéristiques gelées. Mesure à quel point la représentation est linéairement séparable ; le plancher du transfert."},
+  {"id": "vis.02.c10", "front": "Gradient de la sonde", "back": "$\\nabla_W=\\frac1N X^\\top(P-Y)$ avec $X\\in\\mathbb R^{N\\times d}$, $W\\in\\mathbb R^{d\\times C}$ ; convexe car les caractéristiques sont gelées."},
+  {"id": "vis.02.c11", "front": "Décroissance du taux d'apprentissage par couche", "back": "$\\eta_k=\\eta_{base}\\gamma^{L-k}$ ; les premières couches reçoivent les plus petits pas, la tête le taux de base."},
+  {"id": "vis.02.c12", "front": "Pourquoi les premières couches se transfèrent-elles ?", "back": "Elles capturent des statistiques génériques des images naturelles (contours, textures) ; les dernières couches sont liées à la tâche d'origine."},
+  {"id": "vis.02.c13", "front": "Dégel progressif", "back": "Commencer avec seulement la tête entraînable, dégeler une couche de plus (la plus proche de la tête d'abord) à chaque époque ; reconstruire l'optimiseur quand l'ensemble entraînable change."},
+  {"id": "vis.02.c14", "front": "BatchNorm pendant le fine-tuning", "back": "Les statistiques glissantes viennent des données de pré-entraînement. Données moyennes : entraîner BN normalement ; données minuscules : geler BN en mode eval ; lots minuscules : utiliser la normalisation de groupe."},
+  {"id": "vis.02.c15", "front": "Quelles deux précisions rapporter en apprentissage par transfert ?", "back": "La précision gelée (sonde linéaire) comme plancher et la précision après fine-tuning comme plafond ; un fine-tuning en dessous du gelé signale un bug."}
+]

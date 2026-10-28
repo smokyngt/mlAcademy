@@ -1,0 +1,75 @@
+[
+ {
+  "id": "gpu.02.q1",
+  "prompt": "L'intensité arithmétique est...",
+  "options": [
+   "les FLOPs divisés par les octets déplacés depuis et vers la mémoire",
+   "les FLOP/s divisés par le nombre de SM",
+   "les octets par seconde divisés par les FLOP/s",
+   "la fraction du temps pendant laquelle le GPU est occupé"
+  ],
+  "explanation": "I = FLOPs / octets, mesuré en FLOP/octet. C'est une propriété de l'opération (et de son implémentation), pas de la puce."
+ },
+ {
+  "id": "gpu.02.q2",
+  "prompt": "Une puce a un pic de 312 TFLOP/s et 2.0 To/s de bande passante mémoire. Quel est son point de crête en FLOP/octet ?",
+  "options": [],
+  "explanation": "Crête = P / bande passante = 312e12 / 2e12 = 156 FLOP/octet. Les opérations en dessous sont limitées par la mémoire."
+ },
+ {
+  "id": "gpu.02.q3",
+  "prompt": "Laquelle de ces opérations est la plus limitée par le calcul sur un GPU ?",
+  "options": [
+   "softmax sur une matrice 4096 x 4096",
+   "layer norm sur une matrice 4096 x 4096",
+   "l'addition de deux grands vecteurs",
+   "un matmul fp16 de 4096 x 4096 par 4096 x 4096"
+  ],
+  "explanation": "Le matmul carré a une intensité de 2n/(3e), soit environ 1365 FLOP/octet pour n=4096 et fp16, bien au-dessus du point de crête ; les autres sont à 1-2 FLOP/octet."
+ },
+ {
+  "id": "gpu.02.q4",
+  "prompt": "Pourquoi le décodage token par token (batch 1) avec une grande couche linéaire est-il limité par la mémoire ?",
+  "options": [
+   "la couche demande plus de FLOPs qu'un grand batch",
+   "chaque poids est lu une fois depuis la HBM pour faire environ une multiplication-addition, donc l'intensité vaut environ 1 FLOP/octet",
+   "les tensor cores ne peuvent pas fonctionner avec un batch de 1",
+   "softmax domine la couche"
+  ],
+  "explanation": "Une couche linéaire avec un batch B a une intensité d'environ B (fp16, d très supérieur à B). À B=1, la puce fait défiler toute la matrice de poids pour une seule multiplication-addition par poids."
+ },
+ {
+  "id": "gpu.02.q5",
+  "prompt": "Qu'est-ce qui rend l'attention standard limitée par la mémoire pour de longues séquences ?",
+  "options": [
+   "le matmul QK^T a trop peu de FLOPs",
+   "la matrice des valeurs est trop grande",
+   "les matrices N x N de scores et de probabilités sont écrites dans la HBM puis relues",
+   "le softmax utilise exp"
+  ],
+  "explanation": "Quatre passes en N^2 (écriture de S, lecture de S, écriture de P, lecture de P) dominent le trafic, ce qui donne une intensité proche de d/e quel que soit N."
+ },
+ {
+  "id": "gpu.02.q6",
+  "prompt": "L'attention standard pour une tête avec d = 64 en fp16 (e = 2 octets) a une intensité approximativement égale à d/e. Combien vaut-elle, en FLOP/octet ?",
+  "options": [],
+  "explanation": "4N^2 d FLOPs sur e * 4N^2 octets (les termes en N^2 dominent) donne d/e = 64/2 = 32."
+ },
+ {
+  "id": "gpu.02.q7",
+  "prompt": "Une étape d'entraînement se compose de 40% de chargement des données et de 60% de calcul. Tu rends le calcul 10 fois plus rapide. Quelle accélération globale (à 2 décimales) ?",
+  "options": [],
+  "explanation": "Nouveau temps = 40 + 6 = 46 pour 100, accélération = 100/46 = 2.17."
+ },
+ {
+  "id": "gpu.02.q8",
+  "prompt": "Une timeline de profileur montre la ligne GPU presque vide tandis que la ligne CPU est occupée à charger et augmenter des données. La meilleure première action est de...",
+  "options": [
+   "acheter un GPU plus rapide",
+   "utiliser plus de workers de data loader et du prefetching",
+   "passer le modèle en fp8",
+   "augmenter l'occupancy"
+  ],
+  "explanation": "L'étape est limitée par l'entrée : le GPU est inactif pendant que l'hôte prépare les données. Un GPU plus rapide ne peut pas aider (Amdahl) ; recouvrir le chargement avec le calcul le peut."
+ }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.01.q1",
+    "prompt": "Une couche prend un vecteur d'image de 784 pixels et produit 128 nombres. Quelle signature la décrit ?",
+    "options": ["$f:\\mathbb{R}^{128}\\to\\mathbb{R}^{784}$", "$f:\\mathbb{R}^{784}\\to\\mathbb{R}^{128}$", "$f:\\mathbb{R}\\to\\mathbb{R}^{128\\times 784}$", "$f:\\mathbb{R}^{784}\\to\\mathbb{R}$"],
+    "explanation": "Le domaine de départ est l'espace d'entrée (784 nombres) et le codomaine l'espace de sortie (128 nombres), ce qui s'écrit $f:\\mathbb{R}^{784}\\to\\mathbb{R}^{128}$. La matrice de poids a la forme $128\\times784$, mais c'est un paramètre, pas l'entrée."
+  },
+  {
+    "id": "f2n.01.q2",
+    "prompt": "Calcule $\\sum_{i=1}^{3}(2i+1)$.",
+    "options": [],
+    "explanation": "$(2\\cdot1+1)+(2\\cdot2+1)+(2\\cdot3+1)=3+5+7=15$. Avec la linéarité : $2\\cdot(1+2+3)+3\\cdot1=12+3=15$."
+  },
+  {
+    "id": "f2n.01.q3",
+    "prompt": "Quelle identité est correcte pour $a,b$ positifs ?",
+    "options": ["$\\ln(a+b)=\\ln a+\\ln b$", "$\\ln(ab)=\\ln a+\\ln b$", "$\\ln(ab)=\\ln a\\cdot\\ln b$", "$\\ln(a/b)=\\ln a/\\ln b$"],
+    "explanation": "$\\ln$ est la réciproque de $\\exp$, et $\\exp(u+v)=\\exp(u)\\exp(v)$ devient $\\ln(ab)=\\ln a+\\ln b$. Les autres options confondent sommes, produits et quotients. La bonne règle du quotient est $\\ln(a/b)=\\ln a-\\ln b$."
+  },
+  {
+    "id": "f2n.01.q4",
+    "prompt": "Tu multiplies 400 probabilités d'environ 0,1 en float64 et tu obtiens exactement 0. Quelle est la meilleure solution ?",
+    "options": ["Utiliser float32 à la place", "Additionner les logarithmes des probabilités au lieu de les multiplier", "Multiplier dans un autre ordre", "Arrondir chaque probabilité à 0,5"],
+    "explanation": "La vraie valeur $10^{-400}$ est inférieure au plus petit float64 (environ $10^{-308}$), donc elle passe sous le seuil de représentation (underflow). L'ordre n'aide pas, et float32 a une plage encore plus petite. La somme des logarithmes vaut environ $-921$, ce qui est représentable."
+  },
+  {
+    "id": "f2n.01.q5",
+    "prompt": "Si $f(x)=x+1$ et $g(x)=2x$, que vaut $(g\\circ f)(3)$ ?",
+    "options": [],
+    "explanation": "$g\\circ f$ applique d'abord $f$ : $f(3)=4$, puis $g(4)=8$. L'autre ordre donnerait $f(g(3))=7$ : la composition n'est pas commutative."
+  },
+  {
+    "id": "f2n.01.q6",
+    "prompt": "Quelle affirmation sur les sommes est vraie en général ?",
+    "options": ["$\\sum_i a_ib_i=(\\sum_i a_i)(\\sum_i b_i)$", "$\\sum_i (a_i+b_i)=\\sum_i a_i+\\sum_i b_i$", "$\\sum_i a_i^2=(\\sum_i a_i)^2$", "$\\sum_{i=1}^{n} c = c$"],
+    "explanation": "Seule l'additivité (conséquence de la linéarité) est vraie. Le produit de deux sommes contient tous les $n^2$ termes croisés, $(\\sum a_i)^2$ inclut les termes croisés $2a_ia_j$, et sommer une constante $n$ fois donne $nc$."
+  }
+]

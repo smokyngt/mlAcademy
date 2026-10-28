@@ -1,0 +1,58 @@
+[
+  {
+    "id": "broadcasting", "after": 4, "kind": "mermaid",
+    "caption": { "en": "Broadcasting: shapes are aligned from the right and size-1 axes are stretched. A column (3, 1) plus a row (1, 4) gives a (3, 4) table.", "fr": "Broadcasting : les formes sont alignées par la droite et les axes de taille 1 sont étirés. Une colonne (3, 1) plus une ligne (1, 4) donne un tableau (3, 4)." },
+    "code": {
+      "en": "flowchart LR\n  A[\"a (3, 1)\"] -->|\"stretch axis 1 to 4\"| A2[\"(3, 4)\"]\n  B[\"b (1, 4)\"] -->|\"stretch axis 0 to 3\"| B2[\"(3, 4)\"]\n  A2 --> S((\"+\"))\n  B2 --> S\n  S --> C[\"a + b (3, 4)\"]",
+      "fr": "flowchart LR\n  A[\"a (3, 1)\"] -->|\"étire l'axe 1 à 4\"| A2[\"(3, 4)\"]\n  B[\"b (1, 4)\"] -->|\"étire l'axe 0 à 3\"| B2[\"(3, 4)\"]\n  A2 --> S((\"+\"))\n  B2 --> S\n  S --> C[\"a + b (3, 4)\"]"
+    }
+  },
+  {
+    "id": "norm-balls", "after": 6, "kind": "plot",
+    "caption": { "en": "Unit balls in 2-D: L1 is a diamond (blue), L2 a circle (orange), L∞ a square (green). The diamond has corners on the axes, which is why an L1 penalty pushes coordinates to exactly zero.", "fr": "Boules unité en 2-D : L1 est un losange (bleu), L2 un cercle (orange), L∞ un carré (vert). Le losange a ses coins sur les axes, ce qui explique qu'une pénalité L1 mette des coordonnées exactement à zéro." },
+    "spec": { "xDomain": [-1.6, 1.6], "yDomain": [-1.6, 1.6], "height": 380,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[1,0],[0,1],[-1,0],[0,-1],[1,0]] },
+        { "fnType": "implicit", "fn": "x*x + y*y - 1", "color": "#d97706" },
+        { "fnType": "points", "graphType": "polyline", "color": "#16a34a", "points": [[1,1],[-1,1],[-1,-1],[1,-1],[1,1]] }
+      ] }
+  },
+  {
+    "id": "einsum-contraction", "after": 5, "kind": "mermaid",
+    "caption": { "en": "Einsum 'ij,jk->ik' is a matrix product: the repeated index j is summed over (contracted); indices i and k survive into the output.", "fr": "L'einsum 'ij,jk->ik' est un produit matriciel : l'indice répété j est sommé (contracté) ; les indices i et k subsistent dans la sortie." },
+    "code": {
+      "en": "flowchart LR\n  A[\"A: indices i, j\"] --> E[\"einsum 'ij,jk->ik'\\nsum over j\"]\n  B[\"B: indices j, k\"] --> E\n  E --> C[\"C: indices i, k\"]",
+      "fr": "flowchart LR\n  A[\"A : indices i, j\"] --> E[\"einsum 'ij,jk->ik'\\nsomme sur j\"]\n  B[\"B : indices j, k\"] --> E\n  E --> C[\"C : indices i, k\"]"
+    }
+  },
+  {
+    "id": "cosine-vs-euclid", "after": 7, "kind": "plot",
+    "caption": { "en": "Cosine ignores length. a = (1, 2) and 2a = (2, 4) (blue) point the same way: cosine similarity 1, yet Euclidean distance √5. The vector c = (2, 1) (orange) is close in length but at a different angle (cosine 0.8).", "fr": "Le cosinus ignore la longueur. a = (1, 2) et 2a = (2, 4) (bleu) pointent dans le même sens : similarité cosinus 1, mais distance euclidienne √5. Le vecteur c = (2, 1) (orange) a une longueur proche mais un autre angle (cosinus 0,8)." },
+    "spec": { "xDomain": [-0.5, 4.5], "yDomain": [-0.5, 4.5], "height": 340,
+      "data": [
+        { "fnType": "vector", "vector": [1, 2], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [2, 4], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [2, 1], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" }
+      ] }
+  },
+  {
+    "id": "mahalanobis-ellipse", "after": 7, "kind": "plot",
+    "caption": { "en": "Mahalanobis distance for Σ = [[4,2],[2,3]]: the contours d_M = 1 and 2 are tilted ellipses along the data's correlation. (2, 2) (green, d_M = 1.22) lies along the spread; (2, −2) (red, d_M = 2.35) goes against it, so it is the true outlier although both are 2.83 from the origin.", "fr": "Distance de Mahalanobis pour Σ = [[4,2],[2,3]] : les contours d_M = 1 et 2 sont des ellipses inclinées selon la corrélation des données. (2, 2) (vert, d_M = 1,22) est dans le sens de la dispersion ; (2, −2) (rouge, d_M = 2,35) va à son encontre, donc c'est le vrai point aberrant bien que les deux soient à 2,83 de l'origine." },
+    "spec": { "xDomain": [-5, 5], "yDomain": [-5, 5], "height": 380,
+      "data": [
+        { "fnType": "implicit", "fn": "3*x*x - 4*x*y + 4*y*y - 8", "color": "#2563eb" },
+        { "fnType": "implicit", "fn": "3*x*x - 4*x*y + 4*y*y - 32", "color": "#93c5fd" },
+        { "fnType": "points", "graphType": "scatter", "color": "#16a34a", "attr": { "r": 5 }, "points": [[2, 2]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[2, -2]] }
+      ] }
+  },
+  {
+    "id": "shell-volume", "after": 8, "kind": "plot",
+    "caption": { "en": "Curse of dimensionality: the fraction of a unit ball's volume within 5% of its surface is 1 − 0.95^D. It is 9.8% in 2-D, 64.2% in 20-D and 99.4% in 100-D: in high dimension nearly all the volume sits in the outer shell.", "fr": "Malédiction de la dimension : la fraction du volume d'une boule unité à moins de 5 % de sa surface est 1 − 0,95^D. Elle vaut 9,8 % en 2-D, 64,2 % en 20-D et 99,4 % en 100-D : en grande dimension presque tout le volume est dans la coquille extérieure." },
+    "spec": { "xDomain": [0, 100], "yDomain": [0, 1.05], "height": 300,
+      "data": [
+        { "fn": "1 - 0.95^x", "color": "#7c3aed" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[2, 0.0975], [20, 0.6415], [100, 0.9941]] }
+      ] }
+  }
+]

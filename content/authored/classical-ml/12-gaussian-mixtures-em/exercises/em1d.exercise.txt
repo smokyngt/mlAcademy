@@ -1,0 +1,80 @@
+#@@ meta
+{"id": "cml.12.ex1", "title": "EM for a one-dimensional Gaussian mixture", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.gmm", "ml.em"], "hints": ["gauss_pdf(x, mu, var) for x of shape (N,) and mu, var of shape (K,): use broadcasting x[:, None] - mu[None, :] to get an (N, K) matrix.", "E-step: w = pi * gauss_pdf(...) of shape (N, K); r = w / w.sum(axis=1, keepdims=True). M-step: Nk = r.sum(0); mu = (r * x[:, None]).sum(0) / Nk; var uses the NEW mu; pi = Nk / N.", "em_1d: record loglik BEFORE each update (so history[0] is the initial value), then do E-step and M-step; clip var from below with np.maximum(var, min_var)."]}
+#@@ prompt
+Implement EM for $p(x)=\sum_{k=1}^K \pi_k\,\mathcal N(x\mid\mu_k,\sigma_k^2)$ on 1-D data `x` of shape `(N,)`. Parameters are arrays `pi, mu, var` of shape `(K,)` (`var` is the variance $\sigma^2$).
+
+- `gauss_pdf(x, mu, var)` -> `(N, K)` matrix of $\mathcal N(x_n\mid\mu_k,\sigma_k^2)$.
+- `e_step(x, pi, mu, var)` -> responsibilities `r` of shape `(N, K)` (rows sum to 1).
+- `m_step(x, r, min_var=1e-6)` -> `(pi, mu, var)`: $N_k=\sum_n r_{nk}$, $\mu_k=\frac1{N_k}\sum_n r_{nk}x_n$, $\sigma_k^2=\frac1{N_k}\sum_n r_{nk}(x_n-\mu_k)^2$ using the new $\mu_k$, $\pi_k=N_k/N$; variances are floored at `min_var`.
+- `loglik(x, pi, mu, var)` -> $\sum_n\log\sum_k\pi_k\mathcal N(x_n\mid\mu_k,\sigma_k^2)$.
+- `em_1d(x, pi, mu, var, iters=50, min_var=1e-6)` -> `(pi, mu, var, history)` where `history[t]` is the log-likelihood before iteration `t`'s update.
+#@@ starter
+import numpy as np
+
+def gauss_pdf(x, mu, var):
+    raise NotImplementedError
+
+def e_step(x, pi, mu, var):
+    raise NotImplementedError
+
+def m_step(x, r, min_var=1e-6):
+    raise NotImplementedError
+
+def loglik(x, pi, mu, var):
+    raise NotImplementedError
+
+def em_1d(x, pi, mu, var, iters=50, min_var=1e-6):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([-3, -2.5, -1, 0, 2, 4, 5.])
+pi0 = np.ones(3) / 3; mu0 = np.array([-4., 0., 8.]); var0 = np.array([1., 0.2, 3.])
+check("initial log-likelihood is -28.33", lambda: abs(loglik(x, pi0, mu0, var0) + 28.3255) < 1e-3)
+r = e_step(x, pi0, mu0, var0)
+check("responsibilities have shape (7, 3) and rows sum to 1", lambda: r.shape == (7, 3) and np.allclose(r.sum(1), 1))
+check("x = -1 is split 0.057 / 0.943 / 0 between components 1 and 2", lambda: np.allclose(r[2], [0.057, 0.943, 0.0], atol=1e-3))
+check("total responsibilities N_k = 2.057, 2.009, 2.934", lambda: np.allclose(r.sum(0), [2.057, 2.009, 2.934], atol=1e-3))
+pi1, mu1, var1 = m_step(x, r)
+check("one M-step: means -2.7, -0.4, 3.7", lambda: np.allclose(mu1, [-2.7, -0.4, 3.7], atol=0.05))
+check("one M-step: variances 0.14, 0.44, 1.53", lambda: np.allclose(var1, [0.144, 0.438, 1.527], atol=0.005))
+check("one M-step: weights 0.29, 0.29, 0.42 and they sum to 1", lambda: np.allclose(pi1, [0.294, 0.287, 0.419], atol=0.005) and abs(pi1.sum() - 1) < 1e-12)
+check("log-likelihood after one cycle is -14.41", lambda: abs(loglik(x, pi1, mu1, var1) + 14.41) < 0.01)
+pi, mu, var, hist = em_1d(x, pi0, mu0, var0, iters=30)
+check("history never decreases", lambda: all(b >= a - 1e-9 for a, b in zip(hist, hist[1:])))
+check("converged means -2.75, -0.50, 3.64", lambda: np.allclose(mu, [-2.75, -0.50, 3.64], atol=0.02))
+check("converged variances 0.06, 0.25, 1.63", lambda: np.allclose(var, [0.062, 0.251, 1.629], atol=0.01))
+xk = np.array([0., 1, 2, 10, 11, 12])
+rh = e_step(xk, np.array([.5, .5]), np.array([1., 11.]), np.array([0.01, 0.01]))
+check("tiny shared variance -> hard assignments (the k-means limit)", lambda: np.allclose(rh, [[1, 0]] * 3 + [[0, 1]] * 3, atol=1e-6))
+check("with hard assignments the M-step mean is the k-means cluster mean", lambda: np.allclose(m_step(xk, rh)[1], [1., 11.], atol=1e-6))
+check("variance floor prevents collapse", lambda: np.all(m_step(np.array([1., 1., 5.]), np.array([[1., 0], [1., 0], [0, 1.]]), min_var=1e-3)[2] >= 1e-3))
+#@@ solution
+import numpy as np
+
+def gauss_pdf(x, mu, var):
+    x = np.asarray(x, dtype=float)[:, None]
+    return np.exp(-(x - mu[None, :]) ** 2 / (2 * var[None, :])) / np.sqrt(2 * np.pi * var[None, :])
+
+def e_step(x, pi, mu, var):
+    w = pi[None, :] * gauss_pdf(x, mu, var)
+    return w / w.sum(axis=1, keepdims=True)
+
+def m_step(x, r, min_var=1e-6):
+    x = np.asarray(x, dtype=float)
+    Nk = r.sum(axis=0)
+    mu = (r * x[:, None]).sum(axis=0) / Nk
+    var = (r * (x[:, None] - mu[None, :]) ** 2).sum(axis=0) / Nk
+    var = np.maximum(var, min_var)
+    pi = Nk / len(x)
+    return pi, mu, var
+
+def loglik(x, pi, mu, var):
+    return float(np.log((pi[None, :] * gauss_pdf(x, mu, var)).sum(axis=1)).sum())
+
+def em_1d(x, pi, mu, var, iters=50, min_var=1e-6):
+    hist = []
+    for _ in range(iters):
+        hist.append(loglik(x, pi, mu, var))
+        r = e_step(x, pi, mu, var)
+        pi, mu, var = m_step(x, r, min_var)
+    return pi, mu, var, hist

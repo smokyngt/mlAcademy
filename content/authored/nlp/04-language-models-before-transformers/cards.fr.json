@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.04.c1","front":"Qu'est-ce qu'un modèle de langage ?","back":"Un modèle de $P(w_1,\\dots,w_m)$, factorisé par la règle de la chaîne en prédictions du mot suivant $P(w_i\\mid w_{<i})$."},
+ {"id":"nlp.04.c2","front":"MLE bigramme","back":"$P(w\\mid v)=c(v,w)/c(v)$."},
+ {"id":"nlp.04.c3","front":"Pourquoi compléter avec <s> et </s> ?","back":"Pour que le modèle apprenne les débuts et fins de phrases et que la règle de la chaîne couvre le premier mot et la décision d'arrêt."},
+ {"id":"nlp.04.c4","front":"Problème des comptes nuls","back":"Les n-grammes non vus reçoivent la probabilité 0, donc une phrase en contenant un obtient 0 et une perplexité infinie ; résolu par le lissage."},
+ {"id":"nlp.04.c5","front":"Lissage add-k","back":"$P=\\frac{c(v,w)+k}{c(v)+k|V|}$. Avec k=1 (Laplace) il prend trop de masse aux événements vus sur de grands vocabulaires."},
+ {"id":"nlp.04.c6","front":"Interpolation linéaire","back":"$\\lambda P_{n}+(1-\\lambda)P_{n-1}$ mélange les ordres ; règle $\\lambda$ sur des données de validation."},
+ {"id":"nlp.04.c7","front":"Repli (backoff)","back":"Utiliser l'estimation d'ordre le plus élevé à compte positif ; sinon se replier sur un ordre inférieur (Katz décote pour garder la normalisation ; stupid backoff multiplie simplement par ~0.4)."},
+ {"id":"nlp.04.c8","front":"Intuition de Kneser-Ney","back":"La probabilité d'ordre inférieur doit refléter dans combien de contextes différents un mot apparaît, pas sa fréquence brute (Francisco ne suit presque que San)."},
+ {"id":"nlp.04.c9","front":"Formule de la perplexité","back":"$\\mathrm{PP}=\\exp\\big(-\\frac1N\\sum_i\\ln P(w_i\\mid\\text{ctx}_i)\\big)=e^{H}$."},
+ {"id":"nlp.04.c10","front":"Interprétation de la perplexité","back":"Le facteur de branchement effectif : un choix uniforme parmi $b$ mots a une perplexité $b$. Plus bas, c'est mieux."},
+ {"id":"nlp.04.c11","front":"Réserves sur la perplexité","back":"Comparable uniquement avec le même vocabulaire et la même tokenisation ; nécessite des données de test non vues ; infinie si une probabilité vaut 0."},
+ {"id":"nlp.04.c12","front":"Taille d'une table n-gramme","back":"Jusqu'à $|V|^n$ cases ; la plupart sont vides, c'est pourquoi les comptes deviennent épars quand n croît."},
+ {"id":"nlp.04.c13","front":"Idée d'un modèle de langage neuronal","back":"Plonger les mots précédents, les passer dans un réseau, softmax sur le vocabulaire ; des mots similaires partagent des statistiques, pas besoin de lissage."},
+ {"id":"nlp.04.c14","front":"Lien entre perte du LM et perplexité","back":"L'entraînement minimise l'entropie croisée moyenne $H$ ; la perplexité est $e^{H}$ (ou $2^{H}$ avec des bits)."}
+]

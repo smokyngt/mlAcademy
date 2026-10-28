@@ -1,0 +1,10 @@
+{
+  "id": "saf.02.ex1",
+  "title": "Pertes de préférence : DPO, IPO, SimPO, KTO, ORPO",
+  "prompt": "Implémente les pertes de préférence par exemple sur des log-probabilités de séquence.\n\n- `sigmoid(z)`.\n- `dpo_loss(lp_w, lp_l, ref_w, ref_l, beta)` : `-log sigmoid(beta*((lp_w-ref_w)-(lp_l-ref_l)))`.\n- `dpo_grad(lp_w, lp_l, ref_w, ref_l, beta)` -> `(dL/dlp_w, dL/dlp_l)`.\n- `ipo_loss(lp_w, lp_l, ref_w, ref_l, beta)` : distance au carré de la différence de log-rapports à `1/(2*beta)`.\n- `simpo_loss(lp_w, lp_l, len_w, len_l, beta, gamma)` : `-log sigmoid(beta*lp_w/len_w - beta*lp_l/len_l - gamma)` ; pas de modèle de référence.\n- `kto_loss(lp, ref, desirable, beta, z_ref)` : avec `r = lp - ref`, retourne `1 - sigmoid(beta*r - z_ref)` si `desirable` sinon `1 - sigmoid(z_ref - beta*r)` (une valeur KTO simplifiée, sans les poids d'aversion aux pertes).\n- `orpo_or_loss(p_w, p_l)` : `-log sigmoid(log(odds(p_w)/odds(p_l)))` où `odds(p) = p/(1-p)`.\n- `implicit_reward(pi, pi_ref, beta)` : `beta*log(pi/pi_ref)` élément par élément.",
+  "hints": [
+    "Marge DPO m = beta * ((lp_w - ref_w) - (lp_l - ref_l)) ; perte = -log(sigmoid(m)). Sa dérivée par rapport à lp_w est -beta*sigmoid(-m), et par rapport à lp_l elle vaut +beta*sigmoid(-m).",
+    "IPO est une erreur quadratique : (différence de log-rapports - 1/(2*beta))**2. SimPO divise chaque log-probabilité par sa longueur, n'a pas de modèle de référence, et soustrait une marge gamma.",
+    "implicit_reward(pi, pi_ref, beta) = beta*log(pi/pi_ref). À l'optimum régularisé par KL, il vaut r + const, donc les différences de récompenses implicites retrouvent les différences de vraies récompenses."
+  ]
+}

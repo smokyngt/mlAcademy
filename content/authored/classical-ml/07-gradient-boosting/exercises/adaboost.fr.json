@@ -1,0 +1,10 @@
+{
+  "id": "cml.07.ex2",
+  "title": "AdaBoost : poids, alpha et ensemble de souches pondérées",
+  "prompt": "Implémente un tour d'AdaBoost exactement comme chez Bishop (Éq. 14.15-14.19), avec des étiquettes dans $\\{-1,+1\\}$.\n\n- `ada_round(w, wrong)` où `wrong` est un tableau 0/1 marquant les points mal classés : renvoie `(eps, alpha, new_w)`, avec $\\epsilon=\\sum_n w_n[\\text{wrong}]/\\sum_n w_n$, $\\alpha=\\ln\\frac{1-\\epsilon}{\\epsilon}$, $w_n\\leftarrow w_n e^{\\alpha\\,\\text{wrong}_n}$ et `new_w` normalisé pour sommer à 1.\n- `weighted_stump(X, y, w)` renvoie `(j, t, s)` minimisant l'erreur pondérée de `h(x) = s if x[j] <= t else -s`.\n- `stump_predict(st, X)` renvoie des prédictions $\\pm1$.\n- `ada_fit(X, y, n_rounds)` renvoie une liste de `(alpha, stump)` ; `ada_predict(model, X)` renvoie $\\text{sign}(\\sum \\alpha_m h_m(x))$ avec les égalités envoyées sur $+1$.",
+  "hints": [
+    "eps = somme des poids des points mal classés / somme de tous les poids ; alpha = log((1 - eps) / eps).",
+    "Mets à jour w <- w * exp(alpha * wrong) où wrong vaut 1 pour les erreurs, puis divise par la somme.",
+    "Souche pondérée : pour chaque variable, seuil et polarité s dans (+1, -1), prédis s là où x <= t et -s sinon ; choisis l'erreur pondérée minimale. L'ensemble est sign(sum alpha_m h_m(x))."
+  ]
+}

@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.11.c14", "front": "Test de sur-apprentissage d'un minuscule batch", "back": "Un réseau correct doit atteindre une perte ~0 sur 8 exemples ; sinon, il y a un bug." },
+  { "id": "f2n.11.c15", "front": "Pas effectif du momentum", "back": "$\\eta/(1-\\mu)$ le long des directions cohérentes." },
+  { "id": "f2n.11.c16", "front": "Perte NaN tôt", "back": "Taux d'apprentissage trop grand (ou log de 0) ; divise-le d'abord par 10." },
+  { "id": "f2n.11.c17", "front": "Balayage du taux d'apprentissage", "back": "Essaie $10^{-3},10^{-2},10^{-1},1$ pendant quelques centaines de pas ; prends le plus grand qui ne diverge pas." },
+  { "id": "f2n.11.c18", "front": "Écart-type de l'initialisation de He", "back": "$\\sqrt{2/n_{\\text{in}}}$." },
+  { "id": "f2n.11.c19", "front": "Mini-batch et taille du batch", "back": "La taille du batch change le bruit et le meilleur taux d'apprentissage ; réajuste quand elle change." },
+  { "id": "f2n.11.c20", "front": "Bug de mélange", "back": "Mélange $X$ et $y$ avec la même permutation." },
+  { "id": "f2n.11.c21", "front": "La perte d'entraînement baisse, la précision reste plate", "back": "Vérifie l'alignement étiquettes/caractéristiques et le déséquilibre des classes." },
+  { "id": "f2n.11.c22", "front": "Écart entraînement/validation", "back": "Sur-apprentissage, pas un bug : régularise ou obtiens plus de données." }
+]

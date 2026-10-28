@@ -1,0 +1,125 @@
+[
+ {
+  "id": "gen.06.q1",
+  "concept": "gen.flow-matching",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "In flow matching with $x_t=(1-t)x_0+tx_1$ the regression target is...",
+  "options": [
+   "$x_0$",
+   "$x_1+x_0$",
+   "$x_1-x_0$",
+   "$\\varepsilon\\sqrt{1-\\bar\\alpha_t}$"
+  ],
+  "answer": 2,
+  "explanation": "The path is a straight line whose time derivative is the constant $x_1-x_0$."
+ },
+ {
+  "id": "gen.06.q2",
+  "concept": "gen.flow-matching",
+  "kind": "mcq",
+  "prompt": "The minimiser of the flow matching loss is...",
+  "options": [
+   "$\\mathbb E[x_1-x_0\\mid x_t]$",
+   "$x_1-x_0$ for each pair",
+   "zero",
+   "$x_t$"
+  ],
+  "answer": 0,
+  "explanation": "Least squares gives the conditional expectation given what the network sees."
+ },
+ {
+  "id": "gen.06.q3",
+  "concept": "gen.flow-matching",
+  "kind": "mcq",
+  "prompt": "Sampling in flow matching is done by...",
+  "options": [
+   "running a GAN generator",
+   "integrating an ODE from noise to data",
+   "solving a linear system",
+   "ancestral sampling with a learned variance only"
+  ],
+  "answer": 1,
+  "explanation": "Euler steps $x\\leftarrow x-\\Delta t\\,v_\\theta(x,t)$ from $t=1$ to $0$."
+ },
+ {
+  "id": "gen.06.q4",
+  "concept": "gen.flow-matching",
+  "kind": "mcq",
+  "prompt": "Reflow makes sampling faster because...",
+  "options": [
+   "it removes the neural network",
+   "paths between ODE-matched pairs cross less, so the field is straighter",
+   "it increases the number of steps",
+   "it uses a bigger schedule"
+  ],
+  "answer": 1,
+  "explanation": "Straighter trajectories can be integrated with few steps."
+ },
+ {
+  "id": "gen.06.q5",
+  "concept": "gen.eval",
+  "kind": "numeric",
+  "prompt": "Frechet distance between $\\mathcal N(0,1)$ and $\\mathcal N(2,4)$ (variance 4)?",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "$(0-2)^2+(1-2)^2=5$."
+ },
+ {
+  "id": "gen.06.q6",
+  "concept": "gen.eval",
+  "kind": "mcq",
+  "prompt": "FID between two samples from the *same* distribution at small $N$ is...",
+  "options": [
+   "exactly 0",
+   "positive because of estimation noise",
+   "negative",
+   "infinite"
+  ],
+  "answer": 1,
+  "explanation": "Noisy mean and covariance estimates make the distance positive; it shrinks as $N$ grows."
+ },
+ {
+  "id": "gen.06.q7",
+  "concept": "gen.eval",
+  "kind": "mcq",
+  "prompt": "A collapsed generator (few modes, realistic samples) has...",
+  "options": [
+   "low precision, high recall",
+   "high precision, low recall",
+   "low precision, low recall",
+   "high precision, high recall"
+  ],
+  "answer": 1,
+  "explanation": "Its samples lie inside the real support but cover little of it."
+ },
+ {
+  "id": "gen.06.q8",
+  "concept": "gen.eval",
+  "kind": "numeric",
+  "prompt": "Two players rated 1000 each; A wins with $K=32$. A's new rating?",
+  "options": [],
+  "answer": {
+   "value": 1016,
+   "tol": 0.01
+  },
+  "explanation": "$E_A=0.5$, $R_A=1000+32(1-0.5)=1016$."
+ },
+ {
+  "id": "gen.06.q9",
+  "concept": "gen.eval",
+  "kind": "mcq",
+  "prompt": "Why use a held-out prompt set for human preference tests?",
+  "options": [
+   "it is cheaper",
+   "models may have trained on benchmark prompts, which would bias the comparison",
+   "humans prefer new prompts",
+   "it removes the need for blinding"
+  ],
+  "answer": 1,
+  "explanation": "Prompt overlap with training makes the comparison meaningless."
+ }
+]

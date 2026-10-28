@@ -1,0 +1,119 @@
+[
+  {
+    "id": "diffusion-chain",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The diffusion chain. The fixed forward process q adds a little noise at each step (x_0 is data, x_T is almost N(0,I)); the learned reverse process p_theta removes it step by step. Any x_t is reachable in one jump from x_0.",
+      "fr": "La chaîne de diffusion. Le processus avant q, fixe, ajoute un peu de bruit à chaque pas (x_0 est la donnée, x_T est presque N(0,I)) ; le processus inverse appris p_theta le retire pas à pas. Tout x_t est atteignable d'un coup depuis x_0."
+    },
+    "code": {
+      "en": "flowchart LR\n  X0[\"x_0<br/>data\"] -->|\"q(x_1 | x_0)\"| X1[\"x_1\"]\n  X1 -->|\"q(x_2 | x_1)\"| X2[\"...\"]\n  X2 -->|\"q(x_T | x_(T-1))\"| XT[\"x_T<br/>~ N(0, I)\"]\n  XT -.->|\"p_theta(x_(T-1) | x_T)\"| X2\n  X2 -.->|\"p_theta\"| X1\n  X1 -.->|\"p_theta(x_0 | x_1)\"| X0\n  X0 ==>|\"jump: q(x_t | x_0)\"| XT",
+      "fr": "flowchart LR\n  X0[\"x_0<br/>donnée\"] -->|\"q(x_1 | x_0)\"| X1[\"x_1\"]\n  X1 -->|\"q(x_2 | x_1)\"| X2[\"...\"]\n  X2 -->|\"q(x_T | x_(T-1))\"| XT[\"x_T<br/>~ N(0, I)\"]\n  XT -.->|\"p_theta(x_(T-1) | x_T)\"| X2\n  X2 -.->|\"p_theta\"| X1\n  X1 -.->|\"p_theta(x_0 | x_1)\"| X0\n  X0 ==>|\"saut : q(x_t | x_0)\"| XT"
+    }
+  },
+  {
+    "id": "alpha-bar",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The cumulative signal level alpha_bar_t = product of (1 - beta_s) for the linear schedule beta from 1e-4 to 0.02 over T = 1000. The curve is the exponential approximation exp(-sum beta_s); the dots are the exact values from the lesson: 0.998 at t = 10, 0.897 at t = 100, 0.396 at t = 300 (alpha_bar_1000 = 4e-5, essentially 0).",
+      "fr": "Le niveau de signal cumulé alpha_bar_t = produit des (1 - beta_s) pour le calendrier linéaire beta de 1e-4 à 0,02 sur T = 1000. La courbe est l'approximation exponentielle exp(-somme beta_s) ; les points sont les valeurs exactes de la leçon : 0,998 en t = 10, 0,897 en t = 100, 0,396 en t = 300 (alpha_bar_1000 = 4e-5, quasi nul)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "exp(-(1e-4*x+0.0199*x*(x-1)/1998))",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              10,
+              0.998
+            ],
+            [
+              100,
+              0.897
+            ],
+            [
+              300,
+              0.396
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "signal-noise",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The two coefficients of x_t = sqrt(alpha_bar_t) x_0 + sqrt(1 - alpha_bar_t) eps along the schedule. Signal weight (blue) decays to about 0.006 at t = 1000 while the noise weight (orange) rises to 1: the end of the chain is pure noise.",
+      "fr": "Les deux coefficients de x_t = sqrt(alpha_bar_t) x_0 + sqrt(1 - alpha_bar_t) eps le long du calendrier. Le poids du signal (bleu) décroît jusqu'à environ 0,006 en t = 1000 pendant que le poids du bruit (orange) monte à 1 : la fin de la chaîne est du bruit pur."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "sqrt(exp(-(1e-4*x+0.0199*x*(x-1)/1998)))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "sqrt(1-exp(-(1e-4*x+0.0199*x*(x-1)/1998)))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "training-step",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One DDPM training step: draw a data point, a random step t and noise eps, jump straight to x_t, and regress the noise. A single stable regression loss, no minimax. Shapes are for images.",
+      "fr": "Un pas d'entraînement DDPM : tirer une donnée, un pas t aléatoire et un bruit eps, sauter directement à x_t, et régresser le bruit. Une seule perte de régression stable, pas de minimax. Les formes sont celles d'images."
+    },
+    "code": {
+      "en": "flowchart LR\n  X0[\"x_0 (B,C,H,W)\"] --> XT[\"x_t = sqrt(abar_t) x_0 + sqrt(1 - abar_t) eps<br/>(B,C,H,W)\"]\n  T0[\"t ~ U{1..T}<br/>(B,)\"] --> AB[\"abar_t gathered<br/>(B,1,1,1)\"]\n  AB --> XT\n  E[\"eps ~ N(0, I)<br/>(B,C,H,W)\"] --> XT\n  XT --> NET[\"eps_theta(x_t, t)<br/>U-Net / transformer\"]\n  T0 --> NET\n  NET --> EH[\"eps_hat (B,C,H,W)\"]\n  EH --> LS[\"L = || eps - eps_hat ||^2\"]\n  E --> LS",
+      "fr": "flowchart LR\n  X0[\"x_0 (B,C,H,W)\"] --> XT[\"x_t = sqrt(abar_t) x_0 + sqrt(1 - abar_t) eps<br/>(B,C,H,W)\"]\n  T0[\"t ~ U{1..T}<br/>(B,)\"] --> AB[\"abar_t gathered<br/>(B,1,1,1)\"]\n  AB --> XT\n  E[\"eps ~ N(0, I)<br/>(B,C,H,W)\"] --> XT\n  XT --> NET[\"eps_theta(x_t, t)<br/>U-Net / transformer\"]\n  T0 --> NET\n  NET --> EH[\"eps_hat (B,C,H,W)\"]\n  EH --> LS[\"L = || eps - eps_hat ||^2\"]\n  E --> LS"
+    }
+  },
+  {
+    "id": "sampling-loop",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Ancestral sampling: T network evaluations. Each step subtracts the predicted noise, rescales, and adds fresh noise (none at the last step).",
+      "fr": "Échantillonnage ancestral : T évaluations du réseau. Chaque pas retire le bruit prédit, remet à l'échelle, et ajoute du bruit frais (aucun au dernier pas)."
+    },
+    "code": {
+      "en": "flowchart TB\n  S0[\"x_T ~ N(0, I)\"] --> L{\"t = T, ..., 1\"}\n  L --> NN[\"eps_hat = eps_theta(x_t, t)\"]\n  NN --> MU[\"mean = (x_t - beta_t / sqrt(1 - abar_t) * eps_hat) / sqrt(alpha_t)\"]\n  MU --> NZ{\"t > 1 ?\"}\n  NZ -- yes --> AD[\"x_(t-1) = mean + sigma_t * z, z ~ N(0, I)\"]\n  NZ -- no --> LS[\"x_0 = mean\"]\n  AD --> L\n  LS --> OUT[\"sample x_0\"]",
+      "fr": "flowchart TB\n  S0[\"x_T ~ N(0, I)\"] --> L{\"t = T, ..., 1\"}\n  L --> NN[\"eps_hat = eps_theta(x_t, t)\"]\n  NN --> MU[\"mean = (x_t - beta_t / sqrt(1 - abar_t) * eps_hat) / sqrt(alpha_t)\"]\n  MU --> NZ{\"t > 1 ?\"}\n  NZ -- oui --> AD[\"x_(t-1) = mean + sigma_t * z, z ~ N(0, I)\"]\n  NZ -- non --> LS[\"x_0 = mean\"]\n  AD --> L\n  LS --> OUT[\"échantillon x_0\"]"
+    }
+  }
+]

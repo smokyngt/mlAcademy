@@ -1,0 +1,69 @@
+#@@ meta
+{"id": "seq.04.ex2", "title": "GRU step, parameter counts and the update-gate property", "difficulty": 3, "runtime": "pyodide", "concepts": ["seq.gru", "seq.lstm"], "hints": ["Pre-activations: a_rz = W[:2H] @ x + U[:2H] @ h_prev + b[:2H]; r = sigmoid(a_rz[:H]); z = sigmoid(a_rz[H:]).", "Candidate: n = tanh(W[2H:] @ x + r * (U[2H:] @ h_prev) + b[2H:]). The reset gate multiplies the recurrent part only.", "New state: h = (1 - z) * n + z * h_prev. Parameter counts: LSTM 4*(H*n + H*H + H), GRU 3*(H*n + H*H + H), vanilla RNN H*n + H*H + H."]}
+#@@ prompt
+Implement one GRU step and the parameter-count formulas.
+
+Parameters: `W (3H, n)`, `U (3H, H)`, `b (3H,)` stacked in the order **reset `r`, update `z`, candidate `n`**:
+
+$$r=\sigma(W_rx+U_rh_{t-1}+b_r),\quad z=\sigma(W_zx+U_zh_{t-1}+b_z),\quad \tilde h=\tanh\big(W_nx+r\odot(U_nh_{t-1})+b_n\big),\quad h_t=(1-z)\odot\tilde h+z\odot h_{t-1}.$$
+
+- `gru_step(x, h_prev, W, U, b)` returns `h` (shape `(H,)`).
+- `n_params(kind, n, H)` with `kind` in `"rnn"`, `"lstm"`, `"gru"` returns the number of parameters (all weights and one bias vector per gate).
+#@@ starter
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def gru_step(x, h_prev, W, U, b):
+    raise NotImplementedError
+
+def n_params(kind, n, H):
+    raise NotImplementedError
+
+print(n_params("lstm", 128, 256), n_params("gru", 128, 256))
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(2)
+n, H = 3, 4
+W = rng.normal(0, 0.5, (3 * H, n)); U = rng.normal(0, 0.5, (3 * H, H)); b = rng.normal(0, 0.3, 3 * H)
+x = rng.normal(size=n); hp = rng.normal(size=H)
+h = gru_step(x, hp, W, U, b)
+check("shape", lambda: h.shape == (H,))
+def ref():
+    r = sigmoid(W[:H] @ x + U[:H] @ hp + b[:H])
+    z = sigmoid(W[H:2*H] @ x + U[H:2*H] @ hp + b[H:2*H])
+    nn_ = np.tanh(W[2*H:] @ x + r * (U[2*H:] @ hp) + b[2*H:])
+    return (1 - z) * nn_ + z * hp
+check("matches the equations", lambda: np.allclose(h, ref()))
+bz = b.copy(); bz[H:2*H] = 30.0
+check("update gate ~1 keeps the previous state", lambda: np.allclose(gru_step(x, hp, W, U, bz), hp, atol=1e-6))
+bz0 = b.copy(); bz0[H:2*H] = -30.0
+cand = np.tanh(W[2*H:] @ x + sigmoid(W[:H] @ x + U[:H] @ hp + b[:H]) * (U[2*H:] @ hp) + b[2*H:])
+check("update gate ~0 replaces the state by the candidate", lambda: np.allclose(gru_step(x, hp, W, U, bz0), cand, atol=1e-6))
+br = b.copy(); br[:H] = -30.0; bz1 = br.copy(); bz1[H:2*H] = -30.0
+hp2 = rng.normal(size=H)
+check("reset gate ~0 and z ~0: h_prev has no influence", lambda: np.allclose(gru_step(x, hp, W, U, bz1), gru_step(x, hp2, W, U, bz1), atol=1e-6))
+check("reset gate ~0 and z ~0: new state independent of h_prev", lambda: np.allclose(gru_step(x, hp, W, U, bz1) - np.tanh(W[2*H:] @ x + b[2*H:]), 0, atol=1e-6))
+check("rnn params", lambda: n_params("rnn", 3, 4) == 4 * 3 + 16 + 4)
+check("lstm params 128->256", lambda: n_params("lstm", 128, 256) == 4 * (256 * 128 + 256 * 256 + 256) == 394240)
+check("gru params 128->256", lambda: n_params("gru", 128, 256) == 295680)
+check("gru/lstm ratio is 3/4", lambda: abs(n_params("gru", 50, 70) / n_params("lstm", 50, 70) - 0.75) < 1e-12)
+#@@ solution
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def gru_step(x, h_prev, W, U, b):
+    H = h_prev.shape[0]
+    r = sigmoid(W[:H] @ x + U[:H] @ h_prev + b[:H])
+    z = sigmoid(W[H:2 * H] @ x + U[H:2 * H] @ h_prev + b[H:2 * H])
+    n_ = np.tanh(W[2 * H:] @ x + r * (U[2 * H:] @ h_prev) + b[2 * H:])
+    return (1.0 - z) * n_ + z * h_prev
+
+def n_params(kind, n, H):
+    gates = {"rnn": 1, "lstm": 4, "gru": 3}[kind]
+    return gates * (H * n + H * H + H)
+
+print(n_params("lstm", 128, 256), n_params("gru", 128, 256))

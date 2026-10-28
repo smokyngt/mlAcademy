@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.10.c1", "front": "Passe arrière de $Z=XW+b$ (par batch)", "back": "$\\bar W=X^\\top\\bar Z$, $\\bar b=\\sum_b\\bar Z_{b,:}$, $\\bar X=\\bar ZW^\\top$." },
+  { "id": "f2n.10.c2", "front": "Passe arrière de softmax + entropie croisée moyenne", "back": "$\\bar Z=(P-Y)/B$, de forme $(B,K)$." },
+  { "id": "f2n.10.c3", "front": "Passe arrière de ReLU", "back": "$\\bar Z=\\bar A\\odot\\mathbb{1}[Z>0]$. Nécessite $Z$ en cache." },
+  { "id": "f2n.10.c4", "front": "Quels tenseurs la rétropropagation a-t-elle besoin de mettre en cache ?", "back": "Les entrées des couches ($X$, $A_1$), les pré-activations ($Z_1$ pour les masques ReLU) et la sortie softmax $P$." },
+  { "id": "f2n.10.c5", "front": "Chaque gradient doit avoir...", "back": "exactement la forme de la quantité dont il est le gradient." },
+  { "id": "f2n.10.c6", "front": "Critère de réussite du test de gradient", "back": "Erreur relative maximale inférieure à environ $10^{-6}$ avec des différences centrées, $h\\approx10^{-5}$." }
+]

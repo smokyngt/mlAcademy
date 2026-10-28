@@ -1,0 +1,120 @@
+[
+ {
+  "id": "ops.01.q1",
+  "concept": "ops.framing",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "An ML problem is defined by which three components?",
+  "options": [
+   "Inputs, outputs, objective function",
+   "Dataset, GPU, deadline",
+   "Accuracy, precision, recall",
+   "Training, validation, test"
+  ],
+  "answer": 0,
+  "explanation": "Only when you can say what goes in, what comes out and what the learning process minimises is a business wish an ML problem."
+ },
+ {
+  "id": "ops.01.q2",
+  "concept": "ops.framing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A team raises accuracy from 94.0% to 94.2% but no business metric moves. The best conclusion is...",
+  "options": [
+   "the project is a success",
+   "accuracy must be raised further before measuring anything else",
+   "the ML metric is not yet shown to matter; connect it to a business metric, possibly with an A/B test",
+   "business metrics are irrelevant to ML teams"
+  ],
+  "answer": 2,
+  "explanation": "Companies care about business metrics; ML metrics are proxies whose link must be established."
+ },
+ {
+  "id": "ops.01.q3",
+  "concept": "ops.requirements",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which statement about ML reliability is specific to ML systems?",
+  "options": [
+   "A server can crash",
+   "The system can return predictions without any error while the predictions are wrong",
+   "Dependencies can break",
+   "Deployments can use the wrong file"
+  ],
+  "answer": 1,
+  "explanation": "Silent failure is the ML twist: no exception, no 404, just bad predictions."
+ },
+ {
+  "id": "ops.01.q4",
+  "concept": "ops.requirements",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A server processes a batch of 50 queries in 20 ms. What is its throughput in queries per second?",
+  "options": [],
+  "answer": {
+   "value": 2500,
+   "tol": 1
+  },
+  "explanation": "$50\\cdot1000/20=2500$ queries per second."
+ },
+ {
+  "id": "ops.01.q5",
+  "concept": "ops.requirements",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Latencies (ms): 100, 102, 100, 100, 99, 104, 110, 90, 3000, 95. Which summary best reveals the problem?",
+  "options": [
+   "The mean (390 ms)",
+   "The median (100 ms)",
+   "The minimum (90 ms)",
+   "The 99th percentile (3000 ms)"
+  ],
+  "answer": 3,
+  "explanation": "The mean is misleading and the median hides the outlier; a high percentile exposes the tail."
+ },
+ {
+  "id": "ops.01.q6",
+  "concept": "ops.framing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why is it often better to train one model per objective and blend their scores than to train one model on $\\alpha L_1+\\beta L_2$?",
+  "options": [
+   "It always gives higher accuracy",
+   "Blended losses cannot be optimised",
+   "Changing the trade-off needs no retraining and models can be maintained on their own schedules",
+   "It uses less data"
+  ],
+  "answer": 2,
+  "explanation": "The dial $\\alpha,\\beta$ moves to ranking time; spam filters and quality models change at different speeds."
+ },
+ {
+  "id": "ops.01.q7",
+  "concept": "ops.framing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "An article may have several topics and the model outputs [0.45, 0.2, 0.02, 0.33]. What extra decision does the multilabel setting force?",
+  "options": [
+   "How many labels (or what threshold) to extract from the probabilities",
+   "Choosing the learning rate",
+   "Whether to use softmax or sigmoid at test time only",
+   "Nothing; take the argmax"
+  ],
+  "answer": 0,
+  "explanation": "In multiclass you take the argmax; in multilabel the number of classes per example varies, so you need a rule."
+ },
+ {
+  "id": "ops.01.q8",
+  "concept": "ops.requirements",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Batching raises throughput but can also raise latency. Why?",
+  "options": [
+   "Batches use more memory",
+   "Batching disables the GPU",
+   "Latency and throughput are the same quantity",
+   "Requests must wait for the batch to fill and a larger batch takes longer to run"
+  ],
+  "answer": 3,
+  "explanation": "Per-request wait plus a longer run time per batch increase latency while the number of requests per second grows."
+ }
+]

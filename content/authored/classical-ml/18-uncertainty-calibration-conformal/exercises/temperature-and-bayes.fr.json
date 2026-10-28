@@ -1,0 +1,10 @@
+{
+ "id": "cml.18.ex1",
+ "title": "Mise à l'échelle de température et variance prédictive bayésienne",
+ "prompt": "Implémente, avec NumPy seulement :\n\n- `softmax(z)` pour des logits de forme `(N, K)`.\n- `nll(T, z, y)` : log-vraisemblance négative moyenne des étiquettes entières `y` (forme `(N,)`) à la température `T`.\n- `fit_temperature(z, y, lo=0.05, hi=10.0)` : recherche par section dorée de `nll` sur `T` (60 itérations).\n- `ece(P, y, bins=10)` : erreur de calibration attendue avec des bacs de confiance de largeur égale `(lo, hi]`, en utilisant la probabilité maximale.\n- `blr_posterior(Phi, t, alpha, beta)` -> `(mN, SN)` avec `SN = inv(alpha I + beta Phi^T Phi)` et `mN = beta SN Phi^T t`.\n- `blr_predict(Phi_star, mN, SN, beta)` -> `(mean, epistemic_var, total_var)` où `total_var = 1/beta + phi^T SN phi` par ligne.\n- `bootstrap_std(Phi, t, Phi_star, B, seed)` : ajuste ridge (pénalité `1e-3`, `solve(F.T F + 1e-3 I, F.T t)`) sur `B` rééchantillons tirés avec `np.random.default_rng(seed).integers(0, N, N)` ; renvoie l'écart-type, sur les rééchantillons, des prédictions en `Phi_star`, de forme `(P,)`.",
+ "hints": [
+  "nll(T) : p = softmax(z / T) ; loss = -mean(log p[arange(N), y]). Soustrais le maximum de la ligne avant exp.",
+  "fit_temperature : la section dorée garde [a, b], deux points intérieurs c, d ; si f(c) < f(d) le minimum est dans [a, d] donc pose b = d, sinon pose a = c.",
+  "blr_predict : epi = einsum('ij,jk,ik->i', Phi_star, SN, Phi_star) ; total = epi + 1/beta ; mean = Phi_star @ mN."
+ ]
+}

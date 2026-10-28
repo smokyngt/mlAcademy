@@ -1,0 +1,16 @@
+[
+  {"id": "trf.02.c1", "front": "Pourquoi plusieurs têtes ?", "back": "Un seul motif softmax étale plusieurs relations (syntaxe, coréférence, token précédent). Les têtes portent leur attention dans des sous-espaces séparés pour le même coût total, et $W_O$ les mélange."},
+  {"id": "trf.02.c2", "front": "Dimension d'une tête", "back": "$d_h=d_{model}/h$ ; typiquement 64 ou 128 en pratique."},
+  {"id": "trf.02.c3", "front": "Découpage des têtes : formes", "back": "$(B,T,d)\\xrightarrow{\\text{reshape}}(B,T,h,d_h)\\xrightarrow{\\text{transpose}(0,2,1,3)}(B,h,T,d_h)$."},
+  {"id": "trf.02.c4", "front": "Fusion des têtes : formes", "back": "$(B,h,T,d_h)\\to(B,T,h,d_h)\\to(B,T,d)$ ; puis multiplication par $W_O:(d,d)$."},
+  {"id": "trf.02.c5", "front": "Échelle des scores en attention multi-têtes", "back": "$\\sqrt{d_h}$, car chaque produit scalaire comporte $d_h$ termes."},
+  {"id": "trf.02.c6", "front": "Paramètres de l'attention multi-têtes", "back": "$4d^2$ (Q, K, V, O), plus $4d$ avec biais ; indépendant de $h$."},
+  {"id": "trf.02.c7", "front": "Forme des poids d'attention et leur mémoire", "back": "Activations $(B,h,T,T)$ : la mémoire croît comme $B\\,h\\,T^2$."},
+  {"id": "trf.02.c8", "front": "Rôle de $W_O$", "back": "Le seul endroit où les têtes interagissent dans la couche : $\\text{out}=\\sum_i Z^{(i)}W_O^{(i)}$ avec des blocs de lignes de $W_O$."},
+  {"id": "trf.02.c9", "front": "Définition du masque causal", "back": "$M_{ij}=0$ si $j\\le i$ sinon $-\\infty$, ajouté aux scores avant le softmax ; forme $(T,T)$ diffusée sur $(B,h)$."},
+  {"id": "trf.02.c10", "front": "Pourquoi $-\\infty$ avant le softmax ?", "back": "$e^{-\\infty}=0$ : les clés interdites reçoivent un poids exactement nul et la ligne somme toujours à 1."},
+  {"id": "trf.02.c11", "front": "Masque de padding", "back": "Booléen $(B,T)$ marquant les clés de padding ; diffusé en $(B,1,1,T)$ et ces scores sont mis à $-\\infty$. Exclure aussi les positions de padding de la perte."},
+  {"id": "trf.02.c12", "front": "Ligne entièrement masquée", "back": "$\\operatorname{softmax}(-\\infty,\\dots)=0/0=$ NaN. Garder la diagonale autorisée ou mettre ces lignes à zéro."},
+  {"id": "trf.02.c13", "front": "Pourquoi un masque causal permet d'entraîner en parallèle", "back": "Une seule passe avant donne $T$ prédictions du token suivant, chacune ne voyant que son propre préfixe ; aucune étape n'a besoin de la sortie précédente."},
+  {"id": "trf.02.c14", "front": "MQA et GQA", "back": "Moins de têtes clé/valeur que de têtes de requête (1 pour MQA, $G$ groupes pour GQA) : même capacité de requête, cache clé/valeur plus petit lors de la génération."}
+]

@@ -1,0 +1,10 @@
+{
+  "id": "seq.04.ex2",
+  "title": "Pas de GRU, nombres de paramètres et propriété de la porte de mise à jour",
+  "prompt": "Implémente un pas de GRU et les formules de comptage de paramètres.\n\nParamètres : `W (3H, n)`, `U (3H, H)`, `b (3H,)` empilés dans l'ordre **réinitialisation `r`, mise à jour `z`, candidat `n`** :\n\n$$r=\\sigma(W_rx+U_rh_{t-1}+b_r),\\quad z=\\sigma(W_zx+U_zh_{t-1}+b_z),\\quad \\tilde h=\\tanh\\big(W_nx+r\\odot(U_nh_{t-1})+b_n\\big),\\quad h_t=(1-z)\\odot\\tilde h+z\\odot h_{t-1}.$$\n\n- `gru_step(x, h_prev, W, U, b)` renvoie `h` (forme `(H,)`).\n- `n_params(kind, n, H)` avec `kind` parmi `\"rnn\"`, `\"lstm\"`, `\"gru\"` renvoie le nombre de paramètres (tous les poids et un vecteur de biais par porte).",
+  "hints": [
+    "Pré-activations : a_rz = W[:2H] @ x + U[:2H] @ h_prev + b[:2H] ; r = sigmoid(a_rz[:H]) ; z = sigmoid(a_rz[H:]).",
+    "Candidat : n = tanh(W[2H:] @ x + r * (U[2H:] @ h_prev) + b[2H:]). La porte de réinitialisation ne multiplie que la partie récurrente.",
+    "Nouvel état : h = (1 - z) * n + z * h_prev. Nombres de paramètres : LSTM 4*(H*n + H*H + H), GRU 3*(H*n + H*H + H), RNN simple H*n + H*H + H."
+  ]
+}

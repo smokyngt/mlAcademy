@@ -1,0 +1,147 @@
+[
+  {
+    "id": "perm-equivariance",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Attention without positions is permutation-equivariant: shuffling the input rows only shuffles the output rows the same way, so word order is invisible until a position signal is injected.",
+      "fr": "Sans positions, l'attention est équivariante par permutation : mélanger les lignes d'entrée ne fait que mélanger de la même façon les lignes de sortie, donc l'ordre des mots est invisible tant qu'aucun signal de position n'est injecté."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"x1, x2, x3\"] --> F1[\"attention\"] --> B[\"z1, z2, z3\"]\n  C[\"x3, x1, x2<br/>(permuted)\"] --> F2[\"attention\"] --> D[\"z3, z1, z2<br/>(same rows, permuted)\"]\n  POS[\"add position signal<br/>X + PE, or RoPE on Q,K\"] -.-> F2",
+      "fr": "flowchart LR\n  A[\"x1, x2, x3\"] --> F1[\"attention\"] --> B[\"z1, z2, z3\"]\n  C[\"x3, x1, x2<br/>(permutés)\"] --> F2[\"attention\"] --> D[\"z3, z1, z2<br/>(mêmes lignes, permutées)\"]\n  POS[\"ajouter un signal de position<br/>X + PE, ou RoPE sur Q,K\"] -.-> F2"
+    }
+  },
+  {
+    "id": "sinusoids",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Sinusoidal encodings for d = 8: dimensions come in sin/cos pairs with frequency omega_i = 10000^(-2i/d). Pair 0 (blue, omega = 1) resolves neighbouring positions, pair 1 (orange, omega = 0.1) and pair 2 (green, omega = 0.01) encode coarser location. x is the position p.",
+      "fr": "Encodages sinusoïdaux pour d = 8 : les dimensions vont par paires sin/cos de fréquence omega_i = 10000^(-2i/d). La paire 0 (bleu, omega = 1) distingue les positions voisines, la paire 1 (orange, omega = 0,1) et la paire 2 (vert, omega = 0,01) encodent une position plus grossière. x est la position p."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        64
+      ],
+      "yDomain": [
+        -1.2,
+        1.2
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "sin(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "sin(0.1*x)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "sin(0.01*x)",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rope-circle",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "RoPE in one 2-D pair with theta = 0.6 rad: the query (1,0) is rotated by m*theta at position m (m = 0 blue, 1 orange, 2 green, 3 red). Lengths are unchanged; the angle between two vectors depends only on the offset m - n, so (3,1) and (2,0) have the same score angle.",
+      "fr": "RoPE sur une paire 2-D avec theta = 0,6 rad : la requête (1,0) est tournée de m*theta à la position m (m = 0 bleu, 1 orange, 2 vert, 3 rouge). Les longueurs sont inchangées ; l'angle entre deux vecteurs ne dépend que du décalage m - n, donc (3,1) et (2,0) ont le même angle de score."
+    },
+    "spec": {
+      "xDomain": [
+        -1.4,
+        1.4
+      ],
+      "yDomain": [
+        -1.2,
+        1.2
+      ],
+      "height": 360,
+      "data": [
+        {
+          "fnType": "parametric",
+          "graphType": "polyline",
+          "x": "cos(t)",
+          "y": "sin(t)",
+          "range": [
+            0,
+            6.283
+          ],
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.825,
+            0.565
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.362,
+            0.932
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            -0.227,
+            0.974
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rope-flow",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Where RoPE acts: on Q and K inside each attention layer, per head, never on V and never added to the embedding. The score then depends on the relative offset only.",
+      "fr": "Où agit RoPE : sur Q et K dans chaque couche d'attention, par tête, jamais sur V ni ajouté à l'embedding. Le score ne dépend alors que du décalage relatif."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (B,T,d)\"] --> PR[\"W_Q, W_K, W_V\"]\n  PR --> QK[\"Q, K<br/>(B,h,T,d_h)\"]\n  PR --> V[\"V<br/>(B,h,T,d_h), not rotated\"]\n  QK --> RO[\"RoPE: rotate pairs (2i, 2i+1)<br/>by angle m*theta_i<br/>cos, sin tables (T, d_h/2)\"]\n  RO --> SC[\"scores Q' K'^T / sqrt(d_h)<br/>depends on m - n only\"]\n  SC --> OUT[\"weights x V<br/>(B,h,T,d_h)\"]\n  V --> OUT",
+      "fr": "flowchart LR\n  X[\"x (B,T,d)\"] --> PR[\"W_Q, W_K, W_V\"]\n  PR --> QK[\"Q, K<br/>(B,h,T,d_h)\"]\n  PR --> V[\"V<br/>(B,h,T,d_h), non tourné\"]\n  QK --> RO[\"RoPE: rotation des paires (2i, 2i+1)<br/>d'un angle m*theta_i<br/>tables cos, sin (T, d_h/2)\"]\n  RO --> SC[\"scores Q' K'^T / sqrt(d_h)<br/>ne dépend que de m - n\"]\n  SC --> OUT[\"poids x V<br/>(B,h,T,d_h)\"]\n  V --> OUT"
+    }
+  }
+]

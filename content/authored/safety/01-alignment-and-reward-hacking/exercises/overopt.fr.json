@@ -1,0 +1,10 @@
+{
+  "id": "saf.01.ex1",
+  "title": "Sur-optimisation : best-of-n et politique inclinée par KL",
+  "prompt": "Simule comment la pression d'optimisation sur un proxy endommage l'objectif réel.\n\nLes candidats ont une vraie qualité `q` et une caractéristique exploitable `x`. Le score de proxy est `q + a*x` ; le score or est `q - b*(x - 1)`. `make_candidates` (fournie) retourne des tableaux de forme `(P, N)`.\n\nImplémente :\n\n- `bon_curve(q, x, a, b, ns)` -> tableau de forme `(len(ns), 2)` : pour chaque `n`, choisis par prompt le candidat au proxy le plus élevé parmi les `n` premiers, et retourne le proxy moyen et le score or moyen des candidats choisis.\n- `bon_kl(n)` -> `log(n) - (n-1)/n`, l'estimation habituelle du KL pour le best-of-n.\n- `peak_index(curve)` -> indice du `n` pour lequel le score or moyen est le plus grand.\n- `tilted_policy(pi_ref, r, beta)` -> l'optimum régularisé par KL `pi_ref * exp(r/beta) / Z`.\n- `penalised_reward(r, agree, alpha)` -> `r - alpha * agree` (élément par élément).",
+  "hints": [
+    "Pour le best-of-n, n'utilise que les n premières colonnes : proxy = q[:, :n] + a*x[:, :n] ; prends i = proxy.argmax(axis=1) ; puis moyenne proxy[rows, i] et gold[rows, i] avec gold = q - b*(x-1).",
+    "bon_kl(n) = log(n) - (n-1)/n. peak_index est simplement l'indice de la plus grande valeur du score or.",
+    "tilted_policy : w = pi_ref * exp(r / beta) ; divise par w.sum(). La pénalité d'accord est r - alpha * agree."
+  ]
+}

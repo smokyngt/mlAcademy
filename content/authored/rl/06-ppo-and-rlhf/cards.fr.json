@@ -1,0 +1,17 @@
+[
+  { "id": "rl.06.c1", "front": "Rapport de probabilités", "back": "$\\rho_t=\\pi_\\theta(a_t|s_t)/\\pi_{\\theta_{\\text{old}}}(a_t|s_t)$ ; vaut 1 à la politique qui collecte les données." },
+  { "id": "rl.06.c2", "front": "Objectif écrêté de PPO", "back": "$\\mathbb{E}[\\min(\\rho A,\\operatorname{clip}(\\rho,1-\\varepsilon,1+\\varepsilon)A)]$, typiquement $\\varepsilon=0.2$." },
+  { "id": "rl.06.c3", "front": "Que fait l'écrêtage pour $A>0$ ?", "back": "Plat pour $\\rho>1+\\varepsilon$ : aucune incitation à augmenter davantage la probabilité d'une bonne action ; toujours actif si $\\rho<1-\\varepsilon$." },
+  { "id": "rl.06.c4", "front": "Que fait l'écrêtage pour $A<0$ ?", "back": "Plat pour $\\rho<1-\\varepsilon$ : aucune incitation à réduire davantage une mauvaise action ; toujours actif si $\\rho>1+\\varepsilon$." },
+  { "id": "rl.06.c5", "front": "Pourquoi une région de confiance ?", "back": "Le surrogate n'est une bonne approximation que près de l'ancienne politique ; de grands pas peuvent détruire les performances et le batch suivant est généré par la politique abîmée." },
+  { "id": "rl.06.c6", "front": "Boucle d'entraînement de PPO", "back": "Collecter des déploiements, calculer et geler les avantages et $\\log\\pi_{\\text{old}}$, faire $K$ époques de pas par minibatch sur la perte écrêtée, jeter les données, recommencer." },
+  { "id": "rl.06.c7", "front": "Perte complète de PPO", "back": "$L^{\\text{CLIP}}-c_v(V-V^{\\text{target}})^2+c_eH(\\pi)$ avec p. ex. $c_v=0.5$, $c_e=0.01$." },
+  { "id": "rl.06.c8", "front": "Formule de GAE", "back": "$\\hat A_t=\\sum_l(\\gamma\\lambda)^l\\delta_{t+l}$, soit $\\hat A_t=\\delta_t+\\gamma\\lambda\\hat A_{t+1}$ (récursion arrière)." },
+  { "id": "rl.06.c9", "front": "Limites de GAE", "back": "$\\lambda=0$ : résidu TD (faible variance, biaisé). $\\lambda=1$ : avantage Monte Carlo (non biaisé, forte variance). 0.95 est courant." },
+  { "id": "rl.06.c10", "front": "Indicateurs de fin dans GAE", "back": "À la fin d'un épisode, le bootstrap et la trace sont coupés : $\\delta_t=r_t-V_t$ et $\\hat A_t=\\delta_t$." },
+  { "id": "rl.06.c11", "front": "Trois étapes du RLHF", "back": "SFT sur des démonstrations ; modèle de récompense à partir de paires de préférences ; PPO contre le modèle de récompense avec une pénalité KL vers la politique de référence." },
+  { "id": "rl.06.c12", "front": "Modèle de Bradley-Terry", "back": "$P(y^+\\succ y^-)=\\sigma(R(y^+)-R(y^-))$ ; perte $-\\log\\sigma$ de la marge. Seules les différences de récompense comptent." },
+  { "id": "rl.06.c13", "front": "Récompense façonnée du RLHF", "back": "$r=R_\\phi(x,y)-\\beta[\\log\\pi_\\theta(y|x)-\\log\\pi_{\\text{ref}}(y|x)]$, une pénalité KL échantillonnée ; $\\beta\\sim0.01$-$0.05$." },
+  { "id": "rl.06.c14", "front": "Piratage de la récompense", "back": "La politique trouve des sorties que le modèle de récompense surévalue mais que des humains n'apprécieraient pas ; la laisse KL et de nouvelles données de préférence le contrent." },
+  { "id": "rl.06.c15", "front": "DPO et GRPO en une ligne chacun", "back": "DPO : perte de préférence en forme close, sans modèle de récompense ni boucle PPO. GRPO : mise à jour de type PPO avec une référence relative au groupe au lieu d'un critique, souvent avec des récompenses vérifiables." }
+]

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "stagewise-sequence",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": { "en": "Boosting as a sequence: F₀ is a constant, and every stage adds one small tree h_m scaled by the learning rate ν, then freezes it. Each tree is trained on what the previous ones got wrong.", "fr": "Le boosting comme une suite : F₀ est une constante, et chaque étape ajoute un petit arbre h_m multiplié par le taux d'apprentissage ν, puis le fige. Chaque arbre est entraîné sur ce que les précédents ont mal fait." },
+    "code": {
+      "en": "flowchart LR\n  F0[\"F0 = constant\"] --> R1[\"errors of F0\"]\n  R1 --> H1[\"tree h1\"]\n  H1 --> F1[\"F1 = F0 + nu h1\"]\n  F1 --> R2[\"errors of F1\"]\n  R2 --> H2[\"tree h2\"]\n  H2 --> F2[\"F2 = F1 + nu h2\"]\n  F2 --> DOTS[\"...\"]\n  DOTS --> FM[\"F_M = F0 + sum nu h_m\"]",
+      "fr": "flowchart LR\n  F0[\"F0 = constante\"] --> R1[\"erreurs de F0\"]\n  R1 --> H1[\"arbre h1\"]\n  H1 --> F1[\"F1 = F0 + nu h1\"]\n  F1 --> R2[\"erreurs de F1\"]\n  R2 --> H2[\"arbre h2\"]\n  H2 --> F2[\"F2 = F1 + nu h2\"]\n  F2 --> DOTS[\"...\"]\n  DOTS --> FM[\"F_M = F0 + somme nu h_m\"]"
+    }
+  },
+  {
+    "id": "adaboost-alpha",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "The AdaBoost vote α = ln((1 − ε)/ε) as a function of the weighted error ε (x-axis). Near-perfect learners get a large positive vote, a learner at chance (ε = 0.5) gets 0, a worse-than-chance learner gets a negative vote. The worked round (ε = 0.2, α = ln 4 = 1.386) is marked.", "fr": "Le vote d'AdaBoost α = ln((1 − ε)/ε) en fonction de l'erreur pondérée ε (axe x). Les apprenants quasi parfaits obtiennent un grand vote positif, un apprenant au niveau du hasard (ε = 0,5) obtient 0, un apprenant pire que le hasard obtient un vote négatif. Le tour traité (ε = 0,2, α = ln 4 = 1,386) est marqué." },
+    "spec": {
+      "xDomain": [0.02, 0.98], "yDomain": [-4, 4], "height": 300,
+      "data": [
+        { "fn": "log((1-x)/x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[0.2, 1.386], [0.5, 0]] }
+      ],
+      "annotations": [{ "y": 0, "text": "alpha = 0" }]
+    }
+  },
+  {
+    "id": "boosting-loop",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": { "en": "Gradient boosting with squared loss: the residual is the negative gradient, so fitting a tree to the residuals is gradient descent in function space.", "fr": "Gradient boosting avec perte quadratique : le résidu est le gradient négatif, donc ajuster un arbre aux résidus revient à une descente de gradient dans l'espace des fonctions." },
+    "code": {
+      "en": "flowchart TD\n  S[\"F0 = mean of y\"] --> L[\"residuals r_i = y_i - F_{m-1}(x_i)\\n(negative gradient)\"]\n  L --> T[\"fit small tree h_m to (x_i, r_i)\"]\n  T --> U[\"F_m = F_{m-1} + nu h_m\"]\n  U --> C{\"m = M or validation error rising?\"}\n  C -->|\"no\"| L\n  C -->|\"yes\"| E[\"stop: early stopping\"]",
+      "fr": "flowchart TD\n  S[\"F0 = moyenne de y\"] --> L[\"résidus r_i = y_i - F_{m-1}(x_i)\\n(gradient négatif)\"]\n  L --> T[\"ajuster un petit arbre h_m à (x_i, r_i)\"]\n  T --> U[\"F_m = F_{m-1} + nu h_m\"]\n  U --> C{\"m = M ou erreur de validation en hausse ?\"}\n  C -->|\"non\"| L\n  C -->|\"oui\"| E[\"arrêt : early stopping\"]"
+    }
+  },
+  {
+    "id": "stump-fit",
+    "after": 7,
+    "kind": "plot",
+    "caption": { "en": "The worked example: six points (black), the starting constant F₀ = 2.017 (grey), and the model F₃ after three rounds of stumps with ν = 0.5 (blue): 1.156 for x ≤ 3.5 and 2.877 beyond. The model has crept toward the two group means (1.033 and 3.0) in halving steps.", "fr": "L'exemple traité : six points (noir), la constante de départ F₀ = 2,017 (gris), et le modèle F₃ après trois tours de souches avec ν = 0,5 (bleu) : 1,156 pour x ≤ 3,5 et 2,877 au-delà. Le modèle s'est rapproché des deux moyennes de groupe (1,033 et 3,0) par pas divisés par deux." },
+    "spec": {
+      "xDomain": [0, 7], "yDomain": [0, 3.8], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[0.5, 2.0167], [6.5, 2.0167]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0.5, 1.156], [3.5, 1.156], [3.5, 2.877], [6.5, 2.877]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 5 }, "points": [[1, 1], [2, 1.2], [3, 0.9], [4, 3], [5, 3.2], [6, 2.8]] }
+      ]
+    }
+  },
+  {
+    "id": "mse-rounds",
+    "after": 7,
+    "kind": "plot",
+    "caption": { "en": "Training MSE per boosting round in the worked example: 0.988 (the variance of y, round 0), then 0.2628, 0.0815, 0.0362. Shrinkage makes the stump-level residual halve every round (geometric decay); the floor is the within-group variance 0.0211. x-axis: round m.", "fr": "EQM d'entraînement par tour de boosting dans l'exemple traité : 0,988 (la variance de y, tour 0), puis 0,2628, 0,0815, 0,0362. Le rétrécissement fait diviser par deux le résidu au niveau des souches à chaque tour (décroissance géométrique) ; le plancher est la variance intra-groupe 0,0211. Axe x : tour m." },
+    "spec": {
+      "xDomain": [-0.2, 3.5], "yDomain": [0, 1.1], "height": 280,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#2563eb", "points": [[0, 0.988], [1, 0.2628], [2, 0.0815], [3, 0.0362]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 5 }, "points": [[0, 0.988], [1, 0.2628], [2, 0.0815], [3, 0.0362]] }
+      ],
+      "annotations": [{ "y": 0.0211, "text": "floor 0.0211" }]
+    }
+  }
+]

@@ -1,0 +1,98 @@
+[
+ {
+  "id": "sys.05.c1",
+  "concept": "res.ablation",
+  "front": "Ablation study",
+  "back": "Remove or change exactly one component of a system, holding everything else (data, budget, tuning effort) fixed, to measure that component's contribution."
+ },
+ {
+  "id": "sys.05.c2",
+  "concept": "res.ablation",
+  "front": "Three-pass paper reading",
+  "back": "Pass 1 (5-10 min): title, abstract, headings, figures, conclusion. Pass 2: text, figures and setup, list claims and evidence. Pass 3: re-derive/re-implement, find assumptions and failure cases."
+ },
+ {
+  "id": "sys.05.c3",
+  "concept": "res.ablation",
+  "front": "Four-line paper note",
+  "back": "Claim, evidence (which table/figure), baseline, what is missing."
+ },
+ {
+  "id": "sys.05.c4",
+  "concept": "res.ablation",
+  "front": "Why reproduce the baseline first?",
+  "back": "If you cannot recover the published baseline number, a comparison with it is meaningless."
+ },
+ {
+  "id": "sys.05.c5",
+  "concept": "res.ablation",
+  "front": "Sanity-check metrics",
+  "back": "Quantities that must hold by construction (initial loss near ln K, zero-mean advantages, gradient check). A violation signals a bug before you interpret results."
+ },
+ {
+  "id": "sys.05.c6",
+  "concept": "res.ablation",
+  "front": "Why several seeds?",
+  "back": "A single run is one random draw (init, batch order); seed-to-seed spread can be larger than the effect you are measuring."
+ },
+ {
+  "id": "sys.05.c7",
+  "concept": "res.ablation",
+  "front": "Mean +- std convention",
+  "back": "Report mean and sample standard deviation (ddof=1) over n seeds, and state n and what the seed controls."
+ },
+ {
+  "id": "sys.05.c8",
+  "concept": "res.ablation",
+  "front": "Common random numbers",
+  "back": "Use the same seeds (same init and batch order) for both arms so that noise cancels in the per-seed difference."
+ },
+ {
+  "id": "sys.05.c9",
+  "concept": "res.ablation",
+  "front": "Paired t statistic",
+  "back": "$d_i=a_i-b_i$; $t=\\bar d/(s_d/\\sqrt n)$ with $n-1$ degrees of freedom (critical value 2.776 for 4 d.o.f., 5% two-sided)."
+ },
+ {
+  "id": "sys.05.c10",
+  "concept": "res.ablation",
+  "front": "Welch (unpaired) t",
+  "back": "$t=(\\bar a-\\bar b)/\\sqrt{s_a^2/n+s_b^2/n}$; ignores pairing, so with large seed noise it has much less power."
+ },
+ {
+  "id": "sys.05.c11",
+  "concept": "res.ablation",
+  "front": "Statistical vs practical significance",
+  "back": "A tiny effect can be significant with enough pairing/data; always report the effect size in the metric's own units."
+ },
+ {
+  "id": "sys.05.c12",
+  "concept": "res.ablation",
+  "front": "Absence of significance is not equality",
+  "back": "With few seeds you may lack power. Report an interval and the effect sizes you could have detected."
+ },
+ {
+  "id": "sys.05.c13",
+  "concept": "res.ablation",
+  "front": "Fair baseline",
+  "back": "Tune the baseline as carefully as the new method and give it the same budget (steps, parameters, compute); otherwise the gain is an artefact."
+ },
+ {
+  "id": "sys.05.c14",
+  "concept": "res.ablation",
+  "front": "Observation vs interpretation",
+  "back": "Observation: accuracy rose 4.4 points. Interpretation: because of saturation. Mark untested interpretations as hypotheses."
+ },
+ {
+  "id": "sys.05.c15",
+  "concept": "res.ablation",
+  "front": "Shadow, A/B and canary",
+  "back": "Shadow: run the new model in parallel without serving it. A/B: randomly split live traffic and test significance. Canary: gradually roll out and abort if metrics degrade."
+ },
+ {
+  "id": "sys.05.c16",
+  "concept": "res.ablation",
+  "front": "Red flags in a paper",
+  "back": "Gain below seed noise, single run, weak/untuned baseline, tuning on test data, unequal budgets, no ablations, claims beyond tested settings."
+ }
+]

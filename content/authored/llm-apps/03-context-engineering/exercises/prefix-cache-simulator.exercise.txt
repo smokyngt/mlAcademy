@@ -1,0 +1,100 @@
+#@@ meta
+{"id": "app.03.ex1", "title": "A prefix-cache hit-rate and cost simulator", "difficulty": 3, "runtime": "pyodide", "concepts": ["app.prompt-cache", "app.context"], "hints": ["Build cumulative token counts cum[k] = tokens in the first k segments. A cache key is the tuple of segment keys of a prefix, e.g. ('sys', 'tools').", "A hit is the LONGEST cacheable prefix that is in the cache, not older than ttl seconds, and has at least min_tokens tokens. Tokens after that prefix up to the end of the request's last cacheable prefix are written (write_mult); the rest are plain.", "After billing, refresh (or insert) the cache entry of every cacheable prefix of this request with the current time t."]}
+#@@ prompt
+Providers that cache prompt prefixes bill a cache **read** at a fraction of the input price, a cache **write** at a premium, and everything else at the plain price. A cache entry is a **prefix** of the prompt: change one early token and every later token misses. You will simulate this offline.
+
+A request is `(t, segments)` with `t` in seconds and `segments` a list of `(key, tokens, cacheable)`. A prefix is cacheable if it ends at a segment with `cacheable=True` and holds at least `min_tokens` tokens. Implement `simulate(requests, price=3.0, write_mult=1.25, read_mult=0.1, ttl=300, min_tokens=1024)` (`price` in dollars per million input tokens), processing requests in order:
+
+1. Among the cacheable prefixes of the request, find the **longest** one whose key tuple is in the cache and was last used at most `ttl` seconds ago. Its tokens are **read**.
+2. Tokens after it, up to the end of the request's last cacheable prefix, are **written** (billed at `write_mult`). Everything after that is billed plain.
+3. Bill `(read*read_mult + write*write_mult + plain) * price / 1e6`.
+4. Insert or refresh the entry (time `t`) of **every** cacheable prefix of this request.
+
+Return `{"total_tokens", "read_tokens", "hit_rate", "cost", "baseline", "savings"}` where `hit_rate = read_tokens/total_tokens`, `baseline` is the cost with no caching, and `savings = 1 - cost/baseline`.
+
+Also implement `avg_cost_ratio(n_reads, write_mult, read_mult)` (average cost per use relative to no caching, for 1 write followed by `n_reads` reads) and `breakeven_reads(write_mult, read_mult)` (smallest `n>=1` for which that ratio is below 1).
+#@@ starter
+def simulate(requests, price=3.0, write_mult=1.25, read_mult=0.1, ttl=300, min_tokens=1024):
+    raise NotImplementedError
+
+def avg_cost_ratio(n_reads, write_mult=1.25, read_mult=0.1):
+    raise NotImplementedError
+
+def breakeven_reads(write_mult=1.25, read_mult=0.1):
+    raise NotImplementedError
+
+def conv(n, dt=10):
+    """A chat: system + tools (cacheable), n-1 past turns of 500 tokens (cacheable), a fresh 200-token user message."""
+    reqs = []
+    for i in range(n):
+        segs = [("sys", 2000, True), ("tools", 1500, True)] + [(f"h{j}", 500, True) for j in range(i)] + [(f"u{i}", 200, False)]
+        reqs.append((i * dt, segs))
+    return reqs
+#@@ tests
+r = simulate(conv(10))
+check("total tokens of a 10-turn chat", lambda: r["total_tokens"] == 59500)
+check("read tokens: each turn re-reads the previous prefix", lambda: r["read_tokens"] == 49500)
+check("hit rate 49500/59500", lambda: abs(r["hit_rate"] - 49500 / 59500) < 1e-12)
+check("cost is $0.05085", lambda: abs(r["cost"] - 0.05085) < 1e-9)
+check("baseline is $0.1785", lambda: abs(r["baseline"] - 0.1785) < 1e-9)
+check("savings about 71.5%", lambda: abs(r["savings"] - 0.71512605) < 1e-6)
+first = simulate(conv(1))
+check("a single request only pays the write premium (cost goes UP)", lambda: first["read_tokens"] == 0 and first["cost"] > first["baseline"])
+check("one write + one read already saves money here", lambda: simulate(conv(2))["savings"] > 0)
+slow = simulate(conv(10, dt=400))
+check("TTL expiry: gaps over 300 s mean no hits", lambda: slow["read_tokens"] == 0)
+check("TTL expiry while still writing costs more than no cache", lambda: slow["cost"] > slow["baseline"])
+bad = [(t, list(reversed(segs))) for t, segs in conv(10)]
+check("dynamic text first: the prefix never matches", lambda: simulate(bad)["read_tokens"] == 0)
+small = [(0, [("a", 500, True), ("q", 10, False)]), (1, [("a", 500, True), ("q2", 10, False)])]
+check("below min_tokens nothing is cached or written", lambda: simulate(small)["read_tokens"] == 0 and abs(simulate(small)["cost"] - simulate(small)["baseline"]) < 1e-12)
+check("ratio for 1 write + 1 read is 0.675", lambda: abs(avg_cost_ratio(1) - 0.675) < 1e-12)
+check("ratio for 1 write + 10 reads is 2.25/11", lambda: abs(avg_cost_ratio(10) - 2.25 / 11) < 1e-12)
+check("breakeven with 1.25 / 0.1 is 1 read", lambda: breakeven_reads(1.25, 0.1) == 1)
+check("with a 2x write premium and 50% read price you need 3 reads", lambda: breakeven_reads(2.0, 0.5) == 3)
+#@@ solution
+def simulate(requests, price=3.0, write_mult=1.25, read_mult=0.1, ttl=300, min_tokens=1024):
+    cache = {}
+    tot = read_t = 0
+    cost = 0.0
+    for t, segs in requests:
+        keys = [s[0] for s in segs]
+        cum = [0]
+        for s in segs:
+            cum.append(cum[-1] + s[1])
+        total = cum[-1]
+        ends = [k + 1 for k, s in enumerate(segs) if s[2] and cum[k + 1] >= min_tokens]
+        hit = 0
+        for k in sorted(ends, reverse=True):
+            e = cache.get(tuple(keys[:k]))
+            if e is not None and t - e <= ttl:
+                hit = k
+                break
+        read = cum[hit]
+        last = max(ends) if ends else 0
+        write = cum[last] - cum[hit]
+        plain = total - read - write
+        cost += (read * read_mult + write * write_mult + plain) * price / 1e6
+        read_t += read
+        tot += total
+        for k in ends:
+            cache[tuple(keys[:k])] = t
+    base = tot * price / 1e6
+    return {"total_tokens": tot, "read_tokens": read_t, "hit_rate": read_t / tot, "cost": cost, "baseline": base, "savings": 1 - cost / base}
+
+def avg_cost_ratio(n_reads, write_mult=1.25, read_mult=0.1):
+    return (write_mult + read_mult * n_reads) / (n_reads + 1)
+
+def breakeven_reads(write_mult=1.25, read_mult=0.1):
+    n = 1
+    while avg_cost_ratio(n, write_mult, read_mult) >= 1:
+        n += 1
+    return n
+
+def conv(n, dt=10):
+    """A chat: system + tools (cacheable), n-1 past turns of 500 tokens (cacheable), a fresh 200-token user message."""
+    reqs = []
+    for i in range(n):
+        segs = [("sys", 2000, True), ("tools", 1500, True)] + [(f"h{j}", 500, True) for j in range(i)] + [(f"u{i}", 200, False)]
+        reqs.append((i * dt, segs))
+    return reqs

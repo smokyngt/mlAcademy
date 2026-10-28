@@ -1,0 +1,16 @@
+[
+  { "id": "ops.03.c1", "concept": "ops.skew", "front": "Train/serve skew", "back": "Systematic difference between training-time and serving-time features; silent, because nothing crashes." },
+  { "id": "ops.03.c2", "concept": "ops.skew", "front": "Common causes of skew", "back": "Separate code paths, different units, stale statistics, missing upstream data, unseen categories, different time semantics." },
+  { "id": "ops.03.c3", "concept": "ops.feature-pipelines", "front": "Rule for fitted statistics (scaling, imputation, vocabularies)", "back": "Fit on the training split only; store and reuse at validation, test and serving." },
+  { "id": "ops.03.c4", "concept": "ops.skew", "front": "Data leakage", "back": "Label or future information in the features at training time that is unavailable at serving time." },
+  { "id": "ops.03.c5", "concept": "ops.skew", "front": "Fix for time-correlated data", "back": "Split by time: train on the past, validate and test on the future." },
+  { "id": "ops.03.c6", "concept": "ops.skew", "front": "Group leakage", "back": "Correlated rows from one entity (patient, object) split across train and test; keep groups together." },
+  { "id": "ops.03.c7", "concept": "ops.skew", "front": "Duplicate leakage rule", "back": "Deduplicate before splitting, check again after, and oversample only after splitting." },
+  { "id": "ops.03.c8", "concept": "ops.skew", "front": "How to detect leakage", "back": "Inspect suspiciously strong features, run ablation studies, scrutinise new features that jump the metric, and use the test set only once." },
+  { "id": "ops.03.c9", "concept": "ops.feature-pipelines", "front": "Hashing trick", "back": "Index = hash(category) mod fixed size; handles unseen categories with no vocabulary; collisions are random and usually cost little." },
+  { "id": "ops.03.c10", "concept": "ops.feature-pipelines", "front": "Why an UNKNOWN bucket can fail silently", "back": "The model never saw UNKNOWN in training, so it ignores those items." },
+  { "id": "ops.03.c11", "concept": "ops.feature-pipelines", "front": "Two axes for a good feature", "back": "Importance to the model and generalization to unseen data (coverage and value distribution)." },
+  { "id": "ops.03.c12", "concept": "ops.feature-pipelines", "front": "Feature coverage", "back": "Share of rows that have a value for the feature; large differences between splits signal different distributions." },
+  { "id": "ops.03.c13", "concept": "ops.skew", "front": "Three label-free skew checks", "back": "Missing-rate difference, mean shift in training standard deviations, and share of serving values outside the training range." },
+  { "id": "ops.03.c14", "concept": "ops.feature-pipelines", "front": "Feature store principle", "back": "One definition per feature, consumed by both offline training and online serving." }
+]

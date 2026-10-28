@@ -1,0 +1,10 @@
+{
+  "id": "app.02.ex2",
+  "title": "Décodage contraint : un masque de jetons sur un automate de grammaire",
+  "prompt": "Le décodage contraint rend la sortie invalide **inatteignable** en mettant à $-\\infty$ les logits des jetons illégaux avant le softmax ou l'argmax. Tu vas en implémenter le cœur sur une minuscule grammaire, avec un faux « modèle » déterministe.\n\nLa grammaire (donnée) est le langage des chaînes comme `{\"sentiment\":\"positive\",\"score\":7}` :\n\n```\n{\"sentiment\":\"(positive|negative)\",\"score\":[0-9]{1,2}}\n```\n\n`build_dfa(pieces)` est fourni et renvoie un automate au niveau des caractères `{\"trans\": [dict, ...], \"start\": int, \"accept\": int}` où `trans[state][char]` est l'état suivant. `VOCAB` est une liste de **jetons multi-caractères** (y compris des déchets comme `\"Sure\"` et le jeton de fin `\"<eos>\"`).\n\nImplémente :\n\n- `dfa_step(dfa, state, token)` -> l'état après avoir fourni tous les caractères de `token`, ou `None` si un caractère n'a pas de transition.\n- `token_mask(dfa, state, vocab)` -> liste de booléens, un par jeton : `True` si et seulement si le jeton peut être émis légalement maintenant. `\"<eos>\"` n'est légal que dans l'état d'acceptation.\n- `constrained_greedy(dfa, vocab, logits_fn, max_steps=40)` -> la chaîne générée. À chaque pas, appelle `logits_fn(step)` (une liste de flottants), masque les jetons illégaux à `-inf`, prends l'argmax, et arrête-toi à `\"<eos>\"`.",
+  "hints": [
+    "Un jeton multi-caractères est autorisé dans un état si et seulement si lui fournir ses caractères un par un à travers le DFA ne tombe jamais sur une transition manquante. Écris d'abord dfa_step.",
+    "Le jeton de fin de séquence '<eos>' n'est autorisé que lorsque l'état appartient à l'ensemble d'acceptation.",
+    "Décodage glouton contraint : logits = logits_fn(...) ; mets les entrées non autorisées à -inf ; prends l'argmax ; ajoute le texte du jeton ; avance l'état ; arrête-toi quand '<eos>' est choisi."
+  ]
+}

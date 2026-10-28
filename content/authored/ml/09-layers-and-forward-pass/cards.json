@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.09.c1", "concept": "nn.layer", "front": "Dense layer, batch form with shapes", "back": "$A=\\phi(XW+b)$; $X:(B,n)$, $W:(n,m)$, $b:(m)$, $A:(B,m)$." },
+  { "id": "f2n.09.c2", "concept": "nn.activation", "front": "Why nonlinear activations?", "back": "$W_2(W_1x)=(W_2W_1)x$: stacked linear layers collapse into one linear layer." },
+  { "id": "f2n.09.c3", "concept": "nn.activation", "front": "ReLU, sigmoid, tanh derivatives", "back": "ReLU: $\\mathbb{1}[z>0]$. Sigmoid: $\\sigma(1-\\sigma)$ (max 0.25). Tanh: $1-\\tanh^2$ (max 1)." },
+  { "id": "f2n.09.c4", "concept": "nn.layer", "front": "Parameters of a dense layer $n\\to m$", "back": "$nm+m$ (weights plus biases)." },
+  { "id": "f2n.09.c5", "concept": "nn.layer", "front": "He initialisation", "back": "$\\operatorname{Var}(w)=2/n_{\\text{in}}$ for ReLU: $\\operatorname{Var}(z)=n\\sigma_w^2\\sigma_x^2$ and ReLU halves the second moment." },
+  { "id": "f2n.09.c6", "concept": "nn.layer", "front": "Why not initialise all weights to 0?", "back": "All neurons in a layer stay identical (same gradient), so symmetry is never broken." }
+]

@@ -1,0 +1,17 @@
+[
+  { "id": "saf.05.c1", "front": "Préjudice de représentation contre d'allocation", "back": "Représentation : stéréotypes, effacement, portrait dégradant. Allocation : distribution inégale de ressources ou d'opportunités." },
+  { "id": "saf.05.c2", "front": "Trois familles de métriques de biais", "back": "Fondées sur les embeddings (associations dans les représentations), sur les probabilités (vraisemblances de textes stéréotypés ou contre-stéréotypés), sur le texte généré (sorties en aval)." },
+  { "id": "saf.05.c3", "front": "Pourquoi une évaluation intersectionnelle", "back": "Le biais peut n'apparaître que pour des combinaisons d'attributs ; les tests sur un seul axe le manquent." },
+  { "id": "saf.05.c4", "front": "Parité démographique", "back": "P(Yhat=1 | A=a) égale entre les groupes ; ignore le vrai résultat." },
+  { "id": "saf.05.c5", "front": "Cotes égalisées (equalised odds)", "back": "TPR et FPR égaux entre les groupes : P(Yhat=1 | Y=y, A=a) identique pour y=0 et y=1." },
+  { "id": "saf.05.c6", "front": "Parité prédictive (exactitude d'usage conditionnelle)", "back": "Précision égale entre les groupes : P(Y=1 | Yhat=1, A=a) identique." },
+  { "id": "saf.05.c7", "front": "PPV à partir du TPR, du FPR et du taux de base", "back": "PPV = TPR*p / (TPR*p + FPR*(1-p)), croissant en p." },
+  { "id": "saf.05.c8", "front": "Impossibilité sous des taux de base inégaux", "back": "Cotes égalisées, précision égale et calibration au sein des groupes ne peuvent pas tenir toutes ensemble sauf pour un classifieur parfait ou dégénéré." },
+  { "id": "saf.05.c9", "front": "Équité individuelle", "back": "|f(x)-f(x')| <= L d(x,x') : des individus semblables reçoivent des décisions semblables, avec d une métrique de similarité propre à la tâche." },
+  { "id": "saf.05.c10", "front": "Équité contrefactuelle", "back": "La décision est inchangée si l'attribut protégé était modifié de façon contrefactuelle, dans un modèle causal donné." },
+  { "id": "saf.05.c11", "front": "(epsilon, delta)-DP", "back": "P(M(D) in S) <= e^eps P(M(D') in S) + delta pour D, D' voisins et tous événements S." },
+  { "id": "saf.05.c12", "front": "Sensibilité", "back": "Le plus grand changement de la valeur de la requête quand un enregistrement change ; le bruit y est proportionnel." },
+  { "id": "saf.05.c13", "front": "Mécanisme de Laplace", "back": "Ajouter un bruit Lap(sensibilité/eps) ; donne une eps-DP pure parce que le rapport de densités est au plus exp(sensibilité/b)." },
+  { "id": "saf.05.c14", "front": "Calibration du mécanisme gaussien", "back": "sigma >= sensibilité * sqrt(2 ln(1.25/delta)) / eps pour eps < 1 (condition suffisante conservatrice) ; la perte de confidentialité est gaussienne." },
+  { "id": "saf.05.c15", "front": "Recette de DP-SGD", "back": "Gradients par exemple, écrêtage à la norme C, somme, ajout de N(0, sigma^2 C^2 I), mise à jour ; un comptable suit le (epsilon, delta) total." }
+]

@@ -1,0 +1,77 @@
+[
+ {
+  "id": "cml.15.c1",
+  "front": "Paramètre vs hyper-paramètre",
+  "back": "Les paramètres sont appris par l'entraînement ; les hyper-paramètres sont fixés au préalable et contrôlent l'apprentissage (taux d'apprentissage, profondeur, $\\lambda$, $k$)."
+ },
+ {
+  "id": "cml.15.c2",
+  "front": "Coût de la recherche par grille",
+  "back": "$m^d$ exécutions pour $m$ valeurs en dimension $d$ ; chaque axe n'a que $m$ valeurs distinctes."
+ },
+ {
+  "id": "cml.15.c3",
+  "front": "Pourquoi la recherche aléatoire bat la grille",
+  "back": "Quand peu d'hyper-paramètres comptent, $n$ essais aléatoires donnent $n$ valeurs distinctes de chacun, une grille seulement $n^{1/d}$."
+ },
+ {
+  "id": "cml.15.c4",
+  "front": "Quelle échelle pour un taux d'apprentissage ou $\\lambda$ ?",
+  "back": "Une échelle logarithmique : tirer l'exposant uniformément."
+ },
+ {
+  "id": "cml.15.c5",
+  "front": "Successive halving",
+  "back": "Évaluer de nombreuses configurations avec un petit budget, garder les $1/\\eta$ meilleures, multiplier le budget par $\\eta$, recommencer. Élimination bon marché des mauvaises exécutions."
+ },
+ {
+  "id": "cml.15.c6",
+  "front": "Risque du successive halving",
+  "back": "Les démarrages lents (p. ex. petit taux d'apprentissage) sont éliminés trop tôt ; Hyperband se couvre avec plusieurs calendriers."
+ },
+ {
+  "id": "cml.15.c7",
+  "front": "Validation croisée imbriquée",
+  "back": "La boucle interne règle les hyper-paramètres, la boucle externe estime la performance ; évite l'optimisme de rapporter le meilleur score de réglage."
+ },
+ {
+  "id": "cml.15.c8",
+  "front": "Boucle d'optimisation bayésienne",
+  "back": "Ajuster un modèle de substitution aux évaluations passées, maximiser une fonction d'acquisition, évaluer à cet endroit, mettre à jour."
+ },
+ {
+  "id": "cml.15.c9",
+  "front": "Noyau RBF",
+  "back": "$k(x,x')=\\sigma^2\\exp(-(x-x')^2/(2\\ell^2))$ : l'échelle de longueur $\\ell$ fixe jusqu'où porte la corrélation."
+ },
+ {
+  "id": "cml.15.c10",
+  "front": "Moyenne et variance prédictives d'un GP",
+  "back": "$\\mu=\\mathbf k_*^\\top C^{-1}\\mathbf t$, $s^2=k_{**}-\\mathbf k_*^\\top C^{-1}\\mathbf k_*$, avec $C=K+\\beta^{-1}I$."
+ },
+ {
+  "id": "cml.15.c11",
+  "front": "Calculer une loi a posteriori de GP de façon stable",
+  "back": "Cholesky $C=LL^\\top$ ; résoudre pour $\\boldsymbol\\alpha$ ; $\\mathbf v=L^{-1}\\mathbf k_*$ ; variance $=\\sigma^2-\\|\\mathbf v\\|^2$. Coût $O(N^3)$."
+ },
+ {
+  "id": "cml.15.c12",
+  "front": "Amélioration espérée",
+  "back": "$(\\mu-f^+)\\Phi(z)+s\\varphi(z)$, $z=(\\mu-f^+)/s$ ; équilibre exploitation et exploration."
+ },
+ {
+  "id": "cml.15.c13",
+  "front": "Contrat d'un Pipeline",
+  "back": "Transformateurs : fit/transform. Modèle : fit/predict. pipeline.fit ajuste chaque étape dans l'ordre ; predict ne fait que transformer."
+ },
+ {
+  "id": "cml.15.c14",
+  "front": "Fuite par le prétraitement",
+  "back": "Une mise à l'échelle, une imputation, une sélection de variables ou un encodage ajustés sur toutes les lignes laissent les lignes de validation influencer l'entraînement ; ajuster à l'intérieur de chaque pli."
+ },
+ {
+  "id": "cml.15.c15",
+  "front": "Pourquoi le jeu de test final reste-t-il nécessaire ?",
+  "back": "Essayer de nombreuses configurations surajuste le score de validation ; un jeu de test intact donne une estimation non biaisée."
+ }
+]

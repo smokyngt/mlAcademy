@@ -1,0 +1,91 @@
+[
+ {
+  "id": "mf.04.q1",
+  "prompt": "Comment s'écrit $2^3\\cdot2^4$ sous la forme d'une seule puissance de 2 ?",
+  "options": [
+   "$2^{12}$",
+   "$2^7$",
+   "$4^7$",
+   "$2^{1}$"
+  ],
+  "explanation": "Les exposants s'additionnent quand on multiplie des puissances de même base : $2^{3+4}=2^7=128$."
+ },
+ {
+  "id": "mf.04.q2",
+  "prompt": "Que vaut $\\log_2 32$ ?",
+  "options": [],
+  "explanation": "$2^5=32$, donc l'exposant nécessaire est 5."
+ },
+ {
+  "id": "mf.04.q3",
+  "prompt": "$\\ln(e^{3})$ est égal à...",
+  "options": [
+   "$e$",
+   "$3$",
+   "$1/3$",
+   "$3e$"
+  ],
+  "explanation": "$\\ln$ est la réciproque de $e^x$, donc elle renvoie l'exposant : 3."
+ },
+ {
+  "id": "mf.04.q4",
+  "prompt": "$\\log(ab)$ est égal à...",
+  "options": [
+   "$\\log a\\cdot\\log b$",
+   "$\\log a+\\log b$",
+   "$\\log a-\\log b$",
+   "$(\\log a)^b$"
+  ],
+  "explanation": "Les logs transforment les produits en sommes : c'est la règle des exposants $a^m a^n=a^{m+n}$ lue à l'envers."
+ },
+ {
+  "id": "mf.04.q5",
+  "prompt": "On place 1000 à 5 % par an, capitalisé annuellement. Après 10 ans, cela vaut environ (à l'unité près)...",
+  "options": [],
+  "explanation": "$1000\\cdot1.05^{10}=1628.89$."
+ },
+ {
+  "id": "mf.04.q6",
+  "prompt": "Quelle est la formule de changement de base ?",
+  "options": [
+   "$\\log_b x=\\ln x\\cdot\\ln b$",
+   "$\\log_b x=\\frac{\\ln x}{\\ln b}$",
+   "$\\log_b x=\\frac{\\ln b}{\\ln x}$",
+   "$\\log_b x=\\ln(x-b)$"
+  ],
+  "explanation": "À partir de $b^y=x$, prends $\\ln$ des deux côtés : $y\\ln b=\\ln x$, donc $y=\\ln x/\\ln b$."
+ },
+ {
+  "id": "mf.04.q7",
+  "prompt": "Pourquoi les systèmes de ML minimisent-ils la SOMME des log-probabilités négatives plutôt que de multiplier les probabilités ?",
+  "options": [
+   "Multiplier n'est pas permis",
+   "Un produit de nombreux nombres inférieurs à 1 sous-déborde vers 0, alors qu'une somme de logs reste finie et a des gradients simples",
+   "Les logs rendent les probabilités plus grandes",
+   "Les sommes sont toujours positives"
+  ],
+  "explanation": "Multiplier des milliers de probabilités sous-déborde. Prendre les logs transforme le produit en somme (loi des logs), et le maximiseur ne change pas puisque le log est croissant."
+ },
+ {
+  "id": "mf.04.q8",
+  "prompt": "$(1+1/n)^n$ s'approche de quel nombre quand $n$ devient très grand ?",
+  "options": [
+   "1",
+   "2",
+   "$e\\approx2.718$",
+   "l'infini"
+  ],
+  "explanation": "Pour $n=10^6$, cela vaut 2.71828... ; la limite définit $e$."
+ },
+ {
+  "id": "mf.04.q9",
+  "prompt": "Que vaut $\\ln(0)$, ou $\\log$ d'un nombre négatif (nombres réels) ?",
+  "options": [
+   "0",
+   "1",
+   "non défini (il tend vers $-\\infty$ en 0)",
+   "$e$"
+  ],
+  "explanation": "Aucune puissance d'une base positive n'est nulle ou négative, donc le logarithme n'existe pas là ; c'est pourquoi le code de ML ajoute une minuscule constante dans les logs."
+ }
+]

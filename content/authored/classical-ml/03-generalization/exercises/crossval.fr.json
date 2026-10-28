@@ -1,0 +1,10 @@
+{
+  "id": "cml.03.ex1",
+  "title": "Ajustements polynomiaux, validation croisée à k blocs et sélection de modèle",
+  "prompt": "`fit_ridge` est fournie. Implémente :\n\n- `poly_features(x, degree)` - colonnes $1, x, \\dots, x^{degree}$.\n- `kfold_indices(n, k, seed=0)` - une liste de `k` tableaux d'indices qui partitionnent `range(n)` après un mélange à graine fixée.\n- `cv_mse(x, y, degree, lam=1e-8, k=5, seed=0)` - MSE de validation moyenne sur les blocs.\n- `select_degree(x, y, degrees, k=5, seed=0)` - le degré ayant la plus faible erreur de validation croisée.\n\nPuis observe : l'erreur d'entraînement baisse toujours avec le degré, pas l'erreur de validation croisée.",
+  "hints": [
+    "poly_features(x, degree) : np.vander(x, degree + 1, increasing=True) donne les colonnes 1, x, x^2, ...",
+    "kfold_indices : permute np.arange(n) avec default_rng(seed), puis np.array_split(idx, k).",
+    "cv_mse : pour chaque bloc de validation, entraîne sur np.setdiff1d(np.arange(n), val) ; moyenne les k MSE de validation. select_degree renvoie le degré ayant la plus faible erreur de validation croisée (argmin + 1 si tu commences au degré 1)."
+  ]
+}

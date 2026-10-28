@@ -1,0 +1,224 @@
+[
+  {
+    "id": "iou-geometry",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "IoU geometry for A = (0,0,10,10) (blue) and B = (5,5,15,15) (orange). The intersection (green) is 5x5 = 25, the union is 100 + 100 - 25 = 175, so IoU = 25/175 = 0.143.",
+      "fr": "Géométrie de l'IoU pour A = (0,0,10,10) (bleu) et B = (5,5,15,15) (orange). L'intersection (vert) vaut 5x5 = 25, l'union 100 + 100 - 25 = 175, donc IoU = 25/175 = 0,143."
+    },
+    "spec": {
+      "xDomain": [
+        -2,
+        17
+      ],
+      "yDomain": [
+        -2,
+        17
+      ],
+      "height": 360,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              10,
+              0
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              0,
+              10
+            ],
+            [
+              0,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              5,
+              5
+            ],
+            [
+              15,
+              5
+            ],
+            [
+              15,
+              15
+            ],
+            [
+              5,
+              15
+            ],
+            [
+              5,
+              5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#16a34a",
+          "points": [
+            [
+              5,
+              5
+            ],
+            [
+              10,
+              5
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              5,
+              10
+            ],
+            [
+              5,
+              5
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "yolo-tensor",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Single-shot detector: from the image to the output grid tensor, with the classic setting S = 13, B = 2 anchors, C = 20 classes: 2 x 25 = 50 numbers per cell and 13 x 13 x 50 = 8450 per image.",
+      "fr": "Détecteur « single-shot » : de l'image au tenseur de sortie en grille, avec le réglage classique S = 13, B = 2 ancres, C = 20 classes : 2 x 25 = 50 nombres par cellule et 13 x 13 x 50 = 8450 par image."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"image<br/>(N,3,416,416)\"] --> BB[\"backbone, stride s=32\"]\n  BB --> F[\"feature map<br/>(N,Cf,13,13)\"]\n  F --> H[\"1x1 conv head\"]\n  H --> O[\"raw output<br/>(N, B(5+C), S, S) = (N,50,13,13)\"]\n  O --> R[\"reshape<br/>(N, S*S*B, 5+C) = (N,338,25)\"]\n  R --> D[\"decode boxes\"]\n  D --> NMS[\"NMS\"]\n  NMS --> K[\"kept boxes<br/>(K,4), scores (K,)\"]",
+      "fr": "flowchart LR\n  I[\"image<br/>(N,3,416,416)\"] --> BB[\"backbone, pas s=32\"]\n  BB --> F[\"carte de caractéristiques<br/>(N,Cf,13,13)\"]\n  F --> H[\"tête conv 1x1\"]\n  H --> O[\"sortie brute<br/>(N, B(5+C), S, S) = (N,50,13,13)\"]\n  O --> R[\"reshape<br/>(N, S*S*B, 5+C) = (N,338,25)\"]\n  R --> D[\"décodage des boîtes\"]\n  D --> NMS[\"NMS\"]\n  NMS --> K[\"boîtes gardées<br/>(K,4), scores (K,)\"]"
+    }
+  },
+  {
+    "id": "cell-vector",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "What one anchor in one cell predicts: 5 + C numbers. Box offsets are decoded with a sigmoid (centre stays in its cell) and an exponential (size is a positive multiple of the anchor).",
+      "fr": "Ce que prédit une ancre dans une cellule : 5 + C nombres. Les décalages de boîte sont décodés avec une sigmoïde (le centre reste dans sa cellule) et une exponentielle (la taille est un multiple positif de l'ancre)."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph V[\"one anchor, one cell: 5 + C numbers\"]\n    direction TB\n    tx[\"t_x\"]\n    ty[\"t_y\"]\n    tw[\"t_w\"]\n    th[\"t_h\"]\n    to[\"objectness\"]\n    tc[\"C class scores\"]\n  end\n  tx --> bx[\"b_x = (sigmoid(t_x) + c_x) * s\"]\n  ty --> by[\"b_y = (sigmoid(t_y) + c_y) * s\"]\n  tw --> bw[\"b_w = a_w * exp(t_w)\"]\n  th --> bh[\"b_h = a_h * exp(t_h)\"]\n  to --> so[\"sigmoid score\"]\n  tc --> sc[\"class probabilities\"]",
+      "fr": "flowchart LR\n  subgraph V[\"une ancre, une cellule : 5 + C nombres\"]\n    direction TB\n    tx[\"t_x\"]\n    ty[\"t_y\"]\n    tw[\"t_w\"]\n    th[\"t_h\"]\n    to[\"objectness\"]\n    tc[\"C scores de classe\"]\n  end\n  tx --> bx[\"b_x = (sigmoid(t_x) + c_x) * s\"]\n  ty --> by[\"b_y = (sigmoid(t_y) + c_y) * s\"]\n  tw --> bw[\"b_w = a_w * exp(t_w)\"]\n  th --> bh[\"b_h = a_h * exp(t_h)\"]\n  to --> so[\"sigmoid score\"]\n  tc --> sc[\"probabilités de classe\"]"
+    }
+  },
+  {
+    "id": "nms-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Non-maximum suppression as a loop. On the worked example (scores 0.9, 0.8, 0.7, 0.6; threshold 0.5) it keeps boxes 0 and 2.",
+      "fr": "La suppression des non-maxima comme une boucle. Sur l'exemple travaillé (scores 0,9, 0,8, 0,7, 0,6 ; seuil 0,5) elle garde les boîtes 0 et 2."
+    },
+    "code": {
+      "en": "flowchart TB\n  A[\"boxes + scores\"] --> B[\"sort by score, descending\"]\n  B --> C{\"boxes remain?\"}\n  C -- no --> Z[\"return keep\"]\n  C -- yes --> D[\"take best box b, add to keep\"]\n  D --> E[\"delete every remaining box with IoU(b, box) > threshold\"]\n  E --> C",
+      "fr": "flowchart TB\n  A[\"boîtes + scores\"] --> B[\"trier par score décroissant\"]\n  B --> C{\"reste-t-il des boîtes ?\"}\n  C -- non --> Z[\"retourner keep\"]\n  C -- oui --> D[\"prendre la meilleure boîte b, l'ajouter à keep\"]\n  D --> E[\"supprimer chaque boîte restante avec IoU(b, boîte) > seuil\"]\n  E --> C"
+    }
+  },
+  {
+    "id": "pr-curve",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Precision-recall curve of the worked example (flags 1,1,0,1,0 with 4 ground-truth boxes). Dots: raw (recall, precision) at each rank; orange staircase: the non-increasing envelope. Its area is AP = 0.25 + 0.25 + 0.25 x 0.75 = 0.6875.",
+      "fr": "Courbe précision-rappel de l'exemple travaillé (drapeaux 1,1,0,1,0 avec 4 boîtes de vérité). Points : (rappel, précision) bruts à chaque rang ; escalier orange : l'enveloppe non croissante. Son aire vaut AP = 0,25 + 0,25 + 0,25 x 0,75 = 0,6875."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "height": 320,
+      "title": "AP = 0.6875",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              0.5,
+              0.75
+            ],
+            [
+              0.75,
+              0.75
+            ],
+            [
+              0.75,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.25,
+              1
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              0.5,
+              0.667
+            ],
+            [
+              0.75,
+              0.75
+            ],
+            [
+              0.75,
+              0.6
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,108 @@
+#@@ meta
+{"id": "saf.05.ex1", "title": "Group fairness metrics and their trade-off", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.fairness-criteria"], "hints": ["selection_rate = mean of the predictions in the group; tpr = mean prediction among y==1; fpr = mean prediction among y==0; ppv = mean of y among predicted positives.", "ECE: split scores into equal-width bins, and sum (bin share) * |mean score - mean outcome| over non-empty bins. Use min(int(s*bins), bins-1) as the bin index.", "threshold_for_tpr: sort the scores of the positives ascending; the threshold is the element at index floor((1-target)*len); predicting score >= threshold then gives TPR >= target."]}
+#@@ prompt
+A synthetic risk score `s` is **perfectly calibrated in both groups by construction** (the label is drawn with probability `s`), but the groups have different score distributions and therefore different base rates. `make_data` (given) returns group `g`, score `s`, label `y`.
+
+Implement, for a boolean prediction array `pred` and a mask of one group:
+
+- `selection_rate(pred, mask)`, `tpr(pred, y, mask)`, `fpr(pred, y, mask)`, `ppv(pred, y, mask)`;
+- `dp_gap(pred, g)`: absolute difference of selection rates between groups 0 and 1 (demographic parity);
+- `eo_gap(pred, y, g)`: the larger of the TPR gap and FPR gap (equalised odds);
+- `ece(scores, y, bins=10)`: expected calibration error of one group;
+- `threshold_for_tpr(scores, y, target)`: a score threshold whose TPR is at least `target`.
+
+Then observe the trade-off: with one common threshold the groups differ in selection rate and error rates; lowering group 0's threshold to match group 1's TPR makes TPR equal but breaks equal precision (PPV) and still leaves FPR unequal.
+#@@ starter
+import numpy as np
+
+def make_data(n=20000, seed=0):
+    rng = np.random.default_rng(seed)
+    g = (rng.random(n) < 0.5).astype(int)
+    s = np.where(g == 0, rng.beta(2, 5, n), rng.beta(4, 4, n))
+    y = (rng.random(n) < s).astype(int)
+    return g, s, y
+
+def selection_rate(pred, mask):
+    raise NotImplementedError
+
+def tpr(pred, y, mask):
+    raise NotImplementedError
+
+def fpr(pred, y, mask):
+    raise NotImplementedError
+
+def ppv(pred, y, mask):
+    raise NotImplementedError
+
+def dp_gap(pred, g):
+    raise NotImplementedError
+
+def eo_gap(pred, y, g):
+    raise NotImplementedError
+
+def ece(scores, y, bins=10):
+    raise NotImplementedError
+
+def threshold_for_tpr(scores, y, target):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+g, s, y = make_data()
+m0, m1 = g == 0, g == 1
+pred = s >= 0.5
+check("base rates differ: 0.286 vs 0.500", lambda: abs(y[m0].mean() - 0.2863) < 1e-3 and abs(y[m1].mean() - 0.4995) < 1e-3)
+check("selection rates 0.109 and 0.493", lambda: abs(selection_rate(pred, m0) - 0.1091) < 1e-3 and abs(selection_rate(pred, m1) - 0.4931) < 1e-3)
+check("demographic parity gap = 0.384", lambda: abs(dp_gap(pred, g) - 0.3840) < 2e-3)
+check("TPR 0.228 vs 0.629", lambda: abs(tpr(pred, y, m0) - 0.2280) < 1e-3 and abs(tpr(pred, y, m1) - 0.6294) < 1e-3)
+check("FPR 0.061 vs 0.357", lambda: abs(fpr(pred, y, m0) - 0.0614) < 1e-3 and abs(fpr(pred, y, m1) - 0.3571) < 1e-3)
+check("equalised-odds gap = 0.401 (the TPR gap)", lambda: abs(eo_gap(pred, y, g) - 0.4014) < 2e-3)
+check("score is calibrated in each group (ECE < 0.02)", lambda: ece(s[m0], y[m0]) < 0.02 and ece(s[m1], y[m1]) < 0.02)
+check("ECE values 0.0089 and 0.0137", lambda: abs(ece(s[m0], y[m0]) - 0.00885) < 1e-3 and abs(ece(s[m1], y[m1]) - 0.01370) < 1e-3)
+check("ECE detects a miscalibrated score", lambda: ece(np.clip(s[m1] + 0.2, 0, 1), y[m1]) > 0.1)
+t0 = threshold_for_tpr(s[m0], y[m0], tpr(pred, y, m1))
+check("group-0 threshold for matching TPR = 0.3116", lambda: abs(t0 - 0.3116) < 2e-3)
+pred2 = np.where(g == 0, s >= t0, s >= 0.5)
+check("TPR gap is now (almost) zero", lambda: abs(tpr(pred2, y, m0) - tpr(pred2, y, m1)) < 2e-3)
+check("but PPV differs: 0.455 vs 0.638", lambda: abs(ppv(pred2, y, m0) - 0.4554) < 2e-3 and abs(ppv(pred2, y, m1) - 0.6376) < 2e-3)
+check("and FPR still differs: 0.302 vs 0.357", lambda: abs(fpr(pred2, y, m0) - 0.3019) < 2e-3 and abs(fpr(pred2, y, m1) - 0.3571) < 2e-3)
+#@@ solution
+import numpy as np
+
+def make_data(n=20000, seed=0):
+    rng = np.random.default_rng(seed)
+    g = (rng.random(n) < 0.5).astype(int)
+    s = np.where(g == 0, rng.beta(2, 5, n), rng.beta(4, 4, n))
+    y = (rng.random(n) < s).astype(int)
+    return g, s, y
+
+def selection_rate(pred, mask):
+    return float(pred[mask].mean())
+
+def tpr(pred, y, mask):
+    return float(pred[mask & (y == 1)].mean())
+
+def fpr(pred, y, mask):
+    return float(pred[mask & (y == 0)].mean())
+
+def ppv(pred, y, mask):
+    return float(y[mask & pred].mean())
+
+def dp_gap(pred, g):
+    return abs(selection_rate(pred, g == 0) - selection_rate(pred, g == 1))
+
+def eo_gap(pred, y, g):
+    m0, m1 = g == 0, g == 1
+    return max(abs(tpr(pred, y, m0) - tpr(pred, y, m1)), abs(fpr(pred, y, m0) - fpr(pred, y, m1)))
+
+def ece(scores, y, bins=10):
+    idx = np.minimum((scores * bins).astype(int), bins - 1)
+    total = 0.0
+    for b in range(bins):
+        m = idx == b
+        if m.any():
+            total += m.mean() * abs(scores[m].mean() - y[m].mean())
+    return float(total)
+
+def threshold_for_tpr(scores, y, target):
+    pos = np.sort(scores[y == 1])
+    return float(pos[int(np.floor((1 - target) * len(pos)))])

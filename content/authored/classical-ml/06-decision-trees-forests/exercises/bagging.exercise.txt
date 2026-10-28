@@ -1,0 +1,151 @@
+#@@ meta
+{"id": "cml.06.ex2", "title": "Bagging and the out-of-bag error", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.bagging"], "hints": ["bootstrap: rng.integers(0, n, size=n) draws indices with replacement.", "oob_mask(idx, n): mask = np.ones(n, bool); mask[idx] = False.", "For the OOB prediction of row i, average only over trees whose oob mask is True at i: accumulate sums and counts arrays of shape (n,), then divide; rows never out-of-bag stay NaN."]}
+#@@ prompt
+A depth-limited regression tree (`fit_reg_tree`, `pred_reg_tree`) is provided. Build bagging around it.
+
+- `bootstrap_indices(n, rng)` returns `n` indices drawn with replacement.
+- `oob_mask(idx, n)` returns a boolean `(n,)` array, True for rows **not** in `idx`.
+- `bagging_fit(X, y, B, seed, max_depth=4)` returns `(trees, masks)` with `B` trees, each trained on its own bootstrap sample (one `np.random.default_rng(seed)` shared across the loop), and the matching OOB masks.
+- `bagging_predict(trees, X)` returns the mean prediction over trees, shape `(len(X),)`.
+- `oob_predict(trees, masks, X)` returns for each row the mean prediction of only the trees for which that row is out-of-bag (NaN if none).
+- `oob_mse(y, pred)` is the mean squared error ignoring NaN entries.
+#@@ starter
+import numpy as np
+
+def fit_reg_tree(X, y, max_depth, min_leaf=3):
+    if max_depth == 0 or len(y) < 2 * min_leaf:
+        return float(y.mean())
+    best = None
+    for j in range(X.shape[1]):
+        u = np.unique(X[:, j])
+        for t in (u[:-1] + u[1:]) / 2:
+            L = X[:, j] <= t
+            if L.sum() < min_leaf or (~L).sum() < min_leaf:
+                continue
+            sse = ((y[L] - y[L].mean()) ** 2).sum() + ((y[~L] - y[~L].mean()) ** 2).sum()
+            if best is None or sse < best[0]:
+                best = (sse, j, t)
+    if best is None:
+        return float(y.mean())
+    _, j, t = best
+    L = X[:, j] <= t
+    return (j, t, fit_reg_tree(X[L], y[L], max_depth - 1, min_leaf), fit_reg_tree(X[~L], y[~L], max_depth - 1, min_leaf))
+
+def pred_reg_tree(tree, X):
+    out = np.empty(len(X))
+    for i, row in enumerate(X):
+        node = tree
+        while isinstance(node, tuple):
+            node = node[2] if row[node[0]] <= node[1] else node[3]
+        out[i] = node
+    return out
+
+def bootstrap_indices(n, rng):
+    raise NotImplementedError
+
+def oob_mask(idx, n):
+    raise NotImplementedError
+
+def bagging_fit(X, y, B, seed, max_depth=4):
+    raise NotImplementedError
+
+def bagging_predict(trees, X):
+    raise NotImplementedError
+
+def oob_predict(trees, masks, X):
+    raise NotImplementedError
+
+def oob_mse(y, pred):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(1)
+idx = bootstrap_indices(2000, rng)
+m = oob_mask(idx, 2000)
+check("bootstrap has n indices in range", lambda: len(idx) == 2000 and idx.min() >= 0 and idx.max() < 2000)
+check("about 36.8% of rows are out-of-bag", lambda: abs(m.mean() - np.exp(-1)) < 0.03)
+check("oob rows never appear in the sample", lambda: not np.isin(np.where(m)[0], idx).any())
+r = np.random.default_rng(0)
+X = r.uniform(0, 1, size=(150, 1)); y = np.sin(2 * np.pi * X[:, 0]) + r.normal(0, 0.3, 150)
+Xt = r.uniform(0, 1, size=(500, 1)); yt = np.sin(2 * np.pi * Xt[:, 0]) + r.normal(0, 0.3, 500)
+trees, masks = bagging_fit(X, y, 60, seed=3, max_depth=5)
+check("60 trees and 60 masks", lambda: len(trees) == 60 and len(masks) == 60 and masks[0].shape == (150,))
+op = oob_predict(trees, masks, X)
+check("every row is OOB for some tree", lambda: not np.isnan(op).any())
+single = fit_reg_tree(X, y, 8)
+mse_single = np.mean((pred_reg_tree(single, Xt) - yt) ** 2)
+mse_bag = np.mean((bagging_predict(trees, Xt) - yt) ** 2)
+check("bagging beats one deep tree on fresh data", lambda: mse_bag < mse_single)
+oob = oob_mse(y, op)
+check("OOB error is close to the test error", lambda: abs(oob - mse_bag) < 0.05)
+train_mse = np.mean((bagging_predict(trees, X) - y) ** 2)
+check("OOB error is more honest than the training error", lambda: oob > train_mse)
+check("oob_mse ignores NaN", lambda: abs(oob_mse(np.array([1., 2., 3.]), np.array([1., np.nan, 5.])) - 2.0) < 1e-12)
+check("deterministic for a seed", lambda: np.allclose(bagging_predict(bagging_fit(X, y, 5, 7)[0], Xt), bagging_predict(bagging_fit(X, y, 5, 7)[0], Xt)))
+#@@ solution
+import numpy as np
+
+def fit_reg_tree(X, y, max_depth, min_leaf=3):
+    if max_depth == 0 or len(y) < 2 * min_leaf:
+        return float(y.mean())
+    best = None
+    for j in range(X.shape[1]):
+        u = np.unique(X[:, j])
+        for t in (u[:-1] + u[1:]) / 2:
+            L = X[:, j] <= t
+            if L.sum() < min_leaf or (~L).sum() < min_leaf:
+                continue
+            sse = ((y[L] - y[L].mean()) ** 2).sum() + ((y[~L] - y[~L].mean()) ** 2).sum()
+            if best is None or sse < best[0]:
+                best = (sse, j, t)
+    if best is None:
+        return float(y.mean())
+    _, j, t = best
+    L = X[:, j] <= t
+    return (j, t, fit_reg_tree(X[L], y[L], max_depth - 1, min_leaf), fit_reg_tree(X[~L], y[~L], max_depth - 1, min_leaf))
+
+def pred_reg_tree(tree, X):
+    out = np.empty(len(X))
+    for i, row in enumerate(X):
+        node = tree
+        while isinstance(node, tuple):
+            node = node[2] if row[node[0]] <= node[1] else node[3]
+        out[i] = node
+    return out
+
+def bootstrap_indices(n, rng):
+    return rng.integers(0, n, size=n)
+
+def oob_mask(idx, n):
+    mask = np.ones(n, dtype=bool)
+    mask[idx] = False
+    return mask
+
+def bagging_fit(X, y, B, seed, max_depth=4):
+    rng = np.random.default_rng(seed)
+    n = len(X)
+    trees, masks = [], []
+    for _ in range(B):
+        idx = bootstrap_indices(n, rng)
+        trees.append(fit_reg_tree(X[idx], y[idx], max_depth))
+        masks.append(oob_mask(idx, n))
+    return trees, masks
+
+def bagging_predict(trees, X):
+    return np.mean([pred_reg_tree(t, X) for t in trees], axis=0)
+
+def oob_predict(trees, masks, X):
+    s = np.zeros(len(X))
+    c = np.zeros(len(X))
+    for t, m in zip(trees, masks):
+        p = pred_reg_tree(t, X)
+        s[m] += p[m]
+        c[m] += 1
+    out = np.full(len(X), np.nan)
+    ok = c > 0
+    out[ok] = s[ok] / c[ok]
+    return out
+
+def oob_mse(y, pred):
+    ok = ~np.isnan(pred)
+    return float(np.mean((y[ok] - pred[ok]) ** 2))

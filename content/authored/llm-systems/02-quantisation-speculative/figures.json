@@ -1,0 +1,321 @@
+[
+  {
+    "id": "quant-staircase",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Symmetric quantisation drawn with b = 3 bits so that the steps are visible (q_max = 3, max|x| = 1, s = 1/3). The orange staircase is x-hat = s * round(x/s); the blue line is the identity. With int8 the same picture has 255 tiny steps.",
+      "fr": "Quantification symétrique dessinée avec b = 3 bits pour que les marches se voient (q_max = 3, max|x| = 1, s = 1/3). L'escalier orange est x-chapeau = s * round(x/s) ; la droite bleue est l'identité. En int8, la même image a 255 petites marches."
+    },
+    "spec": {
+      "xDomain": [
+        -1.1,
+        1.1
+      ],
+      "yDomain": [
+        -1.1,
+        1.1
+      ],
+      "height": 340,
+      "title": "x-hat = s * round(x / s), s = max|x| / q_max = 1/3",
+      "data": [
+        {
+          "fn": "x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              -1.1,
+              -1.0
+            ],
+            [
+              -0.8333,
+              -1.0
+            ],
+            [
+              -0.8333,
+              -0.6667
+            ],
+            [
+              -0.5,
+              -0.6667
+            ],
+            [
+              -0.5,
+              -0.3333
+            ],
+            [
+              -0.1667,
+              -0.3333
+            ],
+            [
+              -0.1667,
+              0.0
+            ],
+            [
+              0.1667,
+              0.0
+            ],
+            [
+              0.1667,
+              0.3333
+            ],
+            [
+              0.5,
+              0.3333
+            ],
+            [
+              0.5,
+              0.6667
+            ],
+            [
+              0.8333,
+              0.6667
+            ],
+            [
+              0.8333,
+              1.0
+            ],
+            [
+              1.1,
+              1.0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "quant-error",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The rounding error x-hat minus x of the same 3-bit quantiser: a sawtooth that never leaves [-s/2, +s/2] = [-1/6, +1/6], the bound derived in the lesson (its variance is s^2/12 when the error is spread uniformly).",
+      "fr": "L'erreur d'arrondi x-chapeau moins x du même quantificateur 3 bits : une dent de scie qui ne sort jamais de [-s/2, +s/2] = [-1/6, +1/6], la borne démontrée dans la leçon (variance s^2/12 si l'erreur est uniforme)."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        1
+      ],
+      "yDomain": [
+        -0.3,
+        0.3
+      ],
+      "height": 280,
+      "title": "rounding error x-hat - x",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              -1.1,
+              0.1
+            ],
+            [
+              -0.8333,
+              -0.1667
+            ],
+            [
+              -0.8333,
+              0.1667
+            ],
+            [
+              -0.5,
+              -0.1667
+            ],
+            [
+              -0.5,
+              0.1667
+            ],
+            [
+              -0.1667,
+              -0.1667
+            ],
+            [
+              -0.1667,
+              0.1667
+            ],
+            [
+              0.1667,
+              -0.1667
+            ],
+            [
+              0.1667,
+              0.1667
+            ],
+            [
+              0.5,
+              -0.1667
+            ],
+            [
+              0.5,
+              0.1667
+            ],
+            [
+              0.8333,
+              -0.1667
+            ],
+            [
+              0.8333,
+              0.1667
+            ],
+            [
+              1.1,
+              -0.1
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 0.1667,
+          "text": "+s/2"
+        },
+        {
+          "y": -0.1667,
+          "text": "-s/2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "mse-vs-bits",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "log10 of the quantisation MSE against bit width for 2000 standard-normal values (max|x| about 3.26). The line is s^2/12 with s = max|x| / (2^(b-1) - 1): each bit removed multiplies the MSE by about 4. The red dots are the measured values (5.5e-5, 9.1e-4, 1.9e-2, 0.73); at 2 bits clipping breaks the uniform-error assumption.",
+      "fr": "log10 de l'EQM de quantification selon le nombre de bits pour 2000 valeurs normales centrées réduites (max|x| environ 3,26). La courbe est s^2/12 avec s = max|x| / (2^(b-1) - 1) : chaque bit retiré multiplie l'EQM par environ 4. Les points rouges sont les valeurs mesurées (5,5e-5, 9,1e-4, 1,9e-2, 0,73) ; à 2 bits l'écrêtage invalide l'hypothèse d'erreur uniforme."
+    },
+    "spec": {
+      "xDomain": [
+        2,
+        8
+      ],
+      "yDomain": [
+        -5,
+        0.5
+      ],
+      "height": 320,
+      "title": "log10(MSE) vs bits b",
+      "data": [
+        {
+          "fn": "log10((3.26/(2^(x-1)-1))^2/12)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              8,
+              -4.26
+            ],
+            [
+              6,
+              -3.04
+            ],
+            [
+              4,
+              -1.72
+            ],
+            [
+              2,
+              -0.137
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "per-channel",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Per-tensor against per-channel scales for the 64 x 32 weight matrix with one outlier row (row 5 multiplied by 40). One scale is dictated by the outlier and ruins every row; one scale per row isolates it (MSE 7.74e-5 down to 1.19e-6).",
+      "fr": "Échelles par tenseur ou par canal pour la matrice de poids 64 x 32 avec une ligne aberrante (ligne 5 multipliée par 40). Une seule échelle est dictée par la valeur aberrante et dégrade toutes les lignes ; une échelle par ligne l'isole (EQM de 7,74e-5 à 1,19e-6)."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"W (64, 32), row 5 is x40\"] --> PT[\"per-tensor<br/>one scale s = 0.0306<br/>set by row 5\"]\n  W --> PC[\"per-channel<br/>scale vector (64, 1)<br/>one ruler per row\"]\n  PT --> E1[\"int8 (64, 32)<br/>MSE 7.74e-5<br/>other 63 rows: 7.7e-5\"]\n  PC --> E2[\"int8 (64, 32)<br/>MSE 1.19e-6<br/>other 63 rows: 7.2e-8\"]",
+      "fr": "flowchart LR\n  W[\"W (64, 32), la ligne 5 est x40\"] --> PT[\"par tenseur<br/>une échelle s = 0.0306<br/>fixée par la ligne 5\"]\n  W --> PC[\"par canal<br/>vecteur d'échelles (64, 1)<br/>une règle par ligne\"]\n  PT --> E1[\"int8 (64, 32)<br/>EQM 7.74e-5<br/>63 autres lignes : 7.7e-5\"]\n  PC --> E2[\"int8 (64, 32)<br/>EQM 1.19e-6<br/>63 autres lignes : 7.2e-8\"]"
+    }
+  },
+  {
+    "id": "spec-handshake",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The speculative decoding handshake for one round with N drafts: the draft model writes N tokens sequentially, the target checks all of them in a single parallel pass, accepts each with probability min(1, q/p) and fixes the first rejection from the residual distribution.",
+      "fr": "La poignée de main du décodage spéculatif pour un tour de N brouillons : le modèle brouillon écrit N tokens séquentiellement, le modèle cible les vérifie tous en une seule passe parallèle, accepte chacun avec probabilité min(1, q/p) et corrige le premier rejet avec la distribution résiduelle."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant D as Draft model p (small)\n  participant T as Target model q (big)\n  participant O as Output\n  loop N times\n    D->>D: sample d_i from p(. | ctx, d_1..d_i-1)\n  end\n  D->>T: ctx + drafts d_1..d_N\n  T->>T: ONE pass gives q_1..q_N+1, logits (N+1, V)\n  loop i = 1, 2, ...\n    T->>T: accept d_i with prob min(1, q_i(d_i) / p_i(d_i))\n  end\n  alt first rejection at i\n    T->>O: accepted d_1..d_i-1 plus a token from r = (q - p)+ normalised\n  else all N accepted\n    T->>O: d_1..d_N plus a bonus token from q_N+1\n  end",
+      "fr": "sequenceDiagram\n  participant D as Modèle brouillon p (petit)\n  participant T as Modèle cible q (gros)\n  participant O as Sortie\n  loop N fois\n    D->>D: tire d_i selon p(. | ctx, d_1..d_i-1)\n  end\n  D->>T: ctx + brouillons d_1..d_N\n  T->>T: UNE passe donne q_1..q_N+1, logits (N+1, V)\n  loop i = 1, 2, ...\n    T->>T: accepte d_i avec prob min(1, q_i(d_i) / p_i(d_i))\n  end\n  alt premier rejet en i\n    T->>O: d_1..d_i-1 acceptés plus un token tiré de r = (q - p)+ normalisée\n  else les N acceptés\n    T->>O: d_1..d_N plus un token bonus tiré de q_N+1\n  end"
+    }
+  },
+  {
+    "id": "spec-speedup",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Speed-up (1 - a^(N+1)) / ((1 - a)(N c + 1)) against the number of drafts N, with acceptance rate a and relative draft cost c. Blue: a = 0.8, c = 0.1 (2.40x at N = 4). Orange: a = 0.8, c = 0.5 (1.12x). Green: a = 0.5, c = 0.1 (1.38x). More drafts help with diminishing returns, then the linear cost wins.",
+      "fr": "Accélération (1 - a^(N+1)) / ((1 - a)(N c + 1)) selon le nombre de brouillons N, avec taux d'acceptation a et coût relatif du brouillon c. Bleu : a = 0,8, c = 0,1 (2,40x à N = 4). Orange : a = 0,8, c = 0,5 (1,12x). Vert : a = 0,5, c = 0,1 (1,38x). Plus de brouillons aident avec rendements décroissants, puis le coût linéaire l'emporte."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        12
+      ],
+      "yDomain": [
+        0,
+        3.4
+      ],
+      "height": 320,
+      "title": "speed-up vs number of drafts N",
+      "data": [
+        {
+          "fn": "(1-0.8^(x+1))/((1-0.8)*(x*0.1+1))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(1-0.8^(x+1))/((1-0.8)*(x*0.5+1))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "(1-0.5^(x+1))/((1-0.5)*(x*0.1+1))",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "no speed-up"
+        }
+      ]
+    }
+  },
+  {
+    "id": "moe-router",
+    "after": 9,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A mixture-of-experts layer in four steps: a linear router scores E experts, the top-k are kept, a softmax over the kept logits gives the gates, and the layer output is the gated sum of the k expert outputs.",
+      "fr": "Une couche de mélange d'experts en quatre étapes : un routeur linéaire note E experts, on garde les k meilleurs, un softmax sur les logits retenus donne les portes, et la sortie est la somme pondérée des k experts."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"token x (d,)\"] --> R[\"router: linear<br/>scores (E,)\"]\n  R --> K[\"top-k indices (k,)\"]\n  K --> S[\"softmax over the k logits<br/>gates g (k,)\"]\n  X --> E1[\"Expert e1 (FFN)\"]\n  X --> E2[\"Expert e2 (FFN)\"]\n  K -. selects .-> E1\n  K -. selects .-> E2\n  E1 --> SUM((\"sum of g * Expert\"))\n  E2 --> SUM\n  S --> SUM\n  SUM --> Y[\"y (d,)\"]",
+      "fr": "flowchart LR\n  X[\"token x (d,)\"] --> R[\"routeur : linéaire<br/>scores (E,)\"]\n  R --> K[\"indices top-k (k,)\"]\n  K --> S[\"softmax sur les k logits<br/>portes g (k,)\"]\n  X --> E1[\"Expert e1 (FFN)\"]\n  X --> E2[\"Expert e2 (FFN)\"]\n  K -. sélectionne .-> E1\n  K -. sélectionne .-> E2\n  E1 --> SUM((\"somme des g * Expert\"))\n  E2 --> SUM\n  S --> SUM\n  SUM --> Y[\"y (d,)\"]"
+    }
+  }
+]

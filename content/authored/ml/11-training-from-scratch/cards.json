@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.11.c1", "concept": "nn.training", "front": "One training iteration", "back": "forward (loss) $\\to$ backward (gradients) $\\to$ update ($\\theta\\leftarrow\\theta-\\eta g$)." },
+  { "id": "f2n.11.c2", "concept": "nn.training", "front": "Momentum update", "back": "$v\\leftarrow\\mu v-\\eta g$, $\\theta\\leftarrow\\theta+v$; effective step $\\approx\\eta/(1-\\mu)$ on consistent directions." },
+  { "id": "f2n.11.c3", "concept": "nn.training", "front": "Debugging ladder", "back": "1) initial loss $\\approx\\ln K$; 2) gradient check; 3) overfit 8 examples; 4) learning-rate sweep; 5) full training with validation." },
+  { "id": "f2n.11.c4", "concept": "nn.training", "front": "He initialisation", "back": "$W\\sim\\mathcal{N}(0,2/n_{\\text{in}})$, biases $0$, for ReLU layers." },
+  { "id": "f2n.11.c5", "concept": "nn.training", "front": "Loss stuck at $\\ln K$", "back": "Learning rate far too small, dead ReLUs, or the computation graph is detached; nothing is being learned." }
+]

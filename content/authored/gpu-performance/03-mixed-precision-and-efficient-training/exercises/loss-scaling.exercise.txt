@@ -1,0 +1,105 @@
+#@@ meta
+{"id": "gpu.03.ex1", "title": "Float formats, float16 loss scaling and master weights", "difficulty": 4, "runtime": "pyodide", "concepts": ["gpu.formats", "gpu.loss-scaling"], "hints": ["IEEE-style format with e exponent bits and m mantissa bits: bias = 2**(e-1) - 1, max normal = (2 - 2**-m) * 2**bias, min normal = 2**(1 - bias), epsilon = 2**-m, smallest subnormal = 2**(1 - bias - m).", "Underflow: multiply the float32 gradients by the scale, cast with .astype(np.float16), and count entries that were non-zero before but are 0 after. Overflow shows up as inf after the cast.", "Dynamic scaling: on overflow halve the scale and reset the good-step counter; otherwise count the good step, and when the counter reaches growth_interval double the scale and reset the counter."]}
+#@@ prompt
+Float16 has a small range, so tiny gradients silently become 0. Simulate the problem and its standard cure with NumPy's real `float16`.
+
+1. `format_stats(e, m)` -> dict with `max`, `min_normal`, `min_subnormal`, `eps` for an IEEE-style format with `e` exponent bits and `m` mantissa bits.
+2. `underflow_fraction(grads, scale)`: `grads` is a float32 array. Compute `(grads * scale).astype(np.float16)` and return the fraction of the **originally non-zero** entries that became exactly 0.
+3. `has_overflow(grads, scale)`: `True` if any entry of `(grads * scale).astype(np.float16)` is not finite.
+4. `scaled_gradient(grads, scale)`: scale in float32, cast to float16 (this is what backward produces), then cast back to float32 and **divide by the scale**; return that float32 array.
+5. `update_scale(scale, found_inf, good_steps, growth_interval=4)` -> `(new_scale, new_good_steps)` implementing dynamic loss scaling (halve on overflow, double after `growth_interval` consecutive good steps).
+6. `accumulate(w0, delta, n, dtype)`: start from `w0` stored in `dtype`, add `delta` `n` times, **rounding to `dtype` after every addition**; return the final value as a Python float. This shows why optimisers keep float32 master weights.
+#@@ starter
+import numpy as np
+
+def format_stats(e, m):
+    raise NotImplementedError
+
+def underflow_fraction(grads, scale):
+    raise NotImplementedError
+
+def has_overflow(grads, scale):
+    raise NotImplementedError
+
+def scaled_gradient(grads, scale):
+    raise NotImplementedError
+
+def update_scale(scale, found_inf, good_steps, growth_interval=4):
+    raise NotImplementedError
+
+def accumulate(w0, delta, n, dtype):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+f16 = format_stats(5, 10)
+check("float16 max is 65504", lambda: f16["max"] == 65504.0)
+check("float16 min normal is 2^-14", lambda: f16["min_normal"] == 2.0 ** -14)
+check("float16 min subnormal is 2^-24", lambda: f16["min_subnormal"] == 2.0 ** -24)
+check("float16 epsilon is 2^-10", lambda: f16["eps"] == 2.0 ** -10)
+check("matches numpy's finfo", lambda: f16["max"] == float(np.finfo(np.float16).max) and f16["eps"] == float(np.finfo(np.float16).eps))
+bf = format_stats(8, 7)
+check("bfloat16 reaches about 3.39e38", lambda: abs(bf["max"] / 3.3895e38 - 1) < 1e-3)
+check("bfloat16 eps is 2^-7", lambda: bf["eps"] == 2.0 ** -7)
+check("float8 E5M2 max is 57344", lambda: format_stats(5, 2)["max"] == 57344.0)
+rng = np.random.default_rng(0)
+g = (10.0 ** rng.uniform(-10, -3, size=20000) * rng.choice([-1.0, 1.0], size=20000)).astype(np.float32)
+u1 = underflow_fraction(g, 1.0)
+check("without scaling about 35% of these gradients vanish", lambda: 0.30 < u1 < 0.40)
+check("scale 1024 shrinks the loss to a few percent", lambda: underflow_fraction(g, 1024.0) < 0.15 * u1)
+check("scale 2^16 removes (almost) all underflow", lambda: underflow_fraction(g, 65536.0) < 0.005)
+check("scale 2^16 does not overflow here (largest gradient 1e-3 times 65536 is about 65)", lambda: not has_overflow(g, 65536.0))
+check("scale 2^30 overflows float16", lambda: has_overflow(g, 2.0 ** 30))
+r = scaled_gradient(g, 65536.0)
+big = np.abs(g) * 65536.0 >= 2.0 ** -14
+check("unscaled gradient is float32 and close to the original (normal-range entries, rtol 1e-3)", lambda: r.dtype == np.float32 and np.allclose(r[big], g[big], rtol=1e-3, atol=0))
+check("even the tiniest gradients survive to within a factor 2 at scale 65536", lambda: np.all(r != 0) and np.all(np.abs(r / g - 1) < 1.0))
+r1 = scaled_gradient(g, 1.0)
+check("scale 1 loses the tiny entries entirely", lambda: np.count_nonzero(r1) < np.count_nonzero(g))
+check("overflow halves the scale and resets", lambda: update_scale(1024.0, True, 3) == (512.0, 0))
+check("good steps are counted", lambda: update_scale(1024.0, False, 1) == (1024.0, 2))
+check("after growth_interval good steps the scale doubles", lambda: update_scale(1024.0, False, 3) == (2048.0, 0))
+check("float16 master weight swallows 1e-4 increments", lambda: accumulate(1.0, 1e-4, 1000, np.float16) == 1.0)
+check("float32 master weight keeps them", lambda: abs(accumulate(1.0, 1e-4, 1000, np.float32) - 1.1) < 1e-4)
+#@@ solution
+import numpy as np
+
+def format_stats(e, m):
+    bias = 2 ** (e - 1) - 1
+    return {"max": (2.0 - 2.0 ** -m) * 2.0 ** bias,
+            "min_normal": 2.0 ** (1 - bias),
+            "min_subnormal": 2.0 ** (1 - bias - m),
+            "eps": 2.0 ** -m}
+
+def underflow_fraction(grads, scale):
+    g = np.asarray(grads, dtype=np.float32)
+    nz = g != 0
+    with np.errstate(over="ignore"):
+        h = (g * np.float32(scale)).astype(np.float16)
+    return float(np.sum(nz & (h == 0)) / np.sum(nz))
+
+def has_overflow(grads, scale):
+    g = np.asarray(grads, dtype=np.float32)
+    with np.errstate(over="ignore"):
+        h = (g * np.float32(scale)).astype(np.float16)
+    return bool(not np.all(np.isfinite(h)))
+
+def scaled_gradient(grads, scale):
+    g = np.asarray(grads, dtype=np.float32)
+    with np.errstate(over="ignore"):
+        h = (g * np.float32(scale)).astype(np.float16)
+    return h.astype(np.float32) / np.float32(scale)
+
+def update_scale(scale, found_inf, good_steps, growth_interval=4):
+    if found_inf:
+        return scale / 2.0, 0
+    good_steps += 1
+    if good_steps >= growth_interval:
+        return scale * 2.0, 0
+    return scale, good_steps
+
+def accumulate(w0, delta, n, dtype):
+    w = dtype(w0)
+    d = dtype(delta)
+    for _ in range(n):
+        w = dtype(w + d)
+    return float(w)

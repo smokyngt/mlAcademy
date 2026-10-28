@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.03.c1", "front": "Auto-raffinement", "back": "Le modèle rédige un brouillon, le critique, le révise à l'aide de la critique, et le résultat est accepté ou rejeté selon un score ; répété sur quelques tours." },
+  { "id": "rsn.03.c2", "front": "Coût d'un tour de raffinement", "back": "Deux générations séquentielles (critique, révision) ; les tours d'un même problème ne peuvent pas s'exécuter en parallèle." },
+  { "id": "rsn.03.c3", "front": "Règle de la chaîne pour la probabilité d'une séquence", "back": "P(x_1..x_T) = prod_t P(x_t | x_{<t}) ; chaque facteur est une sortie de softmax à la position précédente." },
+  { "id": "rsn.03.c4", "front": "Pourquoi les logs", "back": "Le produit de nombreuses probabilités déborde par le bas (400 tokens à 0,01 donnent 1e-800 = 0.0) ; la somme des log-probabilités reste finie (-1842)." },
+  { "id": "rsn.03.c5", "front": "Log-softmax stable", "back": "log p_i = z_i - max(z) - log sum_j exp(z_j - max(z))." },
+  { "id": "rsn.03.c6", "front": "Quelles lignes de logits notent la réponse ?", "back": "Pour une longueur de prompt m et une longueur totale L, les lignes m-1 .. L-2 des logits (L-1) x V ; le prompt lui-même n'est pas noté." },
+  { "id": "rsn.03.c7", "front": "Somme contre moyenne des log-probabilités", "back": "La somme favorise les textes courts ; la moyenne est normalisée par la longueur et sert à comparer des candidats. L'entraînement avec un avantage au niveau de la séquence utilise la somme." },
+  { "id": "rsn.03.c8", "front": "Log-probabilité moyenne et perplexité", "back": "-mean(logprob) est l'entropie croisée par token ; son exponentielle est la perplexité." },
+  { "id": "rsn.03.c9", "front": "Confiance contre justesse", "back": "Une log-probabilité moyenne élevée signifie que le modèle n'est pas surpris par son texte ; une erreur fluide et cohérente peut obtenir un score très élevé." },
+  { "id": "rsn.03.c10", "front": "Score heuristique à base de règles", "back": "Bonus pour une réponse encadrée (2.0), plus petit pour un nombre quelconque (1.0), plus un terme de brièveté 1.5*exp(-len/500) ; récompense la forme, pas la vérité." },
+  { "id": "rsn.03.c11", "front": "Acceptation si pas pire", "back": "Garder la révision seulement si son score est >= celui du brouillon courant ; l'acceptation stricte exige > et se fige en cas d'égalité." },
+  { "id": "rsn.03.c12", "front": "Règles d'arrêt d'une boucle de raffinement", "back": "Itérations maximales, score cible atteint, critique qui dit OK, ou patience : P tours consécutifs sans amélioration stricte." },
+  { "id": "rsn.03.c13", "front": "Quand le raffinement aide", "back": "Des étourderies qu'une seconde lecture repère ; un critique informatif ou un contrôle externe ; vérifier est plus facile que générer." },
+  { "id": "rsn.03.c14", "front": "Quand le raffinement nuit", "back": "Angles morts partagés, modifications complaisantes qui cassent des réponses correctes, dérive vers ce que récompense le score, modèles trop petits pour se critiquer eux-mêmes." }
+]

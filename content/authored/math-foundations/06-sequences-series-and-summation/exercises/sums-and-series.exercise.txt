@@ -1,0 +1,94 @@
+#@@ meta
+{"title": "Sums, products and closed forms", "difficulty": 2, "concepts": ["mf.series"], "hints": ["arith_sum(a, d, n) = n * (2*a + (n-1)*d) / 2. geom_sum(a, r, n): if r == 1 return a*n else a*(1 - r**n)/(1 - r).", "geom_infinite(a, r): return a/(1-r) when abs(r) < 1, else None.", "harmonic(n): sum 1/k for k in 1..n; terms_to_exceed: keep adding 1/n until the total passes the target and return n.", "loop_sum_squares(n) with a for loop; closed_sum_squares(n) = n*(n+1)*(2*n+1)//6."], "id": "mf.06.ex1", "runtime": "pyodide"}
+#@@ prompt
+Compute sums two ways and check them against each other.
+
+- `arith_sum(a, d, n)`: sum of the first `n` terms of the arithmetic sequence with first term `a` and difference `d`.
+- `geom_sum(a, r, n)`: sum of the first `n` terms $a+ar+\dots+ar^{n-1}$ (handle `r == 1`).
+- `geom_infinite(a, r)`: the infinite geometric sum $a/(1-r)$ if `abs(r) < 1`, else `None`.
+- `loop_sum_squares(n)` (using a `for` loop) and `closed_sum_squares(n)` (formula $n(n+1)(2n+1)/6$, integer result).
+- `harmonic(n)`: $\sum_{k=1}^n1/k$.
+- `terms_to_exceed(target)`: smallest `n` with `harmonic(n) > target`.
+- `partial_sums(terms)`: NumPy array of running totals (use `np.cumsum`).
+#@@ starter
+import numpy as np
+
+def arith_sum(a, d, n):
+    raise NotImplementedError
+
+def geom_sum(a, r, n):
+    raise NotImplementedError
+
+def geom_infinite(a, r):
+    raise NotImplementedError
+
+def loop_sum_squares(n):
+    raise NotImplementedError
+
+def closed_sum_squares(n):
+    raise NotImplementedError
+
+def harmonic(n):
+    raise NotImplementedError
+
+def terms_to_exceed(target):
+    raise NotImplementedError
+
+def partial_sums(terms):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("1+2+...+100 = 5050", lambda: arith_sum(1, 1, 100) == 5050)
+check("5,8,...: ten terms sum to 185", lambda: arith_sum(5, 3, 10) == 185)
+check("geometric 1+1/2+...: 10 terms", lambda: abs(geom_sum(1, 0.5, 10) - 1.998046875) < 1e-12)
+check("geometric 3*(2^10-1)", lambda: geom_sum(3, 2, 10) == 3069)
+check("geometric with r = 1", lambda: geom_sum(4, 1, 5) == 20)
+check("infinite geometric 1/(1-1/2) = 2", lambda: abs(geom_infinite(1, 0.5) - 2) < 1e-12)
+check("infinite geometric with alternating ratio", lambda: abs(geom_infinite(1, -0.5) - 2 / 3) < 1e-12)
+check("diverging ratio gives None", lambda: geom_infinite(1, 1.5) is None and geom_infinite(1, -1) is None)
+check("loop sum of squares up to 10 is 385", lambda: loop_sum_squares(10) == 385)
+check("closed form agrees with loop", lambda: all(loop_sum_squares(n) == closed_sum_squares(n) for n in range(0, 60)))
+check("harmonic(10)", lambda: abs(harmonic(10) - 2.9289682539682538) < 1e-12)
+check("harmonic(1000)", lambda: abs(harmonic(1000) - 7.485470860550345) < 1e-9)
+check("11 terms are needed to exceed 3", lambda: terms_to_exceed(3) == 11)
+check("83 terms are needed to exceed 5", lambda: terms_to_exceed(5) == 83)
+ps = partial_sums([1, 2, 3, 4])
+check("partial sums of 1,2,3,4", lambda: np.array_equal(ps, [1, 3, 6, 10]))
+check("partial sums of a geometric sequence approach 2", lambda: abs(partial_sums(0.5 ** np.arange(40))[-1] - 2) < 1e-9)
+#@@ solution
+import numpy as np
+
+def arith_sum(a, d, n):
+    return n * (2 * a + (n - 1) * d) / 2
+
+def geom_sum(a, r, n):
+    if r == 1:
+        return a * n
+    return a * (1 - r ** n) / (1 - r)
+
+def geom_infinite(a, r):
+    if abs(r) < 1:
+        return a / (1 - r)
+    return None
+
+def loop_sum_squares(n):
+    total = 0
+    for k in range(1, n + 1):
+        total += k * k
+    return total
+
+def closed_sum_squares(n):
+    return n * (n + 1) * (2 * n + 1) // 6
+
+def harmonic(n):
+    return sum(1 / k for k in range(1, n + 1))
+
+def terms_to_exceed(target):
+    total, n = 0.0, 0
+    while total <= target:
+        n += 1
+        total += 1 / n
+    return n
+
+def partial_sums(terms):
+    return np.cumsum(np.asarray(terms))

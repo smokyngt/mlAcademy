@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.02.c1",
+  "front": "Familles de nombres",
+  "back": "$\\mathbb N$ naturels (0,1,2..), $\\mathbb Z$ entiers relatifs, $\\mathbb Q$ fractions, $\\mathbb R$ réels (toute la droite numérique)."
+ },
+ {
+  "id": "mf.02.c2",
+  "front": "Ordre des opérations",
+  "back": "Parenthèses, puis puissances/racines, puis multiplication/division (de gauche à droite), puis addition/soustraction."
+ },
+ {
+  "id": "mf.02.c3",
+  "front": "Règles des exposants (aperçu)",
+  "back": "$a^m a^n=a^{m+n}$, $(a^m)^n=a^{mn}$, $a^0=1$, $a^{-n}=1/a^n$, $a^{1/2}=\\sqrt a$."
+ },
+ {
+  "id": "mf.02.c4",
+  "front": "Additionner des fractions",
+  "back": "Utilise un dénominateur commun : $\\frac ab+\\frac cd=\\frac{ad+bc}{bd}$."
+ },
+ {
+  "id": "mf.02.c5",
+  "front": "Variation en pourcentage",
+  "back": "Nouveau $=$ ancien $\\times(1+p/100)$. Une hausse de 20 % multiplie par 1.2 ; une baisse de 20 % par 0.8."
+ },
+ {
+  "id": "mf.02.c6",
+  "front": "Règle d'or des équations",
+  "back": "Fais la même chose des deux côtés. Défais les opérations dans l'ordre inverse."
+ },
+ {
+  "id": "mf.02.c7",
+  "front": "Résoudre $ax+b=c$",
+  "back": "$x=(c-b)/a$, valable quand $a\\neq0$."
+ },
+ {
+  "id": "mf.02.c8",
+  "front": "Règle du retournement d'inéquation",
+  "back": "Multiplier ou diviser les deux côtés par un nombre négatif inverse le sens de l'inégalité."
+ },
+ {
+  "id": "mf.02.c9",
+  "front": "Deux équations, deux inconnues",
+  "back": "Élimine une inconnue (ou substitue) pour obtenir une équation à une inconnue ; puis remplace en remontant."
+ },
+ {
+  "id": "mf.02.c10",
+  "front": "Formule du système 2x2",
+  "back": "$a_1x+b_1y=c_1,\\;a_2x+b_2y=c_2$ : $x=\\frac{c_1b_2-c_2b_1}{a_1b_2-a_2b_1}$, $y=\\frac{a_1c_2-a_2c_1}{a_1b_2-a_2b_1}$ quand le dénominateur n'est pas 0."
+ },
+ {
+  "id": "mf.02.c11",
+  "front": "Aucune / une infinité de solutions",
+  "back": "Si le dénominateur $a_1b_2-a_2b_1=0$, les droites sont parallèles (aucune solution) ou confondues (une infinité de solutions)."
+ },
+ {
+  "id": "mf.02.c12",
+  "front": "$\\in$, $\\forall$, $\\exists$",
+  "back": "« est un élément de », « pour tout », « il existe »."
+ },
+ {
+  "id": "mf.02.c13",
+  "front": "Notation fléchée des fonctions",
+  "back": "$f:\\mathbb R\\to\\mathbb R,\\;x\\mapsto x^2$ se lit : $f$ prend un nombre réel et renvoie un nombre réel, envoyant $x$ sur $x^2$."
+ },
+ {
+  "id": "mf.02.c14",
+  "front": "Indices et symbole en gras",
+  "back": "$x_1,x_2$ sont des nombres différents ; un $\\mathbf x$ en gras désigne généralement un vecteur entier (une liste) de nombres."
+ }
+]

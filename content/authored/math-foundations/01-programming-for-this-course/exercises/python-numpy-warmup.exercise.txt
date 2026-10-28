@@ -1,0 +1,70 @@
+#@@ meta
+{"title": "Python and NumPy warm-up", "difficulty": 1, "concepts": ["mf.python", "mf.numpy"], "hints": ["sum_of_squares: start total = 0, then loop for i in range(1, n+1) and add i*i.", "standardize: (a - a.mean()) / a.std(). center_columns: M - M.mean(axis=0) (broadcasting a (d,) row over (n,d)).", "times_table: build a column np.arange(1,n+1)[:, None] and a row np.arange(1,n+1)[None, :] and multiply them."], "id": "mf.01.ex1", "runtime": "pyodide"}
+#@@ prompt
+Five small tasks that use everything in the lesson.
+
+- `sum_of_squares(n)`: return $1^2+2^2+\dots+n^2$ using a `for` loop (return 0 for `n = 0`).
+- `classify(x)`: return the string `"negative"`, `"zero"` or `"positive"`.
+- `standardize(a)`: for a 1-D array return `(a - mean) / std` (population std, NumPy's default).
+- `center_columns(M)`: subtract each column's mean from that column of the 2-D array `M`; the result has the same shape.
+- `times_table(n)`: an `(n, n)` array whose entry in row `i`, column `j` is `(i+1)*(j+1)`, built **without loops** by broadcasting.
+#@@ starter
+import numpy as np
+
+def sum_of_squares(n):
+    raise NotImplementedError
+
+def classify(x):
+    raise NotImplementedError
+
+def standardize(a):
+    raise NotImplementedError
+
+def center_columns(M):
+    raise NotImplementedError
+
+def times_table(n):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("sum_of_squares(3) = 14", lambda: sum_of_squares(3) == 14)
+check("sum_of_squares(10) = 385", lambda: sum_of_squares(10) == 385)
+check("sum_of_squares(0) = 0", lambda: sum_of_squares(0) == 0)
+check("classify negative", lambda: classify(-2.5) == "negative")
+check("classify zero", lambda: classify(0) == "zero")
+check("classify positive", lambda: classify(7) == "positive")
+z = standardize(np.array([1., 2., 3., 4.]))
+check("standardize has mean 0", lambda: abs(z.mean()) < 1e-12)
+check("standardize has std 1", lambda: abs(z.std() - 1) < 1e-12)
+check("standardize values", lambda: np.allclose(z, [-1.3416407865, -0.4472135955, 0.4472135955, 1.3416407865]))
+M = np.array([[1., 10.], [3., 20.], [5., 30.]])
+C = center_columns(M)
+check("center_columns keeps shape", lambda: C.shape == (3, 2))
+check("center_columns values", lambda: np.allclose(C, [[-2, -10], [0, 0], [2, 10]]))
+check("times_table(3)", lambda: np.array_equal(times_table(3), [[1, 2, 3], [2, 4, 6], [3, 6, 9]]))
+check("times_table shape", lambda: times_table(5).shape == (5, 5))
+#@@ solution
+import numpy as np
+
+def sum_of_squares(n):
+    total = 0
+    for i in range(1, n + 1):
+        total += i * i
+    return total
+
+def classify(x):
+    if x < 0:
+        return "negative"
+    elif x == 0:
+        return "zero"
+    return "positive"
+
+def standardize(a):
+    return (a - a.mean()) / a.std()
+
+def center_columns(M):
+    return M - M.mean(axis=0)
+
+def times_table(n):
+    r = np.arange(1, n + 1)
+    return r[:, None] * r[None, :]

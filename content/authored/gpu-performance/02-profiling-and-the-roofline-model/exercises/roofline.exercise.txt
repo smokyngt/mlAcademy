@@ -1,0 +1,103 @@
+#@@ meta
+{"id": "gpu.02.ex1", "title": "A roofline calculator and Amdahl's law", "difficulty": 3, "runtime": "pyodide", "concepts": ["gpu.roofline", "gpu.amdahl"], "hints": ["The ridge point is peak_flops / bandwidth. The attainable rate is min(peak, bandwidth * intensity). The time of an operation is max(flops / peak, bytes / bandwidth).", "Matmul (M,K)@(K,N): flops = 2*M*N*K, bytes = elem * (M*K + K*N + M*N). Linear layer on a batch B: matmul with M = B.", "Amdahl: speedup = 1 / ((1 - p) + p / s). For a pipeline of stages, the new total time is sum(t_i / s_i); the overall speed-up is old total / new total."]}
+#@@ prompt
+Implement a small roofline calculator. Hardware is a dict `hw = {"peak": FLOP/s, "bw": bytes/s}`.
+
+- `ridge(hw)`: the arithmetic intensity (FLOP/byte) where the roof turns flat.
+- `attainable(hw, intensity)`: `min(peak, bw * intensity)`.
+- `matmul_cost(M, N, K, elem_bytes)` -> `(flops, bytes)` assuming each matrix crosses memory once: `flops = 2*M*N*K`, `bytes = elem_bytes * (M*K + K*N + M*N)`.
+- `softmax_cost(R, C, elem_bytes)` -> `(5*R*C, 2*R*C*elem_bytes)` (read once, write once, 5 FLOPs per element by our convention).
+- `layernorm_cost(R, C, elem_bytes)` -> `(8*R*C, 2*R*C*elem_bytes)` (convention: 8 FLOPs per element, parameters ignored).
+- `analyse(hw, ops)`: `ops` is a list of `(name, flops, bytes)`. Return a list of dicts with keys `name`, `intensity`, `bound` (`"memory"` if intensity is below the ridge, else `"compute"`), `time` (`max(flops/peak, bytes/bw)`), and `utilisation` (`flops / time / peak`).
+- `amdahl(p, s)`: overall speed-up when a fraction `p` of the time is sped up by `s`. Also `amdahl_limit(p)` (as `s` goes to infinity) and `pipeline_speedup(times, speedups)`: stage `i` takes `times[i]` and is sped up by `speedups[i]`; return old total over new total.
+#@@ starter
+import numpy as np
+
+def ridge(hw):
+    raise NotImplementedError
+
+def attainable(hw, intensity):
+    raise NotImplementedError
+
+def matmul_cost(M, N, K, elem_bytes):
+    raise NotImplementedError
+
+def softmax_cost(R, C, elem_bytes):
+    raise NotImplementedError
+
+def layernorm_cost(R, C, elem_bytes):
+    raise NotImplementedError
+
+def analyse(hw, ops):
+    raise NotImplementedError
+
+def amdahl(p, s):
+    raise NotImplementedError
+
+def amdahl_limit(p):
+    raise NotImplementedError
+
+def pipeline_speedup(times, speedups):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+hw = {"peak": 312e12, "bw": 2.0e12}
+check("ridge = 156 FLOP/byte", lambda: abs(ridge(hw) - 156.0) < 1e-9)
+check("attainable below the ridge is bandwidth-limited", lambda: abs(attainable(hw, 10.0) - 20e12) < 1)
+check("attainable above the ridge is the peak", lambda: abs(attainable(hw, 500.0) - 312e12) < 1)
+check("matmul 4096^3 fp16 cost", lambda: matmul_cost(4096, 4096, 4096, 2) == (2 * 4096**3, 2 * 3 * 4096**2))
+check("softmax cost", lambda: softmax_cost(8, 100, 2) == (4000, 3200))
+check("layernorm cost", lambda: layernorm_cost(8, 100, 2) == (6400, 3200))
+ops = [("matmul 4096^3", *matmul_cost(4096, 4096, 4096, 2)),
+       ("linear batch 1", *matmul_cost(1, 4096, 4096, 2)),
+       ("softmax", *softmax_cost(4096, 4096, 2)),
+       ("layernorm", *layernorm_cost(4096, 4096, 2))]
+res = analyse(hw, ops)
+check("analyse returns one dict per op in order", lambda: [r["name"] for r in res] == [o[0] for o in ops])
+check("big matmul is compute-bound", lambda: res[0]["bound"] == "compute")
+check("batch-1 linear is memory-bound", lambda: res[1]["bound"] == "memory")
+check("softmax and layernorm are memory-bound", lambda: res[2]["bound"] == "memory" and res[3]["bound"] == "memory")
+check("big matmul intensity is about 1365 FLOP/byte", lambda: abs(res[0]["intensity"] - 2 * 4096**3 / (6 * 4096**2)) < 1e-6)
+check("compute-bound op reaches 100% utilisation", lambda: abs(res[0]["utilisation"] - 1.0) < 1e-9)
+check("memory-bound utilisation = intensity / ridge", lambda: abs(res[2]["utilisation"] - res[2]["intensity"] / 156.0) < 1e-9)
+check("time of the batch-1 linear = bytes / bandwidth", lambda: abs(res[1]["time"] - (2 * (4096 + 4096 * 4096 + 4096)) / 2.0e12) < 1e-12)
+check("amdahl: 90% parallel, 10x -> 5.263", lambda: abs(amdahl(0.9, 10) - 1 / (0.1 + 0.09)) < 1e-12)
+check("amdahl limit of 90% is 10", lambda: abs(amdahl_limit(0.9) - 10.0) < 1e-12)
+check("amdahl with s = 1 is 1", lambda: abs(amdahl(0.6, 1) - 1.0) < 1e-12)
+check("pipeline: data 40, compute 60 -> compute 10x faster = 2.17", lambda: abs(pipeline_speedup([40, 60], [1, 10]) - 100 / 46) < 1e-12)
+#@@ solution
+import numpy as np
+
+def ridge(hw):
+    return hw["peak"] / hw["bw"]
+
+def attainable(hw, intensity):
+    return min(hw["peak"], hw["bw"] * intensity)
+
+def matmul_cost(M, N, K, elem_bytes):
+    return 2 * M * N * K, elem_bytes * (M * K + K * N + M * N)
+
+def softmax_cost(R, C, elem_bytes):
+    return 5 * R * C, 2 * R * C * elem_bytes
+
+def layernorm_cost(R, C, elem_bytes):
+    return 8 * R * C, 2 * R * C * elem_bytes
+
+def analyse(hw, ops):
+    out = []
+    for name, flops, nbytes in ops:
+        inten = flops / nbytes
+        t = max(flops / hw["peak"], nbytes / hw["bw"])
+        out.append({"name": name, "intensity": inten,
+                    "bound": "memory" if inten < ridge(hw) else "compute",
+                    "time": t, "utilisation": flops / t / hw["peak"]})
+    return out
+
+def amdahl(p, s):
+    return 1.0 / ((1.0 - p) + p / s)
+
+def amdahl_limit(p):
+    return 1.0 / (1.0 - p)
+
+def pipeline_speedup(times, speedups):
+    return sum(times) / sum(t / s for t, s in zip(times, speedups))

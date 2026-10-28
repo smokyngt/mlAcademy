@@ -1,0 +1,91 @@
+[
+ {
+  "id": "cml.15.q1",
+  "prompt": "Lequel de ces éléments est un hyper-paramètre ?",
+  "options": [
+   "La pénalité de ridge $\\lambda$",
+   "Les poids d'un modèle linéaire",
+   "Les seuils de coupure ajustés d'un arbre",
+   "La moyenne apprise d'un scaler"
+  ],
+  "explanation": "Les hyper-paramètres sont fixés avant l'entraînement et orientent l'apprentissage ; les poids, les seuils et les moyennes d'un scaler sont des paramètres appris."
+ },
+ {
+  "id": "cml.15.q2",
+  "prompt": "Un seul de deux hyper-paramètres affecte réellement le score. Avec 9 essais, la recherche aléatoire est généralement meilleure qu'une grille $3\\times3$ parce que...",
+  "options": [
+   "Elle utilise un modèle plus malin",
+   "Elle évite le jeu de validation",
+   "Elle essaie 9 valeurs distinctes du paramètre important au lieu de 3",
+   "Les grilles ne peuvent pas être exécutées en parallèle"
+  ],
+  "explanation": "Chaque axe de la grille n'a que 3 valeurs ; la recherche aléatoire obtient une valeur nouvelle sur chaque axe à chaque essai."
+ },
+ {
+  "id": "cml.15.q3",
+  "prompt": "Une grille avec 5 valeurs pour chacun de 6 hyper-paramètres demande combien d'exécutions ?",
+  "options": [],
+  "explanation": "$5^6=15625$."
+ },
+ {
+  "id": "cml.15.q4",
+  "prompt": "Le successive halving avec 27 configurations, $\\eta=3$ et un budget initial de 1 exécute les paliers $(27,1),(9,3),(3,9),(1,27)$. Quel est le coût total $\\sum n\\cdot b$ ?",
+  "options": [],
+  "explanation": "$27+27+27+27=108$, contre $27\\times27=729$ pour des exécutions complètes."
+ },
+ {
+  "id": "cml.15.q5",
+  "prompt": "Dans la loi a posteriori d'un processus gaussien, l'écart-type prédictif loin de tous les points d'entraînement est proche de...",
+  "options": [
+   "0",
+   "L'écart-type a priori $\\sigma$",
+   "Le niveau de bruit",
+   "L'infini"
+  ],
+  "explanation": "Sans données proches, le conditionnement n'enlève rien : $s^2\\to k(x_*,x_*)=\\sigma^2$."
+ },
+ {
+  "id": "cml.15.q6",
+  "prompt": "La moyenne prédictive d'un GP est $\\mu(x_*)=\\mathbf k_*^\\top C^{-1}\\mathbf t$. Que vaut $C$ ?",
+  "options": [
+   "L'identité",
+   "La covariance des variables",
+   "La hessienne de la perte",
+   "La matrice du noyau plus la variance du bruit sur la diagonale"
+  ],
+  "explanation": "$C=K+\\beta^{-1}I$ est la covariance des cibles bruitées."
+ },
+ {
+  "id": "cml.15.q7",
+  "prompt": "L'amélioration espérée $(\\mu-f^+)\\Phi(z)+s\\varphi(z)$ est grande quand...",
+  "options": [
+   "$\\mu$ est élevée ou $s$ est grand",
+   "Seulement quand $\\mu$ est élevée",
+   "Seulement quand $s=0$",
+   "Le point a déjà été évalué"
+  ],
+  "explanation": "Le premier terme récompense l'exploitation, le second l'exploration ; les deux peuvent créer de l'amélioration."
+ },
+ {
+  "id": "cml.15.q8",
+  "prompt": "Pourquoi un Pipeline protège-t-il contre la fuite pendant la validation croisée ?",
+  "options": [
+   "Il rend le modèle plus simple",
+   "Il mélange les données",
+   "Chaque transformateur est réajusté uniquement sur la partie d'entraînement de chaque pli",
+   "Il supprime le jeu de validation"
+  ],
+  "explanation": "Aucune statistique n'est jamais calculée à partir des lignes mises de côté, car fit est appelé à l'intérieur de chaque pli."
+ },
+ {
+  "id": "cml.15.q9",
+  "prompt": "Tu choisis les 5 variables les mieux corrélées sur tout le jeu de données puis tu valides par validation croisée un modèle sur ces 5. Sur des données de bruit pur, le score de validation croisée est...",
+  "options": [
+   "Exactement zéro",
+   "Positif de façon optimiste, parce que la sélection a vu les étiquettes mises de côté",
+   "Négatif",
+   "Indéfini"
+  ],
+  "explanation": "Avec 200 colonnes de bruit, certaines sont corrélées à $y$ par hasard ; les sélectionner avec toutes les étiquettes visibles fabrique un signal apparent (R carré d'environ 0.39 dans l'exemple)."
+ }
+]

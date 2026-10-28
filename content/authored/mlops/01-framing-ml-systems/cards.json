@@ -1,0 +1,16 @@
+[
+  { "id": "ops.01.c1", "concept": "ops.framing", "front": "What defines an ML problem?", "back": "Inputs, outputs and an objective function that guides learning." },
+  { "id": "ops.01.c2", "concept": "ops.framing", "front": "Why must an ML metric be tied to a business metric?", "back": "Companies care about revenue, retention or cost saved; ML metrics are proxies whose link to those outcomes must be shown, often by an experiment." },
+  { "id": "ops.01.c3", "concept": "ops.requirements", "front": "The four requirements of an ML system", "back": "Reliability, scalability, maintainability, adaptability." },
+  { "id": "ops.01.c4", "concept": "ops.requirements", "front": "What does it mean that ML systems fail silently?", "back": "The code runs without errors while predictions are wrong, so users and operators may not notice." },
+  { "id": "ops.01.c5", "concept": "ops.requirements", "front": "Latency versus throughput", "back": "Latency: time from request to response. Throughput: requests processed per unit time." },
+  { "id": "ops.01.c6", "concept": "ops.requirements", "front": "Throughput of a batched server", "back": "$B\\cdot1000/t$ queries per second for batch size $B$ taking $t$ ms." },
+  { "id": "ops.01.c7", "concept": "ops.requirements", "front": "Why use percentiles instead of the mean latency?", "back": "Latency is a distribution; one outlier distorts the mean, while p50/p90/p99 describe typical and worst-case users." },
+  { "id": "ops.01.c8", "concept": "ops.requirements", "front": "Nearest-rank percentile", "back": "Sort $n$ values and return the one at 1-based rank $\\lceil q n/100\\rceil$." },
+  { "id": "ops.01.c9", "concept": "ops.framing", "front": "Classification versus regression framing", "back": "Output a category versus a number; either can often be converted to the other by bucketing or thresholding." },
+  { "id": "ops.01.c10", "concept": "ops.framing", "front": "Why is multilabel harder than multiclass?", "back": "The number of true labels varies, so turning probabilities into a label set needs a rule, and annotators disagree more." },
+  { "id": "ops.01.c11", "concept": "ops.framing", "front": "Decoupling objectives", "back": "Train one model per objective and blend scores $\\alpha s_1+\\beta s_2$ at ranking time, so the trade-off changes without retraining." },
+  { "id": "ops.01.c12", "concept": "ops.framing", "front": "Pareto front", "back": "Items not dominated by any other item that is at least as good on all objectives and strictly better on one." },
+  { "id": "ops.01.c13", "concept": "ops.requirements", "front": "Three ways an ML system can scale", "back": "In model complexity, in traffic volume, and in number of models (for example one per customer)." },
+  { "id": "ops.01.c14", "concept": "ops.framing", "front": "How production differs from research", "back": "Many stakeholders, inference latency over training speed, shifting data, and fairness/interpretability requirements." }
+]

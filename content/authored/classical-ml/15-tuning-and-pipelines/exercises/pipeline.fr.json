@@ -1,0 +1,10 @@
+{
+  "id": "cml.15.ex2",
+  "title": "Une classe Pipeline qui empêche la fuite",
+  "prompt": "Construis un pipeline miniature de style scikit-learn et utilise-le pour mettre en évidence une fuite classique.\n\n- `StandardScaler` : `fit(X, y=None)` stocke les moyennes et écarts-types des colonnes (un écart-type nul devient 1) ; `transform(X)` renvoie `(X - mean) / std`.\n- `SelectTopCorr(k)` : `fit(X, y)` garde les `k` colonnes de plus grande corrélation de Pearson absolue avec `y` (utilise `argsort` sur `-|corr|`) ; `transform(X)` renvoie ces colonnes.\n- `Ridge(lam)` : `fit(X, y)` centre X et y et résout `(Xc.T Xc + lam I) w = Xc.T (y - ybar)` ; `predict(X)` renvoie `(X - xbar) @ w + ybar`.\n- `Pipeline(steps)` avec `steps = [(name, obj), ..., (name, model)]`, `fit(X, y)` et `predict(X)` comme dans les indices.\n- `kfold(n, k)` -> liste de `(train_idx, test_idx)` en utilisant `np.array_split(np.arange(n), k)` comme plis de test (sans mélange).\n- `r2_score(y, pred)` et `cross_val_r2(make, X, y, k)` : R carré moyen sur les plis, où `make()` renvoie un nouveau modèle ou pipeline non ajusté.",
+  "hints": [
+    "Pipeline.fit : pour chaque étape sauf la dernière, appelle step.fit(X, y) puis X = step.transform(X) ; enfin ajuste la dernière étape (le modèle).",
+    "Pipeline.predict : transforme avec chaque étape intermédiaire ajustée (sans jamais réajuster), puis prédis avec le modèle.",
+    "cross_val_r2 doit appeler make() À L'INTÉRIEUR de la boucle sur les plis, pour que chaque pli obtienne un pipeline neuf, non ajusté, ajusté uniquement sur les indices d'entraînement."
+  ]
+}

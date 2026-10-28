@@ -1,0 +1,54 @@
+[
+  {
+    "id": "stationary-points", "after": 3, "kind": "plot",
+    "caption": { "en": "Level curves of f(x, y) = x³ − 3x + y². The minimum at (1, 0) (Hessian diag(6, 2), green) has closed contours around it; (−1, 0) (Hessian diag(−6, 2), red) is a saddle: contours cross there.", "fr": "Courbes de niveau de f(x, y) = x³ − 3x + y². Le minimum en (1, 0) (hessienne diag(6, 2), vert) est entouré de contours fermés ; (−1, 0) (hessienne diag(−6, 2), rouge) est un col : les contours s'y croisent." },
+    "spec": { "xDomain": [-3, 3], "yDomain": [-2.5, 2.5], "height": 380,
+      "data": [
+        { "fnType": "implicit", "fn": "x^3 - 3*x + y^2 + 1.5", "color": "#93c5fd" },
+        { "fnType": "implicit", "fn": "x^3 - 3*x + y^2 - 0.5", "color": "#60a5fa" },
+        { "fnType": "implicit", "fn": "x^3 - 3*x + y^2 - 2", "color": "#d97706" },
+        { "fnType": "implicit", "fn": "x^3 - 3*x + y^2 - 4", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#16a34a", "attr": { "r": 5 }, "points": [[1, 0]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[-1, 0]] }
+      ] }
+  },
+  {
+    "id": "convex-vs-nonconvex", "after": 3, "kind": "plot",
+    "caption": { "en": "Convex vs non-convex. x² (blue) lies below every chord. h(x) = x⁴ − 2x² (orange) has two minima at ±1 and h(0) = 0 lies above the chord between (−1, −1) and (1, −1) (red): not convex, so gradient descent can end in either valley.", "fr": "Convexe contre non convexe. x² (bleu) reste sous toutes ses cordes. h(x) = x⁴ − 2x² (orange) a deux minima en ±1 et h(0) = 0 est au-dessus de la corde entre (−1, −1) et (1, −1) (rouge) : non convexe, donc la descente de gradient peut finir dans l'une ou l'autre vallée." },
+    "spec": { "xDomain": [-2, 2], "yDomain": [-1.5, 3], "height": 320,
+      "data": [
+        { "fn": "x^2", "color": "#2563eb" },
+        { "fn": "x^4 - 2*x^2", "color": "#d97706" },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[-1, -1], [1, -1]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[-1, -1], [1, -1], [0, 0]] }
+      ] }
+  },
+  {
+    "id": "newton-vs-gd", "after": 3, "kind": "plot",
+    "caption": { "en": "Newton vs gradient descent on the quadratic f = ½xᵀQx − cᵀx (Q = [[4,1],[1,3]], c = (1, 2)) from (5, 5). Newton (red) lands on the minimiser (0.0909, 0.6364) in one step; gradient descent with η = 0.2 (blue) takes many small steps.", "fr": "Newton contre descente de gradient sur la quadratique f = ½xᵀQx − cᵀx (Q = [[4,1],[1,3]], c = (1, 2)) depuis (5, 5). Newton (rouge) atteint le minimiseur (0,0909 ; 0,6364) en un pas ; la descente de gradient avec η = 0,2 (bleu) fait de nombreux petits pas." },
+    "spec": { "xDomain": [-2, 6], "yDomain": [-2, 6], "height": 380,
+      "data": [
+        { "fnType": "implicit", "fn": "2*x*x + x*y + 1.5*y*y - x - 2*y + 0.6818 - 2", "color": "#bfdbfe" },
+        { "fnType": "implicit", "fn": "2*x*x + x*y + 1.5*y*y - x - 2*y + 0.6818 - 20", "color": "#93c5fd" },
+        { "fnType": "implicit", "fn": "2*x*x + x*y + 1.5*y*y - x - 2*y + 0.6818 - 60", "color": "#60a5fa" },
+        { "fnType": "implicit", "fn": "2*x*x + x*y + 1.5*y*y - x - 2*y + 0.6818 - 98.2", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[5, 5], [0.0909, 0.6364]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#1d4ed8", "points": [[5, 5], [0.2, 1.4], [-0.04, 0.92], [0.008, 0.776], [0.0464, 0.7088]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#16a34a", "attr": { "r": 5 }, "points": [[0.0909, 0.6364]] }
+      ] }
+  },
+  {
+    "id": "lagrange-tangency", "after": 3, "kind": "plot",
+    "caption": { "en": "Lagrange multipliers: minimise x² + y² on the line x + y = 1. The optimum (0.5, 0.5) is where a circle of constant f just touches the line: the gradient of f (red) is parallel to the gradient of g = x + y − 1 (green).", "fr": "Multiplicateurs de Lagrange : minimiser x² + y² sur la droite x + y = 1. L'optimum (0,5 ; 0,5) est où un cercle de f constant touche juste la droite : le gradient de f (rouge) est parallèle au gradient de g = x + y − 1 (vert)." },
+    "spec": { "xDomain": [-0.5, 2], "yDomain": [-0.5, 2], "height": 360,
+      "data": [
+        { "fn": "1 - x", "color": "#2563eb" },
+        { "fnType": "implicit", "fn": "x*x + y*y - 0.25", "color": "#bfdbfe" },
+        { "fnType": "implicit", "fn": "x*x + y*y - 0.5", "color": "#d97706" },
+        { "fnType": "implicit", "fn": "x*x + y*y - 1.5", "color": "#bfdbfe" },
+        { "fnType": "vector", "vector": [0.5, 0.5], "offset": [0.5, 0.5], "graphType": "polyline", "color": "#dc2626" },
+        { "fnType": "vector", "vector": [0.3, 0.3], "offset": [0.8, 0.2], "graphType": "polyline", "color": "#16a34a" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[0.5, 0.5]] }
+      ] }
+  }
+]

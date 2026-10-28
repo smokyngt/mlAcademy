@@ -1,0 +1,11 @@
+{
+  "id": "mf.04.ex1",
+  "title": "Exponentielles et logarithmes en code",
+  "prompt": "Explore numériquement la croissance et les logarithmes.\n\n- `compound(P, r, t)` : valeur de `P` après `t` périodes au taux `r` par période (par ex. `r = 0.05`).\n- `doubling_time(r)` : nombre de périodes nécessaires pour doubler au taux `r` (un flottant).\n- `log_base(x, b)` : $\\log_b x$ en n'utilisant que des logarithmes naturels (`np.log`).\n- `exp_series(x, terms)` : approxime $e^x$ par $\\sum_{k=0}^{terms-1} x^k/k!$.\n- `e_approx(n)` : $(1+1/n)^n$.\n- `cross_entropy(p, q)` : $-\\sum_i p_i\\ln q_i$ pour des tableaux NumPy (les termes avec $p_i=0$ contribuent 0).\n- `log_sum_exp(z)` : $\\ln\\sum_i e^{z_i}$ calculé de façon à ne pas déborder quand les entrées sont autour de 1000.",
+  "hints": [
+    "compound : P * (1 + r) ** t. Temps de doublement : log(2) / log(1 + r) avec math.log.",
+    "log_base(x, b) = np.log(x) / np.log(b).",
+    "exp_series(x, terms) : ajoute x**k / factorial(k) pour k in range(terms).",
+    "log_sum_exp : m = max(z) ; renvoie m + log(sum(exp(z - m))). Entropie croisée pour un one-hot : -log(q[true_index])."
+  ]
+}

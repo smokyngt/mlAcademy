@@ -1,0 +1,127 @@
+[
+ {
+  "id": "vis.06.q1",
+  "concept": "vis.clip",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What supervision does CLIP use?",
+  "options": [
+   "Image-caption pairs: which text belongs with which image",
+   "Pixel masks",
+   "Bounding boxes",
+   "Class labels from ImageNet"
+  ],
+  "answer": 0,
+  "explanation": "Matching pairs are positives; other captions in the batch serve as negatives."
+ },
+ {
+  "id": "vis.06.q2",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "For a batch of $N$ pairs the CLIP logit matrix has shape...",
+  "options": [
+   "$(N,d)$",
+   "$(2N,2N)$",
+   "$(N,N)$",
+   "$(d,d)$"
+  ],
+  "answer": 2,
+  "explanation": "$S=UV^\\top/\\tau$ compares every image with every caption."
+ },
+ {
+  "id": "vis.06.q3",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "Why is the CLIP loss symmetric?",
+  "options": [
+   "To remove the temperature",
+   "Both image-to-text and text-to-image retrieval should work",
+   "To halve the compute",
+   "Because the towers share weights"
+  ],
+  "answer": 1,
+  "explanation": "It averages the row cross-entropy (find the caption) and the column cross-entropy (find the image)."
+ },
+ {
+  "id": "vis.06.q4",
+  "concept": "vis.clip",
+  "kind": "numeric",
+  "prompt": "$N=3$ pairs, perfectly aligned unit embeddings ($U=V=I$), $\\tau=0.5$. What is the CLIP loss (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.2395,
+   "tol": 0.001
+  },
+  "explanation": "$S=2I$; $\\ell=\\log(1+2e^{-2})=0.2395$ in both directions."
+ },
+ {
+  "id": "vis.06.q5",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "Lowering the temperature $\\tau$ in the loss...",
+  "options": [
+   "removes the need for negatives",
+   "has no effect on the gradient",
+   "makes the softmax sharper, emphasising hard negatives",
+   "flattens the softmax over captions"
+  ],
+  "answer": 2,
+  "explanation": "Logits scale as $1/\\tau$; a sharper softmax focuses on the most confusing wrong pairs."
+ },
+ {
+  "id": "vis.06.q6",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "Zero-shot classification of an image into $K$ classes with CLIP is done by...",
+  "options": [
+   "embedding class prompts and picking the one with highest cosine similarity to the image",
+   "running NMS",
+   "fine-tuning on K images",
+   "training a new linear head"
+  ],
+  "answer": 0,
+  "explanation": "No parameters are trained on the target classes; the text prompts act as the classifier weights."
+ },
+ {
+  "id": "vis.06.q7",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "What is prompt ensembling?",
+  "options": [
+   "Averaging image embeddings over crops only",
+   "Using the longest prompt",
+   "Training several CLIP models",
+   "Averaging the text embeddings of several templates per class, then re-normalising"
+  ],
+  "answer": 3,
+  "explanation": "It reduces sensitivity to wording and gives a small accuracy gain."
+ },
+ {
+  "id": "vis.06.q8",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "Which is a limitation of CLIP-style zero-shot models?",
+  "options": [
+   "They cannot use text",
+   "Raw cosine similarities are not calibrated probabilities and fine-grained or spatial concepts are weak",
+   "They need class labels at test time",
+   "They require bounding boxes"
+  ],
+  "answer": 1,
+  "explanation": "The embedding is one global vector trained on noisy captions; similarity values are not calibrated and detail is limited."
+ },
+ {
+  "id": "vis.06.q9",
+  "concept": "vis.clip",
+  "kind": "mcq",
+  "prompt": "What does the SigLIP loss change relative to CLIP's?",
+  "options": [
+   "It removes the text encoder",
+   "It uses bounding boxes",
+   "It uses a per-pair sigmoid binary loss instead of a softmax over the batch",
+   "It fixes tau to infinity"
+  ],
+  "answer": 2,
+  "explanation": "Independent per-pair losses need no batch-wide normalisation, so there is no all-gather and it behaves well across batch sizes."
+ }
+]

@@ -1,0 +1,14 @@
+[
+  { "id": "cml.02.c1", "front": "Modèle de régression logistique", "back": "$p=\\sigma(w^\\top x)=P(y=1\\mid x)$ ; le log-odds $\\ln\\frac p{1-p}=w^\\top x$ est linéaire." },
+  { "id": "cml.02.c2", "front": "Perte de la régression logistique", "back": "Entropie croisée binaire moyenne $-\\frac1N\\sum[y\\ln p+(1-y)\\ln(1-p)]$." },
+  { "id": "cml.02.c3", "front": "Gradient de la régression logistique", "back": "$\\nabla_wL=\\frac1N X^\\top(p-y)$, de forme $(d)$." },
+  { "id": "cml.02.c4", "front": "Forme fermée ?", "back": "Non : $X^\\top(\\sigma(Xw)-y)=0$ est non linéaire. La perte est convexe, donc utilise la descente de gradient ou Newton." },
+  { "id": "cml.02.c5", "front": "Frontière de décision", "back": "$w^\\top x=0$ : un hyperplan. Prédire 1 quand $w^\\top x>0$ (c'est-à-dire $p>0.5$)." },
+  { "id": "cml.02.c6", "front": "Données séparables sans régularisation", "back": "Les poids divergent ($\\|w\\|\\to\\infty$) car les probabilités peuvent toujours être rapprochées de 0/1. Ajoute une pénalité L2." },
+  { "id": "cml.02.c7", "front": "Gradient régularisé", "back": "$\\frac1N X^\\top(p-y)+\\lambda w$ (exclus l'ordonnée à l'origine de la pénalité)." },
+  { "id": "cml.02.c8", "front": "Entropie croisée stable à partir du score", "back": "$\\operatorname{mean}[\\ln(1+e^{z})-yz]$, soit `np.logaddexp(0, z) - y*z`." },
+  { "id": "cml.02.c9", "front": "Perte initiale d'un modèle à 2 classes", "back": "$\\ln2\\approx0.693$ quand toutes les prédictions valent $0.5$." },
+  { "id": "cml.02.c10", "front": "Changer le seuil", "back": "Déplace le compromis entre faux positifs et faux négatifs ; 0.5 n'a rien de sacré." },
+  { "id": "cml.02.c11", "front": "Lien avec un réseau de neurones", "back": "La régression logistique est un réseau sans couche cachée : une couche linéaire + sigmoïde + entropie croisée." },
+  { "id": "cml.02.c12", "front": "Pourquoi standardiser les variables ?", "back": "Des échelles différentes rendent la perte mal conditionnée (leçon 7) et ralentissent la descente de gradient." }
+]

@@ -1,0 +1,75 @@
+#@@ meta
+{"id": "ops.05.ex1", "title": "Latency and throughput: queueing and dynamic batching", "difficulty": 4, "runtime": "pyodide", "concepts": ["ops.serving", "ops.queueing"], "hints": ["Single server, FIFO: start_i = max(arrival_i, finish_{i-1}); finish_i = start_i + service_i; latency_i = finish_i - arrival_i.", "Batching: take the oldest waiting request i. The batch starts at s = max(server_free, min(arrival_i + max_wait, arrival_{i+B-1})) (use the last request if fewer than B remain). Every request among the next B with arrival <= s joins. Service time is a + b * batch_size.", "With max_batch = 1 and max_wait = 0 the batcher must reproduce the plain FIFO queue with service time a + b."]}
+#@@ prompt
+Simulate a model server. Times are in seconds. `arrivals` is a sorted NumPy array of request arrival times.
+
+- `fifo_latencies(arrivals, service)` -> array of latencies (waiting + service) for a single server that handles one request at a time; `service` is an array of service times, one per request.
+- `batched_latencies(arrivals, max_batch, max_wait, a, b)` -> `(latencies, batch_sizes)` for a server that processes requests in batches. A batch takes `a + b * size` seconds. The server forms a batch from the oldest waiting request and the following requests: it starts when the batch is full (`max_batch` requests have arrived) or when the oldest request has waited `max_wait`, whichever is earlier, but never before the server is free. All requests among the next `max_batch` that have arrived by the start time join the batch.
+- `mm1_mean_latency(lam, mu)` -> theoretical mean latency `1 / (mu - lam)` of an M/M/1 queue (Poisson arrivals at rate `lam`, exponential service at rate `mu`, `lam < mu`).
+#@@ starter
+import numpy as np
+
+def fifo_latencies(arrivals, service):
+    raise NotImplementedError
+
+def batched_latencies(arrivals, max_batch, max_wait, a, b):
+    raise NotImplementedError
+
+def mm1_mean_latency(lam, mu):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("one request, no wait: latency = service", lambda: np.allclose(fifo_latencies(np.array([1.0]), np.array([0.2])), [0.2]))
+check("second request waits for the first", lambda: np.allclose(fifo_latencies(np.array([0.0, 0.1]), np.array([0.5, 0.5])), [0.5, 0.9]))
+check("idle server starts immediately", lambda: np.allclose(fifo_latencies(np.array([0.0, 5.0]), np.array([0.5, 0.5])), [0.5, 0.5]))
+check("M/M/1 formula", lambda: abs(mm1_mean_latency(8, 10) - 0.5) < 1e-12)
+rng = np.random.default_rng(1)
+lam, mu = 8.0, 10.0
+arr = np.cumsum(rng.exponential(1 / lam, 50000))
+svc = rng.exponential(1 / mu, 50000)
+lat = fifo_latencies(arr, svc)
+check("simulated mean latency matches 1/(mu-lam) within 5%", lambda: abs(lat.mean() - 0.5) < 0.025, "rho = 0.8: queueing delay dominates")
+check("tail is much worse than the mean (p99 > 3x mean)", lambda: np.percentile(lat, 99) > 3 * lat.mean())
+rng = np.random.default_rng(2)
+arr = np.cumsum(rng.exponential(1 / 60, 6000))
+l1, s1 = batched_latencies(arr, 1, 0.0, 0.02, 0.002)
+check("batch size 1 reproduces the FIFO queue", lambda: np.allclose(l1, fifo_latencies(arr, np.full(len(arr), 0.022))) and np.all(s1 == 1))
+l16, s16 = batched_latencies(arr, 16, 0.02, 0.02, 0.002)
+check("every request is served exactly once", lambda: s16.sum() == len(arr) and len(l16) == len(arr))
+check("batch sizes respect the cap", lambda: s16.max() <= 16 and s16.mean() > 1.5)
+check("unbatched server is overloaded (60 req/s > 45 req/s capacity)", lambda: np.percentile(l1, 99) > 10)
+check("batching restores a sane p99 (< 0.1 s)", lambda: np.percentile(l16, 99) < 0.1)
+check("a latency is never below the service time of its batch", lambda: l16.min() >= 0.022 - 1e-12)
+#@@ solution
+import numpy as np
+
+def fifo_latencies(arrivals, service):
+    lat = np.empty(len(arrivals))
+    free = 0.0
+    for i in range(len(arrivals)):
+        start = max(arrivals[i], free)
+        free = start + service[i]
+        lat[i] = free - arrivals[i]
+    return lat
+
+def batched_latencies(arrivals, max_batch, max_wait, a, b):
+    n = len(arrivals)
+    lat = np.empty(n)
+    sizes = []
+    free = 0.0
+    i = 0
+    while i < n:
+        last = min(i + max_batch - 1, n - 1)
+        start = max(free, min(arrivals[i] + max_wait, arrivals[last]))
+        k = i
+        while k < n and k < i + max_batch and arrivals[k] <= start:
+            k += 1
+        finish = start + a + b * (k - i)
+        lat[i:k] = finish - arrivals[i:k]
+        sizes.append(k - i)
+        free = finish
+        i = k
+    return lat, np.array(sizes)
+
+def mm1_mean_latency(lam, mu):
+    return 1.0 / (mu - lam)

@@ -1,0 +1,55 @@
+[
+  {
+    "id": "dl.04.q1",
+    "prompt": "Trois appels de `(2*p).sum().backward()` sur un paramètre `p` sans `zero_grad()` entre eux. Que vaut `p.grad` ensuite ?",
+    "options": ["2", "6", "0", "3"],
+    "explanation": "Les gradients s'accumulent dans `.grad` : chaque appel ajoute 2, ce qui donne 6. C'est pourquoi la boucle appelle `zero_grad()` à chaque pas."
+  },
+  {
+    "id": "dl.04.q2",
+    "prompt": "Quelle est la forme de `nn.Linear(2, 16).weight` ?",
+    "options": ["(2, 16)", "(16, 2)", "(16,)", "(2,)"],
+    "explanation": "PyTorch stocke `(out_features, in_features)` et calcule $xW^\\top+b$, donc le `W` NumPy de forme `(n_in, n_out)` en est la transposée."
+  },
+  {
+    "id": "dl.04.q3",
+    "prompt": "Combien de paramètres possède `nn.Sequential(Linear(50,30), ReLU, Linear(30,20), ReLU, Linear(20,3))` ?",
+    "explanation": "$50\\cdot30+30+30\\cdot20+20+20\\cdot3+3=2213$."
+  },
+  {
+    "id": "dl.04.q4",
+    "prompt": "Que faut-il passer à `F.cross_entropy` ?",
+    "options": ["Des probabilités softmax et des flottants one-hot", "Des logits bruts et des étiquettes de classe entières (long)", "Des sorties sigmoïdes", "Des log-probabilités et des flottants"],
+    "explanation": "Elle applique le log-softmax en interne ; lui fournir des probabilités donne silencieusement de mauvais gradients."
+  },
+  {
+    "id": "dl.04.q5",
+    "prompt": "Pourquoi l'entraînement en précision mixte float16 nécessite-t-il généralement une mise à l'échelle de la perte alors que bfloat16 non ?",
+    "options": ["float16 est plus lent", "float16 a une plage étroite (plus petit normal d'environ $6\\times10^{-5}$) donc les petits gradients dépassent par le bas ; bfloat16 a la plage d'exposant de float32", "bfloat16 a plus de bits de mantisse", "float16 ne peut pas stocker de nombres négatifs"],
+    "explanation": "Mettre la perte à l'échelle déplace les petits gradients dans la plage représentable de float16 ; bfloat16 partage la plage de float32."
+  },
+  {
+    "id": "dl.04.q6",
+    "prompt": "Pour l'évaluation, tu dois appeler :",
+    "options": ["Rien de spécial", "`model.eval()` et envelopper la passe avant dans `torch.no_grad()`", "Seulement `torch.no_grad()`", "Seulement `model.eval()`"],
+    "explanation": "`eval()` fait passer le dropout et la batch norm au comportement d'inférence ; `no_grad()` arrête l'enregistrement du graphe. Ils font des choses différentes."
+  },
+  {
+    "id": "dl.04.q7",
+    "prompt": "Que fait `torch.from_numpy(a)` par rapport à `torch.tensor(a)` ?",
+    "options": ["Les deux copient", "`from_numpy` partage la mémoire avec le tableau, `tensor` copie", "`tensor` partage, `from_numpy` copie", "Les deux partagent la mémoire"],
+    "explanation": "Modifier le tableau NumPy change un tenseur créé avec `from_numpy`."
+  },
+  {
+    "id": "dl.04.q8",
+    "prompt": "Pour reprendre l'entraînement après un plantage, tu dois sauvegarder :",
+    "options": ["Seulement le `state_dict` du modèle", "Le `state_dict` du modèle, l'état de l'optimiseur (par ex. $m$, $v$, pas d'Adam), l'epoch, et tout planning", "Seulement le data loader", "Seulement l'historique de la perte"],
+    "explanation": "Les paramètres seuls perdent les estimations de moments d'Adam et la position dans le planning."
+  },
+  {
+    "id": "dl.04.q9",
+    "prompt": "Tu obtiens « Expected all tensors to be on the same device ». Cause la plus probable ?",
+    "options": ["Mauvais taux d'apprentissage", "Le modèle a été déplacé avec `.to(device)` mais un batch (ou les étiquettes) ne l'a pas été", "Trop de workers", "Mauvais dtype de la perte"],
+    "explanation": "Le modèle se déplace une fois ; chaque batch doit l'être aussi."
+  }
+]

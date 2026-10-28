@@ -1,0 +1,85 @@
+[
+ {
+  "id": "ops.01.q1",
+  "prompt": "Un problème de ML est défini par quels trois composants ?",
+  "options": [
+   "Entrées, sorties, fonction objectif",
+   "Jeu de données, GPU, échéance",
+   "Accuracy, precision, recall",
+   "Entraînement, validation, test"
+  ],
+  "explanation": "Ce n'est que lorsque tu peux dire ce qui entre, ce qui sort et ce que le processus d'apprentissage minimise qu'un souhait métier devient un problème de ML."
+ },
+ {
+  "id": "ops.01.q2",
+  "prompt": "Une équipe fait passer l'accuracy de 94,0 % à 94,2 % mais aucune métrique métier ne bouge. La meilleure conclusion est...",
+  "options": [
+   "le projet est un succès",
+   "il faut augmenter encore l'accuracy avant de mesurer quoi que ce soit d'autre",
+   "il n'est pas encore démontré que la métrique de ML compte ; il faut la relier à une métrique métier, éventuellement avec un test A/B",
+   "les métriques métier sont sans intérêt pour les équipes de ML"
+  ],
+  "explanation": "Les entreprises se soucient des métriques métier ; les métriques de ML sont des proxys dont le lien doit être établi."
+ },
+ {
+  "id": "ops.01.q3",
+  "prompt": "Quelle affirmation sur la fiabilité est propre aux systèmes de ML ?",
+  "options": [
+   "Un serveur peut planter",
+   "Le système peut renvoyer des prédictions sans aucune erreur alors que ces prédictions sont fausses",
+   "Des dépendances peuvent casser",
+   "Les déploiements peuvent utiliser le mauvais fichier"
+  ],
+  "explanation": "L'échec silencieux est la particularité du ML : aucune exception, aucune erreur 404, juste de mauvaises prédictions."
+ },
+ {
+  "id": "ops.01.q4",
+  "prompt": "Un serveur traite un lot de 50 requêtes en 20 ms. Quel est son débit en requêtes par seconde ?",
+  "options": [],
+  "explanation": "$50\\cdot1000/20=2500$ requêtes par seconde."
+ },
+ {
+  "id": "ops.01.q5",
+  "prompt": "Latences (ms) : 100, 102, 100, 100, 99, 104, 110, 90, 3000, 95. Quel résumé révèle le mieux le problème ?",
+  "options": [
+   "La moyenne (390 ms)",
+   "La médiane (100 ms)",
+   "Le minimum (90 ms)",
+   "Le 99e percentile (3000 ms)"
+  ],
+  "explanation": "La moyenne est trompeuse et la médiane cache la valeur aberrante ; un percentile élevé expose la queue de distribution."
+ },
+ {
+  "id": "ops.01.q6",
+  "prompt": "Pourquoi vaut-il souvent mieux entraîner un modèle par objectif et mélanger leurs scores plutôt qu'entraîner un seul modèle sur $\\alpha L_1+\\beta L_2$ ?",
+  "options": [
+   "Cela donne toujours une meilleure accuracy",
+   "Les pertes mélangées ne peuvent pas être optimisées",
+   "Changer le compromis ne demande aucun réentraînement et les modèles peuvent être maintenus selon leurs propres calendriers",
+   "Cela utilise moins de données"
+  ],
+  "explanation": "Le bouton $\\alpha,\\beta$ se déplace au moment du classement ; les filtres anti-spam et les modèles de qualité évoluent à des vitesses différentes."
+ },
+ {
+  "id": "ops.01.q7",
+  "prompt": "Un article peut avoir plusieurs thèmes et le modèle produit [0.45, 0.2, 0.02, 0.33]. Quelle décision supplémentaire le cadre multilabel impose-t-il ?",
+  "options": [
+   "Combien d'étiquettes (ou quel seuil) extraire des probabilités",
+   "Choisir le taux d'apprentissage",
+   "Utiliser softmax ou sigmoïde seulement au moment du test",
+   "Aucune ; on prend l'argmax"
+  ],
+  "explanation": "En multiclasse, on prend l'argmax ; en multilabel, le nombre de classes par exemple varie, il faut donc une règle."
+ },
+ {
+  "id": "ops.01.q8",
+  "prompt": "Le batching augmente le débit mais peut aussi augmenter la latence. Pourquoi ?",
+  "options": [
+   "Les lots utilisent plus de mémoire",
+   "Le batching désactive le GPU",
+   "La latence et le débit sont la même grandeur",
+   "Les requêtes doivent attendre que le lot se remplisse et un lot plus grand met plus de temps à s'exécuter"
+  ],
+  "explanation": "L'attente par requête plus un temps d'exécution plus long par lot augmentent la latence, tandis que le nombre de requêtes par seconde croît."
+ }
+]

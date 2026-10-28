@@ -1,0 +1,11 @@
+{
+  "id": "mx.03.ex1",
+  "title": "Laplacien, composantes, bissection spectrale et PageRank",
+  "prompt": "Implémente avec NumPy (utilise `np.linalg.eigh`/`eigvalsh` pour les problèmes aux valeurs propres) :\n\n- `adjacency(n, edges)` - matrice d'adjacence 0/1 symétrique d'un graphe non orienté.\n- `laplacian(A)` - le laplacien combinatoire `L = D - A`.\n- `n_components(A)` - le nombre de composantes connexes, d'après le nombre de valeurs propres (numériquement) nulles du laplacien.\n- `count_walks(A, i, j, k)` - le nombre de marches de longueur exactement `k` du nœud `i` au nœud `j`.\n- `spectral_bisection(A)` - un tableau d'entiers d'étiquettes 0/1 issu du signe du vecteur de Fiedler (le vecteur propre de la deuxième plus petite valeur propre du laplacien), le nœud 0 étant toujours étiqueté 0.\n- `pagerank(M, d=0.85, tol=1e-12)` - vecteur PageRank (de somme 1) pour une matrice d'adjacence orientée `M` où `M[i, j] = 1` signifie un lien de `i` vers `j`. Un nœud sans lien sortant saute uniformément. Utilise l'itération de puissance.",
+  "hints": [
+    "adjacency : pars de zeros((n, n)) ; pour chaque arête (i, j) pose A[i, j] = A[j, i] = 1. Le laplacien est diag(A.sum(axis=1)) - A.",
+    "n_components : valeurs propres du laplacien symétrique via np.linalg.eigvalsh ; compte celles inférieures à 1e-9.",
+    "spectral_bisection : V issu de np.linalg.eigh(L) ; le vecteur de Fiedler est la colonne 1 (deuxième plus petite valeur propre). Étiquette = (v > 0) ; inverse toutes les étiquettes si le nœud 0 a reçu l'étiquette 1 pour que le résultat soit canonique.",
+    "pagerank : P = M / sommes des lignes (une ligne de zéros, un nœud pendant, est remplacée par la ligne uniforme 1/n). Puis répète r = d * r @ P + (1 - d)/n jusqu'à ce que la variation passe sous tol."
+  ]
+}

@@ -1,0 +1,132 @@
+[
+  {
+    "id": "naive-vs-cached",
+    "after": 2,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One layer of generation without and with a KV cache. Without it, every step re-projects all t tokens; with it, a step projects only the new token and reads stored keys and values.",
+      "fr": "Une couche de génération sans et avec cache KV. Sans cache, chaque pas reprojette les t tokens ; avec cache, un pas ne projette que le nouveau token et relit les clés et valeurs stockées."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph NAIVE[\"Without cache, step t\"]\n    direction LR\n    A1[\"all t tokens X (t, d)\"] --> A2[\"Q, K, V for t rows<br/>6 t d d_h FLOPs\"]\n    A2 --> A3[\"scores QK^T (t, t)<br/>about t^2 d_h FLOPs\"]\n    A3 --> A4[\"only the last row of O is used\"]\n  end\n  subgraph CACHED[\"With cache, step t\"]\n    direction LR\n    B1[\"one new token x (1, d)\"] --> B2[\"q, k, v for 1 row<br/>6 d d_h FLOPs\"]\n    B2 --> B3[\"append k, v to cache (t, d_h)\"]\n    B3 --> B4[\"scores q K^T (t,)<br/>4 t d_h FLOPs in total\"]\n  end",
+      "fr": "flowchart LR\n  subgraph NAIVE[\"Sans cache, pas t\"]\n    direction LR\n    A1[\"les t tokens X (t, d)\"] --> A2[\"Q, K, V pour t lignes<br/>6 t d d_h FLOPs\"]\n    A2 --> A3[\"scores QK^T (t, t)<br/>environ t^2 d_h FLOPs\"]\n    A3 --> A4[\"seule la dernière ligne de O sert\"]\n  end\n  subgraph CACHED[\"Avec cache, pas t\"]\n    direction LR\n    B1[\"un nouveau token x (1, d)\"] --> B2[\"q, k, v pour 1 ligne<br/>6 d d_h FLOPs\"]\n    B2 --> B3[\"ajouter k, v au cache (t, d_h)\"]\n    B3 --> B4[\"scores q K^T (t,)<br/>4 t d_h FLOPs au total\"]\n  end"
+    }
+  },
+  {
+    "id": "prefill-decode",
+    "after": 2,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Prefill fills the cache in one parallel pass over the prompt; each decode step then appends one entry and reads the whole cache.",
+      "fr": "Le prefill remplit le cache en une passe parallèle sur le prompt ; chaque pas de décodage ajoute ensuite une entrée et relit tout le cache."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant L as Generation loop\n  participant M as Model layer\n  participant C as KV cache\n  Note over L,C: Prefill - prompt of T0 tokens, compute-bound\n  L->>M: X0 (T0, d)\n  M->>C: write K and V, each (T0, d_h)\n  M-->>L: logits of the last position\n  Note over L,C: Decode step t - one token, memory-bound\n  L->>M: x_new (1, d)\n  M->>M: project q, k, v of the new token only\n  M->>C: append k and v, cache now (t, d_h)\n  C-->>M: stream all stored K and V\n  M->>M: scores q K^T of shape (t,), then weighted sum of V\n  M-->>L: next token",
+      "fr": "sequenceDiagram\n  participant L as Boucle de génération\n  participant M as Couche du modèle\n  participant C as Cache KV\n  Note over L,C: Prefill - prompt de T0 tokens, limité par le calcul\n  L->>M: X0 (T0, d)\n  M->>C: écrit K et V, chacun (T0, d_h)\n  M-->>L: logits de la dernière position\n  Note over L,C: Pas de décodage t - un token, limité par la mémoire\n  L->>M: x_new (1, d)\n  M->>M: projette q, k, v du nouveau token seulement\n  M->>C: ajoute k et v, cache de taille (t, d_h)\n  C-->>M: relit tous les K et V stockés\n  M->>M: scores q K^T de forme (t,), puis somme pondérée de V\n  M-->>L: token suivant"
+    }
+  },
+  {
+    "id": "flops-per-step",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "FLOPs of one step for a realistic head (d = 4096, d_h = 128). Naive: 6 t d d_h + 2 t (t+1) d_h (blue). Cached: 6 d d_h + 4 t d_h (orange). Both are drawn in units of 10^9 FLOPs; the cached cost is almost flat.",
+      "fr": "FLOPs d'un pas pour une tête réaliste (d = 4096, d_h = 128). Naïf : 6 t d d_h + 2 t (t+1) d_h (bleu). Avec cache : 6 d d_h + 4 t d_h (orange). Unité : 10^9 FLOPs ; le coût avec cache est presque plat."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1000
+      ],
+      "yDomain": [
+        0,
+        3.6
+      ],
+      "height": 320,
+      "title": "GFLOPs per decode step vs tokens present t",
+      "data": [
+        {
+          "fn": "(6*x*4096*128 + 2*x*(x+1)*128)/1e9",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(6*4096*128 + 4*x*128)/1e9",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 1000,
+          "text": "t = 1000: 3.40 vs 0.0037 GFLOPs"
+        }
+      ]
+    }
+  },
+  {
+    "id": "cache-growth",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "KV cache size in GiB for the 7B-class model (L = 32, d_h = 128, fp16, B = 1) as the context T grows: 2 L n_kv d_h T b. Full multi-head (n_kv = 32, blue) reaches 2 GiB at T = 4096; GQA with n_kv = 8 (orange) is four times smaller.",
+      "fr": "Taille du cache KV en GiB pour le modèle de classe 7B (L = 32, d_h = 128, fp16, B = 1) quand le contexte T croît : 2 L n_kv d_h T b. Multi-têtes complet (n_kv = 32, bleu) : 2 GiB à T = 4096 ; GQA avec n_kv = 8 (orange) est quatre fois plus petit."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        32768
+      ],
+      "yDomain": [
+        0,
+        17
+      ],
+      "height": 320,
+      "title": "cache GiB vs context length T (tokens)",
+      "data": [
+        {
+          "fn": "2*32*32*128*x*2/2^30",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "2*32*8*128*x*2/2^30",
+          "color": "#d97706"
+        },
+        {
+          "fn": "2*32*1*128*x*2/2^30",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2,
+          "text": "2 GiB: MHA at T = 4096"
+        }
+      ]
+    }
+  },
+  {
+    "id": "gqa-sharing",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Grouped-query attention: query heads keep their own projections but share K/V heads (here 8 query heads and 2 KV heads, group size g = 4). Query head j reads KV head floor(j/g); the cache shrinks by g.",
+      "fr": "Attention à requêtes groupées : les têtes de requête gardent leurs projections mais partagent des têtes K/V (ici 8 têtes de requête et 2 têtes KV, taille de groupe g = 4). La tête j lit la tête KV floor(j/g) ; le cache est divisé par g."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph QH[\"8 query heads, each (1, d_h)\"]\n    q0[\"q0\"]\n    q1[\"q1\"]\n    q2[\"q2\"]\n    q3[\"q3\"]\n    q4[\"q4\"]\n    q5[\"q5\"]\n    q6[\"q6\"]\n    q7[\"q7\"]\n  end\n  subgraph KV[\"2 KV heads, each stores K and V (t, d_h)\"]\n    kv0[\"KV head 0\"]\n    kv1[\"KV head 1\"]\n  end\n  q0 --> kv0\n  q1 --> kv0\n  q2 --> kv0\n  q3 --> kv0\n  q4 --> kv1\n  q5 --> kv1\n  q6 --> kv1\n  q7 --> kv1",
+      "fr": "flowchart LR\n  subgraph QH[\"8 têtes de requête, chacune (1, d_h)\"]\n    q0[\"q0\"]\n    q1[\"q1\"]\n    q2[\"q2\"]\n    q3[\"q3\"]\n    q4[\"q4\"]\n    q5[\"q5\"]\n    q6[\"q6\"]\n    q7[\"q7\"]\n  end\n  subgraph KV[\"2 têtes KV, chacune stocke K et V (t, d_h)\"]\n    kv0[\"tête KV 0\"]\n    kv1[\"tête KV 1\"]\n  end\n  q0 --> kv0\n  q1 --> kv0\n  q2 --> kv0\n  q3 --> kv0\n  q4 --> kv1\n  q5 --> kv1\n  q6 --> kv1\n  q7 --> kv1"
+    }
+  },
+  {
+    "id": "cache-tensor",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Where the cache lives in the full model: one K and one V tensor per layer, with the shape (L, 2, B, n_kv, T, d_h) in total.",
+      "fr": "Où vit le cache dans le modèle complet : un tenseur K et un tenseur V par couche, de forme totale (L, 2, B, n_kv, T, d_h)."
+    },
+    "code": {
+      "en": "flowchart TB\n  X[\"token embedding (B, 1, d)\"] --> L1[\"layer 1\"]\n  L1 --> L2[\"layer 2\"]\n  L2 --> LL[\"... layer L\"]\n  LL --> H[\"logits (B, 1, V)\"]\n  L1 -. \"K, V (B, n_kv, T, d_h)\" .-> CA[(\"KV cache<br/>(L, 2, B, n_kv, T, d_h)\")]\n  L2 -. \"K, V (B, n_kv, T, d_h)\" .-> CA\n  LL -. \"K, V (B, n_kv, T, d_h)\" .-> CA\n  CA --> MEM[\"bytes = 2 L n_kv d_h T b B\"]",
+      "fr": "flowchart TB\n  X[\"embedding du token (B, 1, d)\"] --> L1[\"couche 1\"]\n  L1 --> L2[\"couche 2\"]\n  L2 --> LL[\"... couche L\"]\n  LL --> H[\"logits (B, 1, V)\"]\n  L1 -. \"K, V (B, n_kv, T, d_h)\" .-> CA[(\"cache KV<br/>(L, 2, B, n_kv, T, d_h)\")]\n  L2 -. \"K, V (B, n_kv, T, d_h)\" .-> CA\n  LL -. \"K, V (B, n_kv, T, d_h)\" .-> CA\n  CA --> MEM[\"octets = 2 L n_kv d_h T b B\"]"
+    }
+  }
+]

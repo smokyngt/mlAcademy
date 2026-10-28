@@ -1,0 +1,10 @@
+{
+  "id": "cml.14.ex1",
+  "title": "Z-scores, distance de Mahalanobis et petite forêt d'isolation",
+  "prompt": "Construis trois petits outils de détection d'anomalies.\n\n1. `zscores(x)` -> z-scores classiques (écart-type de population, `np.std`), et `robust_zscores(x)` -> `0.6745 * (x - median) / MAD` avec `MAD = median(|x - median|)`.\n2. `mahalanobis(X)` -> tableau de longueur N : distance de chaque ligne à la moyenne de l'échantillon en utilisant la covariance empirique `np.cov(X, rowvar=False)`.\n3. `c_factor(n)` : la longueur moyenne de chemin d'une recherche infructueuse dans un arbre binaire de recherche : `0` pour `n <= 1`, `1` pour `n == 2`, sinon `2*(ln(n-1) + 0.5772156649) - 2*(n-1)/n`.\n4. `IsolationForest(n_trees, psi, seed)` avec `fit(X)` et `score(X)`. Utilise `rng = np.random.default_rng(seed)` ; chaque arbre est construit sur `psi` lignes tirées SANS remise (`rng.choice(len(X), psi, replace=False)`), avec une limite de profondeur `ceil(log2(psi))`. À chaque nœud, choisis une colonne avec `rng.integers(d)` ; si la colonne est constante, arrête-toi ; sinon le seuil est `rng.uniform(min, max)`, gauche = `x < threshold`. Une feuille de `s` lignes contribue `depth + c_factor(s)`. `score` renvoie `2 ** (-mean_path / c_factor(psi))` pour chaque ligne : proche de 1 signifie anormal.\n5. `flag_top_fraction(scores, contamination)` -> masque booléen signalant les `ceil(contamination * n)` scores les plus élevés, et `precision_at_k(scores, labels, k)` -> part de vraies anomalies (`labels == 1`) parmi les `k` scores les plus élevés.",
+  "hints": [
+    "Z-score robuste : 0.6745 * (x - median) / MAD, où MAD = median(|x - median|).",
+    "Mahalanobis : Xc = X - mean ; utilise la covariance inverse (np.cov(X, rowvar=False)) ; distance_i = sqrt(Xc[i] @ Sinv @ Xc[i]). einsum('ij,jk,ik->i', Xc, Sinv, Xc) traite toutes les lignes d'un coup.",
+    "Arbre d'isolation : choisis une colonne au hasard, un seuil uniforme entre le min et le max de cette colonne, récurse jusqu'à la limite de profondeur ou un seul point. La longueur de chemin d'une feuille contenant s points est depth + c(s). Score = 2 ** (-mean_path / c(psi))."
+  ]
+}

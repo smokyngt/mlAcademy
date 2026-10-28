@@ -1,0 +1,85 @@
+#@@ meta
+{"id": "saf.01.ex1", "title": "Over-optimisation: best-of-n and the KL-tilted policy", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.goodhart", "saf.sycophancy"], "hints": ["For best-of-n use only the first n columns: proxy = q[:, :n] + a*x[:, :n]; pick i = proxy.argmax(axis=1); then average proxy[rows, i] and gold[rows, i] where gold = q - b*(x-1).", "bon_kl(n) = log(n) - (n-1)/n. peak_index is just the index of the largest gold value.", "tilted_policy: w = pi_ref * exp(r / beta); divide by w.sum(). The agreement penalty is r - alpha * agree."]}
+#@@ prompt
+Simulate how optimisation pressure on a proxy damages the true objective.
+
+Candidates have a true quality `q` and an exploitable feature `x`. The proxy score is `q + a*x`; the gold score is `q - b*(x - 1)`. `make_candidates` (given) returns arrays of shape `(P, N)`.
+
+Implement:
+
+- `bon_curve(q, x, a, b, ns)` -> array of shape `(len(ns), 2)`: for each `n`, choose per prompt the candidate with the highest proxy among the first `n`, and return the mean proxy and mean gold of the chosen candidates.
+- `bon_kl(n)` -> `log(n) - (n-1)/n`, the usual KL estimate for best-of-n.
+- `peak_index(curve)` -> index of the `n` at which mean gold is largest.
+- `tilted_policy(pi_ref, r, beta)` -> the KL-regularised optimum `pi_ref * exp(r/beta) / Z`.
+- `penalised_reward(r, agree, alpha)` -> `r - alpha * agree` (elementwise).
+#@@ starter
+import numpy as np
+
+def make_candidates(P=2000, N=64, seed=0):
+    rng = np.random.default_rng(seed)
+    return rng.normal(size=(P, N)), rng.exponential(1.0, size=(P, N))
+
+def bon_curve(q, x, a, b, ns):
+    raise NotImplementedError
+
+def bon_kl(n):
+    raise NotImplementedError
+
+def peak_index(curve):
+    raise NotImplementedError
+
+def tilted_policy(pi_ref, r, beta):
+    raise NotImplementedError
+
+def penalised_reward(r, agree, alpha):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+q, x = make_candidates()
+ns = [1, 2, 4, 8, 16, 32, 64]
+curve = bon_curve(q, x, 1.0, 0.6, ns)
+check("curve has shape (7, 2)", lambda: np.asarray(curve).shape == (7, 2))
+check("proxy increases with n", lambda: np.all(np.diff(curve[:, 0]) > 0))
+check("n=4 proxy and gold match the lesson", lambda: abs(curve[2, 0] - 2.471) < 0.002 and abs(curve[2, 1] - 0.255) < 0.002)
+check("n=64 proxy and gold match the lesson", lambda: abs(curve[6, 0] - 5.272) < 0.002 and abs(curve[6, 1] + 0.966) < 0.002)
+check("gold peaks at n=4 (index 2)", lambda: peak_index(curve) == 2)
+check("gold at n=64 is below gold at n=1", lambda: curve[6, 1] < curve[0, 1])
+check("bon_kl(1) = 0", lambda: abs(bon_kl(1)) < 1e-12)
+check("bon_kl(16) = 1.835", lambda: abs(bon_kl(16) - 1.8351) < 1e-3)
+pi = np.array([.5, .3, .2]); r = np.array([1., 1.3, 0.])
+check("tilted policy sums to 1", lambda: abs(tilted_policy(pi, r, 0.5).sum() - 1) < 1e-12)
+check("beta=0.5 gives (0.466, 0.509, 0.025)", lambda: np.allclose(tilted_policy(pi, r, 0.5), [0.4657, 0.5091, 0.0252], atol=2e-4))
+check("beta=0.1 sycophancy takes 92%", lambda: abs(tilted_policy(pi, r, 0.1)[1] - 0.9234) < 1e-3)
+check("huge beta recovers the reference", lambda: np.allclose(tilted_policy(pi, r, 1e6), pi, atol=1e-5))
+agree = np.array([0., 1., 0.])
+check("alpha=0.3 lifts the correct answer to 0.6045", lambda: abs(tilted_policy(pi, penalised_reward(r, agree, 0.3), 0.5)[0] - 0.6045) < 1e-3)
+check("alpha=0.5 lifts the correct answer to 0.6867", lambda: abs(tilted_policy(pi, penalised_reward(r, agree, 0.5), 0.5)[0] - 0.6867) < 1e-3)
+#@@ solution
+import numpy as np
+
+def make_candidates(P=2000, N=64, seed=0):
+    rng = np.random.default_rng(seed)
+    return rng.normal(size=(P, N)), rng.exponential(1.0, size=(P, N))
+
+def bon_curve(q, x, a, b, ns):
+    rows = np.arange(len(q))
+    out = []
+    for n in ns:
+        proxy = q[:, :n] + a * x[:, :n]
+        gold = q[:, :n] - b * (x[:, :n] - 1.0)
+        i = proxy.argmax(axis=1)
+        out.append((proxy[rows, i].mean(), gold[rows, i].mean()))
+    return np.array(out)
+
+def bon_kl(n):
+    return float(np.log(n) - (n - 1) / n)
+
+def peak_index(curve):
+    return int(np.argmax(curve[:, 1]))
+
+def tilted_policy(pi_ref, r, beta):
+    w = np.asarray(pi_ref) * np.exp(np.asarray(r) / beta)
+    return w / w.sum()
+
+def penalised_reward(r, agree, alpha):
+    return np.asarray(r) - alpha * np.asarray(agree)

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "sys.02.q1",
+  "prompt": "Pourquoi la quantification des poids sur 8 bits peut-elle être quasi sans perte alors que sur 2 bits elle ne l'est généralement pas ?",
+  "options": [
+   "Les poids sont déjà des entiers",
+   "Chaque bit retiré double l'échelle et quadruple la MSE d'arrondi",
+   "Le 8 bits utilise la virgule flottante",
+   "Le 2 bits ne peut pas représenter zéro"
+  ],
+  "explanation": "La MSE vaut environ s^2/12 et s double à chaque bit retiré."
+ },
+ {
+  "id": "sys.02.q2",
+  "prompt": "Le décodage spéculatif sert principalement à réduire...",
+  "options": [
+   "le temps d'entraînement",
+   "le nombre de couches",
+   "le nombre de passes coûteuses du modèle cible par token généré",
+   "la taille du vocabulaire"
+  ],
+  "explanation": "Un brouillon propose plusieurs tokens ; la cible les vérifie en une seule passe."
+ },
+ {
+  "id": "sys.02.q3",
+  "prompt": "Int8 symétrique avec max|x| = 2.54. Quelle est l'échelle ?",
+  "options": [],
+  "explanation": "s = 2.54 / 127 = 0.02."
+ },
+ {
+  "id": "sys.02.q4",
+  "prompt": "Quantification asymétrique sur 8 bits de valeurs dans [-1, 3]. Quel est le point zéro ?",
+  "options": [],
+  "explanation": "s = 4/255, z = round(1/s) = round(63.75) = 64."
+ },
+ {
+  "id": "sys.02.q5",
+  "prompt": "Une ligne d'une matrice de poids est 40 fois plus grande que le reste. Quel schéma aide le plus ?",
+  "options": [
+   "Supprimer la ligne",
+   "Des échelles par ligne (par canal)",
+   "Une seule échelle globale",
+   "Moins de bits"
+  ],
+  "explanation": "Les échelles par canal isolent la valeur aberrante ; ici la MSE a chuté d'environ 65 fois."
+ },
+ {
+  "id": "sys.02.q6",
+  "prompt": "q=[0.5,0.25,0.15,0.07,0.03], p=[0.3,0.3,0.2,0.1,0.1]. Quel est le taux d'acceptation sum min(p,q) ?",
+  "options": [],
+  "explanation": "0.3+0.25+0.15+0.07+0.03 = 0.8."
+ },
+ {
+  "id": "sys.02.q7",
+  "prompt": "Avec alpha = 0.8 et N = 4 brouillons, combien de tokens attendus par tour ?",
+  "options": [],
+  "explanation": "(1 - 0.8^5)/(1 - 0.8) = 3.3616."
+ },
+ {
+  "id": "sys.02.q8",
+  "prompt": "Lors d'un rejet, le token de remplacement est échantillonné depuis...",
+  "options": [
+   "max(0, q - p) normalisé",
+   "q",
+   "p",
+   "la loi uniforme"
+  ],
+  "explanation": "Ce résidu rend la probabilité de sortie totale exactement q : min(p,q) + (q-p)+ = q."
+ },
+ {
+  "id": "sys.02.q9",
+  "prompt": "Que ne réduit PAS une couche de mélange d'experts ?",
+  "options": [
+   "Les FLOPs de la partie FFN",
+   "La mémoire nécessaire pour stocker les paramètres",
+   "Le calcul par token",
+   "Les paramètres actifs par token"
+  ],
+  "explanation": "Tous les experts doivent être stockés même si seuls les top-k s'exécutent pour chaque token."
+ },
+ {
+  "id": "sys.02.q10",
+  "prompt": "Pourquoi le cache KV est-il plus sensible à la quantification que les poids ?",
+  "options": [
+   "Il est stocké en fp64",
+   "Il est plus petit",
+   "Les erreurs sur les clés et les valeurs affectent tous les tokens suivants et croissent avec le contexte",
+   "Il n'a pas d'échelle"
+  ],
+  "explanation": "Le cache est lu à chaque pas suivant, donc une erreur persiste et s'accumule."
+ }
+]

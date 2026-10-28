@@ -1,0 +1,10 @@
+{
+  "id": "adv.01.ex1",
+  "title": "Budget de tokens visuels, projecteur MLP et un petit Q-Former",
+  "prompt": "Implémente les briques d'un modèle vision-langage avec NumPy.\n\n1. `n_patches(h, w, patch)` -> nombre de patchs `patch x patch` non chevauchants qui tiennent dans une image `h x w` (ignore les pixels restants).\n2. `anyres_tokens(rows, cols, tokens_per_tile, thumbnail=True)` -> tokens visuels pour une disposition AnyRes de style LLaVA-NeXT : `rows*cols` tuiles, plus une miniature globale supplémentaire avec le même nombre de tokens quand `thumbnail` est vrai.\n3. `gelu(x)` avec l'approximation tanh `0.5 x (1 + tanh(sqrt(2/pi) (x + 0.044715 x^3)))`.\n4. `mlp_projector(F, W1, b1, W2, b2)` -> `gelu(F @ W1 + b1) @ W2 + b2`. `F` a la forme `(N, d_vis)`, le résultat `(N, d_llm)`.\n5. `qformer_cross_attention(queries, F, Wq, Wk, Wv)` -> `(out, attn)`. `queries` est `(n_q, d)`, `F` est `(N, d_vis)`, `Wq` est `(d, d_k)`, `Wk` est `(d_vis, d_k)`, `Wv` est `(d_vis, d_v)`. `attn` est `(n_q, N)` avec des lignes de somme 1, `out = attn @ V` a la forme `(n_q, d_v)`.\n6. `splice_image_tokens(text_emb, image_tok, position)` -> la séquence d'embeddings de texte `(T, d)` avec les tokens d'image `(M, d)` insérés avant la ligne `position` ; résultat `(T + M, d)`.",
+  "hints": [
+    "n_patches utilise la division entière : (h // patch) * (w // patch). AnyRes = rows*cols*tokens_per_tile, plus une tuile pour la miniature.",
+    "Le projecteur est Linear -> GELU -> Linear sur le dernier axe. Utilise l'approximation tanh de GELU donnée dans l'énoncé.",
+    "Attention croisée : scores = Q @ K.T / sqrt(d_k) avec Q = queries @ Wq, K = feats @ Wk, V = feats @ Wv. Softmax sur l'axe des PATCHS (axis=1), en soustrayant d'abord le maximum de la ligne."
+  ]
+}

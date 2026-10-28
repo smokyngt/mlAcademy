@@ -1,0 +1,62 @@
+#@@ meta
+{"id": "f2n.05.ex1", "title": "Numerical gradient and the MSE gradient", "difficulty": 3, "runtime": "pyodide", "concepts": ["calc.gradient", "calc.partial"], "hints": ["Loop over each coordinate i: build x_plus and x_minus as copies of x with +/- h added at index i, then g[i] = (f(x_plus) - f(x_minus)) / (2h).", "mse_grad: residual r = X @ w - y has shape (N,). Then (2/N) * X.T @ r has shape (d,).", "max_rel_error(a, b): np.max(np.abs(a - b) / np.maximum(1e-8, np.abs(a) + np.abs(b)))."]}
+#@@ prompt
+Build the tool you will use for the rest of the course: a gradient checker.
+
+1. `numerical_gradient(f, x, h=1e-5)` - central-difference gradient of a scalar function `f` at the 1-D array `x`. It must not modify `x`.
+2. `mse(X, y, w)` and `mse_grad(X, y, w)` - the loss $\frac1N\|Xw-y\|^2$ and your hand-derived gradient $\frac2N X^\top(Xw-y)$.
+3. `max_rel_error(a, b)` - the largest elementwise relative error between two arrays.
+
+Then confirm that your analytic gradient matches the numerical one (relative error below $10^{-6}$).
+#@@ starter
+import numpy as np
+
+def numerical_gradient(f, x, h=1e-5):
+    raise NotImplementedError
+
+def mse(X, y, w):
+    raise NotImplementedError
+
+def mse_grad(X, y, w):
+    raise NotImplementedError
+
+def max_rel_error(a, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+f = lambda v: v[0] ** 2 + 3 * v[1] ** 2
+x0 = np.array([1.0, 1.0])
+check("numerical gradient of x^2+3y^2 at (1,1) is (2,6)", lambda: np.allclose(numerical_gradient(f, x0), [2.0, 6.0], atol=1e-6))
+def no_mutation():
+    x = np.array([1.0, 2.0]); xc = x.copy(); numerical_gradient(f, x); return np.array_equal(x, xc)
+check("numerical_gradient leaves x unchanged", no_mutation, "Work on copies of x")
+rng = np.random.default_rng(1)
+X = rng.normal(size=(20, 4)); w = rng.normal(size=4); y = rng.normal(size=20)
+check("mse value", lambda: abs(mse(X, y, w) - np.mean((X @ w - y) ** 2)) < 1e-12)
+check("mse_grad has the shape of w", lambda: mse_grad(X, y, w).shape == w.shape, "The gradient must have shape (d,)")
+check("mse_grad matches numerical gradient", lambda: max_rel_error(mse_grad(X, y, w), numerical_gradient(lambda v: mse(X, y, v), w)) < 1e-6)
+check("max_rel_error of equal arrays is 0", lambda: max_rel_error(np.ones(3), np.ones(3)) == 0)
+check("max_rel_error detects a wrong gradient", lambda: max_rel_error(2 * mse_grad(X, y, w), numerical_gradient(lambda v: mse(X, y, v), w)) > 0.1)
+#@@ solution
+import numpy as np
+
+def numerical_gradient(f, x, h=1e-5):
+    x = np.asarray(x, dtype=float)
+    g = np.zeros_like(x)
+    for i in range(x.size):
+        xp = x.copy(); xm = x.copy()
+        xp.flat[i] += h; xm.flat[i] -= h
+        g.flat[i] = (f(xp) - f(xm)) / (2 * h)
+    return g
+
+def mse(X, y, w):
+    r = X @ w - y
+    return float(np.mean(r ** 2))
+
+def mse_grad(X, y, w):
+    r = X @ w - y
+    return 2.0 / len(y) * (X.T @ r)
+
+def max_rel_error(a, b):
+    a = np.asarray(a, dtype=float); b = np.asarray(b, dtype=float)
+    return float(np.max(np.abs(a - b) / np.maximum(1e-8, np.abs(a) + np.abs(b))))

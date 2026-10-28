@@ -1,0 +1,102 @@
+[
+  {
+    "id": "captioning-unrolled",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "CNN-encoder, RNN-decoder captioning unrolled in time. At every step the embedding of the previous word is concatenated with the image vector v (100) and fed to the RNN, whose output goes through a softmax over the vocabulary.",
+      "fr": "Légendage CNN-encodeur, RNN-décodeur déroulé dans le temps. À chaque pas, l'embedding du mot précédent est concaténé avec le vecteur image v (100) et passé au RNN, dont la sortie traverse un softmax sur le vocabulaire."
+    },
+    "code": {
+      "en": "flowchart LR\n  IM[\"image\"] --> CNN[\"CNN (VGG)<br/>frozen\"] --> PCA[\"PCA\"] --> V[\"v (100)\"]\n  W0[\"start token\"] --> E0[\"e_0 (E)\"]\n  E0 --> R1[\"RNN h_1 (H)\"]\n  V --> R1\n  R1 --> S1[\"softmax (V)\"] --> O1[\"w_1\"]\n  O1 --> E1[\"e_1 (E)\"] --> R2[\"RNN h_2 (H)\"]\n  V --> R2\n  R2 --> S2[\"softmax (V)\"] --> O2[\"w_2\"]\n  O2 --> E2[\"...\"] --> R3[\"... end token\"]\n  R1 -->|\"h\"| R2\n  R2 -->|\"h\"| R3",
+      "fr": "flowchart LR\n  IM[\"image\"] --> CNN[\"CNN (VGG)<br/>gelé\"] --> PCA[\"PCA\"] --> V[\"v (100)\"]\n  W0[\"start token\"] --> E0[\"e_0 (E)\"]\n  E0 --> R1[\"RNN h_1 (H)\"]\n  V --> R1\n  R1 --> S1[\"softmax (V)\"] --> O1[\"w_1\"]\n  O1 --> E1[\"e_1 (E)\"] --> R2[\"RNN h_2 (H)\"]\n  V --> R2\n  R2 --> S2[\"softmax (V)\"] --> O2[\"w_2\"]\n  O2 --> E2[\"...\"] --> R3[\"... end token\"]\n  R1 -->|\"h\"| R2\n  R2 -->|\"h\"| R3"
+    }
+  },
+  {
+    "id": "soft-attention",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One decoding step of Show, Attend and Tell with shapes: scores e_i = a_i^T W_att h_(t-1) for the R regions, softmax weights alpha, a context vector z = sum alpha_i a_i, then the new state and logits.",
+      "fr": "Un pas de décodage de Show, Attend and Tell avec les formes : scores e_i = a_i^T W_att h_(t-1) pour les R régions, poids softmax alpha, vecteur de contexte z = somme alpha_i a_i, puis nouvel état et logits."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"A (R,D)<br/>region features\"] --> SC[\"e = A W_att h<br/>(R,)\"]\n  HP[\"h_(t-1) (H,)\"] --> SC\n  SC --> AL[\"alpha = softmax(e)<br/>(R,)\"]\n  AL --> CT[\"z = sum alpha_i a_i<br/>(D,)\"]\n  A --> CT\n  CT --> NS[\"h_t = tanh(W_x e_(t-1) + W_z z + W_h h_(t-1) + b)<br/>(H,)\"]\n  PW[\"e_(t-1) (E,)\"] --> NS\n  HP --> NS\n  NS --> LG[\"logits = W_o h_t<br/>(V,)\"]",
+      "fr": "flowchart LR\n  A[\"A (R,D)<br/>descripteurs de régions\"] --> SC[\"e = A W_att h<br/>(R,)\"]\n  HP[\"h_(t-1) (H,)\"] --> SC\n  SC --> AL[\"alpha = softmax(e)<br/>(R,)\"]\n  AL --> CT[\"z = sum alpha_i a_i<br/>(D,)\"]\n  A --> CT\n  CT --> NS[\"h_t = tanh(W_x e_(t-1) + W_z z + W_h h_(t-1) + b)<br/>(H,)\"]\n  PW[\"e_(t-1) (E,)\"] --> NS\n  HP --> NS\n  NS --> LG[\"logits = W_o h_t<br/>(V,)\"]"
+    }
+  },
+  {
+    "id": "attn-weights",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Attention weights of the worked example: four regions, scores (2, 1, 0, 3), softmax alpha = (0.237, 0.087, 0.032, 0.644). Region 4 dominates because it aligns best with the query.",
+      "fr": "Poids d'attention de l'exemple travaillé : quatre régions, scores (2, 1, 0, 3), softmax alpha = (0,237 ; 0,087 ; 0,032 ; 0,644). La région 4 domine car elle s'aligne le mieux avec la requête."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"alpha\"\n  x-axis [\"a1\",\"a2\",\"a3\",\"a4\"]\n  y-axis \"alpha\" 0 --> 1\n  bar [0.237, 0.087, 0.032, 0.644]",
+      "fr": "xychart-beta\n  title \"alpha\"\n  x-axis [\"a1\",\"a2\",\"a3\",\"a4\"]\n  y-axis \"alpha\" 0 --> 1\n  bar [0.237, 0.087, 0.032, 0.644]"
+    }
+  },
+  {
+    "id": "temperature-sampling",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Temperature sampling on p = (0.3, 0.5, 0.1, 0.1): probability of the two main words as t varies, p'_i = p_i^(1/t) / sum_j p_j^(1/t). At t = 0.25 the best word gets 0.883, at t = 2 only 0.375.",
+      "fr": "Échantillonnage avec température sur p = (0,3 ; 0,5 ; 0,1 ; 0,1) : probabilité des deux mots principaux selon t, p'_i = p_i^(1/t) / somme_j p_j^(1/t). À t = 0,25 le meilleur mot reçoit 0,883, à t = 2 seulement 0,375."
+    },
+    "spec": {
+      "xDomain": [
+        0.1,
+        3
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.5^(1/x)/(0.3^(1/x)+0.5^(1/x)+2*0.1^(1/x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.3^(1/x)/(0.3^(1/x)+0.5^(1/x)+2*0.1^(1/x))",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.25,
+              0.883
+            ],
+            [
+              2,
+              0.375
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "vqa-arch",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A standard VQA architecture: a CNN encodes the image, an RNN encodes the question, the two are fused, and a classifier picks among frequent answers. Always compare with the answer-prior baseline.",
+      "fr": "Une architecture VQA standard : un CNN encode l'image, un RNN encode la question, les deux sont fusionnés, et un classifieur choisit parmi les réponses fréquentes. Toujours comparer à la baseline a priori des réponses."
+    },
+    "code": {
+      "en": "flowchart LR\n  IM[\"image\"] --> CNN[\"CNN\"] --> VV[\"v (D,)\"]\n  Q[\"question\"] --> RNN[\"RNN\"] --> QQ[\"q (H,)\"]\n  VV --> FU[\"fusion: concat or elementwise product\"]\n  QQ --> FU\n  FU --> CL[\"classifier over frequent answers\"]\n  CL --> AN[\"answer\"]\n  PRIOR[\"prior baseline: most frequent answer\"] -.-> AN",
+      "fr": "flowchart LR\n  IM[\"image\"] --> CNN[\"CNN\"] --> VV[\"v (D,)\"]\n  Q[\"question\"] --> RNN[\"RNN\"] --> QQ[\"q (H,)\"]\n  VV --> FU[\"fusion : concaténation ou produit terme à terme\"]\n  QQ --> FU\n  FU --> CL[\"classifieur sur les réponses fréquentes\"]\n  CL --> AN[\"réponse\"]\n  PRIOR[\"baseline a priori : réponse la plus fréquente\"] -.-> AN"
+    }
+  }
+]

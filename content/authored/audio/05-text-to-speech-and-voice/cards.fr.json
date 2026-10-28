@@ -1,0 +1,77 @@
+[
+ {
+  "id": "aud.05.c1",
+  "front": "Trois étapes du TTS",
+  "back": "Front-end textuel (normalisation, phonèmes) -> modèle acoustique (phonèmes vers mel) -> vocodeur (mel vers forme d'onde)."
+ },
+ {
+  "id": "aud.05.c2",
+  "front": "Régulateur de longueur",
+  "back": "Répète le vecteur caché de chaque phonème $d_u$ fois, $T=\\sum d_u$ ; `np.repeat(H, d, axis=0)` ; remplace l'alignement appris par attention."
+ },
+ {
+  "id": "aud.05.c3",
+  "front": "Tacotron 2 vs FastSpeech 2",
+  "back": "Tacotron : autorégressif avec attention, peut sauter/répéter des mots. FastSpeech : non autorégressif avec prédicteur de durées, parallèle et robuste."
+ },
+ {
+  "id": "aud.05.c4",
+  "front": "Pourquoi les vocodeurs sont difficiles",
+  "back": "Le spectrogramme mel n'a pas de phase et son détail fréquentiel est flouté ; le vocodeur doit inventer un détail de forme d'onde plausible."
+ },
+ {
+  "id": "aud.05.c5",
+  "front": "Suréchantillonnage de HiFi-GAN",
+  "back": "Convolutions transposées dont les facteurs ont pour produit la longueur du saut (par ex. 8*8*2*2 = 256) ; entraîné de façon adversariale plus des pertes de mel et d'appariement de caractéristiques."
+ },
+ {
+  "id": "aud.05.c6",
+  "front": "Quantification vectorielle résiduelle et débit",
+  "back": "Chaque livre de codes quantifie le résidu précédent ; débit $=f\\,Q\\log_2K$ (75 Hz, 8, 1024 donne 6 kbps)."
+ },
+ {
+  "id": "aud.05.c7",
+  "front": "Formule de la STFT inverse",
+  "back": "$x[m]=\\sum_tw[m-tH]\\,y_t[m-tH]\\,/\\sum_tw[m-tH]^2$ : recouvrement-addition pondéré, solution des moindres carrés."
+ },
+ {
+  "id": "aud.05.c8",
+  "front": "Spectrogramme cohérent",
+  "back": "Une matrice complexe qui est la STFT d'un certain signal réel ; les trames qui se recouvrent se contraignent mutuellement, donc les matrices aléatoires ne sont pas cohérentes."
+ },
+ {
+  "id": "aud.05.c9",
+  "front": "Itération de Griffin-Lim",
+  "back": "$X=\\mathrm{STFT}(\\mathrm{ISTFT}(S))$, puis $S=A\\,e^{i\\angle X}$ (garder la phase, restaurer le module), en partant d'une phase aléatoire."
+ },
+ {
+  "id": "aud.05.c10",
+  "front": "Pourquoi l'erreur de Griffin-Lim n'augmente pas",
+  "back": "Les deux étapes sont des projections sur le point le plus proche, donc la distance entre l'ensemble cohérent et l'ensemble de module prescrit est non croissante (optimum local seulement)."
+ },
+ {
+  "id": "aud.05.c11",
+  "front": "Convergence spectrale",
+  "back": "$\\|\\,|\\mathrm{STFT}(x)|-A\\,\\|_F/\\|A\\|_F$ ; compare les modules, car la forme d'onde (par ex. son signe) n'est pas unique."
+ },
+ {
+  "id": "aud.05.c12",
+  "front": "MOS et son intervalle de confiance",
+  "back": "Note moyenne de 1 à 5 ; intervalle à 95 % $\\bar r\\pm1.96\\,s/\\sqrt n$ (utiliser une valeur $t$ pour un petit $n$) ; utiliser 20+ auditeurs."
+ },
+ {
+  "id": "aud.05.c13",
+  "front": "Autres métriques TTS",
+  "back": "CMOS (A/B), UTMOS (MOS appris), WER/CER aller-retour via l'ASR, SECS pour la similarité de locuteur, délai avant le premier son."
+ },
+ {
+  "id": "aud.05.c14",
+  "front": "Clonage zero-shot vs conversion de voix",
+  "back": "Clonage : texte + court extrait de référence -> parole nouvelle dans cette voix. Conversion : parole existante de A -> mêmes mots dans la voix de B."
+ },
+ {
+  "id": "aud.05.c15",
+  "front": "Garde-fous pour le clonage de voix",
+  "back": "Enregistrements de consentement vérifiés, tatouage inaudible, détection anti-usurpation, conformité politique/juridique ; chacun est partiel, aucun n'est suffisant seul."
+ }
+]

@@ -1,0 +1,87 @@
+#@@ meta
+{"id": "cml.08.ex2", "title": "Kernels and the dual decision function", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.svm"], "hints": ["rbf: squared distances via (A**2).sum(1)[:, None] + (B**2).sum(1)[None, :] - 2 * A @ B.T, then exp(-gamma * d2). Clip tiny negatives to 0.", "w = ((alpha * y)[:, None] * X).sum(0). The dual objective is alpha.sum() - 0.5 * (alpha * y) @ K @ (alpha * y) (written as a quantity to maximise).", "dual_decision(Kxt, alpha, y, b) = Kxt @ (alpha * y) + b, where Kxt has shape (M, N)."]}
+#@@ prompt
+Work with the dual SVM representation.
+
+- `linear_kernel(A, B)`, `poly_kernel(A, B)` $=(\langle a,b\rangle+1)^2$ and `rbf_kernel(A, B, gamma)` $=\exp(-\gamma\|a-b\|^2)$ all return an `(len(A), len(B))` matrix.
+- `poly_features(X)` for 2D inputs: $\phi(x)=(1,\sqrt2x_1,\sqrt2x_2,x_1^2,\sqrt2x_1x_2,x_2^2)$, shape `(N, 6)`, so that `poly_features(A) @ poly_features(B).T == poly_kernel(A, B)`.
+- `primal_w(alpha, y, X)` returns $w=\sum_n\alpha_ny_nx_n$.
+- `dual_value(alpha, y, K)` returns $\sum_i\alpha_i-\tfrac12\sum_{ij}\alpha_i\alpha_jy_iy_jK_{ij}$.
+- `dual_decision(Kxt, alpha, y, b)` returns $f(x)=\sum_n\alpha_ny_nk(x_n,x)+b$ for test-vs-train kernel matrix `Kxt`.
+#@@ starter
+import numpy as np
+
+def linear_kernel(A, B):
+    raise NotImplementedError
+
+def poly_kernel(A, B):
+    raise NotImplementedError
+
+def rbf_kernel(A, B, gamma):
+    raise NotImplementedError
+
+def poly_features(X):
+    raise NotImplementedError
+
+def primal_w(alpha, y, X):
+    raise NotImplementedError
+
+def dual_value(alpha, y, K):
+    raise NotImplementedError
+
+def dual_decision(Kxt, alpha, y, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+X = np.array([[2, 0], [-2, 0.]]); y = np.array([1., -1.]); alpha = np.array([1 / 8, 1 / 8])
+check("w = (0.5, 0) from the dual", lambda: np.allclose(primal_w(alpha, y, X), [0.5, 0.0]))
+check("dual constraint sum alpha*y = 0", lambda: abs((alpha * y).sum()) < 1e-12)
+K = linear_kernel(X, X)
+check("Gram matrix of the toy data", lambda: np.allclose(K, [[4, -4], [-4, 4]]))
+check("dual value 1/8 equals primal value 0.5*||w||^2", lambda: abs(dual_value(alpha, y, K) - 0.125) < 1e-12 and abs(0.5 * 0.25 - 0.125) < 1e-12)
+Xt = np.array([[1., 3.], [-1., 0.], [4., -2.]])
+f = dual_decision(linear_kernel(Xt, X), alpha, y, 0.0)
+check("decision function equals w.x + b", lambda: np.allclose(f, Xt @ np.array([0.5, 0.0])))
+check("signs classify correctly", lambda: (np.sign(f) == np.array([1, -1, 1])).all())
+P = np.array([[1., 2.], [0.5, -1.], [-2., 0.3]]); Q = np.array([[0., 1.], [2., 2.]])
+check("poly kernel equals the explicit feature map", lambda: np.allclose(poly_features(P) @ poly_features(Q).T, poly_kernel(P, Q)))
+check("poly_features shape", lambda: poly_features(P).shape == (3, 6))
+R = rbf_kernel(P, P, 0.5)
+check("rbf: diagonal is 1 and matrix symmetric", lambda: np.allclose(np.diag(R), 1) and np.allclose(R, R.T))
+check("rbf value exp(-gamma d^2): distance 2, gamma 0.5", lambda: abs(rbf_kernel(np.array([[0., 0.]]), np.array([[2., 0.]]), 0.5)[0, 0] - np.exp(-2)) < 1e-12)
+rng = np.random.default_rng(0)
+Z = rng.normal(size=(30, 3))
+check("rbf Gram matrix is positive semi-definite", lambda: np.linalg.eigvalsh(rbf_kernel(Z, Z, 0.7)).min() > -1e-9)
+check("rbf values lie in (0, 1]", lambda: (rbf_kernel(Z, Z, 0.7) > 0).all() and (rbf_kernel(Z, Z, 0.7) <= 1 + 1e-12).all())
+check("rbf shape for rectangular input", lambda: rbf_kernel(P, Q, 1.0).shape == (3, 2))
+# XOR is not linearly separable, but sign of the RBF feature  k(x,a)+k(x,b)-k(x,c)-k(x,d) separates it
+Xx = np.array([[0, 0], [1, 1], [0, 1], [1, 0.]]); yx = np.array([1, 1, -1, -1.])
+Kx = rbf_kernel(Xx, Xx, 1.0)
+check("RBF kernel expansion with equal alphas separates XOR", lambda: (np.sign(dual_decision(Kx, np.ones(4), yx, 0.0)) == yx).all())
+#@@ solution
+import numpy as np
+
+def linear_kernel(A, B):
+    return A @ B.T
+
+def poly_kernel(A, B):
+    return (A @ B.T + 1.0) ** 2
+
+def rbf_kernel(A, B, gamma):
+    d2 = (A ** 2).sum(1)[:, None] + (B ** 2).sum(1)[None, :] - 2.0 * A @ B.T
+    return np.exp(-gamma * np.maximum(d2, 0.0))
+
+def poly_features(X):
+    x1, x2 = X[:, 0], X[:, 1]
+    s = np.sqrt(2.0)
+    return np.stack([np.ones(len(X)), s * x1, s * x2, x1 ** 2, s * x1 * x2, x2 ** 2], axis=1)
+
+def primal_w(alpha, y, X):
+    return ((alpha * y)[:, None] * X).sum(axis=0)
+
+def dual_value(alpha, y, K):
+    ay = alpha * y
+    return float(alpha.sum() - 0.5 * ay @ K @ ay)
+
+def dual_decision(Kxt, alpha, y, b):
+    return Kxt @ (alpha * y) + b

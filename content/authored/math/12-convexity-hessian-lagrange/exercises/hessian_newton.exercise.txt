@@ -1,0 +1,122 @@
+#@@ meta
+{"id": "math.12.ex1", "title": "Hessians, stationary points, Newton's method and a Lagrangian solve", "difficulty": 4, "runtime": "pyodide", "concepts": ["opt.convex"], "hints": ["hessian_fd: for entry (i, j) use the central difference (f(x+hei+hej) - f(x+hei-hej) - f(x-hei+hej) + f(x-hei-hej)) / (4 h^2).", "classify: eigvalsh(H); all > tol is 'min', all < -tol is 'max', both signs 'saddle', otherwise 'degenerate'.", "newton: at each step solve H delta = -g with np.linalg.solve and add delta.", "equality_qp: stack the stationarity and constraint equations into the block system [[Q, A^T], [A, 0]] [x; lam] = [c; b] and solve it."]}
+#@@ prompt
+Implement with NumPy:
+
+- `hessian_fd(f, x, h=1e-3)` - Hessian of a scalar function `f` at `x` (shape `(n,)`) by central finite differences; return a symmetric `(n, n)` array.
+- `classify(H, tol=1e-8)` - `'min'`, `'max'`, `'saddle'` or `'degenerate'` from the eigenvalues of the symmetric matrix `H` (the type of a stationary point).
+- `is_convex_quadratic(Q, tol=1e-10)` - whether `f(x) = 1/2 x^T Q x - c^T x` is convex, i.e. `Q` is positive semi-definite.
+- `gradient_descent(grad, x0, lr, iters)` - plain gradient descent, returning the final point.
+- `newton(grad, hess, x0, iters)` - Newton's method; each step solves `H delta = -g` (do not invert).
+- `equality_qp(Q, c, A, b)` - minimise `1/2 x^T Q x - c^T x` subject to `A x = b` via the Lagrangian `f + lam^T (A x - b)`; return `(x, lam)`.
+- `dual_value(lam)` - dual function `D(lam) = min_x [x^2 + lam (1 - x)]` of the problem "minimise x^2 subject to 1 - x <= 0", as a closed form of `lam`.
+#@@ starter
+import numpy as np
+
+def hessian_fd(f, x, h=1e-3):
+    raise NotImplementedError
+
+def classify(H, tol=1e-8):
+    raise NotImplementedError
+
+def is_convex_quadratic(Q, tol=1e-10):
+    raise NotImplementedError
+
+def gradient_descent(grad, x0, lr, iters):
+    raise NotImplementedError
+
+def newton(grad, hess, x0, iters):
+    raise NotImplementedError
+
+def equality_qp(Q, c, A, b):
+    raise NotImplementedError
+
+def dual_value(lam):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+f = lambda v: v[0] ** 3 - 3 * v[0] + v[1] ** 2
+check("finite-difference Hessian at (1,0) is diag(6,2)", lambda: np.allclose(hessian_fd(f, np.array([1., 0.])), [[6, 0], [0, 2]], atol=1e-4))
+check("Hessian at (-1,0) is diag(-6,2)", lambda: np.allclose(hessian_fd(f, np.array([-1., 0.])), [[-6, 0], [0, 2]], atol=1e-4))
+g = lambda v: v[0] ** 2 + 3 * v[0] * v[1] + v[1] ** 2
+Hg = hessian_fd(g, np.array([0.3, -0.2]))
+check("Hessian of x^2+3xy+y^2 is [[2,3],[3,2]] and symmetric", lambda: np.allclose(Hg, [[2, 3], [3, 2]], atol=1e-4) and np.allclose(Hg, Hg.T))
+check("(1,0) is a minimum", lambda: classify(np.diag([6., 2])) == "min")
+check("(-1,0) is a saddle", lambda: classify(np.diag([-6., 2])) == "saddle")
+check("negative definite is a max", lambda: classify(np.diag([-1., -4])) == "max")
+check("x^2+3xy+y^2 is a saddle despite positive diagonal", lambda: classify(np.array([[2., 3], [3, 2]])) == "saddle")
+check("zero eigenvalue is degenerate", lambda: classify(np.diag([2., 0])) == "degenerate")
+Q = np.array([[4., 1], [1, 3]]); c = np.array([1., 2])
+check("Q is PSD so the quadratic is convex", lambda: is_convex_quadratic(Q))
+check("indefinite matrix is not convex", lambda: not is_convex_quadratic(np.array([[2., 3], [3, 2]])))
+gradQ = lambda x: Q @ x - c
+hessQ = lambda x: Q
+xs = np.linalg.solve(Q, c)
+x1 = newton(gradQ, hessQ, np.array([5., 5.]), 1)
+check("one Newton step solves a quadratic exactly (1/11, 7/11)", lambda: np.allclose(x1, [1 / 11, 7 / 11]) and np.allclose(x1, xs))
+e1 = np.linalg.norm(gradient_descent(gradQ, np.array([5., 5.]), 0.2, 1) - xs)
+e10 = np.linalg.norm(gradient_descent(gradQ, np.array([5., 5.]), 0.2, 10) - xs)
+check("gradient descent errors 0.771 then 0.00175", lambda: abs(e1 - 0.7713892158398699) < 1e-9 and abs(e10 - 0.0017520312667720717) < 1e-9)
+gradE = lambda x: np.array([np.exp(x[0]) - 2])
+hessE = lambda x: np.array([[np.exp(x[0])]])
+errs = [abs(newton(gradE, hessE, np.array([0.0]), k)[0] - np.log(2)) for k in (1, 2, 3, 4)]
+check("Newton on exp(x)-2x: errors 0.307, 0.0426, 8.95e-4, 4.0e-7", lambda: np.allclose(errs, [0.3068528, 0.0426117, 8.95119e-4, 4.005e-7], rtol=1e-3))
+check("Newton converges quadratically (error roughly squares)", lambda: errs[2] < 2 * errs[1] ** 2 * 1.0 + 1e-12 and errs[3] < 2 * errs[2] ** 2 + 1e-12)
+gradH = lambda x: 4 * x ** 3 - 4 * x
+check("non-convex x^4-2x^2: GD from +-0.5 reaches +-1", lambda: abs(gradient_descent(gradH, np.array([0.5]), 0.05, 200)[0] - 1) < 1e-6 and abs(gradient_descent(gradH, np.array([-0.5]), 0.05, 200)[0] + 1) < 1e-6)
+xq, lam = equality_qp(2 * np.eye(2), np.zeros(2), np.array([[1., 1]]), np.array([1.]))
+check("min x^2+y^2 s.t. x+y=1 gives (0.5, 0.5)", lambda: np.allclose(xq, [0.5, 0.5]))
+check("multiplier is -1", lambda: np.allclose(lam, [-1.0]))
+Qr = np.array([[4., 1], [1, 3]]); Ar = np.array([[1., 2]]); br = np.array([1.])
+xr, lr_ = equality_qp(Qr, c, Ar, br)
+check("constraint is satisfied", lambda: np.allclose(Ar @ xr, br))
+check("stationarity Qx - c + A^T lam = 0", lambda: np.allclose(Qr @ xr - c + Ar.T @ lr_, 0))
+check("dual values 0, 0.75, 1.0, 0.75", lambda: np.allclose([dual_value(l) for l in (0, 1, 2, 3)], [0, .75, 1, .75]))
+check("weak duality: every dual value <= primal optimum 1, with equality at lam=2", lambda: all(dual_value(l) <= 1 + 1e-12 for l in np.linspace(0, 6, 61)) and abs(dual_value(2.0) - 1.0) < 1e-12)
+#@@ solution
+import numpy as np
+
+def hessian_fd(f, x, h=1e-3):
+    x = np.asarray(x, float)
+    n = len(x)
+    H = np.zeros((n, n))
+    E = np.eye(n) * h
+    for i in range(n):
+        for j in range(n):
+            H[i, j] = (f(x + E[i] + E[j]) - f(x + E[i] - E[j]) - f(x - E[i] + E[j]) + f(x - E[i] - E[j])) / (4 * h * h)
+    return (H + H.T) / 2
+
+def classify(H, tol=1e-8):
+    ev = np.linalg.eigvalsh(H)
+    if np.all(ev > tol):
+        return "min"
+    if np.all(ev < -tol):
+        return "max"
+    if ev.min() < -tol and ev.max() > tol:
+        return "saddle"
+    return "degenerate"
+
+def is_convex_quadratic(Q, tol=1e-10):
+    return bool(np.linalg.eigvalsh((Q + Q.T) / 2).min() >= -tol)
+
+def gradient_descent(grad, x0, lr, iters):
+    x = np.array(x0, float)
+    for _ in range(iters):
+        x = x - lr * grad(x)
+    return x
+
+def newton(grad, hess, x0, iters):
+    x = np.array(x0, float)
+    for _ in range(iters):
+        x = x + np.linalg.solve(hess(x), -grad(x))
+    return x
+
+def equality_qp(Q, c, A, b):
+    n, m = Q.shape[0], A.shape[0]
+    K = np.block([[Q, A.T], [A, np.zeros((m, m))]])
+    rhs = np.concatenate([c, b])
+    sol = np.linalg.solve(K, rhs)
+    return sol[:n], sol[n:]
+
+def dual_value(lam):
+    return lam - lam ** 2 / 4

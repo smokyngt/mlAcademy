@@ -1,0 +1,17 @@
+[
+  { "id": "seq.01.c1", "front": "Formule de sortie d'une couche de convolution (un axe)", "back": "$H_{out}=\\lfloor (H-K+2P)/S\\rfloor+1$." },
+  { "id": "seq.01.c2", "front": "Nombre de paramètres d'une couche de convolution", "back": "$C_{out}C_{in}K^2+C_{out}$. Indépendant de la taille de l'image." },
+  { "id": "seq.01.c3", "front": "Dimensions : entrée, poids, sortie d'une couche de convolution", "back": "$x:(C_{in},H,W)$, $W:(C_{out},C_{in},K,K)$, $b:(C_{out})$, $Y:(C_{out},H_{out},W_{out})$." },
+  { "id": "seq.01.c4", "front": "Convolution vs corrélation croisée en apprentissage profond", "back": "Les bibliothèques implémentent la corrélation croisée (pas de retournement du noyau). Avec des noyaux appris, la différence n'est qu'un renommage des poids." },
+  { "id": "seq.01.c5", "front": "Qu'est-ce que le partage de paramètres ?", "back": "Les mêmes poids de noyau sont appliqués à chaque position spatiale : bien moins de paramètres et équivariance par translation." },
+  { "id": "seq.01.c6", "front": "im2col en passe avant en une ligne", "back": "$Y_{mat}=W_{mat}X_{col}+b\\mathbf1^\\top$ avec $X_{col}:(C_{in}K^2, H_{out}W_{out})$, $W_{mat}:(C_{out},C_{in}K^2)$." },
+  { "id": "seq.01.c7", "front": "Passe arrière d'une couche de convolution (forme matricielle)", "back": "$\\bar W_{mat}=\\bar Y_{mat}X_{col}^\\top$, $\\bar b=\\sum\\bar Y$, $\\bar X_{col}=W_{mat}^\\top\\bar Y_{mat}$, puis col2im (scatter-add, rogner le remplissage)." },
+  { "id": "seq.01.c8", "front": "Pourquoi col2im doit-il additionner au lieu d'affecter ?", "back": "Les fenêtres se chevauchent ; un pixel utilisé par plusieurs sorties reçoit la somme de leurs contributions au gradient." },
+  { "id": "seq.01.c9", "front": "Récurrence du champ récepteur", "back": "$r\\leftarrow r+(K-1)j$, $j\\leftarrow jS$, à partir de $r=j=1$." },
+  { "id": "seq.01.c10", "front": "Passe arrière du max-pool", "back": "Router le gradient amont vers la position de l'arg-max de chaque fenêtre ; toutes les autres positions reçoivent 0. Aucun paramètre." },
+  { "id": "seq.01.c11", "front": "Architecture de LeNet-5", "back": "conv5 (1->6), pool, conv5 (6->16), pool, dense 400->120->84->10 ; 61,706 paramètres ; cartes 32, 28, 14, 10, 5." },
+  { "id": "seq.01.c12", "front": "Qu'ont apporté AlexNet, VGG, Inception, ResNet ?", "back": "AlexNet : ReLU, dropout, profondeur sur GPU. VGG : piles de convolutions 3x3. Inception : tailles de noyau parallèles avec réductions 1x1. ResNet : blocs résiduels $y=x+F(x)$." },
+  { "id": "seq.01.c13", "front": "Pourquoi les connexions résiduelles facilitent-elles l'entraînement des réseaux profonds ?", "back": "$\\partial y/\\partial x=I+\\partial F/\\partial x$ : le gradient a un chemin d'identité vers les couches précédentes, et un bloc peut apprendre $F\\approx0$ (ne rien faire)." },
+  { "id": "seq.01.c14", "front": "Deux convolutions 3x3 empilées vs une 5x5", "back": "Même champ récepteur (5), moins de poids ($18C^2$ contre $25C^2$), une non-linéarité de plus." },
+  { "id": "seq.01.c15", "front": "Une convolution 1D de largeur k sur des embeddings de mots est...", "back": "Un détecteur de k-grammes apprenable (TextCNN) : parallèle et peu coûteux, mais aveugle au-delà de sa fenêtre." }
+]

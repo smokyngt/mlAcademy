@@ -1,0 +1,102 @@
+#@@ meta
+{"id": "math.09.ex1", "title": "Moments, affine maps, Cholesky sampling and Gaussian MLE", "difficulty": 3, "runtime": "pyodide", "concepts": ["prob.rv"], "hints": ["discrete_moments: mean = sum(x*p); var = sum((x-mean)^2 * p) (centre first).", "emp_cov(X, ddof): Xc = X - X.mean(axis=0); return Xc.T @ Xc / (N - ddof).", "sample_mvn: L = np.linalg.cholesky(Sigma); z = rng.standard_normal((n, D)); return mu + z @ L.T (rows are samples).", "gaussian_loglik: -N/2 * log(2 pi var) - sum((x-mu)^2) / (2 var)."]}
+#@@ prompt
+Implement, with NumPy only:
+
+- `discrete_moments(x, p)` - mean and variance of a discrete random variable with values `x` and probabilities `p` (shape `(K,)`). Compute the variance from the centred values.
+- `var_raw(x)` and `var_two_pass(x)` - variance of a sample (divide by `N`) via `mean(x**2) - mean(x)**2` and via centring first.
+- `emp_cov(X, ddof=0)` - empirical covariance of `X` with shape `(N, D)`, returning `(D, D)`, dividing by `N - ddof`.
+- `affine_gaussian(mu, Sigma, A, b)` - mean and covariance of `A x + b` for `x ~ N(mu, Sigma)`.
+- `sample_mvn(mu, Sigma, n, rng)` - `n` samples of `N(mu, Sigma)` as an `(n, D)` array, using the Cholesky factor of `Sigma` and `rng.standard_normal((n, D))`.
+- `gaussian_mle(x)` - `(mu_ML, var_ML)` of a 1-D sample (divide by `N`).
+- `gaussian_loglik(x, mu, var)` - total log-likelihood of a 1-D sample.
+#@@ starter
+import numpy as np
+
+def discrete_moments(x, p):
+    raise NotImplementedError
+
+def var_raw(x):
+    raise NotImplementedError
+
+def var_two_pass(x):
+    raise NotImplementedError
+
+def emp_cov(X, ddof=0):
+    raise NotImplementedError
+
+def affine_gaussian(mu, Sigma, A, b):
+    raise NotImplementedError
+
+def sample_mvn(mu, Sigma, n, rng):
+    raise NotImplementedError
+
+def gaussian_mle(x):
+    raise NotImplementedError
+
+def gaussian_loglik(x, mu, var):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+m, v = discrete_moments(np.array([0., 1, 2, 3]), np.array([.1, .2, .4, .3]))
+check("discrete mean is 1.9", lambda: abs(m - 1.9) < 1e-12)
+check("discrete variance is 0.89", lambda: abs(v - 0.89) < 1e-12)
+big = 1e9 + np.array([4., 7, 13, 16])
+check("two-pass variance of the shifted data is 22.5", lambda: abs(var_two_pass(big) - 22.5) < 1e-6)
+check("raw-score variance is wrong on shifted data (cancellation)", lambda: abs(var_raw(big) - 22.5) > 1.0)
+small = np.array([4., 7, 13, 16])
+check("raw and two-pass agree on small numbers", lambda: abs(var_raw(small) - var_two_pass(small)) < 1e-9)
+X = np.array([[2., 1], [4, 3], [6, 2], [8, 6], [10, 8]])
+check("biased covariance", lambda: np.allclose(emp_cov(X), [[8, 6.8], [6.8, 6.8]]))
+check("unbiased covariance equals np.cov", lambda: np.allclose(emp_cov(X, ddof=1), np.cov(X, rowvar=False)))
+check("covariance is (D, D)", lambda: emp_cov(X).shape == (2, 2))
+mu = np.array([1., 2]); S = np.array([[2, .6], [.6, 1]]); A = np.array([[1., 1], [0, 2]]); b = np.array([0., 1])
+mm, SS = affine_gaussian(mu, S, A, b)
+check("affine mean (3, 5)", lambda: np.allclose(mm, [3, 5]))
+check("affine covariance A S A^T", lambda: np.allclose(SS, [[4.2, 3.2], [3.2, 4.0]]))
+Y = sample_mvn(mu, S, 200000, np.random.default_rng(0))
+check("samples have shape (n, D)", lambda: Y.shape == (200000, 2))
+check("sample mean close to mu", lambda: np.allclose(Y.mean(axis=0), mu, atol=0.02))
+check("sample covariance close to Sigma", lambda: np.allclose(np.cov(Y, rowvar=False), S, atol=0.03))
+t = np.array([2., 4, 4, 5, 5])
+mu_ml, var_ml = gaussian_mle(t)
+check("MLE mean is 4 and variance 1.2", lambda: abs(mu_ml - 4) < 1e-12 and abs(var_ml - 1.2) < 1e-12)
+check("log-likelihood at the MLE is -7.5505", lambda: abs(gaussian_loglik(t, mu_ml, var_ml) + 7.55049655800825) < 1e-9)
+check("MLE beats nearby parameters", lambda: gaussian_loglik(t, mu_ml, var_ml) > max(gaussian_loglik(t, 4.2, var_ml), gaussian_loglik(t, mu_ml, 1.5), gaussian_loglik(t, mu_ml, 0.9)))
+#@@ solution
+import numpy as np
+
+def discrete_moments(x, p):
+    x = np.asarray(x, float); p = np.asarray(p, float)
+    mean = np.sum(x * p)
+    var = np.sum((x - mean) ** 2 * p)
+    return mean, var
+
+def var_raw(x):
+    x = np.asarray(x, float)
+    return np.mean(x ** 2) - np.mean(x) ** 2
+
+def var_two_pass(x):
+    x = np.asarray(x, float)
+    return np.mean((x - x.mean()) ** 2)
+
+def emp_cov(X, ddof=0):
+    Xc = X - X.mean(axis=0)
+    return Xc.T @ Xc / (X.shape[0] - ddof)
+
+def affine_gaussian(mu, Sigma, A, b):
+    return A @ mu + b, A @ Sigma @ A.T
+
+def sample_mvn(mu, Sigma, n, rng):
+    L = np.linalg.cholesky(Sigma)
+    z = rng.standard_normal((n, len(mu)))
+    return mu + z @ L.T
+
+def gaussian_mle(x):
+    x = np.asarray(x, float)
+    mu = x.mean()
+    return mu, np.mean((x - mu) ** 2)
+
+def gaussian_loglik(x, mu, var):
+    x = np.asarray(x, float)
+    return -0.5 * len(x) * np.log(2 * np.pi * var) - np.sum((x - mu) ** 2) / (2 * var)

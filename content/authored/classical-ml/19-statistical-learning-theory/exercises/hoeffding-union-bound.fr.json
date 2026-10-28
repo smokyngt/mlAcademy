@@ -1,0 +1,10 @@
+{
+ "id": "cml.19.ex1",
+ "title": "Hoeffding, la borne de l'union et un vrai écart de généralisation",
+ "prompt": "Hoeffding et la borne de l'union, puis une expérience qui compare la borne à l'écart réel.\n\n- `hoeffding_bound(n, eps)` : borne supérieure `2 exp(-2 n eps^2)` sur `P(|empirical - true| >= eps)` pour une hypothèse fixée et une perte dans `[0, 1]`.\n- `union_eps(n, M, delta)` : la largeur `eps` telle que, avec une probabilité d'au moins `1 - delta`, **toutes** les `M` hypothèses d'une classe finie vérifient `|empirical - true| <= eps` : `sqrt(ln(2M/delta) / (2n))`.\n- `union_n(eps, M, delta)` : le plus petit entier `n` qui rend cette largeur au plus égale à `eps`.\n- `finite_class_experiment(n, M, trials, seed)` : une classe de `M` classifieurs linéaires aléatoires dans `R^5` ; les étiquettes viennent d'une règle linéaire cachée plus du bruit. Les vrais risques sont estimés sur 20000 nouveaux points. Pour chacun des `trials` ensembles d'entraînement de taille `n`, renvoie le triplet `(moyenne sur les essais de max_h |true - emp|, son 95e percentile, moyenne sur les essais de l'écart true - emp de l'hypothèse ERM)`.",
+ "hints": [
+  "Hoeffding pour une hypothèse : 2*np.exp(-2*n*eps**2). La borne de l'union multiplie la probabilité d'échec par M, donc résous 2*M*exp(-2*n*eps**2) = delta pour eps.",
+  "union_n : ceil(log(2M/delta) / (2 eps^2)).",
+  "Expérience : emp = mean(sign(X @ W.T) != y[:, None], axis=0) a pour forme (M,) ; l'indice ERM est argmin(emp) ; son écart est true[j] - emp[j]."
+ ]
+}

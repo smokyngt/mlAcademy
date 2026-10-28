@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.04.c1", "concept": "calc.derivative", "front": "Limit definition of $f'(x)$", "back": "$f'(x)=\\lim_{h\\to0}\\dfrac{f(x+h)-f(x)}{h}$; equivalently $f(x+h)\\approx f(x)+f'(x)h$." },
+  { "id": "f2n.04.c2", "concept": "calc.derivative", "front": "Product rule", "back": "$(fg)'=f'g+fg'$" },
+  { "id": "f2n.04.c3", "concept": "calc.derivative", "front": "Sigmoid derivative", "back": "$\\sigma'(x)=\\sigma(x)(1-\\sigma(x))$, maximum $0.25$ at $x=0$." },
+  { "id": "f2n.04.c4", "concept": "calc.numerical-diff", "front": "Central difference and its error", "back": "$\\dfrac{f(x+h)-f(x-h)}{2h}$ with error $O(h^2)$; use $h\\approx10^{-5}$ in float64." },
+  { "id": "f2n.04.c5", "concept": "calc.numerical-diff", "front": "Why not make $h$ as small as possible?", "back": "Round-off error $\\sim\\varepsilon/h$ grows as $h$ shrinks; total error has a minimum at intermediate $h$." }
+]

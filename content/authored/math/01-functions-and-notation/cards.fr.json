@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.01.c1", "front": "Comment lit-on $f:\\mathbb{R}^n\\to\\mathbb{R}^m$ ?", "back": "$f$ prend un vecteur de $n$ nombres réels et renvoie un vecteur de $m$ nombres réels. Vérifie ces tailles avant toute autre chose." },
+  { "id": "f2n.01.c2", "front": "Définis $(g\\circ f)(x)$. Quand est-elle définie ?", "back": "$(g\\circ f)(x)=g(f(x))$ : on applique d'abord $f$. Définie quand l'espace de sortie de $f$ correspond à l'espace d'entrée de $g$." },
+  { "id": "f2n.01.c3", "front": "Linéarité de la sommation", "back": "$\\sum_i(\\alpha a_i+\\beta b_i)=\\alpha\\sum_i a_i+\\beta\\sum_i b_i$" },
+  { "id": "f2n.01.c4", "front": "Pourquoi les systèmes de ML utilisent-ils des log-vraisemblances ?", "back": "Un produit de nombreuses probabilités passe sous le seuil de représentation (underflow) et vaut 0 en virgule flottante ; $\\ln\\prod p_i=\\sum\\ln p_i$ est une somme bien dimensionnée." },
+  { "id": "f2n.01.c5", "front": "$\\ln\\sum_i e^{x_i}$ stable", "back": "$m+\\ln\\sum_i e^{x_i-m}$ avec $m=\\max_i x_i$. Tous les exposants deviennent $\\le 0$, donc rien ne déborde." }
+]

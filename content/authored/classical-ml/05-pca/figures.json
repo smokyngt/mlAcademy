@@ -1,0 +1,40 @@
+[
+  {
+    "id": "pca-pipeline",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": { "en": "PCA end to end with shapes: centre, form the covariance, take the top-k eigenvectors, project, and (optionally) reconstruct. The reconstruction error is exactly the dropped eigenvalues.", "fr": "L'ACP de bout en bout avec les formes : centrer, former la covariance, prendre les k premiers vecteurs propres, projeter et (éventuellement) reconstruire. L'erreur de reconstruction est exactement la somme des valeurs propres écartées." },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N,d)\"] --> XC[\"centre: Xc = X - mean\"]\n  XC --> C[\"C = Xc^T Xc / (N-1)\\n(d,d)\"]\n  C --> E[\"eigh: eigenvalues lambda_1 >= ... >= lambda_d\"]\n  E --> W[\"W_k: top k eigenvectors (d,k)\"]\n  XC --> Z[\"Z = Xc W_k (N,k)\"]\n  W --> Z\n  Z --> R[\"X_hat = Z W_k^T (N,d)\\nerror = (N-1)(lambda_{k+1}+...+lambda_d)\"]",
+      "fr": "flowchart LR\n  X[\"X (N,d)\"] --> XC[\"centrer : Xc = X - moyenne\"]\n  XC --> C[\"C = Xc^T Xc / (N-1)\\n(d,d)\"]\n  C --> E[\"eigh : valeurs propres lambda_1 >= ... >= lambda_d\"]\n  E --> W[\"W_k : k premiers vecteurs propres (d,k)\"]\n  XC --> Z[\"Z = Xc W_k (N,k)\"]\n  W --> Z\n  Z --> R[\"X_hat = Z W_k^T (N,d)\\nerreur = (N-1)(lambda_{k+1}+...+lambda_d)\"]"
+    }
+  },
+  {
+    "id": "variance-by-angle",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "The variance of the projection onto the unit direction w = (cos θ, sin θ) is wᵀCw. For the worked example, C = [[3.333, 2], [2, 3.333]], so Var = 3.333 + 2 sin 2θ. It peaks at θ = 45° (π/4 ≈ 0.785) with value 5.333 = λ₁ and bottoms out at θ = 135° with 1.333 = λ₂. x-axis: θ in radians.", "fr": "La variance de la projection sur la direction unitaire w = (cos θ, sin θ) vaut wᵀCw. Pour l'exemple traité, C = [[3,333 ; 2], [2 ; 3,333]], donc Var = 3,333 + 2 sin 2θ. Elle est maximale en θ = 45° (π/4 ≈ 0,785) avec 5,333 = λ₁ et minimale en θ = 135° avec 1,333 = λ₂. Axe x : θ en radians." },
+    "spec": {
+      "xDomain": [0, 3.1416], "yDomain": [0, 6.5], "height": 300,
+      "data": [
+        { "fn": "3.3333 + 2*sin(2*x)", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[0.7854, 5.3333], [2.3562, 1.3333]] }
+      ]
+    }
+  },
+  {
+    "id": "pca-axes",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "The worked example: the four centred points (2,2), (−2,−2), (1,−1), (−1,1) with the principal axes drawn as arrows of length √λ: w₁ = (1,1)/√2 (blue, λ₁ = 5.33, explains 80%) and w₂ = (1,−1)/√2 (orange, λ₂ = 1.33). Projecting on w₁ keeps most of the spread.", "fr": "L'exemple traité : les quatre points centrés (2,2), (−2,−2), (1,−1), (−1,1) avec les axes principaux dessinés en flèches de longueur √λ : w₁ = (1,1)/√2 (bleu, λ₁ = 5,33, explique 80 %) et w₂ = (1,−1)/√2 (orange, λ₂ = 1,33). Projeter sur w₁ conserve l'essentiel de la dispersion." },
+    "spec": {
+      "xDomain": [-3.5, 3.5], "yDomain": [-3.5, 3.5], "height": 340,
+      "data": [
+        { "fn": "x", "color": "#d1d5db" },
+        { "fnType": "vector", "vector": [1.633, 1.633], "offset": [0, 0], "graphType": "polyline", "color": "#2563eb" },
+        { "fnType": "vector", "vector": [0.8165, -0.8165], "offset": [0, 0], "graphType": "polyline", "color": "#d97706" },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 5 }, "points": [[2, 2], [-2, -2], [1, -1], [-1, 1]] }
+      ]
+    }
+  }
+]

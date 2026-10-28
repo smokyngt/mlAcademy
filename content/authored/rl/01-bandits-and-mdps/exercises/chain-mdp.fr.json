@@ -1,0 +1,10 @@
+{
+ "id": "rl.01.ex2",
+ "title": "Simuler un MDP et estimer une valeur",
+ "prompt": "Un MDP en chaîne a les états `0..n-1` ; le dernier est terminal. L'action 1 (« droite ») avance d'un pas vers la droite avec une probabilité `p` et reste sur place sinon ; l'action 0 va vers la gauche (ou reste en 0) avec une probabilité `p`. Atteindre le dernier état donne la récompense 1.\n\n`make_chain` est fourni. Implémente :\n\n- `rollout(P, R, policy, s0, gamma, rng)` -> le retour actualisé d'un épisode partant de `s0`, suivant la `policy` déterministe (un tableau d'entiers : action par état) jusqu'à l'état terminal.\n- `mc_value(P, R, policy, s0, gamma, n_episodes, seed)` -> le retour moyen sur `n_episodes` déroulements.\n\nLes tests comparent ton estimation à la forme close $V(0)=\\frac1\\gamma\\big(\\frac{p\\gamma}{1-(1-p)\\gamma}\\big)^{n-1}$ pour la politique « toujours à droite ».",
+ "hints": [
+  "Échantillonne l'état suivant avec rng.choice(n, p=P[s, a]).",
+  "La récompense de l'étape est R[s, a, s2] ; ajoute-la au retour avec le poids gamma**t où t compte les étapes à partir de 0.",
+  "mc_value est simplement la moyenne de nombreux retours de déroulements."
+ ]
+}

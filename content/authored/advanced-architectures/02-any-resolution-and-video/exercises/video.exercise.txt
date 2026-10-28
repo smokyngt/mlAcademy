@@ -1,0 +1,110 @@
+#@@ meta
+{"id": "adv.02.ex1", "title": "Token and KV-memory calculator for images and video", "difficulty": 3, "runtime": "pyodide", "concepts": ["adv.dynamic-res", "adv.video-tokens"], "hints": ["Native resolution: each side is rounded to the nearest multiple of patch*merge (28), at least one multiple; tokens = (h2/28)*(w2/28). If that exceeds max_tokens, shrink both sides by sqrt(max_tokens/tokens) and floor to multiples of 28.", "Block-diagonal mask: keep one running offset; mask[o:o+l, o:o+l] = True for each image length l.", "KV bytes = 2 (K and V) * layers * kv_heads * head_dim * tokens * bytes_per_value. Divide by 2**30 for GiB."]}
+#@@ prompt
+Implement a token and memory calculator for vision-language inputs (NumPy only).
+
+1. `native_tokens(h, w, patch=14, merge=2, max_tokens=None)`: tokens for an image at native aspect ratio when `merge x merge` neighbouring patches are fused. Let `u = patch*merge`. Round each side to the nearest multiple of `u` (at least `u`), tokens = `(h2//u) * (w2//u)`. If `max_tokens` is given and exceeded, scale both sides down by `sqrt(max_tokens/tokens)`, floor each to a multiple of `u` (at least `u`) and recompute.
+2. `packed_mask(lengths)`: boolean `(S, S)` block-diagonal mask, `S = sum(lengths)`, True where both indices belong to the same image.
+3. `attention_entries(lengths)`: returns `(packed, padded)`: number of score entries when packing (sum of squares) vs padding every image to the longest (`n * max**2`).
+4. `video_tokens(duration_s, fps, tokens_per_frame)`: total visual tokens.
+5. `pooled_tokens(grid_h, grid_w, pool)`: tokens per frame after `pool x pool` average pooling of a `grid_h x grid_w` token grid (ceil division).
+6. `kv_gib(layers, kv_heads, head_dim, n_tokens, bytes_per_value=2)`: KV cache size in GiB (2**30 bytes).
+7. `max_frames(context, text_tokens, tokens_per_frame)`: how many frames fit in the context window next to the text.
+8. `mrope_positions(t, h, w)`: array `(t*h*w, 3)` of `(time, row, col)` integer positions in row-major order within each frame, frames in time order.
+#@@ starter
+import numpy as np
+
+def native_tokens(h, w, patch=14, merge=2, max_tokens=None):
+    raise NotImplementedError
+
+def packed_mask(lengths):
+    raise NotImplementedError
+
+def attention_entries(lengths):
+    raise NotImplementedError
+
+def video_tokens(duration_s, fps, tokens_per_frame):
+    raise NotImplementedError
+
+def pooled_tokens(grid_h, grid_w, pool):
+    raise NotImplementedError
+
+def kv_gib(layers, kv_heads, head_dim, n_tokens, bytes_per_value=2):
+    raise NotImplementedError
+
+def max_frames(context, text_tokens, tokens_per_frame):
+    raise NotImplementedError
+
+def mrope_positions(t, h, w):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("1120x672 gives 40x24 = 960 tokens", lambda: native_tokens(1120, 672) == 960)
+check("224x224 gives 8x8 = 64 merged tokens", lambda: native_tokens(224, 224) == 64)
+check("tiny image still has one token", lambda: native_tokens(5, 5) == 1)
+nt = native_tokens(4000, 3000, max_tokens=1024)
+check("max_tokens is respected", lambda: 1 <= nt <= 1024)
+check("max_tokens does not shrink small images", lambda: native_tokens(1120, 672, max_tokens=2000) == 960)
+lengths = [256, 576, 729, 1024]
+M = packed_mask(lengths)
+check("mask is 2585x2585", lambda: M.shape == (2585, 2585))
+check("non-zero entries = sum of squares", lambda: int(M.sum()) == 256**2 + 576**2 + 729**2 + 1024**2)
+check("no leakage between images", lambda: not M[0, 256] and not M[300, 100] and M[300, 300])
+check("packed vs padded entries", lambda: attention_entries(lengths) == (1977329, 4 * 1024**2))
+check("receipt 600x1500 native vs 336 square", lambda: native_tokens(600, 1500, patch=14, merge=1) == 43 * 107 and native_tokens(336, 336, patch=14, merge=1) == 576)
+check("30 min at 1 fps, 81 tokens/frame", lambda: video_tokens(1800, 1, 81) == 145800)
+check("5 min at 1 fps, 576 tokens/frame", lambda: video_tokens(300, 1, 576) == 172800)
+check("3x3 pooling of a 24x24 grid gives 64", lambda: pooled_tokens(24, 24, 3) == 64)
+check("pooling uses ceil", lambda: pooled_tokens(25, 25, 3) == 81)
+check("5 min with pooling = 19200", lambda: video_tokens(300, 1, pooled_tokens(24, 24, 3)) == 19200)
+check("KV for 32L, 8 kv heads, d=128, 145800 tokens ~ 17.80 GiB", lambda: abs(kv_gib(32, 8, 128, 145800) - 17.7979) < 1e-3)
+check("KV scales linearly with tokens", lambda: abs(kv_gib(32, 8, 128, 2000) * 2 - kv_gib(32, 8, 128, 4000)) < 1e-12)
+check("max_frames", lambda: max_frames(131072, 1000, 81) == (131072 - 1000) // 81)
+P = mrope_positions(2, 2, 3)
+check("mrope shape", lambda: P.shape == (12, 3))
+check("mrope first and last", lambda: tuple(P[0]) == (0, 0, 0) and tuple(P[-1]) == (1, 1, 2))
+check("mrope row-major inside a frame", lambda: [tuple(r) for r in P[:4]] == [(0, 0, 0), (0, 0, 1), (0, 0, 2), (0, 1, 0)])
+#@@ solution
+import numpy as np
+
+def _round_to(x, u):
+    return max(u, int(round(x / u)) * u)
+
+def native_tokens(h, w, patch=14, merge=2, max_tokens=None):
+    u = patch * merge
+    h2, w2 = _round_to(h, u), _round_to(w, u)
+    n = (h2 // u) * (w2 // u)
+    if max_tokens is not None and n > max_tokens:
+        s = np.sqrt(max_tokens / n)
+        h2 = max(u, int(np.floor(h2 * s / u)) * u)
+        w2 = max(u, int(np.floor(w2 * s / u)) * u)
+        n = (h2 // u) * (w2 // u)
+    return n
+
+def packed_mask(lengths):
+    S = int(sum(lengths))
+    M = np.zeros((S, S), dtype=bool)
+    o = 0
+    for l in lengths:
+        M[o:o + l, o:o + l] = True
+        o += l
+    return M
+
+def attention_entries(lengths):
+    return int(sum(l * l for l in lengths)), len(lengths) * max(lengths) ** 2
+
+def video_tokens(duration_s, fps, tokens_per_frame):
+    return int(duration_s * fps) * tokens_per_frame
+
+def pooled_tokens(grid_h, grid_w, pool):
+    return -(-grid_h // pool) * -(-grid_w // pool)
+
+def kv_gib(layers, kv_heads, head_dim, n_tokens, bytes_per_value=2):
+    return 2 * layers * kv_heads * head_dim * n_tokens * bytes_per_value / 2 ** 30
+
+def max_frames(context, text_tokens, tokens_per_frame):
+    return (context - text_tokens) // tokens_per_frame
+
+def mrope_positions(t, h, w):
+    tt, rr, cc = np.meshgrid(np.arange(t), np.arange(h), np.arange(w), indexing="ij")
+    return np.stack([tt.ravel(), rr.ravel(), cc.ravel()], axis=1)

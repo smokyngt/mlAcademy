@@ -1,0 +1,88 @@
+[
+  {
+    "id": "decoder-model",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A decoder-only language model end to end with tensor shapes: the residual stream keeps shape (B,T,d) through L blocks, and only the head widens it to the vocabulary.",
+      "fr": "Un modèle de langage décodeur seul de bout en bout avec les formes des tenseurs : le flux résiduel garde la forme (B,T,d) à travers L blocs et seule la tête l'élargit au vocabulaire."
+    },
+    "code": {
+      "en": "flowchart TD\n  T[\"token ids (B,T)\"] --> E[\"embedding table (V,d)\"]\n  E --> X0[\"(B,T,d)\"]\n  X0 --> BL[\"L x transformer block<br/>(B,T,d) to (B,T,d)\"]\n  BL --> FN[\"final RMSNorm<br/>(B,T,d)\"]\n  FN --> H[\"LM head (d,V)\"]\n  H --> Z[\"logits (B,T,V)\"]",
+      "fr": "flowchart TD\n  T[\"identifiants de jetons (B,T)\"] --> E[\"table d'embedding (V,d)\"]\n  E --> X0[\"(B,T,d)\"]\n  X0 --> BL[\"L x bloc transformer<br/>(B,T,d) to (B,T,d)\"]\n  BL --> FN[\"RMSNorm final<br/>(B,T,d)\"]\n  FN --> H[\"tête LM (d,V)\"]\n  H --> Z[\"logits (B,T,V)\"]"
+    }
+  },
+  {
+    "id": "prenorm-block",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One pre-norm block: the normalisation sits on the sublayer input, and the residual path from x to x'' carries no norm, so gradients keep an identity term.",
+      "fr": "Un bloc pre-norm : la normalisation est placée à l'entrée de la sous-couche et le chemin résiduel de x à x'' ne contient aucune norme, donc les gradients gardent un terme identité."
+    },
+    "code": {
+      "en": "flowchart TD\n  x[\"x (B,T,d)<br/>residual stream\"] --> N1[\"RMSNorm 1\"]\n  N1 --> AT[\"causal multi-head attention<br/>RoPE on Q, K\"]\n  AT --> A1((\"+\"))\n  x --> A1\n  A1 --> xp[\"x1 (B,T,d)\"]\n  xp --> N2[\"RMSNorm 2\"]\n  N2 --> FF[\"SwiGLU FFN<br/>d to f to d\"]\n  FF --> A2((\"+\"))\n  xp --> A2\n  A2 --> xpp[\"x2 (B,T,d)\"]",
+      "fr": "flowchart TD\n  x[\"x (B,T,d)<br/>flux résiduel\"] --> N1[\"RMSNorm 1\"]\n  N1 --> AT[\"attention multi-têtes causale<br/>RoPE sur Q, K\"]\n  AT --> A1((\"+\"))\n  x --> A1\n  A1 --> xp[\"x1 (B,T,d)\"]\n  xp --> N2[\"RMSNorm 2\"]\n  N2 --> FF[\"FFN SwiGLU<br/>d vers f vers d\"]\n  FF --> A2((\"+\"))\n  xp --> A2\n  A2 --> xpp[\"x2 (B,T,d)\"]"
+    }
+  },
+  {
+    "id": "swiglu",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "SwiGLU: one branch carries content (x W3), the other, passed through SiLU, is a soft gate; their element-wise product is projected back to d. Three matrices, hence f = 8d/3.",
+      "fr": "SwiGLU : une branche porte le contenu (x W3), l'autre, passée dans SiLU, est une porte douce ; leur produit terme à terme est reprojeté vers d. Trois matrices, d'où f = 8d/3."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (B,T,d)\"] --> W1[\"x W1<br/>(B,T,f)\"]\n  X --> W3[\"x W3<br/>(B,T,f)\"]\n  W1 --> SI[\"SiLU (gate)\"]\n  SI --> MUL((\"*\"))\n  W3 --> MUL\n  MUL --> W2[\"W2 (f,d)\"]\n  W2 --> Y[\"(B,T,d)\"]",
+      "fr": "flowchart LR\n  X[\"x (B,T,d)\"] --> W1[\"x W1<br/>(B,T,f)\"]\n  X --> W3[\"x W3<br/>(B,T,f)\"]\n  W1 --> SI[\"SiLU (porte)\"]\n  SI --> MUL((\"*\"))\n  W3 --> MUL\n  MUL --> W2[\"W2 (f,d)\"]\n  W2 --> Y[\"(B,T,d)\"]"
+    }
+  },
+  {
+    "id": "activations",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Feed-forward nonlinearities: ReLU (blue), GELU tanh approximation (orange) and SiLU = x*sigmoid(x) (green). The gated block uses SiLU as a soft gate.",
+      "fr": "Non-linéarités du réseau feed-forward : ReLU (bleu), approximation tanh de GELU (orange) et SiLU = x*sigmoïde(x) (vert). Le bloc à porte utilise SiLU comme porte douce."
+    },
+    "spec": {
+      "xDomain": [
+        -5,
+        5
+      ],
+      "yDomain": [
+        -1,
+        4
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "max(0,x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5*x*(1+tanh(0.7978845608*(x+0.044715*x^3)))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x/(1+exp(-x))",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "families",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The three architecture families share the same block and differ in masks and inputs. Cross-attention makes the encoder-decoder score matrix rectangular (T_tgt x T_src).",
+      "fr": "Les trois familles d'architectures partagent le même bloc et diffèrent par les masques et les entrées. L'attention croisée rend rectangulaire la matrice de scores de l'encodeur-décodeur (T_tgt x T_src)."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph ENC[\"Encoder-only (BERT)\"]\n    e1[\"tokens (B,T)\"] --> e2[\"full self-attention x L, no mask\"] --> e3[\"(B,T,d) per token: classify, tag, embed\"]\n  end\n  subgraph DEC[\"Decoder-only (GPT)\"]\n    d1[\"tokens (B,T)\"] --> d2[\"causal self-attention x L\"] --> d3[\"logits (B,T,V): next token\"]\n  end\n  subgraph ED[\"Encoder-decoder (T5)\"]\n    s1[\"source (B,T_src)\"] --> s2[\"encoder, bidirectional\"] --> s3[\"(B,T_src,d)\"]\n    t1[\"target so far (B,T_tgt)\"] --> t2[\"causal self-attention\"] --> t3[\"cross-attention: Q decoder, K,V encoder<br/>scores (B,h,T_tgt,T_src)\"] --> t4[\"logits (B,T_tgt,V)\"]\n    s3 --> t3\n  end",
+      "fr": "flowchart LR\n  subgraph ENC[\"Encodeur seul (BERT)\"]\n    e1[\"tokens (B,T)\"] --> e2[\"auto-attention complète x L, sans masque\"] --> e3[\"(B,T,d) par jeton : classer, étiqueter, plonger\"]\n  end\n  subgraph DEC[\"Décodeur seul (GPT)\"]\n    d1[\"tokens (B,T)\"] --> d2[\"auto-attention causale x L\"] --> d3[\"logits (B,T,V): jeton suivant\"]\n  end\n  subgraph ED[\"Encodeur-décodeur (T5)\"]\n    s1[\"source (B,T_src)\"] --> s2[\"encodeur, bidirectionnel\"] --> s3[\"(B,T_src,d)\"]\n    t1[\"cible jusqu'ici (B,T_tgt)\"] --> t2[\"auto-attention causale\"] --> t3[\"attention croisée : Q décodeur, K,V encodeur<br/>scores (B,h,T_tgt,T_src)\"] --> t4[\"logits (B,T_tgt,V)\"]\n    s3 --> t3\n  end"
+    }
+  }
+]

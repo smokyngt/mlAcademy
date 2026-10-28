@@ -1,0 +1,81 @@
+#@@ meta
+{"id": "rl.06.ex2", "title": "A Bradley-Terry reward model and the RLHF reward", "difficulty": 3, "runtime": "pyodide", "concepts": ["rl.rlhf"], "hints": ["The margin of a pair is m = (x_pos - x_neg) @ w, shape (N,). The loss is mean(log(1 + exp(-m))), i.e. -log sigmoid(m); use np.logaddexp(0, -m) for stability.", "Gradient: d loss / d w = -mean((1 - sigmoid(m)) * (x_pos - x_neg), axis=0).", "rlhf_reward = r - beta * (logp_policy - logp_ref), elementwise."]}
+#@@ prompt
+Humans compare pairs of responses; a **reward model** (RM) turns those comparisons into a scalar score. Here the RM is linear on feature vectors: $R_w(x)=w\cdot x$ with `w` of shape `(d,)`. A pair is `(x_pos, x_neg)` where `x_pos` is the preferred response (arrays of shape `(N, d)`).
+
+Implement:
+
+- `bt_loss(w, Xp, Xn)` -> the Bradley-Terry loss $-\frac1N\sum_i\log\sigma\big(R_w(x^+_i)-R_w(x^-_i)\big)$.
+- `bt_grad(w, Xp, Xn)` -> its gradient, shape `(d,)`.
+- `train_rm(Xp, Xn, lr, steps)` -> weights after gradient descent from zeros.
+- `pairwise_accuracy(w, Xp, Xn)` -> fraction of pairs with `R(x_pos) > R(x_neg)`.
+- `rlhf_reward(r, logp_policy, logp_ref, beta)` -> the shaped reward $r-\beta(\log\pi_\theta-\log\pi_{\text{ref}})$ used inside PPO (a sampled estimate of a KL penalty).
+#@@ starter
+import numpy as np
+
+def bt_loss(w, Xp, Xn):
+    raise NotImplementedError
+
+def bt_grad(w, Xp, Xn):
+    raise NotImplementedError
+
+def train_rm(Xp, Xn, lr=0.5, steps=500):
+    raise NotImplementedError
+
+def pairwise_accuracy(w, Xp, Xn):
+    raise NotImplementedError
+
+def rlhf_reward(r, logp_policy, logp_ref, beta):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+Xp = np.array([[1.0, 0.0], [0.0, 1.0]]); Xn = np.array([[0.0, 0.0], [0.0, 0.0]])
+check("zero weights give loss log 2", lambda: abs(bt_loss(np.zeros(2), Xp, Xn) - np.log(2)) < 1e-12)
+check("loss at w=(1,1) is log(1+e^-1)", lambda: abs(bt_loss(np.ones(2), Xp, Xn) - np.log1p(np.exp(-1.0))) < 1e-12)
+check("gradient at zero is -mean(0.5*(xp-xn))", lambda: np.allclose(bt_grad(np.zeros(2), Xp, Xn), [-0.25, -0.25]))
+check("loss is stable for huge margins", lambda: np.isfinite(bt_loss(np.array([1000.0, 1000.0]), Xp, Xn)) and np.isfinite(bt_loss(np.array([-1000.0, -1000.0]), Xp, Xn)))
+
+rng = np.random.default_rng(1)
+Xa = rng.normal(size=(30, 4)); Xb = rng.normal(size=(30, 4)); w0 = rng.normal(size=4)
+num = np.array([(bt_loss(w0 + 1e-6 * np.eye(4)[i], Xa, Xb) - bt_loss(w0 - 1e-6 * np.eye(4)[i], Xa, Xb)) / 2e-6 for i in range(4)])
+check("gradient matches finite differences", lambda: np.allclose(bt_grad(w0, Xa, Xb), num, atol=1e-6))
+
+rng = np.random.default_rng(0)
+w_true = np.array([2.0, -1.0, 0.5, 0.0])
+X1 = rng.normal(size=(300, 4)); X2 = rng.normal(size=(300, 4))
+p1 = 1 / (1 + np.exp(-(X1 - X2) @ w_true))
+pref = p1 > rng.random(300)
+P = np.where(pref[:, None], X1, X2); N = np.where(pref[:, None], X2, X1)
+w = train_rm(P, N)
+check("training lowers the loss below log 2", lambda: bt_loss(w, P, N) < 0.5)
+check("learned weights point in the direction of the true ones (cosine > 0.98)", lambda: w @ w_true / np.linalg.norm(w) / np.linalg.norm(w_true) > 0.98)
+check("pairwise accuracy is high (> 0.8) despite noisy labels", lambda: pairwise_accuracy(w, P, N) > 0.8)
+check("accuracy of zero weights is 0 (no strict preference)", lambda: pairwise_accuracy(np.zeros(4), P, N) == 0.0)
+
+check("no KL term when policy equals reference", lambda: np.allclose(rlhf_reward(np.array([1.0, 2.0]), np.array([-1.0, -2.0]), np.array([-1.0, -2.0]), 0.1), [1.0, 2.0]))
+check("drifting toward likelier-than-reference tokens is penalised", lambda: abs(rlhf_reward(1.0, -0.5, -2.0, 0.1) - (1.0 - 0.1 * 1.5)) < 1e-12)
+check("a reward-hacking drift can outweigh the reward gain", lambda: rlhf_reward(1.2, -0.1, -5.0, 0.5) < rlhf_reward(1.0, -5.0, -5.0, 0.5))
+#@@ solution
+import numpy as np
+
+def bt_loss(w, Xp, Xn):
+    m = (Xp - Xn) @ w
+    return float(np.mean(np.logaddexp(0.0, -m)))
+
+def bt_grad(w, Xp, Xn):
+    D = Xp - Xn
+    m = D @ w
+    s = 0.5 * (1.0 + np.tanh(0.5 * m))          # stable sigmoid
+    return -np.mean((1.0 - s)[:, None] * D, axis=0)
+
+def train_rm(Xp, Xn, lr=0.5, steps=500):
+    w = np.zeros(Xp.shape[1])
+    for _ in range(steps):
+        w = w - lr * bt_grad(w, Xp, Xn)
+    return w
+
+def pairwise_accuracy(w, Xp, Xn):
+    return float(np.mean(Xp @ w > Xn @ w))
+
+def rlhf_reward(r, logp_policy, logp_ref, beta):
+    return r - beta * (logp_policy - logp_ref)

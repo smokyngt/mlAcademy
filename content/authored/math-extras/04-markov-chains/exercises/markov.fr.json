@@ -1,0 +1,12 @@
+{
+  "id": "mx.04.ex1",
+  "title": "Distribution stationnaire, convergence, simulation, Metropolis et comptages de Poisson",
+  "prompt": "Soit `P` une matrice de transition stochastique par lignes (`P[i, j]` = probabilité d'aller de l'état `i` à `j`). Implémente :\n\n- `n_step(P, dist, n)` - la distribution après `n` pas en partant du vecteur ligne `dist`.\n- `stationary(P)` - la distribution stationnaire (vecteur propre à gauche pour la valeur propre 1, normalisé pour sommer à 1) en utilisant `np.linalg.eig`.\n- `is_ergodic(P)` - `True` si une certaine puissance `P^k` (essaie `k` jusqu'à `(n-1)**2 + 1`) a toutes ses entrées strictement positives.\n- `second_eigenvalue_modulus(P)` - le deuxième plus grand module de valeur propre (il contrôle la vitesse à laquelle la chaîne oublie son départ).\n- `simulate_chain(P, start, steps, rng)` - un tableau d'entiers de `steps` états visités, en commençant par se déplacer depuis `start` ; n'utilise que `rng.random`.\n- `empirical_distribution(path, n_states)` - fraction du temps passée dans chaque état.\n- `mh_matrix(target)` - matrice de transition de Metropolis-Hastings sur `len(target)` états avec une proposition *uniforme* sur les états.\n- `poisson_counts(rate, T, n, rng)` - `n` comptages indépendants d'un processus de Poisson d'intensité `rate` sur `[0, T]`, simulés à partir d'intervalles exponentiels (`rng.exponential`).",
+  "hints": [
+    "n_step : répète dist = dist @ P (un vecteur ligne fois la matrice).",
+    "stationary : vecteurs propres de P.T ; prends celui dont la valeur propre est la plus proche de 1 (partie réelle), divise par sa somme pour qu'il somme à 1 (cela fixe aussi le signe).",
+    "simulate_chain : cum = np.cumsum(P, axis=1) ; tire u = rng.random(steps) ; état suivant = np.searchsorted(cum[state], u[t], side='right') (borne à n-1 à cause des arrondis).",
+    "mh_matrix : pour i != j, P[i, j] = (1/n) * min(1, target[j]/target[i]) ; la diagonale vaut 1 moins le reste de la ligne.",
+    "poisson_counts : tire gaps = rng.exponential(1/rate, size=(n, m)) avec m assez grand (par exemple int(rate*T*3 + 20)), temps d'arrivée = cumsum le long de l'axe 1, compte combien de temps d'arrivée sont <= T."
+  ]
+}

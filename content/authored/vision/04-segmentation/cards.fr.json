@@ -1,0 +1,17 @@
+[
+  {"id": "vis.04.c1", "front": "Sémantique vs instances vs panoptique", "back": "Sémantique : une classe par pixel. Instances : un masque séparé par objet. Panoptique : une classe par pixel plus un identifiant d'instance pour les choses dénombrables."},
+  {"id": "vis.04.c2", "front": "Structure du U-Net", "back": "L'encodeur divise la résolution par deux et double les canaux ; goulot d'étranglement ; le décodeur suréchantillonne et concatène les cartes de l'encodeur de même résolution (sauts) ; convolution 1x1 finale vers les classes."},
+  {"id": "vis.04.c3", "front": "Contrainte de taille d'entrée du U-Net", "back": "H et W divisibles par $2^D$ pour $D$ étages de sous-échantillonnage."},
+  {"id": "vis.04.c4", "front": "Pourquoi des connexions de saut ?", "back": "Elles restituent le détail de localisation perdu quand l'encodeur rétrécit les cartes de caractéristiques."},
+  {"id": "vis.04.c5", "front": "Convolution transposée vs suréchantillonnage bilinéaire + convolution", "back": "La convolution transposée est apprenable mais peut donner des artefacts en damier ; bilinéaire + convolution 3x3 a moins d'artefacts et de paramètres."},
+  {"id": "vis.04.c6", "front": "Formes pour la segmentation sémantique", "back": "Logits $(N,C,H,W)$, cible $(N,H,W)$ d'identifiants de classe ; entropie croisée par pixel moyennée sur $N,H,W$."},
+  {"id": "vis.04.c7", "front": "Score de Dice", "back": "$2|P\\cap Y|/(|P|+|Y|)$ ; version douce $2\\sum p y/(\\sum p+\\sum y+\\varepsilon)$ ; perte $=1-$Dice."},
+  {"id": "vis.04.c8", "front": "IoU pour des masques", "back": "$|P\\cap Y|/(|P|+|Y|-|P\\cap Y|)$."},
+  {"id": "vis.04.c9", "front": "Relation Dice-IoU", "back": "$\\mathrm{Dice}=2\\,\\mathrm{IoU}/(1+\\mathrm{IoU})$ ; même classement des modèles."},
+  {"id": "vis.04.c10", "front": "Pourquoi combiner entropie croisée et Dice ?", "back": "L'entropie croisée donne des gradients stables au début ; Dice optimise le recouvrement et ignore la taille de l'arrière-plan. $L=L_{CE}+\\lambda L_{Dice}$."},
+  {"id": "vis.04.c11", "front": "IoU moyenne à partir d'une matrice de confusion", "back": "$\\mathrm{IoU}_c=M_{cc}/(\\text{row}_c+\\text{col}_c-M_{cc})$, puis moyenne sur les classes ; rapporter aussi les valeurs par classe."},
+  {"id": "vis.04.c12", "front": "Pipeline de Mask R-CNN", "back": "Backbone + FPN, propositions du RPN, RoIAlign, tête de boîte (classe + affinage) et tête de masque (masque binaire basse résolution par classe)."},
+  {"id": "vis.04.c13", "front": "RoIPool vs RoIAlign", "back": "RoIPool arrondit les coordonnées (désalignement jusqu'à une cellule de caractéristiques) ; RoIAlign conserve les coordonnées réelles et échantillonne de façon bilinéaire."},
+  {"id": "vis.04.c14", "front": "Formule d'interpolation bilinéaire", "back": "Mélange de quatre voisins : $(1-w_y)(1-w_x)f_{00}+(1-w_y)w_xf_{01}+w_y(1-w_x)f_{10}+w_yw_xf_{11}$ ; exacte pour $f$ linéaire."},
+  {"id": "vis.04.c15", "front": "Pertes de Mask R-CNN", "back": "Objectité du RPN + boîte du RPN + classification de boîte + régression de boîte + entropie croisée binaire par pixel du masque."}
+]

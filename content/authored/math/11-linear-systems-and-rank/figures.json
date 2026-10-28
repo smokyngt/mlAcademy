@@ -1,0 +1,42 @@
+[
+  {
+    "id": "three-cases-lines", "after": 3, "kind": "plot",
+    "caption": { "en": "A 2×2 system as two lines. x + y = 3 and x − y = 1 (blue, orange) meet at one point (2, 1): a unique solution. The parallel line x + y = 5 (green) never meets x + y = 3: no solution. Identical lines would give infinitely many.", "fr": "Un système 2×2 comme deux droites. x + y = 3 et x − y = 1 (bleu, orange) se coupent en un point (2, 1) : solution unique. La droite parallèle x + y = 5 (vert) ne rencontre jamais x + y = 3 : aucune solution. Deux droites confondues donneraient une infinité de solutions." },
+    "spec": { "xDomain": [-1, 5], "yDomain": [-2, 5], "height": 340,
+      "data": [
+        { "fn": "3 - x", "color": "#2563eb" },
+        { "fn": "x - 1", "color": "#d97706" },
+        { "fn": "5 - x", "color": "#16a34a" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[2, 1]] }
+      ] }
+  },
+  {
+    "id": "elimination-flow", "after": 4, "kind": "mermaid",
+    "caption": { "en": "Gaussian elimination: reduce to an upper-triangular system with row operations, then solve from the bottom up. Zero rows reveal the rank.", "fr": "Élimination de Gauss : on se ramène à un système triangulaire supérieur par opérations sur les lignes, puis on résout de bas en haut. Les lignes nulles révèlent le rang." },
+    "code": {
+      "en": "flowchart LR\n  A[\"augmented matrix [A | b]\"] --> E[\"forward elimination\\n(row operations, pivots)\"] --> U[\"upper-triangular [U | c]\"] --> B[\"back substitution\\nx_n, x_n-1, ..., x_1\"] --> X[\"solution x\"]\n  U -.->|\"zero rows\"| R[\"rank = number of pivots\"]",
+      "fr": "flowchart LR\n  A[\"matrice augmentée [A | b]\"] --> E[\"élimination avant\\n(opérations sur les lignes, pivots)\"] --> U[\"triangulaire supérieure [U | c]\"] --> B[\"remontée\\nx_n, x_n-1, ..., x_1\"] --> X[\"solution x\"]\n  U -.->|\"lignes nulles\"| R[\"rang = nombre de pivots\"]"
+    }
+  },
+  {
+    "id": "least-squares-line", "after": 5, "kind": "plot",
+    "caption": { "en": "Least squares: the line t = 1.5 + 1.6 s fitted to (1,3), (2,5), (3,6), (4,8). The red segments are the residuals (−0.1, 0.3, −0.3, 0.1); the line minimises the sum of their squares (0.2).", "fr": "Moindres carrés : la droite t = 1,5 + 1,6 s ajustée à (1,3), (2,5), (3,6), (4,8). Les segments rouges sont les résidus (−0,1 ; 0,3 ; −0,3 ; 0,1) ; la droite minimise la somme de leurs carrés (0,2)." },
+    "spec": { "xDomain": [0, 5], "yDomain": [0, 10], "height": 340,
+      "data": [
+        { "fn": "1.5 + 1.6*x", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 4 }, "points": [[1,3],[2,5],[3,6],[4,8]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[1,3],[1,3.1]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[2,5],[2,4.7]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[3,6],[3,6.3]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#dc2626", "points": [[4,8],[4,7.9]] }
+      ] }
+  },
+  {
+    "id": "solve-vs-inv", "after": 6, "kind": "mermaid",
+    "caption": { "en": "Conditioning: for B = [[1,1],[1,1.0001]] (κ ≈ 4·10⁴) a relative change of 5·10⁻⁵ in b moves the solution from (1, 1) to (0, 2). A well-conditioned problem would barely move.", "fr": "Conditionnement : pour B = [[1 ; 1], [1 ; 1,0001]] (κ ≈ 4·10⁴) un changement relatif de 5·10⁻⁵ sur b déplace la solution de (1, 1) à (0, 2). Un problème bien conditionné bougerait à peine." },
+    "code": {
+      "en": "flowchart LR\n  b1[\"b = (2, 2.0001)\"] -->|\"solve\"| x1[\"x = (1, 1)\"]\n  b2[\"b = (2, 2.0002)\\nrelative change 5e-5\"] -->|\"solve\"| x2[\"x = (0, 2)\"]\n  x1 -.->|\"huge jump: kappa ~ 4e4\"| x2",
+      "fr": "flowchart LR\n  b1[\"b = (2 ; 2,0001)\"] -->|\"résoudre\"| x1[\"x = (1, 1)\"]\n  b2[\"b = (2 ; 2,0002)\\nchangement relatif 5e-5\"] -->|\"résoudre\"| x2[\"x = (0, 2)\"]\n  x1 -.->|\"saut énorme : kappa ~ 4e4\"| x2"
+    }
+  }
+]

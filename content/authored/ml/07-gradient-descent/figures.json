@@ -1,0 +1,374 @@
+[
+  {
+    "id": "gd-paths",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient descent on L = (x² + 10y²)/2 (level curves, kappa = 10, so eta must stay below 0.2). Blue: eta = 0.02 crawls along the flat axis. Green: eta = 0.182 (near the optimum 2/11) zig-zags but converges fast. Red: eta = 0.21 is above 2/lambda_max = 0.2 and the y coordinate grows each step: divergence.",
+      "fr": "Descente de gradient sur L = (x² + 10y²)/2 (courbes de niveau, kappa = 10, donc eta doit rester sous 0,2). Bleu : eta = 0,02 rampe le long de l'axe plat. Vert : eta = 0,182 (proche de l'optimum 2/11) zigzague mais converge vite. Rouge : eta = 0,21 dépasse 2/lambda_max = 0,2 et y grandit à chaque pas : divergence."
+    },
+    "spec": {
+      "xDomain": [
+        -5,
+        3
+      ],
+      "yDomain": [
+        -3,
+        3
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 2",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 8",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 18",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 32",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.92,
+              1.2
+            ],
+            [
+              -3.842,
+              0.96
+            ],
+            [
+              -3.765,
+              0.768
+            ],
+            [
+              -3.689,
+              0.614
+            ],
+            [
+              -3.616,
+              0.492
+            ],
+            [
+              -3.543,
+              0.393
+            ],
+            [
+              -3.473,
+              0.315
+            ],
+            [
+              -3.403,
+              0.252
+            ],
+            [
+              -3.335,
+              0.201
+            ],
+            [
+              -3.268,
+              0.161
+            ],
+            [
+              -3.203,
+              0.129
+            ],
+            [
+              -3.139,
+              0.103
+            ],
+            [
+              -3.076,
+              0.082
+            ],
+            [
+              -3.015,
+              0.066
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#16a34a",
+          "points": [
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.272,
+              -1.23
+            ],
+            [
+              -2.676,
+              1.009
+            ],
+            [
+              -2.189,
+              -0.827
+            ],
+            [
+              -1.791,
+              0.678
+            ],
+            [
+              -1.465,
+              -0.556
+            ],
+            [
+              -1.198,
+              0.456
+            ],
+            [
+              -0.98,
+              -0.374
+            ],
+            [
+              -0.802,
+              0.307
+            ],
+            [
+              -0.656,
+              -0.251
+            ],
+            [
+              -0.537,
+              0.206
+            ],
+            [
+              -0.439,
+              -0.169
+            ],
+            [
+              -0.359,
+              0.139
+            ],
+            [
+              -0.294,
+              -0.114
+            ],
+            [
+              -0.24,
+              0.093
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.16,
+              -1.65
+            ],
+            [
+              -2.496,
+              1.815
+            ],
+            [
+              -1.972,
+              -1.997
+            ],
+            [
+              -1.558,
+              2.196
+            ],
+            [
+              -1.231,
+              -2.416
+            ],
+            [
+              -0.972,
+              2.657
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              -4,
+              1.5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "rate-factor",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The per-step factor |1 - eta*lambda| for the 1-D quadratic L = theta² (lambda = 2). Gradient descent converges exactly where the curve is below 1, i.e. 0 < eta < 2/lambda = 1; the minimum 0 at eta = 1/lambda = 0.5 is the one-step jump. Dots: the worked examples eta = 0.1 (factor 0.8) and eta = 1.1 (factor 1.2, divergence).",
+      "fr": "Le facteur par pas |1 - eta*lambda| pour la quadratique 1-D L = theta² (lambda = 2). La descente converge exactement là où la courbe est sous 1, soit 0 < eta < 2/lambda = 1 ; le minimum 0 en eta = 1/lambda = 0,5 est le saut en un pas. Points : les exemples résolus eta = 0,1 (facteur 0,8) et eta = 1,1 (facteur 1,2, divergence)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1.4
+      ],
+      "yDomain": [
+        0,
+        1.6
+      ],
+      "height": 300,
+      "title": "|1 - 2·eta|",
+      "data": [
+        {
+          "fn": "abs(1 - 2*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.1,
+              0.8
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1.1,
+              1.2
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "factor = 1 (stability limit)"
+        }
+      ]
+    }
+  },
+  {
+    "id": "kappa-rate",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Best-case contraction per step rho = (kappa - 1)/(kappa + 1) against the condition number kappa. kappa = 1 gives 0 (one step); kappa = 100 gives about 0.98, which is why ill-conditioning, not dimension, makes descent slow.",
+      "fr": "Contraction optimale par pas rho = (kappa - 1)/(kappa + 1) en fonction du conditionnement kappa. kappa = 1 donne 0 (un seul pas) ; kappa = 100 donne environ 0,98, d'où le fait que le mauvais conditionnement, pas la dimension, ralentit la descente."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        100
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 280,
+      "title": "rho(kappa)",
+      "data": [
+        {
+          "fn": "(x - 1)/(x + 1)",
+          "color": "#7c3aed"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              10,
+              0.8181818181818182
+            ],
+            [
+              100,
+              0.9801980198019802
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "sgd-loop",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Mini-batch SGD: the gradient of a random subset is an unbiased, noisy estimate of the full gradient, so each step is cheap.",
+      "fr": "SGD par mini-lots : le gradient d'un sous-ensemble aléatoire est une estimation non biaisée et bruitée du gradient complet, donc chaque pas est peu coûteux."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"Dataset of N examples\"] -->|\"sample b indices\"| Bt[\"Mini-batch B, b examples\"]\n  Bt --> G[\"g_hat = mean of grad L_i over B\"]\n  G --> U[\"theta = theta - eta * g_hat\"]\n  U -->|\"next step\"| D\n  G -.->|\"E of g_hat = grad L, variance ~ 1/b\"| N[\"Noisy but unbiased\"]",
+      "fr": "flowchart LR\n  D[\"Jeu de N exemples\"] -->|\"tirer b indices\"| Bt[\"Mini-lot B, b exemples\"]\n  Bt --> G[\"g_chap = moyenne des grad L_i sur B\"]\n  G --> U[\"theta = theta - eta * g_chap\"]\n  U -->|\"pas suivant\"| D\n  G -.->|\"E de g_chap = grad L, variance ~ 1/b\"| N[\"Bruité mais non biaisé\"]"
+    }
+  },
+  {
+    "id": "manim-gradientdescent",
+    "after": 5,
+    "kind": "video",
+    "caption": {
+      "en": "Manim: gradient descent steps across the level curves of a loss.",
+      "fr": "Manim : la descente de gradient traverse les courbes de niveau d'une perte."
+    },
+    "src": "/manim/GradientDescent.mp4"
+  }
+]

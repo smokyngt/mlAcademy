@@ -1,0 +1,17 @@
+[
+  { "id": "math.07.c1", "front": "Équation aux valeurs propres", "back": "$Ax=\\lambda x$, $x\\ne0$ : $x$ est seulement étiré (de $\\lambda$), pas tourné." },
+  { "id": "math.07.c2", "front": "Comment trouver les valeurs propres", "back": "Les racines du polynôme caractéristique $\\det(A-\\lambda I)=0$." },
+  { "id": "math.07.c3", "front": "Polynôme caractéristique d'une matrice $2\\times2$", "back": "$\\lambda^2-\\operatorname{tr}(A)\\lambda+\\det(A)$." },
+  { "id": "math.07.c4", "front": "Trace et déterminant via les valeurs propres", "back": "$\\operatorname{tr}A=\\sum\\lambda_i$, $\\det A=\\prod\\lambda_i$." },
+  { "id": "math.07.c5", "front": "Espace propre", "back": "$E_\\lambda=\\ker(A-\\lambda I)$ : tous les vecteurs propres de $\\lambda$, plus $0$." },
+  { "id": "math.07.c6", "front": "Décomposition en valeurs propres", "back": "$A=PDP^{-1}$ avec les vecteurs propres en colonnes de $P$ et les valeurs propres sur la diagonale de $D$ ; exige $n$ vecteurs propres indépendants." },
+  { "id": "math.07.c7", "front": "Puissance d'une matrice par diagonalisation", "back": "$A^k=PD^kP^{-1}$." },
+  { "id": "math.07.c8", "front": "Matrices symétriques", "back": "Valeurs propres réelles et vecteurs propres orthogonaux ; définie positive signifie que tous les $\\lambda_i>0$." },
+  { "id": "math.07.c9", "front": "Les vecteurs propres sont-ils uniques ?", "back": "Seulement à un facteur d'échelle non nul près (signe compris)." },
+  { "id": "math.07.c10", "front": "Théorème de la SVD", "back": "Toute $A\\in\\mathbb{R}^{m\\times n}$ : $A=U\\Sigma V^\\top$, $U,V$ orthogonales, $\\Sigma$ diagonale avec $\\sigma_1\\ge\\sigma_2\\ge\\dots\\ge0$." },
+  { "id": "math.07.c11", "front": "Signification géométrique de la SVD", "back": "Tourner ($V^\\top$), étirer des valeurs singulières ($\\Sigma$), tourner ($U$)." },
+  { "id": "math.07.c12", "front": "Valeurs singulières et $A^\\top A$", "back": "$\\sigma_i=\\sqrt{\\lambda_i(A^\\top A)}$ ; les vecteurs singuliers à droite sont les vecteurs propres de $A^\\top A$." },
+  { "id": "math.07.c13", "front": "Meilleure approximation de rang $k$", "back": "$A_k=\\sum_{i\\le k}\\sigma_iu_iv_i^\\top$, erreur $\\sqrt{\\sigma_{k+1}^2+\\dots}$ (Eckart-Young)." },
+  { "id": "math.07.c14", "front": "Stockage d'une approximation de rang $k$", "back": "$k(m+n+1)$ nombres au lieu de $mn$." },
+  { "id": "math.07.c15", "front": "SVD contre décomposition en valeurs propres", "back": "La SVD existe pour toute matrice et utilise deux bases ; la décomposition en valeurs propres exige une matrice carrée avec assez de vecteurs propres et utilise une seule base." }
+]

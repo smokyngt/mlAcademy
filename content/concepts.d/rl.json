@@ -1,0 +1,13 @@
+[
+  { "id": "rl.bandit", "title": "Multi-armed bandits: epsilon-greedy and UCB", "description": "The exploration-exploitation trade-off in its simplest form, incremental mean estimates, and regret.", "stage": "V", "prereqs": ["prob.rv"] },
+  { "id": "rl.mdp", "title": "Markov decision processes, returns and policies", "description": "States, actions, transitions, rewards, discount, policy, return and value.", "stage": "V", "prereqs": ["prob.basics", "rl.bandit"] },
+  { "id": "rl.bellman", "title": "Bellman equations", "description": "Bellman expectation and optimality equations for V and Q as recursive fixed-point conditions.", "stage": "V", "prereqs": ["rl.mdp", "la.matrix"] },
+  { "id": "rl.dp", "title": "Dynamic programming: policy and value iteration", "description": "Policy evaluation, policy improvement, policy iteration and value iteration on a known model.", "stage": "V", "prereqs": ["rl.bellman"] },
+  { "id": "rl.mc", "title": "Monte Carlo prediction", "description": "Estimating value functions by averaging sampled returns from complete episodes.", "stage": "V", "prereqs": ["rl.mdp", "rl.dp"] },
+  { "id": "rl.td", "title": "Temporal-difference learning, SARSA and Q-learning", "description": "Bootstrapped one-step updates, on-policy versus off-policy control, and the bias-variance trade-off against Monte Carlo.", "stage": "V", "prereqs": ["rl.mc", "rl.bellman"] },
+  { "id": "rl.dqn", "title": "Deep Q-networks", "description": "Q-learning with function approximation: replay buffer, target network and the DQN loss.", "stage": "V", "prereqs": ["rl.td", "nn.backprop", "calc.gradient"] },
+  { "id": "rl.policy-gradient", "title": "Policy gradient theorem and REINFORCE", "description": "Gradient ascent on expected return via the log-derivative trick, baselines and variance reduction.", "stage": "V", "prereqs": ["rl.td", "calc.gradient", "prob.rv"] },
+  { "id": "rl.actor-critic", "title": "Actor-critic and advantage", "description": "Learned value baselines, the advantage function, TD residuals and A2C.", "stage": "V", "prereqs": ["rl.policy-gradient"] },
+  { "id": "rl.ppo", "title": "Proximal policy optimisation and GAE", "description": "Trust-region idea, the clipped surrogate objective and generalised advantage estimation.", "stage": "V", "prereqs": ["rl.actor-critic", "info.entropy"] },
+  { "id": "rl.rlhf", "title": "Reward modelling and RLHF", "description": "Bradley-Terry reward models from preference pairs and PPO with a KL penalty against a reference policy.", "stage": "V", "prereqs": ["rl.ppo", "ml.logreg"] }
+]

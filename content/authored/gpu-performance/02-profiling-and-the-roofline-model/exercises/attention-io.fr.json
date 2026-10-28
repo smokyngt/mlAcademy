@@ -1,0 +1,10 @@
+{
+  "id": "gpu.02.ex2",
+  "title": "FLOPs et octets de l'attention, avec et sans tiling",
+  "prompt": "Modélise UNE tête d'attention avec une longueur de séquence `N`, une dimension de tête `d`, `elem_bytes` octets par nombre (2 pour fp16). Notre convention : les deux matmuls coûtent `2*N*N*d` FLOPs chacun, le softmax `5*N*N`.\n\n- `attn_flops(N, d)` : total des FLOPs.\n- `attn_bytes_standard(N, d, elem_bytes)` : trafic de mémoire globale quand chaque étape est un noyau séparé : lire Q et K, écrire S ; lire S, écrire P ; lire P et V, écrire O. Compte-le comme `elem_bytes * (4*N*d + 4*N*N)`.\n- `attn_bytes_tiled(N, d, Br, elem_bytes)` : trafic d'un noyau de style FlashAttention avec des blocs de requêtes de `Br` lignes (`N` multiple de `Br`) : Q lu une fois, chacun des `N/Br` blocs de requêtes parcourt tout K et V, O écrit une fois.\n- `tile_fits(Br, Bc, d, elem_bytes, sram_bytes)` : une itération tient-elle dans la mémoire rapide ? Compte la tuile Q (`Br*d`), les tuiles K et V (`2*Bc*d`), la tuile de scores (`Br*Bc`) et l'accumulateur de sortie (`Br*d`).\n- `intensity(flops, nbytes)` et `bound(intensity, ridge)` qui renvoie `\"memory\"` ou `\"compute\"`.\n- `largest_br(N, d, elem_bytes, sram_bytes)` : le plus grand `Br` qui est une puissance de deux, divise `N`, et satisfait `tile_fits(Br, Br, ...)`.",
+  "hints": [
+    "L'attention standard écrit S = QK^T (N*N) en mémoire, le relit pour le softmax, écrit P (N*N), relit P pour P@V. Cela fait quatre passes N*N plus Q, K, V, O (4*N*d).",
+    "Attention par tuiles : Q est lu une fois, K et V sont lus une fois par bloc Q (N / Br blocs), O est écrit une fois : éléments = N*d + 2*N*d*(N/Br) + N*d.",
+    "Les FLOPs sont les mêmes dans les deux cas : 4*N*N*d pour les deux matmuls plus 5*N*N pour le softmax."
+  ]
+}

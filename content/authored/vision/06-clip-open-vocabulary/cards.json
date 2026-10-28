@@ -1,0 +1,17 @@
+[
+  {"id": "vis.06.c1", "concept": "vis.clip", "front": "CLIP architecture", "back": "Two towers (image encoder, text encoder), each projected to the same $d$ and L2-normalised; similarity is cosine."},
+  {"id": "vis.06.c2", "concept": "vis.clip", "front": "CLIP logit matrix", "back": "$S=UV^\\top/\\tau\\in\\mathbb R^{N\\times N}$, $S_{ij}=\\cos(f(x_i),g(y_j))/\\tau$; diagonal = matching pairs."},
+  {"id": "vis.06.c3", "concept": "vis.clip", "front": "Symmetric InfoNCE loss", "back": "$L=\\frac12[\\mathrm{CE}(S,\\text{identity})+\\mathrm{CE}(S^\\top,\\text{identity})]$: image-to-text and text-to-image cross-entropies."},
+  {"id": "vis.06.c4", "concept": "vis.clip", "front": "Gradient of the CLIP loss w.r.t. logits", "back": "$\\frac1{2N}[(P-E)+(Q-E)]$ with row-softmax $P$, column-softmax $Q$, identity $E$."},
+  {"id": "vis.06.c5", "concept": "vis.clip", "front": "Temperature in CLIP", "back": "Learned scalar (initialised at 0.07, parametrised in log space and clipped). Small: sharp, hard-negative focus; large: flat. Argmax at inference is unaffected."},
+  {"id": "vis.06.c6", "concept": "vis.clip", "front": "Loss at chance level", "back": "$\\log N$ when all logits in a row are equal (an $N$-way guess)."},
+  {"id": "vis.06.c7", "concept": "vis.clip", "front": "Why large batches?", "back": "$N-1$ negatives per pair; more negatives give a stronger learning signal (CLIP used batch sizes around 32k)."},
+  {"id": "vis.06.c8", "concept": "vis.clip", "front": "SigLIP loss", "back": "Per-pair sigmoid binary loss $\\log(1+e^{-y_{ij}S_{ij}})$ with $y=+1$ on the diagonal, $-1$ elsewhere; no softmax normalisation, no all-gather."},
+  {"id": "vis.06.c9", "concept": "vis.clip", "front": "Zero-shot classification recipe", "back": "Prompts (a photo of a {class}) -> text embeddings $T$; image embedding $u$; predict $\\arg\\max_c T_c\\cdot u$ after normalising."},
+  {"id": "vis.06.c10", "concept": "vis.clip", "front": "Prompt ensembling", "back": "Average the embeddings of several templates per class, then re-normalise; typically a small gain."},
+  {"id": "vis.06.c11", "concept": "vis.clip", "front": "Retrieval and recall@k", "back": "Rank by cosine similarity; recall@k = fraction of queries whose correct item is in the top $k$."},
+  {"id": "vis.06.c12", "concept": "vis.clip", "front": "Zero-shot vs linear probe vs fine-tune", "back": "Zero-shot: no training. Probe: usually better in-domain. Fine-tune: best in-domain but may hurt zero-shot transfer."},
+  {"id": "vis.06.c13", "concept": "vis.clip", "front": "Limits of CLIP-style models", "back": "Dependence on web data and its biases, prompt sensitivity, weak at fine-grained/spatial/counting, uncalibrated similarities, one global vector per image."},
+  {"id": "vis.06.c14", "concept": "vis.clip", "front": "Where CLIP-like spaces are used", "back": "Zero-shot classification, retrieval, open-vocabulary detection/segmentation, vision encoder of multimodal LLMs, text conditioning for image generation."},
+  {"id": "vis.06.c15", "concept": "vis.clip", "front": "Difference from SimCLR NT-Xent", "back": "Positives span two modalities, so the $N\\times N$ matrix needs no diagonal masking and is cross-entropied in both directions; negatives are the other $N-1$ items."}
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "batch-vs-online",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Batch prediction precomputes on a schedule and looks results up (fresh only as of the last run); online prediction computes on request with the freshest data but puts model and features on the latency path. Many systems blend batch and streaming features.",
+      "fr": "La prédiction par lots précalcule selon un calendrier et consulte les résultats (frais seulement à la dernière exécution) ; la prédiction en ligne calcule à la demande avec les données les plus fraîches mais place modèle et variables sur le chemin de latence. Beaucoup de systèmes mélangent variables par lots et en flux."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph BATCH[\"Batch\"]\n    J[\"scheduled job\"] --> TB[(\"prediction table\")]\n    REQ1[\"request\"] -->|\"lookup\"| TB\n  end\n  subgraph ONLINE[\"Online\"]\n    REQ2[\"request\"] --> FE[\"features: batch + streaming\"] --> MD[\"model\"] --> RS[\"prediction\"]\n  end",
+      "fr": "flowchart LR\n  subgraph BATCH[\"Lots\"]\n    J[\"tâche planifiée\"] --> TB[(\"table de prédictions\")]\n    REQ1[\"requête\"] -->|\"consultation\"| TB\n  end\n  subgraph ONLINE[\"En ligne\"]\n    REQ2[\"requête\"] --> FE[\"variables : lots + flux\"] --> MD[\"modèle\"] --> RS[\"prédiction\"]\n  end"
+    }
+  },
+  {
+    "id": "mm1-latency",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "M/M/1 mean latency W = 1/(mu - lambda) with service rate mu = 10 requests/s: 0.5 s at lambda = 8, 1 s at 9, 2 s at 9.5, and unbounded as lambda approaches mu. The service itself takes 0.1 s; almost all of the latency is waiting.",
+      "fr": "Latence moyenne M/M/1 W = 1/(mu - lambda) avec un taux de service mu = 10 requêtes/s : 0,5 s pour lambda = 8, 1 s pour 9, 2 s pour 9,5, et non bornée quand lambda approche mu. Le service lui-même dure 0,1 s ; presque toute la latence est de l'attente."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        9.8
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "title": "lambda (req/s)",
+      "data": [
+        {
+          "fn": "1/(10 - x)",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 10,
+          "text": "mu"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dynamic-batching",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Dynamic batching rule: start a batch when it is full (max_batch) or when the oldest request has waited max_wait, whichever comes first and never before the server is free. Larger batches raise throughput; max_wait bounds the added waiting.",
+      "fr": "Règle de lot dynamique : lancer un lot quand il est plein (max_batch) ou quand la plus ancienne requête a attendu max_wait, selon ce qui arrive en premier et jamais avant que le serveur soit libre. Des lots plus grands augmentent le débit ; max_wait borne l'attente ajoutée."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q[\"arriving requests\"] --> W[\"queue\"]\n  W --> C{\"batch full OR<br/>oldest waited max_wait?\"}\n  C -->|\"no\"| W\n  C -->|\"yes and server free\"| RUN[\"run model on the batch<br/>time = a + b x size\"]\n  RUN --> OUT[\"split results per request\"]",
+      "fr": "flowchart LR\n  Q[\"requêtes entrantes\"] --> W[\"file d'attente\"]\n  W --> C{\"lot plein OU<br/>la plus ancienne a attendu max_wait ?\"}\n  C -->|\"non\"| W\n  C -->|\"oui et serveur libre\"| RUN[\"exécuter le modèle sur le lot<br/>durée = a + b x taille\"]\n  RUN --> OUT[\"répartir les résultats par requête\"]"
+    }
+  },
+  {
+    "id": "quantisation-memory",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Quantisation shrinks memory proportionally to the bits per weight. A 100-million-parameter model takes 400 MB at 32 bits, 200 MB at 16 bits and 100 MB as 8-bit integers.",
+      "fr": "La quantification réduit la mémoire proportionnellement au nombre de bits par poids. Un modèle de 100 millions de paramètres occupe 400 Mo en 32 bits, 200 Mo en 16 bits et 100 Mo en entiers 8 bits."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Memory of a 100M-parameter model (MB)\"\n  x-axis [\"32-bit\", \"16-bit\", \"8-bit\"]\n  y-axis \"MB\" 0 --> 450\n  bar [400, 200, 100]",
+      "fr": "xychart-beta\n  title \"Mémoire d'un modèle de 100M de paramètres (Mo)\"\n  x-axis [\"32-bit\", \"16-bit\", \"8-bit\"]\n  y-axis \"MB\" 0 --> 450\n  bar [400, 200, 100]"
+    }
+  }
+]

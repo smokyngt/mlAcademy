@@ -1,0 +1,43 @@
+[
+  {
+    "id": "f2n.12.q1", "concept": "nn.autograd", "stage": "pre",
+    "prompt": "For $f(a,b)=ab+a^2$ at $a=3,b=2$, what is $\\partial f/\\partial a$?",
+    "kind": "numeric", "options": [], "answer": { "value": 8, "tol": 0.001 },
+    "explanation": "$\\partial f/\\partial a=b+2a=2+6=8$. In reverse mode $a$ has two outgoing paths (through $ab$ and through $a^2$) whose contributions add: $2+6$."
+  },
+  {
+    "id": "f2n.12.q2", "concept": "nn.autograd",
+    "prompt": "Why does deep learning use reverse-mode rather than forward-mode autodiff?",
+    "options": ["Reverse mode is more accurate", "The loss is a scalar ($m=1$) with millions of inputs; one reverse pass gives the entire gradient", "Forward mode cannot handle ReLU", "Reverse mode needs no memory"],
+    "answer": 1,
+    "explanation": "Forward mode costs about one pass per input, reverse mode one pass per output. With $m=1$ and huge $n$, reverse mode wins - at the cost of storing forward activations."
+  },
+  {
+    "id": "f2n.12.q3", "concept": "nn.autograd",
+    "prompt": "In a scalar autodiff engine, the `_backward` of `c = a * b` should do...",
+    "options": ["`a.grad = b.data * c.grad; b.grad = a.data * c.grad`", "`a.grad += b.data * c.grad; b.grad += a.data * c.grad`", "`a.grad += c.grad; b.grad += c.grad`", "`c.grad = a.data * b.data`"],
+    "answer": 1,
+    "explanation": "The local derivatives of a product are the other factor, and `+=` is essential: if `a` is used elsewhere too, assignment would overwrite that path's contribution."
+  },
+  {
+    "id": "f2n.12.q4", "concept": "nn.autograd",
+    "prompt": "You call `loss.backward()` twice in a row without zeroing gradients. What happens to `w.grad`?",
+    "options": ["It is unchanged", "It is exactly doubled (gradients accumulate)", "PyTorch raises an error in all cases", "It is reset to zero"],
+    "answer": 1,
+    "explanation": "PyTorch accumulates into `.grad` (with `retain_graph=True` the second backward is allowed). Training loops therefore call `zero_grad()` each iteration."
+  },
+  {
+    "id": "f2n.12.q5", "concept": "nn.autograd",
+    "prompt": "To validate a hand-written backward pass against PyTorch, you should compute in...",
+    "options": ["float16", "float32 only", "float64, expecting agreement near 1e-10", "int64"],
+    "answer": 2,
+    "explanation": "float32 agrees only to roughly 1e-6 relative error, which can hide real mistakes. float64 gives a tight, discriminating comparison."
+  },
+  {
+    "id": "f2n.12.q6", "concept": "nn.autograd",
+    "prompt": "`torch.no_grad()` around an evaluation loop...",
+    "options": ["makes the model less accurate", "stops recording the graph, so no gradients are tracked and memory is saved", "zeros all weights", "is required for backward()"],
+    "answer": 1,
+    "explanation": "Inside `no_grad` operations are not recorded, so evaluation uses less memory and cannot produce gradients."
+  }
+]

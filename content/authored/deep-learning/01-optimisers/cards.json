@@ -1,0 +1,17 @@
+[
+  { "id": "dl.01.c1", "concept": "dl.momentum", "front": "Momentum update (library form)", "back": "$v\\leftarrow\\mu v+g$, $\\theta\\leftarrow\\theta-\\eta v$." },
+  { "id": "dl.01.c2", "concept": "dl.momentum", "front": "Effective step of momentum with constant gradient", "back": "$\\eta/(1-\\mu)$: ten times larger for $\\mu=0.9$." },
+  { "id": "dl.01.c3", "concept": "dl.momentum", "front": "Nesterov direction", "back": "$g_t+\\mu v_t$ instead of $v_t$: it uses the gradient at the lookahead point, braking earlier before overshoot." },
+  { "id": "dl.01.c4", "concept": "dl.momentum", "front": "Stability limit of gradient descent on a quadratic", "back": "$\\eta<2/\\lambda_{\\max}$. The best constant step is $2/(\\lambda_{\\max}+\\lambda_{\\min})$ with rate $(\\kappa-1)/(\\kappa+1)$." },
+  { "id": "dl.01.c5", "concept": "dl.momentum", "front": "Per-step rate: GD vs heavy ball on a quadratic", "back": "GD: $(\\kappa-1)/(\\kappa+1)$. Heavy ball: $(\\sqrt\\kappa-1)/(\\sqrt\\kappa+1)$. Iterations scale as $\\kappa$ versus $\\sqrt\\kappa$." },
+  { "id": "dl.01.c6", "concept": "dl.adam", "front": "RMSProp update", "back": "$s\\leftarrow\\beta s+(1-\\beta)g^2$, $\\theta\\leftarrow\\theta-\\eta\\,g/(\\sqrt s+\\varepsilon)$." },
+  { "id": "dl.01.c7", "concept": "dl.adam", "front": "Adam moments", "back": "$m\\leftarrow\\beta_1m+(1-\\beta_1)g$, $v\\leftarrow\\beta_2v+(1-\\beta_2)g^2$; defaults $0.9$, $0.999$, $\\varepsilon=10^{-8}$." },
+  { "id": "dl.01.c8", "concept": "dl.adam", "front": "Why bias correction?", "back": "$\\mathbb{E}[v_t]=\\sigma^2(1-\\beta_2^t)$ for stationary gradients, because the zero start is averaged in. Divide by $1-\\beta^t$ for an unbiased estimate." },
+  { "id": "dl.01.c9", "concept": "dl.adam", "front": "Size of Adam's first step", "back": "$\\hat m_1/\\sqrt{\\hat v_1}=\\mathrm{sign}(g)$, so about $\\eta$ per coordinate regardless of gradient scale." },
+  { "id": "dl.01.c10", "concept": "dl.adam", "front": "AdamW update", "back": "$\\theta\\leftarrow\\theta-\\eta\\hat m/(\\sqrt{\\hat v}+\\varepsilon)-\\eta\\lambda\\theta$. The decay is not divided by $\\sqrt{\\hat v}$." },
+  { "id": "dl.01.c11", "concept": "dl.adam", "front": "Optimiser memory for Adam", "back": "Two extra tensors ($m$, $v$) of the parameter shape, plus the gradient: about 3x the parameter count." },
+  { "id": "dl.01.c12", "concept": "dl.lr-schedule", "front": "Warmup + cosine formula", "back": "$\\eta_{\\max}t/W$ for $t<W$; then $\\eta_{\\min}+\\tfrac12(\\eta_{\\max}-\\eta_{\\min})(1+\\cos(\\pi\\frac{t-W}{T-W}))$." },
+  { "id": "dl.01.c13", "concept": "dl.lr-schedule", "front": "Why warm up an adaptive optimiser?", "back": "Early second-moment estimates rest on few gradients and are noisy; a large step on a bad scale estimate can destabilise training. Small steps let the statistics settle." },
+  { "id": "dl.01.c14", "concept": "dl.lr-schedule", "front": "Gradient clipping by norm", "back": "If $\\|g\\|_2>c$ replace $g$ by $g\\,c/\\|g\\|_2$. Example: $\\|G\\|=5$, $c=1$ scales by $1/5$." },
+  { "id": "dl.01.c15", "concept": "dl.adam", "front": "Pitfall: constant lr with RMSProp or Adam near an optimum", "back": "The normalised step stays about $\\eta$ per coordinate even when gradients vanish, so the iterate hops; decay the learning rate." }
+]

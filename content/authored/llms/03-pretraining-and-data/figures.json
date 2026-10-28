@@ -1,0 +1,116 @@
+[
+  {
+    "id": "packing",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Packing: documents are joined with end-of-text ids into one stream and cut into blocks of T+1 tokens with stride T, so no padding is wasted and every block yields T input/target pairs.",
+      "fr": "Le packing : les documents sont joints par des identifiants de fin de texte en un seul flux puis découpés en blocs de T+1 jetons avec un pas T, donc aucun remplissage n'est gaspillé et chaque bloc donne T paires entrée/cible."
+    },
+    "code": {
+      "en": "flowchart LR\n  D1[\"doc 1\"] --> S[\"stream: doc1 eos doc2 eos doc3 eos ...\"]\n  D2[\"doc 2\"] --> S\n  D3[\"doc 3\"] --> S\n  S --> BL[\"cut blocks of T+1 tokens, stride T\"]\n  BL --> XY[\"x = s[iT : (i+1)T]  (T)<br/>y = s[iT+1 : (i+1)T+1]  (T)\"]\n  XY --> BA[\"shuffle blocks, batch<br/>x, y of shape (B,T)\"]",
+      "fr": "flowchart LR\n  D1[\"doc 1\"] --> S[\"flux : doc1 eos doc2 eos doc3 eos ...\"]\n  D2[\"doc 2\"] --> S\n  D3[\"doc 3\"] --> S\n  S --> BL[\"découper en blocs de T+1 jetons, pas T\"]\n  BL --> XY[\"x = s[iT : (i+1)T]  (T)<br/>y = s[iT+1 : (i+1)T+1]  (T)\"]\n  XY --> BA[\"mélanger les blocs, former les lots<br/>x, y de forme (B,T)\"]"
+    }
+  },
+  {
+    "id": "dedup-minhash",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Near-duplicate removal at scale: exact hashing first, then word shingles, MinHash signatures, LSH buckets, and an exact Jaccard check on the few candidate pairs.",
+      "fr": "Suppression des quasi-doublons à grande échelle : d'abord un hachage exact, puis des shingles de mots, des signatures MinHash, des seaux LSH et une vérification exacte de Jaccard sur les quelques paires candidates."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"documents\"] --> H[\"exact duplicates<br/>hash of normalised text\"]\n  H --> SH[\"word n-gram shingles<br/>S_n(doc)\"]\n  SH --> MH[\"MinHash signature<br/>n numbers per doc\"]\n  MH --> LSH[\"LSH: bands of r rows<br/>same bucket gives candidate pair\"]\n  LSH --> V[\"verify exact Jaccard<br/>J = |A and B| / |A or B|\"]\n  V --> K[\"keep one per cluster\"]",
+      "fr": "flowchart LR\n  A[\"documents\"] --> H[\"doublons exacts<br/>hachage du texte normalisé\"]\n  H --> SH[\"shingles de n-grammes de mots<br/>S_n(doc)\"]\n  SH --> MH[\"signature MinHash<br/>n nombres par doc\"]\n  MH --> LSH[\"LSH : bandes de r lignes<br/>même seau = paire candidate\"]\n  LSH --> V[\"vérifier le Jaccard exact<br/>J = |A et B| / |A ou B|\"]\n  V --> K[\"garder un par groupe\"]"
+    }
+  },
+  {
+    "id": "isoflop",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Loss at fixed compute C = 5.88e23 FLOPs as the model size N grows (x in billions, D = C/6N): L = A/N^0.34 + B/D^0.28 + 1.69. The curve is U-shaped with a very flat bottom near 33B (L = 1.930); the 20-tokens-per-parameter point (70B) gives 1.937.",
+      "fr": "Perte à calcul fixé C = 5,88e23 FLOPs lorsque la taille N du modèle croît (x en milliards, D = C/6N) : L = A/N^0,34 + B/D^0,28 + 1,69. La courbe est en U avec un fond très plat près de 33 G (L = 1,930) ; le point à 20 jetons par paramètre (70 G) donne 1,937."
+    },
+    "spec": {
+      "xDomain": [
+        3,
+        300
+      ],
+      "yDomain": [
+        1.9,
+        2
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "406.4*exp(-0.34*log(x*1e9)) + 410.7*exp(0.28*log(6*x*1e9/5.88e23)) + 1.69",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              33,
+              1.93
+            ],
+            [
+              70,
+              1.9366
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "tokens-vs-params",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The budget constraint C = 6ND at C = 5.88e23: tokens D (trillions) against parameters N (billions) is a hyperbola D = 98/N (blue). The Chinchilla rule D = 20N (orange) crosses it at 70B parameters and 1.4T tokens.",
+      "fr": "La contrainte de budget C = 6ND à C = 5,88e23 : les jetons D (billions) en fonction des paramètres N (milliards) forment une hyperbole D = 98/N (bleu). La règle de Chinchilla D = 20N (orange) la coupe à 70 G de paramètres et 1,4 T de jetons."
+    },
+    "spec": {
+      "xDomain": [
+        5,
+        200
+      ],
+      "yDomain": [
+        0,
+        8
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "98/x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.02*x",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              70,
+              1.4
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

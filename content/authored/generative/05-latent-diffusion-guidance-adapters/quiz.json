@@ -1,0 +1,123 @@
+[
+ {
+  "id": "gen.05.q1",
+  "concept": "gen.latent-diffusion",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Latent diffusion runs the diffusion process...",
+  "options": [
+   "on raw pixels",
+   "in the latent space of a frozen autoencoder",
+   "on the text embeddings",
+   "only at the last step"
+  ],
+  "answer": 1,
+  "explanation": "Encode with $E$, diffuse in latent space, decode with $D$ at the end."
+ },
+ {
+  "id": "gen.05.q2",
+  "concept": "gen.latent-diffusion",
+  "kind": "numeric",
+  "prompt": "A $512\\times512\\times3$ image is encoded to a $64\\times64\\times4$ latent. By what factor does the number of values shrink?",
+  "options": [],
+  "answer": {
+   "value": 48,
+   "tol": 0.5
+  },
+  "explanation": "$786432/16384=48$."
+ },
+ {
+  "id": "gen.05.q3",
+  "concept": "gen.latent-diffusion",
+  "kind": "mcq",
+  "prompt": "In cross-attention for text conditioning, the keys and values come from...",
+  "options": [
+   "the image features",
+   "the noise",
+   "the text token embeddings",
+   "the timestep"
+  ],
+  "answer": 2,
+  "explanation": "Queries from the image attend to keys/values from the prompt."
+ },
+ {
+  "id": "gen.05.q4",
+  "concept": "gen.cfg",
+  "kind": "mcq",
+  "prompt": "Classifier-free guidance computes...",
+  "options": [
+   "$\\varepsilon_u+w(\\varepsilon_c-\\varepsilon_u)$",
+   "$\\varepsilon_c-\\varepsilon_u$",
+   "$w\\varepsilon_c$",
+   "$\\varepsilon_u/w$"
+  ],
+  "answer": 0,
+  "explanation": "Extrapolate from the unconditional prediction through the conditional one."
+ },
+ {
+  "id": "gen.05.q5",
+  "concept": "gen.cfg",
+  "kind": "numeric",
+  "prompt": "$\\varepsilon_u=0.2$, $\\varepsilon_c=0.5$, $w=4$. What is the guided prediction?",
+  "options": [],
+  "answer": {
+   "value": 1.4,
+   "tol": 0.001
+  },
+  "explanation": "$0.2+4(0.5-0.2)=1.4$."
+ },
+ {
+  "id": "gen.05.q6",
+  "concept": "gen.cfg",
+  "kind": "mcq",
+  "prompt": "Setting $w=1$ in the formula gives...",
+  "options": [
+   "the unconditional model",
+   "the plain conditional model",
+   "a random output",
+   "no denoising at all"
+  ],
+  "answer": 1,
+  "explanation": "$\\varepsilon_u+(\\varepsilon_c-\\varepsilon_u)=\\varepsilon_c$."
+ },
+ {
+  "id": "gen.05.q7",
+  "concept": "gen.cfg",
+  "kind": "mcq",
+  "prompt": "Very large guidance scales typically cause...",
+  "options": [
+   "more diverse samples",
+   "over-saturated, low-diversity samples",
+   "faster sampling",
+   "unconditional behaviour"
+  ],
+  "answer": 1,
+  "explanation": "The extrapolation overshoots the conditional mode."
+ },
+ {
+  "id": "gen.05.q8",
+  "concept": "gen.latent-diffusion",
+  "kind": "numeric",
+  "prompt": "A LoRA of rank 8 on a $512\\times512$ weight adds how many trainable parameters?",
+  "options": [],
+  "answer": {
+   "value": 8192,
+   "tol": 0.5
+  },
+  "explanation": "$r(d_\\text{out}+d_\\text{in})=8\\cdot1024=8192$."
+ },
+ {
+  "id": "gen.05.q9",
+  "concept": "gen.latent-diffusion",
+  "kind": "mcq",
+  "prompt": "ControlNet's zero-initialised convolutions ensure that...",
+  "options": [
+   "the model trains faster than from scratch",
+   "training starts exactly from the frozen model's behaviour",
+   "the base weights are updated",
+   "the condition is ignored forever"
+  ],
+  "answer": 1,
+  "explanation": "Zero output means the added term is 0 at initialisation, so the original model is unchanged."
+ }
+]

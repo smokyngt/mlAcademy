@@ -1,0 +1,60 @@
+[
+  {
+    "id": "dl.03.q1",
+    "prompt": "Une couche a $n_{in}$ entrées de moment d'ordre deux $s$ et des poids indépendants de moyenne nulle et de variance $v$. Quelle est la variance de la pré-activation ?",
+    "options": ["$v\\,s$", "$n_{in}\\,v\\,s$", "$n_{in}^2\\,v\\,s$", "$v/n_{in}$"],
+    "explanation": "$\\mathrm{Var}(\\sum w_jx_j)=\\sum_j \\mathrm{Var}(w_j)\\mathbb{E}[x_j^2]=n_{in}\\,v\\,s$."
+  },
+  {
+    "id": "dl.03.q2",
+    "prompt": "Initialisation de He : quel est l'écart-type des poids d'une couche ReLU avec $n_{in}=512$ ? (donne un décimal)",
+    "explanation": "$\\sqrt{2/512}=\\sqrt{1/256}=0.0625$."
+  },
+  {
+    "id": "dl.03.q3",
+    "prompt": "Pourquoi ReLU a-t-elle besoin d'un facteur 2 par rapport à la dérivation linéaire ($\\mathrm{Var}(w)=1/n_{in}$) ?",
+    "options": ["ReLU double le gradient", "ReLU met à zéro environ la moitié des unités, donc $\\mathbb{E}[x^2]$ vaut la moitié de la variance de la pré-activation et les poids doivent compenser", "ReLU n'est pas différentiable", "Le biais ajoute de la variance"],
+    "explanation": "$\\mathbb{E}[\\max(0,z)^2]=\\tfrac12\\mathrm{Var}(z)$ pour $z$ symétrique ; des poids à l'échelle de Xavier divisent donc par deux le moment d'ordre deux à chaque couche."
+  },
+  {
+    "id": "dl.03.q4",
+    "prompt": "Tous les poids d'une couche cachée sont initialisés à la même constante. Que se passe-t-il pendant l'entraînement ?",
+    "options": ["Rien de particulier", "Toutes les unités de la couche calculent la même fonction et reçoivent le même gradient, donc elles restent identiques pour toujours (la symétrie n'est jamais brisée)", "La couche s'entraîne plus vite", "Les gradients explosent"],
+    "explanation": "L'initialisation aléatoire brise la symétrie ; son échelle (He/Xavier) garde le signal utilisable."
+  },
+  {
+    "id": "dl.03.q5",
+    "prompt": "Pour la batch norm sur un batch de $N$ exemples avec $D$ caractéristiques, sur quel axe la moyenne et la variance sont-elles calculées ?",
+    "options": ["Sur les caractéristiques de chaque exemple", "Sur le batch, séparément pour chaque caractéristique", "Sur tout le tenseur", "Sur les couches"],
+    "explanation": "Batch norm : statistiques de forme $(D)$ à partir des $N$ exemples. La layer norm utilise plutôt l'axe des caractéristiques de chaque exemple."
+  },
+  {
+    "id": "dl.03.q6",
+    "prompt": "Quelle propriété le gradient d'entrée de la batch norm $\\bar x$ doit-il satisfaire ?",
+    "options": ["Il est entièrement positif", "Il a une somme nulle sur le batch pour chaque caractéristique (un décalage constant des entrées ne change rien)", "Il est égal à $\\bar y$", "Il est indépendant de $\\sigma$"],
+    "explanation": "À partir de $\\bar x_i=\\frac{\\mathrm{inv}}{N}(N\\bar{\\hat x}_i-\\sum_k\\bar{\\hat x}_k-\\hat x_i\\sum_k\\bar{\\hat x}_k\\hat x_k)$, sommer sur $i$ annule les deux premiers termes et $\\sum_i\\hat x_i=0$ élimine le troisième."
+  },
+  {
+    "id": "dl.03.q7",
+    "prompt": "Batch norm sur une caractéristique avec le batch $(1,2,3,4)$, $\\varepsilon=0$, $\\gamma=1$, $\\beta=0$. Quelle est la valeur normalisée du plus grand élément ? (décimal)",
+    "explanation": "$\\mu=2.5$, $\\sigma=\\sqrt{1.25}=1.118$, donc $(4-2.5)/1.118=1.3416$."
+  },
+  {
+    "id": "dl.03.q8",
+    "prompt": "Pourquoi les transformeurs utilisent-ils la layer norm ou RMSNorm plutôt que la batch norm ?",
+    "options": ["Elles sont plus précises sur les images", "Elles ne dépendent pas des autres exemples du batch, se comportent pareil à l'entraînement et à l'inférence, et fonctionnent avec une taille de batch de 1 et des longueurs de séquence variables", "Elles n'ont pas de paramètres", "Elles sont plus rapides à rétropropager"],
+    "explanation": "Les statistiques par exemple suppriment la dépendance au batch et l'écart entre entraînement et évaluation."
+  },
+  {
+    "id": "dl.03.q9",
+    "prompt": "En quoi RMSNorm diffère-t-elle de la layer norm ?",
+    "options": ["Elle normalise sur le batch", "Elle divise par la racine de la moyenne des carrés sans soustraire la moyenne (et n'a pas de décalage)", "Elle utilise la médiane", "Elle n'a pas de paramètre d'échelle"],
+    "explanation": "$y=\\gamma\\,x/\\sqrt{\\frac1D\\sum x^2+\\varepsilon}$."
+  },
+  {
+    "id": "dl.03.q10",
+    "prompt": "Dans un réseau sigmoïde de 20 couches sans normalisation, la norme du gradient des poids à la première couche était d'environ $10^{-12}$ et d'environ $10$ à la dernière. Comment cela s'appelle-t-il, et quel remède est probable ?",
+    "options": ["Gradients explosifs ; baisser seulement le taux d'apprentissage", "Gradients évanescents (la dérivée de la sigmoïde vaut au plus 0.25 par couche) ; utiliser ReLU avec l'init de He, la normalisation ou des connexions résiduelles", "Sur-apprentissage ; ajouter du dropout", "ReLU mortes"],
+    "explanation": "Le rétrécissement par couche se compose exponentiellement avec la profondeur."
+  }
+]

@@ -1,0 +1,16 @@
+[
+  { "id": "ops.02.c1", "concept": "ops.sampling", "front": "Row-major versus column-major storage", "back": "Row-major (CSV): fast row reads and appends. Column-major (Parquet): fast reads of a few columns." },
+  { "id": "ops.02.c2", "concept": "ops.sampling", "front": "Batch versus stream processing", "back": "Batch: periodic jobs on historical data (static features). Stream: computation on data in flight with low delay and stateful updates (dynamic features)." },
+  { "id": "ops.02.c3", "concept": "ops.sampling", "front": "Reservoir sampling algorithm", "back": "Keep the first $k$ items; for item $n>k$ draw $j\\sim U\\{1..n\\}$ and replace slot $j$ if $j\\le k$." },
+  { "id": "ops.02.c4", "concept": "ops.sampling", "front": "Why reservoir sampling is uniform", "back": "New item enters with $k/(n+1)$; an old one survives with $n/(n+1)$; product with $k/n$ gives $k/(n+1)$." },
+  { "id": "ops.02.c5", "concept": "ops.sampling", "front": "Stratified sampling", "back": "Sample each group (stratum) separately so rare groups are represented; hard when items have several labels." },
+  { "id": "ops.02.c6", "concept": "ops.sampling", "front": "Importance sampling weight", "back": "$P(x)/Q(x)$ for a sample drawn from proposal $Q$ to estimate under $P$." },
+  { "id": "ops.02.c7", "concept": "ops.sampling", "front": "Examples of non-probability sampling", "back": "Convenience, snowball, judgement and quota sampling; cheap but biased." },
+  { "id": "ops.02.c8", "concept": "ops.labelling", "front": "Natural (behavioural) labels", "back": "Labels from system feedback such as clicks or actual arrival times; they arrive with a delay called the feedback loop length." },
+  { "id": "ops.02.c9", "concept": "ops.labelling", "front": "Why hand labelling is hard", "back": "Expensive, slow, a privacy risk, and annotators disagree." },
+  { "id": "ops.02.c10", "concept": "ops.labelling", "front": "Labelling function", "back": "A small program encoding a heuristic that votes for a class or abstains; outputs are noisy and may conflict." },
+  { "id": "ops.02.c11", "concept": "ops.labelling", "front": "Weight of a labelling function in a weighted vote", "back": "$w=\\log\\frac{a}{1-a}$ for accuracy $a$; vote $+w$ for class 1, $-w$ for class 0." },
+  { "id": "ops.02.c12", "concept": "ops.labelling", "front": "Semi-supervision, transfer learning, active learning", "back": "Extend labels by structure or self-training; start from a pretrained model; choose which examples to label by uncertainty." },
+  { "id": "ops.02.c13", "concept": "ops.labelling", "front": "Label-preserving augmentation", "back": "Transformations that keep the label (flip, crop, synonym swap); apply to the training split only." },
+  { "id": "ops.02.c14", "concept": "ops.labelling", "front": "Why class imbalance is hard", "back": "Little signal for the rare class, a trivial majority-class shortcut, and costly errors on the rare class. See cml.11." }
+]

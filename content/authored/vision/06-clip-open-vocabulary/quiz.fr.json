@@ -1,0 +1,96 @@
+[
+ {
+  "id": "vis.06.q1",
+  "prompt": "Quelle supervision CLIP utilise-t-il ?",
+  "options": [
+   "Des paires image-légende : quel texte va avec quelle image",
+   "Des masques de pixels",
+   "Des boîtes englobantes",
+   "Des étiquettes de classes d'ImageNet"
+  ],
+  "explanation": "Les paires correspondantes sont des positifs ; les autres légendes du lot servent de négatifs."
+ },
+ {
+  "id": "vis.06.q2",
+  "prompt": "Pour un lot de $N$ paires, la matrice de logits de CLIP a pour forme...",
+  "options": [
+   "$(N,d)$",
+   "$(2N,2N)$",
+   "$(N,N)$",
+   "$(d,d)$"
+  ],
+  "explanation": "$S=UV^\\top/\\tau$ compare chaque image à chaque légende."
+ },
+ {
+  "id": "vis.06.q3",
+  "prompt": "Pourquoi la perte de CLIP est-elle symétrique ?",
+  "options": [
+   "Pour supprimer la température",
+   "La recherche image-vers-texte comme texte-vers-image doit fonctionner",
+   "Pour diviser le calcul par deux",
+   "Parce que les tours partagent leurs poids"
+  ],
+  "explanation": "Elle fait la moyenne de l'entropie croisée par lignes (trouver la légende) et par colonnes (trouver l'image)."
+ },
+ {
+  "id": "vis.06.q4",
+  "prompt": "$N=3$ paires, plongements unitaires parfaitement alignés ($U=V=I$), $\\tau=0.5$. Quelle est la perte de CLIP (3 décimales) ?",
+  "options": [],
+  "explanation": "$S=2I$ ; $\\ell=\\log(1+2e^{-2})=0.2395$ dans les deux directions."
+ },
+ {
+  "id": "vis.06.q5",
+  "prompt": "Baisser la température $\\tau$ dans la perte...",
+  "options": [
+   "supprime le besoin de négatifs",
+   "n'a aucun effet sur le gradient",
+   "rend le softmax plus net, en accentuant les négatifs difficiles",
+   "aplatit le softmax sur les légendes"
+  ],
+  "explanation": "Les logits évoluent en $1/\\tau$ ; un softmax plus net se concentre sur les mauvaises paires les plus déroutantes."
+ },
+ {
+  "id": "vis.06.q6",
+  "prompt": "La classification zero-shot d'une image en $K$ classes avec CLIP se fait par...",
+  "options": [
+   "le plongement de prompts de classes et le choix de celui qui a la plus forte similarité cosinus avec l'image",
+   "l'exécution d'une NMS",
+   "un fine-tuning sur K images",
+   "l'entraînement d'une nouvelle tête linéaire"
+  ],
+  "explanation": "Aucun paramètre n'est entraîné sur les classes cibles ; les prompts textuels jouent le rôle des poids du classifieur."
+ },
+ {
+  "id": "vis.06.q7",
+  "prompt": "Qu'est-ce que l'assemblage de prompts (prompt ensembling) ?",
+  "options": [
+   "Moyenner les plongements d'images sur des recadrages uniquement",
+   "Utiliser le prompt le plus long",
+   "Entraîner plusieurs modèles CLIP",
+   "Moyenner les plongements de texte de plusieurs modèles par classe, puis re-normaliser"
+  ],
+  "explanation": "Cela réduit la sensibilité à la formulation et donne un petit gain de précision."
+ },
+ {
+  "id": "vis.06.q8",
+  "prompt": "Laquelle est une limite des modèles zero-shot de style CLIP ?",
+  "options": [
+   "Ils ne peuvent pas utiliser de texte",
+   "Les similarités cosinus brutes ne sont pas des probabilités calibrées et les concepts fins ou spatiaux sont faibles",
+   "Ils ont besoin d'étiquettes de classes au moment du test",
+   "Ils exigent des boîtes englobantes"
+  ],
+  "explanation": "Le plongement est un seul vecteur global entraîné sur des légendes bruitées ; les valeurs de similarité ne sont pas calibrées et le détail est limité."
+ },
+ {
+  "id": "vis.06.q9",
+  "prompt": "Que change la perte SigLIP par rapport à celle de CLIP ?",
+  "options": [
+   "Elle supprime l'encodeur de texte",
+   "Elle utilise des boîtes englobantes",
+   "Elle utilise une perte binaire sigmoïde par paire au lieu d'un softmax sur le lot",
+   "Elle fixe tau à l'infini"
+  ],
+  "explanation": "Des pertes indépendantes par paire n'ont pas besoin de normalisation sur tout le lot, donc pas d'all-gather, et elle se comporte bien quelle que soit la taille de lot."
+ }
+]

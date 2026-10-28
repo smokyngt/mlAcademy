@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.04.c1", "concept": "rsn.grpo", "front": "RLVR versus RLHF", "back": "RLVR uses a programmatic, verifiable reward (answer checker, tests); RLHF uses a learned reward model trained on human preferences." },
+  { "id": "rsn.04.c2", "concept": "rsn.grpo", "front": "Rollout", "back": "A sampled completion (full chain of thought plus answer) for a prompt; GRPO samples a group of G per prompt." },
+  { "id": "rsn.04.c3", "concept": "rsn.grpo", "front": "Policy-gradient theorem for sequences", "back": "grad J = E[r(y) * grad log pi(y)], with log pi(y) the SUM of token log-probabilities of the sequence." },
+  { "id": "rsn.04.c4", "concept": "rsn.grpo", "front": "Why a baseline does not bias the gradient", "back": "E[b grad log pi] = b * grad(sum pi) = 0 for any b independent of the sample; it only reduces variance." },
+  { "id": "rsn.04.c5", "concept": "rsn.grpo", "front": "Group-relative advantage", "back": "A_i = (r_i - mean(r)) / (std(r) + eps) over the G rollouts of one prompt (sample std, ddof = 1)." },
+  { "id": "rsn.04.c6", "concept": "rsn.grpo", "front": "Binary reward advantages", "back": "With k of G correct: sigma = sqrt(k(G-k)/(G(G-1))); correct rollouts get (1-k/G)/sigma, wrong ones -(k/G)/sigma." },
+  { "id": "rsn.04.c7", "concept": "rsn.grpo", "front": "When are all GRPO advantages zero?", "back": "When all rollouts of a prompt have the same reward (all right or all wrong): no learning signal from that prompt." },
+  { "id": "rsn.04.c8", "concept": "rsn.grpo", "front": "Vanilla GRPO loss", "back": "L = -(1/G) sum_i A_i * sum_t log pi(y_t | x, y_<t), advantages detached." },
+  { "id": "rsn.04.c9", "concept": "rsn.grpo", "front": "Clipped surrogate", "back": "-(1/G) sum_i min(rho_i A_i, clip(rho_i, 1-eps, 1+eps) A_i), rho = pi_theta / pi_old; zero gradient when the clipped term is strictly smaller." },
+  { "id": "rsn.04.c10", "concept": "rsn.grpo", "front": "Why the loss value is 0 at the first step", "back": "Ratio = 1 and advantages sum to zero give a zero scalar loss, but the gradient A_i * grad log pi is not zero." },
+  { "id": "rsn.04.c11", "concept": "rsn.grpo", "front": "KL penalty in the book", "back": "beta * mean(logp - ref_logp) against a frozen reference model; needs a second model copy and can destabilise training when computed on summed log-probs." },
+  { "id": "rsn.04.c12", "concept": "rsn.reward-design", "front": "Correctness reward with a required box", "back": "Reward 1 only if the last boxed answer is verified: the box requirement is an implicit format reward." },
+  { "id": "rsn.04.c13", "concept": "rsn.reward-design", "front": "Conditional format reward", "back": "format_reward *= correctness_reward so that formatting pays only for correct answers; avoids wrong-but-tagged outputs tying with right ones." },
+  { "id": "rsn.04.c14", "concept": "rsn.reward-design", "front": "Probability of a zero-signal group", "back": "p^G + (1-p)^G for success probability p and G independent rollouts (0.17 for p = 0.2, G = 8)." }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "nlp.02.ex1",
+ "title": "Naive Bayes multinomial et F1 à partir de zéro",
+ "prompt": "Construis un classifieur de texte Naive Bayes multinomial et les métriques servant à le juger.\n\n- `train_nb(docs, labels, alpha=1.0)` -> `(classes, vocab, log_prior, log_theta)`. `docs` est une liste de listes de tokens. `classes` et `vocab` sont des listes triées ; `log_prior` a la forme `(C,)` ; `log_theta` a la forme `(C, V)` avec un lissage add-`alpha` (dénominateur `total_tokens_in_class + alpha * V`).\n- `nb_scores(doc, vocab, log_prior, log_theta)` -> vecteur `(C,)` de log a posteriori non normalisés ; les tokens absents de `vocab` sont ignorés.\n- `nb_predict(doc, classes, vocab, log_prior, log_theta)` -> la meilleure étiquette de classe.\n- `nb_proba(scores)` -> softmax des scores (numériquement stable : soustrais d'abord le maximum).\n- `prf(y_true, y_pred, positive)` -> `(precision, recall, f1)` pour la classe `positive` ; renvoie 0.0 pour les rapports indéfinis.",
+ "hints": [
+  "Par classe : log_prior = log(#docs dans la classe / #docs) ; counts[j] = nombre d'occurrences du token j dans les docs de la classe ; log_theta = log((counts + alpha) / (counts.sum() + alpha * V)).",
+  "Score d'un document = log_prior + somme de log_theta[:, indice de w] sur ses tokens connus (ignore les mots inconnus). Renvoie un vecteur de forme (C,).",
+  "precision = TP / (TP + FP), recall = TP / (TP + FN), F1 = 2PR/(P+R) ; renvoie 0.0 quand un dénominateur vaut 0."
+ ]
+}

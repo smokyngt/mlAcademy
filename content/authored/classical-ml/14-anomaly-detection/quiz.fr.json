@@ -1,0 +1,102 @@
+[
+ {
+  "id": "cml.14.q1",
+  "prompt": "Pourquoi la détection d'anomalies est-elle généralement formulée comme la modélisation des données normales plutôt que comme l'entraînement d'un classifieur ?",
+  "options": [
+   "Les anomalies sont rares et changent sans cesse, donc il y a peu ou pas d'étiquettes représentatives",
+   "Les classifieurs ne peuvent pas produire de probabilités",
+   "Les données normales sont toujours gaussiennes",
+   "Les anomalies sont toujours des erreurs"
+  ],
+  "explanation": "Avec 0.1 % d'anomalies, et de nouveaux types qui apparaissent demain, un modèle supervisé n'a presque rien à apprendre ; modéliser la normalité généralise aux anomalies jamais vues."
+ },
+ {
+  "id": "cml.14.q2",
+  "prompt": "Les dix valeurs 10, 11, 9, 10, 12, 10, 11, 9, 10, 50 donnent un z-score classique d'environ 2.99 pour la valeur 50. Cela illustre...",
+  "options": [
+   "Que le z-score est robuste",
+   "Que les données sont gaussiennes",
+   "Le masquage : la valeur aberrante gonfle la moyenne et l'écart-type",
+   "La contamination"
+  ],
+  "explanation": "La moyenne 14.2 et l'écart-type 11.96 sont tirés vers le haut par 50 lui-même, donc le test ne le signale pas ; la version médiane/MAD donne 26.98."
+ },
+ {
+  "id": "cml.14.q3",
+  "prompt": "Pour les mêmes données, la médiane vaut 10 et la MAD vaut 1. Quel est le z-score robuste $0.6745\\,(x-\\tilde x)/\\mathrm{MAD}$ de la valeur 50 ?",
+  "options": [],
+  "explanation": "$0.6745\\times40=26.98$."
+ },
+ {
+  "id": "cml.14.q4",
+  "prompt": "La distance de Mahalanobis peut signaler un point dont chaque coordonnée est ordinaire parce que...",
+  "options": [
+   "Elle utilise la médiane",
+   "Elle tient compte de la corrélation entre variables via $\\Sigma^{-1}$",
+   "Elle ignore la moyenne",
+   "Elle utilise des coupes aléatoires"
+  ],
+  "explanation": "Un point qui viole la structure de corrélation est loin de l'ellipse des données même si chaque marginale est typique."
+ },
+ {
+  "id": "cml.14.q5",
+  "prompt": "Le blanchiment $u=L^{-1}(x-\\mu)$ avec $\\Sigma=LL^\\top$ montre que $D(x)^2$ est égal à...",
+  "options": [
+   "La somme de la diagonale de $\\Sigma$",
+   "Le déterminant de $\\Sigma$",
+   "La plus grande valeur propre",
+   "La norme euclidienne au carré $\\|u\\|^2$ du vecteur blanchi"
+  ],
+  "explanation": "$\\|u\\|^2=(x-\\mu)^\\top L^{-\\top}L^{-1}(x-\\mu)=(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)$."
+ },
+ {
+  "id": "cml.14.q6",
+  "prompt": "Dans une forêt d'isolation, une anomalie a typiquement...",
+  "options": [
+   "Une longueur moyenne de chemin courte, donc un score proche de 1",
+   "Une longueur moyenne de chemin longue",
+   "La même longueur de chemin que les points normaux",
+   "Aucun chemin"
+  ],
+  "explanation": "Les points clairsemés et différents sont séparés du reste après peu de coupes aléatoires."
+ },
+ {
+  "id": "cml.14.q7",
+  "prompt": "Un arbre d'isolation construit sur $\\psi=2$ points : combien vaut $c(2)$ ?",
+  "options": [],
+  "explanation": "Par définition $c(2)=1$ (une coupe sépare deux points)."
+ },
+ {
+  "id": "cml.14.q8",
+  "prompt": "Le score d'isolation $2^{-E[h(x)]/c(\\psi)}$ vaut 0.5 quand...",
+  "options": [
+   "$E[h]=0$",
+   "$E[h]=2c(\\psi)$",
+   "$E[h]=c(\\psi)$",
+   "$E[h]=1$"
+  ],
+  "explanation": "$2^{-1}=0.5$ : le point est aussi difficile à isoler qu'un point moyen."
+ },
+ {
+  "id": "cml.14.q9",
+  "prompt": "Que fait le paramètre `contamination` d'un détecteur ?",
+  "options": [
+   "Il change la façon dont les scores sont calculés",
+   "Il fixe le seuil de sorte qu'environ cette fraction de points soit signalée",
+   "Il retire les anomalies des données d'entraînement",
+   "Il contrôle le nombre d'arbres"
+  ],
+  "explanation": "Les scores sont inchangés ; la contamination ne choisit que le seuil, c'est-à-dire le nombre d'alertes que tu reçois."
+ },
+ {
+  "id": "cml.14.q10",
+  "prompt": "Sur 1000 transactions dont 3 sont frauduleuses, un détecteur signale ses 10 meilleures. Huit des 10 ne sont pas des fraudes. Quelle métrique le rapporte le mieux ?",
+  "options": [
+   "L'accuracy (99.2 % ou plus)",
+   "L'AUC-ROC seule",
+   "La perte d'entraînement",
+   "Precision@10 = 0.2"
+  ],
+  "explanation": "L'accuracy est dominée par la classe normale ; la précision au budget de vérification mesure l'utilité réelle."
+ }
+]

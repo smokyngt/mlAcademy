@@ -1,0 +1,81 @@
+#@@ meta
+{"id": "gen.02.ex1", "title": "Tiny VAE loss and reparameterisation gradients", "difficulty": 3, "runtime": "pyodide", "concepts": ["gen.vae"], "hints": ["dL/dz for the reconstruction is 2 W^T (xhat - x).", "dz/dmu = 1 and dz/dlogvar = 0.5 * exp(0.5*logvar) * eps; add the KL gradients mu and 0.5*(exp(logvar)-1) times beta.", "Check each gradient with (f(v+h)-f(v-h))/(2h), h=1e-6."]}
+#@@ prompt
+Implement the pieces of a tiny VAE with a linear decoder and verify the gradients of the reparameterised sample.
+
+- `kl_to_std_normal(mu, logvar)`: $\tfrac12\sum(\mu^2+e^{\text{logvar}}-\text{logvar}-1)$ over the last axis.
+- `kl_gauss_1d(m1, s1, m2, s2)`: KL between two 1-D Gaussians (standard deviations, not variances).
+- `reparameterize(mu, logvar, eps)`: $z=\mu+e^{\text{logvar}/2}\varepsilon$.
+- `vae_loss(x, mu, logvar, eps, W, b, beta=1.0)`: returns `(total, reconstruction, kl)` where reconstruction $=\sum(x-(Wz+b))^2$ and total $=$ rec $+\beta\,$KL.
+- `vae_grads(x, mu, logvar, eps, W, b, beta=1.0)`: analytic gradients `(dmu, dlogvar)` of the total loss with the noise `eps` held fixed.
+
+The tests compare your gradients with central finite differences.
+#@@ starter
+import numpy as np
+
+def kl_to_std_normal(mu, logvar):
+    raise NotImplementedError
+
+def kl_gauss_1d(m1, s1, m2, s2):
+    raise NotImplementedError
+
+def reparameterize(mu, logvar, eps):
+    raise NotImplementedError
+
+def vae_loss(x, mu, logvar, eps, W, b, beta=1.0):
+    raise NotImplementedError
+
+def vae_grads(x, mu, logvar, eps, W, b, beta=1.0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+x = np.array([1.0, -0.5, 2.0]); mu = np.array([0.3, -0.2]); lv = np.array([-0.5, 0.4]); eps = np.array([0.7, -1.1])
+W = rng.normal(size=(3, 2)); b = np.array([0.1, 0.0, -0.1])
+L, rec, kl = vae_loss(x, mu, lv, eps, W, b)
+check("KL(N(1,1)||N(0,1)) = 0.5", lambda: abs(kl_to_std_normal(np.array([1.0]), np.array([0.0])) - 0.5) < 1e-12)
+check("KL is zero at the prior", lambda: abs(kl_to_std_normal(np.zeros(3), np.zeros(3))) < 1e-12)
+check("KL worked example 1.3069", lambda: abs(kl_to_std_normal(np.array([1.0, 0.0]), np.array([0.0, np.log(4.0)])) - 1.3068528) < 1e-6)
+check("general KL agrees with the std-normal special case", lambda: abs(kl_gauss_1d(1, 1, 0, 1) - 0.5) < 1e-12 and abs(kl_gauss_1d(0, 2, 0, 1) - 0.8068528) < 1e-6)
+sm = np.random.default_rng(1).normal(1.0, 2.0, 400000)
+mc = np.mean(-0.5 * np.log(2 * np.pi * 4) - (sm - 1) ** 2 / 8 - (-0.5 * np.log(2 * np.pi) - sm ** 2 / 2))
+check("KL(N(1,4)||N(0,1)) matches a Monte Carlo estimate", lambda: abs(mc - kl_gauss_1d(1, 2, 0, 1)) < 0.02)
+check("reparameterised sample", lambda: np.allclose(reparameterize(mu, lv, eps), mu + np.exp(0.5 * lv) * eps))
+check("loss worked example 10.9628 (rec 10.7986, kl 0.1642)", lambda: abs(L - 10.9627933) < 1e-5 and abs(rec - 10.7986157) < 1e-5 and abs(kl - 0.1641777) < 1e-5)
+dmu, dlv = vae_grads(x, mu, lv, eps, W, b)
+h = 1e-6
+def num(f, v, i):
+    e = np.zeros_like(v); e[i] = h
+    return (f(v + e) - f(v - e)) / (2 * h)
+for i in range(2):
+    check(f"dL/dmu[{i}] matches finite differences", lambda i=i: abs(dmu[i] - num(lambda m: vae_loss(x, m, lv, eps, W, b)[0], mu, i)) < 1e-6)
+    check(f"dL/dlogvar[{i}] matches finite differences", lambda i=i: abs(dlv[i] - num(lambda v: vae_loss(x, mu, v, eps, W, b)[0], lv, i)) < 1e-6)
+check("beta scales the KL term", lambda: abs(vae_loss(x, mu, lv, eps, W, b, beta=2.0)[0] - (rec + 2 * kl)) < 1e-9)
+dmu2, dlv2 = vae_grads(x, mu, lv, eps, W, b, beta=3.0)
+check("gradients with beta=3 also match", lambda: abs(dlv2[0] - num(lambda v: vae_loss(x, mu, v, eps, W, b, 3.0)[0], lv, 0)) < 1e-6)
+#@@ solution
+import numpy as np
+
+def kl_to_std_normal(mu, logvar):
+    return 0.5 * np.sum(np.exp(logvar) + mu ** 2 - logvar - 1, axis=-1)
+
+def kl_gauss_1d(m1, s1, m2, s2):
+    return np.log(s2 / s1) + (s1 ** 2 + (m1 - m2) ** 2) / (2 * s2 ** 2) - 0.5
+
+def reparameterize(mu, logvar, eps):
+    return mu + np.exp(0.5 * logvar) * eps
+
+def vae_loss(x, mu, logvar, eps, W, b, beta=1.0):
+    z = reparameterize(mu, logvar, eps)
+    xh = W @ z + b
+    rec = np.sum((x - xh) ** 2)
+    kl = kl_to_std_normal(mu, logvar)
+    return rec + beta * kl, rec, kl
+
+def vae_grads(x, mu, logvar, eps, W, b, beta=1.0):
+    z = reparameterize(mu, logvar, eps)
+    xh = W @ z + b
+    dz = 2 * W.T @ (xh - x)
+    dmu = dz + beta * mu
+    dlv = dz * 0.5 * np.exp(0.5 * logvar) * eps + beta * 0.5 * (np.exp(logvar) - 1)
+    return dmu, dlv

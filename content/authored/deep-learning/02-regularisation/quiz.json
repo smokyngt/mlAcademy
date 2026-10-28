@@ -1,0 +1,63 @@
+[
+  {
+    "id": "dl.02.q1", "concept": "dl.dropout", "stage": "pre", "kind": "mcq",
+    "prompt": "In inverted dropout with drop probability $p$, by what factor are the kept activations multiplied during training?",
+    "options": ["$p$", "$1-p$", "$1/(1-p)$", "$1/p$"],
+    "answer": 2,
+    "explanation": "$\\mathbb{E}[m]=1-p$, so dividing by $1-p$ keeps $\\mathbb{E}[\\tilde a]=a$ and the evaluation network needs no rescaling."
+  },
+  {
+    "id": "dl.02.q2", "concept": "dl.dropout", "stage": "check", "kind": "numeric",
+    "prompt": "An activation $a=3$ goes through inverted dropout with $p=0.5$. What is the variance of the output $\\tilde a$?",
+    "answer": {"value": 9, "tol": 0.01},
+    "explanation": "$\\operatorname{Var}=a^2\\,p/(1-p)=9\\cdot1=9$."
+  },
+  {
+    "id": "dl.02.q3", "concept": "dl.dropout", "stage": "check", "kind": "mcq",
+    "prompt": "In the backward pass of a dropout layer, what must happen?",
+    "options": ["Draw a fresh mask", "Reuse the forward mask: dropped units get zero gradient, kept units get the incoming gradient times $1/(1-p)$", "Pass the gradient through unchanged", "Divide by $p$"],
+    "answer": 1,
+    "explanation": "The forward map is $\\tilde a=c\\odot a$ with a fixed $c$; its gradient is $c\\odot\\partial L/\\partial\\tilde a$."
+  },
+  {
+    "id": "dl.02.q4", "concept": "dl.weight-decay", "stage": "check", "kind": "mcq",
+    "prompt": "L2 regularisation $\\tfrac\\lambda2\\|\\theta\\|^2$ corresponds to which prior on the weights?",
+    "options": ["Uniform", "Zero-mean Gaussian, with $\\lambda=\\sigma^2/\\tau^2$", "Laplace", "Bernoulli"],
+    "answer": 1,
+    "explanation": "The negative log of a zero-mean Gaussian is quadratic. A Laplace prior would give the L1 penalty."
+  },
+  {
+    "id": "dl.02.q5", "concept": "dl.weight-decay", "stage": "check", "kind": "numeric",
+    "prompt": "Minimise $\\tfrac12(w-3)^2+\\tfrac{\\lambda}{2}w^2$ with $\\lambda=0.5$. What is the minimiser?",
+    "answer": {"value": 2, "tol": 0.001},
+    "explanation": "$(w-3)+\\lambda w=0\\Rightarrow w=3/(1+\\lambda)=2$."
+  },
+  {
+    "id": "dl.02.q6", "concept": "dl.weight-decay", "stage": "check", "kind": "mcq",
+    "prompt": "Minimise $\\tfrac12(w-3)^2+\\lambda|w|$ with $\\lambda=4$. What is the minimiser?",
+    "options": ["3", "-1", "0", "0.6"],
+    "answer": 2,
+    "explanation": "Soft thresholding: $\\mathrm{sign}(3)\\max(3-4,0)=0$. L1 can set a weight exactly to zero; L2 never does."
+  },
+  {
+    "id": "dl.02.q7", "concept": "dl.early-stopping", "stage": "check", "kind": "mcq",
+    "prompt": "Which statement about early stopping is correct?",
+    "options": ["Stop when the training loss stops decreasing", "Stop at the minimum of the loss on a held-out validation set and keep that checkpoint; do not choose the epoch on the test set", "Always stop after 10 epochs", "It only works with SGD"],
+    "answer": 1,
+    "explanation": "Training loss keeps falling while validation loss rises once the network starts fitting noise. Selecting on the test set would leak it."
+  },
+  {
+    "id": "dl.02.q8", "concept": "dl.early-stopping", "stage": "check", "kind": "mcq",
+    "prompt": "Why is training on randomly jittered copies of the inputs more than just extra data?",
+    "options": ["It is not; it is only extra data", "To second order it adds a penalty on the sensitivity of the model output to the perturbation, i.e. a smoothness regulariser", "It lowers the learning rate", "It removes the need for a validation set"],
+    "answer": 1,
+    "explanation": "Expanding the loss to second order in a zero-mean perturbation gives $E+\\lambda\\Omega$ (Bishop eq. 5.131)."
+  },
+  {
+    "id": "dl.02.q9", "concept": "dl.dropout", "stage": "check", "kind": "mcq",
+    "prompt": "In the small-data experiment, dropout alone left the train/test gap almost unchanged while L2 and input-noise augmentation reduced the test loss about ten-fold. What is the best reading?",
+    "options": ["Dropout never works", "Dropout is not a universal fix: with few points and a wide network it can still be memorised; effects depend on width, data size and training length", "The dropout code was wrong", "L2 is always better"],
+    "answer": 1,
+    "explanation": "The table reports one toy setting. Regulariser choice is an empirical question, validated on held-out data."
+  }
+]

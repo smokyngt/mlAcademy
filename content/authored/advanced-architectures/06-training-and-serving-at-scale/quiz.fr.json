@@ -1,0 +1,82 @@
+[
+ {
+  "id": "adv.06.q1",
+  "prompt": "Avec Adam en précision mixte (poids maîtres fp32, m, v), combien d'octets d'état du modèle par paramètre en parallélisme de données simple ?",
+  "options": ["4", "8", "12", "16"],
+  "explanation": "2 (poids) + 2 (gradients) + 12 (maître fp32, m, v) $=16$."
+ },
+ {
+  "id": "adv.06.q2",
+  "prompt": "ZeRO-3 sur 64 GPU pour un modèle de 70 Md de paramètres : état du modèle par GPU en GiB (à 1 décimale) ?",
+  "options": [],
+  "explanation": "$16\\cdot70\\times10^9/64/2^{30}=16.3$ GiB."
+ },
+ {
+  "id": "adv.06.q3",
+  "prompt": "Quelle étape de ZeRO partitionne en premier les paramètres eux-mêmes ?",
+  "options": ["1", "2", "3", "0"],
+  "explanation": "L'étape 1 l'état de l'optimiseur, l'étape 2 ajoute les gradients, l'étape 3 ajoute les paramètres (FSDP)."
+ },
+ {
+  "id": "adv.06.q4",
+  "prompt": "Dans le parallélisme de tenseurs en lignes, comment les résultats partiels sont-ils combinés ?",
+  "options": [
+   "Concaténés",
+   "Sommés avec un all-reduce",
+   "Moyennés sur le batch",
+   "Non combinés"
+  ],
+  "explanation": "$xW=x_1W_1+x_2W_2$ ; les produits partiels sont sommés."
+ },
+ {
+  "id": "adv.06.q5",
+  "prompt": "Pipeline à 4 étapes et 16 micro-batchs : fraction d'inactivité $(p-1)/(m+p-1)$ en pourcentage (1 décimale) ?",
+  "options": [],
+  "explanation": "$3/19=15.8\\%$."
+ },
+ {
+  "id": "adv.06.q6",
+  "prompt": "Pourquoi utilise-t-on la mise à l'échelle de la perte avec fp16 ?",
+  "options": [
+   "Pour agrandir le modèle",
+   "Pour empêcher les petits gradients de passer à zéro par underflow",
+   "Pour accélérer le softmax",
+   "Pour réduire le nombre de GPU"
+  ],
+  "explanation": "Multiplier la perte décale les gradients dans la plage représentable ; ils sont redivisés en fp32."
+ },
+ {
+  "id": "adv.06.q7",
+  "prompt": "Lors d'un débordement de gradient (inf/NaN), la mise à l'échelle dynamique de la perte...",
+  "options": [
+   "double l'échelle et applique le pas",
+   "saute le pas et divise l'échelle par deux",
+   "passe à fp32 pour toujours",
+   "écrête à zéro et continue"
+  ],
+  "explanation": "La mise à jour est sautée et l'échelle divisée par deux ; elle regrandit après une série de pas propres."
+ },
+ {
+  "id": "adv.06.q8",
+  "prompt": "Tailles égales ($a=A=1$), $L=64$ couches. Quel est l'intervalle de checkpoint optimal $k$ ?",
+  "options": [],
+  "explanation": "$k^\\star=\\sqrt{La/A}=8$ ; mémoire $64/8+8=16$."
+ },
+ {
+  "id": "adv.06.q9",
+  "prompt": "Le recalcul complet des activations fait passer le coût d'un pas de 3 unités (avant 1 + arrière 2) à...",
+  "options": ["3.5", "4 (environ 33 % de plus)", "6", "2"],
+  "explanation": "Une passe avant supplémentaire : $4/3\\approx1.33$ de l'original."
+ },
+ {
+  "id": "adv.06.q10",
+  "prompt": "Que préserve la conception MTP séquentielle de DeepSeek-V3 que les têtes parallèles indépendantes ne préservent pas ?",
+  "options": [
+   "Moins de paramètres",
+   "La chaîne causale entre les prédictions, de sorte que les modules puissent servir de brouillon de décodage spéculatif",
+   "Un vocabulaire plus grand",
+   "L'attention bidirectionnelle"
+  ],
+  "explanation": "Chaque profondeur voit l'état caché de la profondeur précédente et le vrai token suivant, comme le ferait un décodeur autorégressif."
+ }
+]

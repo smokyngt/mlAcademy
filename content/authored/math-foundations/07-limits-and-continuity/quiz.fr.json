@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.07.q1",
+  "prompt": "Que vaut $\\lim_{x\\to1}\\frac{x^2-1}{x-1}$ ?",
+  "options": [],
+  "explanation": "Pour $x\\ne1$ la fraction est égale à $x+1$ (on simplifie $x-1$), qui tend vers 2. La fonction n'est pas définie en 1 mais la limite existe."
+ },
+ {
+  "id": "mf.07.q2",
+  "prompt": "La valeur de $f(a)$ importe-t-elle pour $\\lim_{x\\to a}f(x)$ ?",
+  "options": [
+   "Oui, la limite est toujours égale à $f(a)$",
+   "Non, la limite ne dépend que des valeurs proches de $a$, pas de celle en $a$",
+   "Oui, si $f(a)$ n'est pas défini la limite n'existe pas",
+   "Seulement pour les polynômes"
+  ],
+  "explanation": "La limite demande vers quoi $f$ tend, en ignorant ce qui se passe exactement en $a$. L'égalité avec $f(a)$ est précisément la continuité."
+ },
+ {
+  "id": "mf.07.q3",
+  "prompt": "Pour $f(x)=|x|/x$, quelles sont les limites à gauche et à droite en 0 ?",
+  "options": [
+   "toutes deux 0",
+   "à gauche $-1$, à droite $+1$, donc la limite bilatérale n'existe pas",
+   "toutes deux 1",
+   "à gauche $+1$, à droite $-1$"
+  ],
+  "explanation": "Pour $x<0$ le rapport vaut $-1$ ; pour $x>0$ il vaut $+1$. Quand les côtés sont en désaccord, la limite n'existe pas."
+ },
+ {
+  "id": "mf.07.q4",
+  "prompt": "Si $\\lim_{x\\to a}f=3$ et $\\lim_{x\\to a}g=4$, que vaut $\\lim_{x\\to a}(f\\cdot g)$ ?",
+  "options": [],
+  "explanation": "Lois des limites : la limite d'un produit est le produit des limites (quand les deux existent)."
+ },
+ {
+  "id": "mf.07.q5",
+  "prompt": "Une fonction $f$ est continue en $a$ quand...",
+  "options": [
+   "$f(a)$ existe",
+   "la limite existe",
+   "$f(a)$ existe, la limite existe, et elles sont égales",
+   "son graphe a un coin en $a$"
+  ],
+  "explanation": "Les trois conditions ensemble. Un coin (comme $|x|$ en 0) est encore continu."
+ },
+ {
+  "id": "mf.07.q6",
+  "prompt": "Dans l'idée epsilon-delta, pour $f(x)=2x+1$ près de $a=3$ avec la limite $7$, quel $\\delta$ garantit $|f(x)-7|<\\varepsilon$ ?",
+  "options": [
+   "$\\delta=\\varepsilon$",
+   "$\\delta=\\varepsilon/2$",
+   "$\\delta=2\\varepsilon$",
+   "$\\delta=7\\varepsilon$"
+  ],
+  "explanation": "$|f(x)-7|=2|x-3|<\\varepsilon$ exactement quand $|x-3|<\\varepsilon/2$."
+ },
+ {
+  "id": "mf.07.q7",
+  "prompt": "Pourquoi les dérivées ont-elles besoin des limites ?",
+  "options": [
+   "La pente en un point demande un rapport $\\frac{\\Delta y}{\\Delta x}$ avec $\\Delta x\\to0$, qui vaudrait $0/0$ si l'on posait simplement $\\Delta x=0$",
+   "Les dérivées évitent les rapports",
+   "Les limites rendent les fonctions continues",
+   "Les limites ne servent que pour les suites"
+  ],
+  "explanation": "Le taux d'accroissement $(f(x+h)-f(x))/h$ n'est pas défini en $h=0$ ; la dérivée est sa limite quand $h\\to0$."
+ },
+ {
+  "id": "mf.07.q8",
+  "prompt": "$\\lim_{x\\to0}\\frac{\\sin x}{x}$ (radians) est égale à...",
+  "options": [],
+  "explanation": "Numériquement $\\sin(0.001)/0.001=0.99999983$ ; la limite est 1."
+ },
+ {
+  "id": "mf.07.q9",
+  "prompt": "Tu estimes une limite en évaluant $(1-\\cos h)/h^2$ en $h=10^{-8}$ en virgule flottante et tu obtiens 0, alors que la limite est $1/2$. Pourquoi ?",
+  "options": [
+   "La limite vaut vraiment 0",
+   "Arrondi : $\\cos h$ s'arrondit à 1.0 et la soustraction annule tous les chiffres",
+   "Python ne sait pas prendre de limites",
+   "$h$ est trop grand"
+  ],
+  "explanation": "Annulation catastrophique. L'exploration numérique des limites doit s'arrêter à un $h$ modérément petit et être comparée à l'algèbre."
+ }
+]

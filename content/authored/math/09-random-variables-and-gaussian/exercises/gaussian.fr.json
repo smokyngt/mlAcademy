@@ -1,0 +1,11 @@
+{
+  "id": "math.09.ex1",
+  "title": "Moments, applications affines, échantillonnage de Cholesky et EMV gaussien",
+  "prompt": "Implémente, avec NumPy uniquement :\n\n- `discrete_moments(x, p)` - moyenne et variance d'une variable aléatoire discrète de valeurs `x` et de probabilités `p` (forme `(K,)`). Calcule la variance à partir des valeurs centrées.\n- `var_raw(x)` et `var_two_pass(x)` - variance d'un échantillon (division par `N`) via `mean(x**2) - mean(x)**2` et via le centrage préalable.\n- `emp_cov(X, ddof=0)` - covariance empirique de `X` de forme `(N, D)`, renvoyant `(D, D)`, en divisant par `N - ddof`.\n- `affine_gaussian(mu, Sigma, A, b)` - moyenne et covariance de `A x + b` pour `x ~ N(mu, Sigma)`.\n- `sample_mvn(mu, Sigma, n, rng)` - `n` échantillons de `N(mu, Sigma)` sous forme de tableau `(n, D)`, en utilisant le facteur de Cholesky de `Sigma` et `rng.standard_normal((n, D))`.\n- `gaussian_mle(x)` - `(mu_ML, var_ML)` d'un échantillon 1-D (division par `N`).\n- `gaussian_loglik(x, mu, var)` - log-vraisemblance totale d'un échantillon 1-D.",
+  "hints": [
+    "discrete_moments : moyenne = sum(x*p) ; var = sum((x-moyenne)^2 * p) (centre d'abord).",
+    "emp_cov(X, ddof) : Xc = X - X.mean(axis=0) ; renvoie Xc.T @ Xc / (N - ddof).",
+    "sample_mvn : L = np.linalg.cholesky(Sigma) ; z = rng.standard_normal((n, D)) ; renvoie mu + z @ L.T (les lignes sont les échantillons).",
+    "gaussian_loglik : -N/2 * log(2 pi var) - sum((x-mu)^2) / (2 var)."
+  ]
+}

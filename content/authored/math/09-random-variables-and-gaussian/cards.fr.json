@@ -1,0 +1,17 @@
+[
+  { "id": "math.09.c1", "front": "pmf contre pdf", "back": "pmf : $P(X=x)$, somme égale à 1, chaque valeur dans $[0,1]$. pdf : $p(x)\\ge0$ s'intègre à 1 ; les probabilités sont des aires, et $p(x)$ peut dépasser 1." },
+  { "id": "math.09.c2", "front": "Fonction de répartition (cdf)", "back": "$F(x)=P(X\\le x)=\\int_{-\\infty}^x p(t)\\,dt$. Croissante (au sens large) de 0 à 1." },
+  { "id": "math.09.c3", "front": "Espérance de $g(X)$", "back": "$\\sum_x g(x)P(x)$ (discret) ou $\\int g(x)p(x)dx$ (continu). La moyenne correspond à $g(x)=x$." },
+  { "id": "math.09.c4", "front": "Linéarité de l'espérance", "back": "$\\mathbb E[aX+bY+c]=a\\mathbb E X+b\\mathbb E Y+c$, sans besoin d'indépendance." },
+  { "id": "math.09.c5", "front": "Variance, deux formes", "back": "$\\mathbb E[(X-\\mu)^2]=\\mathbb E[X^2]-\\mu^2$. Calcule-la en centrant d'abord pour la sécurité numérique." },
+  { "id": "math.09.c6", "front": "Pourquoi la variance par scores bruts est-elle numériquement instable ?", "back": "Elle soustrait deux grands nombres presque égaux (annulation catastrophique) ; elle peut même sortir négative." },
+  { "id": "math.09.c7", "front": "Covariance et corrélation", "back": "$\\operatorname{Cov}[X,Y]=\\mathbb E[XY]-\\mathbb E X\\,\\mathbb E Y$ ; la corrélation divise par les deux écarts-types, se trouve dans $[-1,1]$ et est le cosinus de l'angle entre les variables centrées." },
+  { "id": "math.09.c8", "front": "Indépendantes contre non corrélées", "back": "Indépendantes implique non corrélées, pas l'inverse. Exemple : $X$ symétrique, $Y=X^2$." },
+  { "id": "math.09.c9", "front": "Covariance empirique et sa forme", "back": "$\\hat\\Sigma=\\frac1N X_c^\\top X_c$ pour $X_c:(N,D)$ centrée ; résultat $(D,D)$ symétrique SDP. $1/N$ est biaisé du facteur $(N-1)/N$ ; utilise $1/(N-1)$ pour être non biaisé." },
+  { "id": "math.09.c10", "front": "Application affine de la moyenne et de la covariance", "back": "$\\mathbf y=A\\mathbf x+\\mathbf b$ : moyenne $A\\boldsymbol\\mu+\\mathbf b$, covariance $A\\Sigma A^\\top$ (forme $m\\times m$). $\\mathbf b$ n'affecte pas la covariance." },
+  { "id": "math.09.c11", "front": "Densité gaussienne multivariée", "back": "$\\frac{1}{(2\\pi)^{D/2}|\\Sigma|^{1/2}}\\exp(-\\frac12(\\mathbf x-\\boldsymbol\\mu)^\\top\\Sigma^{-1}(\\mathbf x-\\boldsymbol\\mu))$. Les courbes de niveau sont des ellipses le long des vecteurs propres de $\\Sigma$." },
+  { "id": "math.09.c12", "front": "Distance de Mahalanobis", "back": "$\\Delta^2=(\\mathbf x-\\boldsymbol\\mu)^\\top\\Sigma^{-1}(\\mathbf x-\\boldsymbol\\mu)=\\sum_i y_i^2/\\lambda_i$ ; égale le carré de la distance euclidienne quand $\\Sigma=I$." },
+  { "id": "math.09.c13", "front": "Échantillonner $\\mathcal N(\\boldsymbol\\mu,\\Sigma)$", "back": "Cholesky $\\Sigma=LL^\\top$, tirer $\\mathbf z\\sim\\mathcal N(0,I)$, renvoyer $\\boldsymbol\\mu+L\\mathbf z$." },
+  { "id": "math.09.c14", "front": "Maximum de vraisemblance pour une gaussienne", "back": "$\\mu_{\\rm ML}$ = moyenne empirique, $\\Sigma_{\\rm ML}$ = covariance empirique en $1/N$ (biaisée de $(N-1)/N$)." },
+  { "id": "math.09.c15", "front": "Pourquoi EQM = maximum de vraisemblance", "back": "Un bruit gaussien donne la log-vraisemblance $-\\frac N2\\ln(2\\pi\\sigma^2)-\\frac1{2\\sigma^2}\\sum(t_n-f_n)^2$ ; la maximiser minimise la somme des carrés." }
+]

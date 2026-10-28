@@ -1,0 +1,17 @@
+[
+  { "id": "dl.03.c1", "concept": "dl.init", "front": "Variance of a layer's pre-activation", "back": "$\\mathrm{Var}(z)=n_{in}\\,\\mathrm{Var}(w)\\,\\mathbb{E}[x^2]$ for independent zero-mean weights." },
+  { "id": "dl.03.c2", "concept": "dl.init", "front": "He (Kaiming) initialisation", "back": "$\\mathrm{Var}(w)=2/n_{in}$, i.e. std $\\sqrt{2/n_{in}}$, for ReLU. The 2 compensates for ReLU zeroing half the units." },
+  { "id": "dl.03.c3", "concept": "dl.init", "front": "Xavier (Glorot) initialisation", "back": "$\\mathrm{Var}(w)=2/(n_{in}+n_{out})$: a compromise between forward and backward variance preservation, for roughly linear activations (tanh)." },
+  { "id": "dl.03.c4", "concept": "dl.init", "front": "Symptom of Xavier init with ReLU", "back": "The second moment halves each layer; in the lesson measurement the std fell to $10^{-8}$ after 50 layers." },
+  { "id": "dl.03.c5", "concept": "dl.init", "front": "Why not initialise all weights to zero?", "back": "Symmetry: every unit in a layer computes and receives the same thing and stays identical." },
+  { "id": "dl.03.c6", "concept": "dl.init", "front": "Cheap diagnostics to log per layer", "back": "Activation mean/std, fraction of exact zeros, gradient norm. Vanishing: tiny early-layer norms; exploding: nan/inf or growth." },
+  { "id": "dl.03.c7", "concept": "dl.batchnorm", "front": "Batch norm forward", "back": "$\\hat x=(x-\\mu_B)/\\sqrt{\\sigma_B^2+\\varepsilon}$, $y=\\gamma\\hat x+\\beta$; statistics per feature over the batch." },
+  { "id": "dl.03.c8", "concept": "dl.batchnorm", "front": "Batch norm backward (input)", "back": "$\\bar x=\\frac{\\mathrm{inv}}{N}\\big(N\\bar{\\hat x}-\\sum\\bar{\\hat x}-\\hat x\\sum\\bar{\\hat x}\\hat x\\big)$ with $\\bar{\\hat x}=\\bar y\\gamma$." },
+  { "id": "dl.03.c9", "concept": "dl.batchnorm", "front": "Batch norm parameter gradients", "back": "$\\bar\\gamma=\\sum_i\\bar y\\odot\\hat x$, $\\bar\\beta=\\sum_i\\bar y$, both shape $(D)$." },
+  { "id": "dl.03.c10", "concept": "dl.batchnorm", "front": "Batch norm at inference", "back": "Use running averages of mean and variance collected in training (exponential average, momentum about 0.1); no batch dependence." },
+  { "id": "dl.03.c11", "concept": "dl.batchnorm", "front": "Batch norm's weakness", "back": "Depends on batch statistics: noisy for small batches, meaningless for $N=1$, train/eval mismatch." },
+  { "id": "dl.03.c12", "concept": "dl.layernorm", "front": "Layer norm", "back": "Normalise each example over its $D$ features: same in train and eval, any batch size. Backward: same formula with sums over features and $N\\to D$." },
+  { "id": "dl.03.c13", "concept": "dl.layernorm", "front": "RMSNorm", "back": "$y=\\gamma x/\\sqrt{\\frac1D\\sum x^2+\\varepsilon}$: no mean subtraction, no shift. Used in LLaMA-style models." },
+  { "id": "dl.03.c14", "concept": "dl.layernorm", "front": "RMSNorm backward", "back": "$\\bar x=r\\bar{\\hat x}-x\\,\\frac{r^3}{D}\\sum_k\\bar{\\hat x}_kx_k$, with $r=(\\frac1D\\sum x^2+\\varepsilon)^{-1/2}$." },
+  { "id": "dl.03.c15", "concept": "dl.batchnorm", "front": "Properties of the batch-norm input gradient", "back": "Sums to zero over the batch and is orthogonal to $\\hat x$: invariance to shifting and scaling the inputs." }
+]

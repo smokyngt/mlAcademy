@@ -1,0 +1,76 @@
+[
+ {
+  "id": "adv.02.q1",
+  "prompt": "Un encodeur de style Qwen2-VL utilise un patch de 14 avec une fusion 2x2. Combien de tokens pour une image 1120x672 ?",
+  "options": ["1920", "480", "960", "3840"],
+  "explanation": "$u=28$ : $1120/28=40$, $672/28=24$, donc $40\\cdot24=960$."
+ },
+ {
+  "id": "adv.02.q2",
+  "prompt": "Qu'assure le masque bloc-diagonal dans le patch-n-pack ?",
+  "options": [
+   "Chaque patch prête attention à tous les autres patchs du paquet",
+   "Un patch ne prête attention qu'aux patchs de la même image",
+   "Seule la première image est traitée",
+   "Les patchs ne prêtent attention qu'aux images précédentes"
+  ],
+  "explanation": "$M_{ij}=1$ seulement quand les positions $i,j$ appartiennent au même bloc d'image."
+ },
+ {
+  "id": "adv.02.q3",
+  "prompt": "Quatre images de 256, 576, 729 et 1024 tokens sont empaquetées. Combien d'entrées de scores d'attention sont calculées (somme des carrés) ?",
+  "options": [],
+  "explanation": "$256^2+576^2+729^2+1024^2=65536+331776+531441+1048576=1977329$."
+ },
+ {
+  "id": "adv.02.q4",
+  "prompt": "Pourquoi M-RoPE prend-il en charge toute taille d'image sans redimensionnement ?",
+  "options": [
+   "Il complète les images avec des zéros",
+   "Les positions sont des coordonnées (temps,ligne,col) fournies à une rotation, pas des emplacements dans une table apprise",
+   "Il utilise toujours des tuiles 336x336",
+   "Il supprime l'information positionnelle"
+  ],
+  "explanation": "Les positions rotatives sont une fonction déterministe des coordonnées, donc il n'y a pas de table dont on puisse dépasser la fin."
+ },
+ {
+  "id": "adv.02.q5",
+  "prompt": "Une vidéo de 30 minutes à 1 fps avec 81 tokens par image a combien de tokens visuels ?",
+  "options": [],
+  "explanation": "$1800\\cdot81=145{,}800$."
+ },
+ {
+  "id": "adv.02.q6",
+  "prompt": "Un pooling moyen 3x3 d'une grille de tokens 24x24 par image laisse combien de tokens par image ?",
+  "options": ["192", "64", "8", "576"],
+  "explanation": "$\\lceil24/3\\rceil^2=8^2=64$."
+ },
+ {
+  "id": "adv.02.q7",
+  "prompt": "Comment le cache KV croît-il avec le nombre de tokens visuels $N$, et comment croît le calcul d'attention du prefill ?",
+  "options": [
+   "tous deux linéairement",
+   "cache linéairement, calcul quadratiquement",
+   "cache quadratiquement, calcul linéairement",
+   "tous deux quadratiquement"
+  ],
+  "explanation": "Les octets KV $=2Lh_{kv}d_hNb$ sont linéaires ; le nombre de paires de scores causales $N(N+1)/2$ est quadratique."
+ },
+ {
+  "id": "adv.02.q8",
+  "prompt": "Octets de KV par token pour 32 couches, 8 têtes KV, dimension de tête 128, BF16 (en KiB) ?",
+  "options": [],
+  "explanation": "$2\\cdot32\\cdot8\\cdot128\\cdot2=131{,}072$ octets $=128$ KiB."
+ },
+ {
+  "id": "adv.02.q9",
+  "prompt": "Pourquoi Qwen2.5-VL utilise-t-il des horodatages absolus pour la position temporelle ?",
+  "options": [
+   "Pour faire apparaître les images dans un ordre aléatoire",
+   "Pour que l'espacement inégal des images sous FPS dynamique soit représenté fidèlement et que des réponses ancrées dans le temps soient possibles",
+   "Pour supprimer le besoin d'un encodeur de vision",
+   "Pour augmenter la taille du patch"
+  ],
+  "explanation": "Avec un échantillonnage dynamique, l'indice d'image ne mesure plus le temps écoulé ; les horodatages, si."
+ }
+]

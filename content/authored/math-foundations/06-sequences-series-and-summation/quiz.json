@@ -1,0 +1,115 @@
+[
+ {
+  "id": "mf.06.q1",
+  "concept": "mf.series",
+  "stage": "pre",
+  "kind": "numeric",
+  "prompt": "What is $1+2+3+\\dots+100$?",
+  "options": [],
+  "answer": {
+   "value": 5050,
+   "tol": 0.001
+  },
+  "explanation": "Pair first with last: 50 pairs each summing to 101, so $50\\cdot101=5050$ (formula $n(n+1)/2$)."
+ },
+ {
+  "id": "mf.06.q2",
+  "concept": "mf.series",
+  "kind": "numeric",
+  "prompt": "Arithmetic sequence with first term 5 and common difference 3. What is the 10th term?",
+  "options": [],
+  "answer": {
+   "value": 32,
+   "tol": 0.001
+  },
+  "explanation": "$a_n=a+(n-1)d=5+9\\cdot3=32$."
+ },
+ {
+  "id": "mf.06.q3",
+  "concept": "mf.series",
+  "prompt": "Sum of the first $n$ terms of a geometric series $a+ar+\\dots+ar^{n-1}$ (with $r\\neq1$) is...",
+  "options": [
+   "$a\\frac{1-r^n}{1-r}$",
+   "$a\\frac{r^n}{1-r}$",
+   "$an r$",
+   "$\\frac{a}{1-r^n}$"
+  ],
+  "answer": 0,
+  "explanation": "Multiply $S$ by $r$, subtract, and nearly everything cancels: $S(1-r)=a(1-r^n)$."
+ },
+ {
+  "id": "mf.06.q4",
+  "concept": "mf.series",
+  "kind": "numeric",
+  "prompt": "What does $1+\\frac12+\\frac14+\\frac18+\\dots$ (forever) equal?",
+  "options": [],
+  "answer": {
+   "value": 2,
+   "tol": 0.001
+  },
+  "explanation": "Infinite geometric series with $|r|<1$: $a/(1-r)=1/(1-\\frac12)=2$."
+ },
+ {
+  "id": "mf.06.q5",
+  "concept": "mf.series",
+  "prompt": "For which ratio $r$ does $\\sum_{k\\ge0}ar^k$ converge (with $a\\neq0$)?",
+  "options": [
+   "$|r|\\le1$",
+   "$|r|<1$",
+   "$r>1$",
+   "every $r$"
+  ],
+  "answer": 1,
+  "explanation": "Terms must shrink to 0, which needs $|r|<1$. At $r=1$ the sum grows without bound; at $r=-1$ the partial sums bounce between $a$ and 0."
+ },
+ {
+  "id": "mf.06.q6",
+  "concept": "mf.series",
+  "prompt": "The harmonic series $1+\\frac12+\\frac13+\\dots$...",
+  "options": [
+   "converges to $\\ln 2$",
+   "converges to 2",
+   "diverges, though very slowly",
+   "equals $\\pi$"
+  ],
+  "answer": 2,
+  "explanation": "Although its terms tend to 0, the sum passes any bound (about 12 367 terms are needed to exceed 10)."
+ },
+ {
+  "id": "mf.06.q7",
+  "concept": "mf.series",
+  "kind": "numeric",
+  "prompt": "What does $\\prod_{k=1}^{5}k$ equal?",
+  "options": [],
+  "answer": {
+   "value": 120,
+   "tol": 0.001
+  },
+  "explanation": "The product notation multiplies: $1\\cdot2\\cdot3\\cdot4\\cdot5=120=5!$."
+ },
+ {
+  "id": "mf.06.q8",
+  "concept": "mf.series",
+  "kind": "numeric",
+  "prompt": "$\\sum_{k=1}^{4}k^2$ equals...",
+  "options": [],
+  "answer": {
+   "value": 30,
+   "tol": 0.001
+  },
+  "explanation": "$1+4+9+16=30$; formula $4\\cdot5\\cdot9/6=30$."
+ },
+ {
+  "id": "mf.06.q9",
+  "concept": "mf.series",
+  "prompt": "Why can a closed form be better than a loop for a sum?",
+  "options": [
+   "it is always less accurate",
+   "it needs one operation instead of $n$ additions",
+   "loops are not allowed in Python",
+   "it avoids using numbers"
+  ],
+  "answer": 1,
+  "explanation": "$\\sum_{k=1}^nk=n(n+1)/2$ costs a handful of operations regardless of $n$; the loop costs $n$."
+ }
+]

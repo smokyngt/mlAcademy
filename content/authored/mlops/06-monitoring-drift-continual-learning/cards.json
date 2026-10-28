@@ -1,0 +1,92 @@
+[
+ {
+  "id": "ops.06.c1",
+  "concept": "ops.drift",
+  "front": "Covariate shift",
+  "back": "$P(X)$ changes while $P(Y\\mid X)$ stays the same."
+ },
+ {
+  "id": "ops.06.c2",
+  "concept": "ops.drift",
+  "front": "Label shift",
+  "back": "$P(Y)$ changes while $P(X\\mid Y)$ stays the same."
+ },
+ {
+  "id": "ops.06.c3",
+  "concept": "ops.drift",
+  "front": "Concept drift",
+  "back": "$P(Y\\mid X)$ changes while $P(X)$ stays the same: same input, different output."
+ },
+ {
+  "id": "ops.06.c4",
+  "concept": "ops.drift",
+  "front": "Three ML-specific failure causes",
+  "back": "Production data differing from training data, edge cases, and degenerate feedback loops."
+ },
+ {
+  "id": "ops.06.c5",
+  "concept": "ops.drift",
+  "front": "Degenerate feedback loop",
+  "back": "The system's predictions shape the data it later learns from (popularity bias, filter bubbles)."
+ },
+ {
+  "id": "ops.06.c6",
+  "concept": "ops.drift",
+  "front": "KS statistic",
+  "back": "$D=\\max_x|F_a(x)-F_b(x)|$, the largest gap between empirical CDFs; non-parametric, one-dimensional."
+ },
+ {
+  "id": "ops.06.c7",
+  "concept": "ops.drift",
+  "front": "PSI formula",
+  "back": "$\\sum_j (q_j-p_j)\\ln(q_j/p_j)$ over reference-quantile bins; zero iff the histograms match; symmetric."
+ },
+ {
+  "id": "ops.06.c8",
+  "concept": "ops.monitoring",
+  "front": "Monitoring versus observability",
+  "back": "Monitoring tracks metrics to detect problems; observability (instrumentation) lets you investigate their causes."
+ },
+ {
+  "id": "ops.06.c9",
+  "concept": "ops.monitoring",
+  "front": "Four ML artifacts to monitor",
+  "back": "Raw inputs, features, predictions and accuracy-related metrics."
+ },
+ {
+  "id": "ops.06.c10",
+  "concept": "ops.monitoring",
+  "front": "Parts of an alert",
+  "back": "Alert policy (condition), notification channels, and a description."
+ },
+ {
+  "id": "ops.06.c11",
+  "concept": "ops.continual",
+  "front": "Stateless retraining versus stateful training",
+  "back": "From scratch on a window of data versus continuing from the last checkpoint on new data."
+ },
+ {
+  "id": "ops.06.c12",
+  "concept": "ops.continual",
+  "front": "Four stages toward continual learning",
+  "back": "Manual stateless; automated retraining; automated stateful training; continual learning triggered by shifts."
+ },
+ {
+  "id": "ops.06.c13",
+  "concept": "ops.abtest",
+  "front": "Shadow, canary, A/B, interleaving, bandit",
+  "back": "Shadow: candidate not served. Canary: small traffic share, ramp up. A/B: random split. Interleaving: mixed lists. Bandit: adaptive routing."
+ },
+ {
+  "id": "ops.06.c14",
+  "concept": "ops.abtest",
+  "front": "The peeking problem",
+  "back": "Stopping an A/B test at the first significant look inflates false positives well beyond 5%; fix the sample size or use sequential methods."
+ },
+ {
+  "id": "ops.06.c15",
+  "concept": "ops.abtest",
+  "front": "Thompson sampling",
+  "back": "Sample a plausible success rate for each model from its Beta posterior and play the largest; explores and exploits."
+ }
+]

@@ -1,0 +1,148 @@
+#@@ meta
+{"id": "seq.02.ex2", "title": "Train a tiny skip-gram and query it", "difficulty": 3, "runtime": "pyodide", "concepts": ["seq.embedding", "info.entropy"], "hints": ["make_pairs: for every position i and every j within `window` of i (j != i) emit (id[i], id[j]).", "noise = counts**0.75 normalised to sum to 1; draw negatives with rng.choice(n, size=k, p=noise).", "After training use E = V + U (sum of both tables) and cosine similarity a.b / (|a||b|). most_similar: rank all other words by cosine."]}
+#@@ prompt
+`sgns_step` (one SGD update of the negative-sampling loss) is provided. You write the data pipeline and the training loop.
+
+- `make_pairs(sentences, vocab, window)`: list of `(centre_id, context_id)` for every ordered pair inside the window.
+- `noise_distribution(sentences, vocab)`: unigram counts raised to 0.75, normalised.
+- `train_skipgram(sentences, dim, window, k, epochs, lr, seed)`: returns `(vocab, E, losses)` where `E = V + U` and `losses` is the mean loss per epoch. Shuffle the pairs every epoch and draw `k` negatives per pair from the noise distribution.
+- `cosine(a, b)` and `most_similar(word, vocab, E, topn)`.
+#@@ starter
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def sgns_step(V, U, c, o, negs, lr):
+    """One SGD step on a single (centre c, context o, negatives) example. Returns the loss."""
+    v = V[c].copy()
+    s_pos = U[o] @ v
+    s_neg = U[negs] @ v
+    loss = float(np.logaddexp(0.0, -s_pos) + np.logaddexp(0.0, s_neg).sum())
+    g_pos = sigmoid(s_pos) - 1.0
+    g_neg = sigmoid(s_neg)
+    V[c] -= lr * (g_pos * U[o] + g_neg @ U[negs])
+    U[o] -= lr * g_pos * v
+    np.add.at(U, negs, -lr * np.outer(g_neg, v))
+    return loss
+
+CORPUS = [
+    "the cat drinks milk", "the dog drinks water", "the cat chases the mouse", "the dog chases the cat",
+    "the dog chases the mouse", "a cat eats fish", "a dog eats meat", "the cat eats fish", "the dog eats meat",
+    "the king rules the land", "the queen rules the land", "a king wears a crown", "a queen wears a crown",
+]
+
+def build_vocab(sentences):
+    words = sorted({w for s in sentences for w in s.split()})
+    return {w: i for i, w in enumerate(words)}
+
+def make_pairs(sentences, vocab, window):
+    raise NotImplementedError
+
+def noise_distribution(sentences, vocab):
+    raise NotImplementedError
+
+def train_skipgram(sentences, dim=8, window=2, k=5, epochs=40, lr=0.05, seed=0):
+    raise NotImplementedError
+
+def cosine(a, b):
+    raise NotImplementedError
+
+def most_similar(word, vocab, E, topn=3):
+    raise NotImplementedError
+
+vocab, E, losses = train_skipgram(CORPUS)
+print(round(losses[0], 3), "->", round(losses[-1], 3))
+print(most_similar("king", vocab, E))
+#@@ tests
+import numpy as np
+v = build_vocab(CORPUS)
+pr = make_pairs(["a b c"], {"a": 0, "b": 1, "c": 2}, 1)
+check("make_pairs window 1 on 'a b c'", lambda: sorted(pr) == [(0, 1), (1, 0), (1, 2), (2, 1)])
+check("make_pairs window 2 count", lambda: len(make_pairs(["a b c"], {"a": 0, "b": 1, "c": 2}, 2)) == 6)
+nz = noise_distribution(CORPUS, v)
+check("noise sums to 1 and favours frequent words", lambda: abs(nz.sum() - 1) < 1e-9 and nz[v["the"]] > nz[v["crown"]])
+vocab, E, losses = train_skipgram(CORPUS, dim=8, epochs=40, lr=0.05, seed=0)
+check("embedding shape", lambda: E.shape == (len(vocab), 8))
+check("loss decreases a lot", lambda: losses[-1] < 0.7 * losses[0], "check the SGD updates")
+check("cos(cat,dog) > cos(cat,king)", lambda: cosine(E[vocab["cat"]], E[vocab["dog"]]) > cosine(E[vocab["cat"]], E[vocab["king"]]) + 0.3, "cat and dog share contexts (drinks, chases, eats)")
+check("cos(king,queen) > cos(king,dog)", lambda: cosine(E[vocab["king"]], E[vocab["queen"]]) > cosine(E[vocab["king"]], E[vocab["dog"]]) + 0.3)
+ms = most_similar("king", vocab, E, 3)
+check("most_similar excludes the word and returns (word, score)", lambda: len(ms) == 3 and all(w != "king" for w, _ in ms) and ms[0][1] >= ms[1][1])
+check("queen is the nearest neighbour of king", lambda: ms[0][0] == "queen")
+check("cosine is scale invariant", lambda: abs(cosine(np.array([1., 2.]), np.array([3., 6.])) - 1) < 1e-12)
+#@@ solution
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def sgns_step(V, U, c, o, negs, lr):
+    v = V[c].copy()
+    s_pos = U[o] @ v
+    s_neg = U[negs] @ v
+    loss = float(np.logaddexp(0.0, -s_pos) + np.logaddexp(0.0, s_neg).sum())
+    g_pos = sigmoid(s_pos) - 1.0
+    g_neg = sigmoid(s_neg)
+    V[c] -= lr * (g_pos * U[o] + g_neg @ U[negs])
+    U[o] -= lr * g_pos * v
+    np.add.at(U, negs, -lr * np.outer(g_neg, v))
+    return loss
+
+CORPUS = [
+    "the cat drinks milk", "the dog drinks water", "the cat chases the mouse", "the dog chases the cat",
+    "the dog chases the mouse", "a cat eats fish", "a dog eats meat", "the cat eats fish", "the dog eats meat",
+    "the king rules the land", "the queen rules the land", "a king wears a crown", "a queen wears a crown",
+]
+
+def build_vocab(sentences):
+    words = sorted({w for s in sentences for w in s.split()})
+    return {w: i for i, w in enumerate(words)}
+
+def make_pairs(sentences, vocab, window):
+    pairs = []
+    for s in sentences:
+        ids = [vocab[w] for w in s.split()]
+        for i, c in enumerate(ids):
+            for j in range(max(0, i - window), min(len(ids), i + window + 1)):
+                if j != i:
+                    pairs.append((c, ids[j]))
+    return pairs
+
+def noise_distribution(sentences, vocab):
+    counts = np.zeros(len(vocab))
+    for s in sentences:
+        for w in s.split():
+            counts[vocab[w]] += 1
+    p = counts ** 0.75
+    return p / p.sum()
+
+def train_skipgram(sentences, dim=8, window=2, k=5, epochs=40, lr=0.05, seed=0):
+    rng = np.random.default_rng(seed)
+    vocab = build_vocab(sentences)
+    n = len(vocab)
+    pairs = make_pairs(sentences, vocab, window)
+    noise = noise_distribution(sentences, vocab)
+    V = rng.normal(0, 0.1, (n, dim)); U = rng.normal(0, 0.1, (n, dim))
+    losses = []
+    for _ in range(epochs):
+        total = 0.0
+        for idx in rng.permutation(len(pairs)):
+            c, o = pairs[idx]
+            negs = rng.choice(n, size=k, p=noise)
+            total += sgns_step(V, U, c, o, negs, lr)
+        losses.append(total / len(pairs))
+    return vocab, V + U, losses
+
+def cosine(a, b):
+    return float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+def most_similar(word, vocab, E, topn=3):
+    inv = {i: w for w, i in vocab.items()}
+    q = E[vocab[word]]
+    sims = [(inv[i], cosine(q, E[i])) for i in range(len(vocab)) if i != vocab[word]]
+    return sorted(sims, key=lambda t: -t[1])[:topn]
+
+vocab, E, losses = train_skipgram(CORPUS)
+print(round(losses[0], 3), "->", round(losses[-1], 3))
+print(most_similar("king", vocab, E))

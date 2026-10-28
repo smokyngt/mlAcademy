@@ -1,0 +1,118 @@
+[
+ {
+  "id": "mf.02.q1",
+  "concept": "mf.algebra",
+  "stage": "pre",
+  "prompt": "What is $2 + 3 \\times 4^2$?",
+  "options": [
+   "80",
+   "50",
+   "32",
+   "26"
+  ],
+  "answer": 1,
+  "explanation": "Powers first: $4^2=16$; then multiplication: $3\\times16=48$; then $2+48=50$."
+ },
+ {
+  "id": "mf.02.q2",
+  "concept": "mf.algebra",
+  "kind": "numeric",
+  "prompt": "Solve $3x + 5 = 20$.",
+  "options": [],
+  "answer": {
+   "value": 5,
+   "tol": 0.001
+  },
+  "explanation": "Subtract 5: $3x=15$. Divide by 3: $x=5$."
+ },
+ {
+  "id": "mf.02.q3",
+  "concept": "mf.algebra",
+  "prompt": "Solve $-2x + 3 < 9$.",
+  "options": [
+   "$x<-3$",
+   "$x>-3$",
+   "$x>3$",
+   "$x<3$"
+  ],
+  "answer": 1,
+  "explanation": "$-2x<6$; dividing by a NEGATIVE number flips the inequality: $x>-3$."
+ },
+ {
+  "id": "mf.02.q4",
+  "concept": "mf.algebra",
+  "kind": "numeric",
+  "prompt": "A price of 100 rises by 20%, then falls by 20%. The final price is...",
+  "options": [],
+  "answer": {
+   "value": 96,
+   "tol": 0.001
+  },
+  "explanation": "$100\\times1.2=120$, then $120\\times0.8=96$. The percentages apply to different bases."
+ },
+ {
+  "id": "mf.02.q5",
+  "concept": "mf.algebra",
+  "prompt": "What is $\\frac12+\\frac13$?",
+  "options": [
+   "$\\frac25$",
+   "$\\frac16$",
+   "$\\frac56$",
+   "$\\frac23$"
+  ],
+  "answer": 2,
+  "explanation": "Common denominator 6: $\\frac36+\\frac26=\\frac56$. Never add numerators and denominators separately."
+ },
+ {
+  "id": "mf.02.q6",
+  "concept": "mf.algebra",
+  "prompt": "The system $x+y=10$, $x-y=2$ has solution...",
+  "options": [
+   "$(4,6)$",
+   "$(6,4)$",
+   "$(5,5)$",
+   "$(8,2)$"
+  ],
+  "answer": 1,
+  "explanation": "Adding the equations: $2x=12$, so $x=6$; then $y=4$. Check: $6+4=10$, $6-4=2$."
+ },
+ {
+  "id": "mf.02.q7",
+  "concept": "mf.algebra",
+  "prompt": "What is $\\sqrt{49}+2^{-1}$?",
+  "options": [
+   "7.5",
+   "6.5",
+   "7.2",
+   "9"
+  ],
+  "answer": 0,
+  "explanation": "$2^{-1}=\\frac12$, so $7+0.5=7.5$."
+ },
+ {
+  "id": "mf.02.q8",
+  "concept": "mf.algebra",
+  "prompt": "What does $x\\in\\mathbb{R}$ say?",
+  "options": [
+   "$x$ is a whole number",
+   "$x$ is a real number",
+   "$x$ is positive",
+   "$x$ equals $\\mathbb R$"
+  ],
+  "answer": 1,
+  "explanation": "$\\in$ reads 'is an element of'; $\\mathbb R$ is the set of real numbers (the number line)."
+ },
+ {
+  "id": "mf.02.q9",
+  "concept": "mf.algebra",
+  "prompt": "How many solutions does $2x+4=2x+7$ have?",
+  "options": [
+   "exactly one",
+   "none",
+   "infinitely many",
+   "two"
+  ],
+  "answer": 1,
+  "explanation": "Subtracting $2x$ gives $4=7$, which is false for every $x$: no solution."
+ }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "vis.07.ex1",
+ "title": "Pas de légendage avec attention sur des régions, température, BLEU-1",
+ "prompt": "Implémente à petite échelle les pièces d'un légendeur de style « Show, Attend and Tell ».\n\n1. `softmax(x)` (stable, dernier axe).\n2. `attend(h_prev, A, W_att)` : `A` contient `R` caractéristiques de régions de taille `D`, de forme `(R, D)` ; `h_prev` a la taille `H` ; `W_att` a la forme `(D, H)`. Le score de la région i est `A[i] . (W_att @ h_prev)`. Renvoie `(alpha, z)` avec `alpha` de forme `(R,)` de somme 1 et le contexte `z = sum_i alpha_i A[i]` de forme `(D,)`.\n3. `decoder_step(emb, h_prev, A, P)` : `P` est un dictionnaire avec `W_att, Wx, Wz, Wh, b, Wo`. Renvoie `(logits, h, alpha)` où `h = tanh(Wx @ emb + Wz @ z + Wh @ h_prev + b)` et `logits = Wo @ h`.\n4. `apply_temperature(p, t)` : élève chaque probabilité à `1/t` et renormalise.\n5. `bleu1(candidate, references)` : BLEU avec unigrammes uniquement : précision écrêtée multipliée par la pénalité de brièveté. Les mots sont donnés sous forme de listes de chaînes. Renvoie un flottant (0 si le candidat est vide).\n6. `answer_prior_baseline(train_answers, test_answers)` : répond toujours par la réponse d'entraînement la plus fréquente (égalités : celle qui se trie en premier) ; renvoie sa précision sur `test_answers`. C'est la référence « a priori de langage » qui expose le biais des jeux de données de VQA.",
+ "hints": [
+  "Scores : q = W_att @ h_prev a la forme (D,), e = A @ q a la forme (R,). alpha = softmax(e) ; le contexte z = alpha @ A a la forme (D,).",
+  "Nouvel état caché : h = tanh(Wx @ emb + Wz @ z + Wh @ h_prev + b). Logits = Wo @ h de forme (V,).",
+  "BLEU-1 : le compte écrêté de chaque mot candidat est min(compte dans le candidat, compte maximal parmi les références) ; précision = total écrêté / longueur du candidat ; la pénalité de brièveté utilise la longueur de la référence la plus proche de celle du candidat : BP = 1 si c > r sinon exp(1 - r/c). Température : p_i^(1/t) renormalisé, ou de façon équivalente softmax(log p / t)."
+ ]
+}

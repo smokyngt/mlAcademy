@@ -1,0 +1,17 @@
+[
+  { "id": "gpu.02.c1", "concept": "gpu.arith-intensity", "front": "Arithmetic intensity", "back": "I = FLOPs / bytes moved (FLOP/byte). A property of the operation and its implementation." },
+  { "id": "gpu.02.c2", "concept": "gpu.arith-intensity", "front": "FLOPs of a matmul (M,K)x(K,N) and its minimal bytes", "back": "FLOPs = 2MNK. Bytes = e (MK + KN + MN) with e the element size, if every matrix crosses memory once." },
+  { "id": "gpu.02.c3", "concept": "gpu.roofline", "front": "The roofline formula", "back": "Attainable rate = min(P, bandwidth * I). From t >= max(F/P, B/bandwidth)." },
+  { "id": "gpu.02.c4", "concept": "gpu.roofline", "front": "Ridge point", "back": "I* = P / bandwidth, the intensity where memory-bound turns compute-bound (about 156 FLOP/byte for 312 TFLOP/s and 2 TB/s)." },
+  { "id": "gpu.02.c5", "concept": "gpu.roofline", "front": "What do you do for a memory-bound op?", "back": "Move fewer bytes: reuse data (tiling), fuse kernels, use smaller number formats, raise batch size. A faster arithmetic unit does not help." },
+  { "id": "gpu.02.c6", "concept": "gpu.roofline", "front": "Why are softmax and layer norm memory-bound?", "back": "A handful of FLOPs per element but each element is read and written once: intensity about 1-2 FLOP/byte, far under the ridge." },
+  { "id": "gpu.02.c7", "concept": "gpu.roofline", "front": "Intensity of a linear layer vs batch size", "back": "About B FLOP/byte for batch B in fp16 when d >> B: 2Bd^2 FLOPs over about 2d^2 bytes. Small batches are memory-bound." },
+  { "id": "gpu.02.c8", "concept": "gpu.flash-io", "front": "Standard attention bytes and FLOPs (one head)", "back": "FLOPs = 4N^2 d + 5N^2. Bytes = e (4Nd + 4N^2); intensity tends to d/e for large N." },
+  { "id": "gpu.02.c9", "concept": "gpu.flash-io", "front": "Tiled (Flash) attention bytes", "back": "About e (2Nd + 2Nd N/Br): Q once, K and V once per query block of Br rows, O once. Intensity about 2Br/e." },
+  { "id": "gpu.02.c10", "concept": "gpu.flash-io", "front": "How does the running softmax stay exact?", "back": "Keep a running max m and sum s per row; when a tile raises the max, rescale old sum and partial output by exp(m_old - m_new). Final division by s is exact." },
+  { "id": "gpu.02.c11", "concept": "gpu.flash-io", "front": "What limits the query-block size Br in FlashAttention?", "back": "The tile (Q, K, V, scores, output) must fit in fast on-chip memory, so Br is roughly M/d for M elements of SRAM." },
+  { "id": "gpu.02.c12", "concept": "gpu.amdahl", "front": "Amdahl's law", "back": "Speed-up = 1 / ((1 - p) + p / s) when a fraction p of the time is sped up by s. Ceiling 1/(1 - p)." },
+  { "id": "gpu.02.c13", "concept": "gpu.amdahl", "front": "Amdahl for several stages", "back": "Speed-up = sum(t_i) / sum(t_i / s_i)." },
+  { "id": "gpu.02.c14", "concept": "gpu.profiling", "front": "Input-bound, launch-bound, compute-bound: how do they look on a timeline?", "back": "Input-bound: GPU idle gaps while the CPU loads data. Launch-bound: many tiny kernels with gaps. Compute-bound: dense, long matmul kernels." },
+  { "id": "gpu.02.c15", "concept": "gpu.profiling", "front": "Why can nvidia-smi show 100% utilisation for an inefficient job?", "back": "It reports that some kernel was running, not how much of peak FLOP/s or bandwidth was used." }
+]

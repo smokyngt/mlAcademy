@@ -1,0 +1,10 @@
+{
+  "id": "sys.02.ex1",
+  "title": "Quantification int8 : échelle, point zéro et erreur",
+  "prompt": "Implémente les quantificateurs utilisés dans le déploiement des LLM.\n\n- `quantize_sym(x, bits=8, axis=None)` : symétrique, entiers dans $[-q_{max}, q_{max}]$ avec $q_{max}=2^{b-1}-1$, échelle $s=\\max|x|/q_{max}$. Avec `axis=1`, utilise une échelle par ligne (par canal).\n- `quantize_asym(x, bits=8)` : entiers non signés $0..2^b-1$ avec une échelle et un **point zéro**, de sorte que le zéro réel soit représenté exactement.\n- les déquantificateurs correspondants et `mse`.\n\nObserve ensuite : une ligne aberrante ruine l'échelle par tenseur pour toutes les autres lignes, les échelles par canal règlent le problème, et des données unilatérales (comme des sorties de ReLU) gaspillent la moitié de la plage entière sous le schéma symétrique.",
+  "hints": [
+    "Symétrique : qmax = 2**(bits-1)-1, scale = amax/qmax, q = clip(round(x/scale), -qmax, qmax). Utilise keepdims quand axis est donné.",
+    "Asymétrique : étends d'abord la plage pour inclure 0 (lo = min(x.min(), 0), hi = max(x.max(), 0)), scale = (hi-lo)/(2**bits-1), zp = round(-lo/scale).",
+    "L'erreur d'arrondi vaut au plus scale/2 pour chaque élément non écrêté."
+  ]
+}

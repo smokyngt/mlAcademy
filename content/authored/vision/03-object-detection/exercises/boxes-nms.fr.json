@@ -1,0 +1,10 @@
+{
+ "id": "vis.03.ex1",
+ "title": "IoU, suppression des non-maxima et décodage de boîtes",
+ "prompt": "Les boîtes sont `(x1, y1, x2, y2)` avec `x1 < x2`, `y1 < y2`.\n\n- `iou(a, b)` : intersection sur union de deux boîtes (0 quand elles ne se chevauchent pas).\n- `iou_matrix(A, B)` : matrice `(len(A), len(B))` des IoU par paires.\n- `nms(boxes, scores, thr)` : suppression gloutonne des non-maxima ; renvoie les indices conservés par ordre de score décroissant. Une boîte est supprimée quand son IoU avec une boîte déjà conservée est **strictement supérieure** à `thr`.\n- `decode_cell(t, cell_x, cell_y, stride, anchor)` : `t = (tx, ty, tw, th)`, `anchor = (aw, ah)` ; renvoie la boîte décodée en pixels sous la forme `(x1, y1, x2, y2)`.",
+ "hints": [
+  "Largeur d'intersection = max(0, min(x2a, x2b) - max(x1a, x1b)) ; même chose pour la hauteur. Union = aireA + aireB - intersection.",
+  "NMS : trie les indices par score décroissant ; prends répétitivement le premier indice restant, garde-le, et écarte chaque boîte restante dont l'IoU avec lui est strictement supérieure au seuil.",
+  "decode : cx = (sigmoid(tx) + cell_x) * stride, cy de même, w = anchor_w * exp(tw), h = anchor_h * exp(th) ; renvoie (cx - w/2, cy - h/2, cx + w/2, cy + h/2)."
+ ]
+}

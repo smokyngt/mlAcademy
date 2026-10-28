@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.07.c1",
+  "concept": "mf.limits",
+  "front": "Limit (intuition)",
+  "back": "$\\lim_{x\\to a}f(x)=L$: $f(x)$ gets as close to $L$ as you like when $x$ is close enough to $a$ (but not necessarily equal to $a$)."
+ },
+ {
+  "id": "mf.07.c2",
+  "concept": "mf.limits",
+  "front": "One-sided limits",
+  "back": "$\\lim_{x\\to a^-}$ approaches from the left, $\\lim_{x\\to a^+}$ from the right. The two-sided limit exists iff both exist and agree."
+ },
+ {
+  "id": "mf.07.c3",
+  "concept": "mf.limits",
+  "front": "Limit at a hole",
+  "back": "$\\frac{x^2-1}{x-1}$ has no value at 1 but the limit is 2; simplify the algebra first."
+ },
+ {
+  "id": "mf.07.c4",
+  "concept": "mf.limits",
+  "front": "Limit laws",
+  "back": "If $\\lim f=L$ and $\\lim g=M$ then limits of $f\\pm g$, $fg$, $cf$ are $L\\pm M$, $LM$, $cL$; $f/g\\to L/M$ if $M\\ne0$."
+ },
+ {
+  "id": "mf.07.c5",
+  "concept": "mf.limits",
+  "front": "Limit at infinity",
+  "back": "$\\lim_{x\\to\\infty}f(x)$: behaviour for huge $x$; $1/x\\to0$."
+ },
+ {
+  "id": "mf.07.c6",
+  "concept": "mf.limits",
+  "front": "Continuity",
+  "back": "$f$ is continuous at $a$ if $f(a)$ exists, $\\lim_{x\\to a}f(x)$ exists, and they are equal: the graph can be drawn without lifting the pen."
+ },
+ {
+  "id": "mf.07.c7",
+  "concept": "mf.limits",
+  "front": "Types of discontinuity",
+  "back": "Removable (hole), jump (one-sided limits differ), infinite (blows up, e.g. $1/x$ at 0)."
+ },
+ {
+  "id": "mf.07.c8",
+  "concept": "mf.limits",
+  "front": "Continuous families",
+  "back": "Polynomials, $e^x$, $\\sin$, $\\cos$ are continuous everywhere; $\\ln$ on $x>0$; sums, products and compositions of continuous functions are continuous."
+ },
+ {
+  "id": "mf.07.c9",
+  "concept": "mf.limits",
+  "front": "Epsilon-delta",
+  "back": "$\\lim_{x\\to a}f=L$ means: for every $\\varepsilon>0$ there is $\\delta>0$ with $0<|x-a|<\\delta\\Rightarrow|f(x)-L|<\\varepsilon$."
+ },
+ {
+  "id": "mf.07.c10",
+  "concept": "mf.limits",
+  "front": "Epsilon-delta example",
+  "back": "$f(x)=2x+1$, $a=3$, $L=7$: $|f(x)-7|=2|x-3|$, so $\\delta=\\varepsilon/2$ works."
+ },
+ {
+  "id": "mf.07.c11",
+  "concept": "mf.limits",
+  "front": "Squeeze idea",
+  "back": "If $g\\le f\\le h$ near $a$ and $g,h\\to L$ then $f\\to L$ (used to show $\\sin x/x\\to1$)."
+ },
+ {
+  "id": "mf.07.c12",
+  "concept": "mf.limits",
+  "front": "Difference quotient",
+  "back": "$\\frac{f(x+h)-f(x)}{h}$ is the slope of the secant line; its limit as $h\\to0$ is the derivative $f'(x)$."
+ },
+ {
+  "id": "mf.07.c13",
+  "concept": "mf.limits",
+  "front": "Numerical limit check",
+  "back": "Evaluate at $h=10^{-1},10^{-2},\\dots$ from both sides; but do not go too small: rounding cancellation ruins $h\\approx10^{-8}$."
+ },
+ {
+  "id": "mf.07.c14",
+  "concept": "mf.limits",
+  "front": "Intermediate value idea",
+  "back": "A continuous function cannot skip values: if $f(a)<0<f(b)$ there is a root between (the basis of bisection)."
+ }
+]

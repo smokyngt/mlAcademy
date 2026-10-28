@@ -1,0 +1,81 @@
+#@@ meta
+{"id": "ops.06.ex1", "title": "Drift detection with the KS test and PSI", "difficulty": 4, "runtime": "pyodide", "concepts": ["ops.drift", "ops.monitoring"], "hints": ["KS statistic: evaluate both empirical CDFs at every pooled point with np.searchsorted(sorted_sample, points, side='right') / n and take the largest absolute gap.", "Asymptotic p-value: lam = (sqrt(ne) + 0.12 + 0.11/sqrt(ne)) * D with ne = n*m/(n+m); p = 2 * sum_{k=1..100} (-1)^(k-1) exp(-2 k^2 lam^2), clipped to [0, 1].", "PSI: take the 9 interior decile edges of the REFERENCE sample, bin both samples with np.searchsorted(edges, x, side='right'), turn counts into proportions, clip at eps, then sum (p_new - p_ref) * log(p_new / p_ref)."]}
+#@@ prompt
+Compare a reference sample (training data) with a recent production sample of one feature.
+
+- `ks_statistic(a, b)` -> the two-sample Kolmogorov-Smirnov statistic `D = max_x |F_a(x) - F_b(x)|`.
+- `ks_pvalue(d, n, m)` -> approximate p-value of `D` for sample sizes `n` and `m` (formula in the hints).
+- `psi(reference, new, bins=10, eps=1e-4)` -> population stability index with bin edges taken from the **reference** quantiles (`bins` equal-mass bins), proportions clipped below at `eps`.
+- `drift_report(reference, new, alpha=0.01, psi_alert=0.2)` -> dict with keys `ks`, `p`, `psi`, `drifted` (True if `p < alpha` or `psi > psi_alert`).
+#@@ starter
+import numpy as np
+
+def ks_statistic(a, b):
+    raise NotImplementedError
+
+def ks_pvalue(d, n, m):
+    raise NotImplementedError
+
+def psi(reference, new, bins=10, eps=1e-4):
+    raise NotImplementedError
+
+def drift_report(reference, new, alpha=0.01, psi_alert=0.2):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("identical samples: D = 0", lambda: ks_statistic([1, 2, 3], [1, 2, 3]) == 0.0)
+check("disjoint samples: D = 1", lambda: ks_statistic([1, 2, 3], [10, 11, 12]) == 1.0)
+check("small hand example D = 0.5", lambda: abs(ks_statistic([1, 2, 3, 4], [3, 4, 5, 6]) - 0.5) < 1e-12)
+check("p-value of D=0 is 1", lambda: ks_pvalue(0.0, 100, 100) == 1.0)
+check("p-value decreases with D", lambda: ks_pvalue(0.3, 200, 200) < ks_pvalue(0.1, 200, 200))
+rng = np.random.default_rng(0)
+x = rng.normal(size=1000)
+same = rng.normal(size=1000)
+shift = rng.normal(0.5, 1, size=1000)
+wide = rng.normal(0, 2, size=1000)
+check("KS on same distribution is small", lambda: abs(ks_statistic(x, same) - 0.052) < 1e-9)
+check("p-value is not significant for the same distribution", lambda: ks_pvalue(ks_statistic(x, same), 1000, 1000) > 0.05)
+check("KS detects a 0.5 sd mean shift", lambda: ks_pvalue(ks_statistic(x, shift), 1000, 1000) < 1e-10)
+check("PSI near zero for the same distribution", lambda: psi(x, same) < 0.05)
+check("PSI of a 0.5 sd shift is above 0.2 (alert)", lambda: psi(x, shift) > 0.2)
+check("PSI catches a variance change that a mean check misses", lambda: psi(x, wide) > 0.2 and abs(wide.mean() - x.mean()) < 0.2)
+check("PSI is not symmetric-safe: new data with an empty bin stays finite", lambda: np.isfinite(psi(x, np.full(500, 100.0))))
+r1 = drift_report(x, same)
+r2 = drift_report(x, shift)
+check("drift_report: no drift on same distribution", lambda: r1["drifted"] is False and set(r1) == {"ks", "p", "psi", "drifted"})
+check("drift_report: flags the shifted sample", lambda: r2["drifted"] is True)
+#@@ solution
+import numpy as np
+
+def ks_statistic(a, b):
+    a = np.sort(np.asarray(a, dtype=float))
+    b = np.sort(np.asarray(b, dtype=float))
+    grid = np.concatenate([a, b])
+    fa = np.searchsorted(a, grid, side="right") / len(a)
+    fb = np.searchsorted(b, grid, side="right") / len(b)
+    return float(np.max(np.abs(fa - fb)))
+
+def ks_pvalue(d, n, m):
+    ne = n * m / (n + m)
+    lam = (np.sqrt(ne) + 0.12 + 0.11 / np.sqrt(ne)) * d
+    if lam < 1e-3:
+        return 1.0
+    k = np.arange(1, 101)
+    p = 2 * np.sum((-1.0) ** (k - 1) * np.exp(-2 * k * k * lam * lam))
+    return float(min(1.0, max(0.0, p)))
+
+def psi(reference, new, bins=10, eps=1e-4):
+    reference = np.asarray(reference, dtype=float)
+    new = np.asarray(new, dtype=float)
+    edges = np.quantile(reference, np.linspace(0, 1, bins + 1)[1:-1])
+    pr = np.bincount(np.searchsorted(edges, reference, side="right"), minlength=bins) / len(reference)
+    pn = np.bincount(np.searchsorted(edges, new, side="right"), minlength=bins) / len(new)
+    pr = np.clip(pr, eps, None)
+    pn = np.clip(pn, eps, None)
+    return float(np.sum((pn - pr) * np.log(pn / pr)))
+
+def drift_report(reference, new, alpha=0.01, psi_alert=0.2):
+    d = ks_statistic(reference, new)
+    p = ks_pvalue(d, len(reference), len(new))
+    s = psi(reference, new)
+    return {"ks": d, "p": p, "psi": s, "drifted": bool(p < alpha or s > psi_alert)}

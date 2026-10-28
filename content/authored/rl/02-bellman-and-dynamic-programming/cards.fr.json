@@ -1,0 +1,16 @@
+[
+  { "id": "rl.02.c1", "front": "Équation d'espérance de Bellman pour $V^\\pi$", "back": "$V^\\pi(s)=\\sum_a\\pi(a|s)\\sum_{s'}P(s'|s,a)[R(s,a,s')+\\gamma V^\\pi(s')]$." },
+  { "id": "rl.02.c2", "front": "Relation entre $V^\\pi$ et $Q^\\pi$", "back": "$V^\\pi(s)=\\sum_a\\pi(a|s)Q^\\pi(s,a)$ et $Q^\\pi(s,a)=\\sum_{s'}P(s'|s,a)[R+\\gamma V^\\pi(s')]$." },
+  { "id": "rl.02.c3", "front": "Équation d'optimalité de Bellman", "back": "$V^*(s)=\\max_a\\sum_{s'}P(s'|s,a)[R(s,a,s')+\\gamma V^*(s')]$." },
+  { "id": "rl.02.c4", "front": "Quelle étape de la dérivation a besoin de la propriété de Markov ?", "back": "Remplacer $\\mathbb{E}[G_{t+1}|s_t=s,a_t=a,s_{t+1}=s']$ par $V^\\pi(s')$ : le futur ne dépend que de $s'$." },
+  { "id": "rl.02.c5", "front": "Forme matricielle de l'évaluation de politique", "back": "$V=r_\\pi+\\gamma P_\\pi V\\Rightarrow V=(I-\\gamma P_\\pi)^{-1}r_\\pi$ ; $P_\\pi$ est $S\\times S$, stochastique en lignes." },
+  { "id": "rl.02.c6", "front": "Pourquoi l'opérateur de Bellman est-il une contraction ?", "back": "$\\|TV-TW\\|_\\infty\\le\\gamma\\|V-W\\|_\\infty$ parce que les lignes de $P$ sont des vecteurs de probabilité (et $|\\max x-\\max y|\\le\\max|x-y|$ pour l'opérateur d'optimalité)." },
+  { "id": "rl.02.c7", "front": "Évaluation de politique", "back": "Calculer $V^\\pi$ pour une politique fixée en balayant $V\\leftarrow T^\\pi V$ jusqu'à ce que le plus grand changement soit sous une tolérance." },
+  { "id": "rl.02.c8", "front": "Étape d'amélioration de politique", "back": "$\\pi'(s)=\\arg\\max_a Q^\\pi(s,a)$ ; le théorème d'amélioration garantit $V^{\\pi'}\\ge V^\\pi$." },
+  { "id": "rl.02.c9", "front": "Itération de politique", "back": "Alterner évaluation complète et amélioration gloutonne jusqu'à ce que la politique soit stable ; le résultat satisfait l'équation d'optimalité." },
+  { "id": "rl.02.c10", "front": "Itération de valeur", "back": "Répéter $V\\leftarrow\\max_a Q_V(s,a)$ ; extraire la politique gloutonne à la fin. Un balayage fusionne évaluation et amélioration." },
+  { "id": "rl.02.c11", "front": "Itération de politique généralisée", "back": "Tout entrelacement d'évaluation et d'amélioration ; la valeur et la politique convergent ensemble vers $V^*,\\pi^*$." },
+  { "id": "rl.02.c12", "front": "Formes dans la DP tabulaire", "back": "$P,R$ : $(S,A,S)$ ; $V$ : $(S,)$ ; $Q=(P*R).sum(2)+\\gamma P@V$ : $(S,A)$ ; politique : $(S,A)$." },
+  { "id": "rl.02.c13", "front": "Pourquoi étudier la DP si elle exige un modèle connu ?", "back": "Elle définit l'optimalité, sert d'oracle de test pour les méthodes sans modèle, et Q-learning/TD sont des versions échantillonnées de ses mises à jour." },
+  { "id": "rl.02.c14", "front": "Comparaison des coûts : résolution linéaire vs balayages", "back": "Résoudre $(I-\\gamma P_\\pi)V=r_\\pi$ coûte $O(S^3)$ ; un balayage coûte $O(S^2A)$ (moins pour $P$ creuse)." }
+]

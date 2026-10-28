@@ -1,0 +1,289 @@
+#@@ meta
+{"id": "rsn.01.ex1", "title": "Answer extractor and equality verifier", "difficulty": 3, "runtime": "pyodide", "concepts": ["rsn.verifier"], "hints": ["get_last_boxed: find the LAST occurrence with text.rfind, skip spaces, expect '{', then walk forward with a depth counter (+1 on '{', -1 on '}') and stop when it returns to 0. Return None if the braces never balance.", "normalize: apply simple string rewrites first (\\left, \\right, \\dfrac -> \\frac, $, %, ^\\circ ...), then turn \\sqrt{x} into sqrt(x) and \\frac{a}{b} into (a)/(b) with a regex that only matches braces without nested braces; repeat the frac rewrite a few times so nested fractions resolve from the inside out.", "values_equal: parse both sides with parse_value. If both are Fractions, compare exactly (so 0.3333333333 is NOT 1/3). If either is a float (a square root appeared), use a relative tolerance of 1e-9. If either fails to parse, they are not equal."]}
+#@@ prompt
+A reasoning model ends its (possibly very long) output with a final answer, usually inside `\boxed{...}`. To compute accuracy or a reward you need three things: **extract** the answer from the text, **normalise** its notation, and **check equality** with the reference. Implement them with only the Python standard library.
+
+Already provided: `parse_value(expr)`, a safe evaluator for arithmetic strings (`+ - * / **`, `sqrt(...)`). It returns a `fractions.Fraction` when the value is exact, a `float` when a square root is irrational, and `None` when the string cannot be evaluated. It never calls `eval`.
+
+Implement:
+
+- `get_last_boxed(text)` -> content of the **last** `\boxed{...}` with nested braces handled (`\boxed{\frac{1}{2}}` gives `\frac{1}{2}`); `None` when there is no `\boxed`, no opening brace, or the braces are unbalanced.
+- `extract_final_candidate(text, fallback="number_then_full")` -> the boxed content (stripped of spaces and `$`) if present; otherwise, depending on `fallback`: `"number_then_full"` gives the last number found by `RE_NUMBER`, or the whole text if there is none; `"number_only"` gives the last number or `""`; `None` gives `""`. Empty or `None` text gives `""`.
+- `normalize(text)` -> canonical string: remove `\left`, `\right`, `\,`, `\!`, `\;`, `\(`, `\)`, `\[`, `\]`, `$`, `%`, degree marks (`^\circ`, `^{\circ}`, `°`); `\cdot` becomes `*`; `\dfrac`/`\tfrac` become `\frac`; unwrap a whole-string `\text{...}`; Unicode superscripts (`²`) become `**2`; `\sqrt{x}` becomes `sqrt(x)`; `\frac{a}{b}` becomes `(a)/(b)`; `^` becomes `**`; a mixed number `3 1/2` becomes `3+1/2`; thousands commas (`1,234`) are dropped; remaining braces are removed; a trailing `.` is dropped; the result is lower-case.
+- `split_into_parts(text)` is provided: it splits a tuple such as `(1,2)` into parts.
+- `values_equal(a, b)`: equality of two normalised strings as described in the hints.
+- `grade_answer(pred, gt)` -> bool: normalise both, split into parts, require the same number of parts and every pair equal.
+#@@ starter
+import re, ast, math
+from fractions import Fraction
+
+RE_NUMBER = re.compile(r"-?(?:\d+/\d+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)")
+SUP = {"\u2070": "0", "\u00b9": "1", "\u00b2": "2", "\u00b3": "3", "\u2074": "4",
+       "\u2075": "5", "\u2076": "6", "\u2077": "7", "\u2078": "8", "\u2079": "9"}
+
+
+def _ev(node):
+    if isinstance(node, ast.Expression):
+        return _ev(node.body)
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+        return Fraction(repr(node.value))
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+        v = _ev(node.operand)
+        return -v if isinstance(node.op, ast.USub) else v
+    if isinstance(node, ast.BinOp):
+        a, b = _ev(node.left), _ev(node.right)
+        if isinstance(node.op, ast.Add):
+            return a + b
+        if isinstance(node.op, ast.Sub):
+            return a - b
+        if isinstance(node.op, ast.Mult):
+            return a * b
+        if isinstance(node.op, ast.Div):
+            return a / b
+        if isinstance(node.op, ast.Pow):
+            if isinstance(a, Fraction) and isinstance(b, Fraction) and b.denominator == 1 and abs(b) <= 64 and abs(a) < 10**6:
+                return a ** int(b)
+            return float(a) ** float(b)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sqrt" and len(node.args) == 1:
+        v = _ev(node.args[0])
+        if isinstance(v, Fraction) and v >= 0:
+            n, d = math.isqrt(v.numerator), math.isqrt(v.denominator)
+            if n * n == v.numerator and d * d == v.denominator:
+                return Fraction(n, d)
+        return math.sqrt(float(v))
+    raise ValueError("unsupported")
+
+
+def parse_value(expr):
+    if expr is None or len(expr) > 200:
+        return None
+    try:
+        return _ev(ast.parse(expr, mode="eval"))
+    except (SyntaxError, ValueError, ZeroDivisionError, OverflowError, TypeError):
+        return None
+
+
+def split_into_parts(t):
+    if not t:
+        return []
+    if len(t) >= 2 and t[0] in "([" and t[-1] in ")]" and "," in t[1:-1]:
+        items = [p.strip() for p in t[1:-1].split(",")]
+        if all(items):
+            return items
+    return [t]
+
+
+def get_last_boxed(text):
+    raise NotImplementedError
+
+
+def extract_final_candidate(text, fallback="number_then_full"):
+    raise NotImplementedError
+
+
+def normalize(text):
+    raise NotImplementedError
+
+
+def values_equal(a, b):
+    raise NotImplementedError
+
+
+def grade_answer(pred, gt):
+    raise NotImplementedError
+#@@ tests
+import re
+from fractions import Fraction
+
+check("last boxed wins", lambda: get_last_boxed(r"\boxed{1} then \boxed{2}") == "2")
+check("nested braces", lambda: get_last_boxed(r"so \boxed{\frac{1}{2}} done") == r"\frac{1}{2}")
+check("brace inside content", lambda: get_last_boxed(r"\boxed{a{b}c}") == "a{b}c")
+check("space before the brace is allowed", lambda: get_last_boxed(r"\boxed {7}") == "7")
+check("no boxed -> None", lambda: get_last_boxed("the answer is 7") is None)
+check("unbalanced -> None", lambda: get_last_boxed(r"\boxed{7") is None)
+check("no opening brace -> None", lambda: get_last_boxed(r"\boxed 7") is None)
+
+book_like = "...some explanation...\n**Final Answer:**\n\n\\[\n\\boxed{\\dfrac{14}{3}}\n\\]\n"
+check("extract boxed from a longer text", lambda: extract_final_candidate(book_like) == r"\dfrac{14}{3}")
+check("boxed content is stripped of spaces and dollars", lambda: extract_final_candidate(r"\boxed{ $14/3.$ }") == "14/3.")
+check("fallback: last number", lambda: extract_final_candidate("first 2 then 14/3 here") == "14/3")
+check("fallback: whole text when no number", lambda: extract_final_candidate("Text without numbers") == "Text without numbers")
+check("number_only gives '' when no number", lambda: extract_final_candidate("Text without numbers", "number_only") == "")
+check("fallback=None demands a box", lambda: extract_final_candidate("the answer is 83", None) == "")
+check("empty and None", lambda: extract_final_candidate("") == "" and extract_final_candidate(None) == "")
+
+check("normalize frac", lambda: normalize(r"\dfrac{14}{3}") == "(14)/(3)")
+check("normalize nested frac", lambda: normalize(r"\frac{1}{\frac{1}{2}}") == "(1)/((1)/(2))")
+check("normalize sqrt + frac", lambda: normalize(r"\frac{\sqrt{8}}{2}") == "(sqrt(8))/(2)")
+check("normalize math wrappers", lambda: normalize(r"\( 5 \)") == "5" and normalize(r"\text{2/3}") == "2/3")
+check("normalize thousands comma", lambda: normalize("1,234") == "1234")
+check("normalize tuple comma is kept", lambda: normalize("(1,2)") == "(1,2)")
+check("normalize degree", lambda: normalize(r"90^\circ") == "90")
+check("normalize mixed number", lambda: normalize("3 1/2") == "3+1/2")
+check("normalize trailing dot and case", lambda: normalize("14/3.") == "14/3" and normalize("X") == "x")
+check("normalize superscript", lambda: normalize("2\u00b2") == "2**2")
+
+check("exact decimal vs fraction", lambda: values_equal("0.5", "1/2"))
+check("rounded decimal is NOT equal", lambda: not values_equal("0.3333333333", "1/3"))
+check("irrational compared with tolerance", lambda: values_equal("(sqrt(8))/(2)", "sqrt(2)"))
+check("perfect square stays exact", lambda: values_equal("sqrt(16)", "4"))
+check("unparsable strings are equal only if identical", lambda: values_equal("abc", "abc") and not values_equal("abc", "abd"))
+check("division by zero never equals", lambda: not values_equal("1/0", "2"))
+
+cases = [
+    ("3/4", r"\frac{3}{4}", True), ("(3)/(4)", "3/4", True), (r"\frac{\sqrt{8}}{2}", "sqrt(2)", True),
+    (r"\( \frac{1}{2} + \frac{1}{6} \)", "2/3", True), ("(1, 2)", "(1,2)", True), ("(2, 1)", "(1, 2)", False),
+    ("(1, 2, 3)", "(1, 2)", False), ("0.5", "1/2", True), ("0.3333333333", "1/3", False),
+    ("1,234/2", "617", True), (r"\text{2/3}", "2/3", True), ("50%", "1/2", False),
+    (r"2\cdot 3/4", "3/2", True), (r"90^\circ", "90", True), (r"\left(\frac{3}{4}\right)", "3/4", True),
+    ("2\u00b2", "2**2", True), ("14/3.", r"\dfrac{14}{3}", True), ("3 1/2", "7/2", True),
+    ("(14/3, 2/3)", "(14/3, 4/6)", True), ("2^10", "1024", True), ("", "1", False), (None, "1", False),
+]
+def failing():
+    return [(p, g, e) for p, g, e in cases if grade_answer(p, g) != e]
+check("all %d grading cases" % len(cases), lambda: not failing(), "some of the 22 cases fail: print the failing ones with a loop")
+
+def reward(text, gt):
+    cand = extract_final_candidate(text, None)
+    return float(bool(cand) and grade_answer(cand, gt))
+
+outs = [r"\boxed{83}", r"The correct answer is \boxed{83}", r"The final answer is 83", r"We get \boxed{38}"]
+check("boxed-only reward on the four sample outputs is [1,1,0,0]", lambda: [reward(o, "83") for o in outs] == [1.0, 1.0, 0.0, 0.0])
+#@@ solution
+import re, ast, math
+from fractions import Fraction
+
+RE_NUMBER = re.compile(r"-?(?:\d+/\d+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)")
+SUP = {"\u2070": "0", "\u00b9": "1", "\u00b2": "2", "\u00b3": "3", "\u2074": "4",
+       "\u2075": "5", "\u2076": "6", "\u2077": "7", "\u2078": "8", "\u2079": "9"}
+
+
+def _ev(node):
+    if isinstance(node, ast.Expression):
+        return _ev(node.body)
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+        return Fraction(repr(node.value))
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+        v = _ev(node.operand)
+        return -v if isinstance(node.op, ast.USub) else v
+    if isinstance(node, ast.BinOp):
+        a, b = _ev(node.left), _ev(node.right)
+        if isinstance(node.op, ast.Add):
+            return a + b
+        if isinstance(node.op, ast.Sub):
+            return a - b
+        if isinstance(node.op, ast.Mult):
+            return a * b
+        if isinstance(node.op, ast.Div):
+            return a / b
+        if isinstance(node.op, ast.Pow):
+            if isinstance(a, Fraction) and isinstance(b, Fraction) and b.denominator == 1 and abs(b) <= 64 and abs(a) < 10**6:
+                return a ** int(b)
+            return float(a) ** float(b)
+    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "sqrt" and len(node.args) == 1:
+        v = _ev(node.args[0])
+        if isinstance(v, Fraction) and v >= 0:
+            n, d = math.isqrt(v.numerator), math.isqrt(v.denominator)
+            if n * n == v.numerator and d * d == v.denominator:
+                return Fraction(n, d)
+        return math.sqrt(float(v))
+    raise ValueError("unsupported")
+
+
+def parse_value(expr):
+    if expr is None or len(expr) > 200:
+        return None
+    try:
+        return _ev(ast.parse(expr, mode="eval"))
+    except (SyntaxError, ValueError, ZeroDivisionError, OverflowError, TypeError):
+        return None
+
+
+def split_into_parts(t):
+    if not t:
+        return []
+    if len(t) >= 2 and t[0] in "([" and t[-1] in ")]" and "," in t[1:-1]:
+        items = [p.strip() for p in t[1:-1].split(",")]
+        if all(items):
+            return items
+    return [t]
+
+
+def get_last_boxed(text):
+    start = text.rfind("\\boxed")
+    if start == -1:
+        return None
+    i = start + len("\\boxed")
+    while i < len(text) and text[i].isspace():
+        i += 1
+    if i >= len(text) or text[i] != "{":
+        return None
+    i += 1
+    depth = 1
+    begin = i
+    while i < len(text) and depth > 0:
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+        i += 1
+    if depth != 0:
+        return None
+    return text[begin:i - 1]
+
+
+def extract_final_candidate(text, fallback="number_then_full"):
+    result = ""
+    if text:
+        boxed = get_last_boxed(text.strip())
+        if boxed:
+            result = boxed.strip().strip("$ ")
+        elif fallback in ("number_then_full", "number_only"):
+            nums = RE_NUMBER.findall(text)
+            if nums:
+                result = nums[-1]
+            elif fallback == "number_then_full":
+                result = text
+    return result
+
+
+def normalize(text):
+    if not text:
+        return ""
+    t = text.strip()
+    for a, b in [("\\left", ""), ("\\right", ""), ("\\,", ""), ("\\!", ""), ("\\;", ""),
+                 ("\\cdot", "*"), ("\\dfrac", "\\frac"), ("\\tfrac", "\\frac"),
+                 ("\\(", ""), ("\\)", ""), ("\\[", ""), ("\\]", ""), ("$", ""),
+                 ("^\\circ", ""), ("^{\\circ}", ""), ("\u00b0", ""), ("%", "")]:
+        t = t.replace(a, b)
+    m = re.fullmatch(r"\\text\{(.+)\}", t.strip())
+    if m:
+        t = m.group(1)
+    t = "".join(("**" + SUP[c]) if c in SUP else c for c in t)
+    t = re.sub(r"\\sqrt\s*\{([^{}]*)\}", r"sqrt(\1)", t)
+    for _ in range(5):
+        t = re.sub(r"\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}", r"(\1)/(\2)", t)
+    t = t.replace("^", "**")
+    t = re.sub(r"(?<=\d)\s+(\d+/\d+)", r"+\1", t)
+    t = re.sub(r"(?<=\d),(?=\d\d\d(\D|$))", "", t)
+    t = t.replace("{", "").replace("}", "").strip()
+    t = t.rstrip(".").strip()
+    return t.lower()
+
+
+def values_equal(a, b):
+    if a == b:
+        return True
+    va, vb = parse_value(a), parse_value(b)
+    if va is None or vb is None:
+        return False
+    if isinstance(va, Fraction) and isinstance(vb, Fraction):
+        return va == vb
+    return abs(float(va) - float(vb)) <= 1e-9 * max(1.0, abs(float(vb)))
+
+
+def grade_answer(pred, gt):
+    if pred is None or gt is None:
+        return False
+    p, g = split_into_parts(normalize(pred)), split_into_parts(normalize(gt))
+    return bool(p) and bool(g) and len(p) == len(g) and all(values_equal(x, y) for x, y in zip(p, g))

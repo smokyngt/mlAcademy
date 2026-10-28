@@ -1,0 +1,10 @@
+{
+  "id": "saf.06.ex1",
+  "title": "Détection d'un filigrane à liste verte avec un test z",
+  "prompt": "Le filigrane au niveau des tokens biaise l'échantillonnage d'un modèle vers une **liste verte** pseudo-aléatoire qui dépend du token précédent et d'une clé secrète. Un détecteur qui connaît la clé compte les tokens verts et exécute un test z. La fonction auxiliaire `is_green(prev, tok, key, gamma)` (fournie) est le hachage à clé qui définit les listes ; `base_probs(V)` est un modèle de langage jouet.\n\nImplémente :\n\n- `green_fraction(tokens, key, gamma)` : fraction des `n-1` paires consécutives qui sont vertes.\n- `watermark_z(tokens, key, gamma)` : le z-score unilatéral `(g - gamma*T) / sqrt(T*gamma*(1-gamma))`.\n- `p_value(z)` : probabilité de queue normale unilatérale.\n- `generate(T, delta, rng, key, gamma)` : échantillonne `T` tokens ; à chaque étape, multiplie la probabilité de base des tokens verts par `exp(delta)`, renormalise et échantillonne. (`delta = 0` est un échantillonnage ordinaire sans filigrane.)\n- `detect(tokens, key, gamma, z_threshold)` : `True` si `z >= z_threshold`.",
+  "hints": [
+    "Pour chaque position t >= 1, le token précédent et le token courant décident vert ou rouge via le hachage is_green(prev, tok) fourni. Compte les positions vertes g parmi T = n - 1 positions.",
+    "Sous l'hypothèse nulle (pas de filigrane), chaque position est verte avec la probabilité gamma, indépendamment : moyenne gamma*T, variance T*gamma*(1-gamma). z = (g - gamma*T) / sqrt(T*gamma*(1-gamma)).",
+    "La p-valeur unilatérale est 0.5*erfc(z/sqrt(2)). Pour une génération biaisée, multiplie les probabilités de base par exp(delta) sur les tokens verts et renormalise."
+  ]
+}

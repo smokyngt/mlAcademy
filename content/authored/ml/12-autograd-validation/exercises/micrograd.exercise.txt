@@ -1,0 +1,168 @@
+#@@ meta
+{"id": "f2n.12.ex1", "title": "Build a scalar autodiff engine", "difficulty": 4, "runtime": "pyodide", "concepts": ["nn.autograd", "calc.chain"], "hints": ["In __mul__: out = Value(self.data * other.data, (self, other)); define _backward so that self.grad += other.data * out.grad and other.grad += self.data * out.grad.", "For backward(): do a depth-first search to build `topo` (children after parents), set self.grad = 1.0, then call node._backward() for node in reversed(topo).", "tanh: t = math.tanh(x); local derivative 1 - t*t. relu: local derivative is 1.0 if self.data > 0 else 0.0."]}
+#@@ prompt
+Complete the `Value` class: a scalar that remembers how it was computed. Implement `__add__`, `__mul__`, `__pow__` (constant exponent), `relu`, `tanh`, `exp`, and `backward()`. Subtraction, negation and division are derived from these and already provided.
+
+Remember: gradient contributions must be **accumulated** with `+=`.
+#@@ starter
+import math
+
+class Value:
+    def __init__(self, data, _children=()):
+        self.data = float(data)
+        self.grad = 0.0
+        self._backward = lambda: None
+        self._prev = tuple(_children)
+
+    def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other))
+        # TODO define out._backward
+        return out
+
+    def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other))
+        # TODO define out._backward
+        return out
+
+    def __pow__(self, p):
+        out = Value(self.data ** p, (self,))
+        # TODO define out._backward
+        return out
+
+    def relu(self):
+        out = Value(max(0.0, self.data), (self,))
+        # TODO
+        return out
+
+    def tanh(self):
+        out = Value(math.tanh(self.data), (self,))
+        # TODO
+        return out
+
+    def exp(self):
+        out = Value(math.exp(self.data), (self,))
+        # TODO
+        return out
+
+    def backward(self):
+        # TODO: topological order, seed self.grad = 1.0, then call _backward in reverse
+        raise NotImplementedError
+
+    def __neg__(self): return self * -1
+    def __sub__(self, other): return self + (-other if isinstance(other, Value) else Value(-other))
+    def __radd__(self, other): return self + other
+    def __rmul__(self, other): return self * other
+    def __truediv__(self, other): return self * (other if isinstance(other, Value) else Value(other)) ** -1
+    def __repr__(self): return f"Value(data={self.data:.4f}, grad={self.grad:.4f})"
+#@@ tests
+import math
+def build():
+    a, b = Value(3.0), Value(2.0)
+    f = a * b + a ** 2
+    f.backward()
+    return a, b, f
+check("forward value 15", lambda: abs(build()[2].data - 15) < 1e-12)
+check("df/da = 8 (two paths accumulate)", lambda: abs(build()[0].grad - 8) < 1e-12, "Use += so both paths contribute")
+check("df/db = 3", lambda: abs(build()[1].grad - 3) < 1e-12)
+def tanh_case():
+    x = Value(0.5); y = x.tanh(); y.backward(); return x.grad
+check("tanh derivative 1 - tanh^2", lambda: abs(tanh_case() - (1 - math.tanh(0.5) ** 2)) < 1e-12)
+def relu_case():
+    x, z = Value(-1.0), Value(2.0); (x.relu() + z.relu() * 3).backward(); return x.grad, z.grad
+check("relu gradient: 0 for negative, 3 for positive", lambda: relu_case() == (0.0, 3.0))
+def exp_case():
+    x = Value(0.3); x.exp().backward(); return x.grad
+check("exp derivative equals exp", lambda: abs(exp_case() - math.exp(0.3)) < 1e-12)
+def reuse():
+    x = Value(2.0); y = x * x * x; y.backward(); return x.grad
+check("x used three times: d(x^3)/dx = 12", lambda: abs(reuse() - 12) < 1e-12)
+def numeric_check():
+    def f(av, bv):
+        a, b = Value(av), Value(bv)
+        return ((a * b + b ** 2).tanh() + (a - b).relu() * 0.5) / (1 + (a * a).exp() * 0.1)
+    a, b = Value(0.7), Value(-0.4)
+    out = ((a * b + b ** 2).tanh() + (a - b).relu() * 0.5) / (1 + (a * a).exp() * 0.1)
+    out.backward()
+    h = 1e-6
+    na = (f(0.7 + h, -0.4).data - f(0.7 - h, -0.4).data) / (2 * h)
+    nb = (f(0.7, -0.4 + h).data - f(0.7, -0.4 - h).data) / (2 * h)
+    return abs(a.grad - na) < 1e-6 and abs(b.grad - nb) < 1e-6
+check("composite expression matches finite differences", numeric_check)
+#@@ solution
+import math
+
+class Value:
+    def __init__(self, data, _children=()):
+        self.data = float(data)
+        self.grad = 0.0
+        self._backward = lambda: None
+        self._prev = tuple(_children)
+
+    def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data + other.data, (self, other))
+        def _backward():
+            self.grad += out.grad
+            other.grad += out.grad
+        out._backward = _backward
+        return out
+
+    def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        out = Value(self.data * other.data, (self, other))
+        def _backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = _backward
+        return out
+
+    def __pow__(self, p):
+        out = Value(self.data ** p, (self,))
+        def _backward():
+            self.grad += p * self.data ** (p - 1) * out.grad
+        out._backward = _backward
+        return out
+
+    def relu(self):
+        out = Value(max(0.0, self.data), (self,))
+        def _backward():
+            self.grad += (1.0 if self.data > 0 else 0.0) * out.grad
+        out._backward = _backward
+        return out
+
+    def tanh(self):
+        t = math.tanh(self.data)
+        out = Value(t, (self,))
+        def _backward():
+            self.grad += (1 - t * t) * out.grad
+        out._backward = _backward
+        return out
+
+    def exp(self):
+        out = Value(math.exp(self.data), (self,))
+        def _backward():
+            self.grad += out.data * out.grad
+        out._backward = _backward
+        return out
+
+    def backward(self):
+        topo, seen = [], set()
+        def build(v):
+            if id(v) not in seen:
+                seen.add(id(v))
+                for c in v._prev:
+                    build(c)
+                topo.append(v)
+        build(self)
+        self.grad = 1.0
+        for v in reversed(topo):
+            v._backward()
+
+    def __neg__(self): return self * -1
+    def __sub__(self, other): return self + (-other if isinstance(other, Value) else Value(-other))
+    def __radd__(self, other): return self + other
+    def __rmul__(self, other): return self * other
+    def __truediv__(self, other): return self * (other if isinstance(other, Value) else Value(other)) ** -1
+    def __repr__(self): return f"Value(data={self.data:.4f}, grad={self.grad:.4f})"

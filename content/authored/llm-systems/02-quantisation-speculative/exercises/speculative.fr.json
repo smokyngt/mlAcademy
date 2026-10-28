@@ -1,0 +1,10 @@
+{
+  "id": "sys.02.ex2",
+  "title": "Décodage spéculatif : règle d'acceptation/rejet et accélération",
+  "prompt": "Décodage spéculatif avec deux modèles bigrammes jouets : la **cible** $Q$ et un **brouillon** $P$ moins coûteux (matrices dont la ligne $i$ est la distribution du token suivant après le token $i$).\n\nImplémente la règle d'acceptation $\\min(1, q/p)$, la distribution résiduelle $(q-p)_+$ normalisée, le taux d'acceptation, les tokens attendus par tour, l'accélération, et une boucle `spec_decode` complète. Les tests vérifient statistiquement que la loi de sortie est celle de la cible, et que l'échantillonnage depuis le seul brouillon ne l'est pas.",
+  "hints": [
+    "acceptance_rate = sum_x min(p(x), q(x)). residual = max(q-p,0) / sa somme.",
+    "expected_tokens = 1 + alpha + ... + alpha**n = (1 - alpha**(n+1)) / (1 - alpha). La durée d'un tour est de n*c + 1 passes cibles.",
+    "Dans spec_decode, garde le token de contexte courant `prev`. Tire d'abord n brouillons (chacun depuis P[prev]), puis vérifie-les dans l'ordre avec Q[prev], P[prev] ; arrête le tour au premier rejet (remplacement tiré du résidu) ou ajoute un token bonus tiré de Q après n acceptations."
+  ]
+}

@@ -1,0 +1,16 @@
+[
+  { "id": "adv.01.c1", "concept": "adv.visual-tokens", "front": "Number of patch tokens for an HxW image, patch p", "back": "$\\lfloor H/p\\rfloor\\lfloor W/p\\rfloor$; halving $p$ or doubling the side quadruples it." },
+  { "id": "adv.01.c2", "concept": "adv.visual-tokens", "front": "Tokens for ViT-L/14 at 336 and at 224", "back": "576 and 256." },
+  { "id": "adv.01.c3", "concept": "adv.visual-tokens", "front": "Why do visual tokens cost more than their count suggests?", "back": "They sit in the LLM context: attention is quadratic in total length and every token adds KV-cache entries in every layer." },
+  { "id": "adv.01.c4", "concept": "adv.vlm", "front": "Three parts of a VLM", "back": "Vision encoder (CLIP/SigLIP style), connector (MLP or Q-Former), LLM." },
+  { "id": "adv.01.c5", "concept": "adv.vlm", "front": "LLaVA MLP projector", "back": "Linear-GELU-Linear applied per patch: $(N,d_{vis})\\to(N,d_{llm})$. One token per patch, no bottleneck." },
+  { "id": "adv.01.c6", "concept": "adv.vlm", "front": "Q-Former in one sentence", "back": "A fixed set of learnable queries cross-attends to patch features and outputs $n_q$ summary tokens." },
+  { "id": "adv.01.c7", "concept": "adv.vlm", "front": "Cross-attention formula for learnable queries", "back": "$A=\\operatorname{softmax}(Q_0W_Q(FW_K)^\\top/\\sqrt{d_k})$ of shape $(n_q,N)$; out $=A(FW_V)$." },
+  { "id": "adv.01.c8", "concept": "adv.vlm", "front": "LLaVA stage 1", "back": "Freeze encoder and LLM; train the projector on image-caption pairs with the LM loss." },
+  { "id": "adv.01.c9", "concept": "adv.vlm", "front": "LLaVA stage 2", "back": "Visual instruction tuning: train projector and LLM (full or LoRA) on instruction-style image conversations." },
+  { "id": "adv.01.c10", "concept": "adv.vlm", "front": "How was LLaVA's instruction data made?", "back": "A text-only GPT-4 got image captions and boxes and wrote conversations, descriptions and reasoning questions; no human viewed the images." },
+  { "id": "adv.01.c11", "concept": "adv.vlm", "front": "BLIP-2 stage 1 losses", "back": "Image-text contrastive, image-text matching, image-grounded text generation; only the Q-Former trains, no LLM." },
+  { "id": "adv.01.c12", "concept": "adv.vlm", "front": "When does a Q-Former beat an MLP projector?", "back": "When images are large and context is the bottleneck: it caps tokens at $n_q$ regardless of resolution." },
+  { "id": "adv.01.c13", "concept": "adv.vlm", "front": "Five-axis VLM design space", "back": "Image encoder, connector, language model, training data, resolution schedule." },
+  { "id": "adv.01.c14", "concept": "adv.vlm", "front": "Pitfall when comparing VLMs", "back": "Not matching visual-token count and LLM size; benchmark scores mix text reasoning with vision." }
+]

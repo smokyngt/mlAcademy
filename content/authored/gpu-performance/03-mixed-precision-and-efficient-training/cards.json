@@ -1,0 +1,17 @@
+[
+  { "id": "gpu.03.c1", "concept": "gpu.formats", "front": "Bit layouts of fp32, fp16, bf16", "back": "fp32: 1/8/23. fp16: 1/5/10. bf16: 1/8/7 (sign/exponent/mantissa). bf16 keeps fp32's range with less precision." },
+  { "id": "gpu.03.c2", "concept": "gpu.formats", "front": "Max, min normal and epsilon of an IEEE-style format", "back": "bias b = 2^(e-1) - 1; max = (2 - 2^-m) 2^b; min normal = 2^(1-b); min subnormal = 2^(1-b-m); eps = 2^-m." },
+  { "id": "gpu.03.c3", "concept": "gpu.formats", "front": "Key float16 numbers", "back": "Max 65,504; min normal 6.1e-5; min subnormal 6.0e-8; eps about 1e-3 (about 3 decimal digits)." },
+  { "id": "gpu.03.c4", "concept": "gpu.formats", "front": "What is tf32?", "back": "A tensor-core math mode: fp32 storage and range, products computed with 10 mantissa bits, for fp32-looking code at tensor-core speed." },
+  { "id": "gpu.03.c5", "concept": "gpu.formats", "front": "fp8 variants", "back": "E4M3 (more precision, weights and activations) and E5M2 (more range, gradients). Needs careful per-tensor scaling." },
+  { "id": "gpu.03.c6", "concept": "gpu.loss-scaling", "front": "Why do fp16 gradients underflow?", "back": "Gradients below about 3e-8 round to exactly zero (half the min subnormal); many deep-net gradients are that small." },
+  { "id": "gpu.03.c7", "concept": "gpu.loss-scaling", "front": "Loss scaling recipe", "back": "Multiply loss by S, backward in fp16, convert grads to fp32 and divide by S, update the fp32 master weights. Exact because grad(S L) = S grad(L)." },
+  { "id": "gpu.03.c8", "concept": "gpu.loss-scaling", "front": "Dynamic loss scaling", "back": "Overflow found: skip the step and halve S. After a run of good steps, double S." },
+  { "id": "gpu.03.c9", "concept": "gpu.loss-scaling", "front": "Why keep fp32 master weights?", "back": "Updates are tiny relative to weights; in fp16/bf16 weight + update rounds back to the weight and the update is lost." },
+  { "id": "gpu.03.c10", "concept": "gpu.train-memory", "front": "Bytes per parameter for Adam training", "back": "16: (fp32) 4 weights + 4 grads + 4 m + 4 v, or (mixed) 2 + 2 + 4 master + 4 m + 4 v. Activations come on top." },
+  { "id": "gpu.03.c11", "concept": "gpu.train-memory", "front": "Activation memory rule of thumb", "back": "About 12 * B * L * d values per layer (batch, sequence length, width); linear in B and L and in depth." },
+  { "id": "gpu.03.c12", "concept": "gpu.checkpoint-model", "front": "Checkpointing memory and optimal spacing", "back": "mem(k) = (n/k) a_in + k a_layer; k* = sqrt(n a_in / a_layer), sqrt(n) when a_in = a_layer." },
+  { "id": "gpu.03.c13", "concept": "gpu.checkpoint-model", "front": "Compute cost of full checkpointing", "back": "One extra forward: 1 + 1 + 2 = 4 units instead of 3, a factor 4/3 (about 33%). Selective recompute is far cheaper (about 5% per the source)." },
+  { "id": "gpu.03.c14", "concept": "gpu.grad-accum", "front": "Gradient accumulation", "back": "Sum micro-batch gradients, each scaled by 1/n_micro when the loss is a mean, then do one optimiser step. Equals the full-batch gradient." },
+  { "id": "gpu.03.c15", "concept": "gpu.fusion", "front": "Why fuse kernels / use torch.compile?", "back": "A chain of k element-wise ops moves 2*k*e*n bytes unfused but 2*e*n fused; same FLOPs, k times less traffic on a memory-bound path." }
+]

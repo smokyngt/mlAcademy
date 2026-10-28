@@ -1,0 +1,91 @@
+[
+ {
+  "id": "ops.04.q1",
+  "prompt": "La classe positive représente 90 % des étiquettes et un modèle a $F_1=0.90$. Que dois-tu vérifier en premier ?",
+  "options": [
+   "Comment il se compare à une baseline aléatoire ou à règle zéro",
+   "Le taux d'apprentissage",
+   "Le nombre de couches",
+   "Rien ; 0,90 est élevé"
+  ],
+  "explanation": "Un modèle qui prédit positif 90 % du temps au hasard obtient aussi environ $F_1=0.9$ ici ; une métrique seule ne signifie pas grand-chose."
+ },
+ {
+  "id": "ops.04.q2",
+  "prompt": "Trois classifieurs indépendants sont chacun corrects avec la probabilité 0,7. Quelle est l'accuracy de leur vote majoritaire ?",
+  "options": [],
+  "explanation": "$3(0.7)^2(0.3)+(0.7)^3=0.441+0.343=0.784$."
+ },
+ {
+  "id": "ops.04.q3",
+  "prompt": "Quand un ensemble à vote majoritaire n'apporte-t-il aucun gain par rapport à un seul modèle ?",
+  "options": [
+   "Quand les modèles ont des architectures différentes",
+   "Quand il y a un nombre impair de modèles",
+   "Quand tous les apprenants de base font des prédictions identiques",
+   "Quand l'accuracy dépasse 50 %"
+  ],
+  "explanation": "Le gain vient d'erreurs indépendantes ; des modèles parfaitement corrélés valent un seul modèle."
+ },
+ {
+  "id": "ops.04.q4",
+  "prompt": "Le boosting diffère du bagging parce que...",
+  "options": [
+   "il entraîne les modèles indépendamment sur des échantillons bootstrap",
+   "il entraîne les apprenants séquentiellement, en repondérant les exemples pour que les apprenants suivants se concentrent sur les erreurs précédentes",
+   "il n'a besoin d'aucun apprenant de base",
+   "il ne moyenne les prédictions que pour la régression"
+  ],
+  "explanation": "Le bagging entraîne des modèles indépendants sur des échantillons bootstrap et réduit la variance ; le boosting est séquentiel et se concentre sur les erreurs."
+ },
+ {
+  "id": "ops.04.q5",
+  "prompt": "Dans le SGD synchrone à parallélisme de données, quel problème s'aggrave quand on ajoute des workers ?",
+  "options": [
+   "Les gradients périmés",
+   "Le modèle qui ne tient pas en mémoire",
+   "Des taux d'apprentissage plus élevés",
+   "Les stragglers qui ralentissent chaque étape"
+  ],
+  "explanation": "L'étape attend le worker le plus lent, et avec plus de workers il est plus probable que quelqu'un soit lent. Les gradients périmés relèvent du SGD asynchrone."
+ },
+ {
+  "id": "ops.04.q6",
+  "prompt": "Le modèle A bat le modèle B dans chaque tranche mais perd au global. Ce phénomène s'appelle...",
+  "options": [
+   "le surapprentissage",
+   "le covariate shift",
+   "le paradoxe de Simpson",
+   "la fuite d'étiquettes"
+  ],
+  "explanation": "Les tranches contribuent avec des poids différents aux deux totaux, donc les agrégats peuvent inverser l'ordre par tranche."
+ },
+ {
+  "id": "ops.04.q7",
+  "prompt": "Changer le nom du candidat dans un CV et voir le score du modèle changer est un échec de quel test ?",
+  "options": [
+   "Test d'invariance",
+   "Test de perturbation (bruit)",
+   "Test d'attente directionnelle",
+   "Chercheur de tranches"
+  ],
+  "explanation": "Certains changements ne doivent pas modifier la sortie ; la fraction de prédictions qui basculent mesure la violation."
+ },
+ {
+  "id": "ops.04.q8",
+  "prompt": "La prévalence de la classe positive est 0,1 et un modèle devine positif avec la probabilité 0,1 indépendamment de l'entrée. Quelle est son accuracy ?",
+  "options": [],
+  "explanation": "$pq+(1-p)(1-q)=0.01+0.81=0.82$."
+ },
+ {
+  "id": "ops.04.q9",
+  "prompt": "Quelle est une façon de trouver des tranches critiques ?",
+  "options": [
+   "Ne regarder que l'accuracy agrégée",
+   "Le mélange aléatoire",
+   "Augmenter la taille du batch",
+   "Des heuristiques issues de la connaissance du domaine, l'analyse d'erreurs ou des chercheurs automatiques de tranches"
+  ],
+  "explanation": "Le découpage en tranches tient plus de l'art que de la science : utilise des découpages du domaine (mobile contre ordinateur), lis les erreurs, ou cherche des sous-ensembles automatiquement."
+ }
+]

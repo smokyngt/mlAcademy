@@ -1,0 +1,16 @@
+[
+  { "id": "adv.02.c1", "concept": "adv.dynamic-res", "front": "Three failures of square resize", "back": "Squished text and faces, cropped content, and (when padding) wasted tokens on blanks." },
+  { "id": "adv.02.c2", "concept": "adv.dynamic-res", "front": "Patch-n-pack", "back": "Concatenate variable-length patch sequences into one sequence, with a block-diagonal mask so images stay separate." },
+  { "id": "adv.02.c3", "concept": "adv.dynamic-res", "front": "Block-diagonal mask entries", "back": "$M_{ij}=1$ iff $i,j$ in the same image; score entries $=\\sum_b n_b^2$." },
+  { "id": "adv.02.c4", "concept": "adv.dynamic-res", "front": "AnyRes (LLaVA-NeXT)", "back": "Tile a high-res image into a grid of encoder-size crops plus one thumbnail; tokens $=(rc+1)\\times$ tokens per tile." },
+  { "id": "adv.02.c5", "concept": "adv.dynamic-res", "front": "Native dynamic resolution token count", "back": "$(H'/u)(W'/u)$ with $u=$ patch x merge (28 for patch 14, 2x2 merge)." },
+  { "id": "adv.02.c6", "concept": "adv.dynamic-res", "front": "M-RoPE", "back": "Rotary positions with a (time,row,col) triple per token, so any resolution and length is legal without a position table." },
+  { "id": "adv.02.c7", "concept": "adv.dynamic-res", "front": "min_pixels / max_pixels", "back": "Bounds on the pixel count (hence tokens) per image: a floor for tiny inputs, a cap for huge ones." },
+  { "id": "adv.02.c8", "concept": "adv.video-tokens", "front": "Video token count", "back": "$N=D\\,f\\,\\tau$: duration x frames per second x tokens per frame." },
+  { "id": "adv.02.c9", "concept": "adv.video-tokens", "front": "Three ways to reduce video tokens", "back": "Fewer frames (sampling), fewer tokens per frame (pooling), learned compression (Q-Former or summary tokens)." },
+  { "id": "adv.02.c10", "concept": "adv.video-tokens", "front": "KV cache bytes", "back": "$2\\,L\\,h_{kv}\\,d_h\\,N\\,b$; linear in $N$." },
+  { "id": "adv.02.c11", "concept": "adv.video-tokens", "front": "Dynamic FPS", "back": "Sample more frames where there is motion; needs time-aware positions (timestamps) to stay interpretable." },
+  { "id": "adv.02.c12", "concept": "adv.video-tokens", "front": "Four paths to long video", "back": "Brute context, ring attention across devices, token compression, agentic retrieval (query clips)." },
+  { "id": "adv.02.c13", "concept": "adv.video-tokens", "front": "Why is pooling a trade-off?", "back": "It cuts tokens by $s^2$ but loses fine spatial detail such as small text." },
+  { "id": "adv.02.c14", "concept": "adv.dynamic-res", "front": "Token budget rule of thumb", "back": "OCR/documents about 1000-4000, charts/UI about 700-1000, photos about 250-600 tokens." }
+]

@@ -1,0 +1,17 @@
+[
+  { "id": "dl.02.c1", "front": "Pénalité L2 et son gradient", "back": "Perte $+\\tfrac\\lambda2\\|\\theta\\|^2$ ; le gradient gagne $\\lambda\\theta$." },
+  { "id": "dl.02.c2", "front": "Mise à jour SGD avec décroissance des poids", "back": "$\\theta\\leftarrow(1-\\eta\\lambda)\\theta-\\eta\\nabla L$ : rétrécir, puis avancer." },
+  { "id": "dl.02.c3", "front": "L2 comme a priori gaussien", "back": "L'a priori $\\mathcal N(0,\\tau^2)$ et la variance du bruit $\\sigma^2$ donnent $\\lambda=\\sigma^2/\\tau^2$ ; la pénalité est l'opposé du log de l'a priori." },
+  { "id": "dl.02.c4", "front": "L1 contre L2 sur un exemple 1-D $\\tfrac12(w-3)^2$", "back": "L2 : $w=3/(1+\\lambda)$ (rétrécit, jamais zéro). L1 : $\\mathrm{sign}(3)\\max(3-\\lambda,0)$ (zéro exact dès que $\\lambda\\ge3$)." },
+  { "id": "dl.02.c5", "front": "Quels paramètres reçoivent habituellement la décroissance des poids ?", "back": "Les matrices de poids ; les biais et les échelles de normalisation sont normalement exclus." },
+  { "id": "dl.02.c6", "front": "Passe avant du dropout inversé", "back": "$\\tilde a=m\\odot a/(1-p)$ avec $m_i\\sim\\mathrm{Bernoulli}(1-p)$ ; identité à l'évaluation." },
+  { "id": "dl.02.c7", "front": "Pourquoi diviser par $1-p$ ?", "back": "$\\mathbb{E}[m]=1-p$, donc $\\mathbb{E}[\\tilde a]=a$ : l'entraînement et le test voient la même échelle d'activation attendue." },
+  { "id": "dl.02.c8", "front": "Variance ajoutée par le dropout", "back": "$a^2\\,p/(1-p)$ par unité : égale à $a^2$ pour $p=0.5$." },
+  { "id": "dl.02.c9", "front": "Passe arrière du dropout", "back": "$\\bar a=\\bar{\\tilde a}\\odot m/(1-p)$ avec le même masque que dans la passe avant." },
+  { "id": "dl.02.c10", "front": "Bug courant du dropout", "back": "Oublier $\\texttt{model.eval()}$ au test, ou retirer le masque dans la passe arrière." },
+  { "id": "dl.02.c11", "front": "Procédure d'arrêt précoce", "back": "Suivre la perte de validation, sauvegarder la meilleure epoch, s'arrêter après une fenêtre de patience sans amélioration, restaurer la meilleure sauvegarde." },
+  { "id": "dl.02.c12", "front": "Pourquoi la validation doit-elle différer du test ?", "back": "Choisir l'epoch d'arrêt sur l'ensemble de test le fait fuiter et rend le score rapporté optimiste." },
+  { "id": "dl.02.c13", "front": "L'augmentation comme régulariseur (Bishop 5.5.5)", "back": "De petites transformations de moyenne nulle donnent $E+\\lambda\\Omega$ au second ordre : une pénalité sur la sensibilité à la transformation." },
+  { "id": "dl.02.c14", "front": "Symptôme du sur-apprentissage sur les courbes", "back": "La perte d'entraînement continue de baisser tandis que la perte de validation remonte ; un écart entraînement/test qui grandit." },
+  { "id": "dl.02.c15", "front": "Symptôme d'un excès de régularisation", "back": "La perte d'entraînement elle-même reste élevée (sous-apprentissage) ; par ex. $\\lambda=0.1$ a abaissé la précision d'entraînement à 0.875 dans l'expérience de la leçon." }
+]

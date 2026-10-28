@@ -1,0 +1,145 @@
+#@@ meta
+{"id": "cml.14.ex1", "title": "Z-scores, Mahalanobis distance and a small isolation forest", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.anomaly", "ml.iforest"], "hints": ["Robust z-score: 0.6745 * (x - median) / MAD, where MAD = median(|x - median|).", "Mahalanobis: Xc = X - mean; solve with the inverse covariance (np.cov(X, rowvar=False)); distance_i = sqrt(Xc[i] @ Sinv @ Xc[i]). einsum('ij,jk,ik->i', Xc, Sinv, Xc) does all rows at once.", "Isolation tree: pick a random column, a uniform threshold between that column's min and max, recurse until depth limit or one point. Path length of a leaf holding s points is depth + c(s). Score = 2 ** (-mean_path / c(psi))."]}
+#@@ prompt
+Build three small anomaly tools.
+
+1. `zscores(x)` -> classical z-scores (population std, `np.std`), and `robust_zscores(x)` -> `0.6745 * (x - median) / MAD` with `MAD = median(|x - median|)`.
+2. `mahalanobis(X)` -> array of length N: distance of every row from the sample mean using the sample covariance `np.cov(X, rowvar=False)`.
+3. `c_factor(n)`: the average path length of an unsuccessful search in a binary search tree: `0` for `n <= 1`, `1` for `n == 2`, otherwise `2*(ln(n-1) + 0.5772156649) - 2*(n-1)/n`.
+4. `IsolationForest(n_trees, psi, seed)` with `fit(X)` and `score(X)`. Use `rng = np.random.default_rng(seed)`; every tree is grown on `psi` rows sampled WITHOUT replacement (`rng.choice(len(X), psi, replace=False)`), with depth limit `ceil(log2(psi))`. At each node choose a column with `rng.integers(d)`; if the column is constant, stop; otherwise threshold `rng.uniform(min, max)`, left = `x < threshold`. A leaf with `s` rows contributes `depth + c_factor(s)`. `score` returns `2 ** (-mean_path / c_factor(psi))` for each row: near 1 means anomalous.
+5. `flag_top_fraction(scores, contamination)` -> boolean mask flagging the `ceil(contamination * n)` highest scores, and `precision_at_k(scores, labels, k)` -> share of true anomalies (`labels == 1`) among the `k` highest scores.
+#@@ starter
+import numpy as np
+
+def zscores(x):
+    raise NotImplementedError
+
+def robust_zscores(x):
+    raise NotImplementedError
+
+def mahalanobis(X):
+    raise NotImplementedError
+
+def c_factor(n):
+    raise NotImplementedError
+
+class IsolationForest:
+    def __init__(self, n_trees=100, psi=64, seed=0):
+        self.n_trees, self.psi, self.seed = n_trees, psi, seed
+
+    def fit(self, X):
+        raise NotImplementedError
+
+    def score(self, X):
+        raise NotImplementedError
+
+def flag_top_fraction(scores, contamination):
+    raise NotImplementedError
+
+def precision_at_k(scores, labels, k):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+x = np.array([10, 11, 9, 10, 12, 10, 11, 9, 10, 50.])
+check("masking: the classical z-score of 50 is only about 2.99", lambda: abs(zscores(x)[-1] - 2.992073) < 1e-4)
+check("robust z-score of 50 is about 26.98", lambda: abs(robust_zscores(x)[-1] - 26.98) < 0.01)
+check("robust z-score of the median-like points is 0", lambda: abs(robust_zscores(x)[0]) < 1e-12)
+rng = np.random.default_rng(0)
+L = np.array([[1.0, 0.0], [0.9, np.sqrt(1 - 0.81)]])
+G = rng.normal(size=(5000, 2)) @ L.T
+Gp = np.vstack([G, [[1., -1.], [1., 1.]]])
+d = mahalanobis(Gp)
+check("(1,-1) is far from the correlated cloud (about 4.5)", lambda: 3.5 < d[-2] < 5.5)
+check("(1,1) is typical (about 1)", lambda: 0.7 < d[-1] < 1.4)
+check("mahalanobis of data cloud has mean square near d=2", lambda: abs(np.mean(mahalanobis(G) ** 2) - 2 * (len(G) - 1) / len(G)) < 1e-6)
+check("c(1)=0, c(2)=1", lambda: c_factor(1) == 0 and c_factor(2) == 1)
+check("c(256) is about 10.2448", lambda: abs(c_factor(256) - 10.244770920) < 1e-6)
+r = np.random.default_rng(1)
+X = np.vstack([r.normal(size=(200, 2)), [[6, 6], [-5, 5], [0, 7]]])
+labels = np.r_[np.zeros(200), np.ones(3)]
+sc = IsolationForest(100, 64, 0).fit(X).score(X)
+check("scores lie in (0, 1)", lambda: np.all((sc > 0) & (sc < 1)))
+check("the 3 planted outliers get the 3 highest scores", lambda: set(np.argsort(sc)[::-1][:3]) == {200, 201, 202})
+check("typical points score below 0.5 on median", lambda: np.median(sc) < 0.5)
+check("precision@3 = 1", lambda: precision_at_k(sc, labels, 3) == 1.0)
+check("precision@6 = 0.5", lambda: abs(precision_at_k(sc, labels, 6) - 0.5) < 1e-12)
+flags = flag_top_fraction(sc, 0.05)
+check("contamination 0.05 flags ceil(0.05*203) = 11 points", lambda: flags.sum() == 11)
+check("flags are the highest scores", lambda: flags[200] and flags[201] and flags[202])
+#@@ solution
+import numpy as np
+
+def zscores(x):
+    x = np.asarray(x, float)
+    return (x - x.mean()) / x.std()
+
+def robust_zscores(x):
+    x = np.asarray(x, float)
+    med = np.median(x)
+    mad = np.median(np.abs(x - med))
+    return 0.6745 * (x - med) / mad
+
+def mahalanobis(X):
+    X = np.asarray(X, float)
+    Xc = X - X.mean(axis=0)
+    Sinv = np.linalg.inv(np.cov(X, rowvar=False))
+    return np.sqrt(np.einsum("ij,jk,ik->i", Xc, Sinv, Xc))
+
+def c_factor(n):
+    if n <= 1:
+        return 0.0
+    if n == 2:
+        return 1.0
+    return 2 * (np.log(n - 1) + 0.5772156649) - 2 * (n - 1) / n
+
+class _Tree:
+    def __init__(self, rng, max_depth):
+        self.rng, self.max_depth = rng, max_depth
+
+    def fit(self, X, depth=0):
+        n = len(X)
+        if depth >= self.max_depth or n <= 1:
+            self.leaf, self.size = True, n
+            return self
+        j = int(self.rng.integers(X.shape[1]))
+        lo, hi = X[:, j].min(), X[:, j].max()
+        if lo == hi:
+            self.leaf, self.size = True, n
+            return self
+        self.leaf, self.j, self.t = False, j, self.rng.uniform(lo, hi)
+        m = X[:, j] < self.t
+        self.left = _Tree(self.rng, self.max_depth).fit(X[m], depth + 1)
+        self.right = _Tree(self.rng, self.max_depth).fit(X[~m], depth + 1)
+        return self
+
+    def path(self, x, depth=0):
+        if self.leaf:
+            return depth + c_factor(self.size)
+        return (self.left if x[self.j] < self.t else self.right).path(x, depth + 1)
+
+class IsolationForest:
+    def __init__(self, n_trees=100, psi=64, seed=0):
+        self.n_trees, self.psi, self.seed = n_trees, psi, seed
+
+    def fit(self, X):
+        X = np.asarray(X, float)
+        rng = np.random.default_rng(self.seed)
+        self.psi_ = min(self.psi, len(X))
+        depth = int(np.ceil(np.log2(self.psi_)))
+        self.trees = [_Tree(rng, depth).fit(X[rng.choice(len(X), self.psi_, replace=False)])
+                      for _ in range(self.n_trees)]
+        return self
+
+    def score(self, X):
+        X = np.asarray(X, float)
+        return np.array([2 ** (-np.mean([t.path(x) for t in self.trees]) / c_factor(self.psi_)) for x in X])
+
+def flag_top_fraction(scores, contamination):
+    scores = np.asarray(scores)
+    k = int(np.ceil(contamination * len(scores)))
+    thr = np.sort(scores)[::-1][k - 1]
+    return scores >= thr
+
+def precision_at_k(scores, labels, k):
+    idx = np.argsort(-np.asarray(scores))[:k]
+    return float(np.mean(np.asarray(labels)[idx] == 1))

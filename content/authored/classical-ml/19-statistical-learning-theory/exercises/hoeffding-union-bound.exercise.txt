@@ -1,0 +1,70 @@
+#@@ meta
+{"id": "cml.19.ex1", "title": "Hoeffding, the union bound and a real generalisation gap", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.slt"], "hints": ["Hoeffding for one hypothesis: 2*np.exp(-2*n*eps**2). The union bound multiplies the failure probability by M, so solve 2*M*exp(-2*n*eps**2) = delta for eps.", "union_n: ceil(log(2M/delta) / (2 eps^2)).", "Experiment: emp = mean(sign(X @ W.T) != y[:, None], axis=0) has shape (M,); the ERM index is argmin(emp); its gap is true[j] - emp[j]."]}
+#@@ prompt
+Hoeffding and the union bound, then an experiment that compares the bound with the real gap.
+
+- `hoeffding_bound(n, eps)`: upper bound `2 exp(-2 n eps^2)` on `P(|empirical - true| >= eps)` for one fixed hypothesis and a loss in `[0, 1]`.
+- `union_eps(n, M, delta)`: the width `eps` such that, with probability at least `1 - delta`, **all** `M` hypotheses of a finite class have `|empirical - true| <= eps`: `sqrt(ln(2M/delta) / (2n))`.
+- `union_n(eps, M, delta)`: the smallest integer `n` that makes that width at most `eps`.
+- `finite_class_experiment(n, M, trials, seed)`: a class of `M` random linear classifiers in `R^5`; labels come from a hidden linear rule plus noise. The true risks are estimated on 20000 fresh points. For each of `trials` training sets of size `n` return the triple `(mean over trials of max_h |true - emp|, its 95th percentile, mean over trials of the gap true - emp of the ERM hypothesis)`.
+#@@ starter
+import numpy as np
+
+def hoeffding_bound(n, eps):
+    raise NotImplementedError
+
+def union_eps(n, M, delta):
+    raise NotImplementedError
+
+def union_n(eps, M, delta):
+    raise NotImplementedError
+
+def finite_class_experiment(n, M, trials, seed, d=5):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("Hoeffding n=100, eps=0.1 -> 0.2707", lambda: abs(hoeffding_bound(100, 0.1) - 0.27067) < 1e-4)
+check("Hoeffding decreases with n", lambda: hoeffding_bound(200, 0.1) < hoeffding_bound(100, 0.1))
+check("union eps n=200, M=1000, delta=0.05 -> 0.1628", lambda: abs(union_eps(200, 1000, 0.05) - 0.16282) < 1e-4)
+check("union eps grows only like sqrt(log M)", lambda: union_eps(200, 10**6, 0.05) < 2 * union_eps(200, 10, 0.05))
+check("union_n(0.05, 1000, 0.05) = 2120", lambda: union_n(0.05, 1000, 0.05) == 2120)
+check("union_n and union_eps are consistent", lambda: union_eps(union_n(0.05, 1000, 0.05), 1000, 0.05) <= 0.05)
+res = {n: finite_class_experiment(n, 200, 200, 0) for n in (50, 200, 1000)}
+check("n=50: mean max gap 0.175", lambda: abs(res[50][0] - 0.1752) < 0.005)
+check("n=200: mean max gap 0.087", lambda: abs(res[200][0] - 0.0874) < 0.005)
+check("n=1000: mean max gap 0.040", lambda: abs(res[1000][0] - 0.0398) < 0.003)
+check("the bound holds: 95th percentile of the max gap is below union_eps", lambda: all(res[n][1] < union_eps(n, 200, 0.05) for n in res))
+check("but the bound is loose (real 95th percentile is less than 90% of it)", lambda: all(res[n][1] < 0.9 * union_eps(n, 200, 0.05) for n in res))
+check("the ERM gap is smaller than the worst-case gap", lambda: all(res[n][2] < res[n][0] for n in res))
+check("gaps shrink roughly like 1/sqrt(n)", lambda: res[1000][0] < 0.5 * res[50][0])
+#@@ solution
+import numpy as np
+
+def hoeffding_bound(n, eps):
+    return 2 * np.exp(-2 * n * eps ** 2)
+
+def union_eps(n, M, delta):
+    return np.sqrt(np.log(2 * M / delta) / (2 * n))
+
+def union_n(eps, M, delta):
+    return int(np.ceil(np.log(2 * M / delta) / (2 * eps ** 2)))
+
+def finite_class_experiment(n, M, trials, seed, d=5):
+    rng = np.random.default_rng(seed)
+    W = rng.normal(size=(M, d))
+    wstar = rng.normal(size=d)
+    def draw(m):
+        X = rng.normal(size=(m, d))
+        y = np.where(X @ wstar + 0.8 * rng.normal(size=m) > 0, 1, -1)
+        return X, y
+    Xb, yb = draw(20000)
+    true = np.mean(np.sign(Xb @ W.T) != yb[:, None], axis=0)
+    max_gap, erm_gap = [], []
+    for _ in range(trials):
+        X, y = draw(n)
+        emp = np.mean(np.sign(X @ W.T) != y[:, None], axis=0)
+        max_gap.append(np.max(np.abs(true - emp)))
+        j = int(np.argmin(emp))
+        erm_gap.append(true[j] - emp[j])
+    max_gap = np.array(max_gap)
+    return max_gap.mean(), np.quantile(max_gap, 0.95), float(np.mean(erm_gap))

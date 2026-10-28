@@ -1,0 +1,17 @@
+[
+  { "id": "seq.03.c1", "concept": "seq.rnn", "front": "Vanilla RNN recurrence", "back": "$h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b)$, $h_0=0$; same weights at every step." },
+  { "id": "seq.03.c2", "concept": "seq.rnn", "front": "Shapes: $W_{xh}$, $W_{hh}$, $b$, $h_t$", "back": "$(H,n)$, $(H,H)$, $(H)$, $(H)$ (batched $(B,H)$). Row-batch code: `X_t @ Wxh.T + h @ Whh.T + b`." },
+  { "id": "seq.03.c3", "concept": "seq.rnn", "front": "What does unrolling an RNN give?", "back": "A feed-forward network of depth $T$ whose layers share the same weights; train it with ordinary backprop (BPTT)." },
+  { "id": "seq.03.c4", "concept": "seq.rnn", "front": "One BPTT step", "back": "$\\bar a_t=\\bar h_t\\odot(1-h_t^2)$; $\\bar h_{t-1}=W_{hh}^\\top\\bar a_t$; $\\bar W_{hh}\\mathrel{+}=\\bar a_th_{t-1}^\\top$; $\\bar W_{xh}\\mathrel{+}=\\bar a_tx_t^\\top$; $\\bar b\\mathrel{+}=\\bar a_t$." },
+  { "id": "seq.03.c5", "concept": "seq.rnn", "front": "Why are RNN weight gradients sums over time?", "back": "The weights are shared by all steps; the chain rule adds the contribution of each copy." },
+  { "id": "seq.03.c6", "concept": "seq.rnn", "front": "What must the forward pass cache for BPTT?", "back": "Every hidden state $h_t$ (and the inputs). Memory grows linearly with $T$." },
+  { "id": "seq.03.c7", "concept": "seq.rnn", "front": "Output heads: classification vs annotation", "back": "Classification/regression: loss on the last state only. Annotation (tagging): a classifier and loss at every step, summed." },
+  { "id": "seq.03.c8", "concept": "seq.rnn-gradients", "front": "Jacobian of one RNN step", "back": "$\\partial h_t/\\partial h_{t-1}=\\operatorname{diag}(1-h_t^2)W_{hh}$; $\\partial h_T/\\partial h_0=J_T\\cdots J_1$." },
+  { "id": "seq.03.c9", "concept": "seq.rnn-gradients", "front": "Norm bound for vanishing gradients", "back": "$\\lVert\\partial h_T/\\partial h_0\\rVert\\le\\lVert W_{hh}\\rVert^T$ because $0<1-h^2\\le1$; if $\\lVert W_{hh}\\rVert<1$ the gradient decays geometrically." },
+  { "id": "seq.03.c10", "concept": "seq.rnn-gradients", "front": "Role of the spectral radius", "back": "In the linear regime $\\lVert W_{hh}^T\\rVert\\approx c\\,\\rho^T$: vanishes for $\\rho<1$, explodes for $\\rho>1$, knife edge at 1." },
+  { "id": "seq.03.c11", "concept": "seq.rnn-gradients", "front": "Why can tanh turn an explosion into vanishing?", "back": "Large states saturate ($h\\to\\pm1$), so $1-h^2\\to0$ and the Jacobian shrinks." },
+  { "id": "seq.03.c12", "concept": "seq.rnn-gradients", "front": "Gradient clipping by global norm", "back": "$g\\leftarrow g\\min(1,\\tau/\\lVert g\\rVert)$ with $\\lVert g\\rVert$ over all parameters; same direction, bounded step. Fixes explosions only." },
+  { "id": "seq.03.c13", "concept": "seq.rnn-gradients", "front": "Truncated BPTT", "back": "Backpropagate only $k$ steps; bounds memory/compute but ignores longer dependencies." },
+  { "id": "seq.03.c14", "concept": "seq.rnn-gradients", "front": "Why vanishing gradients hurt long-range learning", "back": "The learning signal from the loss to an early input is multiplied by $\\approx\\rho^{T}$, so early inputs cannot be credited for late errors." },
+  { "id": "seq.03.c15", "concept": "seq.rnn", "front": "Main drawbacks of RNNs", "back": "Sequential computation (no parallelism over time), fixed-size memory, hard long-range dependencies." }
+]

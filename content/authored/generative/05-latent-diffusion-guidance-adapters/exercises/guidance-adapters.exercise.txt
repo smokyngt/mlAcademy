@@ -1,0 +1,129 @@
+#@@ meta
+{"id": "gen.05.ex1", "title": "Classifier-free guidance, cross-attention and LoRA", "difficulty": 4, "runtime": "pyodide", "concepts": ["gen.cfg", "gen.latent-diffusion"], "hints": ["Unconditional x0_hat = sum_c r_c * x0_hat_c where r_c is proportional to N(x_t; sqrt(abar) m_c, abar s^2 + 1 - abar).", "cfg is a one-liner: eps_u + w*(eps_c - eps_u).", "LoRA: (alpha / r) * B @ A, with r = A.shape[0]."]}
+#@@ prompt
+Implement and test classifier-free guidance and two adapter ideas (NumPy only).
+
+- Exact Gaussian denoisers for a two-class 1-D dataset (class means `ms`, common std `s`): `eps_cond(xt, t, abar, m, s)` for one class and `eps_uncond(xt, t, abar, ms, s)` for the equal-prior mixture. The unconditional estimate of $\mathbb E[x_0|x_t]$ is the posterior-weighted (responsibility-weighted) average of the per-class estimates.
+- `cfg(eps_u, eps_c, w)`, and `sample(...)` (the ancestral loop from the DDPM lesson). Reproduce the table of guidance scales.
+- `cross_attention(F, C, Wq, Wk, Wv)` returning `(output, attention_matrix)`.
+- `lora_delta(A, B, alpha)` $=\frac{\alpha}{r}BA$ and `lora_params(d_out, d_in, r)`.
+
+`linear_betas`, `alpha_bars`, `x0_hat` and `npdf` are provided/implemented as in the solution.
+#@@ starter
+import numpy as np
+
+def linear_betas(T, b0=0.0001, b1=0.02):
+    return np.linspace(b0, b1, T)
+
+def alpha_bars(betas):
+    return np.cumprod(1 - betas)
+
+def x0_hat(xt, t, abar, m, s):
+    a = abar[t]
+    return m + np.sqrt(a) * s ** 2 / (a * s ** 2 + 1 - a) * (xt - np.sqrt(a) * m)
+
+def eps_cond(xt, t, abar, m, s):
+    raise NotImplementedError
+
+def npdf(x, m, s):
+    return np.exp(-(x - m) ** 2 / (2 * s ** 2)) / np.sqrt(2 * np.pi * s ** 2)
+
+def eps_uncond(xt, t, abar, ms, s):
+    raise NotImplementedError
+
+def cfg(eps_u, eps_c, w):
+    raise NotImplementedError
+
+def sample(n, betas, eps_fn, rng):
+    raise NotImplementedError
+
+def cross_attention(F, C, Wq, Wk, Wv):
+    raise NotImplementedError
+
+def lora_delta(A, B, alpha=1.0):
+    raise NotImplementedError
+
+def lora_params(d_out, d_in, r):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+b = linear_betas(500); ab = alpha_bars(b); ms = [-2.0, 2.0]; s = 0.5
+check("cfg: w=0 gives eps_u, w=1 gives eps_c, w=4 example 1.4", lambda: cfg(0.2, 0.5, 0) == 0.2 and abs(cfg(0.2, 0.5, 1) - 0.5) < 1e-12 and abs(cfg(0.2, 0.5, 4) - 1.4) < 1e-12)
+t = 100; xt = np.array([0.3]); a = ab[t]
+score = -(xt - np.sqrt(a) * 2.0) / (a * s ** 2 + 1 - a)
+check("conditional eps equals -sqrt(1-abar) * score", lambda: np.allclose(eps_cond(xt, t, ab, 2.0, s), -np.sqrt(1 - a) * score))
+eu, ec = eps_uncond(xt, t, ab, ms, s), eps_cond(xt, t, ab, 2.0, s)
+check("guided eps equals -sqrt(1-abar) times the guided score (score_u + w (score_c - score_u))", lambda: np.allclose(cfg(eu, ec, 3.0), -np.sqrt(1 - a) * ((-eu / np.sqrt(1 - a)) + 3.0 * (score - (-eu / np.sqrt(1 - a))))))
+check("unconditional prediction differs from the conditional one", lambda: abs(eu[0] - ec[0]) > 0.1)
+res = {}
+for w in (0, 1, 2, 4, 8):
+    xs = sample(20000, b, lambda x, tt: cfg(eps_uncond(x, tt, ab, ms, s), eps_cond(x, tt, ab, 2.0, s), w), np.random.default_rng(0))
+    res[w] = (xs.mean(), xs.std())
+check("w=0 covers both modes (mean ~0, std ~2.06)", lambda: abs(res[0][0]) < 0.1 and abs(res[0][1] - 2.058) < 0.05)
+check("w=1 recovers the class N(2, 0.5^2)", lambda: abs(res[1][0] - 2.0) < 0.03 and abs(res[1][1] - 0.5) < 0.03)
+check("larger w pushes the mean past 2: 2.078, 2.138, 2.190", lambda: res[2][0] > 2.03 and abs(res[2][0] - 2.078) < 0.02 and abs(res[4][0] - 2.138) < 0.02 and abs(res[8][0] - 2.190) < 0.02)
+check("mean increases monotonically with w beyond 1", lambda: res[1][0] < res[2][0] < res[4][0] < res[8][0])
+rng = np.random.default_rng(0)
+F = rng.normal(size=(5, 8)); C = rng.normal(size=(3, 6)); Wq = rng.normal(size=(8, 4)); Wk = rng.normal(size=(6, 4)); Wv = rng.normal(size=(6, 4))
+out, P = cross_attention(F, C, Wq, Wk, Wv)
+check("cross-attention shapes (n_pix,d_k) and (n_pix,n_tok); rows sum to 1", lambda: out.shape == (5, 4) and P.shape == (5, 3) and np.allclose(P.sum(1), 1))
+check("each output row is a convex combination of the value rows", lambda: np.allclose(out, P @ (C @ Wv)))
+A = rng.normal(size=(4, 16)); B0 = np.zeros((16, 4)); B1 = rng.normal(size=(16, 4))
+check("LoRA delta is exactly zero when B=0", lambda: np.allclose(lora_delta(A, B0, 8.0), 0))
+check("LoRA delta has rank <= r and shape (d_out,d_in)", lambda: lora_delta(A, B1).shape == (16, 16) and np.linalg.matrix_rank(lora_delta(A, B1)) == 4)
+check("LoRA alpha/r scaling", lambda: np.allclose(lora_delta(A, B1, 8.0), 2.0 * B1 @ A))
+check("LoRA parameter counts 20480 vs 409600 (5%)", lambda: lora_params(640, 640, 16) == 20480 and abs(lora_params(640, 640, 16) / 640 ** 2 - 0.05) < 1e-12)
+#@@ solution
+import numpy as np
+
+def linear_betas(T, b0=1e-4, b1=0.02):
+    return np.linspace(b0, b1, T)
+
+def alpha_bars(betas):
+    return np.cumprod(1 - betas)
+
+def x0_hat(xt, t, abar, m, s):
+    a = abar[t]
+    return m + np.sqrt(a) * s ** 2 / (a * s ** 2 + 1 - a) * (xt - np.sqrt(a) * m)
+
+def eps_cond(xt, t, abar, m, s):
+    return (xt - np.sqrt(abar[t]) * x0_hat(xt, t, abar, m, s)) / np.sqrt(1 - abar[t])
+
+def npdf(x, m, s):
+    return np.exp(-(x - m) ** 2 / (2 * s ** 2)) / np.sqrt(2 * np.pi * s ** 2)
+
+def eps_uncond(xt, t, abar, ms, s):
+    a = abar[t]
+    sd = np.sqrt(a * s ** 2 + 1 - a)
+    lik = np.stack([npdf(xt, np.sqrt(a) * m, sd) for m in ms])
+    r = lik / lik.sum(0)
+    xh = sum(r[i] * x0_hat(xt, t, abar, m, s) for i, m in enumerate(ms))
+    return (xt - np.sqrt(a) * xh) / np.sqrt(1 - a)
+
+def cfg(eps_u, eps_c, w):
+    return eps_u + w * (eps_c - eps_u)
+
+def sample(n, betas, eps_fn, rng):
+    al = 1 - betas
+    ab = alpha_bars(betas)
+    x = rng.normal(size=n)
+    for t in range(len(betas) - 1, -1, -1):
+        e = eps_fn(x, t)
+        x = (x - betas[t] / np.sqrt(1 - ab[t]) * e) / np.sqrt(al[t])
+        if t > 0:
+            x = x + np.sqrt(betas[t]) * rng.normal(size=n)
+    return x
+
+def cross_attention(F, C, Wq, Wk, Wv):
+    Q, K, V = F @ Wq, C @ Wk, C @ Wv
+    S = Q @ K.T / np.sqrt(K.shape[1])
+    P = np.exp(S - S.max(1, keepdims=True))
+    P = P / P.sum(1, keepdims=True)
+    return P @ V, P
+
+def lora_delta(A, B, alpha=1.0):
+    r = A.shape[0]
+    return (alpha / r) * (B @ A)
+
+def lora_params(d_out, d_in, r):
+    return r * (d_out + d_in)

@@ -1,0 +1,85 @@
+[
+ {
+  "id": "app.01.q1",
+  "prompt": "Un prompt se décrit au mieux comme...",
+  "options": [
+   "une commande que le modèle exécute comme un programme",
+   "le contexte de jetons qui conditionne la distribution du jeton suivant du modèle",
+   "une requête de base de données",
+   "un jeu de données de fine-tuning"
+  ],
+  "explanation": "Le modèle ne fait que prédire des continuations des jetons qu'on lui donne ; le prompt restreint les continuations probables."
+ },
+ {
+  "id": "app.01.q2",
+  "prompt": "Pourquoi le raisonnement doit-il venir AVANT le champ de réponse dans une sortie structurée ?",
+  "options": [
+   "Les jetons déjà écrits conditionnent les jetons suivants, donc une réponse précoce engage avant toute réflexion",
+   "JSON exige des clés alphabétiques",
+   "Cela raccourcit la sortie",
+   "Les modèles ne peuvent pas produire de nombres en premier"
+  ],
+  "explanation": "La génération se fait de gauche à droite. Si la réponse est émise d'abord, le raisonnement qui suit ne fait que la justifier."
+ },
+ {
+  "id": "app.01.q3",
+  "prompt": "Chaque échantillon est correct avec une probabilité 0,6, indépendamment, les mauvaises réponses étant toutes différentes. Probabilité qu'une majorité de 5 soit correcte ?",
+  "options": [],
+  "explanation": "$10(0.6^3)(0.4^2)+5(0.6^4)(0.4)+0.6^5=0.3456+0.2592+0.07776=0.68256$."
+ },
+ {
+  "id": "app.01.q4",
+  "prompt": "L'exactitude par échantillon est 0,4 (erreurs indépendantes, toutes différentes). Que fait le vote à la majorité sur 5 échantillons ?",
+  "options": [
+   "il augmente l'exactitude vers 1",
+   "il la laisse à 0,4",
+   "il ne peut pas être calculé",
+   "il l'abaisse (à environ 0,317)"
+  ],
+  "explanation": "Le vote amplifie le camp qui mène. Avec $p<0.5$ la bonne réponse est minoritaire et perd plus souvent : $A(0.4,5)=0.317$."
+ },
+ {
+  "id": "app.01.q5",
+  "prompt": "Quelle situation détruit le plus le bénéfice de l'auto-cohérence ?",
+  "options": [
+   "les échantillons sont produits à la température 0,7",
+   "la réponse est un entier",
+   "le modèle donne la même mauvaise réponse dans la plupart des échantillons",
+   "n est impair"
+  ],
+  "explanation": "Les erreurs concordantes gagnent le vote. Les échantillons d'un même modèle partagent des angles morts, donc les gains réels sont plus faibles que ne le dit la formule indépendante."
+ },
+ {
+  "id": "app.01.q6",
+  "prompt": "Tu montres au modèle 3 exemples ayant tous l'étiquette « positive » pour une tâche à trois étiquettes. Le problème probable est...",
+  "options": [
+   "les exemples sont trop courts",
+   "le déséquilibre d'étiquettes dans les exemples biaise la sortie vers l'étiquette majoritaire montrée",
+   "le few-shot ne marche jamais pour la classification",
+   "le message système est ignoré"
+  ],
+  "explanation": "Couvre chaque étiquette (et garde l'équilibre) dans les exemples few-shot ; le modèle copie les motifs qu'il voit."
+ },
+ {
+  "id": "app.01.q7",
+  "prompt": "Qu'ajoute le tree-of-thought par rapport à l'auto-cohérence ?",
+  "options": [
+   "il propose, évalue et élague des solutions partielles comme une recherche",
+   "il échantillonne plus de chaînes en parallèle",
+   "il supprime le besoin d'un analyseur",
+   "il rend le modèle déterministe"
+  ],
+  "explanation": "Le tree-of-thought juge les états intermédiaires et développe les meilleurs ; l'auto-cohérence ne fait que voter sur des chaînes terminées."
+ },
+ {
+  "id": "app.01.q8",
+  "prompt": "L'exactitude du vote à la majorité A(p, n) pour n impair et p = 0,5 est...",
+  "options": [
+   "0",
+   "croissante avec n",
+   "1",
+   "0,5 pour tout n"
+  ],
+  "explanation": "À $p=1/2$ la binomiale est symétrique, donc la probabilité que plus de la moitié soient corrects vaut exactement 1/2."
+ }
+]

@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.02.c1",
+  "front": "Autoencodeur",
+  "back": "Encodeur $z=f(x)$ vers un goulot d'étranglement, décodeur $\\hat x=g(z)$, entraîné à minimiser $\\|x-\\hat x\\|^2$."
+ },
+ {
+  "id": "gen.02.c2",
+  "front": "Autoencodeur débruiteur",
+  "back": "Entrée $x+\\text{noise}$, cible le $x$ propre ; apprend la structure au lieu de recopier."
+ },
+ {
+  "id": "gen.02.c3",
+  "front": "ELBO",
+  "back": "$\\mathbb E_{q}[\\log p_\\theta(x|z)]-\\mathrm{KL}(q_\\phi(z|x)\\|p(z))\\le\\log p_\\theta(x)$."
+ },
+ {
+  "id": "gen.02.c4",
+  "front": "Écart de l'ELBO",
+  "back": "$\\log p_\\theta(x)-\\mathrm{ELBO}=\\mathrm{KL}(q_\\phi(z|x)\\|p_\\theta(z|x))\\ge0$."
+ },
+ {
+  "id": "gen.02.c5",
+  "front": "Quelle inégalité donne l'ELBO ?",
+  "back": "Jensen : $\\log\\mathbb E[Y]\\ge\\mathbb E[\\log Y]$ pour le $\\log$ concave."
+ },
+ {
+  "id": "gen.02.c6",
+  "front": "KL vers une normale standard (diagonale)",
+  "back": "$\\tfrac12\\sum_i(\\mu_i^2+\\sigma_i^2-\\log\\sigma_i^2-1)$."
+ },
+ {
+  "id": "gen.02.c7",
+  "front": "KL entre deux gaussiennes 1-D",
+  "back": "$\\log\\frac{\\sigma_2}{\\sigma_1}+\\frac{\\sigma_1^2+(\\mu_1-\\mu_2)^2}{2\\sigma_2^2}-\\frac12$."
+ },
+ {
+  "id": "gen.02.c8",
+  "front": "Astuce de reparamétrisation",
+  "back": "$z=\\mu+\\sigma\\odot\\varepsilon$, $\\varepsilon\\sim\\mathcal N(0,I)$ : sort l'aléa des paramètres pour que les gradients circulent."
+ },
+ {
+  "id": "gen.02.c9",
+  "front": "Gradient de la perte par rapport à logvar via $z$",
+  "back": "$\\delta_z\\odot\\tfrac12\\sigma\\odot\\varepsilon$ puisque $\\partial\\sigma/\\partial\\text{logvar}=\\tfrac12\\sigma$."
+ },
+ {
+  "id": "gen.02.c10",
+  "front": "Gradients du terme KL",
+  "back": "$\\partial\\mathrm{KL}/\\partial\\mu=\\mu$, $\\partial\\mathrm{KL}/\\partial\\text{logvar}=\\tfrac12(e^{\\text{logvar}}-1)$."
+ },
+ {
+  "id": "gen.02.c11",
+  "front": "Effondrement a posteriori",
+  "back": "Le décodeur ignore $z$, l'encodeur sort l'a priori, KL$\\to0$. Remèdes : recuit de la KL, free bits, décodeur plus faible."
+ },
+ {
+  "id": "gen.02.c12",
+  "front": "$\\beta$-VAE",
+  "back": "Perte $=\\text{rec}+\\beta\\,\\mathrm{KL}$ ; $\\beta>1$ donne un espace de codes plus lisse et une sortie plus floue."
+ },
+ {
+  "id": "gen.02.c13",
+  "front": "Pourquoi les échantillons de VAE sont-ils flous ?",
+  "back": "Un décodeur gaussien avec erreur quadratique sort la moyenne conditionnelle des images plausibles."
+ },
+ {
+  "id": "gen.02.c14",
+  "front": "Comment échantillonner un VAE entraîné",
+  "back": "Tirer $z\\sim\\mathcal N(0,I)$ et décoder : une seule passe avant."
+ }
+]

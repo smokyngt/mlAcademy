@@ -1,0 +1,12 @@
+[
+  { "id": "cml.04.c1", "front": "Objectif du k-means", "back": "$J=\\sum_i\\|x_i-\\mu_{c(i)}\\|^2$ : somme des distances au carré intra-cluster (inertie)." },
+  { "id": "cml.04.c2", "front": "Étape d'affectation", "back": "Envoyer chaque point à son centre le plus proche. Minimise $J$ sur les affectations." },
+  { "id": "cml.04.c3", "front": "Étape de mise à jour", "back": "Placer chaque centre à la moyenne de ses points : issu de $\\nabla\\sum\\|x_i-\\mu\\|^2=0$." },
+  { "id": "cml.04.c4", "front": "Le k-means trouve-t-il l'optimum global ?", "back": "Non : il converge vers un minimum local. Utilise des redémarrages ou k-means++." },
+  { "id": "cml.04.c5", "front": "Initialisation k-means++", "back": "Choisir le premier centre au hasard ; chaque centre suivant avec une probabilité proportionnelle à la distance au carré au centre déjà choisi le plus proche." },
+  { "id": "cml.04.c6", "front": "Choisir $k$", "back": "L'inertie baisse toujours avec $k$ ; cherche un coude ou utilise un critère de validation." },
+  { "id": "cml.04.c7", "front": "Cluster vide", "back": "Garder le centre précédent ou ré-initialiser au point le plus éloigné." },
+  { "id": "cml.04.c8", "front": "Distances au carré deux à deux avec le broadcasting", "back": "`((X[:,None,:] - C[None,:,:])**2).sum(-1)` a pour forme $(N,k)$." },
+  { "id": "cml.04.c9", "front": "Pourquoi le k-means doit-il se terminer ?", "back": "$J$ diminue dès qu'une affectation change et il n'y a qu'un nombre fini d'affectations." },
+  { "id": "cml.04.c10", "front": "Hypothèses du k-means", "back": "Clusters à peu près ronds et de taille similaire dans un espace euclidien ; variables d'échelles comparables." }
+]

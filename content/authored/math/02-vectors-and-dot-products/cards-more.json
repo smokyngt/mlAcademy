@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.02.c14",
+  "concept": "la.vector",
+  "front": "Linear combination of vectors",
+  "back": "$\\lambda_1v_1+\\dots+\\lambda_kv_k$."
+ },
+ {
+  "id": "f2n.02.c15",
+  "concept": "la.vector",
+  "front": "Norm of $(3,4)$",
+  "back": "$5$ (the 3-4-5 triangle)."
+ },
+ {
+  "id": "f2n.02.c16",
+  "concept": "la.dot",
+  "front": "Condition for orthogonality",
+  "back": "$a\\cdot b=0$."
+ },
+ {
+  "id": "f2n.02.c17",
+  "concept": "la.dot",
+  "front": "Distance between $a$ and $b$",
+  "back": "$\\|a-b\\|$."
+ },
+ {
+  "id": "f2n.02.c18",
+  "concept": "la.dot",
+  "front": "Dot product of $a$ with itself",
+  "back": "$a\\cdot a=\\|a\\|^2$."
+ },
+ {
+  "id": "f2n.02.c19",
+  "concept": "la.dot",
+  "front": "Range of cosine similarity",
+  "back": "$[-1,1]$: 1 same direction, 0 perpendicular, -1 opposite."
+ },
+ {
+  "id": "f2n.02.c20",
+  "concept": "la.dot",
+  "front": "Law of cosines used in the derivation",
+  "back": "$\\|a-b\\|^2=\\|a\\|^2+\\|b\\|^2-2\\|a\\|\\|b\\|\\cos\\theta$."
+ },
+ {
+  "id": "f2n.02.c21",
+  "concept": "la.dot",
+  "front": "Projection residual",
+  "back": "$a-\\operatorname{proj}_ba$ is orthogonal to $b$."
+ },
+ {
+  "id": "f2n.02.c22",
+  "concept": "la.dot",
+  "front": "Neuron pre-activation",
+  "back": "$w\\cdot x+b$: a dot product plus a bias."
+ }
+]

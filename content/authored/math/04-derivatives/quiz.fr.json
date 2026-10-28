@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.04.q1",
+    "prompt": "Quelle est la dérivée de $f(x)=x^3$ en $x=2$ ?",
+    "options": [],
+    "explanation": "$f'(x)=3x^2$, donc $f'(2)=3\\cdot4=12$."
+  },
+  {
+    "id": "f2n.04.q2",
+    "prompt": "Que vaut $\\frac{d}{dx}\\ln x$ en $x=4$ ?",
+    "options": [],
+    "explanation": "$(\\ln x)'=1/x$, soit $1/4=0.25$ en $x=4$."
+  },
+  {
+    "id": "f2n.04.q3",
+    "prompt": "Avec la règle du produit, $\\frac{d}{dx}\\big(x e^{x}\\big)$ en $x=0$ vaut...",
+    "options": [],
+    "explanation": "$(xe^x)'=1\\cdot e^x+x\\cdot e^x=(1+x)e^x$. En $x=0$, cela vaut $1$."
+  },
+  {
+    "id": "f2n.04.q4",
+    "prompt": "La dérivée de la sigmoïde $\\sigma'(x)$ est la plus grande en $x=0$, où elle vaut...",
+    "options": [],
+    "explanation": "$\\sigma'(x)=\\sigma(x)(1-\\sigma(x))$ et $\\sigma(0)=0.5$, ce qui donne $0.25$. Cette borne explique pourquoi les gradients rétrécissent à travers de nombreuses couches sigmoïdes."
+  },
+  {
+    "id": "f2n.04.q5",
+    "prompt": "L'erreur de troncature de la différence centrée $\\frac{f(x+h)-f(x-h)}{2h}$ est d'ordre...",
+    "options": ["$O(1)$", "$O(h)$", "$O(h^2)$", "$O(h^3)$"],
+    "explanation": "Dans la différence des deux développements de Taylor, les termes en $h^2$ s'annulent, laissant une erreur $\\frac{h^2}{6}f'''(x)$. La différence avant n'est qu'en $O(h)$."
+  },
+  {
+    "id": "f2n.04.q6",
+    "prompt": "Tu réduis $h$ dans une différence finie de $10^{-5}$ à $10^{-14}$ en float64 et l'erreur augmente. Pourquoi ?",
+    "options": ["Le théorème de Taylor cesse d'être valable", "L'erreur d'arrondi d'ordre $\\varepsilon/h$ domine", "La fonction cesse d'être dérivable", "La différence centrée devient une différence avant"],
+    "explanation": "Soustraire des flottants presque égaux fait perdre des chiffres significatifs ; diviser par un $h$ minuscule amplifie cette erreur jusqu'à environ $\\varepsilon/h$. L'erreur totale est minimale pour un $h$ intermédiaire (environ $10^{-5}$ pour les différences centrées)."
+  }
+]

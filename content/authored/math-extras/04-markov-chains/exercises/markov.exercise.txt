@@ -1,0 +1,127 @@
+#@@ meta
+{"id": "mx.04.ex1", "title": "Stationary distribution, convergence, simulation, Metropolis and Poisson counts", "difficulty": 3, "runtime": "pyodide", "concepts": ["mx.markov", "mx.stationary"], "hints": ["n_step: repeatedly dist = dist @ P (a row vector times the matrix).", "stationary: eigenvectors of P.T; take the one whose eigenvalue is closest to 1 (real part), divide by its sum so that it sums to 1 (this also fixes the sign).", "simulate_chain: cum = np.cumsum(P, axis=1); draw u = rng.random(steps); next state = np.searchsorted(cum[state], u[t], side='right') (clip to n-1 for rounding).", "mh_matrix: for i != j, P[i, j] = (1/n) * min(1, target[j]/target[i]); the diagonal is 1 minus the rest of the row.", "poisson_counts: draw gaps = rng.exponential(1/rate, size=(n, m)) with m large enough (for example int(rate*T*3 + 20)), arrival times = cumsum along axis 1, count how many arrival times are <= T."]}
+#@@ prompt
+Let `P` be a row-stochastic transition matrix (`P[i, j]` = probability to go from state `i` to `j`). Implement:
+
+- `n_step(P, dist, n)` - the distribution after `n` steps starting from the row vector `dist`.
+- `stationary(P)` - the stationary distribution (left eigenvector for eigenvalue 1, normalised to sum 1) using `np.linalg.eig`.
+- `is_ergodic(P)` - `True` if some power `P^k` (try `k` up to `(n-1)**2 + 1`) has all entries strictly positive.
+- `second_eigenvalue_modulus(P)` - the second largest eigenvalue modulus (it controls how fast the chain forgets its start).
+- `simulate_chain(P, start, steps, rng)` - an integer array of `steps` visited states, starting by moving from `start`; use only `rng.random`.
+- `empirical_distribution(path, n_states)` - fraction of time spent in each state.
+- `mh_matrix(target)` - transition matrix of Metropolis-Hastings on `len(target)` states with a *uniform* proposal over the states.
+- `poisson_counts(rate, T, n, rng)` - `n` independent counts of a Poisson process with intensity `rate` on `[0, T]`, simulated from exponential gaps (`rng.exponential`).
+#@@ starter
+import numpy as np
+
+def n_step(P, dist, n):
+    raise NotImplementedError
+
+def stationary(P):
+    raise NotImplementedError
+
+def is_ergodic(P):
+    raise NotImplementedError
+
+def second_eigenvalue_modulus(P):
+    raise NotImplementedError
+
+def simulate_chain(P, start, steps, rng):
+    raise NotImplementedError
+
+def empirical_distribution(path, n_states):
+    raise NotImplementedError
+
+def mh_matrix(target):
+    raise NotImplementedError
+
+def poisson_counts(rate, T, n, rng):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+P = np.array([[.9, .1, 0], [.2, .6, .2], [0, .3, .7]])
+check("one step from state 0 is [0.9, 0.1, 0]", lambda: np.allclose(n_step(P, np.array([1., 0, 0]), 1), [.9, .1, 0]))
+check("two steps from state 0 is [0.83, 0.15, 0.02]", lambda: np.allclose(n_step(P, np.array([1., 0, 0]), 2), [.83, .15, .02]))
+check("five steps from state 0 is [0.70125, 0.21247, 0.08628]", lambda: np.allclose(n_step(P, np.array([1., 0, 0]), 5), [.70125, .21247, .08628], atol=1e-5))
+pi = stationary(P)
+check("stationary distribution is [6/11, 3/11, 2/11]", lambda: np.allclose(pi, [6 / 11, 3 / 11, 2 / 11]))
+check("stationary satisfies pi P = pi and sums to 1", lambda: np.allclose(pi @ P, pi) and abs(pi.sum() - 1) < 1e-12 and np.all(pi > 0))
+check("n_step converges to the stationary distribution from any start", lambda: np.allclose(n_step(P, np.array([0., 0, 1]), 200), pi, atol=1e-8))
+check("P is ergodic", lambda: is_ergodic(P) is True or is_ergodic(P) == True)
+check("a periodic two-state flip is not ergodic", lambda: not is_ergodic(np.array([[0., 1], [1, 0]])))
+check("a chain with an absorbing state split is not ergodic", lambda: not is_ergodic(np.array([[1., 0], [0, 1]])))
+check("second eigenvalue modulus is about 0.8236", lambda: abs(second_eigenvalue_modulus(P) - 0.82361) < 1e-4)
+rng = np.random.default_rng(0)
+path = simulate_chain(P, 0, 40000, rng)
+check("path has the right length and valid states", lambda: len(path) == 40000 and path.min() >= 0 and path.max() <= 2)
+emp = empirical_distribution(path, 3)
+check("empirical distribution sums to 1", lambda: abs(emp.sum() - 1) < 1e-12)
+check("long-run frequencies approach the stationary distribution (tol 0.03)", lambda: np.abs(emp - pi).max() < 0.03)
+tgt = np.array([.5, .3, .2])
+Q = mh_matrix(tgt)
+check("MH matrix is row-stochastic", lambda: np.allclose(Q.sum(axis=1), 1) and np.all(Q >= -1e-12))
+check("MH matrix has the target as stationary distribution", lambda: np.allclose(tgt @ Q, tgt))
+check("MH satisfies detailed balance", lambda: np.allclose(tgt[:, None] * Q, (tgt[:, None] * Q).T))
+check("MH stationary equals target via eigenvector", lambda: np.allclose(stationary(Q), tgt))
+c = poisson_counts(3.0, 2.0, 4000, np.random.default_rng(1))
+check("Poisson counts have mean about rate*T = 6", lambda: abs(c.mean() - 6) < 0.2)
+check("Poisson counts have variance about 6 too", lambda: abs(c.var() - 6) < 0.6)
+check("counts are non-negative integers", lambda: np.all(c >= 0) and np.all(c == np.round(c)))
+#@@ solution
+import numpy as np
+
+def n_step(P, dist, n):
+    d = np.asarray(dist, dtype=float)
+    for _ in range(n):
+        d = d @ P
+    return d
+
+def stationary(P):
+    w, V = np.linalg.eig(P.T)
+    i = int(np.argmin(np.abs(w - 1)))
+    v = np.real(V[:, i])
+    return v / v.sum()
+
+def is_ergodic(P):
+    n = P.shape[0]
+    Q = np.eye(n)
+    for _ in range((n - 1) ** 2 + 1):
+        Q = Q @ P
+        if np.all(Q > 1e-12):
+            return True
+    return False
+
+def second_eigenvalue_modulus(P):
+    w = np.sort(np.abs(np.linalg.eigvals(P)))[::-1]
+    return float(w[1])
+
+def simulate_chain(P, start, steps, rng):
+    cum = np.cumsum(P, axis=1)
+    n = P.shape[0]
+    u = rng.random(steps)
+    path = np.empty(steps, dtype=int)
+    s = start
+    for t in range(steps):
+        s = min(int(np.searchsorted(cum[s], u[t], side="right")), n - 1)
+        path[t] = s
+    return path
+
+def empirical_distribution(path, n_states):
+    return np.bincount(path, minlength=n_states) / len(path)
+
+def mh_matrix(target):
+    target = np.asarray(target, dtype=float)
+    n = len(target)
+    Q = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            if i != j:
+                Q[i, j] = min(1.0, target[j] / target[i]) / n
+        Q[i, i] = 1.0 - Q[i].sum()
+    return Q
+
+def poisson_counts(rate, T, n, rng):
+    m = int(rate * T * 3 + 20)
+    gaps = rng.exponential(1.0 / rate, size=(n, m))
+    times = np.cumsum(gaps, axis=1)
+    return (times <= T).sum(axis=1)

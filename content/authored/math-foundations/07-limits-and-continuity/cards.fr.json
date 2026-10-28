@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.07.c1",
+  "front": "Limite (intuition)",
+  "back": "$\\lim_{x\\to a}f(x)=L$ : $f(x)$ se rapproche de $L$ autant que tu veux quand $x$ est assez proche de $a$ (mais pas forcément égal à $a$)."
+ },
+ {
+  "id": "mf.07.c2",
+  "front": "Limites unilatérales",
+  "back": "$\\lim_{x\\to a^-}$ approche par la gauche, $\\lim_{x\\to a^+}$ par la droite. La limite bilatérale existe si et seulement si les deux existent et concordent."
+ },
+ {
+  "id": "mf.07.c3",
+  "front": "Limite en un trou",
+  "back": "$\\frac{x^2-1}{x-1}$ n'a pas de valeur en 1 mais la limite est 2 ; simplifie d'abord l'algèbre."
+ },
+ {
+  "id": "mf.07.c4",
+  "front": "Lois des limites",
+  "back": "Si $\\lim f=L$ et $\\lim g=M$, alors les limites de $f\\pm g$, $fg$, $cf$ sont $L\\pm M$, $LM$, $cL$ ; $f/g\\to L/M$ si $M\\ne0$."
+ },
+ {
+  "id": "mf.07.c5",
+  "front": "Limite à l'infini",
+  "back": "$\\lim_{x\\to\\infty}f(x)$ : comportement pour un $x$ énorme ; $1/x\\to0$."
+ },
+ {
+  "id": "mf.07.c6",
+  "front": "Continuité",
+  "back": "$f$ est continue en $a$ si $f(a)$ existe, $\\lim_{x\\to a}f(x)$ existe, et elles sont égales : le graphe peut se dessiner sans lever le crayon."
+ },
+ {
+  "id": "mf.07.c7",
+  "front": "Types de discontinuité",
+  "back": "Amovible (trou), à saut (les limites unilatérales diffèrent), infinie (explose, par ex. $1/x$ en 0)."
+ },
+ {
+  "id": "mf.07.c8",
+  "front": "Familles continues",
+  "back": "Les polynômes, $e^x$, $\\sin$, $\\cos$ sont continus partout ; $\\ln$ sur $x>0$ ; les sommes, produits et compositions de fonctions continues sont continus."
+ },
+ {
+  "id": "mf.07.c9",
+  "front": "Epsilon-delta",
+  "back": "$\\lim_{x\\to a}f=L$ signifie : pour tout $\\varepsilon>0$ il existe $\\delta>0$ tel que $0<|x-a|<\\delta\\Rightarrow|f(x)-L|<\\varepsilon$."
+ },
+ {
+  "id": "mf.07.c10",
+  "front": "Exemple epsilon-delta",
+  "back": "$f(x)=2x+1$, $a=3$, $L=7$ : $|f(x)-7|=2|x-3|$, donc $\\delta=\\varepsilon/2$ convient."
+ },
+ {
+  "id": "mf.07.c11",
+  "front": "Idée d'encadrement",
+  "back": "Si $g\\le f\\le h$ près de $a$ et $g,h\\to L$ alors $f\\to L$ (utilisé pour montrer que $\\sin x/x\\to1$)."
+ },
+ {
+  "id": "mf.07.c12",
+  "front": "Taux d'accroissement",
+  "back": "$\\frac{f(x+h)-f(x)}{h}$ est la pente de la sécante ; sa limite quand $h\\to0$ est la dérivée $f'(x)$."
+ },
+ {
+  "id": "mf.07.c13",
+  "front": "Vérification numérique d'une limite",
+  "back": "Évalue en $h=10^{-1},10^{-2},\\dots$ des deux côtés ; mais ne va pas trop petit : l'annulation due à l'arrondi ruine $h\\approx10^{-8}$."
+ },
+ {
+  "id": "mf.07.c14",
+  "front": "Idée des valeurs intermédiaires",
+  "back": "Une fonction continue ne peut pas sauter des valeurs : si $f(a)<0<f(b)$ il y a une racine entre les deux (la base de la bissection)."
+ }
+]

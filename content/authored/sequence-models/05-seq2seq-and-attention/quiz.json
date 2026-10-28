@@ -1,0 +1,150 @@
+[
+  {
+    "id": "seq.05.q1",
+    "concept": "seq.seq2seq",
+    "stage": "pre",
+    "kind": "mcq",
+    "prompt": "In the classic encoder-decoder (no attention), the decoder's only access to the source sentence is...",
+    "options": [
+      "every encoder state",
+      "the source tokens directly",
+      "the final encoder hidden state, used to initialise the decoder",
+      "the encoder gradients"
+    ],
+    "answer": 2,
+    "explanation": "The last encoder state initialises the decoder; everything the decoder knows about the input must fit in that one vector."
+  },
+  {
+    "id": "seq.05.q2",
+    "concept": "seq.seq2seq",
+    "stage": "pre",
+    "kind": "mcq",
+    "prompt": "Teacher forcing means that during training the decoder's input at step $t$ is...",
+    "options": [
+      "its own previous prediction",
+      "a random token",
+      "the encoder state $h_t$",
+      "the gold previous target token"
+    ],
+    "answer": 3,
+    "explanation": "Gold tokens are fed as inputs, so a wrong early prediction does not derail later steps. At inference the model must use its own outputs (exposure bias)."
+  },
+  {
+    "id": "seq.05.q3",
+    "concept": "seq.seq2seq",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Why does beam search sum **log**-probabilities of the steps?",
+    "options": [
+      "Products of many probabilities underflow, and the log turns the product into a sum",
+      "Because logits are already log-probabilities",
+      "Because it makes the search exact",
+      "To make probabilities add to 1"
+    ],
+    "answer": 0,
+    "explanation": "$\\log P(y\\mid x)=\\sum_k\\log P(y_k\\mid x,y_{<k})$. One sums log-softmax outputs, not raw logits."
+  },
+  {
+    "id": "seq.05.q4",
+    "concept": "seq.seq2seq",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Beam search with width $b=1$ is equivalent to...",
+    "options": [
+      "exhaustive search",
+      "greedy decoding",
+      "sampling",
+      "teacher forcing"
+    ],
+    "answer": 1,
+    "explanation": "Keeping only the single best hypothesis at each step is always taking the arg-max."
+  },
+  {
+    "id": "seq.05.q5",
+    "concept": "seq.attention",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "In Bahdanau attention the score is $e_{t,i}=v^\\top\\tanh(W_as_{t-1}+U_ah_i)$. What is the job of $v$?",
+    "options": [
+      "it normalises the weights",
+      "it is the decoder embedding",
+      "it projects the $A$-dimensional hidden vector to a scalar score",
+      "it masks padding"
+    ],
+    "answer": 2,
+    "explanation": "$W_as_{t-1}+U_ah_i\\in\\mathbb{R}^{A}$; the inner product with $v\\in\\mathbb{R}^A$ gives a scalar per source position."
+  },
+  {
+    "id": "seq.05.q6",
+    "concept": "seq.attention",
+    "kind": "numeric",
+    "stage": "check",
+    "prompt": "In the lesson's worked example the three scores are $0.4430,\\;0.9242,\\;1.3672$. What attention weight does the third position get (3 decimals)?",
+    "options": [],
+    "answer": {
+      "value": 0.4905,
+      "tol": 0.002
+    },
+    "explanation": "$e^{1.3672}/(e^{0.4430}+e^{0.9242}+e^{1.3672})=3.924/8.001=0.4905$."
+  },
+  {
+    "id": "seq.05.q7",
+    "concept": "seq.attention",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Backward through the softmax of attention: given $\\bar\\alpha_i=\\bar c^\\top h_i$, the gradient on the scores is...",
+    "options": [
+      "$\\bar e_i=\\bar\\alpha_i$",
+      "$\\bar e_i=\\alpha_i\\bar\\alpha_i$",
+      "$\\bar e_i=\\bar\\alpha_i/\\alpha_i$",
+      "$\\bar e_i=\\alpha_i\\big(\\bar\\alpha_i-\\sum_j\\alpha_j\\bar\\alpha_j\\big)$"
+    ],
+    "answer": 3,
+    "explanation": "The softmax Jacobian is $\\operatorname{diag}(\\alpha)-\\alpha\\alpha^\\top$, so $\\bar e=\\alpha\\odot(\\bar\\alpha-\\alpha^\\top\\bar\\alpha)$."
+  },
+  {
+    "id": "seq.05.q8",
+    "concept": "seq.attention",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Padding positions in the source must be handled by...",
+    "options": [
+      "setting their scores to $-\\infty$ (or a very negative number) before the softmax",
+      "setting their weights to 0 after the softmax and not renormalising",
+      "removing the batch",
+      "multiplying the encoder states by 0.5"
+    ],
+    "answer": 0,
+    "explanation": "Masking before the softmax gives them weight 0 while the remaining weights still sum to 1."
+  },
+  {
+    "id": "seq.05.q9",
+    "concept": "seq.attention",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Why is the dot-product score divided by $\\sqrt d$ in scaled dot-product attention?",
+    "options": [
+      "the dot product of two unit-variance $d$-dimensional vectors has variance $d$; scaling keeps the softmax from saturating",
+      "to make the weights sum to 1",
+      "to save memory",
+      "to make attention permutation-invariant"
+    ],
+    "answer": 0,
+    "explanation": "$\\operatorname{Var}(q\\cdot k)=d$ for independent zero-mean unit-variance entries; dividing by $\\sqrt d$ restores variance 1."
+  },
+  {
+    "id": "seq.05.q10",
+    "concept": "seq.attention",
+    "kind": "mcq",
+    "stage": "check",
+    "prompt": "Self-attention without any position information is...",
+    "options": [
+      "permutation-equivariant: shuffling the input shuffles the output the same way",
+      "order-sensitive",
+      "only defined for RNNs",
+      "identical to a convolution of width 3"
+    ],
+    "answer": 0,
+    "explanation": "Scores depend only on pairwise content, not on position, so positional information must be added separately (positional encodings in transformers)."
+  }
+]

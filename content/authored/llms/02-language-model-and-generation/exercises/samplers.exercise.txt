@@ -1,0 +1,114 @@
+#@@ meta
+{"id": "llm.02.ex1", "title": "Decoding: temperature, top-k, top-p and perplexity", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.sampling", "llm.perplexity", "info.entropy"], "hints": ["softmax(z / T): subtract the max before exponentiating for stability. T -> 0 approaches argmax, T = 1 leaves the distribution unchanged.", "Top-k: keep the k largest probabilities (use np.argsort(-p, kind='stable')), set the others to 0, renormalise. Top-p: sort descending, take the cumulative sum, keep the smallest prefix whose cumulative probability is >= p (np.searchsorted(cum, p) + 1 tokens), renormalise.", "Perplexity = exp(mean negative log-probability of the true next tokens). With logits of shape (N, V) and targets of shape (N,), use a log-softmax and pick row i, column targets[i]."]}
+#@@ prompt
+Implement the decoding utilities of a language model working on **logits** (unnormalised scores over the vocabulary).
+
+- `softmax(z)` for a 1-D or 2-D array (softmax over the last axis, numerically stable).
+- `temperature_probs(logits, T)` returns `softmax(logits / T)`.
+- `top_k_probs(p, k)` keeps the `k` most probable tokens (ties: lower index first), zeroes the rest and renormalises.
+- `top_p_probs(p, top_p)` nucleus filtering: keep the **smallest** set of most probable tokens whose cumulative probability is `>= top_p`, zero the rest, renormalise.
+- `sample(logits, rng, temperature=1.0, top_k=None, top_p=None)` returns one token id: temperature `0` means greedy argmax; otherwise apply temperature, then top-k, then top-p, then draw with `rng.choice`.
+- `perplexity(logits, targets)` for logits `(N, V)` and integer targets `(N,)`: `exp` of the mean cross-entropy.
+#@@ starter
+import numpy as np
+
+def softmax(z):
+    # TODO
+    raise NotImplementedError
+
+def temperature_probs(logits, T):
+    # TODO
+    raise NotImplementedError
+
+def top_k_probs(p, k):
+    # TODO
+    raise NotImplementedError
+
+def top_p_probs(p, top_p):
+    # TODO
+    raise NotImplementedError
+
+def sample(logits, rng, temperature=1.0, top_k=None, top_p=None):
+    # TODO
+    raise NotImplementedError
+
+def perplexity(logits, targets):
+    # TODO
+    raise NotImplementedError
+
+z = np.array([2.0, 1.0, 0.5, 0.0, -1.0])
+print(np.round(temperature_probs(z, 1.0), 4))
+#@@ tests
+import numpy as np
+z = np.array([2.0, 1.0, 0.5, 0.0, -1.0])
+p1 = temperature_probs(z, 1.0)
+check("softmax sums to 1 and matches the lesson", lambda: abs(p1.sum() - 1) < 1e-12 and np.allclose(p1, [0.5630, 0.2071, 0.1256, 0.0762, 0.0280], atol=1e-4))
+check("softmax is stable for huge logits", lambda: np.all(np.isfinite(softmax(np.array([1000.0, 1001.0, 999.0])))))
+check("T=0.5 sharpens", lambda: np.allclose(temperature_probs(z, 0.5), [0.8292, 0.1122, 0.0413, 0.0152, 0.0021], atol=1e-4))
+check("T=2 flattens", lambda: np.allclose(temperature_probs(z, 2.0), [0.3745, 0.2272, 0.1769, 0.1378, 0.0836], atol=1e-4))
+check("top-k=2 keeps two and renormalises", lambda: np.allclose(top_k_probs(p1, 2), [0.7311, 0.2689, 0, 0, 0], atol=1e-4))
+check("top-k with k=V is the identity", lambda: np.allclose(top_k_probs(p1, 5), p1))
+q = top_p_probs(p1, 0.8)
+check("top-p 0.8 keeps 3 tokens", lambda: np.count_nonzero(q) == 3 and abs(q.sum() - 1) < 1e-12)
+check("top-p 0.8 values", lambda: np.allclose(q[:3], np.array([0.5630, 0.2071, 0.1256]) / 0.8957, atol=1e-3))
+check("top-p 0.9 needs 4 tokens (cumulative 0.8958 < 0.9)", lambda: np.count_nonzero(top_p_probs(p1, 0.9)) == 4)
+check("top-p of 0.5 keeps only the argmax (always at least one token)", lambda: np.count_nonzero(top_p_probs(p1, 0.5)) == 1)
+rng = np.random.default_rng(0)
+check("greedy at temperature 0", lambda: all(sample(z, rng, temperature=0) == 0 for _ in range(5)))
+def freq(n=4000, **kw):
+    r = np.random.default_rng(1)
+    c = np.bincount([sample(z, r, **kw) for _ in range(n)], minlength=5) / n
+    return c
+check("sampling frequencies match the distribution", lambda: np.allclose(freq(), p1, atol=0.03))
+check("top_k=2 never samples outside the top two", lambda: freq(top_k=2)[2:].sum() == 0)
+check("top_p never samples outside the nucleus", lambda: freq(top_p=0.8)[3:].sum() == 0)
+lg = np.log(np.array([[0.5, 0.25, 0.25], [0.1, 0.1, 0.8]]))
+check("perplexity of a uniform model equals V", lambda: abs(perplexity(np.zeros((4, 7)), np.array([0, 1, 2, 3])) - 7) < 1e-9)
+check("perplexity = exp(mean NLL)", lambda: abs(perplexity(lg, np.array([0, 2])) - np.exp(-(np.log(0.5) + np.log(0.8)) / 2)) < 1e-9)
+#@@ solution
+import numpy as np
+
+def softmax(z):
+    z = np.asarray(z, dtype=float)
+    z = z - z.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def temperature_probs(logits, T):
+    return softmax(np.asarray(logits, dtype=float) / T)
+
+def top_k_probs(p, k):
+    idx = np.argsort(-p, kind="stable")[:k]
+    q = np.zeros_like(p)
+    q[idx] = p[idx]
+    return q / q.sum()
+
+def top_p_probs(p, top_p):
+    order = np.argsort(-p, kind="stable")
+    cum = np.cumsum(p[order])
+    n = int(np.searchsorted(cum, top_p - 1e-12) + 1)
+    n = min(n, len(p))
+    q = np.zeros_like(p)
+    q[order[:n]] = p[order[:n]]
+    return q / q.sum()
+
+def sample(logits, rng, temperature=1.0, top_k=None, top_p=None):
+    logits = np.asarray(logits, dtype=float)
+    if temperature == 0:
+        return int(np.argmax(logits))
+    p = temperature_probs(logits, temperature)
+    if top_k is not None:
+        p = top_k_probs(p, top_k)
+    if top_p is not None:
+        p = top_p_probs(p, top_p)
+    return int(rng.choice(len(p), p=p))
+
+def perplexity(logits, targets):
+    logits = np.asarray(logits, dtype=float)
+    z = logits - logits.max(axis=-1, keepdims=True)
+    logp = z - np.log(np.exp(z).sum(axis=-1, keepdims=True))
+    nll = -logp[np.arange(len(targets)), targets]
+    return float(np.exp(nll.mean()))
+
+z = np.array([2.0, 1.0, 0.5, 0.0, -1.0])
+print(np.round(temperature_probs(z, 1.0), 4))

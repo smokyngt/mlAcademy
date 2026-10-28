@@ -1,0 +1,214 @@
+[
+  {
+    "id": "roofline",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The roofline of an A100-class chip (P = 312 TFLOP/s, bandwidth 2 TB/s, ridge point 156 FLOP/byte): achievable rate = min(P, bandwidth * I). Points are the worked example: batch-1 linear (I = 1.0), softmax (1.25), layer norm (2.0), batch-64 linear (62.1, 39.8% of peak), batch-256 linear (227.6, compute-bound).",
+      "fr": "Le roofline d'une puce de classe A100 (P = 312 TFLOP/s, bande passante 2 To/s, point de crête 156 FLOP/octet) : débit atteignable = min(P, bande passante * I). Les points sont l'exemple traité : linéaire batch 1 (I = 1,0), softmax (1,25), layer norm (2,0), linéaire batch 64 (62,1, 39,8 % du pic), linéaire batch 256 (227,6, limité par le calcul)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        420
+      ],
+      "yDomain": [
+        0,
+        340
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "min(312,2*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              2
+            ],
+            [
+              1.25,
+              2.5
+            ],
+            [
+              2,
+              4
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              62.1,
+              124.2
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              227.6,
+              312
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 156,
+          "text": "ridge point 156"
+        },
+        {
+          "y": 312,
+          "text": "P = 312 TFLOP/s"
+        }
+      ]
+    }
+  },
+  {
+    "id": "attention-io",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Standard versus tiled (FlashAttention) attention in terms of HBM traffic: the standard version writes and re-reads the N x N matrices S and P; the tiled version keeps score tiles and a running softmax on chip and writes only O.",
+      "fr": "L'attention standard contre l'attention par tuiles (FlashAttention) en trafic HBM : la version standard écrit et relit les matrices N x N S et P ; la version par tuiles garde tuiles de scores et softmax courant sur la puce et n'écrit que O."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph STD[\"Standard: 3 kernels, N x N through HBM\"]\n    q1[\"read Q, K\"] --> s1[\"S = QK^T<br/>write N x N\"] --> s2[\"softmax<br/>read S, write P (N x N)\"] --> s3[\"O = PV<br/>read P, V; write O\"]\n  end\n  subgraph TILED[\"Tiled: one kernel, on-chip\"]\n    t1[\"for each block of B_r query rows\"] --> t2[\"stream K, V tiles<br/>score tile + running max m, sum s on chip\"] --> t3[\"write only O block\"]\n  end",
+      "fr": "flowchart LR\n  subgraph STD[\"Standard : 3 noyaux, N x N via HBM\"]\n    q1[\"lire Q, K\"] --> s1[\"S = QK^T<br/>écrire N x N\"] --> s2[\"softmax<br/>lire S, écrire P (N x N)\"] --> s3[\"O = PV<br/>lire P, V ; écrire O\"]\n  end\n  subgraph TILED[\"Par tuiles : un noyau, sur la puce\"]\n    t1[\"pour chaque bloc de B_r lignes de requêtes\"] --> t2[\"parcourir les tuiles de K, V<br/>tuile de scores + max m et somme s courants sur la puce\"] --> t3[\"écrire seulement le bloc de O\"]\n  end"
+    }
+  },
+  {
+    "id": "attention-intensity",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Arithmetic intensity of one attention head (d = 64, fp16): standard attention stays near d/e = 32 FLOP/byte whatever N (blue), tiled attention grows like 2*B_r/e = B_r with the query-block size (orange). The ridge point is 156 (grey); B_r = 256 crosses it.",
+      "fr": "Intensité arithmétique d'une tête d'attention (d = 64, fp16) : l'attention standard reste proche de d/e = 32 FLOP/octet quel que soit N (bleu), l'attention par tuiles croît comme 2*B_r/e = B_r avec la taille du bloc de requêtes (orange). Le point de crête est 156 (gris) ; B_r = 256 le dépasse."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        300
+      ],
+      "yDomain": [
+        0,
+        300
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "32",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "156",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              64,
+              64.2
+            ],
+            [
+              128,
+              126.5
+            ],
+            [
+              256,
+              245.6
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "profiler-triage",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Triage from a profiler timeline: what the GPU row looks like decides the diagnosis and the fix.",
+      "fr": "Triage à partir d'une timeline de profileur : l'aspect de la ligne GPU décide du diagnostic et du remède."
+    },
+    "code": {
+      "en": "flowchart TD\n  P[\"profile one training step\"] --> Q{\"what does the GPU row show?\"}\n  Q -->|\"long idle gaps, CPU busy loading\"| IB[\"input-bound:<br/>more workers, prefetch, cache\"]\n  Q -->|\"many tiny kernels, small gaps\"| LB[\"launch-bound:<br/>fuse ops, bigger batch, CUDA graphs\"]\n  Q -->|\"stalls at .item() or .cpu()\"| SY[\"accidental sync:<br/>read scalars less often\"]\n  Q -->|\"dense kernels\"| R{\"which kernels dominate?\"}\n  R -->|\"matmul\"| CB[\"compute-bound:<br/>check precision and tensor cores\"]\n  R -->|\"element-wise, softmax, norm\"| MB[\"memory-bound:<br/>fuse, lower precision\"]",
+      "fr": "flowchart TD\n  P[\"profiler un pas d'entraînement\"] --> Q{\"que montre la ligne GPU ?\"}\n  Q -->|\"longs trous d'inactivité, CPU occupé à charger\"| IB[\"limité par l'entrée :<br/>plus de workers, prefetch, cache\"]\n  Q -->|\"beaucoup de petits noyaux, petits trous\"| LB[\"limité par les lancements :<br/>fusionner, plus gros lot, CUDA graphs\"]\n  Q -->|\"blocages sur .item() ou .cpu()\"| SY[\"synchronisation accidentelle :<br/>lire moins souvent les scalaires\"]\n  Q -->|\"noyaux denses\"| R{\"quels noyaux dominent ?\"}\n  R -->|\"matmul\"| CB[\"limité par le calcul :<br/>vérifier précision et tensor cores\"]\n  R -->|\"élément par élément, softmax, norme\"| MB[\"limité par la mémoire :<br/>fusionner, précision réduite\"]"
+    }
+  },
+  {
+    "id": "amdahl",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Amdahl's law: speed-up = 1/((1-p) + p/s) against the accelerated fraction p, for s = 10 (blue) and s = 1000 (orange). Speeding up a part that is 40% of the step (p = 0.6 accelerated 10x) gives only 2.17.",
+      "fr": "Loi d'Amdahl : accélération = 1/((1-p) + p/s) en fonction de la fraction accélérée p, pour s = 10 (bleu) et s = 1000 (orange). Accélérer 10 fois une part représentant 60 % du pas (le reste, 40 %, ne bouge pas) ne donne que 2,17."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        0.99
+      ],
+      "yDomain": [
+        0,
+        50
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "1/((1-x)+x/10)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/((1-x)+x/1000)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0.6,
+              2.17
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

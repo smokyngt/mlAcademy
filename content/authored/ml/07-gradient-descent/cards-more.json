@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.07.c14",
+  "concept": "opt.gradient-descent",
+  "front": "Per-step factor on $\\frac12\\lambda\\theta^2$",
+  "back": "$1-\\eta\\lambda$."
+ },
+ {
+  "id": "f2n.07.c15",
+  "concept": "opt.gradient-descent",
+  "front": "Monotone convergence range",
+  "back": "$0<\\eta<1/\\lambda$."
+ },
+ {
+  "id": "f2n.07.c16",
+  "concept": "opt.gradient-descent",
+  "front": "Oscillating convergence range",
+  "back": "$1/\\lambda<\\eta<2/\\lambda$."
+ },
+ {
+  "id": "f2n.07.c17",
+  "concept": "opt.gradient-descent",
+  "front": "Divergence",
+  "back": "$\\eta>2/\\lambda$ on the steepest direction."
+ },
+ {
+  "id": "f2n.07.c18",
+  "concept": "opt.gradient-descent",
+  "front": "Best learning rate for a quadratic",
+  "back": "$2/(\\lambda_{\\max}+\\lambda_{\\min})$."
+ },
+ {
+  "id": "f2n.07.c19",
+  "concept": "opt.gradient-descent",
+  "front": "Condition number",
+  "back": "$\\kappa=\\lambda_{\\max}/\\lambda_{\\min}$; large $\\kappa$ means slow."
+ },
+ {
+  "id": "f2n.07.c20",
+  "concept": "opt.gradient-descent",
+  "front": "Mini-batch gradient estimate",
+  "back": "Unbiased for the full gradient; variance shrinks like $1/b$."
+ },
+ {
+  "id": "f2n.07.c21",
+  "concept": "opt.gradient-descent",
+  "front": "SGD update",
+  "back": "$\\theta\\leftarrow\\theta-\\eta\\hat g$ with $\\hat g$ from a random mini-batch."
+ },
+ {
+  "id": "f2n.07.c22",
+  "concept": "opt.gradient-descent",
+  "front": "Why does the loss fall for small $\\eta$?",
+  "back": "$L(\\theta-\\eta g)\\approx L(\\theta)-\\eta\\|g\\|^2$."
+ }
+]

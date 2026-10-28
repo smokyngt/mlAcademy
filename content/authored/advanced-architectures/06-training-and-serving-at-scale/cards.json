@@ -1,0 +1,16 @@
+[
+  { "id": "adv.06.c1", "concept": "adv.zero", "front": "Mixed-precision Adam bytes per parameter", "back": "2 weights + 2 grads + 12 optimizer (fp32 master, m, v) = 16." },
+  { "id": "adv.06.c2", "concept": "adv.zero", "front": "ZeRO stages", "back": "1: shard optimizer state; 2: + gradients; 3: + parameters (FSDP). Per-GPU: $16\\psi/N$ at stage 3." },
+  { "id": "adv.06.c3", "concept": "adv.zero", "front": "What does stage 3 cost extra?", "back": "All-gathers of each layer's parameters before use (and re-sharding after); overlapped with compute." },
+  { "id": "adv.06.c4", "concept": "adv.parallelism", "front": "Data parallelism", "back": "Replicate the model, split the batch, all-reduce gradients. Scales throughput, not capacity." },
+  { "id": "adv.06.c5", "concept": "adv.parallelism", "front": "Column- vs row-parallel matmul", "back": "Column: split W's columns, concatenate outputs. Row: split x's columns and W's rows, sum partial products (all-reduce)." },
+  { "id": "adv.06.c6", "concept": "adv.parallelism", "front": "Pipeline bubble", "back": "Idle fraction $(p-1)/(m+p-1)$ for $p$ stages and $m$ micro-batches; relative overhead $(p-1)/m$." },
+  { "id": "adv.06.c7", "concept": "adv.parallelism", "front": "3D parallelism", "back": "TP within a node, PP across nodes, DP across replicas; GPU count is the product." },
+  { "id": "adv.06.c8", "concept": "adv.parallelism", "front": "DualPipe idea", "back": "Feed micro-batches from both ends of the pipeline and overlap MoE all-to-all with compute; needs two layer copies per stage." },
+  { "id": "adv.06.c9", "concept": "adv.mixed-precision", "front": "fp16 vs bf16", "back": "fp16: 5 exponent bits, 10 mantissa (narrow range); bf16: 8 exponent bits (fp32 range), 7 mantissa." },
+  { "id": "adv.06.c10", "concept": "adv.mixed-precision", "front": "Loss scaling", "back": "Multiply loss by $S$ before backward, divide gradients by $S$ in fp32 before the update; prevents fp16 underflow." },
+  { "id": "adv.06.c11", "concept": "adv.mixed-precision", "front": "Dynamic loss scale rule", "back": "On inf/NaN: skip the step, halve $S$. After many clean steps: double $S$." },
+  { "id": "adv.06.c12", "concept": "adv.checkpointing", "front": "Checkpointing memory", "back": "$M(k)=(L/k)a+kA$, minimal at $k=\\sqrt{La/A}$ with $M=2\\sqrt{LaA}$." },
+  { "id": "adv.06.c13", "concept": "adv.checkpointing", "front": "Cost of full vs selective recomputation", "back": "Full: +1 forward, 4/3 of a step (+33%). Selective (attention only): about +5%." },
+  { "id": "adv.06.c14", "concept": "adv.mtp", "front": "MTP loss", "back": "$\\mathcal{L}_{main}+\\frac{\\lambda}{D}\\sum_d\\mathcal{L}_d$, heads predicting further-ahead tokens; sequential modules keep the causal chain." }
+]

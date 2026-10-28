@@ -1,0 +1,99 @@
+#@@ meta
+{"id": "mx.05.ex1", "title": "Trapezoid, Simpson, Monte Carlo and expectations as integrals", "difficulty": 3, "runtime": "pyodide", "concepts": ["mx.integral", "mx.expect-integral", "mx.numint"], "hints": ["trapezoid: x = np.linspace(a, b, n+1), y = f(x); the result is h*(y[0]/2 + y[1:-1].sum() + y[-1]/2) with h = (b-a)/n.", "simpson (n even): h/3 * (y[0] + 4*y[1:-1:2].sum() + 2*y[2:-1:2].sum() + y[-1]).", "mc_integrate: u = rng.uniform(a, b, n), vals = (b-a)*f(u); the estimate is vals.mean() and the standard error is vals.std(ddof=1)/sqrt(n).", "expectation(pdf, g, a, b, n): integrate g(x)*pdf(x) over [a, b] with Simpson.", "mc_ball_volume(d, n, rng): points uniform in [-1,1]^d (shape (n, d)); the fraction with squared norm <= 1 times 2**d."]}
+#@@ prompt
+Implement the numerical-integration toolbox below with NumPy. `f` is a vectorised function (it accepts a NumPy array).
+
+- `left_riemann(f, a, b, n)` - the left Riemann sum with `n` equal pieces.
+- `trapezoid(f, a, b, n)` - composite trapezoid rule with `n` intervals.
+- `simpson(f, a, b, n)` - composite Simpson rule (`n` even).
+- `mc_integrate(f, a, b, n, rng)` - Monte Carlo estimate with uniform samples; return `(estimate, standard_error)`.
+- `gaussian_integral(n)` - the integral of `exp(-x**2/2)` over `[-10, 10]` using your trapezoid rule with `n` intervals.
+- `expectation(pdf, g, a, b, n=400)` - `E[g(X)]` for a density `pdf` supported on `[a, b]`, as the integral of `g(x)*pdf(x)`.
+- `mc_ball_volume(d, n, rng)` - Monte Carlo estimate of the volume of the unit ball in `d` dimensions from `n` uniform points in the cube `[-1, 1]^d`.
+#@@ starter
+import numpy as np
+
+def left_riemann(f, a, b, n):
+    raise NotImplementedError
+
+def trapezoid(f, a, b, n):
+    raise NotImplementedError
+
+def simpson(f, a, b, n):
+    raise NotImplementedError
+
+def mc_integrate(f, a, b, n, rng):
+    raise NotImplementedError
+
+def gaussian_integral(n):
+    raise NotImplementedError
+
+def expectation(pdf, g, a, b, n=400):
+    raise NotImplementedError
+
+def mc_ball_volume(d, n, rng):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("left Riemann sum of x on [0,1] with n=100 is 0.495", lambda: abs(left_riemann(lambda x: x, 0, 1, 100) - 0.495) < 1e-12)
+check("trapezoid is exact for a line", lambda: abs(trapezoid(lambda x: 3 * x + 1, 0, 2, 5) - 8) < 1e-12)
+check("trapezoid of sin on [0,pi], n=4, has error -0.1039", lambda: abs(trapezoid(np.sin, 0, np.pi, 4) - 2 + 0.1038811) < 1e-6)
+check("Simpson of sin on [0,pi], n=4, has error 0.00456", lambda: abs(simpson(np.sin, 0, np.pi, 4) - 2 - 0.0045598) < 1e-6)
+check("Simpson is exact for cubics", lambda: abs(simpson(lambda x: x ** 3 - 2 * x, 0, 2, 2) - 0) < 1e-12)
+e = lambda rule, n: abs(rule(np.sin, 0, np.pi, n) - 2)
+check("trapezoid error falls by about 4x when n doubles (order 2)", lambda: 3.7 < e(trapezoid, 16) / e(trapezoid, 32) < 4.3)
+check("Simpson error falls by about 16x when n doubles (order 4)", lambda: 14 < e(simpson, 16) / e(simpson, 32) < 18)
+check("integration by parts: int_0^1 x e^x dx = 1", lambda: abs(simpson(lambda x: x * np.exp(x), 0, 1, 20) - 1) < 1e-5)
+check("substitution u = x^2: int_0^1 2x e^(x^2) dx = e - 1", lambda: abs(simpson(lambda x: 2 * x * np.exp(x ** 2), 0, 1, 100) - (np.e - 1)) < 1e-6)
+est, se = mc_integrate(np.sin, 0, np.pi, 10000, np.random.default_rng(0))
+check("Monte Carlo estimate of int sin is within 4 standard errors of 2", lambda: abs(est - 2) < 4 * se)
+check("standard error is about 0.0097 for n = 10000", lambda: 0.008 < se < 0.012)
+se_small = mc_integrate(np.sin, 0, np.pi, 100, np.random.default_rng(0))[1]
+se_big = mc_integrate(np.sin, 0, np.pi, 10000, np.random.default_rng(0))[1]
+check("100x more samples gives about 10x smaller error (1/sqrt(n))", lambda: 7 < se_small / se_big < 13)
+check("Gaussian integral is sqrt(2 pi) = 2.50663", lambda: abs(gaussian_integral(2000) - np.sqrt(2 * np.pi)) < 1e-10)
+check("trapezoid on a Gaussian converges extremely fast", lambda: abs(trapezoid(lambda x: np.exp(-x ** 2 / 2), -8, 8, 16) - np.sqrt(2 * np.pi)) < 1e-6)
+pdf = lambda x: np.exp(-x ** 2 / 2) / np.sqrt(2 * np.pi)
+check("the standard normal density integrates to 1", lambda: abs(expectation(pdf, lambda x: np.ones_like(x), -8, 8) - 1) < 1e-8)
+check("E[X] = 0 and E[X^2] = 1 for N(0,1)", lambda: abs(expectation(pdf, lambda x: x, -8, 8)) < 1e-8 and abs(expectation(pdf, lambda x: x ** 2, -8, 8) - 1) < 1e-6)
+check("P(|X| <= 1.96) is about 0.95", lambda: abs(expectation(pdf, lambda x: (np.abs(x) <= 1.96) * 1.0, -8, 8, 4000) - 0.95) < 2e-3)
+beta25 = lambda x: 30 * x * (1 - x) ** 4
+check("Beta(2,5) density integrates to 1 and has mean a/(a+b) = 2/7", lambda: abs(expectation(beta25, lambda x: np.ones_like(x), 0, 1, 200) - 1) < 1e-6 and abs(expectation(beta25, lambda x: x, 0, 1, 200) - 2 / 7) < 1e-6)
+unif = lambda x: np.full_like(x, 1 / 0.7)
+check("a density can exceed 1: uniform on [0.9,1.6] has height 1.43 and integrates to 1", lambda: abs(expectation(unif, lambda x: np.ones_like(x), 0.9, 1.6, 10) - 1) < 1e-9)
+check("unit disc area is about pi", lambda: abs(mc_ball_volume(2, 200000, np.random.default_rng(0)) - np.pi) < 0.03)
+check("unit 5-ball volume is about 5.2638", lambda: abs(mc_ball_volume(5, 200000, np.random.default_rng(0)) - 5.26379) < 0.1)
+#@@ solution
+import numpy as np
+
+def left_riemann(f, a, b, n):
+    x = a + (b - a) * np.arange(n) / n
+    return (b - a) / n * np.sum(f(x))
+
+def trapezoid(f, a, b, n):
+    x = np.linspace(a, b, n + 1)
+    y = f(x)
+    h = (b - a) / n
+    return h * (y[0] / 2 + y[1:-1].sum() + y[-1] / 2)
+
+def simpson(f, a, b, n):
+    x = np.linspace(a, b, n + 1)
+    y = f(x)
+    h = (b - a) / n
+    return h / 3 * (y[0] + 4 * y[1:-1:2].sum() + 2 * y[2:-1:2].sum() + y[-1])
+
+def mc_integrate(f, a, b, n, rng):
+    u = rng.uniform(a, b, n)
+    vals = (b - a) * f(u)
+    return float(vals.mean()), float(vals.std(ddof=1) / np.sqrt(n))
+
+def gaussian_integral(n):
+    return trapezoid(lambda x: np.exp(-x ** 2 / 2), -10, 10, n)
+
+def expectation(pdf, g, a, b, n=400):
+    return simpson(lambda x: g(x) * pdf(x), a, b, n)
+
+def mc_ball_volume(d, n, rng):
+    pts = rng.uniform(-1, 1, size=(n, d))
+    inside = (pts ** 2).sum(axis=1) <= 1.0
+    return float(inside.mean() * 2 ** d)

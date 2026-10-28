@@ -1,0 +1,154 @@
+#@@ meta
+{"id": "llm.03.ex1", "title": "A pretraining data pipeline: dedup, split, pack, shuffle", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.pretraining-data", "llm.lm"], "hints": ["Exact dedup: normalise with ' '.join(doc.lower().split()), keep the first document for each normalised string. Near dedup: shingle = set of n consecutive words; Jaccard = |A & B| / |A | B|; keep a document only if its Jaccard with every kept document is below the threshold.", "Split documents (not blocks!) with a seeded permutation so a document never lands in both train and validation. Pack AFTER splitting.", "Packing: stream = doc1 + [eos] + doc2 + [eos] + ...; n = (len(stream) - 1) // block; x[i] = stream[i*block : (i+1)*block]; y[i] = stream[i*block+1 : (i+1)*block+1]. For the document mask, doc_id[t] = number of eos tokens strictly before position t; allowed[i, j] = (j <= i) and doc_id[i] == doc_id[j]."]}
+#@@ prompt
+Build the data side of a pretraining run, all in NumPy/pure Python.
+
+- `dedup_exact(docs)`: remove documents whose whitespace/case-normalised text was already seen (keep the first).
+- `jaccard(a, b, n=3)`: Jaccard similarity of the sets of word `n`-grams (shingles) of two strings. If a text has fewer than `n` words, its single shingle is the whole word tuple.
+- `dedup_near(docs, threshold=0.8, n=3)`: greedily keep a document only if its Jaccard similarity with every previously kept one is `< threshold`.
+- `split_docs(docs, val_frac, seed)`: seeded random split **by document** into `(train, val)`; `val` has `max(1, round(val_frac * len(docs)))` documents.
+- `pack(docs_ids, eos, block)`: concatenate every token-id list followed by `eos`, and cut into `x, y` arrays of shape `(n, block)` with `y` the inputs shifted one position (so `y[:, :-1] == x[:, 1:]`). The incomplete tail is dropped.
+- `shuffle_blocks(x, y, seed)`: apply the same seeded permutation to both arrays.
+- `doc_mask(block_ids, eos)`: boolean `(T, T)` matrix, `True` where position `i` may attend to `j`: causal (`j <= i`) **and** in the same document (documents are separated by `eos`; the `eos` belongs to the document it ends).
+- `padding_fraction(lengths, block)`: share of wasted slots if every document is padded up to a multiple of `block` instead of packed.
+#@@ starter
+import numpy as np
+
+def dedup_exact(docs):
+    # TODO
+    raise NotImplementedError
+
+def jaccard(a, b, n=3):
+    # TODO
+    raise NotImplementedError
+
+def dedup_near(docs, threshold=0.8, n=3):
+    # TODO
+    raise NotImplementedError
+
+def split_docs(docs, val_frac, seed):
+    # TODO
+    raise NotImplementedError
+
+def pack(docs_ids, eos, block):
+    # TODO
+    raise NotImplementedError
+
+def shuffle_blocks(x, y, seed):
+    # TODO
+    raise NotImplementedError
+
+def doc_mask(block_ids, eos):
+    # TODO
+    raise NotImplementedError
+
+def padding_fraction(lengths, block):
+    # TODO
+    raise NotImplementedError
+
+x, y = pack([[1, 2, 3], [4, 5], [6, 7, 8, 9]], eos=0, block=3)
+print(x, y, sep="\n")
+#@@ tests
+import numpy as np
+docs = ["The cat sat on the mat.", "the  CAT sat on the   mat.", "A completely different document about dogs", "The cat sat on the mat today"]
+check("exact dedup ignores case and whitespace", lambda: dedup_exact(docs) == [docs[0], docs[2], docs[3]])
+check("jaccard of identical texts is 1", lambda: jaccard("a b c d", "a b c d") == 1.0)
+check("jaccard of disjoint texts is 0", lambda: jaccard("a b c d", "w x y z") == 0.0)
+check("jaccard value", lambda: abs(jaccard("a b c d e", "a b c d f") - 0.5) < 1e-12, "shingles {abc,bcd,cde} vs {abc,bcd,cdf}: 2 shared out of 4")
+check("jaccard handles very short texts", lambda: jaccard("a b", "a b") == 1.0 and jaccard("a b", "a c") == 0.0)
+near = ["one two three four five six seven eight", "one two three four five six seven nine", "completely other words here for you today friend"]
+check("near dedup drops the 0.8-similar document", lambda: dedup_near(near, threshold=0.5) == [near[0], near[2]])
+check("near dedup keeps everything at a high threshold", lambda: dedup_near(near, threshold=0.99) == near)
+d = [f"doc {i}" for i in range(10)]
+tr, va = split_docs(d, 0.2, seed=0)
+check("split sizes", lambda: len(va) == 2 and len(tr) == 8)
+check("no document in both splits and none lost", lambda: set(tr).isdisjoint(va) and set(tr) | set(va) == set(d))
+check("split is deterministic given the seed", lambda: split_docs(d, 0.2, seed=0) == (tr, va))
+check("different seeds give different splits", lambda: split_docs(d, 0.2, seed=1) != (tr, va))
+x, y = pack([[1, 2, 3], [4, 5], [6, 7, 8, 9]], eos=0, block=3)
+check("pack shapes", lambda: x.shape == (3, 3) and y.shape == (3, 3))
+check("pack contents (stream 1 2 3 0 4 5 0 6 7 8 9 0)", lambda: x.tolist() == [[1, 2, 3], [0, 4, 5], [0, 6, 7]] and y.tolist() == [[2, 3, 0], [4, 5, 0], [6, 7, 8]])
+check("targets are inputs shifted by one inside a block", lambda: np.array_equal(y[:, :-1], x[:, 1:]))
+rng = np.random.default_rng(0)
+big = [list(rng.integers(1, 50, size=int(rng.integers(5, 40)))) for _ in range(30)]
+xb, yb = pack(big, eos=0, block=16)
+stream = np.concatenate([np.array(dd + [0]) for dd in big])
+check("blocks tile the stream without overlap", lambda: np.array_equal(xb.reshape(-1), stream[: xb.size]) and xb.size <= len(stream) - 1)
+xs, ys = shuffle_blocks(xb, yb, seed=3)
+check("shuffle keeps x/y rows paired", lambda: all(np.array_equal(ys[i, :-1], xs[i, 1:]) for i in range(len(xs))))
+check("shuffle is a permutation of the rows", lambda: sorted(map(tuple, xs.tolist())) == sorted(map(tuple, xb.tolist())) and not np.array_equal(xs, xb))
+m = doc_mask(np.array([5, 6, 0, 7, 8, 0]), eos=0)
+check("doc_mask is causal", lambda: not np.any(np.triu(m, 1)))
+check("doc_mask blocks cross-document attention", lambda: (not m[3, 1]) and m[3, 3] and m[4, 3] and m[2, 0] and (not m[4, 2]), "position 3 starts a new document after the eos at position 2")
+check("padding fraction of 200/500/100-token docs in 2048 slots", lambda: abs(padding_fraction([200, 500, 100], 2048) - (1 - 800 / 6144)) < 1e-12)
+check("padding fraction counts multiple blocks for long documents", lambda: abs(padding_fraction([3000], 2048) - (1 - 3000 / 4096)) < 1e-12)
+#@@ solution
+import numpy as np
+
+def _norm(doc):
+    return " ".join(doc.lower().split())
+
+def dedup_exact(docs):
+    seen, out = set(), []
+    for d in docs:
+        k = _norm(d)
+        if k not in seen:
+            seen.add(k)
+            out.append(d)
+    return out
+
+def _shingles(text, n):
+    w = text.split()
+    if len(w) < n:
+        return {tuple(w)}
+    return {tuple(w[i:i + n]) for i in range(len(w) - n + 1)}
+
+def jaccard(a, b, n=3):
+    A, B = _shingles(a, n), _shingles(b, n)
+    return len(A & B) / len(A | B)
+
+def dedup_near(docs, threshold=0.8, n=3):
+    kept = []
+    for d in docs:
+        if all(jaccard(d, k, n) < threshold for k in kept):
+            kept.append(d)
+    return kept
+
+def split_docs(docs, val_frac, seed):
+    rng = np.random.default_rng(seed)
+    perm = rng.permutation(len(docs))
+    n_val = max(1, int(round(val_frac * len(docs))))
+    val = [docs[i] for i in perm[:n_val]]
+    train = [docs[i] for i in perm[n_val:]]
+    return train, val
+
+def pack(docs_ids, eos, block):
+    stream = []
+    for d in docs_ids:
+        stream.extend(list(d))
+        stream.append(eos)
+    stream = np.array(stream)
+    n = (len(stream) - 1) // block
+    x = np.stack([stream[i * block:(i + 1) * block] for i in range(n)])
+    y = np.stack([stream[i * block + 1:(i + 1) * block + 1] for i in range(n)])
+    return x, y
+
+def shuffle_blocks(x, y, seed):
+    perm = np.random.default_rng(seed).permutation(len(x))
+    return x[perm], y[perm]
+
+def doc_mask(block_ids, eos):
+    ids = np.asarray(block_ids)
+    T = len(ids)
+    is_eos = (ids == eos).astype(int)
+    doc_id = np.concatenate([[0], np.cumsum(is_eos)[:-1]])
+    causal = np.tril(np.ones((T, T), dtype=bool))
+    same = doc_id[:, None] == doc_id[None, :]
+    return causal & same
+
+def padding_fraction(lengths, block):
+    slots = sum(-(-l // block) * block for l in lengths)
+    return 1 - sum(lengths) / slots
+
+x, y = pack([[1, 2, 3], [4, 5], [6, 7, 8, 9]], eos=0, block=3)
+print(x, y, sep="\n")

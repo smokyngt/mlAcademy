@@ -1,0 +1,167 @@
+#@@ meta
+{"id": "adv.06.ex1", "title": "Per-GPU memory, checkpointing, loss scaling and MTP", "difficulty": 4, "runtime": "pyodide", "concepts": ["adv.parallelism", "adv.zero", "adv.mixed-precision", "adv.checkpointing", "adv.mtp"], "hints": ["Mixed-precision Adam keeps per parameter: 2 bytes weights + 2 bytes gradients + 12 bytes optimizer (fp32 master copy, m and v). ZeRO-1 divides the 12 by N, ZeRO-2 also the gradients, ZeRO-3 also the weights.", "Checkpoint every k layers: memory = (L/k) * a_in + k * a_layer. Search k over 1..L and keep the smallest memory (smallest k on ties).", "Loss scaling: scale the gradient before casting to float16, cast back to float32 and divide by the scale. Dynamic scaling: halve on overflow, double after growth_interval clean steps."]}
+#@@ prompt
+Implement the arithmetic of large-scale training with NumPy.
+
+1. `model_state_gib(psi, n_gpus, stage, bytes_param=2, bytes_grad=2, bytes_opt=12)`: per-GPU GiB (2**30 bytes) for parameters, gradients and optimizer state of a `psi`-parameter model when ZeRO stage `stage` (0 = plain data parallel, 1 = shard optimizer state, 2 = also gradients, 3 = also parameters) is used on `n_gpus`. Activations are NOT included.
+2. `min_gpus(psi, stage, budget_gib)`: smallest number of GPUs (>= 1) whose per-GPU model state fits in `budget_gib`, or `None` if even 100000 GPUs would not fit (stage 0 never improves with more GPUs).
+3. `column_parallel(x, W, n)`: tensor parallelism, split `W` `(d_in, d_out)` into `n` column blocks, compute each `x @ W_i` separately, concatenate. `row_parallel(x, W, n)`: split `x` columns and `W` rows into `n` blocks and sum the partial products (the all-reduce). Both must equal `x @ W`.
+4. `bubble_fraction(p, m)`: fraction of the pipeline's time that a stage is idle with `p` stages and `m` micro-batches (GPipe-style): `(p-1)/(m+p-1)`. `bubble_overhead(p, m)`: extra time relative to the ideal, `(p-1)/m`.
+5. `checkpoint_memory(L, k, a_in, a_layer)`: activation memory when keeping only the input of every k-th layer and recomputing inside segments: `ceil(L/k)*a_in + k*a_layer`. `best_k(L, a_in, a_layer)`: the k in `1..L` minimising it (smallest k on ties). `step_cost_factor(recompute_fraction)`: FLOPs of one training step relative to no checkpointing, where a forward costs 1 unit, a backward 2, and `recompute_fraction` of a forward is repeated: `(3 + r)/3`.
+6. `scaled_fp16_grad(g, scale)`: cast `g * scale` to `np.float16`, then return it back as float32 divided by `scale`. `dynamic_scale(scale, found_inf, good_steps, growth_interval=2000)` -> `(new_scale, new_good_steps)`: on overflow halve the scale and reset the counter; otherwise increment the counter and, when it reaches `growth_interval`, double the scale and reset it.
+7. `mtp_loss(logits_list, tokens, lam)`: `logits_list[d]` has shape `(T, V)` and head `d` predicts the token `d + 1` positions ahead (head 0 is the usual next-token head). For each head the cross-entropy is averaged over the positions `i` for which `tokens[i + 1 + d]` exists, i.e. `i < len(tokens) - 1 - d` (use only the first `len(tokens) - 1 - d` rows of the logits). Return `(main, extra)` where `main` is head 0's loss and `extra = lam / D * sum(loss_d for d = 1..D)` with `D = len(logits_list) - 1` (0 if `D = 0`).
+#@@ starter
+import numpy as np
+
+def model_state_gib(psi, n_gpus, stage, bytes_param=2, bytes_grad=2, bytes_opt=12):
+    raise NotImplementedError
+
+def min_gpus(psi, stage, budget_gib):
+    raise NotImplementedError
+
+def column_parallel(x, W, n):
+    raise NotImplementedError
+
+def row_parallel(x, W, n):
+    raise NotImplementedError
+
+def bubble_fraction(p, m):
+    raise NotImplementedError
+
+def bubble_overhead(p, m):
+    raise NotImplementedError
+
+def checkpoint_memory(L, k, a_in, a_layer):
+    raise NotImplementedError
+
+def best_k(L, a_in, a_layer):
+    raise NotImplementedError
+
+def step_cost_factor(recompute_fraction):
+    raise NotImplementedError
+
+def scaled_fp16_grad(g, scale):
+    raise NotImplementedError
+
+def dynamic_scale(scale, found_inf, good_steps, growth_interval=2000):
+    raise NotImplementedError
+
+def mtp_loss(logits_list, tokens, lam):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+psi = 7.5e9
+check("plain data parallel: 16 bytes per parameter, 111.76 GiB", lambda: abs(model_state_gib(psi, 8, 0) - 111.7587) < 1e-3)
+check("ZeRO-1 on 8 GPUs", lambda: abs(model_state_gib(psi, 8, 1) - 38.4170) < 1e-3)
+check("ZeRO-2 on 8 GPUs", lambda: abs(model_state_gib(psi, 8, 2) - 26.1934) < 1e-3)
+check("ZeRO-3 on 8 GPUs = 16 psi / N", lambda: abs(model_state_gib(psi, 8, 3) - 13.9698) < 1e-3)
+check("stage 0 ignores the number of GPUs", lambda: model_state_gib(psi, 1, 0) == model_state_gib(psi, 64, 0))
+check("70B, ZeRO-3, 64 GPUs = 16.3 GiB", lambda: abs(model_state_gib(70e9, 64, 3) - 16.2981) < 1e-3)
+check("70B at stage 3 needs 14 GPUs for an 80 GiB budget", lambda: min_gpus(70e9, 3, 80) == 14)
+check("stage 0 never fits a 70B model in 80 GiB", lambda: min_gpus(70e9, 0, 80) is None)
+check("small model fits one GPU", lambda: min_gpus(1e9, 0, 80) == 1)
+rng = np.random.default_rng(0)
+x = rng.normal(size=(5, 12)); W = rng.normal(size=(12, 8))
+check("column-parallel equals x @ W", lambda: np.allclose(column_parallel(x, W, 4), x @ W))
+check("row-parallel (sum of partials) equals x @ W", lambda: np.allclose(row_parallel(x, W, 3), x @ W))
+check("bubble fraction: 4 stages, 1 micro-batch = 75%", lambda: abs(bubble_fraction(4, 1) - 0.75) < 1e-12)
+check("bubble fraction: 4 stages, 16 micro-batches", lambda: abs(bubble_fraction(4, 16) - 3 / 19) < 1e-12)
+check("bubble overhead (p-1)/m", lambda: abs(bubble_overhead(4, 16) - 0.1875) < 1e-12)
+check("checkpoint memory L=64, k=8, unit sizes", lambda: checkpoint_memory(64, 8, 1, 1) == 16)
+check("no checkpointing equivalent k = L keeps one input plus all layers", lambda: checkpoint_memory(64, 64, 1, 1) == 65)
+check("best k for L=64 is 8 (sqrt L)", lambda: best_k(64, 1, 1) == 8)
+check("cheap inputs favour more checkpoints", lambda: best_k(64, 0.25, 1) == 4)
+check("full recompute costs 4/3", lambda: abs(step_cost_factor(1.0) - 4 / 3) < 1e-12)
+check("selective recompute of 15% costs 5%", lambda: abs(step_cost_factor(0.15) - 1.05) < 1e-12)
+check("tiny gradient underflows in fp16 without scaling", lambda: scaled_fp16_grad(1e-8, 1.0) == 0.0)
+check("with scale 1024 it is recovered within 1%", lambda: abs(scaled_fp16_grad(1e-8, 1024.0) - 1e-8) / 1e-8 < 0.01)
+check("scaled gradient returns float32", lambda: np.asarray(scaled_fp16_grad(np.array([1e-8]), 1024.0)).dtype == np.float32)
+check("overflow with a huge scale gives inf", lambda: not np.isfinite(scaled_fp16_grad(1.0, 1e5)))
+check("dynamic scale halves on overflow", lambda: dynamic_scale(1024.0, True, 57) == (512.0, 0))
+check("dynamic scale counts clean steps", lambda: dynamic_scale(1024.0, False, 10) == (1024.0, 11))
+check("dynamic scale doubles after the interval", lambda: dynamic_scale(1024.0, False, 1999) == (2048.0, 0))
+V = 5
+tokens = np.array([1, 3, 0, 2, 4, 1])
+uni = [np.zeros((6, V)), np.zeros((6, V)), np.zeros((6, V))]
+m, e = mtp_loss(uni, tokens, 0.3)
+check("uniform logits give loss log V for every head", lambda: abs(m - np.log(V)) < 1e-12 and abs(e - 0.3 * np.log(V)) < 1e-12)
+perfect = np.full((6, V), -50.0)
+for i in range(5):
+    perfect[i, tokens[i + 1]] = 50.0
+m1, e1 = mtp_loss([perfect], tokens, 0.3)
+check("a perfect main head has ~0 loss and no extra term with D=0", lambda: m1 < 1e-9 and e1 == 0.0)
+#@@ solution
+import numpy as np
+
+def model_state_gib(psi, n_gpus, stage, bytes_param=2, bytes_grad=2, bytes_opt=12):
+    p, g, o = bytes_param * psi, bytes_grad * psi, bytes_opt * psi
+    if stage >= 1:
+        o = o / n_gpus
+    if stage >= 2:
+        g = g / n_gpus
+    if stage >= 3:
+        p = p / n_gpus
+    return (p + g + o) / 2 ** 30
+
+def min_gpus(psi, stage, budget_gib):
+    for n in range(1, 100001):
+        if model_state_gib(psi, n, stage) <= budget_gib:
+            return n
+        if stage == 0:
+            return None
+    return None
+
+def column_parallel(x, W, n):
+    return np.concatenate([x @ B for B in np.array_split(W, n, axis=1)], axis=1)
+
+def row_parallel(x, W, n):
+    xs = np.array_split(x, n, axis=1)
+    Ws = np.array_split(W, n, axis=0)
+    return sum(a @ b for a, b in zip(xs, Ws))
+
+def bubble_fraction(p, m):
+    return (p - 1) / (m + p - 1)
+
+def bubble_overhead(p, m):
+    return (p - 1) / m
+
+def checkpoint_memory(L, k, a_in, a_layer):
+    return int(np.ceil(L / k)) * a_in + k * a_layer
+
+def best_k(L, a_in, a_layer):
+    best, best_mem = 1, checkpoint_memory(L, 1, a_in, a_layer)
+    for k in range(2, L + 1):
+        mem = checkpoint_memory(L, k, a_in, a_layer)
+        if mem < best_mem - 1e-12:
+            best, best_mem = k, mem
+    return best
+
+def step_cost_factor(recompute_fraction):
+    return (3 + recompute_fraction) / 3
+
+def scaled_fp16_grad(g, scale):
+    with np.errstate(over="ignore"):
+        h = (np.asarray(g, dtype=np.float32) * np.float32(scale)).astype(np.float16)
+    return h.astype(np.float32) / np.float32(scale)
+
+def dynamic_scale(scale, found_inf, good_steps, growth_interval=2000):
+    if found_inf:
+        return scale / 2, 0
+    good_steps += 1
+    if good_steps >= growth_interval:
+        return scale * 2, 0
+    return scale, good_steps
+
+def _ce(logits, targets):
+    z = logits - logits.max(axis=1, keepdims=True)
+    logp = z - np.log(np.exp(z).sum(axis=1, keepdims=True))
+    return float(-np.mean(logp[np.arange(len(targets)), targets]))
+
+def mtp_loss(logits_list, tokens, lam):
+    losses = []
+    for d, lg in enumerate(logits_list):
+        n = len(tokens) - 1 - d
+        losses.append(_ce(lg[:n], tokens[1 + d:1 + d + n]))
+    D = len(logits_list) - 1
+    extra = lam / D * sum(losses[1:]) if D > 0 else 0.0
+    return losses[0], extra

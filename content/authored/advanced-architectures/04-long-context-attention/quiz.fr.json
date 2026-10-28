@@ -1,0 +1,66 @@
+[
+ {
+  "id": "adv.04.q1",
+  "prompt": "Dans l'attention causale à fenêtre glissante de taille $W$, la requête $i$ prête attention aux clés $j$ avec...",
+  "options": ["tous les $j\\le i$", "$i-W<j\\le i$", "$|i-j|>W$", "$j\\ge i$"],
+  "explanation": "Seulement les $W$ dernières positions, y compris elle-même."
+ },
+ {
+  "id": "adv.04.q2",
+  "prompt": "Combien de paires (requête,clé) autorisées une fenêtre glissante causale de 4 a-t-elle sur 8 tokens ?",
+  "options": [],
+  "explanation": "Les lignes 0..7 autorisent 1,2,3,4,4,4,4,4 clés : total 26 (le causal complet en a 36)."
+ },
+ {
+  "id": "adv.04.q3",
+  "prompt": "Pourquoi les modèles à fenêtre glissante entrelacent-ils généralement quelques couches d'attention globale ?",
+  "options": [
+   "Pour rendre le masque dense",
+   "Pour restaurer une récupération fiable à longue portée que les couches à fenêtre ne fournissent qu'indirectement via la profondeur",
+   "Pour réduire le nombre de paramètres",
+   "Parce que le softmax échoue avec des fenêtres"
+  ],
+  "explanation": "Des fenêtres empilées ont un champ réceptif $L(W-1)+1$ mais un rappel faible ; les couches globales rafraîchissent l'information à longue portée."
+ },
+ {
+  "id": "adv.04.q4",
+  "prompt": "Dans l'attention différentielle $(A_1-\\lambda A_2)V$, si $V$ ne contient que des uns et que chaque ligne de softmax somme à 1, chaque coordonnée de sortie est égale à...",
+  "options": ["$1+\\lambda$", "$\\lambda$", "$1-\\lambda$", "0"],
+  "explanation": "Les sommes de lignes de $A_1-\\lambda A_2$ valent $1-\\lambda$."
+ },
+ {
+  "id": "adv.04.q5",
+  "prompt": "Cache KV (GiB) pour 32 couches, 8 têtes KV, dimension de tête 128, 131072 tokens, BF16 ?",
+  "options": [],
+  "explanation": "$2\\cdot32\\cdot8\\cdot128\\cdot131072\\cdot2/2^{30}=16$ GiB."
+ },
+ {
+  "id": "adv.04.q6",
+  "prompt": "Passer de la MHA (32 têtes KV) à la GQA avec 8 têtes KV réduit le cache KV de...",
+  "options": ["2x", "4x", "8x", "32x"],
+  "explanation": "$32/8=4$."
+ },
+ {
+  "id": "adv.04.q7",
+  "prompt": "Que met en cache l'attention latente multi-têtes (MLA) par token et par couche ?",
+  "options": [
+   "K et V complets pour chaque tête",
+   "Un unique vecteur latent de bas rang à partir duquel K et V sont reconstruits",
+   "Seulement la requête",
+   "Rien"
+  ],
+  "explanation": "MLA met en cache le latent compressé $c_t\\in\\mathbb{R}^r$ et le projette vers le haut (ou absorbe la projection ascendante)."
+ },
+ {
+  "id": "adv.04.q8",
+  "prompt": "MLA avec dimension latente 512, 61 couches, 131072 tokens, BF16 (sans clé rope) : cache en GiB ?",
+  "options": [],
+  "explanation": "$61\\cdot512\\cdot131072\\cdot2/2^{30}=7.625$."
+ },
+ {
+  "id": "adv.04.q9",
+  "prompt": "En empilant $L=32$ couches à fenêtre glissante de taille $W=4096$, jusqu'où l'information peut-elle en principe remonter ?",
+  "options": ["4096", "$32\\cdot4095+1=131041$", "$32\\cdot4096^2$", "Illimité"],
+  "explanation": "Chaque couche étend la portée de $W-1$ positions."
+ }
+]

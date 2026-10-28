@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "nlp.04.ex1", "title": "Bigram language model, smoothing and perplexity", "difficulty": 3, "runtime": "pyodide", "concepts": ["nlp.ngram-lm"], "hints": ["Pad every sentence: t = ['<s>'] + s.split() + ['</s>']. uni counts t[1:], ctx counts t[:-1], bi counts the pairs zip(t[:-1], t[1:]).", "add-k: (bi[(a,b)] + k) / (ctx[a] + k * V) with V = len(uni). interpolation: lam * mle + (1 - lam) * uni[b] / sum(uni.values()).", "perplexity = exp(-mean log p) over ALL predicted tokens of ALL sentences (including </s>); if some p is 0 return float('inf')."]}
+#@@ prompt
+Implement a bigram language model on whitespace-tokenised sentences.
+
+- `build_counts(sentences)` -> `(uni, bi, ctx)` as `collections.Counter`s. Pad each sentence with `<s>` and `</s>`. `uni` counts predicted tokens (everything after `<s>`, including `</s>`), `ctx` counts tokens used as context (everything except `</s>`), `bi` counts adjacent pairs.
+- `p_mle(a, b, uni, bi, ctx)` = `c(a,b)/c(a)` (0 if the context is unseen).
+- `p_addk(a, b, uni, bi, ctx, k)` using `|V| = len(uni)`.
+- `p_interp(a, b, uni, bi, ctx, lam)` = `lam * p_mle + (1 - lam) * unigram probability`.
+- `p_stupid(a, b, uni, bi, ctx, alpha=0.4)`: the MLE bigram estimate if the bigram was seen, else `alpha` times the unigram probability.
+- `perplexity(sentences, prob)` where `prob(a, b)` is a function of one bigram; return `inf` if any probability is zero.
+#@@ starter
+import numpy as np
+from collections import Counter
+
+def build_counts(sentences):
+    raise NotImplementedError
+
+def p_mle(a, b, uni, bi, ctx):
+    raise NotImplementedError
+
+def p_addk(a, b, uni, bi, ctx, k):
+    raise NotImplementedError
+
+def p_interp(a, b, uni, bi, ctx, lam):
+    raise NotImplementedError
+
+def p_stupid(a, b, uni, bi, ctx, alpha=0.4):
+    raise NotImplementedError
+
+def perplexity(sentences, prob):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+train = ["the cat sat on the mat", "the dog sat on the rug", "the cat saw the dog"]
+uni, bi, ctx = build_counts(train)
+check("vocabulary size 9", lambda: len(uni) == 9)
+check("counts", lambda: ctx["the"] == 6 and bi[("the", "cat")] == 2 and uni["</s>"] == 3 and ctx["<s>"] == 3)
+check("MLE P(cat|the) = 1/3", lambda: abs(p_mle("the", "cat", uni, bi, ctx) - 1 / 3) < 1e-12)
+check("MLE of unseen bigram is 0", lambda: p_mle("mat", "saw", uni, bi, ctx) == 0)
+check("add-1 P(cat|the) = 0.2", lambda: abs(p_addk("the", "cat", uni, bi, ctx, 1) - 0.2) < 1e-12)
+check("add-k is a distribution", lambda: abs(sum(p_addk("the", w, uni, bi, ctx, 0.5) for w in uni) - 1) < 1e-12)
+check("interpolation P(rug|the) = 0.13167", lambda: abs(p_interp("the", "rug", uni, bi, ctx, 0.7) - (0.7 / 6 + 0.3 / 20)) < 1e-12)
+check("interpolation is a distribution", lambda: abs(sum(p_interp("the", w, uni, bi, ctx, 0.7) for w in uni) - 1) < 1e-12)
+check("stupid backoff, seen bigram", lambda: abs(p_stupid("the", "cat", uni, bi, ctx) - 1 / 3) < 1e-12)
+check("stupid backoff, unseen bigram", lambda: abs(p_stupid("mat", "rug", uni, bi, ctx) - 0.4 / 20) < 1e-12)
+t1 = ["the dog sat on the mat"]
+t2 = ["the mat saw the cat"]
+check("MLE perplexity of seen-bigram sentence 1.6685", lambda: abs(perplexity(t1, lambda a, b: p_mle(a, b, uni, bi, ctx)) - 1.6685) < 1e-3)
+check("add-1 perplexity 4.5694", lambda: abs(perplexity(t1, lambda a, b: p_addk(a, b, uni, bi, ctx, 1)) - 4.5694) < 1e-3)
+check("add-0.1 perplexity 2.1681", lambda: abs(perplexity(t1, lambda a, b: p_addk(a, b, uni, bi, ctx, 0.1)) - 2.1681) < 1e-3)
+check("MLE perplexity is infinite with an unseen bigram", lambda: perplexity(t2, lambda a, b: p_mle(a, b, uni, bi, ctx)) == float("inf"))
+check("add-1 perplexity of sentence 2 = 6.2891", lambda: abs(perplexity(t2, lambda a, b: p_addk(a, b, uni, bi, ctx, 1)) - 6.2891) < 1e-3)
+check("interpolated perplexity of sentence 2 = 6.3960", lambda: abs(perplexity(t2, lambda a, b: p_interp(a, b, uni, bi, ctx, 0.7)) - 6.3960) < 1e-3)
+check("uniform model has perplexity |V|", lambda: abs(perplexity(t1, lambda a, b: 1 / 9) - 9) < 1e-9)
+#@@ solution
+import numpy as np
+from collections import Counter
+
+def build_counts(sentences):
+    uni, bi, ctx = Counter(), Counter(), Counter()
+    for s in sentences:
+        t = ["<s>"] + s.split() + ["</s>"]
+        uni.update(t[1:])
+        ctx.update(t[:-1])
+        bi.update(zip(t[:-1], t[1:]))
+    return uni, bi, ctx
+
+def p_mle(a, b, uni, bi, ctx):
+    return bi[(a, b)] / ctx[a] if ctx[a] else 0.0
+
+def p_addk(a, b, uni, bi, ctx, k):
+    return (bi[(a, b)] + k) / (ctx[a] + k * len(uni))
+
+def p_interp(a, b, uni, bi, ctx, lam):
+    return lam * p_mle(a, b, uni, bi, ctx) + (1 - lam) * uni[b] / sum(uni.values())
+
+def p_stupid(a, b, uni, bi, ctx, alpha=0.4):
+    if bi[(a, b)] > 0:
+        return bi[(a, b)] / ctx[a]
+    return alpha * uni[b] / sum(uni.values())
+
+def perplexity(sentences, prob):
+    ll, n = 0.0, 0
+    for s in sentences:
+        t = ["<s>"] + s.split() + ["</s>"]
+        for a, b in zip(t[:-1], t[1:]):
+            p = prob(a, b)
+            if p <= 0:
+                return float("inf")
+            ll += np.log(p)
+            n += 1
+    return float(np.exp(-ll / n))

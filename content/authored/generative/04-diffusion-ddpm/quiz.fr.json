@@ -1,0 +1,80 @@
+[
+ {
+  "id": "gen.04.q1",
+  "prompt": "Dans les DDPM, le processus direct (de bruitage) est...",
+  "options": [
+   "appris conjointement avec le processus inverse",
+   "une chaîne de Markov fixe ajoutant du bruit gaussien",
+   "un générateur de GAN",
+   "un flou déterministe"
+  ],
+  "explanation": "Seul le modèle inverse est entraîné ; la chaîne directe est fixée par le calendrier."
+ },
+ {
+  "id": "gen.04.q2",
+  "prompt": "$q(x_t\\mid x_0)$ est...",
+  "options": [
+   "$\\mathcal N(x_0,\\beta_tI)$",
+   "$\\mathcal N(\\sqrt{\\bar\\alpha_t}x_0,(1-\\bar\\alpha_t)I)$",
+   "$\\mathcal N(0,I)$ pour tout $t$",
+   "$\\mathcal N(\\bar\\alpha_tx_0,\\bar\\alpha_tI)$"
+  ],
+  "explanation": "Les bruits gaussiens indépendants s'additionnent ; les variances se somment en $1-\\bar\\alpha_t$."
+ },
+ {
+  "id": "gen.04.q3",
+  "prompt": "Avec $\\beta_1=0.1$ et $\\beta_2=0.2$, que vaut $\\bar\\alpha_2$ ?",
+  "options": [],
+  "explanation": "$(1-0.1)(1-0.2)=0.9\\cdot0.8=0.72$."
+ },
+ {
+  "id": "gen.04.q4",
+  "prompt": "Le réseau d'un DDPM est entraîné à prédire...",
+  "options": [
+   "exactement l'image suivante $x_{t-1}$",
+   "le bruit $\\varepsilon$ qui a été ajouté pour former $x_t$",
+   "le calendrier $\\beta_t$",
+   "l'étiquette de classe"
+  ],
+  "explanation": "$L_\\text{simple}=\\|\\varepsilon-\\varepsilon_\\theta(x_t,t)\\|^2$."
+ },
+ {
+  "id": "gen.04.q5",
+  "prompt": "Pourquoi l'entraînement peut-il choisir un $t$ aléatoire et éviter de simuler la chaîne ?",
+  "options": [
+   "la perte ignore $t$",
+   "la forme close $x_t=\\sqrt{\\bar\\alpha_t}x_0+\\sqrt{1-\\bar\\alpha_t}\\varepsilon$ saute à n'importe quelle étape",
+   "le réseau est récurrent",
+   "le calendrier est constant"
+  ],
+  "explanation": "Les sommes de gaussiennes indépendantes sont gaussiennes."
+ },
+ {
+  "id": "gen.04.q6",
+  "prompt": "Pour $x_0\\sim\\mathcal N(3,0.25)$ et $\\bar\\alpha_t=0.4$, quelle est la variance de $x_t$ ? (3 décimales)",
+  "options": [],
+  "explanation": "$\\bar\\alpha s_0^2+1-\\bar\\alpha=0.4\\cdot0.25+0.6=0.7$."
+ },
+ {
+  "id": "gen.04.q7",
+  "prompt": "Le principal coût de l'échantillonnage ancestral d'un DDPM est...",
+  "options": [
+   "le calcul de la perte",
+   "$T$ évaluations séquentielles du réseau",
+   "la taille du jeu de données",
+   "l'algèbre gaussienne"
+  ],
+  "explanation": "Un appel au réseau par étape, typiquement de quelques centaines à mille."
+ },
+ {
+  "id": "gen.04.q8",
+  "prompt": "Pour des données gaussiennes, le prédicteur de bruit optimal $\\varepsilon^*(x_t,t)$ est égal à...",
+  "options": [
+   "la moyenne conditionnelle $\\mathbb E[\\varepsilon\\mid x_t]$",
+   "zéro",
+   "un échantillon de $\\mathcal N(0,I)$",
+   "$x_t$"
+  ],
+  "explanation": "L'erreur quadratique est minimisée par l'espérance conditionnelle ; elle vaut $(x_t-\\sqrt{\\bar\\alpha_t}\\mathbb E[x_0|x_t])/\\sqrt{1-\\bar\\alpha_t}$."
+ }
+]

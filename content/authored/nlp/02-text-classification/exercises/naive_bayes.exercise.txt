@@ -1,0 +1,95 @@
+#@@ meta
+{"id": "nlp.02.ex1", "title": "Multinomial Naive Bayes and F1 from scratch", "difficulty": 3, "runtime": "pyodide", "concepts": ["nlp.text-classification"], "hints": ["Per class: log_prior = log(#docs in class / #docs); counts[j] = how often token j occurs in the class docs; log_theta = log((counts + alpha) / (counts.sum() + alpha * V)).", "Score of a document = log_prior + sum of log_theta[:, index of w] over its known tokens (skip unknown words). Return a vector of shape (C,).", "precision = TP / (TP + FP), recall = TP / (TP + FN), F1 = 2PR/(P+R); return 0.0 when a denominator is 0."]}
+#@@ prompt
+Build a multinomial Naive Bayes text classifier and the metrics used to judge it.
+
+- `train_nb(docs, labels, alpha=1.0)` -> `(classes, vocab, log_prior, log_theta)`. `docs` is a list of token lists. `classes` and `vocab` are sorted lists; `log_prior` has shape `(C,)`; `log_theta` has shape `(C, V)` with add-`alpha` smoothing (denominator `total_tokens_in_class + alpha * V`).
+- `nb_scores(doc, vocab, log_prior, log_theta)` -> vector `(C,)` of unnormalised log posteriors; tokens not in `vocab` are ignored.
+- `nb_predict(doc, classes, vocab, log_prior, log_theta)` -> the best class label.
+- `nb_proba(scores)` -> softmax of the scores (numerically stable: subtract the max first).
+- `prf(y_true, y_pred, positive)` -> `(precision, recall, f1)` for the class `positive`; return 0.0 for undefined ratios.
+#@@ starter
+import numpy as np
+
+def train_nb(docs, labels, alpha=1.0):
+    raise NotImplementedError
+
+def nb_scores(doc, vocab, log_prior, log_theta):
+    raise NotImplementedError
+
+def nb_predict(doc, classes, vocab, log_prior, log_theta):
+    raise NotImplementedError
+
+def nb_proba(scores):
+    raise NotImplementedError
+
+def prf(y_true, y_pred, positive):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+train = [("great movie loved it", "pos"), ("loved the great acting", "pos"), ("fun and great", "pos"),
+         ("boring movie", "neg"), ("terrible boring plot", "neg"), ("bad acting boring", "neg")]
+docs = [s.split() for s, _ in train]
+labels = [l for _, l in train]
+classes, vocab, lp, lt = train_nb(docs, labels, 1.0)
+check("classes sorted", lambda: list(classes) == ["neg", "pos"])
+check("vocabulary has 12 words", lambda: len(vocab) == 12 and list(vocab) == sorted(vocab))
+check("shapes", lambda: np.shape(lp) == (2,) and np.shape(lt) == (2, 12))
+check("each row of theta sums to 1", lambda: np.allclose(np.exp(lt).sum(axis=1), 1))
+check("priors are 0.5", lambda: np.allclose(np.exp(lp), 0.5))
+s = nb_scores("great boring movie".split(), vocab, lp, lt)
+check("worked example scores neg=-7.6009 pos=-8.0202", lambda: np.allclose(s, [-7.6009, -8.0202], atol=1e-3))
+check("predict great boring movie -> neg", lambda: nb_predict("great boring movie".split(), classes, vocab, lp, lt) == "neg")
+check("predict great fun movie -> pos", lambda: nb_predict("great fun movie".split(), classes, vocab, lp, lt) == "pos")
+check("unknown words ignored", lambda: np.allclose(nb_scores(["zebra", "terrible", "plot"], vocab, lp, lt), nb_scores(["terrible", "plot"], vocab, lp, lt)))
+p = nb_proba(nb_scores("great boring movie".split(), vocab, lp, lt))
+check("softmax P(neg)=0.6033", lambda: abs(p[0] - 0.6033) < 1e-3 and abs(p.sum() - 1) < 1e-12)
+check("softmax stable for huge negative scores", lambda: np.allclose(nb_proba(np.array([-1000., -1001.])), [0.7311, 0.2689], atol=1e-3))
+y_true = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+y_pred = [1, 1, 0, 1, 1, 0, 0, 0, 0, 0]
+P, R, F = prf(y_true, y_pred, 1)
+check("precision 0.5, recall 2/3, F1 0.5714", lambda: abs(P - 0.5) < 1e-9 and abs(R - 2 / 3) < 1e-9 and abs(F - 0.5714) < 1e-3)
+check("always-negative gets zero recall and F1", lambda: prf(y_true, [0] * 10, 1) == (0.0, 0.0, 0.0))
+check("smaller alpha sharpens probabilities", lambda: train_nb(docs, labels, 0.1)[3].max() > lt.max())
+#@@ solution
+import numpy as np
+
+def train_nb(docs, labels, alpha=1.0):
+    vocab = sorted({w for d in docs for w in d})
+    ix = {w: i for i, w in enumerate(vocab)}
+    classes = sorted(set(labels))
+    log_prior = np.zeros(len(classes))
+    log_theta = np.zeros((len(classes), len(vocab)))
+    for c, cls in enumerate(classes):
+        cls_docs = [d for d, l in zip(docs, labels) if l == cls]
+        log_prior[c] = np.log(len(cls_docs) / len(docs))
+        counts = np.zeros(len(vocab))
+        for d in cls_docs:
+            for w in d:
+                counts[ix[w]] += 1
+        log_theta[c] = np.log((counts + alpha) / (counts.sum() + alpha * len(vocab)))
+    return classes, vocab, log_prior, log_theta
+
+def nb_scores(doc, vocab, log_prior, log_theta):
+    ix = {w: i for i, w in enumerate(vocab)}
+    s = np.array(log_prior, dtype=float)
+    for w in doc:
+        if w in ix:
+            s = s + log_theta[:, ix[w]]
+    return s
+
+def nb_predict(doc, classes, vocab, log_prior, log_theta):
+    return classes[int(np.argmax(nb_scores(doc, vocab, log_prior, log_theta)))]
+
+def nb_proba(scores):
+    e = np.exp(scores - np.max(scores))
+    return e / e.sum()
+
+def prf(y_true, y_pred, positive):
+    tp = sum(1 for t, p in zip(y_true, y_pred) if t == positive and p == positive)
+    fp = sum(1 for t, p in zip(y_true, y_pred) if t != positive and p == positive)
+    fn = sum(1 for t, p in zip(y_true, y_pred) if t == positive and p != positive)
+    P = tp / (tp + fp) if tp + fp else 0.0
+    R = tp / (tp + fn) if tp + fn else 0.0
+    F = 2 * P * R / (P + R) if P + R else 0.0
+    return P, R, F

@@ -1,0 +1,131 @@
+[
+ {
+  "id": "mx.03.q1",
+  "concept": "mx.graph",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "What does the entry $(A^k)_{ij}$ of the $k$-th power of an adjacency matrix count?",
+  "options": [
+   "Shortest paths of length $k$",
+   "Walks of length exactly $k$ from $i$ to $j$",
+   "Nodes at distance $k$",
+   "Edges added after $k$ steps"
+  ],
+  "answer": 1,
+  "explanation": "Induction: $(A^{k+1})_{ij}=\\sum_m(A^k)_{im}A_{mj}$."
+ },
+ {
+  "id": "mx.03.q2",
+  "concept": "mx.graph",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A triangle graph has $\\operatorname{trace}(A^3)=$ ?",
+  "options": [],
+  "answer": {
+   "value": 6,
+   "tol": 0.001
+  },
+  "explanation": "$6\\times$ number of triangles: 3 start nodes times 2 directions."
+ },
+ {
+  "id": "mx.03.q3",
+  "concept": "mx.laplacian",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "$x^\\top Lx$ equals...",
+  "options": [
+   "$\\sum_i d_ix_i$",
+   "$\\sum_{\\text{edges}}(x_i-x_j)^2$",
+   "$\\sum_{\\text{edges}}(x_i+x_j)^2$",
+   "$\\|Ax\\|^2$"
+  ],
+  "answer": 1,
+  "explanation": "Expanding $D-A$ gives the sum of squared differences over edges, hence $L$ is positive semi-definite."
+ },
+ {
+  "id": "mx.03.q4",
+  "concept": "mx.laplacian",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A graph has 3 connected components. How many zero eigenvalues does its Laplacian have?",
+  "options": [],
+  "answer": {
+   "value": 3,
+   "tol": 0.001
+  },
+  "explanation": "The eigenspace of 0 is spanned by the 3 component indicator vectors."
+ },
+ {
+  "id": "mx.03.q5",
+  "concept": "mx.laplacian",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which eigenvector of $L$ is used for spectral bisection?",
+  "options": [
+   "The one for the largest eigenvalue",
+   "The constant vector",
+   "The one for the second smallest eigenvalue (Fiedler vector)",
+   "The one for the smallest eigenvalue"
+  ],
+  "answer": 2,
+  "explanation": "The smallest eigenvector is the constant vector (trivial). The next one minimises roughness subject to being orthogonal to it."
+ },
+ {
+  "id": "mx.03.q6",
+  "concept": "mx.laplacian",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A small $\\lambda_2$ of the Laplacian suggests...",
+  "options": [
+   "a bottleneck: the graph nearly splits in two",
+   "a complete graph",
+   "a directed graph",
+   "many triangles"
+  ],
+  "answer": 0,
+  "explanation": "$\\lambda_2=0$ iff disconnected; a small value means a nearly disconnected graph."
+ },
+ {
+  "id": "mx.03.q7",
+  "concept": "mx.pagerank",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why does PageRank add teleportation?",
+  "options": [
+   "To make the graph undirected",
+   "To reduce the matrix size",
+   "To fix dead ends and make the chain converge to a unique positive vector",
+   "To make $P$ symmetric"
+  ],
+  "answer": 2,
+  "explanation": "Dangling nodes and trapped groups break uniqueness; $G=dP+\\frac{1-d}{n}\\mathbf 1\\mathbf 1^\\top$ is strictly positive."
+ },
+ {
+  "id": "mx.03.q8",
+  "concept": "mx.pagerank",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "PageRank is mathematically...",
+  "options": [
+   "the dominant left eigenvector of the Google matrix, eigenvalue 1",
+   "the degree of each node",
+   "the smallest Laplacian eigenvector",
+   "the number of in-links"
+  ],
+  "answer": 0,
+  "explanation": "$r=rG$ with $\\sum r_i=1$."
+ },
+ {
+  "id": "mx.03.q9",
+  "concept": "mx.pagerank",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "For $d=0.85$, after about how many power-iteration steps has the error bound $d^t$ fallen below $0.001$? (round up)",
+  "options": [],
+  "answer": {
+   "value": 43,
+   "tol": 1.5
+  },
+  "explanation": "$0.85^t<10^{-3}\\Rightarrow t>\\ln(10^{-3})/\\ln0.85\\approx42.5$, so 43."
+ }
+]

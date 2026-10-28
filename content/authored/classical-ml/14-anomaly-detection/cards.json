@@ -1,0 +1,86 @@
+[
+ {
+  "id": "cml.14.c1",
+  "concept": "ml.anomaly",
+  "front": "Point, contextual and collective anomaly",
+  "back": "Point: one odd value. Contextual: odd given its context (season, location). Collective: a group is odd although each element is not."
+ },
+ {
+  "id": "cml.14.c2",
+  "concept": "ml.anomaly",
+  "front": "Why model normal data?",
+  "back": "Anomalies are rare and ever-changing, so labelled examples are scarce; anything unlike normal is suspicious, including unseen types."
+ },
+ {
+  "id": "cml.14.c3",
+  "concept": "ml.anomaly",
+  "front": "Z-score",
+  "back": "$z=(x-\\mu)/\\sigma$; flag $|z|>3$. Assumes roughly Gaussian data and suffers masking."
+ },
+ {
+  "id": "cml.14.c4",
+  "concept": "ml.anomaly",
+  "front": "Masking",
+  "back": "Outliers inflate the mean and standard deviation, which hides them from the test. Fix: median and MAD."
+ },
+ {
+  "id": "cml.14.c5",
+  "concept": "ml.anomaly",
+  "front": "Robust z-score",
+  "back": "$0.6745\\,(x-\\mathrm{median})/\\mathrm{MAD}$, with $\\mathrm{MAD}=\\mathrm{median}|x_i-\\mathrm{median}|$."
+ },
+ {
+  "id": "cml.14.c6",
+  "concept": "ml.anomaly",
+  "front": "Mahalanobis distance",
+  "back": "$D(x)=\\sqrt{(x-\\mu)^\\top\\Sigma^{-1}(x-\\mu)}$: Euclidean distance after whitening; mean of $D^2$ is about $d$ for Gaussian data."
+ },
+ {
+  "id": "cml.14.c7",
+  "concept": "ml.anomaly",
+  "front": "Weaknesses of Mahalanobis",
+  "back": "Mean and covariance are contaminated by outliers, $\\Sigma$ may be singular ($d>N$ or collinear features), and it assumes one elliptical blob."
+ },
+ {
+  "id": "cml.14.c8",
+  "concept": "ml.iforest",
+  "front": "Isolation forest idea",
+  "back": "Random cuts isolate anomalies in few splits; score by the average path length over many trees."
+ },
+ {
+  "id": "cml.14.c9",
+  "concept": "ml.iforest",
+  "front": "Isolation tree construction",
+  "back": "Random feature, uniform threshold between node min and max, depth limit $\\lceil\\log_2\\psi\\rceil$, subsample $\\psi$ (often 256)."
+ },
+ {
+  "id": "cml.14.c10",
+  "concept": "ml.iforest",
+  "front": "Normaliser $c(n)$",
+  "back": "$c(n)=2(\\ln(n-1)+0.5772)-2(n-1)/n$, the average unsuccessful-search path in a binary search tree; $c(2)=1$."
+ },
+ {
+  "id": "cml.14.c11",
+  "concept": "ml.iforest",
+  "front": "Isolation score",
+  "back": "$s(x)=2^{-E[h(x)]/c(\\psi)}$: near 1 anomalous, about 0.5 average, well below 0.5 very normal."
+ },
+ {
+  "id": "cml.14.c12",
+  "concept": "ml.anomaly",
+  "front": "Local outlier factor",
+  "back": "Ratio of neighbours' local density to the point's own density; about 1 normal, much above 1 an outlier in a locally dense region."
+ },
+ {
+  "id": "cml.14.c13",
+  "concept": "ml.anomaly",
+  "front": "What does contamination do?",
+  "back": "It only sets the threshold (flag the top fraction); it does not change the scores."
+ },
+ {
+  "id": "cml.14.c14",
+  "concept": "ml.anomaly",
+  "front": "Evaluating detectors with few labels",
+  "back": "Precision@k, PR-AUC, synthetic injections, stability across seeds, rank agreement and human feedback; evaluate on later data."
+ }
+]

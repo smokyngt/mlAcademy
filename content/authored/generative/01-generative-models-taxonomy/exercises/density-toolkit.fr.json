@@ -1,0 +1,10 @@
+{
+ "id": "gen.01.ex1",
+ "title": "Estimation de densité, échantillonnage et Bayes",
+ "prompt": "Construis la boîte à outils de densité et d'échantillonnage utilisée dans la leçon (NumPy uniquement).\n\n- `gauss_logpdf(x, mu, sigma)` : log-densité de $\\mathcal N(\\mu,\\sigma^2)$.\n- `gmm_logpdf(x, w, mu, sigma)` : log-densité d'un mélange gaussien 1-D, de forme `(N,)` ; utilise le log-sum-exp pour que les points éloignés ne provoquent pas d'underflow.\n- `gmm_sample(n, w, mu, sigma, rng)` : échantillonnage ancestral (choisis une composante avec `rng.choice`, puis tire une normale).\n- `mle_gauss(x)` : moyenne et écart-type (biaisé) au maximum de vraisemblance.\n- `avg_nll(logp)` : log-vraisemblance négative moyenne.\n- `generative_classify(x, priors, mus, sigmas)` : probabilités a posteriori de classe `(N, C)` à partir de densités conditionnelles gaussiennes via la règle de Bayes.",
+ "hints": [
+  "gmm_logpdf : construis une matrice (N,K) log(w_k)+log N(x|mu_k,sigma_k), soustrais le maximum de chaque ligne, exp, somme, log, puis rajoute le maximum.",
+  "gmm_sample : k = rng.choice(len(w), size=n, p=w), puis rng.normal(mu[k], sigma[k]) (tableaux d'indices).",
+  "generative_classify est un softmax sur log a priori + log vraisemblance."
+ ]
+}

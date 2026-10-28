@@ -1,0 +1,168 @@
+[
+  {
+    "id": "aliasing",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Aliasing, drawn: a 7 kHz cosine (blue) and a 3 kHz cosine (orange), time in milliseconds, sampled at 10 kHz (red dots, one every 0.1 ms). The dots lie on both curves, so after sampling a 7 kHz tone is indistinguishable from a 3 kHz one.",
+      "fr": "L'aliasing en image : un cosinus à 7 kHz (bleu) et un cosinus à 3 kHz (orange), temps en millisecondes, échantillonnés à 10 kHz (points rouges, un toutes les 0,1 ms). Les points sont sur les deux courbes : après échantillonnage un son à 7 kHz ne se distingue pas d'un son à 3 kHz."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -1.3,
+        1.3
+      ],
+      "title": "t (ms)",
+      "data": [
+        {
+          "fn": "cos(6.2831853*7*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "cos(6.2831853*3*x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.1,
+              -0.309
+            ],
+            [
+              0.2,
+              -0.809
+            ],
+            [
+              0.3,
+              0.809
+            ],
+            [
+              0.4,
+              0.309
+            ],
+            [
+              0.5,
+              -1
+            ],
+            [
+              0.6,
+              0.309
+            ],
+            [
+              0.7,
+              0.809
+            ],
+            [
+              0.8,
+              -0.809
+            ],
+            [
+              0.9,
+              -0.309
+            ],
+            [
+              1,
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "alias-fold",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Folding of frequencies into [0, fs/2] for fs = 16 kHz: f_alias = min(f mod fs, fs - f mod fs). A 9 kHz tone shows up at 7 kHz, as in the lesson's alias_freq(9000, 16000).",
+      "fr": "Repliement des fréquences dans [0, fs/2] pour fs = 16 kHz : f_alias = min(f mod fs, fs - f mod fs). Un son à 9 kHz apparaît à 7 kHz, comme dans alias_freq(9000, 16000) de la leçon."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        40
+      ],
+      "yDomain": [
+        0,
+        9
+      ],
+      "title": "f (kHz)",
+      "data": [
+        {
+          "fn": "min(mod(x,16), 16 - mod(x,16))",
+          "color": "#7c3aed"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 8,
+          "text": "Nyquist = 8 kHz"
+        }
+      ]
+    }
+  },
+  {
+    "id": "hann-cola",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Hann window w = 1/2 - 1/2 cos(2 pi n/N) with n/N on the axis (blue), and the same window shifted by half a frame (orange). With hop H = N/2 the two add up to exactly 1 (green): the constant overlap-add property.",
+      "fr": "Fenêtre de Hann w = 1/2 - 1/2 cos(2 pi n/N) avec n/N en abscisse (bleu), et la même fenêtre décalée d'une demi-trame (orange). Avec un saut H = N/2 les deux s'additionnent exactement à 1 (vert) : propriété de recouvrement-addition constant."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1.2
+      ],
+      "title": "n / N",
+      "data": [
+        {
+          "fn": "0.5 - 0.5*cos(6.2831853*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5 - 0.5*cos(6.2831853*(x - 0.5))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "(0.5 - 0.5*cos(6.2831853*x)) + (0.5 - 0.5*cos(6.2831853*(x - 0.5)))",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "stft-pipeline",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The STFT as a pipeline: cut the signal into frames of N samples every H samples, taper with a window, take the DFT of each frame and keep the magnitude. The result has T = 1 + floor((L - N)/H) frames and N/2 + 1 bins.",
+      "fr": "La STFT en pipeline : découper le signal en trames de N échantillons tous les H échantillons, adoucir avec une fenêtre, prendre la DFT de chaque trame et garder le module. Le résultat a T = 1 + floor((L - N)/H) trames et N/2 + 1 bins."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"waveform x (L,)\"] --> FR[\"frames (T, N)<br/>hop H\"]\n  FR --> WN[\"x Hann window w[n]\"]\n  WN --> FFT[\"DFT of each frame\"]\n  FFT --> MG[\"magnitude |X[t,k]|<br/>(T, N/2+1)\"]\n  MG --> SP[\"spectrogram image\"]",
+      "fr": "flowchart LR\n  X[\"signal x (L,)\"] --> FR[\"trames (T, N)<br/>saut H\"]\n  FR --> WN[\"x fenêtre de Hann w[n]\"]\n  WN --> FFT[\"DFT de chaque trame\"]\n  FFT --> MG[\"module |X[t,k]|<br/>(T, N/2+1)\"]\n  MG --> SP[\"image du spectrogramme\"]"
+    }
+  }
+]

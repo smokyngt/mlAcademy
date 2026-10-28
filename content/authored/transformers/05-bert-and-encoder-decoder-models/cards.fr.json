@@ -1,0 +1,17 @@
+[
+  {"id": "trf.05.c1", "front": "Modélisation de langage masquée", "back": "Cacher ~15 % des tokens et les prédire à partir des deux côtés. Perte : entropie croisée moyenne sur les seules positions sélectionnées."},
+  {"id": "trf.05.c2", "front": "La règle 80/10/10", "back": "Parmi les tokens sélectionnés : 80 % deviennent le masque, 10 % un token aléatoire, 10 % restent inchangés. Tous sont dans la perte."},
+  {"id": "trf.05.c3", "front": "Pourquoi ne pas toujours utiliser le token de masque ?", "back": "Le masque n'apparaît jamais à l'inférence. Les tokens aléatoires et inchangés forcent de bonnes représentations à chaque position."},
+  {"id": "trf.05.c4", "front": "Perte MLM d'un tirage uniforme", "back": "$\\log V$ pour un vocabulaire de $V$ tokens : une vérification de cohérence de la perte initiale."},
+  {"id": "trf.05.c5", "front": "Seconde tâche de pré-entraînement de BERT (support du CNAM)", "back": "Dire si deux phrases sont consécutives dans le corpus ou indépendantes (prédiction de la phrase suivante). Souvent abandonnée par la suite."},
+  {"id": "trf.05.c6", "front": "Tête de classification de BERT", "back": "Lit le vecteur `[CLS]` $(B,d)$ ; $W\\in\\mathbb{R}^{d\\times K}$ ; logits $(B,K)$."},
+  {"id": "trf.05.c7", "front": "Tête d'étiquetage (NER) de BERT", "back": "La même couche linéaire sur chaque vecteur de token : $(B,T,d)\\to(B,T,K)$."},
+  {"id": "trf.05.c8", "front": "Tête de QA par segment de BERT", "back": "Des vecteurs de début et de fin donnent deux tableaux de scores $(B,T)$ ; la réponse est le meilleur segment $i\\le j$ du passage."},
+  {"id": "trf.05.c9", "front": "Recette de fine-tuning", "back": "Charger l'encodeur pré-entraîné, ajouter une tête, entraîner sur un petit jeu étiqueté avec un faible taux d'apprentissage."},
+  {"id": "trf.05.c10", "front": "Pourquoi BERT est-il peu adapté à la traduction ?", "back": "C'est un encodeur : il n'a pas de décodeur pour écrire du texte en sortie (support du CNAM, p.21)."},
+  {"id": "trf.05.c11", "front": "BART en une ligne", "back": "Encodeur-décodeur pré-entraîné à reconstruire le texte original à partir d'une version corrompue."},
+  {"id": "trf.05.c12", "front": "Corruption de segments de T5", "back": "Remplacer des segments par des sentinelles dans l'entrée ; la cible est chaque sentinelle suivie de son segment, plus une sentinelle de fermeture."},
+  {"id": "trf.05.c13", "front": "Cadrage texte-vers-texte de T5", "back": "Chaque tâche est chaîne en entrée, chaîne en sortie, avec un préfixe de tâche : un seul modèle et une seule perte pour de nombreuses tâches."},
+  {"id": "trf.05.c14", "front": "Objectif de GPT", "back": "Masque causal ; $-\\frac1T\\sum_i\\log p(x_i\\mid x_{<i})$ ; un signal d'entraînement à chaque position."},
+  {"id": "trf.05.c15", "front": "Choisir une famille", "back": "Encodeur : classification, étiquetage, QA extractive, embeddings. Décodeur : génération libre, few-shot. Encodeur-décodeur : traduction, résumé, réécriture."}
+]

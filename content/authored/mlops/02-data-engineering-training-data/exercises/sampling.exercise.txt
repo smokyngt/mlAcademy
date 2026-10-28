@@ -1,0 +1,58 @@
+#@@ meta
+{"id": "ops.02.ex1", "title": "Reservoir and stratified sampling", "difficulty": 3, "runtime": "pyodide", "concepts": ["ops.sampling"], "hints": ["Reservoir: keep the first k items; for the item with 0-based index n >= k draw j = rng.integers(0, n + 1) and, if j < k, overwrite reservoir[j].", "Stratified: for every class, take round(frac * count) of its indices (at least 1) without replacement, using rng.choice(idx, size, replace=False).", "Return sorted indices so that the result is easy to compare."]}
+#@@ prompt
+Two samplers you need when data does not fit in memory or when a class is rare.
+
+- `reservoir_sample(stream, k, rng)`: given any iterable `stream` of unknown length and a NumPy generator `rng`, return a list of `k` items such that **every** item of the stream has the same probability `k/n` of being kept (`n` = stream length so far). Use one pass and O(k) memory. If the stream has fewer than `k` items, return all of them.
+- `stratified_sample(labels, frac, rng)`: return the **sorted** array of indices of a sample that contains `round(frac * count)` items (at least 1) from each class, drawn without replacement.
+#@@ starter
+import numpy as np
+
+def reservoir_sample(stream, k, rng):
+    raise NotImplementedError
+
+def stratified_sample(labels, frac, rng):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+r = reservoir_sample(range(100), 10, rng)
+check("returns k items", lambda: len(r) == 10)
+check("items are distinct stream elements", lambda: len(set(r)) == 10 and all(0 <= x < 100 for x in r))
+check("short stream returns everything", lambda: sorted(reservoir_sample(range(3), 10, rng)) == [0, 1, 2])
+check("works on a generator (one pass)", lambda: len(reservoir_sample((i * i for i in range(50)), 5, rng)) == 5)
+counts = np.zeros(20)
+for _ in range(4000):
+    for x in reservoir_sample(range(20), 5, rng):
+        counts[x] += 1
+freq = counts / 4000
+check("each of 20 items is kept with probability 5/20 = 0.25", lambda: np.all(np.abs(freq - 0.25) < 0.04), "early items must not be favoured over late ones")
+labels = np.array([0] * 900 + [1] * 90 + [2] * 10)
+idx = stratified_sample(labels, 0.1, np.random.default_rng(1))
+check("indices are sorted and unique", lambda: np.all(np.diff(idx) > 0))
+check("class counts are 90, 9, 1", lambda: list(np.bincount(labels[idx])) == [90, 9, 1])
+tiny_labels = np.array([0] * 50 + [1] * 2)
+tiny = stratified_sample(tiny_labels, 0.01, np.random.default_rng(2))
+check("a rare class always keeps at least one item", lambda: set(tiny_labels[tiny]) == {0, 1})
+#@@ solution
+import numpy as np
+
+def reservoir_sample(stream, k, rng):
+    res = []
+    for n, x in enumerate(stream):
+        if n < k:
+            res.append(x)
+        else:
+            j = int(rng.integers(0, n + 1))
+            if j < k:
+                res[j] = x
+    return res
+
+def stratified_sample(labels, frac, rng):
+    labels = np.asarray(labels)
+    out = []
+    for c in np.unique(labels):
+        idx = np.flatnonzero(labels == c)
+        m = max(1, int(round(frac * len(idx))))
+        out.extend(rng.choice(idx, size=m, replace=False).tolist())
+    return np.array(sorted(out))

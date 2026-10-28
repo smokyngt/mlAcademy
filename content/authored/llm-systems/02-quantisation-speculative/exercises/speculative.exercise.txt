@@ -1,0 +1,115 @@
+#@@ meta
+{"id": "sys.02.ex2", "title": "Speculative decoding: accept/reject rule and speed-up", "difficulty": 4, "runtime": "pyodide", "concepts": ["llm.speculative"], "hints": ["acceptance_rate = sum_x min(p(x), q(x)). residual = max(q-p,0) / its sum.", "expected_tokens = 1 + alpha + ... + alpha**n = (1 - alpha**(n+1)) / (1 - alpha). The time of a round is n*c + 1 target passes.", "In spec_decode keep the current context token `prev`. Draft n tokens first (each from P[prev]), then verify them in order with Q[prev], P[prev]; stop the round at the first rejection (replacement from the residual) or add a bonus token from Q after n acceptances."]}
+#@@ prompt
+Speculative decoding with two toy bigram models: the **target** $Q$ and a cheaper **draft** $P$ (matrices whose row $i$ is the next-token distribution after token $i$).
+
+Implement the acceptance rule $\min(1, q/p)$, the residual distribution $(q-p)_+$ normalised, the acceptance rate, the expected tokens per round, the speed-up, and a full `spec_decode` loop. The tests check statistically that the output law equals the target's, and that sampling from the draft alone does not.
+#@@ starter
+import numpy as np
+
+def sample(probs, u):
+    # inverse-CDF sampling from a probability vector with a uniform number u
+    return int(min(np.searchsorted(np.cumsum(probs), u, side="right"), len(probs) - 1))
+
+def residual(q, p):
+    # normalised max(q - p, 0); if it is all zero return q
+    raise NotImplementedError
+
+def acceptance_rate(q, p):
+    # probability that a token drafted from p is accepted under the min(1, q/p) rule
+    raise NotImplementedError
+
+def expected_tokens(alpha, n):
+    # expected tokens produced per verification with n drafts and i.i.d. acceptance probability alpha
+    raise NotImplementedError
+
+def speedup(alpha, n, c):
+    # tokens per unit of target-model time, if one draft token costs c target-model passes
+    raise NotImplementedError
+
+def spec_decode(Q, P, start, length, n_draft, rng):
+    # Q, P: (V, V) row-stochastic matrices = target and draft "bigram language models".
+    # Draft n_draft tokens from P, verify left to right with accept prob min(1, q/p),
+    # on the first rejection sample from residual(q, p) and end the round;
+    # if all drafts are accepted, add a bonus token from Q. Return (first `length` new tokens, number of rounds).
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+q = np.array([0.5, 0.25, 0.15, 0.07, 0.03])
+p = np.array([0.3, 0.3, 0.2, 0.1, 0.1])
+check("residual is a distribution", lambda: abs(residual(q, p).sum() - 1) < 1e-12)
+check("residual = [1,0,0,0,0] here", lambda: np.allclose(residual(q, p), [1, 0, 0, 0, 0]))
+check("residual of identical distributions falls back to q", lambda: np.allclose(residual(q, q), q))
+check("acceptance rate = sum min(p,q) = 0.8", lambda: abs(acceptance_rate(q, p) - 0.8) < 1e-12)
+check("acceptance rate of identical distributions is 1", lambda: abs(acceptance_rate(q, q) - 1) < 1e-12)
+check("expected tokens alpha=0.8, n=4", lambda: abs(expected_tokens(0.8, 4) - 3.3616) < 1e-9)
+check("expected tokens alpha=1 gives n+1", lambda: expected_tokens(1.0, 4) == 5.0)
+check("expected tokens alpha=0 gives 1", lambda: abs(expected_tokens(0.0, 4) - 1.0) < 1e-12)
+check("speedup alpha=0.8, n=4, c=0.1", lambda: abs(speedup(0.8, 4, 0.1) - 3.3616 / 1.4) < 1e-9)
+check("speedup is small when the draft costs half a target pass", lambda: speedup(0.8, 4, 0.5) < 1.2)
+rng = np.random.default_rng(3)
+V = 4
+Q = 0.7 * rng.dirichlet(np.ones(V), size=V) + 0.3 / V
+P = 0.5 * Q + 0.5 * (0.7 * rng.dirichlet(np.ones(V), size=V) + 0.3 / V)
+out, rounds = spec_decode(Q, Q, 0, 8, 3, np.random.default_rng(0))
+check("identical draft: every draft accepted, ceil(8/4)=2 rounds", lambda: rounds == 2 and len(out) == 8)
+N = 12000
+cnt = np.zeros((V, V))
+rg = np.random.default_rng(7)
+for _ in range(N):
+    s, _r = spec_decode(Q, P, 0, 2, 3, rg)
+    cnt[s[0], s[1]] += 1
+exp = Q[0][:, None] * Q
+chi = float(((cnt - N * exp) ** 2 / (N * exp)).sum())
+check("joint law of the first two tokens matches the TARGET (chi2 < 37.7, df=15, p=0.001)", lambda: chi < 37.7)
+cnt2 = np.zeros((V, V))
+for _ in range(N):
+    a = sample(P[0], rg.random())
+    b = sample(P[a], rg.random())
+    cnt2[a, b] += 1
+chi2 = float(((cnt2 - N * exp) ** 2 / (N * exp)).sum())
+check("sanity: sampling from the DRAFT alone fails the same test", lambda: chi2 > 37.7)
+#@@ solution
+import numpy as np
+
+def sample(probs, u):
+    return int(min(np.searchsorted(np.cumsum(probs), u, side="right"), len(probs) - 1))
+
+def residual(q, p):
+    r = np.maximum(q - p, 0.0)
+    s = r.sum()
+    return q.copy() if s == 0 else r / s
+
+def acceptance_rate(q, p):
+    return float(np.minimum(q, p).sum())
+
+def expected_tokens(alpha, n):
+    return float(n + 1) if alpha >= 1 else (1 - alpha ** (n + 1)) / (1 - alpha)
+
+def speedup(alpha, n, c):
+    return expected_tokens(alpha, n) / (n * c + 1)
+
+def spec_decode(Q, P, start, length, n_draft, rng):
+    seq = [start]
+    rounds = 0
+    while len(seq) - 1 < length:
+        rounds += 1
+        drafts, prev = [], seq[-1]
+        for _ in range(n_draft):
+            d = sample(P[prev], rng.random())
+            drafts.append(d)
+            prev = d
+        prev = seq[-1]
+        accepted_all = True
+        for d in drafts:
+            q, p = Q[prev], P[prev]
+            if rng.random() < min(1.0, q[d] / p[d]):
+                seq.append(d)
+                prev = d
+            else:
+                seq.append(sample(residual(q, p), rng.random()))
+                accepted_all = False
+                break
+        if accepted_all:
+            seq.append(sample(Q[prev], rng.random()))
+    return seq[1:length + 1], rounds

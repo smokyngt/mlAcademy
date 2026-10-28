@@ -1,0 +1,68 @@
+#@@ meta
+{"id": "ops.06.ex2", "title": "A/B tests, peeking and bandits", "difficulty": 4, "runtime": "pyodide", "concepts": ["ops.abtest"], "hints": ["Two-proportion z: pooled p = (xa+xb)/(na+nb), se = sqrt(p(1-p)(1/na+1/nb)), z = (xb/nb - xa/na)/se. Reject at |z| > 1.96.", "Peeking simulation: draw both arms' Bernoulli(p) outcomes for n_per_arm users, take cumulative sums, and at each of `looks` equally spaced sample sizes compute z for all simulations at once; a simulation is a false positive if ANY look rejects.", "Thompson sampling: keep Beta(successes+1, failures+1) per arm, sample one draw per arm each round, play the arm with the largest draw."]}
+#@@ prompt
+You compare model A with model B on a binary outcome (click / no click).
+
+- `z_test(xa, na, xb, nb)` -> two-proportion z statistic for `B - A` (pooled standard error).
+- `false_positive_rate(n_sims, n_per_arm, looks, p, rng)` -> run `n_sims` **A/A** experiments (both arms have the same true rate `p`). In each, test at `looks` equally spaced sample sizes `n_per_arm/looks, 2*n_per_arm/looks, ..., n_per_arm` and declare a winner as soon as `|z| > 1.96`. Return the share of experiments that declared a winner at some look.
+- `thompson_pulls(p_a, p_b, horizon, rng)` -> array `[pulls_a, pulls_b]` after `horizon` rounds of two-armed Thompson sampling with Beta(1,1) priors.
+#@@ starter
+import numpy as np
+
+def z_test(xa, na, xb, nb):
+    raise NotImplementedError
+
+def false_positive_rate(n_sims, n_per_arm, looks, p, rng):
+    raise NotImplementedError
+
+def thompson_pulls(p_a, p_b, horizon, rng):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("equal rates -> z = 0", lambda: abs(z_test(50, 1000, 50, 1000)) < 1e-12)
+z = z_test(100, 1000, 130, 1000)
+check("worked example z = 2.10 (10% vs 13%)", lambda: abs(z - 2.1027) < 0.001, "pooled p = 0.115, se = sqrt(0.115*0.885*2/1000)")
+check("sign: B better than A is positive", lambda: z > 0 and z_test(130, 1000, 100, 1000) < 0)
+one = false_positive_rate(2000, 1000, 1, 0.1, np.random.default_rng(0))
+many = false_positive_rate(2000, 1000, 10, 0.1, np.random.default_rng(0))
+check("one pre-planned look keeps the false-positive rate near 5%", lambda: 0.03 < one < 0.075)
+check("peeking 10 times inflates it to roughly 15-25%", lambda: 0.13 < many < 0.26, "more looks = more chances for noise to cross 1.96")
+check("peeking is strictly worse than one look", lambda: many > 2.5 * one)
+pulls = thompson_pulls(0.10, 0.20, 3000, np.random.default_rng(3))
+check("pulls add up to the horizon", lambda: pulls.sum() == 3000)
+check("Thompson sampling sends most traffic to the better arm", lambda: pulls[1] > 0.8 * 3000)
+check("but it still explored the worse arm", lambda: pulls[0] >= 5)
+#@@ solution
+import numpy as np
+
+def z_test(xa, na, xb, nb):
+    p = (xa + xb) / (na + nb)
+    se = np.sqrt(p * (1 - p) * (1 / na + 1 / nb))
+    return float((xb / nb - xa / na) / se)
+
+def false_positive_rate(n_sims, n_per_arm, looks, p, rng):
+    A = rng.random((n_sims, n_per_arm)) < p
+    B = rng.random((n_sims, n_per_arm)) < p
+    ca = np.cumsum(A, axis=1)
+    cb = np.cumsum(B, axis=1)
+    rejected = np.zeros(n_sims, dtype=bool)
+    for n in np.linspace(n_per_arm // looks, n_per_arm, looks).astype(int):
+        xa, xb = ca[:, n - 1], cb[:, n - 1]
+        pooled = (xa + xb) / (2 * n)
+        se = np.sqrt(np.maximum(pooled * (1 - pooled) * 2 / n, 1e-12))
+        z = (xb / n - xa / n) / se
+        rejected |= np.abs(z) > 1.96
+    return float(rejected.mean())
+
+def thompson_pulls(p_a, p_b, horizon, rng):
+    probs = np.array([p_a, p_b])
+    succ = np.ones(2)
+    fail = np.ones(2)
+    pulls = np.zeros(2)
+    for _ in range(horizon):
+        arm = int(np.argmax(rng.beta(succ, fail)))
+        reward = rng.random() < probs[arm]
+        succ[arm] += reward
+        fail[arm] += 1 - reward
+        pulls[arm] += 1
+    return pulls

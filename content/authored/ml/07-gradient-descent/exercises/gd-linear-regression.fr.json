@@ -1,0 +1,10 @@
+{
+  "id": "f2n.07.ex1",
+  "title": "Implémenter la descente de gradient et ajuster un modèle linéaire",
+  "prompt": "1. `gradient_descent(grad, x0, lr, steps)` renvoie toute la trajectoire sous forme de tableau de forme `(steps+1, n)` (la ligne 0 est `x0`).\n2. `fit_linear(X, y, lr, steps)` exécute la descente de gradient sur la perte EQM à partir de $w=0$ et renvoie les poids finaux.\n3. `stable_lr(lam_max)` renvoie un taux d'apprentissage qui converge de façon monotone sur une quadratique dont la plus grande courbure est `lam_max`.\n\nLes tests retrouvent des poids connus, reproduisent l'exemple résolu de la leçon et démontrent la divergence au-delà de $2/\\lambda$.",
+  "hints": [
+    "Garde une liste `path` ; commence par x0, puis à chaque pas fais x = x - lr * grad(x) et ajoute une copie.",
+    "Pour fit_linear, grad(w) = 2/N * X.T @ (X @ w - y). Commence à zeros(d).",
+    "stable_lr(lam_max) : toute valeur strictement inférieure à 2/lam_max convient ; renvoie 1/lam_max pour une convergence monotone."
+  ]
+}

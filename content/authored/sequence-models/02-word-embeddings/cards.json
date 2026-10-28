@@ -1,0 +1,17 @@
+[
+  { "id": "seq.02.c1", "concept": "seq.embedding", "front": "Why is one-hot a poor word representation?", "back": "Sparse (size of vocabulary), and all distinct words are orthogonal at distance $\\sqrt2$: no similarity structure." },
+  { "id": "seq.02.c2", "concept": "seq.embedding", "front": "Distributional hypothesis", "back": "A word's meaning is given by the contexts it appears in (\"you shall know a word by the company it keeps\", Firth)." },
+  { "id": "seq.02.c3", "concept": "seq.embedding", "front": "Skip-gram vs CBOW", "back": "Skip-gram predicts context words from the centre word (better for rare words); CBOW predicts the centre from the summed context (good for frequent words)." },
+  { "id": "seq.02.c4", "concept": "seq.embedding", "front": "Why two embedding tables $V$ and $U$?", "back": "$V$ holds centre-word vectors (first layer), $U$ context-word vectors (output layer). Keep $V$ or $V+U$ as the embedding." },
+  { "id": "seq.02.c5", "concept": "seq.embedding", "front": "Negative-sampling loss for one pair", "back": "$-\\log\\sigma(u_o\\cdot v_c)-\\sum_{j=1}^k\\log\\sigma(-u_j\\cdot v_c)$." },
+  { "id": "seq.02.c6", "concept": "seq.embedding", "front": "Gradients of the negative-sampling loss", "back": "$g_o=\\sigma(s_o)-1$, $g_j=\\sigma(s_j)$. $\\partial_{v_c}=g_ou_o+\\sum_jg_ju_j$, $\\partial_{u_o}=g_ov_c$, $\\partial_{u_j}=g_jv_c$." },
+  { "id": "seq.02.c7", "concept": "seq.embedding", "front": "Why negative sampling?", "back": "The full softmax costs $O(nd)$ per pair; negative sampling updates only $1+k$ context rows and one centre row: $O((k+1)d)$." },
+  { "id": "seq.02.c8", "concept": "seq.embedding", "front": "Loss when all vectors are zero", "back": "$(1+k)\\ln2$, since every score is 0 and $\\sigma(0)=1/2$." },
+  { "id": "seq.02.c9", "concept": "seq.embedding", "front": "Cosine similarity", "back": "$a^\\top b/(\\lVert a\\rVert\\lVert b\\rVert)\\in[-1,1]$. Scale-invariant; preferred to Euclidean distance for embeddings." },
+  { "id": "seq.02.c10", "concept": "seq.embedding", "front": "How to answer an analogy a:b::c:?", "back": "Nearest word (cosine) to $b-a+c$, excluding $a$, $b$ and $c$." },
+  { "id": "seq.02.c11", "concept": "seq.embedding", "front": "GloVe objective", "back": "$\\sum f(X_{ij})(w_i^\\top\\tilde w_j+b_i+\\tilde b_j-\\log X_{ij})^2$ with $f$ damping very frequent pairs; embedding $=w+\\tilde w$." },
+  { "id": "seq.02.c12", "concept": "seq.embedding", "front": "Why does GloVe use the log of co-occurrence probabilities?", "back": "Ratios $P(k|i)/P(k|j)$ separate meaningful axes; the log turns them into differences $(w_i-w_j)^\\top\\tilde w_k$, so analogies become vector offsets." },
+  { "id": "seq.02.c13", "concept": "seq.embedding", "front": "fastText idea", "back": "Word vector = sum of embeddings of its character n-grams (plus the word). Unseen words still get a vector; handles morphology." },
+  { "id": "seq.02.c14", "concept": "seq.embedding", "front": "Main limits of static word embeddings", "back": "One vector per word type (no polysemy), no word order, corpus biases, and antonyms can end up close because contexts are similar." },
+  { "id": "seq.02.c15", "concept": "seq.embedding", "front": "Shapes in one negative-sampling step", "back": "$V,U:(n,d)$; $U[\\text{negs}]:(k,d)$; scores $(k)$; $\\partial_{v_c}:(d)$; negatives' gradient $g\\,v_c^\\top:(k,d)$." }
+]

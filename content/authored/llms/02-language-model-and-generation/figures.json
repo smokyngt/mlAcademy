@@ -1,0 +1,294 @@
+[
+  {
+    "id": "next-token-loop",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The autoregressive generation loop: only the last position's logits are used, a decoding rule picks one id, and it is appended to the context until end-of-text or the length limit.",
+      "fr": "La boucle de génération autorégressive : seuls les logits de la dernière position servent, une règle de décodage choisit un identifiant, ajouté au contexte jusqu'à la fin du texte ou la limite de longueur."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompt ids (1,T)\"] --> M[\"model forward<br/>logits (1,T,V)\"]\n  M --> L[\"last position<br/>z in R^V\"]\n  L --> D[\"decode: temperature,<br/>top-k, top-p\"]\n  D --> S[\"sample or argmax<br/>next id\"]\n  S --> A[\"append: (1,T+1)\"]\n  A -->|\"until eos or max length\"| M",
+      "fr": "flowchart LR\n  P[\"identifiants du prompt (1,T)\"] --> M[\"passe avant du modèle<br/>logits (1,T,V)\"]\n  M --> L[\"dernière position<br/>z in R^V\"]\n  L --> D[\"décodage : température,<br/>top-k, top-p\"]\n  D --> S[\"échantillon ou argmax<br/>identifiant suivant\"]\n  S --> A[\"ajout : (1,T+1)\"]\n  A -->|\"jusqu'à eos ou longueur max\"| M"
+    }
+  },
+  {
+    "id": "neg-log",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Cross-entropy at one position is -ln p of the true token (blue): near 0 when the model is confident and right, large when it gives the truth little probability. A uniform guess over V = 50,257 tokens costs ln V = 10.8 (off the top of this chart).",
+      "fr": "L'entropie croisée en une position vaut -ln p du vrai jeton (bleu) : proche de 0 quand le modèle est sûr et correct, grande quand il donne peu de probabilité à la vérité. Une devinette uniforme sur V = 50 257 jetons coûte ln V = 10,8 (hors du haut de ce graphique)."
+    },
+    "spec": {
+      "xDomain": [
+        0.02,
+        1
+      ],
+      "yDomain": [
+        0,
+        4
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "-log(x)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "decode-chain",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Order of operations in practice: temperature, then top-k, then top-p, then renormalise and draw. Each stage only removes or reshapes probability mass.",
+      "fr": "Ordre des opérations en pratique : température, puis top-k, puis top-p, puis renormaliser et tirer. Chaque étape ne fait que retirer ou remodeler de la masse de probabilité."
+    },
+    "code": {
+      "en": "flowchart LR\n  Z[\"logits z (V)\"] --> T[\"divide by temperature<br/>z / T\"]\n  T --> SM[\"softmax<br/>p (V)\"]\n  SM --> K[\"top-k: keep k largest,<br/>zero the rest\"]\n  K --> TP[\"top-p: smallest prefix<br/>with cumulative sum at least p\"]\n  TP --> RN[\"renormalise\"]\n  RN --> DR[\"draw one id\"]",
+      "fr": "flowchart LR\n  Z[\"logits z (V)\"] --> T[\"diviser par la température<br/>z / T\"]\n  T --> SM[\"softmax<br/>p (V)\"]\n  SM --> K[\"top-k: garder les k plus grands,<br/>annuler le reste\"]\n  K --> TP[\"top-p: plus petit préfixe<br/>de somme cumulée au moins p\"]\n  TP --> RN[\"renormaliser\"]\n  RN --> DR[\"tirer un identifiant\"]"
+    }
+  },
+  {
+    "id": "temperature-two",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Temperature on two tokens: probability of the leading token as a function of the logit gap x = z_i - z_j, p = 1/(1+exp(-x/T)). T = 0.5 (blue) is sharper, T = 1 (orange) is the model, T = 2 (green) is flatter.",
+      "fr": "Température sur deux jetons : probabilité du jeton en tête en fonction de l'écart de logits x = z_i - z_j, p = 1/(1+exp(-x/T)). T = 0,5 (bleu) est plus net, T = 1 (orange) est le modèle, T = 2 (vert) est plus plat."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+exp(-x/0.5))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1/(1+exp(-x/2))",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "temperature-five",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The worked example: next-token distribution over 5 tokens for logits (2, 1, 0.5, 0, -1). Low temperature (T = 0.5, blue) concentrates on token 0, T = 1 (orange) is the model, T = 2 (green) flattens towards uniform.",
+      "fr": "L'exemple traité : distribution du jeton suivant sur 5 jetons pour les logits (2, 1, 0,5, 0, -1). Une basse température (T = 0,5, bleu) se concentre sur le jeton 0, T = 1 (orange) est le modèle, T = 2 (vert) s'aplatit vers l'uniforme."
+    },
+    "spec": {
+      "xDomain": [
+        -0.3,
+        4.3
+      ],
+      "yDomain": [
+        0,
+        0.9
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              0.8292
+            ],
+            [
+              1,
+              0.1122
+            ],
+            [
+              2,
+              0.0413
+            ],
+            [
+              3,
+              0.0152
+            ],
+            [
+              4,
+              0.0021
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.8292
+            ],
+            [
+              1,
+              0.1122
+            ],
+            [
+              2,
+              0.0413
+            ],
+            [
+              3,
+              0.0152
+            ],
+            [
+              4,
+              0.0021
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              0.563
+            ],
+            [
+              1,
+              0.2071
+            ],
+            [
+              2,
+              0.1256
+            ],
+            [
+              3,
+              0.0762
+            ],
+            [
+              4,
+              0.028
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.563
+            ],
+            [
+              1,
+              0.2071
+            ],
+            [
+              2,
+              0.1256
+            ],
+            [
+              3,
+              0.0762
+            ],
+            [
+              4,
+              0.028
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#16a34a",
+          "points": [
+            [
+              0,
+              0.3745
+            ],
+            [
+              1,
+              0.2272
+            ],
+            [
+              2,
+              0.1769
+            ],
+            [
+              3,
+              0.1378
+            ],
+            [
+              4,
+              0.0836
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.3745
+            ],
+            [
+              1,
+              0.2272
+            ],
+            [
+              2,
+              0.1769
+            ],
+            [
+              3,
+              0.1378
+            ],
+            [
+              4,
+              0.0836
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "prefill-decode",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Prefill reads the whole prompt in parallel (compute-bound) and fills the key/value cache; decode then runs one token at a time, limited by memory traffic.",
+      "fr": "Le préremplissage lit tout le prompt en parallèle (limité par le calcul) et remplit le cache clés/valeurs ; le décodage avance ensuite un jeton à la fois, limité par le trafic mémoire."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant U as Caller\n  participant M as Model and KV cache\n  U->>M: prefill, all prompt tokens in parallel\n  M-->>U: logits of the last position, K and V cached\n  loop each new token\n    U->>M: one token id\n    M-->>U: next-token logits, cache grows by one\n  end",
+      "fr": "sequenceDiagram\n  participant U as Appelant\n  participant M as Modèle et cache KV\n  U->>M: préremplissage, tout le prompt en parallèle\n  M-->>U: logits de la dernière position, K et V en cache\n  loop chaque nouveau jeton\n    U->>M: un identifiant de jeton\n    M-->>U: logits suivants, le cache grandit d'un cran\n  end"
+    }
+  }
+]

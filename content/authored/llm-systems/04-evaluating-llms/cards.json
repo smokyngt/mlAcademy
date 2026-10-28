@@ -1,0 +1,98 @@
+[
+ {
+  "id": "sys.04.c1",
+  "concept": "llm.eval",
+  "front": "Benchmark contamination",
+  "back": "Benchmark questions (or near copies) appear in the training data, so the score partly measures memorisation, not capability."
+ },
+ {
+  "id": "sys.04.c2",
+  "concept": "llm.eval",
+  "front": "Benchmark saturation",
+  "back": "When all strong models score in a narrow high band, differences are noise or reflect obscure items; the benchmark stops discriminating."
+ },
+ {
+  "id": "sys.04.c3",
+  "concept": "llm.eval",
+  "front": "Why custom evals?",
+  "back": "Only an eval built from your task, data and failure modes predicts production quality; public benchmarks suit rough model selection."
+ },
+ {
+  "id": "sys.04.c4",
+  "concept": "llm.eval",
+  "front": "Recall@k",
+  "back": "$|\\text{top-}k\\cap\\text{Rel}|/|\\text{Rel}|$: did the relevant documents make it into the first k results?"
+ },
+ {
+  "id": "sys.04.c5",
+  "concept": "llm.eval",
+  "front": "MRR",
+  "back": "Mean over queries of 1/rank of the first relevant result (0 if none). Rewards putting a right answer first."
+ },
+ {
+  "id": "sys.04.c6",
+  "concept": "llm.eval",
+  "front": "nDCG@k",
+  "back": "DCG $=\\sum_i g_i/\\log_2(i+1)$ divided by the DCG of the ideal order; handles graded relevance and rewards early placement."
+ },
+ {
+  "id": "sys.04.c7",
+  "concept": "llm.eval",
+  "front": "Faithfulness (groundedness)",
+  "back": "Is every claim of the generated answer supported by the retrieved passages? A fluent answer can be unfaithful."
+ },
+ {
+  "id": "sys.04.c8",
+  "concept": "llm.eval",
+  "front": "Evaluate retriever and generator separately",
+  "back": "Recall@k isolates retrieval errors; faithfulness isolates generation errors; end-to-end correctness mixes both."
+ },
+ {
+  "id": "sys.04.c9",
+  "concept": "llm.eval",
+  "front": "LLM-as-judge biases",
+  "back": "Position bias, verbosity bias, self-preference. Randomise order, control length, use another model family, validate against human labels."
+ },
+ {
+  "id": "sys.04.c10",
+  "concept": "llm.eval",
+  "front": "Elo expected score",
+  "back": "$E_w=1/(1+10^{(R_l-R_w)/400})$: 0.5 for equal ratings, about 0.91 for a 400-point gap."
+ },
+ {
+  "id": "sys.04.c11",
+  "concept": "llm.eval",
+  "front": "Bootstrap percentile CI",
+  "back": "Resample the n items with replacement B times, take the mean of each, report the alpha/2 and 1-alpha/2 quantiles."
+ },
+ {
+  "id": "sys.04.c12",
+  "concept": "llm.eval",
+  "front": "Width of a CI vs sample size",
+  "back": "Shrinks like $1/\\sqrt n$: 4 times more items halves the width. 90% on 50 items is about [0.79, 0.96]; on 1000 items about [0.88, 0.92]."
+ },
+ {
+  "id": "sys.04.c13",
+  "concept": "llm.eval",
+  "front": "Why compare systems with a paired test?",
+  "back": "Both systems see the same items; bootstrapping the per-item differences cancels shared difficulty and gives a tighter, correct interval."
+ },
+ {
+  "id": "sys.04.c14",
+  "concept": "llm.eval",
+  "front": "Overlapping CIs do not mean no difference",
+  "back": "The CI of the difference, from a paired analysis, is the right object. Also report how many items the systems disagree on."
+ },
+ {
+  "id": "sys.04.c15",
+  "concept": "llm.eval",
+  "front": "Slice-based evaluation",
+  "back": "Report metrics per subgroup. Simpson's paradox: A can win in every slice and still lose overall when slice sizes differ."
+ },
+ {
+  "id": "sys.04.c16",
+  "concept": "llm.eval",
+  "front": "Baselines to always report",
+  "back": "Random, simple heuristic / zero-rule (majority), existing solution, human. A metric without a baseline is uninterpretable."
+ }
+]

@@ -1,0 +1,92 @@
+[
+ {
+  "id": "aud.03.c1",
+  "concept": "aud.classify",
+  "front": "Clip-level summary feature",
+  "back": "Mean and standard deviation of each MFCC over time: vector of size $2K$ regardless of clip length."
+ },
+ {
+  "id": "aud.03.c2",
+  "concept": "aud.classify",
+  "front": "Cosine k-NN",
+  "back": "Normalise vectors, similarity $=\\mathbf b\\cdot\\mathbf a$; vote among the $k$ most similar training clips. No training; ignores vector scale."
+ },
+ {
+  "id": "aud.03.c3",
+  "concept": "aud.classify",
+  "front": "Spectrogram CNN input shape",
+  "back": "Batch `(B, 1, T, M)`: one channel, time by mel; global pooling over time/frequency gives length-independent features."
+ },
+ {
+  "id": "aud.03.c4",
+  "concept": "aud.classify",
+  "front": "Convolution output length",
+  "back": "$o=\\lfloor(i+2p-k)/s\\rfloor+1$ for input $i$, kernel $k$, padding $p$, stride $s$."
+ },
+ {
+  "id": "aud.03.c5",
+  "concept": "aud.classify",
+  "front": "Parameters of Conv2d and Linear",
+  "back": "Conv: $C_{in}C_{out}k^2+C_{out}$. Linear: $d_{in}d_{out}+d_{out}$."
+ },
+ {
+  "id": "aud.03.c6",
+  "concept": "aud.classify",
+  "front": "Why are spectrogram axes not interchangeable?",
+  "back": "A time shift keeps the sound's identity; a frequency shift changes the sound. Rectangular kernels and time-only shifts are natural."
+ },
+ {
+  "id": "aud.03.c7",
+  "concept": "aud.classify",
+  "front": "Confusion matrix convention",
+  "back": "$C_{ab}$ = number of clips of true class $a$ predicted as $b$; rows true, columns predicted."
+ },
+ {
+  "id": "aud.03.c8",
+  "concept": "aud.classify",
+  "front": "Precision, recall and F1 of class $a$",
+  "back": "Precision $C_{aa}/\\sum_bC_{ba}$, recall $C_{aa}/\\sum_bC_{ab}$, F1 $=2PR/(P+R)$."
+ },
+ {
+  "id": "aud.03.c9",
+  "concept": "aud.classify",
+  "front": "Macro F1 vs accuracy",
+  "back": "Macro F1 averages class F1 equally, so rare-class failures show up; accuracy can be 0.95 with a useless model."
+ },
+ {
+  "id": "aud.03.c10",
+  "concept": "aud.classify",
+  "front": "Which metric for which task?",
+  "back": "Exclusive balanced: top-1/top-5. Multi-label (AudioSet): mAP. Imbalanced: per-class recall and macro F1."
+ },
+ {
+  "id": "aud.03.c11",
+  "concept": "aud.classify",
+  "front": "Data leakage in audio",
+  "back": "Clips from one recording or speaker on both sides of a split inflate scores; split by recording/speaker (use predefined folds)."
+ },
+ {
+  "id": "aud.03.c12",
+  "concept": "aud.specaugment",
+  "front": "SpecAugment recipe",
+  "back": "Frequency mask: width $f\\sim U\\{0..F\\}$ at random start; time mask: width $t\\sim U\\{0..T_{\\max}\\}$; fill with a constant; repeat several times."
+ },
+ {
+  "id": "aud.03.c13",
+  "concept": "aud.specaugment",
+  "front": "Mixup",
+  "back": "$x=\\lambda x_1+(1-\\lambda)x_2$, $y=\\lambda y_1+(1-\\lambda)y_2$; train with cross-entropy against the soft label."
+ },
+ {
+  "id": "aud.03.c14",
+  "concept": "aud.specaugment",
+  "front": "Two rules for a good augmentation",
+  "back": "It must not change the information used for the label, and it should mimic real distortions."
+ },
+ {
+  "id": "aud.03.c15",
+  "concept": "aud.classify",
+  "front": "Default modern recipe",
+  "back": "Start from a pretrained backbone (AST, BEATs, Whisper encoder) and train a small head instead of training from scratch."
+ }
+]

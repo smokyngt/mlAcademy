@@ -1,0 +1,81 @@
+[
+ {
+  "id": "adv.03.q1",
+  "prompt": "Dans un MoE top-2 avec 8 experts égaux, quelle fraction des paramètres du FFN est active par token ?",
+  "options": ["1/8", "2/8", "Tous", "2"],
+  "explanation": "Deux experts sur huit s'exécutent, donc $2/8=25\\%$ des paramètres du FFN (en ignorant les experts partagés)."
+ },
+ {
+  "id": "adv.03.q2",
+  "prompt": "Que forment les portes $g_{t,e}$ d'un routeur top-$k$ ?",
+  "options": [
+   "Un softmax sur les E experts",
+   "Un softmax sur les seuls k logits sélectionnés, de somme 1",
+   "Des vecteurs one-hot",
+   "Des poids uniformes 1/k toujours"
+  ],
+  "explanation": "$g$ est calculé à partir des logits bruts des experts sélectionnés et renormalisé."
+ },
+ {
+  "id": "adv.03.q3",
+  "prompt": "Paramètres feed-forward d'une couche MoE : E=8 experts routés, top-2, 1 expert partagé, SwiGLU avec 3 matrices de $16\\times32$. Combien de paramètres ACTIFS ?",
+  "options": [],
+  "explanation": "$(k+s)\\cdot3\\cdot16\\cdot32=3\\cdot1536=4608$."
+ },
+ {
+  "id": "adv.03.q4",
+  "prompt": "Avec $f_i=P_i$, la perte d'équilibrage $\\alpha E\\sum_i f_iP_i$ est minimisée quand...",
+  "options": [
+   "un expert reçoit tout",
+   "tous les experts reçoivent une part égale, ce qui donne la valeur $\\alpha$",
+   "E=1",
+   "f est aléatoire"
+  ],
+  "explanation": "Par Cauchy-Schwarz, $E\\sum P_i^2\\ge1$ avec égalité en $P_i=1/E$."
+ },
+ {
+  "id": "adv.03.q5",
+  "prompt": "Effondrement parfait sur un seul expert avec $P=f=(1,0,0,0)$, E=4, alpha=1. Quelle est la perte d'équilibrage ?",
+  "options": [],
+  "explanation": "$E\\sum f_iP_i=4\\cdot1=4$."
+ },
+ {
+  "id": "adv.03.q6",
+  "prompt": "Pourquoi la perte d'équilibrage utilise-t-elle le produit d'une fraction dure $f_i$ et d'une probabilité douce $P_i$ ?",
+  "options": [
+   "Les fractions dures ne donnent aucun gradient au routeur ; $P_i$ fournit un chemin dérivable pondéré par la vraie charge",
+   "Cela rend la perte seulement non négative",
+   "Parce que le softmax n'est pas défini pour le top-k",
+   "Pour éviter de calculer la capacité"
+  ],
+  "explanation": "$f$ provient de l'argmax/top-k et n'a pas de gradient ; le gradient passe par $P$ avec le poids $\\alpha E f_i$."
+ },
+ {
+  "id": "adv.03.q7",
+  "prompt": "N=1000 tokens, top-2, E=16 experts, facteur de capacité 1.25. Quelle est la capacité par expert ?",
+  "options": [],
+  "explanation": "$\\lceil1.25\\cdot1000\\cdot2/16\\rceil=\\lceil156.25\\rceil=157$."
+ },
+ {
+  "id": "adv.03.q8",
+  "prompt": "Dans l'équilibrage sans perte auxiliaire de style DeepSeek-V3, le biais par expert affecte...",
+  "options": [
+   "seulement la sélection des experts, pas les valeurs des portes",
+   "seulement les valeurs des portes",
+   "directement la perte de modélisation du langage",
+   "le facteur de capacité"
+  ],
+  "explanation": "La sélection utilise les scores plus le biais ; les portes utilisent les scores bruts. Le biais est mis à jour par une règle de signe hors de la perte."
+ },
+ {
+  "id": "adv.03.q9",
+  "prompt": "Quelle ressource un MoE n'économise-t-il PAS par rapport à un modèle dense de même nombre total de paramètres ?",
+  "options": [
+   "Les FLOPs par token",
+   "La mémoire pour contenir les poids",
+   "Les paramètres actifs par token",
+   "Le calcul du FFN par token"
+  ],
+  "explanation": "Tous les experts doivent être résidents (ou répartis sur les GPU) quels que soient ceux qui s'activent."
+ }
+]

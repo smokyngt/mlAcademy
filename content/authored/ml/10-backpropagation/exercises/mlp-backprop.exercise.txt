@@ -1,0 +1,84 @@
+#@@ meta
+{"id": "f2n.10.ex1", "title": "Two-layer MLP: forward, backward, gradient check", "difficulty": 4, "runtime": "pyodide", "concepts": ["nn.backprop", "calc.jacobian", "ml.loss"], "hints": ["Forward: Z1 = X@W1 + b1; A1 = max(0, Z1); Z2 = A1@W2 + b2; P = softmax(Z2) (subtract the row max first).", "dZ2 = (P - onehot(y)) / B. Then dW2 = A1.T @ dZ2, db2 = dZ2.sum(0), dA1 = dZ2 @ W2.T.", "dZ1 = dA1 * (Z1 > 0); dW1 = X.T @ dZ1; db1 = dZ1.sum(0). Return the gradients in the same order as the params."]}
+#@@ prompt
+Implement `loss_and_grads(params, X, y)` for the network in the lesson. `params = (W1, b1, W2, b2)`, `X` has shape `(B, n)`, `y` has integer labels. Return `(loss, (dW1, db1, dW2, db2))`, where the loss is the mean softmax cross-entropy.
+
+Also implement `grad_check(params, X, y, h=1e-5)` that returns the **maximum relative error** between your analytic gradients and central-difference gradients over all parameters. Use it to test your own code before submitting: it should print a value below `1e-6`.
+#@@ starter
+import numpy as np
+
+def loss_and_grads(params, X, y):
+    W1, b1, W2, b2 = params
+    # TODO forward pass (keep Z1, A1, P)
+    # TODO backward pass
+    raise NotImplementedError
+
+def grad_check(params, X, y, h=1e-5):
+    # TODO: for every entry of every parameter, perturb by +/- h and compare
+    raise NotImplementedError
+
+rng = np.random.default_rng(0)
+params = (rng.normal(0, 0.5, (4, 6)), np.zeros(6), rng.normal(0, 0.5, (6, 3)), np.zeros(3))
+X = rng.normal(size=(5, 4)); y = rng.integers(0, 3, size=5)
+print("gradient check error:", grad_check(params, X, y))
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+W1 = rng.normal(0, 0.5, (4, 6)); b1 = rng.normal(0, 0.1, 6); W2 = rng.normal(0, 0.5, (6, 3)); b2 = rng.normal(0, 0.1, 3)
+P0 = (W1, b1, W2, b2)
+X = rng.normal(size=(5, 4)); y = rng.integers(0, 3, size=5)
+loss, grads = loss_and_grads(P0, X, y)
+check("loss is a finite scalar", lambda: np.ndim(loss) == 0 and np.isfinite(loss))
+check("grads come back in param order with param shapes", lambda: [g.shape for g in grads] == [p.shape for p in P0], "Each gradient must have the shape of its parameter")
+def numeric():
+    out = []
+    for k, p in enumerate(P0):
+        g = np.zeros_like(p)
+        for idx in np.ndindex(*p.shape):
+            plus = [q.copy() for q in P0]; minus = [q.copy() for q in P0]
+            plus[k][idx] += 1e-5; minus[k][idx] -= 1e-5
+            g[idx] = (loss_and_grads(tuple(plus), X, y)[0] - loss_and_grads(tuple(minus), X, y)[0]) / 2e-5
+        out.append(g)
+    return out
+num = numeric()
+for name, a, n in zip(["dW1", "db1", "dW2", "db2"], grads, num):
+    check(name + " matches finite differences", (lambda a=a, n=n: np.allclose(a, n, atol=1e-7, rtol=1e-5)), "relative error too large; check the formula and the 1/B factor")
+check("initial loss near ln K for tiny weights", lambda: abs(loss_and_grads((W1 * 0.01, b1 * 0, W2 * 0.01, b2 * 0), X, y)[0] - np.log(3)) < 0.05)
+check("grad_check returns a small number for correct grads", lambda: grad_check(P0, X, y) < 1e-6)
+#@@ solution
+import numpy as np
+
+def loss_and_grads(params, X, y):
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1
+    A1 = np.maximum(0, Z1)
+    Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y])))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2
+    db2 = dZ2.sum(axis=0)
+    dA1 = dZ2 @ W2.T
+    dZ1 = dA1 * (Z1 > 0)
+    dW1 = X.T @ dZ1
+    db1 = dZ1.sum(axis=0)
+    return loss, (dW1, db1, dW2, db2)
+
+def grad_check(params, X, y, h=1e-5):
+    _, grads = loss_and_grads(params, X, y)
+    worst = 0.0
+    for k, p in enumerate(params):
+        for idx in np.ndindex(*p.shape):
+            plus = [q.copy() for q in params]; minus = [q.copy() for q in params]
+            plus[k][idx] += h; minus[k][idx] -= h
+            num = (loss_and_grads(tuple(plus), X, y)[0] - loss_and_grads(tuple(minus), X, y)[0]) / (2 * h)
+            ana = grads[k][idx]
+            worst = max(worst, abs(ana - num) / max(1e-8, abs(ana) + abs(num)))
+    return worst
+
+rng = np.random.default_rng(0)
+params = (rng.normal(0, 0.5, (4, 6)), np.zeros(6), rng.normal(0, 0.5, (6, 3)), np.zeros(3))
+X = rng.normal(size=(5, 4)); y = rng.integers(0, 3, size=5)
+print("gradient check error:", grad_check(params, X, y))

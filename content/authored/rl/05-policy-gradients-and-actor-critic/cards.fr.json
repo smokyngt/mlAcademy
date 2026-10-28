@@ -1,0 +1,16 @@
+[
+  { "id": "rl.05.c1", "front": "Objectif des méthodes de gradient de politique", "back": "$J(\\theta)=\\mathbb{E}_{\\tau\\sim\\pi_\\theta}[G(\\tau)]$, maximisé par montée de gradient sur $\\theta$." },
+  { "id": "rl.05.c2", "front": "Astuce de la log-dérivée", "back": "$\\nabla p_\\theta=p_\\theta\\nabla\\log p_\\theta$, donc $\\nabla\\mathbb{E}[G]=\\mathbb{E}[G\\,\\nabla\\log p_\\theta]$." },
+  { "id": "rl.05.c3", "front": "Théorème du gradient de politique", "back": "$\\nabla_\\theta J=\\mathbb{E}[\\sum_t\\nabla_\\theta\\log\\pi_\\theta(a_t|s_t)\\,G_t]$ (forme à récompense restante)." },
+  { "id": "rl.05.c4", "front": "Pourquoi la dynamique disparaît-elle du gradient ?", "back": "$\\log p_\\theta(\\tau)=\\sum\\log\\pi_\\theta+\\text{terms independent of }\\theta$, donc seuls les termes de politique sont dérivés." },
+  { "id": "rl.05.c5", "front": "Récompense restante (reward-to-go)", "back": "Pondérer $\\nabla\\log\\pi(a_t|s_t)$ par $G_t$ (récompenses futures) plutôt que par le retour entier ; même espérance, variance plus faible." },
+  { "id": "rl.05.c6", "front": "Pourquoi une référence d'état est non biaisée", "back": "$\\mathbb{E}_a[b(s)\\nabla\\log\\pi(a|s)]=b(s)\\nabla\\sum_a\\pi(a|s)=b(s)\\nabla 1=0$." },
+  { "id": "rl.05.c7", "front": "Fonction score du softmax", "back": "$\\nabla_\\theta\\log\\pi(a)=e_a-\\pi$ (un one-hot moins le vecteur de probabilités)." },
+  { "id": "rl.05.c8", "front": "Fonction d'avantage", "back": "$A^\\pi(s,a)=Q^\\pi(s,a)-V^\\pi(s)$ : de combien une action est meilleure que la moyenne de la politique dans cet état." },
+  { "id": "rl.05.c9", "front": "Acteur et critique", "back": "Acteur : la politique $\\pi_\\theta$. Critique : une estimation de valeur $V_\\phi(s)$ qui fournit la référence/l'avantage." },
+  { "id": "rl.05.c10", "front": "Avantage TD vs avantage MC", "back": "TD : $r+\\gamma V(s')-V(s)$, faible variance, biaisé. MC : $G_t-V(s_t)$, non biaisé, forte variance." },
+  { "id": "rl.05.c11", "front": "A2C", "back": "Acteur-critique à avantage synchrone : déploiements parallèles, estimations d'avantage, un pas d'acteur et un pas de critique sur le batch, généralement avec un bonus d'entropie." },
+  { "id": "rl.05.c12", "front": "Perte de l'acteur en code", "back": "$-\\text{adv}\\cdot\\log\\pi_\\theta(a|s)$ avec l'avantage détaché (un poids constant)." },
+  { "id": "rl.05.c13", "front": "Principale faiblesse des gradients de politique de base", "back": "Forte variance et données sur la politique : chaque batch supporte à peu près un seul pas de gradient." },
+  { "id": "rl.05.c14", "front": "Pourquoi ajouter un bonus d'entropie ?", "back": "$+c_eH(\\pi_\\theta)$ décourage l'effondrement prématuré vers une politique déterministe et maintient l'exploration." }
+]

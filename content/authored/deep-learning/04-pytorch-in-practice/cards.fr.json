@@ -1,0 +1,17 @@
+[
+  { "id": "dl.04.c1", "front": "Trois propriétés d'un tenseur", "back": "Forme, dtype et device (plus le fait qu'il requière ou non des gradients)." },
+  { "id": "dl.04.c2", "front": "`torch.tensor(a)` contre `torch.from_numpy(a)`", "back": "`tensor` copie le tableau NumPy ; `from_numpy` partage sa mémoire." },
+  { "id": "dl.04.c3", "front": "Autograd en une phrase", "back": "Enregistre les opérations de la passe avant et les rejoue à l'envers lors de `.backward()`, en ajoutant les gradients dans le `.grad` des feuilles." },
+  { "id": "dl.04.c4", "front": "Pourquoi appeler `zero_grad()` à chaque pas ?", "back": "Les gradients s'accumulent ; trois appels backward sur $2p$ donnent `p.grad` = 6, pas 2." },
+  { "id": "dl.04.c5", "front": "La boucle en cinq lignes", "back": "`zero_grad()`, passe avant, perte, `loss.backward()`, `opt.step()`." },
+  { "id": "dl.04.c6", "front": "Forme de `nn.Linear(n_in, n_out).weight`", "back": "`(n_out, n_in)` ; calcule $xW^\\top+b$, la transposée du `W` NumPy." },
+  { "id": "dl.04.c7", "front": "Que donne-t-on à `F.cross_entropy` ?", "back": "Des logits bruts `(B,K)` et des étiquettes `long` `(B,)` ; elle fait la moyenne sur le batch comme le $(P-Y)/B$ écrit à la main." },
+  { "id": "dl.04.c8", "front": "`eval()` contre `no_grad()`", "back": "`eval()` change le comportement des couches (dropout désactivé, la batch norm utilise les statistiques mobiles) ; `no_grad()` arrête l'enregistrement du graphe. Utilise les deux pour l'inférence." },
+  { "id": "dl.04.c9", "front": "Options du DataLoader", "back": "`shuffle=True` pour l'entraînement uniquement, `drop_last=True` pour éviter un dernier batch court, `num_workers` pour le chargement en arrière-plan." },
+  { "id": "dl.04.c10", "front": "Règle de placement sur les devices", "back": "Déplace le modèle une fois avec `model.to(device)` et chaque batch avec `.to(device)` ; tous les opérandes doivent partager un device." },
+  { "id": "dl.04.c11", "front": "float16 contre bfloat16", "back": "float16 : max 65504, plus petit normal $6\\times10^{-5}$, nécessite une mise à l'échelle de la perte. bfloat16 : plage de float32, environ 3 chiffres décimaux, pas de mise à l'échelle nécessaire." },
+  { "id": "dl.04.c12", "front": "Recette de la précision mixte", "back": "Passe avant/arrière en basse précision sous `autocast`, poids maîtres en float32 ; avec float16, ajoute `GradScaler`." },
+  { "id": "dl.04.c13", "front": "Sauvegarde et chargement", "back": "`torch.save(model.state_dict(), path)` ; reconstruis la même architecture, puis `load_state_dict(torch.load(path, weights_only=True))`." },
+  { "id": "dl.04.c14", "front": "Ce dont a besoin un point de sauvegarde de reprise", "back": "État du modèle, état de l'optimiseur, epoch et état du planning." },
+  { "id": "dl.04.c15", "front": "Écrêtage du gradient dans PyTorch", "back": "`clip_grad_norm_(params, max_norm)` après `backward()` et avant `step()` ; un gradient de norme 5 écrêté à 1 est multiplié par 1/5." }
+]

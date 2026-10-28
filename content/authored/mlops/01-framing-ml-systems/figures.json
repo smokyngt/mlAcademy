@@ -1,0 +1,67 @@
+[
+  {
+    "id": "metric-chain",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Connecting objectives: a model is only valuable if its ML metric moves a business metric. When the link is not obvious, only an experiment such as an A/B test can measure it.",
+      "fr": "Relier les objectifs : un modèle n'a de valeur que si sa métrique ML fait bouger une métrique métier. Quand le lien n'est pas évident, seule une expérience comme un test A/B peut le mesurer."
+    },
+    "code": {
+      "en": "flowchart LR\n  ML[\"ML metric<br/>accuracy, F1, latency\"] -->|\"improves\"| PROD[\"product behaviour<br/>clicks, blocked fraud\"]\n  PROD --> BIZ[\"business metric<br/>revenue, retention, cost saved\"]\n  AB[\"A/B test\"] -.->|\"measures the link\"| BIZ",
+      "fr": "flowchart LR\n  ML[\"métrique ML<br/>précision, F1, latence\"] -->|\"améliore\"| PROD[\"comportement du produit<br/>clics, fraude bloquée\"]\n  PROD --> BIZ[\"métrique métier<br/>revenu, rétention, coût évité\"]\n  AB[\"test A/B\"] -.->|\"mesure le lien\"| BIZ"
+    }
+  },
+  {
+    "id": "ml-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "An ML project is a loop, not a line: each round of deployment and monitoring feeds the scoping of the next one.",
+      "fr": "Un projet ML est une boucle, pas une ligne : chaque cycle de déploiement et de surveillance alimente le cadrage du suivant."
+    },
+    "code": {
+      "en": "flowchart LR\n  S[\"scope and metrics\"] --> D[\"data\"] --> M[\"model development\"] --> P[\"deployment\"] --> MO[\"monitoring\"] --> BA[\"business analysis\"]\n  BA --> S",
+      "fr": "flowchart LR\n  S[\"cadrage et métriques\"] --> D[\"données\"] --> M[\"développement du modèle\"] --> P[\"déploiement\"] --> MO[\"surveillance\"] --> BA[\"analyse métier\"]\n  BA --> S"
+    }
+  },
+  {
+    "id": "latency-distribution",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Never summarise latency by its mean. The ten requests of the lesson (sorted, ms): the mean is 390 ms, which describes none of them; the median is 100 ms and one outlier at 3000 ms is the p99.",
+      "fr": "Ne jamais résumer la latence par sa moyenne. Les dix requêtes de la leçon (triées, ms) : la moyenne vaut 390 ms, ce qui ne décrit aucune d'elles ; la médiane est de 100 ms et une valeur aberrante à 3000 ms fait le p99."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Latency of 10 requests (ms)\"\n  x-axis [\"r1\", \"r2\", \"r3\", \"r4\", \"r5\", \"r6\", \"r7\", \"r8\", \"r9\", \"r10\"]\n  y-axis \"ms\" 0 --> 3200\n  bar [90, 95, 99, 100, 100, 100, 102, 104, 110, 3000]",
+      "fr": "xychart-beta\n  title \"Latence de 10 requêtes (ms)\"\n  x-axis [\"r1\", \"r2\", \"r3\", \"r4\", \"r5\", \"r6\", \"r7\", \"r8\", \"r9\", \"r10\"]\n  y-axis \"ms\" 0 --> 3200\n  bar [90, 95, 99, 100, 100, 100, 102, 104, 110, 3000]"
+    }
+  },
+  {
+    "id": "batching-throughput",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Throughput = B x 1000 / t queries per second. Batching raised latency from 10 to 20 ms yet raised throughput 2.5 times: the three cases of the lesson (batch 1 at 10 ms, batch 10 at 10 ms, batch 50 at 20 ms).",
+      "fr": "Débit = B x 1000 / t requêtes par seconde. Le traitement par lots a fait passer la latence de 10 à 20 ms tout en multipliant le débit par 2,5 : les trois cas de la leçon (lot de 1 à 10 ms, lot de 10 à 10 ms, lot de 50 à 20 ms)."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Throughput (queries per second)\"\n  x-axis [\"B=1, 10 ms\", \"B=10, 10 ms\", \"B=50, 20 ms\"]\n  y-axis \"qps\" 0 --> 3000\n  bar [100, 1000, 2500]",
+      "fr": "xychart-beta\n  title \"Débit (requêtes par seconde)\"\n  x-axis [\"B=1, 10 ms\", \"B=10, 10 ms\", \"B=50, 20 ms\"]\n  y-axis \"qps\" 0 --> 3000\n  bar [100, 1000, 2500]"
+    }
+  },
+  {
+    "id": "decoupled-objectives",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Decoupling objectives: train one model per objective and blend their scores at ranking time, so the trade-off is a dial (alpha, beta) rather than a retraining job.",
+      "fr": "Découpler les objectifs : entraîner un modèle par objectif et mélanger leurs scores au moment du classement, de sorte que le compromis est un réglage (alpha, beta) plutôt qu'un réentraînement."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"post x\"] --> Q[\"quality model\"]\n  X --> E[\"engagement model\"]\n  Q --> BL[\"score = alpha quality + beta engagement\"]\n  E --> BL\n  BL --> RK[\"ranked feed\"]",
+      "fr": "flowchart LR\n  X[\"publication x\"] --> Q[\"modèle de qualité\"]\n  X --> E[\"modèle d'engagement\"]\n  Q --> BL[\"score = alpha quality + beta engagement\"]\n  E --> BL\n  BL --> RK[\"fil classé\"]"
+    }
+  }
+]

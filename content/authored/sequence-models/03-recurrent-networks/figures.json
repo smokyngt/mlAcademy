@@ -1,0 +1,147 @@
+[
+  {
+    "id": "cell",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One RNN step with batched shapes: the new state mixes the current input and the previous state through two matrices, then a tanh. The same W_xh, W_hh and b are used at every step.",
+      "fr": "Un pas de RNN avec les formes par lot : le nouvel état mélange l'entrée courante et l'état précédent via deux matrices, puis un tanh. Les mêmes W_xh, W_hh et b sont utilisés à chaque pas."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x_t (B, n)\"] --> M1[\"x_t W_xhᵀ\\n(B, n)(n, H) = (B, H)\"]\n  H0[\"h_(t-1) (B, H)\"] --> M2[\"h_(t-1) W_hhᵀ\\n(B, H)(H, H) = (B, H)\"]\n  M1 --> A[\"a_t = sum + b  (B, H)\"]\n  M2 --> A\n  BB[\"b (H,)\"] --> A\n  A --> T[\"tanh\"] --> H1[\"h_t (B, H)\"]\n  H1 -->|\"next step, same weights\"| H0",
+      "fr": "flowchart LR\n  X[\"x_t (B, n)\"] --> M1[\"x_t W_xhᵀ\\n(B, n)(n, H) = (B, H)\"]\n  H0[\"h_(t-1) (B, H)\"] --> M2[\"h_(t-1) W_hhᵀ\\n(B, H)(H, H) = (B, H)\"]\n  M1 --> A[\"a_t = somme + b  (B, H)\"]\n  M2 --> A\n  BB[\"b (H,)\"] --> A\n  A --> T[\"tanh\"] --> H1[\"h_t (B, H)\"]\n  H1 -->|\"pas suivant, mêmes poids\"| H0"
+    }
+  },
+  {
+    "id": "heads",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Output heads: classification or regression reads only the last state; annotation reads a label from every state and sums the losses over time.",
+      "fr": "Têtes de sortie : la classification ou la régression lit seulement le dernier état ; l'annotation lit une étiquette à partir de chaque état et somme les pertes dans le temps."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph M2O[\"many-to-one: spam, sentiment, regression\"]\n    direction LR\n    a1[\"h_1\"] --> a2[\"h_2\"] --> a3[\"h_T\"] --> ay[\"y_hat = w·h_T + b_y\"]\n  end\n  subgraph M2M[\"annotation: POS tags, entities\"]\n    direction LR\n    b1[\"h_1\"] --> by1[\"y_1\"]\n    b2[\"h_2\"] --> by2[\"y_2\"]\n    b3[\"h_T\"] --> by3[\"y_T\"]\n    b1 --> b2 --> b3\n  end",
+      "fr": "flowchart TB\n  subgraph M2O[\"plusieurs-vers-un : spam, sentiment, régression\"]\n    direction LR\n    a1[\"h_1\"] --> a2[\"h_2\"] --> a3[\"h_T\"] --> ay[\"y_chap = w·h_T + b_y\"]\n  end\n  subgraph M2M[\"annotation : étiquettes grammaticales, entités\"]\n    direction LR\n    b1[\"h_1\"] --> by1[\"y_1\"]\n    b2[\"h_2\"] --> by2[\"y_2\"]\n    b3[\"h_T\"] --> by3[\"y_T\"]\n    b1 --> b2 --> b3\n  end"
+    }
+  },
+  {
+    "id": "bptt",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Backpropagation through time for the many-to-one RNN: the gradient flows backward through h_T, ..., h_1; at every step the shared-weight gradients are ADDED to running sums.",
+      "fr": "Rétropropagation dans le temps pour le RNN plusieurs-vers-un : le gradient remonte par h_T, ..., h_1 ; à chaque pas, les gradients des poids partagés sont AJOUTÉS à des sommes cumulées."
+    },
+    "code": {
+      "en": "flowchart RL\n  L[\"loss L = (1/2B) Σ (y_hat - y)²\"] --> Y[\"ȳ = (y_hat - y)/B\"]\n  Y --> HT[\"h̄_T = ȳ w_y  (H,)\"]\n  HT --> AT[\"ā_T = h̄_T ⊙ (1 - h_T²)\"]\n  AT -->|\"h̄_(T-1) += W_hhᵀ ā_T\"| HT1[\"h̄_(T-1)\"]\n  HT1 --> AT1[\"ā_(T-1) = h̄_(T-1) ⊙ (1 - h_(T-1)²)\"]\n  AT1 -->|\"... down to t = 1\"| DOTS[\"...\"]\n  AT --> ACC[\"W̄_hh += ā_t h_(t-1)ᵀ  (H, H)\\nW̄_xh += ā_t x_tᵀ  (H, n)\\nb̄ += ā_t  (H,)\\nsum over ALL t (shared weights)\"]\n  AT1 --> ACC",
+      "fr": "flowchart RL\n  L[\"perte L = (1/2B) Σ (y_chap - y)²\"] --> Y[\"ȳ = (y_chap - y)/B\"]\n  Y --> HT[\"h̄_T = ȳ w_y  (H,)\"]\n  HT --> AT[\"ā_T = h̄_T ⊙ (1 - h_T²)\"]\n  AT -->|\"h̄_(T-1) += W_hhᵀ ā_T\"| HT1[\"h̄_(T-1)\"]\n  HT1 --> AT1[\"ā_(T-1) = h̄_(T-1) ⊙ (1 - h_(T-1)²)\"]\n  AT1 -->|\"... jusqu'à t = 1\"| DOTS[\"...\"]\n  AT --> ACC[\"W̄_hh += ā_t h_(t-1)ᵀ  (H, H)\\nW̄_xh += ā_t x_tᵀ  (H, n)\\nb̄ += ā_t  (H,)\\nsomme sur TOUS les t (poids partagés)\"]\n  AT1 --> ACC"
+    }
+  },
+  {
+    "id": "vanishing",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient magnitude after t steps when each step multiplies it by a constant factor (the linear regime, rho^t): 0.9^t vanishes (blue; 0.9^100 = 2.7e-5), 1.0 is the knife edge (green), 1.1^t explodes (red).",
+      "fr": "Amplitude du gradient après t pas quand chaque pas le multiplie par un facteur constant (régime linéaire, rho^t) : 0,9^t s'évanouit (bleu ; 0,9^100 = 2,7e-5), 1,0 est la limite (vert), 1,1^t explose (rouge)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        100
+      ],
+      "yDomain": [
+        0,
+        3
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "exp(-0.1053605*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "exp(0.0953102*x)",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 1,
+          "text": "rho = 1"
+        }
+      ]
+    }
+  },
+  {
+    "id": "tanh-deriv",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "The tanh derivative 1 - tanh(x)^2 that multiplies each Jacobian: at most 1 (at 0) and nearly 0 once the state saturates, which is why a large W_hh in a tanh RNN can still produce vanishing gradients at long range.",
+      "fr": "La dérivée de tanh 1 - tanh(x)^2 qui multiplie chaque jacobien : au plus 1 (en 0) et presque 0 dès que l'état sature, ce qui explique qu'un grand W_hh dans un RNN tanh puisse encore donner des gradients évanescents à longue portée."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        -1.2,
+        1.2
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1 - tanh(x)^2",
+          "color": "#d97706"
+        },
+        {
+          "fn": "tanh(x)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "clipping",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient clipping by global norm g ← g · min(1, τ/‖g‖) with τ = 2: the clipped norm (orange) follows the raw norm (blue dashed identity) up to τ and is then capped; the direction is preserved.",
+      "fr": "Écrêtage du gradient par la norme globale g ← g · min(1, τ/‖g‖) avec τ = 2 : la norme écrêtée (orange) suit la norme brute (identité, bleu) jusqu'à τ puis est plafonnée ; la direction est conservée."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        8
+      ],
+      "yDomain": [
+        0,
+        8
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "min(x, 2)",
+          "color": "#d97706"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2,
+          "text": "threshold tau = 2"
+        }
+      ]
+    }
+  }
+]

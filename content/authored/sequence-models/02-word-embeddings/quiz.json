@@ -1,0 +1,64 @@
+[
+  {
+    "id": "seq.02.q1", "concept": "seq.embedding", "stage": "pre", "kind": "mcq",
+    "prompt": "What is the cosine similarity between two different one-hot word vectors?",
+    "options": ["1", "$1/\\sqrt2$", "$-1$", "0"],
+    "answer": 3,
+    "explanation": "Different one-hot vectors are orthogonal, so their dot product (and cosine) is 0; they are all at Euclidean distance $\\sqrt2$. One-hot codes carry no notion of similarity."
+  },
+  {
+    "id": "seq.02.q2", "concept": "seq.embedding", "stage": "pre", "kind": "mcq",
+    "prompt": "The distributional hypothesis says that...",
+    "options": ["words with similar spellings have similar meanings", "words appearing in similar contexts have similar meanings", "frequent words carry the most meaning", "every word has exactly one meaning"],
+    "answer": 1,
+    "explanation": "\"You shall know a word by the company it keeps\" (Firth). Skip-gram turns this into a prediction task."
+  },
+  {
+    "id": "seq.02.q3", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "In the skip-gram negative-sampling loss, the gradient with respect to the true context vector $u_o$ is...",
+    "options": ["$\\sigma(s_o)\\,v_c$", "$(1-\\sigma(s_o))\\,v_c$", "$\\sigma(s_o)\\,u_o$", "$(\\sigma(s_o)-1)\\,v_c$"],
+    "answer": 3,
+    "explanation": "$\\partial\\ell/\\partial s_o=\\sigma(s_o)-1$ and $s_o=u_o\\cdot v_c$, so $\\partial\\ell/\\partial u_o=(\\sigma(s_o)-1)v_c$. Gradient descent moves $u_o$ toward $v_c$."
+  },
+  {
+    "id": "seq.02.q4", "concept": "seq.embedding", "kind": "numeric", "stage": "check",
+    "prompt": "With all embedding vectors equal to zero and $k=5$ negatives, what is the negative-sampling loss of one pair (to 3 decimals)?",
+    "options": [], "answer": { "value": 4.159, "tol": 0.002 },
+    "explanation": "Every score is 0, $\\sigma(0)=1/2$, so each of the $1+k=6$ terms is $\\ln2$: $6\\ln2=4.159$."
+  },
+  {
+    "id": "seq.02.q5", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "Why use negative sampling instead of the full softmax over the vocabulary?",
+    "options": ["The full softmax cannot be differentiated", "It reduces the per-pair cost from $O(nd)$ to $O((k+1)d)$", "It guarantees orthogonal embeddings", "It removes the need for two embedding tables"],
+    "answer": 1,
+    "explanation": "The softmax normaliser sums over all $n$ words; negative sampling touches only the true context and $k$ sampled words."
+  },
+  {
+    "id": "seq.02.q6", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "A negative sample whose score $s_j=u_j\\cdot v_c$ is already very negative (e.g. $-8$) contributes...",
+    "options": ["a large gradient, because it is far from $v_c$", "almost no gradient, since $\\sigma(s_j)\\approx0$", "a gradient of exactly 1", "a negative gradient that pulls it toward $v_c$"],
+    "answer": 1,
+    "explanation": "$g_j=\\sigma(s_j)\\approx3\\times10^{-4}$: the model is already right about this negative, so it is barely updated."
+  },
+  {
+    "id": "seq.02.q7", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "GloVe models $\\log P(k\\mid i)\\approx w_i^\\top\\tilde w_k$. What does the log buy us?",
+    "options": ["It makes the matrix symmetric", "It turns ratios $P(k|i)/P(k|j)$ into differences $(w_i-w_j)^\\top\\tilde w_k$, linking analogies to vector offsets", "It removes the need for context vectors", "It makes frequent words dominate"],
+    "answer": 1,
+    "explanation": "$\\log(P(k|i)/P(k|j))=\\log P(k|i)-\\log P(k|j)\\approx(w_i-w_j)^\\top\\tilde w_k$."
+  },
+  {
+    "id": "seq.02.q8", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "What problem does fastText's character n-gram representation address?",
+    "options": ["Words that the model has never seen still get a vector from their n-grams", "It makes training faster than word2vec", "It removes the need for a corpus", "It separates antonyms"],
+    "answer": 0,
+    "explanation": "A word vector is the sum of its n-gram vectors, so an unseen word like \"whereupon\" shares n-grams with \"where\" and lands near it."
+  },
+  {
+    "id": "seq.02.q9", "concept": "seq.embedding", "kind": "mcq", "stage": "check",
+    "prompt": "When solving the analogy man : king :: woman : ? by nearest neighbour of $v_{king}-v_{man}+v_{woman}$, you should...",
+    "options": ["use Euclidean distance on raw vectors", "exclude the three query words from the candidates", "average with the vector for \"queen\"", "normalise by the corpus size"],
+    "answer": 1,
+    "explanation": "The result vector is usually very close to one of the inputs (often \"king\" itself), so the query words are excluded when ranking."
+  }
+]

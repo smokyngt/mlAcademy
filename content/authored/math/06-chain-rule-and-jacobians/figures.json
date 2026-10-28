@@ -1,0 +1,35 @@
+[
+  {
+    "id": "scalar-chain", "after": 6, "kind": "plot",
+    "caption": { "en": "A composition f(x) = sin(x²) (blue) and its derivative 2x·cos(x²) (orange), the product of the outer derivative cos(u) and the inner derivative 2x. Move the mouse over the curve to see the tangent.", "fr": "Une composition f(x) = sin(x²) (bleu) et sa dérivée 2x·cos(x²) (orange), produit de la dérivée externe cos(u) et de la dérivée interne 2x. Passe la souris sur la courbe pour voir la tangente." },
+    "spec": { "xDomain": [-3, 3], "yDomain": [-6, 6], "height": 320,
+      "data": [
+        { "fn": "sin(x^2)", "color": "#2563eb", "derivative": { "fn": "2*x*cos(x^2)", "updateOnMouseMove": true } },
+        { "fn": "2*x*cos(x^2)", "color": "#d97706" }
+      ] }
+  },
+  {
+    "id": "chain-graph", "after": 6, "kind": "mermaid",
+    "caption": { "en": "The chain rule on a computation graph: local derivatives multiply along the path from x to L.", "fr": "La règle de la chaîne sur un graphe de calcul : les dérivées locales se multiplient le long du chemin de x à L." },
+    "code": {
+      "en": "flowchart LR\n  x((\"x\")) -->|\"dg/dx\"| g[\"u = g(x)\"] -->|\"dh/du\"| h[\"v = h(u)\"] -->|\"df/dv\"| f((\"L = f(v)\"))\n  f -.->|\"dL/dx = df/dv * dh/du * dg/dx\"| x",
+      "fr": "flowchart LR\n  x((\"x\")) -->|\"dg/dx\"| g[\"u = g(x)\"] -->|\"dh/du\"| h[\"v = h(u)\"] -->|\"df/dv\"| f((\"L = f(v)\"))\n  f -.->|\"dL/dx = df/dv * dh/du * dg/dx\"| x"
+    }
+  },
+  {
+    "id": "jacobian-shape", "after": 7, "kind": "mermaid",
+    "caption": { "en": "The Jacobian of g: R^n → R^m is an m×n matrix: one row per output, one column per input. Entry (i, j) is ∂g_i/∂x_j.", "fr": "La jacobienne de g : R^n → R^m est une matrice m×n : une ligne par sortie, une colonne par entrée. L'entrée (i, j) est ∂g_i/∂x_j." },
+    "code": {
+      "en": "flowchart LR\n  X[\"input x (n)\"] --> G[\"g\"] --> Y[\"output y (m)\"]\n  G --> J[\"Jacobian J (m, n)\\nJ_ij = dy_i / dx_j\"]\n  J --> L[\"linear approximation\\ny(x+dx) ~ y(x) + J dx\"]",
+      "fr": "flowchart LR\n  X[\"entrée x (n)\"] --> G[\"g\"] --> Y[\"sortie y (m)\"]\n  G --> J[\"jacobienne J (m, n)\\nJ_ij = dy_i / dx_j\"]\n  J --> L[\"approximation linéaire\\ny(x+dx) ~ y(x) + J dx\"]"
+    }
+  },
+  {
+    "id": "backprop-vjp", "after": 8, "kind": "mermaid",
+    "caption": { "en": "Backpropagation for y = Wx: the forward pass goes left to right, the upstream gradient g flows back and is multiplied by Wᵀ (for x) and by xᵀ (for W). With g = (1, −1): ∇x = (−2, −2).", "fr": "Rétropropagation pour y = Wx : la passe avant va de gauche à droite, le gradient amont g revient et est multiplié par Wᵀ (pour x) et par xᵀ (pour W). Avec g = (1, −1) : ∇x = (−2, −2)." },
+    "code": {
+      "en": "flowchart LR\n  x[\"x (n)\"] -->|\"forward\"| y[\"y = Wx (m)\"] -->|\"forward\"| L((\"loss L\"))\n  W[\"W (m, n)\"] --> y\n  L -->|\"g = dL/dy (m)\"| y\n  y -->|\"W^T g (n)\"| gx[\"dL/dx\"]\n  y -->|\"g x^T (m, n)\"| gW[\"dL/dW\"]",
+      "fr": "flowchart LR\n  x[\"x (n)\"] -->|\"avant\"| y[\"y = Wx (m)\"] -->|\"avant\"| L((\"perte L\"))\n  W[\"W (m, n)\"] --> y\n  L -->|\"g = dL/dy (m)\"| y\n  y -->|\"W^T g (n)\"| gx[\"dL/dx\"]\n  y -->|\"g x^T (m, n)\"| gW[\"dL/dW\"]"
+    }
+  }
+]

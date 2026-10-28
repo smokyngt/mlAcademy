@@ -1,0 +1,18 @@
+[
+  { "id": "math.15.c1", "front": "Structure d'un flottant IEEE-754", "back": "Bit de signe, champ d'exposant (plage), champ de mantisse (précision) : $x=(-1)^s\\,2^{e-\\text{bias}}\\,(1.m)_2$." },
+  { "id": "math.15.c2", "front": "Répartition des bits de float64 / float32", "back": "float64 : 1+11+52 bits, environ 16 chiffres, max $1.8\\times10^{308}$. float32 : 1+8+23 bits, environ 7 chiffres, max $3.4\\times10^{38}$." },
+  { "id": "math.15.c3", "front": "float16 contre bfloat16", "back": "float16 : 5 bits d'exposant, 10 de mantisse, max 65504, précis mais plage étroite. bfloat16 : 8 bits d'exposant, 7 de mantisse, plage de float32, précision grossière." },
+  { "id": "math.15.c4", "front": "Epsilon machine", "back": "Écart entre 1 et le flottant suivant : $2.2\\times10^{-16}$ (f64), $1.19\\times10^{-7}$ (f32), $9.8\\times10^{-4}$ (f16), $7.8\\times10^{-3}$ (bf16). Borne l'erreur d'arrondi relative." },
+  { "id": "math.15.c5", "front": "Pourquoi éviter `a == b` pour des flottants ?", "back": "La plupart des décimaux ne sont pas représentables ($0.1+0.2\\ne0.3$). Utilise `np.isclose` avec une tolérance." },
+  { "id": "math.15.c6", "front": "Annulation catastrophique", "back": "Soustraire des nombres presque égaux annule les chiffres de tête ; l'erreur relative est amplifiée de $(|a|+|b|)/|a-b|$." },
+  { "id": "math.15.c7", "front": "Limites d'overflow et d'underflow de exp (float32)", "back": "$e^{88.7}\\approx3.3\\times10^{38}$ est la dernière valeur finie, $e^{89}=\\text{inf}$ ; $e^{-104}$ fait un underflow à 0. float64 déborde près de $e^{709}$." },
+  { "id": "math.15.c8", "front": "Softmax stable", "back": "Soustrais d'abord $c=\\max_j z_j$ : le softmax est invariant par décalage, les exposants sont $\\le0$, le dénominateur est $\\ge1$." },
+  { "id": "math.15.c9", "front": "Log-sum-exp", "back": "$\\operatorname{LSE}(z)=c+\\log\\sum_je^{z_j-c}$ avec $c=\\max z$. Entropie croisée à partir des logits : $-z_y+\\operatorname{LSE}(z)$." },
+  { "id": "math.15.c10", "front": "Pourquoi la variance par scores bruts est-elle instable ?", "back": "$\\mathbb E[x^2]-(\\mathbb E x)^2$ soustrait deux nombres énormes presque égaux. Pour $10^9+\\{4,7,13,16\\}$ elle donne $-128$ au lieu de $22.5$." },
+  { "id": "math.15.c11", "front": "Mise à jour de Welford", "back": "$\\delta=x-m$ ; $m\\mathrel{+}=\\delta/n$ ; $M_2\\mathrel{+}=\\delta(x-m_{\\text{new}})$ ; variance $=M_2/n$ ou $M_2/(n-1)$. Un passage, seulement des écarts." },
+  { "id": "math.15.c12", "front": "Conditionnement", "back": "$\\kappa(A)=\\|A\\|\\|A^{-1}\\|=\\sigma_{\\max}/\\sigma_{\\min}$ : facteur par lequel l'erreur d'entrée relative peut croître dans la sortie de $Ax=b$. $\\kappa(X^\\top X)=\\kappa(X)^2$." },
+  { "id": "math.15.c13", "front": "Ordre de sommation", "back": "L'addition flottante n'est pas associative ; un grand total courant avale les petits termes. Utilise la sommation par paires (np.sum) ou la sommation compensée de Kahan." },
+  { "id": "math.15.c14", "front": "Étape de la sommation de Kahan", "back": "$y=x-c$ ; $t=s+y$ ; $c=(t-s)-y$ ; $s=t$. La correction $c$ stocke les bits de poids faible perdus à chaque addition." },
+  { "id": "math.15.c15", "front": "Mise à l'échelle de la perte dans l'entraînement en float16", "back": "Multiplie la perte par un grand facteur pour que les minuscules gradients ne fassent pas d'underflow, puis divise les gradients par lui avant la mise à jour ; garde des poids maîtres en float32." },
+  { "id": "math.15.c16", "front": "Meilleur pas pour les différences centrées", "back": "Troncature $\\sim h^2$ contre arrondi $\\sim\\varepsilon/h$ donne $h\\approx\\varepsilon^{1/3}\\approx6\\times10^{-6}$ en float64." }
+]

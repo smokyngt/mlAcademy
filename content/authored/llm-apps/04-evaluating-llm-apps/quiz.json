@@ -1,0 +1,135 @@
+[
+ {
+  "id": "app.04.q1",
+  "concept": "app.eval",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Why keep a held-out set that you rarely look at?",
+  "options": [
+   "it is cheaper",
+   "tuning prompts on the dev set overfits them to it, so you need untouched data for an honest estimate",
+   "judges require it",
+   "it speeds up CI"
+  ],
+  "answer": 1,
+  "explanation": "Same logic as train/test: repeated tuning against one set leaks its idiosyncrasies into the prompt."
+ },
+ {
+  "id": "app.04.q2",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which scorer should you run first and use as a gate?",
+  "options": [
+   "deterministic checks (schema, length, forbidden strings)",
+   "LLM-as-judge",
+   "human review",
+   "BLEU"
+  ],
+  "answer": 0,
+  "explanation": "Deterministic checks are fast, free and unambiguous."
+ },
+ {
+  "id": "app.04.q3",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why anchor each rubric level to observable behaviour?",
+  "options": [
+   "to make the judge prompt longer",
+   "judges cannot read numbers",
+   "to avoid JSON",
+   "vague scales like 'rate 1-5 how good' give noisy, inconsistent scores"
+  ],
+  "answer": 3,
+  "explanation": "Anchors reduce variance between judge calls and between judges."
+ },
+ {
+  "id": "app.04.q4",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Human labels 1,1,1,0,0,1,0,1,1,0; judge 1,1,0,0,0,1,1,1,1,0. Cohen's kappa (3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.583,
+   "tol": 0.001
+  },
+  "explanation": "p_o = 0.8, p_e = 0.6*0.6 + 0.4*0.4 = 0.52, kappa = 0.28/0.48 = 0.583."
+ },
+ {
+  "id": "app.04.q5",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A judge always answers 'pass'. 90% of items are truly pass. Its raw agreement is 90%. Its kappa is...",
+  "options": [
+   "0.9",
+   "0.5",
+   "0",
+   "1"
+  ],
+  "answer": 2,
+  "explanation": "p_e = 0.9*1 + 0.1*0 = 0.9 = p_o, so kappa = 0. Accuracy hides the lack of discrimination."
+ },
+ {
+  "id": "app.04.q6",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Prompt B beats A on 9 items, A beats B on 3, 28 ties (n = 40). Exact two-sided sign-flip p-value?",
+  "options": [
+   "0.015",
+   "0.146",
+   "0.5",
+   "0.0003"
+  ],
+  "answer": 1,
+  "explanation": "Over m = 12 differing items, the number of sign patterns with |S| >= 6 is 2(1+12+66+220) = 598 of 4096, p = 0.146: not significant at 5 percent."
+ },
+ {
+  "id": "app.04.q7",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "How does the required sample size change if you want to detect an improvement half as large (same sd)?",
+  "options": [
+   "quadruples",
+   "halves",
+   "stays the same",
+   "doubles"
+  ],
+  "answer": 0,
+  "explanation": "n is proportional to (sd/delta)^2, so halving delta multiplies n by 4."
+ },
+ {
+  "id": "app.04.q8",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why compare prompts as PAIRED differences rather than two separate accuracies?",
+  "options": [
+   "paired tests need fewer prompts",
+   "it makes the score higher",
+   "bootstrap only works on pairs",
+   "item difficulty cancels in the difference, so the comparison has less noise"
+  ],
+  "answer": 3,
+  "explanation": "An easy item is easy for both prompts; the difference removes that shared variation."
+ },
+ {
+  "id": "app.04.q9",
+  "concept": "app.eval",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A prompt change raises average quality but one topic slice collapses. What practice would have caught it?",
+  "options": [
+   "a bigger model",
+   "lower temperature",
+   "tracking metrics per tag/slice and several metrics at once",
+   "longer prompts"
+  ],
+  "answer": 2,
+  "explanation": "Averages can hide regressions in slices; tag items and report per-slice results."
+ }
+]

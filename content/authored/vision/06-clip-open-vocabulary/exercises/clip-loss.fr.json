@@ -1,0 +1,10 @@
+{
+ "id": "vis.06.ex1",
+ "title": "Perte CLIP symétrique, classification zero-shot et recherche",
+ "prompt": "`I` est `(N, d)` plongements d'images et `T` est `(N, d)` plongements des légendes correspondantes (`T[i]` est la légende de `I[i]`).\n\n- `l2_normalize(x)` : lignes de longueur unité.\n- `clip_logits(I, T, tau)` : matrice `(N, N)` des similarités cosinus divisées par la température `tau`.\n- `clip_loss(I, T, tau)` : perte InfoNCE symétrique, la moyenne des entropies croisées image-vers-texte et texte-vers-image avec l'identité comme cible.\n- `clip_logit_grad(I, T, tau)` : le gradient de `clip_loss` par rapport à la **matrice de logits** (forme `(N, N)`).\n- `zero_shot_predict(image_emb, class_emb)` : pour des plongements d'images `(M, d)` et des plongements de prompts de classes `(C, d)`, renvoie l'indice de classe prédit par image.\n- `ensemble_prompts(embs)` : `embs` a la forme `(C, K, d)` (K modèles de prompts par classe) ; renvoie des plongements de classes `(C, d)` : moyenne sur les modèles, puis normalisée.\n- `recall_at_k(I, T, k)` : recall@k de la recherche image-vers-texte : la fraction des images dont la propre légende figure parmi les `k` légendes les plus similaires.",
+ "hints": [
+  "Logits L = (I @ T.T) / tau après normalisation L2 des lignes de I et T. L'entropie croisée image-vers-texte utilise les lignes de L avec la cible i ; texte-vers-image utilise les lignes de L.T. La perte est la moyenne des deux.",
+  "Le gradient de l'entropie croisée moyenne d'une direction par rapport à ses logits est (softmax(L) - eye) / N ; la perte symétrique fait la moyenne de la version par lignes et de la version par colonnes (transposée).",
+  "Zero-shot : normalise les plongements de texte des classes, calcule image @ classes.T, argmax. Assemblage de prompts : moyenne de plusieurs plongements de texte par classe et re-normalisation avant la comparaison."
+ ]
+}

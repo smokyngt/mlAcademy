@@ -1,0 +1,160 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The number families are nested: each extension lets you solve equations the previous one could not.",
+      "fr": "Les familles de nombres sont emboîtées : chaque extension permet de résoudre des équations impossibles dans la précédente."
+    },
+    "code": {
+      "en": "flowchart LR\n  N[\"N: 0, 1, 2, ...\"] -->|\"x + 3 = 1 needs\"| Z[\"Z: ..., -1, 0, 1, ...\"] -->|\"2x = 1 needs\"| Q[\"Q: fractions p/q\"] -->|\"x^2 = 2 needs\"| Rr[\"R: the whole number line\"]",
+      "fr": "flowchart LR\n  N[\"N : 0, 1, 2, ...\"] -->|\"x + 3 = 1 exige\"| Z[\"Z : ..., -1, 0, 1, ...\"] -->|\"2x = 1 exige\"| Q[\"Q : fractions p/q\"] -->|\"x^2 = 2 exige\"| Rr[\"R : toute la droite réelle\"]"
+    }
+  },
+  {
+    "id": "f2",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Power functions for x > 0: x^2 and x^3 grow, x^(1/2) = sqrt(x) grows ever more slowly, x^(-1) = 1/x decays.",
+      "fr": "Fonctions puissances pour x > 0 : x^2 et x^3 croissent, x^(1/2) = sqrt(x) croît de plus en plus lentement, x^(-1) = 1/x décroît."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        3
+      ],
+      "yDomain": [
+        0,
+        6
+      ],
+      "data": [
+        {
+          "fn": "x^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x^3",
+          "color": "#dc2626"
+        },
+        {
+          "fn": "sqrt(x)",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "1/x",
+          "color": "#d97706"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A 20% rise then a 20% fall multiplies by 1.2 then 0.8: the second step acts on a bigger base, so you end at 96, not 100.",
+      "fr": "Hausse de 20 % puis baisse de 20 % : on multiplie par 1,2 puis 0,8 ; la seconde étape porte sur une base plus grande, donc on finit à 96 et non 100."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"100\"] -->|\"x 1.2\"| B[\"120\"] -->|\"x 0.8\"| C[\"96\"]\n  A -.->|\"net factor 1.2 x 0.8 = 0.96\"| C",
+      "fr": "flowchart LR\n  A[\"100\"] -->|\"x 1,2\"| B[\"120\"] -->|\"x 0,8\"| C[\"96\"]\n  A -.->|\"facteur net 1,2 x 0,8 = 0,96\"| C"
+    }
+  },
+  {
+    "id": "f4",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Unknowns on both sides: 5x - 2 = 3x + 8 is where the two lines cross, at x = 5 (value 23).",
+      "fr": "Inconnues des deux côtés : 5x - 2 = 3x + 8 est l'endroit où les deux droites se croisent, en x = 5 (valeur 23)."
+    },
+    "spec": {
+      "xDomain": [
+        -2,
+        8
+      ],
+      "yDomain": [
+        -15,
+        40
+      ],
+      "data": [
+        {
+          "fn": "5*x-2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "3*x+8",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              5,
+              23
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 5,
+          "text": "x = 5"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f5",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "Two equations, two unknowns: each equation is a line and the solution is their crossing. 2x + 3y = 13 and x - y = -1 meet at (2, 3).",
+      "fr": "Deux équations, deux inconnues : chaque équation est une droite et la solution est leur croisement. 2x + 3y = 13 et x - y = -1 se coupent en (2, 3)."
+    },
+    "spec": {
+      "xDomain": [
+        -3,
+        7
+      ],
+      "yDomain": [
+        -2,
+        8
+      ],
+      "data": [
+        {
+          "fn": "(13-2*x)/3",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x+1",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              2,
+              3
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  }
+]

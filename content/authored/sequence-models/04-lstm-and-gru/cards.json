@@ -1,0 +1,17 @@
+[
+  { "id": "seq.04.c1", "concept": "seq.lstm", "front": "LSTM gate equations", "back": "$i,f,o=\\sigma(Wx+Uh_{t-1}+b)$, $g=\\tanh(\\cdot)$; $c_t=f\\odot c_{t-1}+i\\odot g$; $h_t=o\\odot\\tanh(c_t)$." },
+  { "id": "seq.04.c2", "concept": "seq.lstm", "front": "Shapes of a stacked LSTM layer", "back": "$W:(4H,n)$, $U:(4H,H)$, $b:(4H)$; $a=Wx+Uh+b\\in\\mathbb{R}^{4H}$ split into $i,f,g,o$, each $(H)$." },
+  { "id": "seq.04.c3", "concept": "seq.lstm", "front": "Roles of the three LSTM gates", "back": "Forget: how much old cell to keep. Input: how much new candidate to write. Output: how much of the cell to expose as $h_t$." },
+  { "id": "seq.04.c4", "concept": "seq.lstm", "front": "Why does the LSTM fight vanishing gradients?", "back": "Additive cell update: $\\partial c_t/\\partial c_{t-1}$ contains $\\operatorname{diag}(f_t)$ with no weight matrix and no squashing, so gradients survive when $f\\approx1$." },
+  { "id": "seq.04.c5", "concept": "seq.lstm", "front": "Forget-gate bias initialisation", "back": "Set $b_f$ to a positive value (1 to 5): $f\\approx$ large at the start, so the cell remembers by default." },
+  { "id": "seq.04.c6", "concept": "seq.lstm", "front": "LSTM backward: cell gradient", "back": "$\\bar c^{tot}=\\bar c_t+\\bar h_t\\odot o\\odot(1-\\tanh^2c_t)$; $\\bar f=\\bar c^{tot}\\odot c_{t-1}$, $\\bar i=\\bar c^{tot}\\odot g$, $\\bar g=\\bar c^{tot}\\odot i$, $\\bar c_{t-1}=\\bar c^{tot}\\odot f$." },
+  { "id": "seq.04.c7", "concept": "seq.lstm", "front": "LSTM backward: gates to parameters", "back": "$\\bar a_i=\\bar i\\,i(1-i)$, $\\bar a_f=\\bar f f(1-f)$, $\\bar a_g=\\bar g(1-g^2)$, $\\bar a_o=\\bar o\\,o(1-o)$; $\\bar W=\\bar a x^\\top$, $\\bar U=\\bar a h_{t-1}^\\top$, $\\bar h_{t-1}=U^\\top\\bar a$." },
+  { "id": "seq.04.c8", "concept": "seq.gru", "front": "GRU equations", "back": "$r,z=\\sigma(\\cdot)$; $\\tilde h=\\tanh(W_nx+r\\odot(U_nh_{t-1})+b_n)$; $h_t=(1-z)\\odot\\tilde h+z\\odot h_{t-1}$." },
+  { "id": "seq.04.c9", "concept": "seq.gru", "front": "GRU update gate $z\\to1$", "back": "$h_t=h_{t-1}$: the state is copied, $\\partial h_t/\\partial h_{t-1}\\to I$ (identity path)." },
+  { "id": "seq.04.c10", "concept": "seq.gru", "front": "GRU reset gate $r\\to0$", "back": "The candidate ignores $h_{t-1}$ and depends only on $x_t$ (start afresh)." },
+  { "id": "seq.04.c11", "concept": "seq.gru", "front": "Parameter counts per layer", "back": "RNN $H(n+H+1)$; GRU $3H(n+H+1)$; LSTM $4H(n+H+1)$. GRU = 3/4 of LSTM." },
+  { "id": "seq.04.c12", "concept": "seq.lstm", "front": "LSTM n=128, H=256: parameters", "back": "$4\\cdot256\\cdot(128+256+1)=394{,}240$ (PyTorch reports 395,264 because it has two bias vectors per gate)." },
+  { "id": "seq.04.c13", "concept": "seq.lstm", "front": "Gate order in PyTorch", "back": "LSTM: $i,f,g,o$. GRU: $r,z,n$ with $h=(1-z)n+z\\,h_{prev}$." },
+  { "id": "seq.04.c14", "concept": "seq.lstm", "front": "What LSTMs/GRUs do not fix", "back": "Sequential computation, fixed-size state bottleneck, exploding gradients (still clip), very long (1000+) dependencies." },
+  { "id": "seq.04.c15", "concept": "seq.gru", "front": "Link to residual networks", "back": "Cell update $c_t=f\\odot c_{t-1}+\\dots$ and GRU $z\\odot h_{t-1}+\\dots$ are learnable-gated versions of $y=x+F(x)$: an additive identity path for gradients." }
+]

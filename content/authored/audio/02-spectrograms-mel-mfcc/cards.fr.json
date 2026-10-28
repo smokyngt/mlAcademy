@@ -1,0 +1,72 @@
+[
+ {
+  "id": "aud.02.c1",
+  "front": "Spectrogramme de puissance vs logarithmique",
+  "back": "$P=|X|^2$ ; le spectrogramme logarithmique $\\log(P+\\varepsilon)$ (ou $10\\log_{10}$ pour les dB) comprime la dynamique."
+ },
+ {
+  "id": "aud.02.c2",
+  "front": "Formule de l'échelle mel et son inverse",
+  "back": "$m=2595\\log_{10}(1+f/700)$, $f=700(10^{m/2595}-1)$ ; à peu près linéaire sous 1 kHz, logarithmique au-dessus."
+ },
+ {
+  "id": "aud.02.c3",
+  "front": "Pourquoi l'échelle mel existe-t-elle ?",
+  "back": "L'audition résout la hauteur à peu près sur une échelle logarithmique : des rapports de fréquence égaux, et non des différences égales, sonnent comme des pas égaux."
+ },
+ {
+  "id": "aud.02.c4",
+  "front": "Comment construit-on un banc de filtres mel ?",
+  "back": "$M+2$ points équidistants en mel, convertis en Hz ; le filtre $j$ est un triangle qui monte de $f_{j-1}$ à $f_j$ et redescend à $f_{j+1}$, échantillonné aux fréquences des bins de FFT."
+ },
+ {
+  "id": "aud.02.c5",
+  "front": "Forme de la matrice du banc de filtres et son application",
+  "back": "$\\mathbf H\\in\\mathbb R^{M\\times(N/2+1)}$ ; spectrogramme mel $=\\mathbf P\\mathbf H^\\top\\in\\mathbb R^{T\\times M}$ (un seul produit matriciel)."
+ },
+ {
+  "id": "aud.02.c6",
+  "front": "Caractéristiques d'entrée par défaut en reconnaissance vocale",
+  "back": "80 bins log-mel, fenêtre de 25 ms, saut de 10 ms (type Whisper) ; les classifieurs utilisent souvent 64 à 128 mels."
+ },
+ {
+  "id": "aud.02.c7",
+  "front": "Piège : décalage de caractéristiques",
+  "back": "Une fenêtre, une variante mel (HTK/Slaney), une normalisation de filtres, une base de log ou un `n_mels` différents entre entraînement et inférence échouent silencieusement."
+ },
+ {
+  "id": "aud.02.c8",
+  "front": "Pipeline MFCC",
+  "back": "Fenêtre + FFT, spectre de puissance, banc de filtres mel, log, DCT ; garder les ~13 premiers coefficients."
+ },
+ {
+  "id": "aud.02.c9",
+  "front": "Matrice DCT-II orthonormée",
+  "back": "$D_{km}=\\alpha_k\\cos\\!\\big(\\pi k(2m+1)/(2M)\\big)$, $\\alpha_0=\\sqrt{1/M}$, $\\alpha_{k>0}=\\sqrt{2/M}$ ; $\\mathbf D\\mathbf D^\\top=\\mathbf I$."
+ },
+ {
+  "id": "aud.02.c10",
+  "front": "Que conserve la troncature de la DCT ?",
+  "back": "L'enveloppe spectrale lisse (forme du conduit vocal) ; elle écarte les ondulations rapides comme les harmoniques de hauteur."
+ },
+ {
+  "id": "aud.02.c11",
+  "front": "Pourquoi une DCT plutôt qu'une DFT ici ?",
+  "back": "C'est la DFT d'un signal reflété, donc pas de saut de rebouclage ; à valeurs réelles et bonne concentration d'énergie."
+ },
+ {
+  "id": "aud.02.c12",
+  "front": "Formule de la caractéristique delta",
+  "back": "$\\Delta c_t=\\sum_{n=1}^N n(c_{t+n}-c_{t-n})/(2\\sum_{n=1}^N n^2)$ : pente par moindres carrés sur $2N+1$ trames."
+ },
+ {
+  "id": "aud.02.c13",
+  "front": "Le vecteur classique de 39 dimensions",
+  "back": "13 MFCC + 13 $\\Delta$ + 13 $\\Delta\\Delta$ par trame ; forme (T, 39)."
+ },
+ {
+  "id": "aud.02.c14",
+  "front": "Qu'est-ce que $c_0$ ?",
+  "back": "Le coefficient constant de la DCT : niveau global d'énergie logarithmique de la trame, souvent écarté ou modélisé séparément."
+ }
+]

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "app.03.c1",
+  "concept": "app.context",
+  "front": "Context budget inequality",
+  "back": "$W \\ge T_{sys}+T_{tools}+T_{retrieved}+T_{history}+T_{examples}+T_{query}+T_{output}$."
+ },
+ {
+  "id": "app.03.c2",
+  "concept": "app.context",
+  "front": "Signal density",
+  "back": "The share of context tokens that help the task; noise costs money and quality even when the window is not full."
+ },
+ {
+  "id": "app.03.c3",
+  "concept": "app.context",
+  "front": "Lost-in-the-middle",
+  "back": "Many models use information at the start and end of a long context more reliably than in the middle; verify on your model."
+ },
+ {
+  "id": "app.03.c4",
+  "concept": "app.context",
+  "front": "Layout rule for recency",
+  "back": "Standing rules first, evidence and the question last; repeat a critical middle fact near the end."
+ },
+ {
+  "id": "app.03.c5",
+  "concept": "app.context",
+  "front": "Truncate vs summarise vs structured memory",
+  "back": "Truncation loses silently; summaries are lossy and can hallucinate; structured memory needs a schema but keeps durable facts."
+ },
+ {
+  "id": "app.03.c6",
+  "concept": "app.context",
+  "front": "Why compact in batches?",
+  "back": "Rewriting history every turn changes the prefix and breaks prefix caching; compact when a budget is exceeded."
+ },
+ {
+  "id": "app.03.c7",
+  "concept": "app.context",
+  "front": "Retrieval vs long context",
+  "back": "Retrieval: cheap, focused, can miss. Long context: no retrieval miss, expensive, weak middle; fits bounded document sets."
+ },
+ {
+  "id": "app.03.c8",
+  "concept": "app.prompt-cache",
+  "front": "Prefix cache invariant",
+  "back": "Only a prefix is cached: the first differing token ends the match."
+ },
+ {
+  "id": "app.03.c9",
+  "concept": "app.prompt-cache",
+  "front": "Cache-friendly layout",
+  "back": "System, tools, examples, reused documents, history up to the last turn, then the new user message."
+ },
+ {
+  "id": "app.03.c10",
+  "concept": "app.prompt-cache",
+  "front": "Write premium and read discount",
+  "back": "A write costs w times the base price, a read r times (e.g. 1.25 and 0.1 in the source's explicit-marker scheme; check current prices)."
+ },
+ {
+  "id": "app.03.c11",
+  "concept": "app.prompt-cache",
+  "front": "Average cost of 1 write + n reads",
+  "back": "$(w+rn)/(n+1)$ relative to no caching; pays back when $n>(w-1)/(1-r)$."
+ },
+ {
+  "id": "app.03.c12",
+  "concept": "app.prompt-cache",
+  "front": "Ways a cache silently fails",
+  "back": "Changing early tokens (timestamps, ids), reordered tools, TTL expiry between requests, prefix below the minimum size."
+ },
+ {
+  "id": "app.03.c13",
+  "concept": "app.prompt-cache",
+  "front": "Exact vs semantic cache",
+  "back": "Exact: hash of the full prompt, safe at temperature 0. Semantic: embedding similarity threshold; risk of similar-but-different questions."
+ },
+ {
+  "id": "app.03.c14",
+  "concept": "app.prompt-cache",
+  "front": "How to verify caching works",
+  "back": "Check cache-read token counts in the usage fields; alert when they are zero."
+ }
+]

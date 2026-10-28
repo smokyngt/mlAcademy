@@ -1,0 +1,56 @@
+[
+  {
+    "id": "dl.01.q1", "concept": "dl.momentum", "stage": "pre", "kind": "mcq",
+    "prompt": "Why does momentum help in a long, narrow valley?",
+    "options": ["It makes the gradient larger everywhere", "Gradient components that flip sign each step cancel in the velocity, while components that keep pointing the same way accumulate", "It removes the need for a learning rate", "It computes second derivatives"],
+    "answer": 1,
+    "explanation": "The across-valley component alternates and averages out; the along-valley component is consistent and builds up to about $\\eta/(1-\\mu)$."
+  },
+  {
+    "id": "dl.01.q2", "concept": "dl.momentum", "stage": "check", "kind": "numeric",
+    "prompt": "With momentum $\\mu=0.9$ and a constant gradient $g$, the velocity $v_t=\\mu v_{t-1}+g$ converges to $c\\cdot g$. What is $c$?",
+    "answer": {"value": 10, "tol": 0.01},
+    "explanation": "Fixed point $v=\\mu v+g$ gives $v=g/(1-\\mu)=10g$."
+  },
+  {
+    "id": "dl.01.q3", "concept": "dl.adam", "stage": "check", "kind": "mcq",
+    "prompt": "At step $t=1$ with $\\beta_1=0.9$, the raw first moment is $m_1=0.1\\,g_1$. What does bias correction do?",
+    "options": ["Nothing at t=1", "Divides by $1-\\beta_1^1=0.1$, giving $\\hat m_1=g_1$", "Multiplies by 0.1 again", "Replaces $m$ by $g^2$"],
+    "answer": 1,
+    "explanation": "A zero-initialised moving average underestimates by $1-\\beta^t$; dividing restores an unbiased estimate."
+  },
+  {
+    "id": "dl.01.q4", "concept": "dl.adam", "stage": "check", "kind": "mcq",
+    "prompt": "Roughly how large is Adam's very first update per coordinate with learning rate $\\eta$?",
+    "options": ["$\\eta\\,g$", "$\\eta\\,g^2$", "About $\\eta$ in magnitude, whatever the gradient scale", "Zero"],
+    "answer": 2,
+    "explanation": "$\\hat m_1/\\sqrt{\\hat v_1}=g/|g|=\\mathrm{sign}(g)$, so the step is about $\\eta$."
+  },
+  {
+    "id": "dl.01.q5", "concept": "dl.adam", "stage": "check", "kind": "mcq",
+    "prompt": "Why is Adam with an L2 penalty different from AdamW?",
+    "options": ["L2 is not allowed in Adam", "With L2 the term $\\lambda\\theta$ is divided by $\\sqrt{\\hat v}$ like any gradient, so the effective decay depends on gradient statistics; AdamW applies $\\eta\\lambda\\theta$ directly", "AdamW removes the second moment", "They are identical"],
+    "answer": 1,
+    "explanation": "Only with plain SGD are L2 regularisation and weight decay the same operation."
+  },
+  {
+    "id": "dl.01.q6", "concept": "dl.momentum", "stage": "check", "kind": "numeric",
+    "prompt": "A quadratic has eigenvalues 1 and 100, so plain gradient descent is stable only for $\\eta<2/\\lambda_{\\max}$. What is that bound?",
+    "answer": {"value": 0.02, "tol": 0.0005},
+    "explanation": "$2/100=0.02$. At exactly 0.02 the steepest component flips sign without shrinking, so the iteration does not converge."
+  },
+  {
+    "id": "dl.01.q7", "concept": "dl.lr-schedule", "stage": "check", "kind": "mcq",
+    "prompt": "Warmup plus cosine decay with peak 0.3 and 20 warmup steps: what is the learning rate at step 10?",
+    "options": ["0.3", "0.15", "0.03", "0"],
+    "answer": 1,
+    "explanation": "Warmup is linear: $0.3\\cdot10/20=0.15$."
+  },
+  {
+    "id": "dl.01.q8", "concept": "dl.adam", "stage": "check", "kind": "mcq",
+    "prompt": "On the moons network, Adam reached a tiny loss for learning rates from about 0.03 to 0.3, while SGD needed rates near 1 to 3. What does this show?",
+    "options": ["Adam always generalises better", "Adam's per-parameter scaling makes it much less sensitive to the learning-rate value on this problem", "SGD has a bug", "Adam uses more data"],
+    "answer": 1,
+    "explanation": "The table measures training loss only; it shows robustness of optimisation, not generalisation."
+  }
+]

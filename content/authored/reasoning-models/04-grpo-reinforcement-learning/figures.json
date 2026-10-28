@@ -1,0 +1,59 @@
+[
+  {
+    "id": "group-advantage",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "GRPO on one prompt with G = 4 rollouts: a verifier gives rewards (1, 1, 0, 0); the group mean is the baseline, so the standardised advantages are +0.866, +0.866, -0.866, -0.866 and always sum to zero. If all rewards were equal there would be no learning signal.",
+      "fr": "GRPO sur un prompt avec G = 4 trajectoires : un vérificateur donne les récompenses (1, 1, 0, 0) ; la moyenne du groupe sert de base, donc les avantages standardisés valent +0,866, +0,866, -0,866, -0,866 et somment toujours à zéro. Si toutes les récompenses étaient égales il n'y aurait aucun signal d'apprentissage."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompt x\"] --> R1[\"rollout 1: correct, r=1\"]\n  P --> R2[\"rollout 2: correct, r=1\"]\n  P --> R3[\"rollout 3: wrong, r=0\"]\n  P --> R4[\"rollout 4: wrong, r=0\"]\n  R1 --> A[\"mean 0.5, std 0.577<br/>A = +0.866, +0.866, -0.866, -0.866\"]\n  R2 --> A\n  R3 --> A\n  R4 --> A",
+      "fr": "flowchart LR\n  P[\"prompt x\"] --> R1[\"trajectoire 1 : correcte, r=1\"]\n  P --> R2[\"trajectoire 2 : correcte, r=1\"]\n  P --> R3[\"trajectoire 3 : fausse, r=0\"]\n  P --> R4[\"trajectoire 4 : fausse, r=0\"]\n  R1 --> A[\"moyenne 0,5, écart type 0,577<br/>A = +0,866, +0,866, -0,866, -0,866\"]\n  R2 --> A\n  R3 --> A\n  R4 --> A"
+    }
+  },
+  {
+    "id": "ppo-vs-grpo",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Why GRPO is lighter than PPO: PPO learns a value network the size of the policy to serve as the baseline, while GRPO uses the mean reward of a group of rollouts for the same prompt, so no critic model has to be trained or kept in memory.",
+      "fr": "Pourquoi GRPO est plus léger que PPO : PPO apprend un réseau de valeur de la taille de la politique pour servir de base, alors que GRPO utilise la récompense moyenne d'un groupe de trajectoires pour le même prompt ; aucun modèle critique n'est à entraîner ni à garder en mémoire."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph PPO[\"PPO\"]\n    A1[\"policy\"] --> B1[\"reward\"]\n    C1[\"value network V_phi (LLM-sized)\"] --> D1[\"advantage = r - V(x)\"]\n    B1 --> D1\n  end\n  subgraph GRPO[\"GRPO\"]\n    A2[\"policy: G rollouts per prompt\"] --> B2[\"rewards r_1..r_G\"]\n    B2 --> D2[\"advantage = (r_i - mean) / std\"]\n  end",
+      "fr": "flowchart LR\n  subgraph PPO[\"PPO\"]\n    A1[\"politique\"] --> B1[\"récompense\"]\n    C1[\"réseau de valeur V_phi (taille d'un LLM)\"] --> D1[\"avantage = r - V(x)\"]\n    B1 --> D1\n  end\n  subgraph GRPO[\"GRPO\"]\n    A2[\"politique : G trajectoires par prompt\"] --> B2[\"récompenses r_1..r_G\"]\n    B2 --> D2[\"avantage = (r_i - moyenne) / écart type\"]\n  end"
+    }
+  },
+  {
+    "id": "rare-success",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "GRPO advantages for binary rewards with G = 8 rollouts, as a function of the number k of correct ones: a correct rollout gets A = (1 - k/8)/sigma (blue) and a wrong one A = -(k/8)/sigma (red), with sigma = sqrt(k(8-k)/56). A rare success (k = 1) earns +2.474 while each failure gets only -0.354: rare successes are strongly amplified.",
+      "fr": "Avantages GRPO pour des récompenses binaires avec G = 8 trajectoires, en fonction du nombre k de correctes : une trajectoire correcte reçoit A = (1 - k/8)/sigma (bleu) et une fausse A = -(k/8)/sigma (rouge), avec sigma = sqrt(k(8-k)/56). Un succès rare (k = 1) rapporte +2,474 alors que chaque échec ne reçoit que -0,354 : les succès rares sont fortement amplifiés."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        0.5,
+        7.5
+      ],
+      "yDomain": [
+        -3,
+        3
+      ],
+      "title": "k",
+      "data": [
+        {
+          "fn": "(1 - x/8)/sqrt(x*(8 - x)/56)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "-(x/8)/sqrt(x*(8 - x)/56)",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  }
+]

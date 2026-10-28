@@ -1,0 +1,96 @@
+[
+  {
+    "id": "generation-loop",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Text generation is a loop whose cost is proportional to the number of generated tokens: feed the tokens so far, read the next-token scores, pick one, append, repeat until end-of-sequence. The KV cache only changes speed. A reasoning model writes about 17 times more tokens than the base model on MATH-500, and takes about 18 times as long.",
+      "fr": "La génération de texte est une boucle dont le coût est proportionnel au nombre de jetons générés : fournir les jetons jusqu'ici, lire les scores du jeton suivant, en choisir un, l'ajouter, répéter jusqu'à la fin de séquence. Le cache KV ne change que la vitesse. Un modèle de raisonnement écrit environ 17 fois plus de jetons que le modèle de base sur MATH-500, et prend environ 18 fois plus de temps."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"tokens so far\"] --> M[\"model forward pass<br/>(KV cache reuses the prefix)\"]\n  M --> S[\"next-token scores\"]\n  S --> P[\"pick one token<br/>(greedy or sample)\"]\n  P --> A[\"append\"]\n  A --> E{\"end-of-sequence<br/>or length limit?\"}\n  E -->|\"no\"| T\n  E -->|\"yes\"| OUT[\"answer\"]",
+      "fr": "flowchart LR\n  T[\"jetons jusqu'ici\"] --> M[\"passe avant du modèle<br/>(le cache KV réutilise le préfixe)\"]\n  M --> S[\"scores du jeton suivant\"]\n  S --> P[\"choisir un jeton<br/>(glouton ou échantillon)\"]\n  P --> A[\"ajouter\"]\n  A --> E{\"fin de séquence<br/>ou limite de longueur ?\"}\n  E -->|\"non\"| T\n  E -->|\"oui\"| OUT[\"réponse\"]"
+    }
+  },
+  {
+    "id": "boxed-extraction",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Extracting the last \\boxed{...} answer cannot use a naive regex because answers contain braces: find the last \\boxed, expect an opening brace, walk forward counting nesting depth, and stop when it returns to zero. If it never balances (truncated output) return nothing.",
+      "fr": "Extraire la dernière réponse \\boxed{...} ne peut pas se faire avec une simple regex, car les réponses contiennent des accolades : trouver le dernier \\boxed, attendre une accolade ouvrante, avancer en comptant la profondeur d'imbrication et s'arrêter quand elle revient à zéro. Si elle ne s'équilibre jamais (sortie tronquée), ne rien renvoyer."
+    },
+    "code": {
+      "en": "stateDiagram-v2\n  [*] --> FindLast: find last boxed\n  FindLast --> ExpectBrace: skip spaces\n  ExpectBrace --> Walk: open brace, depth 1\n  Walk --> Walk: open +1, close -1\n  Walk --> Answer: depth back to 0\n  Walk --> Nothing: text ends first\n  Answer --> [*]\n  Nothing --> [*]",
+      "fr": "stateDiagram-v2\n  [*] --> FindLast: trouver le dernier boxed\n  FindLast --> ExpectBrace: sauter les espaces\n  ExpectBrace --> Walk: accolade ouvrante, profondeur 1\n  Walk --> Walk: ouvrante +1, fermante -1\n  Walk --> Answer: profondeur revenue à 0\n  Walk --> Nothing: le texte finit avant\n  Answer --> [*]\n  Nothing --> [*]"
+    }
+  },
+  {
+    "id": "pass-at-k",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "pass@k = 1 - (1 - pi)^k when each sample is independently correct with probability pi: pi = 0.1 (blue), 0.3 (orange), 0.5 (green). It is the score that matters when a verifier lets you keep any correct sample, and it is the potential that voting and RL try to cash in.",
+      "fr": "pass@k = 1 - (1 - pi)^k quand chaque échantillon est correct indépendamment avec probabilité pi : pi = 0,1 (bleu), 0,3 (orange), 0,5 (vert). C'est le score qui compte quand un vérificateur permet de garder n'importe quel échantillon correct, et c'est le potentiel que le vote et le RL cherchent à exploiter."
+    },
+    "spec": {
+      "height": 300,
+      "xDomain": [
+        1,
+        20
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "title": "k",
+      "data": [
+        {
+          "fn": "1 - (1 - 0.1)^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1 - (1 - 0.3)^x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "1 - (1 - 0.5)^x",
+          "color": "#16a34a"
+        }
+      ]
+    }
+  },
+  {
+    "id": "standard-error",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Accuracy is a noisy estimate: its standard error sqrt(p(1-p)/N) at p = 0.482 as the number of problems N grows. At N = 500 it is 0.0223 (about +/- 4.4 points at 95%), so differences of a point or two between runs are mostly noise; ten problems can show a bug but never an improvement.",
+      "fr": "La précision est une estimation bruitée : son erreur standard sqrt(p(1-p)/N) à p = 0,482 quand le nombre de problèmes N croît. Pour N = 500 elle vaut 0,0223 (environ +/- 4,4 points à 95 %), donc des écarts d'un ou deux points entre exécutions sont surtout du bruit ; dix problèmes peuvent révéler un bug mais jamais une amélioration."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        10,
+        1000
+      ],
+      "yDomain": [
+        0,
+        0.2
+      ],
+      "title": "N",
+      "data": [
+        {
+          "fn": "sqrt(0.482*0.518/x)",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 500,
+          "text": "N = 500"
+        }
+      ]
+    }
+  }
+]

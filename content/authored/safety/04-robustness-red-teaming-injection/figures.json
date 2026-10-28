@@ -1,0 +1,74 @@
+[
+  {
+    "id": "iterative-refinement",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Iterative black-box refinement (PAIR-style red-team loop, described at a high level): an attacker model proposes a prompt, the target replies, a judge scores the reply, and the score guides the next proposal until a budget runs out.",
+      "fr": "Raffinement itératif en boîte noire (boucle de red-teaming de type PAIR, décrite à haut niveau) : un modèle attaquant propose un prompt, la cible répond, un juge note la réponse et le score guide la proposition suivante jusqu'à épuisement du budget."
+    },
+    "code": {
+      "en": "flowchart LR\n  AT[\"attacker model proposes a prompt\"] --> TG[\"target model replies\"]\n  TG --> JG[\"judge scores the reply\"]\n  JG -->|\"score guides revision\"| AT\n  JG -->|\"success or budget exhausted\"| END[\"report ASR at k queries\"]",
+      "fr": "flowchart LR\n  AT[\"le modèle attaquant propose un prompt\"] --> TG[\"le modèle cible répond\"]\n  TG --> JG[\"le juge note la réponse\"]\n  JG -->|\"le score guide la révision\"| AT\n  JG -->|\"succès ou budget épuisé\"| END[\"rapporter l'ASR à k requêtes\"]"
+    }
+  },
+  {
+    "id": "three-way-risk",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The three-way risk for agents: private data access, exposure to untrusted content and the ability to communicate externally. With all three, an injected instruction can read private data and send it out; removing any one leg breaks the chain.",
+      "fr": "Le risque à trois branches pour les agents : accès à des données privées, exposition à du contenu non fiable et capacité de communiquer vers l'extérieur. Avec les trois, une instruction injectée peut lire des données privées et les envoyer ; retirer n'importe quelle branche brise la chaîne."
+    },
+    "code": {
+      "en": "flowchart LR\n  UC[\"untrusted content<br/>page, email, tool result\"] -->|\"injected instruction\"| AG[\"Agent\"]\n  PD[\"private data\"] --> AG\n  AG -->|\"exfiltration\"| EX[\"external communication<br/>web request, email\"]",
+      "fr": "flowchart LR\n  UC[\"contenu non fiable<br/>page, courriel, résultat d'outil\"] -->|\"instruction injectée\"| AG[\"Agent\"]\n  PD[\"données privées\"] --> AG\n  AG -->|\"exfiltration\"| EX[\"communication externe<br/>requête web, courriel\"]"
+    }
+  },
+  {
+    "id": "defence-stack",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A typical defence stack: a safety classifier on both sides of the model, a scanner run on every nightly build to catch regressions, and multi-turn red-team campaigns before major releases.",
+      "fr": "Une pile de défense typique : un classifieur de sécurité de chaque côté du modèle, un scanner lancé à chaque build nocturne pour détecter les régressions, et des campagnes de red-teaming multi-tours avant les versions majeures."
+    },
+    "code": {
+      "en": "flowchart LR\n  IN[\"user input\"] --> C1[\"safety classifier\"] --> M[\"Model\"] --> C2[\"safety classifier\"] --> OUT[\"response\"]\n  N[\"nightly scanner: probes, detectors, harness\"] -.->|\"regression tests\"| M\n  RT[\"red-team campaigns before releases\"] -.-> M",
+      "fr": "flowchart LR\n  IN[\"entrée utilisateur\"] --> C1[\"classifieur de sécurité\"] --> M[\"Modèle\"] --> C2[\"classifieur de sécurité\"] --> OUT[\"réponse\"]\n  N[\"scanner nocturne : sondes, détecteurs, harnais\"] -.->|\"tests de régression\"| M\n  RT[\"campagnes de red-teaming avant les versions\"] -.-> M"
+    }
+  },
+  {
+    "id": "wilson-zero",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Zero successes does not mean zero risk. With 0 attack successes in n trials, the upper end of the 95% Wilson interval is z^2/(n + z^2) with z = 1.96: about 7.1% at n = 50, and it shrinks only as 1/n.",
+      "fr": "Zéro succès ne signifie pas zéro risque. Avec 0 succès d'attaque sur n essais, la borne haute de l'intervalle de Wilson à 95 % vaut z^2/(n + z^2) avec z = 1,96 : environ 7,1 % pour n = 50, et elle ne décroît qu'en 1/n."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        10,
+        500
+      ],
+      "yDomain": [
+        0,
+        0.3
+      ],
+      "title": "n",
+      "data": [
+        {
+          "fn": "3.8416/(x + 3.8416)",
+          "color": "#dc2626"
+        }
+      ],
+      "annotations": [
+        {
+          "x": 50,
+          "text": "n = 50: 7.1%"
+        }
+      ]
+    }
+  }
+]

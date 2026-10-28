@@ -1,0 +1,10 @@
+{
+  "id": "cml.04.ex1",
+  "title": "L'algorithme de Lloyd avec redémarrages",
+  "prompt": "Implémente :\n\n- `assign(X, centers)` -> étiquettes `(N,)`.\n- `update(X, labels, centers)` -> nouveaux centres (un cluster vide garde son ancien centre).\n- `inertia(X, labels, centers)` -> $J$.\n- `lloyd(X, centers, iters=100)` -> `(centers, labels, history)` où `history` liste l'inertie après chaque itération ; arrête-toi plus tôt quand les affectations ne changent plus.\n- `kmeans(X, k, n_init=10, seed=0)` -> le meilleur `(centers, labels, inertia)` sur `n_init` initialisations aléatoires.",
+  "hints": [
+    "assign : distances au carré (N,k) = ((X[:,None,:] - centers[None,:,:])**2).sum(-1) ; labels = argmin sur l'axe 1.",
+    "update : pour chaque j, new[j] = X[labels == j].mean(axis=0) si ce cluster est non vide, sinon garde l'ancien centre.",
+    "kmeans : pour chaque redémarrage, choisis k lignes distinctes de X comme centres initiaux avec rng.choice(len(X), k, replace=False) ; lance lloyd ; garde l'exécution à la plus petite inertie finale."
+  ]
+}

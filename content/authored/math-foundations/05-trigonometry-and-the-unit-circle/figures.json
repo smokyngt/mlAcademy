@@ -1,0 +1,269 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The unit circle: the point at angle theta is (cos theta, sin theta). Marked: 30, 45, 60, 90, 180 and 270 degrees (pi/6, pi/4, pi/3, pi/2, pi, 3pi/2).",
+      "fr": "Le cercle unité : le point à l'angle theta est (cos theta, sin theta). Marqués : 30, 45, 60, 90, 180 et 270 degrés (pi/6, pi/4, pi/3, pi/2, pi, 3pi/2)."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        1.6
+      ],
+      "yDomain": [
+        -1.6,
+        1.6
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "parametric",
+          "graphType": "polyline",
+          "x": "cos(t)",
+          "y": "sin(t)",
+          "range": [
+            0,
+            6.2832
+          ],
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.866,
+              0.5
+            ],
+            [
+              0.7071,
+              0.7071
+            ],
+            [
+              0.5,
+              0.866
+            ],
+            [
+              0.0,
+              1.0
+            ],
+            [
+              -1.0,
+              0.0
+            ],
+            [
+              -0.0,
+              -1.0
+            ]
+          ]
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.866,
+            0.5
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "sin (blue) and cos (orange) over two periods; cos is sin shifted by a quarter period. Hover on sin: its tangent slope equals cos.",
+      "fr": "sin (bleu) et cos (orange) sur deux périodes ; cos est sin décalé d'un quart de période. Survolez sin : la pente de sa tangente vaut cos."
+    },
+    "spec": {
+      "xDomain": [
+        -6.5,
+        6.5
+      ],
+      "yDomain": [
+        -1.6,
+        1.6
+      ],
+      "data": [
+        {
+          "fn": "sin(x)",
+          "color": "#2563eb",
+          "derivative": {
+            "fn": "cos(x)",
+            "updateOnMouseMove": true
+          }
+        },
+        {
+          "fn": "cos(x)",
+          "color": "#d97706"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Rotation by 45 degrees: the basis vectors (1, 0) and (0, 1) (grey) land on (cos, sin) and (-sin, cos). Lengths are preserved.",
+      "fr": "Rotation de 45 degrés : les vecteurs de base (1, 0) et (0, 1) (gris) arrivent en (cos, sin) et (-sin, cos). Les longueurs sont conservées."
+    },
+    "spec": {
+      "xDomain": [
+        -1.6,
+        1.6
+      ],
+      "yDomain": [
+        -1.6,
+        1.6
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "parametric",
+          "graphType": "polyline",
+          "x": "cos(t)",
+          "y": "sin(t)",
+          "range": [
+            0,
+            6.2832
+          ],
+          "color": "#d1d5db"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#6b7280"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#6b7280"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            0.7071,
+            0.7071
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "vector",
+          "vector": [
+            -0.7071,
+            0.7071
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "graphType": "polyline",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "f4",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Amplitude, frequency, phase: sin(2*pi*t) (blue), 0.5 sin(2*pi*3t) with a smaller amplitude and three times the frequency (orange), and sin(2*pi*t + 1) delayed in phase (green).",
+      "fr": "Amplitude, fréquence, phase : sin(2*pi*t) (bleu), 0,5 sin(2*pi*3t) d'amplitude plus petite et de fréquence triple (orange), et sin(2*pi*t + 1) déphasée (vert)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        2
+      ],
+      "yDomain": [
+        -1.4,
+        1.4
+      ],
+      "data": [
+        {
+          "fn": "sin(2*3.14159265*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5*sin(2*3.14159265*3*x)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "sin(2*3.14159265*x+1)",
+          "color": "#16a34a"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f5",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "Fourier idea: a signal made of two tones, sin(2*pi*5t) + 0.5 sin(2*pi*3t) (purple), is just the sum of its components (grey).",
+      "fr": "L'idée de Fourier : un signal fait de deux sons, sin(2*pi*5t) + 0,5 sin(2*pi*3t) (violet), est la somme de ses composantes (gris)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -1.8,
+        1.8
+      ],
+      "data": [
+        {
+          "fn": "sin(2*3.14159265*5*x)",
+          "color": "#9ca3af"
+        },
+        {
+          "fn": "0.5*sin(2*3.14159265*3*x)",
+          "color": "#6b7280"
+        },
+        {
+          "fn": "sin(2*3.14159265*5*x)+0.5*sin(2*3.14159265*3*x)",
+          "color": "#7c3aed"
+        }
+      ],
+      "height": 320
+    }
+  }
+]

@@ -1,0 +1,91 @@
+[
+ {
+  "id": "saf.01.q1",
+  "prompt": "La loi de Goodhart, sous la forme utilisée pour le RLHF, dit que...",
+  "options": [
+   "les modèles de récompense sont toujours inexacts",
+   "les pénalités KL dégradent la politique",
+   "les évaluateurs humains ne sont pas fiables",
+   "pousser fort sur un proxy imparfait finit par abaisser l'objectif réel qu'il devait suivre"
+  ],
+  "explanation": "Le proxy est corrélé à l'objectif sur des exemples ordinaires ; une optimisation forte cherche des exemples extrêmes où cette corrélation échoue."
+ },
+ {
+  "id": "saf.01.q2",
+  "prompt": "Dans le simulateur best-of-n, que se passe-t-il quand n croît ?",
+  "options": [
+   "Le proxy et le score or montent indéfiniment",
+   "Le score or monte indéfiniment ; le proxy baisse",
+   "Le proxy monte indéfiniment ; le score or monte, culmine, puis redescend",
+   "Aucun des deux ne change"
+  ],
+  "explanation": "Un grand n sélectionne des candidats à grande caractéristique exploitable x, ce qui augmente le proxy et endommage le score or."
+ },
+ {
+  "id": "saf.01.q3",
+  "prompt": "La perte de Bradley-Terry du modèle de récompense pour une réponse préférée $y_w$ et une rejetée $y_l$ est...",
+  "options": [
+   "$(r_w-r_l)^2$",
+   "$\\max(0,\\,r_l-r_w)$",
+   "$-\\log\\sigma(r_w-r_l)$",
+   "$\\log(r_w/r_l)$"
+  ],
+  "explanation": "C'est de la régression logistique sur la différence de scores : elle est petite quand la réponse préférée reçoit le plus grand score."
+ },
+ {
+  "id": "saf.01.q4",
+  "prompt": "L'optimum de $\\mathbb{E}[r]-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi_{ref})$ est proportionnel à...",
+  "options": [
+   "$\\pi_{ref}\\,e^{r/\\beta}$",
+   "$\\pi_{ref}\\,e^{-r/\\beta}$",
+   "$r\\,\\pi_{ref}$",
+   "$\\pi_{ref}/\\beta$"
+  ],
+  "explanation": "Annuler la dérivée du lagrangien donne $\\log(\\pi/\\pi_{ref})=(r-\\lambda)/\\beta-1$."
+ },
+ {
+  "id": "saf.01.q5",
+  "prompt": "En utilisant $\\mathrm{KL}\\approx\\log n-(n-1)/n$, quelle est l'estimation du KL pour le best-of-8 (à 2 décimales) ?",
+  "options": [],
+  "explanation": "$\\log 8=2.0794$ ; $(8-1)/8=0.875$ ; la différence est $1.2044$."
+ },
+ {
+  "id": "saf.01.q6",
+  "prompt": "Pourquoi la complaisance peut-elle apparaître même si tous les évaluateurs sont honnêtes et bien intentionnés ?",
+  "options": [
+   "L'accord, la fluidité et l'assurance doivent simplement être corrélés à la récompense, et l'optimiseur amplifie tout ce qui est corrélé",
+   "Les évaluateurs sont payés pour être d'accord",
+   "La pénalité KL récompense l'accord",
+   "Les modèles ne savent pas distinguer le vrai du faux"
+  ],
+  "explanation": "L'argument d'amplification exige seulement que les complétions complaisantes soient surreprésentées parmi les sorties à haute récompense."
+ },
+ {
+  "id": "saf.01.q7",
+  "prompt": "Avec $\\pi_{ref}=(0.5,0.3,0.2)$ et $r=(1,1.3,0)$, l'optimum à $\\beta=0.1$ place environ quelle probabilité sur la réponse complaisante ?",
+  "options": [],
+  "explanation": "Poids : $0.5e^{10}$, $0.3e^{13}$, $0.2$ ; le deuxième domine, ce qui donne environ 0.923."
+ },
+ {
+  "id": "saf.01.q8",
+  "prompt": "Quel est le principal coût d'une pénalité d'accord $r'=r-\\alpha\\,\\text{agree}$ ?",
+  "options": [
+   "Elle nécessite un modèle plus grand",
+   "Elle pénalise aussi l'accord légitime avec des croyances correctes de l'utilisateur, puisque les deux se ressemblent en surface",
+   "Elle supprime le terme KL",
+   "Elle rend le modèle de récompense non différentiable"
+  ],
+  "explanation": "Un classifieur qui signale l'accord ne peut pas facilement séparer être d'accord avec une affirmation vraie de l'être avec une fausse."
+ },
+ {
+  "id": "saf.01.q9",
+  "prompt": "Quelle affirmation sur une pénalité KL est la mieux étayée par la leçon ?",
+  "options": [
+   "Elle garantit que la récompense or ne baisse jamais",
+   "Elle est inutile si le modèle de récompense est grand",
+   "Elle ne compte que pour le PPO, pas pour le best-of-n",
+   "Elle limite de combien la politique bouge mais pas quels défauts de la récompense sont amplifiés"
+  ],
+  "explanation": "Un beta petit amplifie quand même exponentiellement les défauts du proxy ; une erreur à queue lourde peut survivre à une contrainte KL."
+ }
+]

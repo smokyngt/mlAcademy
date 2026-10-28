@@ -1,0 +1,17 @@
+[
+  {"id": "vis.03.c1", "front": "Intersection sur union", "back": "$\\mathrm{IoU}=|A\\cap B|/(|A|+|B|-|A\\cap B|)$ ; 1 = identiques, 0 = disjointes ou tangentes."},
+  {"id": "vis.03.c2", "front": "Largeur d'intersection de deux boîtes", "back": "$\\max(0,\\min(x_2^A,x_2^B)-\\max(x_1^A,x_1^B))$ ; hauteur de même ; aire = produit."},
+  {"id": "vis.03.c3", "front": "Algorithme de NMS gloutonne", "back": "Trier par score ; garder la meilleure ; supprimer les boîtes restantes dont l'IoU avec elle dépasse le seuil ; recommencer. Seuil typique d'environ 0.45-0.5."},
+  {"id": "vis.03.c4", "front": "Compromis du seuil de NMS", "back": "Trop bas, il fusionne de vrais objets proches (foules) ; trop haut, il laisse des doublons."},
+  {"id": "vis.03.c5", "front": "Idée de la détection en un seul passage", "back": "Un seul passage de CNN prédit, pour chaque cellule de la grille et chaque ancre, des décalages de boîte, l'objectité et des scores de classe ; la NMS nettoie la sortie."},
+  {"id": "vis.03.c6", "front": "Taille de sortie d'une tête de type YOLO", "back": "$S\\times S$ cellules, $B$ ancres chacune, $5+C$ nombres par ancre : $S\\cdot S\\cdot B(5+C)$."},
+  {"id": "vis.03.c7", "front": "Pourquoi des ancres ?", "back": "Prédire un petit ajustement par rapport à une forme de boîte a priori est plus facile que de régresser une taille absolue depuis un petit champ réceptif."},
+  {"id": "vis.03.c8", "front": "Formules de décodage des boîtes", "back": "$b_x=(\\sigma(t_x)+c_x)s$, $b_y=(\\sigma(t_y)+c_y)s$, $b_w=a_we^{t_w}$, $b_h=a_he^{t_h}$."},
+  {"id": "vis.03.c9", "front": "Termes de la perte de détection", "back": "Régression de boîte (emplacements d'objets), objectité pour les emplacements d'objets, objectité pour les emplacements vides (petit poids), classification (emplacements d'objets)."},
+  {"id": "vis.03.c10", "front": "Pourquoi sous-pondérer le terme « pas d'objet » ?", "back": "Les emplacements vides sont énormément plus nombreux que les emplacements d'objets et domineraient la perte."},
+  {"id": "vis.03.c11", "front": "Vrai vs faux positif en détection", "back": "TP : la vérité terrain d'IoU maximal a une IoU $\\ge\\tau$ et n'est pas encore revendiquée. Sinon FP (doublons compris)."},
+  {"id": "vis.03.c12", "front": "Précision et rappel au rang r", "back": "$P_r=\\mathrm{TP}_r/r$, $R_r=\\mathrm{TP}_r/G$ avec $G$ boîtes de vérité terrain."},
+  {"id": "vis.03.c13", "front": "Précision moyenne", "back": "$\\sum_r(R_r-R_{r-1})\\tilde P_r$ avec $\\tilde P_r=\\max_{r'\\ge r}P_{r'}$ (enveloppe de précision)."},
+  {"id": "vis.03.c14", "front": "mAP@[.5:.95]", "back": "AP moyennée sur les classes et sur les seuils d'IoU 0.5, 0.55, ..., 0.95 ; récompense une localisation serrée."},
+  {"id": "vis.03.c15", "front": "Précision élevée, rappel faible signifie...", "back": "Un détecteur timide : baisse le seuil de score ou augmente le poids d'objectité."}
+]

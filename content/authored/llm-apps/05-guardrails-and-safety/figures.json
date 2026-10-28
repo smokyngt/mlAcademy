@@ -1,0 +1,149 @@
+[
+  {
+    "id": "attack-surfaces",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Where untrusted text enters: the user message (direct injection) and, more dangerously, retrieved pages, files and tool results (indirect injection). Input filters watch only the first channel, so the tool layer must enforce permissions independently of what the model asks for.",
+      "fr": "Par où entre le texte non fiable : le message de l'utilisateur (injection directe) et, plus dangereux, les pages récupérées, les fichiers et les résultats d'outils (injection indirecte). Les filtres d'entrée ne surveillent que le premier canal ; la couche d'outils doit donc imposer les permissions indépendamment de ce que demande le modèle."
+    },
+    "code": {
+      "en": "flowchart LR\n  U[\"user message\"] -->|\"direct injection\"| M[\"Model\"]\n  D[\"retrieved page, email, file\"] -->|\"indirect injection\"| M\n  TR[\"tool result\"] -->|\"indirect injection\"| M\n  M --> TL[\"tool layer: least privilege,<br/>argument validation, approval\"]\n  TL --> ACT[\"side effects\"]\n  M --> OF[\"output checks: PII, policy\"]",
+      "fr": "flowchart LR\n  U[\"message utilisateur\"] -->|\"injection directe\"| M[\"Modèle\"]\n  D[\"page, courriel, fichier récupéré\"] -->|\"injection indirecte\"| M\n  TR[\"résultat d'outil\"] -->|\"injection indirecte\"| M\n  M --> TL[\"couche d'outils : moindre privilège,<br/>validation des arguments, approbation\"]\n  TL --> ACT[\"effets de bord\"]\n  M --> OF[\"contrôles de sortie : PII, politique\"]"
+    }
+  },
+  {
+    "id": "pii-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "PII detection is patterns plus validators: a regular expression proposes candidates, a validator (for example the Luhn checksum for card numbers) rejects look-alikes, and confirmed spans are redacted in outputs and logs.",
+      "fr": "La détection de PII combine motifs et validateurs : une expression régulière propose des candidats, un validateur (par exemple la somme de contrôle de Luhn pour les cartes) écarte les faux positifs, et les segments confirmés sont masqués dans les sorties et les journaux."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"text\"] --> RX[\"regex candidates\"]\n  RX --> VAL{\"validator passes?\"}\n  VAL -->|\"no\"| DROP[\"ignore look-alike\"]\n  VAL -->|\"yes\"| RED[\"redact span\"]\n  RED --> OUT[\"safe text for output and logs\"]",
+      "fr": "flowchart LR\n  T[\"texte\"] --> RX[\"candidats par regex\"]\n  RX --> VAL{\"le validateur accepte ?\"}\n  VAL -->|\"non\"| DROP[\"ignorer le faux positif\"]\n  VAL -->|\"oui\"| RED[\"masquer le segment\"]\n  RED --> OUT[\"texte sûr pour la sortie et les journaux\"]"
+    }
+  },
+  {
+    "id": "threshold-tradeoff",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "The injection-filter trade-off from the lesson's labelled set (8 attacks, 8 benign): false-positive rate (red) and false-negative rate (blue) at thresholds 1 to 4. Lowering the threshold catches more attacks but blocks legitimate users; no threshold is good.",
+      "fr": "Le compromis du filtre d'injection sur le jeu étiqueté de la leçon (8 attaques, 8 requêtes bénignes) : taux de faux positifs (rouge) et de faux négatifs (bleu) pour des seuils de 1 à 4. Baisser le seuil attrape plus d'attaques mais bloque des utilisateurs légitimes ; aucun seuil n'est bon."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0.5,
+        4.5
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "title": "threshold",
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              1,
+              0.125
+            ],
+            [
+              2,
+              0.125
+            ],
+            [
+              3,
+              0.625
+            ],
+            [
+              4,
+              0.75
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#dc2626",
+          "points": [
+            [
+              1,
+              0.375
+            ],
+            [
+              2,
+              0.25
+            ],
+            [
+              3,
+              0.125
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              0.125
+            ],
+            [
+              2,
+              0.125
+            ],
+            [
+              3,
+              0.625
+            ],
+            [
+              4,
+              0.75
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              0.375
+            ],
+            [
+              2,
+              0.25
+            ],
+            [
+              3,
+              0.125
+            ],
+            [
+              4,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

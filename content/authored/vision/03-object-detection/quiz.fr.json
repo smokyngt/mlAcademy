@@ -1,0 +1,86 @@
+[
+ {
+  "id": "vis.03.q1",
+  "prompt": "Deux boîtes d'aire 100 chacune se chevauchent sur une aire de 25. Leur IoU est...",
+  "options": [
+   "25/175",
+   "25/200",
+   "0.25",
+   "25/100"
+  ],
+  "explanation": "Union $=100+100-25=175$, donc IoU $=25/175\\approx0.143$."
+ },
+ {
+  "id": "vis.03.q2",
+  "prompt": "Boîte A $=(0,0,10,10)$, la boîte B $=(2,2,4,4)$ est à l'intérieur de A. Quelle est l'IoU(A,B) ?",
+  "options": [],
+  "explanation": "L'intersection est B elle-même (aire 4), l'union est A (aire 100) : $4/100=0.04$."
+ },
+ {
+  "id": "vis.03.q3",
+  "prompt": "Dans une NMS gloutonne de seuil 0.5, une boîte de score plus bas avec une IoU de 0.6 par rapport à une boîte conservée est...",
+  "options": [
+   "conservée seulement si sa classe diffère",
+   "supprimée, car son IoU dépasse le seuil",
+   "conservée, car son IoU est élevée",
+   "toujours conservée si c'est la dernière boîte"
+  ],
+  "explanation": "Les boîtes dont l'IoU avec une boîte conservée de score plus élevé dépasse le seuil sont traitées comme des doublons."
+ },
+ {
+  "id": "vis.03.q4",
+  "prompt": "Pourquoi le décodage utilise-t-il $\\sigma(t_x)$ pour le décalage du centre ?",
+  "options": [
+   "Pour éviter le surapprentissage",
+   "Pour normaliser les probabilités de classe",
+   "Pour rendre la largeur de la boîte positive",
+   "Pour garder le centre prédit à l'intérieur de la cellule qui en est responsable"
+  ],
+  "explanation": "La sigmoïde envoie vers $(0,1)$, donc le centre reste dans la cellule ; c'est l'exponentielle qui garde les largeurs positives."
+ },
+ {
+  "id": "vis.03.q5",
+  "prompt": "Une tête de type YOLO utilise une grille $13\\times13$, $B=3$ ancres et $C=80$ classes. Combien de nombres en sortie par image ?",
+  "options": [],
+  "explanation": "Chaque cellule prédit $3\\cdot(5+80)=255$ nombres ; il y a $13\\cdot13=169$ cellules, donc $169\\cdot255=43095$."
+ },
+ {
+  "id": "vis.03.q6",
+  "prompt": "Pourquoi le poids de la perte « pas d'objet » est-il petit ?",
+  "options": [
+   "Les emplacements vides sont bien plus nombreux que les emplacements d'objets et domineraient la perte",
+   "L'objectité n'est pas apprenable",
+   "Cela empêche la NMS de s'exécuter",
+   "Les cellules vides sont plus importantes"
+  ],
+  "explanation": "Sans sous-pondération, la majorité facile d'emplacements vides pousserait le modèle à ne rien prédire."
+ },
+ {
+  "id": "vis.03.q7",
+  "prompt": "Deux détections touchent la même boîte de vérité terrain ; celle de score plus élevé est appariée en premier. La seconde est comptée comme...",
+  "options": [
+   "un faux négatif",
+   "ignorée",
+   "un vrai positif",
+   "un faux positif"
+  ],
+  "explanation": "Chaque vérité terrain ne peut être revendiquée qu'une fois ; un doublon est un faux positif."
+ },
+ {
+  "id": "vis.03.q8",
+  "prompt": "4 objets de vérité terrain ; les détections classées sont TP, TP, FP, TP, FP. Quelle est l'AP sur tous les points (3 décimales) ?",
+  "options": [],
+  "explanation": "Précision de l'enveloppe $[1,1,0.75,0.75,0.6]$, incréments de rappel $[0.25,0.25,0,0.25,0]$ : $0.25+0.25+0.1875=0.6875$."
+ },
+ {
+  "id": "vis.03.q9",
+  "prompt": "Un détecteur a une AP@0.5 élevée mais une AP@0.75 faible. Le meilleur diagnostic est...",
+  "options": [
+   "Il manque la plupart des objets",
+   "Il a trop de classes",
+   "Il trouve les objets mais les localise de façon approximative",
+   "Son seuil de NMS est trop bas"
+  ],
+  "explanation": "Des boîtes approximatives passent un seuil d'IoU indulgent mais échouent aux seuils plus stricts ; améliore la perte de régression de boîte."
+ }
+]

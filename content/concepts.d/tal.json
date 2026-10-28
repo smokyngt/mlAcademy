@@ -1,0 +1,8 @@
+[
+  {"id": "tal.mlm", "title": "Masked language modelling", "description": "Selecting ~15% of tokens, the 80/10/10 replacement rule and cross-entropy averaged over selected positions only.", "stage": "V", "prereqs": ["trf.architectures", "info.entropy"]},
+  {"id": "tal.bert-finetune", "title": "Fine-tuning BERT-style encoders", "description": "Classification from the [CLS] vector, per-token tagging and start/end span heads, with their shapes.", "stage": "V", "prereqs": ["tal.mlm", "trf.block"]},
+  {"id": "tal.denoising-seq2seq", "title": "Denoising encoder-decoders (BART, T5)", "description": "Reconstruction from corrupted input, T5 span corruption with sentinels, text-to-text framing, and how causal GPT differs.", "stage": "V", "prereqs": ["trf.architectures", "seq.seq2seq"]},
+  {"id": "tal.captioning", "title": "Image captioning with CNN encoder and RNN decoder", "description": "Show and Tell, soft vs hard attention over image regions, temperature sampling and BLEU-style caption metrics.", "stage": "V", "prereqs": ["seq.attention", "seq.rnn", "seq.cnn-arch"]},
+  {"id": "tal.vqa", "title": "Visual question answering", "description": "Image plus question to answer, fusion architectures and dataset bias (answer priors, VQA 2.0, VQA-CP).", "stage": "V", "prereqs": ["tal.captioning"]},
+  {"id": "tal.hub-ecosystem", "title": "Pretrained-model ecosystem and pipelines", "description": "Hubs, auto classes, tokenizer-model-decoder pipelines, zero/few-shot vs fine-tuning, model cards and responsible use.", "stage": "VI", "prereqs": ["llm.tokenization", "trf.architectures"]}
+]

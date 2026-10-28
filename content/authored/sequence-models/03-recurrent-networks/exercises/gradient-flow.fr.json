@@ -1,0 +1,10 @@
+{
+  "id": "seq.03.ex2",
+  "title": "Gradients évanescents et explosifs, rayon spectral et écrêtage",
+  "prompt": "Mesure la vitesse à laquelle le chemin du gradient $\\partial h_T/\\partial h_0$ rétrécit ou grandit, puis implémente l'écrêtage du gradient.\n\n1. `make_whh(H, rho, seed)` : une matrice aléatoire `(H, H)` remise à l'échelle pour que son **rayon spectral** (plus grand module de valeur propre) vaille `rho`.\n2. `jacobian_norm(Whh, T, linear)` : la plus grande valeur singulière de $\\partial h_T/\\partial h_0=J_T\\cdots J_1$. Avec `linear=True`, utilise $J_t=W_{hh}$ (pas d'activation). Avec `linear=False`, exécute le RNN tanh $h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1})$ pendant `T` pas avec $W_{xh}\\sim N(0,1)^{H\\times3}$ et $x_t\\sim N(0,0.1^2)$ (graine 1, tirés dans cet ordre) et utilise $J_t=\\mathrm{diag}(1-h_t^2)W_{hh}$.\n3. `orthogonal_init(H, seed)` : une matrice orthogonale (QR d'une matrice gaussienne).\n4. `clip_by_global_norm(grads, max_norm)` : renvoie `(clipped_list, total_norm_before)` ; tous les tableaux sont mis à l'échelle par le même facteur, seulement si la norme totale dépasse `max_norm`.",
+  "hints": [
+    "make_whh : tire une matrice normale G, calcule son rayon spectral max|eigvals(G)| avec np.linalg.eigvals et renvoie G * rho / radius.",
+    "jacobian_norm : la jacobienne par pas est J_t = diag(1 - h_t**2) @ Whh (cas tanh) ou Whh (cas linéaire). Multiplie-les dans l'ordre J_T ... J_1 et prends np.linalg.norm(M, 2) (plus grande valeur singulière).",
+    "clip_by_global_norm : total = sqrt(somme des carrés de chaque entrée de chaque tableau). Si total > max_norm, multiplie chaque tableau par max_norm/total (tous les tableaux par le MÊME facteur)."
+  ]
+}

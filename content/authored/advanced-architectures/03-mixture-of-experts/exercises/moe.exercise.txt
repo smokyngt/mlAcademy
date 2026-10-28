@@ -1,0 +1,132 @@
+#@@ meta
+{"id": "adv.03.ex1", "title": "A mixture-of-experts layer: router, balance loss, capacity", "difficulty": 4, "runtime": "pyodide", "concepts": ["adv.moe", "adv.moe-balance"], "hints": ["Selection uses logits + bias, but the gate weights are a softmax over the RAW logits of the chosen experts only. Use np.argsort(-scores, axis=1, kind='stable')[:, :k].", "f_i is the fraction of the N*k assignments that go to expert i (np.bincount on idx.ravel()). P_i is the mean over tokens of the FULL softmax probability of expert i. Loss = alpha * E * sum(f * P).", "Capacity dispatch: loop over tokens in order, then over their k slots; keep an assignment only if that expert's counter is still below cap, otherwise mark it dropped."]}
+#@@ prompt
+Implement the pieces of a sparse mixture-of-experts layer with NumPy.
+
+1. `softmax(z)` over the last axis (numerically stable).
+2. `topk_route(logits, k, bias=None)` -> `(idx, gates)`. `logits` is `(N, E)`. Experts are selected by the top-`k` of `logits + bias` (bias defaults to zeros; ties broken by lower index). `idx` has shape `(N, k)` ordered by decreasing score; `gates` has shape `(N, k)` and is the softmax of the **raw** `logits` restricted to the selected experts (so each row sums to 1).
+3. `balance_loss(logits, idx, alpha=1.0)`: the Switch-style auxiliary loss `alpha * E * sum_i f_i * P_i` where `f_i` is the fraction of the `N*k` assignments sent to expert `i` and `P_i` is the mean over tokens of the full softmax probability of expert `i`.
+4. `capacity(N, k, E, cf)` = `ceil(cf * N * k / E)`.
+5. `dispatch_with_capacity(idx, E, cap)` -> boolean `(N, k)` array `keep`: process tokens in order (and slots left to right); an assignment is kept only if its expert has accepted fewer than `cap` assignments so far; otherwise it is dropped.
+6. `moe_forward(x, Wr, We, k, Wshared=None)`: `x` is `(N, d)`, router weights `Wr` `(d, E)`, expert weights `We` `(E, d, d)` (each expert is the linear map `x @ We[e]`). Output `(N, d)` = `sum_j gates[:, j] * (x @ We[idx[:, j]])` (+ `x @ Wshared` if given, applied to every token).
+7. `update_bias(bias, counts, gamma)`: auxiliary-loss-free balancing step, `bias - gamma * sign(counts - counts.mean())`.
+8. `param_counts(E, k, d, dff, n_shared=0)` -> `(total, active)` feed-forward parameters of one MoE layer where each expert is a SwiGLU FFN with 3 matrices of size `d x dff`; shared experts are always active.
+#@@ starter
+import numpy as np
+
+def softmax(z):
+    raise NotImplementedError
+
+def topk_route(logits, k, bias=None):
+    raise NotImplementedError
+
+def balance_loss(logits, idx, alpha=1.0):
+    raise NotImplementedError
+
+def capacity(N, k, E, cf):
+    raise NotImplementedError
+
+def dispatch_with_capacity(idx, E, cap):
+    raise NotImplementedError
+
+def moe_forward(x, Wr, We, k, Wshared=None):
+    raise NotImplementedError
+
+def update_bias(bias, counts, gamma):
+    raise NotImplementedError
+
+def param_counts(E, k, d, dff, n_shared=0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+L = np.array([[2., 0, 0], [1.5, 0, 0.5], [2, 1, 0], [0, 1, 0], [0., 0.2, 1.], [1., 0, 0.]])
+check("softmax rows sum to 1", lambda: np.allclose(softmax(L).sum(axis=1), 1))
+idx, g = topk_route(L, 1)
+check("top-1 routing of the worked example", lambda: idx.ravel().tolist() == [0, 0, 0, 1, 2, 0])
+check("top-1 gate is 1", lambda: np.allclose(g, 1))
+idx2, g2 = topk_route(L, 2)
+check("top-2 indices", lambda: idx2.tolist() == [[0, 1], [0, 2], [0, 1], [1, 0], [2, 1], [0, 1]])
+check("top-2 gates sum to 1", lambda: np.allclose(g2.sum(axis=1), 1))
+check("top-2 gate = softmax of the two raw logits", lambda: abs(g2[0, 0] - 1 / (1 + np.exp(-2.0))) < 1e-9)
+b = np.array([0., 3., 0.])
+idx3, g3 = topk_route(L, 1, bias=b)
+check("bias changes selection", lambda: idx3.ravel().tolist() == [1, 1, 1, 1, 1, 1])
+check("bias does not change gate values (top-1 gate stays 1)", lambda: np.allclose(g3, 1))
+idx4, g4 = topk_route(L, 2, bias=b)
+check("top-2 with bias picks experts 1 then 0 for token 0, gates from raw logits", lambda: idx4[0].tolist() == [1, 0] and abs(g4[0, 1] - 1 / (1 + np.exp(-2.0))) < 1e-9)
+check("worked example balance loss = 1.2678", lambda: abs(balance_loss(L, idx) - 1.2678148) < 1e-6)
+check("alpha scales the loss", lambda: abs(balance_loss(L, idx, alpha=0.01) - 0.012678148) < 1e-8)
+E = 4
+Lu = np.zeros((8, E))
+iu = np.array([[0], [1], [2], [3], [0], [1], [2], [3]])
+check("perfectly uniform routing gives loss 1", lambda: abs(balance_loss(Lu, iu) - 1.0) < 1e-12)
+Lc = np.tile(np.array([10., 0, 0, 0]), (8, 1))
+ic = np.zeros((8, 1), dtype=int)
+check("collapse onto one expert gives loss ~E", lambda: abs(balance_loss(Lc, ic) - E * softmax(Lc)[0, 0]) < 1e-9 and balance_loss(Lc, ic) > 3.9)
+check("capacity", lambda: capacity(6, 1, 3, 1.0) == 2 and capacity(6, 1, 3, 1.25) == 3 and capacity(10, 2, 4, 1.0) == 5)
+keep = dispatch_with_capacity(idx, 3, 2)
+check("capacity 2 drops tokens 2 and 5 (expert 0 overflows)", lambda: keep.ravel().tolist() == [True, True, False, True, True, False])
+keep3 = dispatch_with_capacity(idx, 3, 3)
+check("capacity 3 drops one token", lambda: int((~keep3).sum()) == 1 and not keep3[5, 0])
+check("big capacity keeps everything", lambda: dispatch_with_capacity(idx2, 3, 100).all())
+rng = np.random.default_rng(0)
+x = rng.normal(size=(5, 4)); Wr = rng.normal(size=(4, 3)); We = rng.normal(size=(3, 4, 4)); Ws = rng.normal(size=(4, 4))
+y = moe_forward(x, Wr, We, 2)
+i_, g_ = topk_route(x @ Wr, 2)
+ref = np.stack([sum(g_[n, j] * (x[n] @ We[i_[n, j]]) for j in range(2)) for n in range(5)])
+check("moe_forward matches the explicit loop", lambda: y.shape == (5, 4) and np.allclose(y, ref))
+check("shared expert is added for every token", lambda: np.allclose(moe_forward(x, Wr, We, 2, Wshared=Ws) - y, x @ Ws))
+check("update_bias lowers overloaded and raises underloaded", lambda: np.allclose(update_bias(np.zeros(3), np.array([4, 1, 1]), 0.1), [-0.1, 0.1, 0.1]))
+check("update_bias leaves exactly balanced experts alone", lambda: np.allclose(update_bias(np.ones(3), np.array([2, 2, 2]), 0.1), 1.0))
+check("param counts: 8 experts, top-2, d=16, dff=32", lambda: param_counts(8, 2, 16, 32) == (8 * 3 * 16 * 32, 2 * 3 * 16 * 32))
+check("shared experts are always active", lambda: param_counts(8, 2, 16, 32, n_shared=1) == (9 * 3 * 16 * 32, 3 * 3 * 16 * 32))
+#@@ solution
+import numpy as np
+
+def softmax(z):
+    z = z - z.max(axis=-1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=-1, keepdims=True)
+
+def topk_route(logits, k, bias=None):
+    scores = logits if bias is None else logits + bias
+    idx = np.argsort(-scores, axis=1, kind="stable")[:, :k]
+    chosen = np.take_along_axis(logits, idx, axis=1)
+    return idx, softmax(chosen)
+
+def balance_loss(logits, idx, alpha=1.0):
+    N, E = logits.shape
+    f = np.bincount(idx.ravel(), minlength=E) / idx.size
+    P = softmax(logits).mean(axis=0)
+    return float(alpha * E * np.sum(f * P))
+
+def capacity(N, k, E, cf):
+    return int(np.ceil(cf * N * k / E))
+
+def dispatch_with_capacity(idx, E, cap):
+    keep = np.zeros(idx.shape, dtype=bool)
+    count = np.zeros(E, dtype=int)
+    for n in range(idx.shape[0]):
+        for j in range(idx.shape[1]):
+            e = idx[n, j]
+            if count[e] < cap:
+                count[e] += 1
+                keep[n, j] = True
+    return keep
+
+def moe_forward(x, Wr, We, k, Wshared=None):
+    idx, gates = topk_route(x @ Wr, k)
+    y = np.zeros_like(x)
+    for j in range(k):
+        out = np.einsum("nd,nde->ne", x, We[idx[:, j]])
+        y += gates[:, j:j + 1] * out
+    if Wshared is not None:
+        y += x @ Wshared
+    return y
+
+def update_bias(bias, counts, gamma):
+    return bias - gamma * np.sign(counts - counts.mean())
+
+def param_counts(E, k, d, dff, n_shared=0):
+    per = 3 * d * dff
+    return (E + n_shared) * per, (k + n_shared) * per

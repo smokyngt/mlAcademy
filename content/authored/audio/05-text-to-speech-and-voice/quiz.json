@@ -1,0 +1,123 @@
+[
+ {
+  "id": "aud.05.q1",
+  "concept": "aud.tts",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which is the correct order of the classical TTS pipeline?",
+  "options": [
+   "vocoder, acoustic model, text frontend",
+   "acoustic model, text frontend, vocoder",
+   "text frontend, acoustic model (to mel), vocoder",
+   "text frontend, vocoder, acoustic model"
+  ],
+  "answer": 2,
+  "explanation": "Text is normalised and phonemised, the acoustic model predicts a mel spectrogram, the vocoder converts it to a waveform."
+ },
+ {
+  "id": "aud.05.q2",
+  "concept": "aud.tts",
+  "kind": "numeric",
+  "prompt": "A length regulator expands 4 phonemes with durations (2, 3, 1, 2). How many mel frames result?",
+  "options": [],
+  "answer": {
+   "value": 8,
+   "tol": 0
+  },
+  "explanation": "$T=\\sum_ud_u=2+3+1+2=8$."
+ },
+ {
+  "id": "aud.05.q3",
+  "concept": "aud.tts",
+  "kind": "mcq",
+  "prompt": "Why can a mel spectrogram not be inverted exactly, even in principle?",
+  "options": [
+   "mel filters are linear, so inversion is trivial",
+   "it discards phase and, through the filters, fine frequency detail",
+   "it is stored with too few bits",
+   "it uses the wrong window"
+  ],
+  "answer": 1,
+  "explanation": "Both the phase and the resolution inside each mel band are lost; many waveforms share the same mel picture."
+ },
+ {
+  "id": "aud.05.q4",
+  "concept": "aud.griffinlim",
+  "kind": "mcq",
+  "prompt": "The least-squares inverse STFT with analysis window $w$ is computed by...",
+  "options": [
+   "inverse FFT of each frame, windowing again, overlap-add, division by the summed $w^2$",
+   "inverse FFT followed by averaging adjacent frames without a window",
+   "keeping only the first frame",
+   "multiplying by the pseudo-inverse of the mel filterbank"
+  ],
+  "answer": 0,
+  "explanation": "Setting the derivative of $\\sum_t\\|w\\odot x_t-y_t\\|^2$ to zero gives $x[m]=\\sum_tw\\,y_t/\\sum_tw^2$."
+ },
+ {
+  "id": "aud.05.q5",
+  "concept": "aud.griffinlim",
+  "kind": "mcq",
+  "prompt": "One Griffin-Lim iteration consists of...",
+  "options": [
+   "adding noise to the magnitude and renormalising",
+   "training a neural network for one step",
+   "halving the hop size",
+   "inverse STFT, STFT, then keeping the new phase and restoring the target magnitude"
+  ],
+  "answer": 3,
+  "explanation": "Alternate projection onto consistent spectrograms (ISTFT then STFT) and onto spectrograms with the prescribed magnitude."
+ },
+ {
+  "id": "aud.05.q6",
+  "concept": "aud.griffinlim",
+  "kind": "mcq",
+  "prompt": "After many Griffin-Lim iterations the reconstructed waveform differs from the original by a large RMS error although the spectral convergence is small. Why is this not a bug?",
+  "options": [
+   "the sampling rate was wrong",
+   "only the magnitude was specified; many waveforms (e.g. $x$ and $-x$) share it",
+   "the window was not Hann",
+   "the inverse STFT is inexact"
+  ],
+  "answer": 1,
+  "explanation": "Phase retrieval from magnitude is not unique, so compare magnitudes (spectral convergence), not samples."
+ },
+ {
+  "id": "aud.05.q7",
+  "concept": "aud.voice",
+  "kind": "numeric",
+  "prompt": "Ten listeners give a MOS with sample mean 3.8 and sample standard deviation 0.9. What is the half-width of the 95% normal-approximation confidence interval (use 1.96)? Round to two decimals.",
+  "options": [],
+  "answer": {
+   "value": 0.56,
+   "tol": 0.01
+  },
+  "explanation": "$1.96\\cdot0.9/\\sqrt{10}=1.96\\cdot0.2846=0.558$."
+ },
+ {
+  "id": "aud.05.q8",
+  "concept": "aud.tts",
+  "kind": "numeric",
+  "prompt": "A neural codec runs at 75 frames/s with 8 codebooks of 1024 entries. What is the bitrate in bits per second?",
+  "options": [],
+  "answer": {
+   "value": 6000,
+   "tol": 1
+  },
+  "explanation": "$75\\cdot8\\cdot\\log_2 1024=75\\cdot8\\cdot10=6000$."
+ },
+ {
+  "id": "aud.05.q9",
+  "concept": "aud.voice",
+  "kind": "mcq",
+  "prompt": "Which statement about safeguards against voice-cloning misuse is the most accurate?",
+  "options": [
+   "a watermark makes misuse impossible",
+   "detectors reach a fixed accuracy on any new generator",
+   "consent, provenance marks, detection and policy are complementary and each has limits",
+   "a high SECS value proves the speaker consented"
+  ],
+  "answer": 2,
+  "explanation": "None of the controls is sufficient alone: watermarks can be removed or absent, detectors age against new generators, SECS measures similarity and not permission."
+ }
+]

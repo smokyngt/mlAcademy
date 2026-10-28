@@ -1,0 +1,16 @@
+[
+  {"id": "llm.01.c1", "front": "Quel est le contrat d'un tokeniseur ?", "back": "Une application déterministe et sans perte texte -> ids -> texte : $\\mathrm{dec}(\\mathrm{enc}(b))=b$."},
+  {"id": "llm.01.c2", "front": "Tokenisation par caractères vs par mots vs par sous-mots", "back": "Caractères : vocabulaire minuscule, séquences très longues. Mots : séquences courtes mais vocabulaire énorme et mots inconnus. Sous-mots : un compromis avec un vocabulaire réglable et sans inconnus."},
+  {"id": "llm.01.c3", "front": "Boucle d'entraînement du BPE", "back": "Partir des octets ; compter les paires adjacentes ; fusionner la plus fréquente en un nouveau token ; enregistrer la règle ; répéter pendant K étapes."},
+  {"id": "llm.01.c4", "front": "Pourquoi fusionner la paire la plus fréquente compresse-t-il le plus ?", "back": "Une paire vue c fois (sans chevauchement) transforme 2c tokens en c tokens, économisant exactement c tokens."},
+  {"id": "llm.01.c5", "front": "Comment encode-t-on du nouveau texte avec les fusions apprises ?", "back": "À partir de ses octets, appliquer à plusieurs reprises la paire présente de plus petit numéro de règle jusqu'à ce qu'aucune paire présente ne soit une règle."},
+  {"id": "llm.01.c6", "front": "Comment décode-t-on une séquence de tokens BPE ?", "back": "Développer chaque id en ses octets (les ids fusionnés sont la concaténation de leurs deux parties), joindre les octets, décoder en UTF-8."},
+  {"id": "llm.01.c7", "front": "Formule de la taille du vocabulaire pour un BPE au niveau des octets", "back": "$V = 256 + K + |\\text{special tokens}|$ avec K le nombre de fusions."},
+  {"id": "llm.01.c8", "front": "Repli sur les octets (byte-level fallback)", "back": "Le vocabulaire de base contient les 256 octets, donc toute entrée peut être encodée ; aucun token inconnu n'est nécessaire."},
+  {"id": "llm.01.c9", "front": "Tokens spéciaux", "back": "Ids réservés pour la structure (fin de texte, padding, marqueurs de rôle de chat). Appariés avant le BPE et jamais découpés ni fusionnés."},
+  {"id": "llm.01.c10", "front": "Coût d'un vocabulaire plus grand", "back": "Les tables d'embedding et de sortie croissent chacune en $V\\cdot d$ (sauf partage), et les tokens rares sont mal entraînés."},
+  {"id": "llm.01.c11", "front": "Avantage d'un vocabulaire plus grand", "back": "Moins de tokens par texte : séquences plus courtes, attention moins chère, plus de texte par fenêtre de contexte, moins d'étapes de génération."},
+  {"id": "llm.01.c12", "front": "Que fait la pré-tokenisation ?", "back": "Une regex découpe le texte en blocs (mots avec leur espace initial, nombres, ponctuation) avant le BPE pour que les fusions ne traversent pas les frontières de mots."},
+  {"id": "llm.01.c13", "front": "Pourquoi les langues autres que l'anglais coûtent-elles souvent plus de tokens ?", "back": "Un vocabulaire entraîné surtout sur de l'anglais a peu de fusions pour les autres écritures, donc leur texte se découpe en de nombreux petits morceaux."},
+  {"id": "llm.01.c14", "front": "Entrées et cibles pour l'entraînement au token suivant", "back": "Les cibles sont les entrées décalées d'un cran : x = ids[:, :-1], y = ids[:, 1:], formes (B, T) chacune."}
+]

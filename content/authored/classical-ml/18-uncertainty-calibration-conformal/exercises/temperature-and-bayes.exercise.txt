@@ -1,0 +1,131 @@
+#@@ meta
+{"id": "cml.18.ex1", "title": "Temperature scaling and the Bayesian predictive variance", "difficulty": 3, "runtime": "pyodide", "concepts": ["ml.uncertainty"], "hints": ["nll(T): p = softmax(z / T); loss = -mean(log p[arange(N), y]). Subtract the row max before exp.", "fit_temperature: golden-section search keeps [a, b], two interior points c, d; if f(c) < f(d) the minimum lies in [a, d] so set b = d, else set a = c.", "blr_predict: epi = einsum('ij,jk,ik->i', Phi_star, SN, Phi_star); total = epi + 1/beta; mean = Phi_star @ mN."]}
+#@@ prompt
+Implement, with NumPy only:
+
+- `softmax(z)` for logits of shape `(N, K)`.
+- `nll(T, z, y)`: mean negative log-likelihood of integer labels `y` (shape `(N,)`) at temperature `T`.
+- `fit_temperature(z, y, lo=0.05, hi=10.0)`: golden-section search of `nll` over `T` (60 iterations).
+- `ece(P, y, bins=10)`: expected calibration error with equal-width confidence bins `(lo, hi]` using the top probability.
+- `blr_posterior(Phi, t, alpha, beta)` -> `(mN, SN)` with `SN = inv(alpha I + beta Phi^T Phi)` and `mN = beta SN Phi^T t`.
+- `blr_predict(Phi_star, mN, SN, beta)` -> `(mean, epistemic_var, total_var)` where `total_var = 1/beta + phi^T SN phi` per row.
+- `bootstrap_std(Phi, t, Phi_star, B, seed)`: fit ridge (penalty `1e-3`, `solve(F.T F + 1e-3 I, F.T t)`) on `B` resamples drawn with `np.random.default_rng(seed).integers(0, N, N)`; return the std over resamples of the predictions at `Phi_star`, shape `(P,)`.
+#@@ starter
+import numpy as np
+
+def softmax(z):
+    raise NotImplementedError
+
+def nll(T, z, y):
+    raise NotImplementedError
+
+def fit_temperature(z, y, lo=0.05, hi=10.0):
+    raise NotImplementedError
+
+def ece(P, y, bins=10):
+    raise NotImplementedError
+
+def blr_posterior(Phi, t, alpha, beta):
+    raise NotImplementedError
+
+def blr_predict(Phi_star, mN, SN, beta):
+    raise NotImplementedError
+
+def bootstrap_std(Phi, t, Phi_star, B, seed):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+N, K = 2000, 3
+tl = rng.normal(size=(N, K)) * 1.5
+P = softmax(tl)
+u = rng.random(N)
+y = (u[:, None] > np.cumsum(P, axis=1)).sum(axis=1).clip(0, K - 1)
+z = tl * 2.5
+check("softmax rows sum to 1", lambda: np.allclose(softmax(z).sum(axis=1), 1.0))
+check("softmax is stable for huge logits", lambda: np.all(np.isfinite(softmax(np.array([[1000., 0., -1000.]])))))
+check("nll at T=1 matches 0.9519", lambda: abs(nll(1.0, z, y) - 0.95187) < 1e-4)
+T = fit_temperature(z, y)
+check("T* close to 2.4768", lambda: abs(T - 2.4768) < 0.01)
+check("nll at T* is 0.7147", lambda: abs(nll(T, z, y) - 0.71474) < 1e-4)
+check("T* is no worse than a grid search", lambda: nll(T, z, y) <= min(nll(t, z, y) for t in np.linspace(0.5, 6, 56)) + 1e-9)
+check("an already calibrated model gets T near 1", lambda: abs(fit_temperature(tl, y) - 0.99) < 0.05)
+check("ECE before is 0.1807", lambda: abs(ece(softmax(z), y) - 0.18074) < 1e-4)
+check("ECE after is 0.0231", lambda: abs(ece(softmax(z / T), y) - 0.02312) < 1e-4)
+check("accuracy unchanged by scaling", lambda: np.array_equal(softmax(z).argmax(1), softmax(z / T).argmax(1)))
+mN, SN = blr_posterior(np.array([[1.0]]), np.array([2.0]), 1.0, 1.0)
+check("1-parameter example: SN = 0.5, mN = 1", lambda: abs(SN[0, 0] - 0.5) < 1e-12 and abs(mN[0] - 1.0) < 1e-12)
+mean, epi, tot = blr_predict(np.array([[1.0]]), mN, SN, 1.0)
+check("total variance 1.5 = 1 + 0.5", lambda: abs(tot[0] - 1.5) < 1e-12 and abs(epi[0] - 0.5) < 1e-12 and abs(mean[0] - 1.0) < 1e-12)
+r = np.random.default_rng(1)
+f = lambda x: np.sin(3 * x)
+xtr = np.concatenate([r.uniform(-1, -0.2, 40), r.uniform(0.6, 1.0, 40)])
+ytr = f(xtr) + 0.15 * r.normal(size=xtr.size)
+feats = lambda x: np.vander(x, 8, increasing=True)
+beta = 1 / 0.15 ** 2
+mN, SN = blr_posterior(feats(xtr), ytr, 1.0, beta)
+xs = np.array([-0.6, 0.2, 0.8])
+_, epi, tot = blr_predict(feats(xs), mN, SN, beta)
+check("epistemic is largest in the gap (x = 0.2)", lambda: epi[1] > epi[0] and epi[1] > epi[2])
+check("total = epistemic + noise 0.0225", lambda: np.allclose(tot - epi, 0.15 ** 2))
+check("epistemic std in the gap is about 0.097", lambda: abs(np.sqrt(epi[1]) - 0.0967) < 0.002)
+mN2, SN2 = blr_posterior(feats(xtr[::2]), ytr[::2], 1.0, beta)
+_, epi2, _ = blr_predict(feats(xs), mN2, SN2, beta)
+check("halving the data raises the epistemic variance", lambda: np.all(epi2 > epi))
+bs = bootstrap_std(feats(xtr), ytr, feats(xs), 200, 3)
+check("bootstrap std matches 0.023, 0.119, 0.046", lambda: np.allclose(bs, [0.0227, 0.1187, 0.0459], atol=0.002))
+check("bootstrap also says the gap is the most uncertain place", lambda: bs[1] > 2 * bs[0] and bs[1] > 2 * bs[2])
+#@@ solution
+import numpy as np
+
+def softmax(z):
+    z = z - z.max(axis=1, keepdims=True)
+    e = np.exp(z)
+    return e / e.sum(axis=1, keepdims=True)
+
+def nll(T, z, y):
+    p = softmax(z / T)
+    return -np.mean(np.log(p[np.arange(len(y)), y] + 1e-12))
+
+def fit_temperature(z, y, lo=0.05, hi=10.0):
+    f = lambda t: nll(t, z, y)
+    g = (np.sqrt(5) - 1) / 2
+    a, b = lo, hi
+    c, d = b - g * (b - a), a + g * (b - a)
+    for _ in range(60):
+        if f(c) < f(d):
+            b = d
+        else:
+            a = c
+        c, d = b - g * (b - a), a + g * (b - a)
+    return (a + b) / 2
+
+def ece(P, y, bins=10):
+    conf = P.max(axis=1)
+    acc = (P.argmax(axis=1) == y)
+    edges = np.linspace(0, 1, bins + 1)
+    e = 0.0
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (conf > lo) & (conf <= hi)
+        if m.any():
+            e += m.mean() * abs(acc[m].mean() - conf[m].mean())
+    return e
+
+def blr_posterior(Phi, t, alpha, beta):
+    SN = np.linalg.inv(alpha * np.eye(Phi.shape[1]) + beta * Phi.T @ Phi)
+    return beta * SN @ Phi.T @ t, SN
+
+def blr_predict(Phi_star, mN, SN, beta):
+    epi = np.einsum('ij,jk,ik->i', Phi_star, SN, Phi_star)
+    return Phi_star @ mN, epi, epi + 1.0 / beta
+
+def bootstrap_std(Phi, t, Phi_star, B, seed):
+    rg = np.random.default_rng(seed)
+    N, M = Phi.shape
+    out = []
+    for _ in range(B):
+        i = rg.integers(0, N, N)
+        F = Phi[i]
+        w = np.linalg.solve(F.T @ F + 1e-3 * np.eye(M), F.T @ t[i])
+        out.append(Phi_star @ w)
+    return np.array(out).std(axis=0)

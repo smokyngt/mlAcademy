@@ -1,0 +1,91 @@
+[
+ {
+  "id": "ops.06.q1",
+  "prompt": "La distribution des entrées $P(X)$ change mais $P(Y\\mid X)$ reste la même. C'est...",
+  "options": [
+   "un décalage de covariables",
+   "un décalage d'étiquettes",
+   "une dérive de concept",
+   "une boucle de rétroaction dégénérée"
+  ],
+  "explanation": "Décalage de covariables : même relation entrée-étiquette, entrées différentes."
+ },
+ {
+  "id": "ops.06.q2",
+  "prompt": "Des maisons aux mêmes caractéristiques se vendent maintenant moins cher après un changement de marché. C'est...",
+  "options": [
+   "un décalage de covariables",
+   "un décalage d'étiquettes",
+   "une dérive de concept",
+   "un échec logiciel"
+  ],
+  "explanation": "$P(Y\\mid X)$ a changé tandis que $P(X)$ non : même entrée, sortie différente."
+ },
+ {
+  "id": "ops.06.q3",
+  "prompt": "La statistique KS à deux échantillons est...",
+  "options": [
+   "la différence des moyennes",
+   "le plus grand écart absolu entre les deux fonctions de répartition empiriques",
+   "la somme des carrés des différences par intervalle",
+   "la p-valeur d'un test t"
+  ],
+  "explanation": "$D=\\max_x|F_a(x)-F_b(x)|$ ; 0 pour des échantillons identiques, 1 pour des échantillons disjoints."
+ },
+ {
+  "id": "ops.06.q4",
+  "prompt": "La moyenne d'une feature est inchangée mais sa variance a doublé. Quelle affirmation est vraie ?",
+  "options": [
+   "Une comparaison de moyennes et le KS/PSI le manqueraient tous",
+   "Seules les étiquettes peuvent le révéler",
+   "Ce ne peut pas être un décalage de distribution",
+   "Une comparaison de moyennes le manque ; le KS et le PSI le détectent"
+  ],
+  "explanation": "Les moyennes ignorent la dispersion ; l'écart de fonctions de répartition et le PSI par intervalles changent tous deux quand la forme change."
+ },
+ {
+  "id": "ops.06.q5",
+  "prompt": "Les proportions de référence dans un intervalle du PSI sont $p=0.10$ et la nouvelle proportion est $q=0.20$. Quel est le terme du PSI de cet intervalle $(q-p)\\ln(q/p)$ ? (log naturel, 3 décimales)",
+  "options": [],
+  "explanation": "$0.10\\cdot\\ln 2=0.0693$."
+ },
+ {
+  "id": "ops.06.q6",
+  "prompt": "L'observabilité, par opposition au monitoring, consiste à...",
+  "options": [
+   "suivre des métriques dans le temps",
+   "envoyer des alertes par e-mail",
+   "instrumenter le système pour pouvoir enquêter sur la raison pour laquelle quelque chose a mal tourné",
+   "réentraîner le modèle"
+  ],
+  "explanation": "Le monitoring suit des métriques ; l'observabilité est l'instrumentation qui rend les causes visibles, et le monitoring en dépend."
+ },
+ {
+  "id": "ops.06.q7",
+  "prompt": "L'entraînement avec état (stateful) diffère du réentraînement sans état en ce qu'il...",
+  "options": [
+   "continue à partir du checkpoint précédent en n'utilisant que les nouvelles données",
+   "entraîne à partir de zéro sur toutes les données",
+   "n'utilise jamais de nouvelles données",
+   "ne nécessite aucun monitoring"
+  ],
+  "explanation": "Affiner à partir du dernier checkpoint demande moins de données et de calcul."
+ },
+ {
+  "id": "ops.06.q8",
+  "prompt": "Bras A : 100 clics sur 1 000. Bras B : 130 clics sur 1 000. Quelle est la statistique $z$ à deux proportions groupées (2 décimales) ?",
+  "options": [],
+  "explanation": "$\\hat p=0.115$, $se=\\sqrt{0.115\\cdot0.885\\cdot2/1000}=0.01427$, $z=0.03/0.01427=2.10$."
+ },
+ {
+  "id": "ops.06.q9",
+  "prompt": "Tu consultes un test A/B chaque jour et t'arrêtes au premier $|z|>1.96$. Le taux de faux positifs (quand A et B sont identiques) est...",
+  "options": [
+   "toujours de 5 %",
+   "inférieur à 5 %",
+   "exactement 0",
+   "bien supérieur à 5 %"
+  ],
+  "explanation": "Chaque consultation donne au bruit une nouvelle chance de franchir le seuil ; avec dix consultations, c'est environ 20 % dans notre simulation."
+ }
+]

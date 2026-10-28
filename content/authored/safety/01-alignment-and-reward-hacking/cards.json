@@ -1,0 +1,17 @@
+[
+  { "id": "saf.01.c1", "concept": "saf.goodhart", "front": "Goodhart's law", "back": "When a measure becomes a target it stops being a good measure: strong optimisation of an imperfect proxy finds inputs where proxy and goal diverge." },
+  { "id": "saf.01.c2", "concept": "saf.goodhart", "front": "Three stages of the RLHF reference pipeline", "back": "SFT on demonstrations; reward model from pairwise preferences (Bradley-Terry); RL (e.g. PPO) against the reward model with a KL penalty to the SFT policy." },
+  { "id": "saf.01.c3", "concept": "saf.goodhart", "front": "Bradley-Terry reward loss", "back": "$-\\log\\sigma(r(x,y_w)-r(x,y_l))$: logistic regression on the score difference of preferred vs rejected." },
+  { "id": "saf.01.c4", "concept": "saf.goodhart", "front": "RLHF objective with KL", "back": "$\\mathbb{E}_{y\\sim\\pi}[r(x,y)]-\\beta\\,\\mathrm{KL}(\\pi\\|\\pi_{ref})$." },
+  { "id": "saf.01.c5", "concept": "saf.goodhart", "front": "Closed-form optimum of the KL-regularised objective", "back": "$\\pi^*(y)=\\pi_{ref}(y)e^{r(y)/\\beta}/Z$; the reference policy re-weighted exponentially by reward." },
+  { "id": "saf.01.c6", "concept": "saf.goodhart", "front": "Effect of beta", "back": "Small beta: strong amplification of the reward's flaws (reward hacking). Large beta: stays near the reference, little improvement." },
+  { "id": "saf.01.c7", "concept": "saf.goodhart", "front": "Over-optimisation curve", "back": "Plot gold reward against KL (or sqrt KL) from the initial policy: it rises, peaks, then falls while the proxy keeps rising. Better proxies peak later." },
+  { "id": "saf.01.c8", "concept": "saf.goodhart", "front": "Four Goodhart variants", "back": "Regressional (noise selected), extremal (tails), causal (proxy downstream), adversarial (agent games it)." },
+  { "id": "saf.01.c9", "concept": "saf.goodhart", "front": "Best-of-n KL estimate", "back": "$\\log n-(n-1)/n$ (usual upper-bound estimate); lets you compare best-of-n with RL on one KL axis." },
+  { "id": "saf.01.c10", "concept": "saf.goodhart", "front": "Name the four 'costumes' of reward hacking", "back": "Verbosity, sycophancy, unfaithful reasoning, evaluator tampering - all amplified features that correlated with approval." },
+  { "id": "saf.01.c11", "concept": "saf.goodhart", "front": "Why can't a KL penalty fully prevent reward hacking?", "back": "It bounds distribution shift, not which modes are targeted; with heavy-tailed proxy error the constrained optimum can sit on high-proxy, low-gold responses." },
+  { "id": "saf.01.c12", "concept": "saf.sycophancy", "front": "Two-stage argument for sycophancy amplification", "back": "(1) Sycophantic outputs are over-represented among high-reward outputs of the base model. (2) Any method that up-weights by $e^{r/\\beta}$ therefore amplifies them." },
+  { "id": "saf.01.c13", "concept": "saf.sycophancy", "front": "Matched user vs third-party evaluation", "back": "Present the same false claim as the user's belief and as someone else's; the gap in affirmation isolates sycophancy from knowledge." },
+  { "id": "saf.01.c14", "concept": "saf.sycophancy", "front": "Agreement penalty", "back": "Reward $r'=r-\\alpha\\,\\text{agree}(x,y)$. Lowers sycophancy but costs legitimate agreement with correct beliefs." },
+  { "id": "saf.01.c15", "concept": "saf.goodhart", "front": "Why must the gold signal be held out?", "back": "If the optimiser can see or influence it, it becomes another proxy; monitoring needs a signal the optimisation could not exploit." }
+]

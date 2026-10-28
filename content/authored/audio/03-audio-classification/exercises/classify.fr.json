@@ -1,0 +1,10 @@
+{
+  "id": "aud.03.ex1",
+  "title": "k-NN cosinus, matrice de confusion et F1 macro sur des extraits audio bruités",
+  "prompt": "Classification audio au niveau de l'extrait, des caractéristiques aux métriques. Le code de départ te fournit un générateur de données synthétiques (`make_clip` : son à 440 Hz, son à 520 Hz, balayage montant, bruit blanc, tous noyés dans du bruit) et `clip_features` (puissance logarithmique par bande, moyenne et écart type dans le temps = 32 nombres par extrait). Implémente :\n\n- `knn_predict(Xtr, ytr, Xte, k=3)` -> étiquettes prédites par **similarité cosinus** et vote à la majorité.\n- `confusion_matrix(y, p, K)` -> matrice d'entiers `(K, K)`, lignes = classe vraie, colonnes = classe prédite.\n- `per_class_recall(C)` et `per_class_precision(C)` -> tableaux de longueur `K` (zéro quand un dénominateur est nul).\n- `macro_f1(C)` -> moyenne non pondérée des F1 par classe (F1 = 0 quand précision + rappel = 0).\n- `accuracy(C)`.",
+  "hints": [
+    "Normalise les lignes de Xtr et Xte à une longueur unité ; la matrice de similarité cosinus est Xte_n @ Xtr_n.T de forme (N_test, N_train).",
+    "Pour chaque ligne de test, prends np.argsort(-row)[:k], puis np.bincount(ytr[idx]).argmax() est le vote à la majorité.",
+    "confusion_matrix : C[vrai, pred] += 1. rappel = diag / sommes des lignes, précision = diag / sommes des colonnes (utilise np.maximum(.., 1) pour éviter la division par zéro), F1 = 2PR/(P+R), macro = moyenne sur les classes."
+  ]
+}

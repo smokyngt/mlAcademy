@@ -1,0 +1,11 @@
+{
+  "id": "mf.03.ex1",
+  "title": "Des fonctions comme machines que l'on peut tester",
+  "prompt": "Construis des outils sur les fonctions et vérifie-les numériquement.\n\n- `poly_eval(coeffs, x)` : valeur du polynôme dont les coefficients sont listés de la plus haute puissance vers le bas, par ex. `[2, 0, -3]` est $2x^2-3$.\n- `quadratic_roots(a, b, c)` : liste triée des racines réelles distinctes de $ax^2+bx+c$ (liste vide s'il n'y en a pas).\n- `shift(f, h)` : une nouvelle fonction $g(x)=f(x-h)$.\n- `scale_y(f, c)` : une nouvelle fonction $g(x)=c\\,f(x)$.\n- `compose(f, g)` : une nouvelle fonction $x\\mapsto f(g(x))$.\n- `inverse_by_bisection(f, y, lo, hi)` : pour une `f` **croissante**, trouve $x\\in[lo,hi]$ tel que $f(x)\\approx y$ en divisant l'intervalle en deux à répétition (60 divisions).",
+  "hints": [
+    "poly_eval : règle de Horner : result = 0 ; for c in coeffs: result = result*x + c (plus haute puissance d'abord).",
+    "shift(f, h) doit renvoyer une NOUVELLE fonction : def g(x): return f(x - h). Même idée pour scale_y et compose.",
+    "inverse_by_bisection : garde lo et hi avec f(lo) <= y <= f(hi) ; répète 60 fois : mid=(lo+hi)/2 ; si f(mid) < y : lo = mid sinon hi = mid.",
+    "quadratic_roots : d = b*b - 4*a*c ; si d < 0 renvoie [] ; renvoie sorted({(-b - sqrt(d))/(2a), (-b + sqrt(d))/(2a)}) -> une liste de flottants."
+  ]
+}

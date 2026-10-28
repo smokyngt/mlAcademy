@@ -1,0 +1,131 @@
+#@@ meta
+{"id": "gen.03.ex1", "title": "GAN theory and a toy gradient step", "difficulty": 4, "runtime": "pyodide", "concepts": ["gen.gan"], "hints": ["D* = pd/(pd+pg); the JS divergence uses the mixture m=(p+q)/2.", "dL_D/da = mean(-(1-D(xr))*xr) + mean(D(xf)*xf); dL_G/dtheta = mean(-(1-D(G(z)))*a).", "In train_toy update D first with fake = theta+z, then take the generator step using the updated a, b."]}
+#@@ prompt
+Analyse the GAN game numerically (NumPy only).
+
+Discrete part (distributions given as probability vectors): `optimal_discriminator(pd, pg)`, `kl(p, q)`, `js(p, q)` (Jensen-Shannon), and `value(pd, pg, D)` $=\sum p_d\log D+\sum p_g\log(1-D)$.
+
+Distances: `w1_samples(a, b)` is the 1-D Wasserstein-1 distance between two equal-size samples (mean absolute difference of sorted values).
+
+Gradient analysis: `grad_saturating(s)` and `grad_nonsaturating(s)` are the derivatives wrt the discriminator logit $s$ of $\log(1-\sigma(s))$ and $-\log\sigma(s)$. For the toy GAN (generator $\theta+z$, discriminator $\sigma(ax+b)$) implement `d_loss`, `d_grads`, `g_loss`, `g_grad` (non-saturating) and `train_toy`, which alternates one discriminator step and one generator step with plain gradient descent, using a seeded `np.random.default_rng(seed)`: each iteration draw `xr = rng.normal(3,1,batch)` then `z = rng.normal(0,1,batch)`.
+#@@ starter
+import numpy as np
+
+def sigmoid(s):
+    raise NotImplementedError
+
+def optimal_discriminator(pd, pg):
+    raise NotImplementedError
+
+def kl(p, q):
+    raise NotImplementedError
+
+def js(p, q):
+    raise NotImplementedError
+
+def value(pd, pg, D):
+    raise NotImplementedError
+
+def w1_samples(a, b):
+    raise NotImplementedError
+
+def grad_saturating(s):
+    raise NotImplementedError
+
+def grad_nonsaturating(s):
+    raise NotImplementedError
+
+def d_loss(a, b, xr, xf):
+    raise NotImplementedError
+
+def d_grads(a, b, xr, xf):
+    raise NotImplementedError
+
+def g_loss(theta, a, b, z):
+    raise NotImplementedError
+
+def g_grad(theta, a, b, z):
+    raise NotImplementedError
+
+def train_toy(steps=300, lr=0.1, batch=128, seed=0):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+pd = np.array([.1, .4, .4, .1]); pg = np.array([.4, .1, .1, .4])
+D = optimal_discriminator(pd, pg)
+check("optimal discriminator (0.2,0.8,0.8,0.2)", lambda: np.allclose(D, [.2, .8, .8, .2]))
+check("JS = 0.19274", lambda: abs(js(pd, pg) - 0.1927448) < 1e-6)
+check("V(D*,G) = -log4 + 2 JS = -1.0008", lambda: abs(value(pd, pg, D) - (-np.log(4) + 2 * js(pd, pg))) < 1e-12 and abs(value(pd, pg, D) + 1.0008048) < 1e-6)
+check("D* is the maximiser: perturbing it lowers V", lambda: all(value(pd, pg, np.clip(D + d, 1e-3, 1 - 1e-3)) < value(pd, pg, D) for d in (0.05, -0.05)))
+check("equilibrium: pg = pdata gives D=1/2 and V=-log4", lambda: np.allclose(optimal_discriminator(pd, pd), .5) and abs(value(pd, pd, optimal_discriminator(pd, pd)) + np.log(4)) < 1e-12)
+def shift_js(th):
+    p = np.zeros(8); p[0] = 1; q = np.zeros(8); q[th] = 1
+    return js(p, q)
+check("JS of disjoint point masses is log2 for any distance", lambda: all(abs(shift_js(t) - np.log(2)) < 1e-12 for t in (1, 2, 5)))
+check("W1 of shifted samples equals the shift", lambda: abs(w1_samples(np.arange(10.), np.arange(10.) + 5) - 5) < 1e-12)
+check("saturating gradient vanishes, non-saturating does not (s=-6)", lambda: abs(grad_saturating(-6) + 0.0024726) < 1e-6 and abs(grad_nonsaturating(-6) + 0.9975274) < 1e-6)
+rng = np.random.default_rng(0)
+xr = rng.normal(3, 1, 64); z = rng.normal(0, 1, 64); th = 0.0; xf = th + z; a, b = 0.5, -0.5
+ga, gb = d_grads(a, b, xr, xf); h = 1e-6
+check("dL_D/da = -0.62107 and matches finite differences", lambda: abs(ga + 0.6210694) < 1e-6 and abs(ga - (d_loss(a + h, b, xr, xf) - d_loss(a - h, b, xr, xf)) / (2 * h)) < 1e-6)
+check("dL_D/db = 0.11934 and matches finite differences", lambda: abs(gb - 0.1193441) < 1e-6 and abs(gb - (d_loss(a, b + h, xr, xf) - d_loss(a, b - h, xr, xf)) / (2 * h)) < 1e-6)
+check("dL_G/dtheta = -0.30459 and matches finite differences", lambda: abs(g_grad(th, a, b, z) + 0.3045898) < 1e-6 and abs(g_grad(th, a, b, z) - (g_loss(th + h, a, b, z) - g_loss(th - h, a, b, z)) / (2 * h)) < 1e-6)
+a2, b2, th2 = train_toy()
+check("after 300 steps theta overshoots to ~3.24 and a is negative", lambda: a2 < 0 and abs(th2 - 3.2411) < 0.01)
+check("after 1000 steps theta is near the real mean 3", lambda: abs(train_toy(steps=1000)[2] - 3.0113) < 0.01)
+#@@ solution
+import numpy as np
+
+def sigmoid(s):
+    return 1 / (1 + np.exp(-s))
+
+def optimal_discriminator(pd, pg):
+    return pd / (pd + pg)
+
+def kl(p, q):
+    m = p > 0
+    return np.sum(p[m] * np.log(p[m] / q[m]))
+
+def js(p, q):
+    m = 0.5 * (p + q)
+    return 0.5 * kl(p, m) + 0.5 * kl(q, m)
+
+def value(pd, pg, D):
+    return np.sum(pd * np.log(D)) + np.sum(pg * np.log(1 - D))
+
+def w1_samples(a, b):
+    return np.mean(np.abs(np.sort(a) - np.sort(b)))
+
+def grad_saturating(s):
+    return -sigmoid(s)
+
+def grad_nonsaturating(s):
+    return -(1 - sigmoid(s))
+
+def d_loss(a, b, xr, xf):
+    return -np.mean(np.log(sigmoid(a * xr + b))) - np.mean(np.log(1 - sigmoid(a * xf + b)))
+
+def d_grads(a, b, xr, xf):
+    sr = sigmoid(a * xr + b)
+    sf = sigmoid(a * xf + b)
+    ga = np.mean(-(1 - sr) * xr) + np.mean(sf * xf)
+    gb = np.mean(-(1 - sr)) + np.mean(sf)
+    return ga, gb
+
+def g_loss(theta, a, b, z):
+    return -np.mean(np.log(sigmoid(a * (theta + z) + b)))
+
+def g_grad(theta, a, b, z):
+    return np.mean(-(1 - sigmoid(a * (theta + z) + b)) * a)
+
+def train_toy(steps=300, lr=0.1, batch=128, seed=0):
+    rng = np.random.default_rng(seed)
+    a = b = theta = 0.0
+    for _ in range(steps):
+        xr = rng.normal(3, 1, batch)
+        z = rng.normal(0, 1, batch)
+        ga, gb = d_grads(a, b, xr, theta + z)
+        a -= lr * ga
+        b -= lr * gb
+        theta -= lr * g_grad(theta, a, b, z)
+    return a, b, theta

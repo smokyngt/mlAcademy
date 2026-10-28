@@ -1,0 +1,91 @@
+[
+ {
+  "id": "gen.06.q1",
+  "prompt": "Dans le flow matching avec $x_t=(1-t)x_0+tx_1$, la cible de régression est...",
+  "options": [
+   "$x_0$",
+   "$x_1+x_0$",
+   "$x_1-x_0$",
+   "$\\varepsilon\\sqrt{1-\\bar\\alpha_t}$"
+  ],
+  "explanation": "Le chemin est une droite dont la dérivée temporelle est la constante $x_1-x_0$."
+ },
+ {
+  "id": "gen.06.q2",
+  "prompt": "Le minimiseur de la perte de flow matching est...",
+  "options": [
+   "$\\mathbb E[x_1-x_0\\mid x_t]$",
+   "$x_1-x_0$ pour chaque paire",
+   "zéro",
+   "$x_t$"
+  ],
+  "explanation": "Les moindres carrés donnent l'espérance conditionnelle sachant ce que voit le réseau."
+ },
+ {
+  "id": "gen.06.q3",
+  "prompt": "L'échantillonnage en flow matching se fait par...",
+  "options": [
+   "l'exécution d'un générateur de GAN",
+   "l'intégration d'une EDO du bruit vers les données",
+   "la résolution d'un système linéaire",
+   "l'échantillonnage ancestral avec seulement une variance apprise"
+  ],
+  "explanation": "Pas d'Euler $x\\leftarrow x-\\Delta t\\,v_\\theta(x,t)$ de $t=1$ à $0$."
+ },
+ {
+  "id": "gen.06.q4",
+  "prompt": "Le reflow accélère l'échantillonnage parce que...",
+  "options": [
+   "il supprime le réseau de neurones",
+   "les chemins entre paires appariées par l'EDO se croisent moins, donc le champ est plus droit",
+   "il augmente le nombre de pas",
+   "il utilise un calendrier plus grand"
+  ],
+  "explanation": "Des trajectoires plus droites peuvent être intégrées en peu de pas."
+ },
+ {
+  "id": "gen.06.q5",
+  "prompt": "Distance de Fréchet entre $\\mathcal N(0,1)$ et $\\mathcal N(2,4)$ (variance 4) ?",
+  "options": [],
+  "explanation": "$(0-2)^2+(1-2)^2=5$."
+ },
+ {
+  "id": "gen.06.q6",
+  "prompt": "Le FID entre deux échantillons de la *même* distribution pour un petit $N$ est...",
+  "options": [
+   "exactement 0",
+   "positif à cause du bruit d'estimation",
+   "négatif",
+   "infini"
+  ],
+  "explanation": "Des estimations bruitées de la moyenne et de la covariance rendent la distance positive ; elle diminue quand $N$ croît."
+ },
+ {
+  "id": "gen.06.q7",
+  "prompt": "Un générateur effondré (peu de modes, échantillons réalistes) a...",
+  "options": [
+   "une précision faible, un rappel élevé",
+   "une précision élevée, un rappel faible",
+   "une précision faible, un rappel faible",
+   "une précision élevée, un rappel élevé"
+  ],
+  "explanation": "Ses échantillons sont à l'intérieur du support réel mais n'en couvrent qu'une petite partie."
+ },
+ {
+  "id": "gen.06.q8",
+  "prompt": "Deux joueurs classés 1000 chacun ; A gagne avec $K=32$. Nouveau classement de A ?",
+  "options": [],
+  "explanation": "$E_A=0.5$, $R_A=1000+32(1-0.5)=1016$."
+ },
+ {
+  "id": "gen.06.q9",
+  "prompt": "Pourquoi utiliser un ensemble de prompts mis de côté pour les tests de préférence humaine ?",
+  "options": [
+   "c'est moins cher",
+   "les modèles peuvent avoir été entraînés sur les prompts de référence, ce qui fausserait la comparaison",
+   "les humains préfèrent les nouveaux prompts",
+   "cela supprime le besoin d'aveuglement"
+  ],
+  "explanation": "Un recouvrement des prompts avec l'entraînement rend la comparaison dénuée de sens."
+ }
+]

@@ -1,0 +1,100 @@
+#@@ meta
+{"id": "math.07.ex1", "title": "Eigenpairs, matrix powers and the SVD from AtA", "difficulty": 4, "runtime": "pyodide", "concepts": ["la.eigen", "la.svd"], "hints": ["eigvals2(A): tr = a+d, det = ad-bc, disc = sqrt(tr^2 - 4 det), roots (tr +/- disc)/2, return them sorted descending.", "eigvec2(A, lam): solve (A - lam I) v = 0. Try v = (b, lam - a); if it is (almost) zero use v = (lam - d, c). Normalise to unit length.", "svd_via_eigh: lam, V = np.linalg.eigh(A.T @ A); reorder descending; S = sqrt(clip(lam, 0)); U = A @ V / S (column-wise division)."]}
+#@@ prompt
+Implement, without calling `np.linalg.eig`/`svd` in your own code (the tests do):
+
+- `eigvals2(A)` - eigenvalues of a real `2x2` matrix with real eigenvalues, sorted descending, from the characteristic polynomial.
+- `eigvec2(A, lam)` - a unit eigenvector for `lam`.
+- `power_iteration(A, iters=200)` - dominant eigenvalue and unit eigenvector of a symmetric matrix by repeated multiplication.
+- `matrix_power_diag(A, k)` - `A^k` using `A = P D P^-1` (you may use `np.linalg.eig` for `P`, `D` here).
+- `svd_via_eigh(A)` - reduced SVD `(U, S, Vt)` of a full-column-rank `m x n` matrix (`m >= n`) built from `eigh(A^T A)`.
+- `low_rank(U, S, Vt, k)` - the rank-`k` approximation.
+#@@ starter
+import numpy as np
+
+def eigvals2(A):
+    raise NotImplementedError
+
+def eigvec2(A, lam):
+    raise NotImplementedError
+
+def power_iteration(A, iters=200):
+    raise NotImplementedError
+
+def matrix_power_diag(A, k):
+    raise NotImplementedError
+
+def svd_via_eigh(A):
+    raise NotImplementedError
+
+def low_rank(U, S, Vt, k):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+A = np.array([[4., 2.], [1., 3.]])
+check("book example: eigenvalues 5 and 2", lambda: np.allclose(eigvals2(A), [5, 2]))
+v5 = eigvec2(A, 5.0); v2 = eigvec2(A, 2.0)
+check("eigenvector for 5 satisfies Av = 5v", lambda: np.allclose(A @ v5, 5 * v5))
+check("eigenvector for 2 satisfies Av = 2v", lambda: np.allclose(A @ v2, 2 * v2))
+check("eigenvectors are unit length", lambda: abs(np.linalg.norm(v5) - 1) < 1e-12 and abs(np.linalg.norm(v2) - 1) < 1e-12)
+check("eigenvector for 5 is parallel to (2,1)", lambda: abs(abs(v5 @ np.array([2., 1.]) / np.sqrt(5)) - 1) < 1e-9)
+D = np.array([[3., 0.], [5., 7.]])
+check("lower-triangular case: eigenvalues 7 and 3 and valid vectors", lambda: np.allclose(eigvals2(D), [7, 3]) and np.allclose(D @ eigvec2(D, 3.0), 3 * eigvec2(D, 3.0)))
+S2 = np.array([[2., 1.], [1., 2.]])
+lam, v = power_iteration(S2)
+check("power iteration finds eigenvalue 3", lambda: abs(lam - 3) < 1e-9)
+check("power iteration vector is parallel to (1,1)", lambda: abs(abs(v @ np.array([1., 1.]) / np.sqrt(2)) - 1) < 1e-9)
+check("A^3 via diagonalisation = [[86,78],[39,47]]", lambda: np.allclose(matrix_power_diag(A, 3), [[86, 78], [39, 47]]))
+check("A^10 matches matrix_power", lambda: np.allclose(matrix_power_diag(A, 10), np.linalg.matrix_power(A, 10)))
+B = np.array([[1., -0.8], [0., 1.], [1., 0.]])
+U, S, Vt = svd_via_eigh(B)
+check("book example: singular values 1.625 and 1", lambda: np.allclose(S, [1.62480768, 1.0]))
+check("U S Vt reconstructs the matrix", lambda: np.allclose(U @ np.diag(S) @ Vt, B))
+check("U has orthonormal columns and V is orthogonal", lambda: np.allclose(U.T @ U, np.eye(2)) and np.allclose(Vt @ Vt.T, np.eye(2)))
+check("singular values agree with NumPy", lambda: np.allclose(S, np.linalg.svd(B, compute_uv=False)))
+rng = np.random.default_rng(0)
+M = rng.normal(size=(8, 5))
+Um, Sm, Vm = svd_via_eigh(M)
+for k in (1, 3):
+    Mk = low_rank(Um, Sm, Vm, k)
+    check(f"rank-{k} error equals the dropped singular values", (lambda Mk=Mk, k=k: abs(np.linalg.norm(M - Mk) - np.sqrt(np.sum(Sm[k:] ** 2))) < 1e-9))
+    check(f"rank-{k} approximation has rank {k}", (lambda Mk=Mk, k=k: np.linalg.matrix_rank(Mk) == k))
+#@@ solution
+import numpy as np
+
+def eigvals2(A):
+    a, b, c, d = A[0, 0], A[0, 1], A[1, 0], A[1, 1]
+    tr, det = a + d, a * d - b * c
+    disc = np.sqrt(tr * tr - 4 * det)
+    return np.array(sorted([(tr + disc) / 2, (tr - disc) / 2], reverse=True))
+
+def eigvec2(A, lam):
+    a, b, c, d = A[0, 0], A[0, 1], A[1, 0], A[1, 1]
+    for v in (np.array([b, lam - a]), np.array([lam - d, c])):
+        n = np.linalg.norm(v)
+        if n > 1e-12:
+            return v / n
+    return np.array([1.0, 0.0])
+
+def power_iteration(A, iters=200):
+    v = np.ones(A.shape[0]) + np.arange(A.shape[0]) * 0.1
+    v = v / np.linalg.norm(v)
+    for _ in range(iters):
+        w = A @ v
+        v = w / np.linalg.norm(w)
+    return float(v @ A @ v), v
+
+def matrix_power_diag(A, k):
+    vals, P = np.linalg.eig(A)
+    return np.real(P @ np.diag(vals ** k) @ np.linalg.inv(P))
+
+def svd_via_eigh(A):
+    lam, V = np.linalg.eigh(A.T @ A)
+    order = np.argsort(lam)[::-1]
+    lam, V = lam[order], V[:, order]
+    S = np.sqrt(np.clip(lam, 0, None))
+    U = A @ V / S
+    return U, S, V.T
+
+def low_rank(U, S, Vt, k):
+    return (U[:, :k] * S[:k]) @ Vt[:k]

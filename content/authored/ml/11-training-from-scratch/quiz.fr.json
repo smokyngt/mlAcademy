@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.11.q1",
+    "prompt": "Dans quel ordre se déroulent les étapes d'une itération d'entraînement ?",
+    "options": ["mise à jour, passe avant, passe arrière", "passe avant, passe arrière, mise à jour", "passe arrière, passe avant, mise à jour", "passe avant, mise à jour, passe arrière"],
+    "explanation": "La perte doit être calculée (passe avant) avant que les gradients existent (passe arrière), et les paramètres ne changent qu'une fois tous les gradients connus (mise à jour)."
+  },
+  {
+    "id": "f2n.11.q2",
+    "prompt": "Un classifieur à 5 classes fraîchement initialisé affiche une perte initiale de 14.2. Quel est le problème le plus probable ?",
+    "options": ["Le modèle est parfaitement calibré", "Les logits de sortie ont une échelle énorme (mauvaise initialisation ou normalisation manquante) ; on attend environ $\\ln5=1.61$", "Le taux d'apprentissage est trop petit", "Le jeu de données est trop grand"],
+    "explanation": "Des sorties à peu près uniformes donneraient $\\ln K$. Une perte bien plus grande signifie des prédictions assurées et fausses à l'initialisation : les poids sont trop grands ou les données ne sont pas mises à l'échelle."
+  },
+  {
+    "id": "f2n.11.q3",
+    "prompt": "Un réseau correct et doté d'assez de capacité n'arrive pas à amener la perte sur 8 exemples d'entraînement près de zéro. Qu'est-ce que cela indique ?",
+    "options": ["Rien, c'est normal", "Un bug (étiquettes, signe de la mise à jour, gradient ou taux d'apprentissage), pas un problème de capacité", "Qu'il te faut plus de données", "Qu'il faut ajouter du dropout"],
+    "explanation": "Sur-apprendre un minuscule batch est le test de bout en bout le moins coûteux du pipeline. Un échec signifie que quelque chose est cassé."
+  },
+  {
+    "id": "f2n.11.q4",
+    "prompt": "Avec un momentum $\\mu=0.9$ et une direction de gradient constante, le pas effectif par rapport à la SGD simple est d'environ...",
+    "options": [],
+    "explanation": "La vitesse accumule une série géométrique $1+\\mu+\\mu^2+\\dots=1/(1-\\mu)=10$ fois la contribution du gradient d'un seul pas."
+  },
+  {
+    "id": "f2n.11.q5",
+    "prompt": "Ta perte devient NaN après environ 20 pas. Quelle vérification doit venir EN PREMIER ?",
+    "options": ["Ajouter plus d'unités cachées", "Baisser le taux d'apprentissage (et vérifier qu'il n'y a pas de log(0) dans la perte)", "Augmenter la taille du batch", "Changer de graine aléatoire"],
+    "explanation": "Un NaN provient d'un dépassement de capacité (pas au-dessus de la limite de stabilité) ou d'un log de zéro. Baisser le taux d'apprentissage est l'expérience discriminante la moins coûteuse."
+  },
+  {
+    "id": "f2n.11.q6",
+    "prompt": "Avec l'initialisation de He, une couche à 200 entrées doit tirer ses poids avec un écart-type de...",
+    "options": [],
+    "explanation": "$\\sigma_w=\\sqrt{2/n_{\\text{in}}}=\\sqrt{2/200}=\\sqrt{0.01}=0.1$."
+  }
+]

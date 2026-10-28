@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.09.c14", "front": "Paramètres d'un MLP $784\\to128\\to10$", "back": "$101{,}770$." },
+  { "id": "f2n.09.c15", "front": "ReLU", "back": "$\\max(0,z)$ ; peu coûteuse, choix par défaut des couches cachées ; peut « mourir »." },
+  { "id": "f2n.09.c16", "front": "Dérivée de tanh", "back": "$1-\\tanh^2z$, max 1." },
+  { "id": "f2n.09.c17", "front": "ReLU morte", "back": "Une unité dont la pré-activation est toujours $\\le0$ a un gradient nul pour toujours." },
+  { "id": "f2n.09.c18", "front": "Pourquoi une initialisation aléatoire ?", "back": "Des poids égaux donnent des neurones identiques et des gradients identiques ; la symétrie n'est jamais brisée." },
+  { "id": "f2n.09.c19", "front": "Variance d'une somme pondérée", "back": "$\\operatorname{Var}(z)=n\\sigma_w^2\\sigma_x^2$ pour des termes indépendants de moyenne nulle." },
+  { "id": "f2n.09.c20", "front": "Règle de Xavier / Glorot", "back": "$\\sigma_w^2=1/n_{\\text{in}}$ (préserve la variance pour des couches de type tanh)." },
+  { "id": "f2n.09.c21", "front": "Réseau XOR", "back": "$h_1=\\mathrm{ReLU}(x_1+x_2)$, $h_2=\\mathrm{ReLU}(x_1+x_2-1)$, sortie $h_1-2h_2$." },
+  { "id": "f2n.09.c22", "front": "Diffusion (broadcasting) du biais", "back": "$b:(m)$ est ajouté à chaque ligne de $XW:(B,m)$." }
+]

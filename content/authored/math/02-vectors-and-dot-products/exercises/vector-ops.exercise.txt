@@ -1,0 +1,49 @@
+#@@ meta
+{"id": "f2n.02.ex1", "title": "Dot product, norm, cosine similarity, projection", "difficulty": 2, "runtime": "pyodide", "concepts": ["la.dot", "la.vector"], "hints": ["dot(a, b) is np.sum(a * b); norm(a) is the square root of dot(a, a).", "cosine_similarity divides dot(a,b) by the product of the norms.", "project(a, b) returns (dot(a,b) / dot(b,b)) * b, a vector with the same shape as b."]}
+#@@ prompt
+Implement four functions **without** calling `np.dot`, `@` or `np.linalg.norm` (build them from `np.sum`, `*` and `np.sqrt`):
+
+- `dot(a, b)` - sum of products.
+- `norm(a)` - Euclidean length.
+- `cosine_similarity(a, b)`.
+- `project(a, b)` - the projection of `a` onto `b` (a vector).
+#@@ starter
+import numpy as np
+
+def dot(a, b):
+    raise NotImplementedError
+
+def norm(a):
+    raise NotImplementedError
+
+def cosine_similarity(a, b):
+    raise NotImplementedError
+
+def project(a, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+a = np.array([1., 2., 3.]); b = np.array([4., 5., 6.])
+check("dot((1,2,3),(4,5,6)) = 32", lambda: abs(dot(a, b) - 32) < 1e-12)
+check("dot returns a scalar", lambda: np.ndim(dot(a, b)) == 0, "Did you forget to sum?")
+check("norm((3,4)) = 5", lambda: abs(norm(np.array([3., 4.])) - 5) < 1e-12)
+check("cosine similarity matches NumPy", lambda: abs(cosine_similarity(a, b) - (a @ b) / (np.linalg.norm(a) * np.linalg.norm(b))) < 1e-12)
+check("cosine similarity ignores scale", lambda: abs(cosine_similarity(a, 10 * b) - cosine_similarity(a, b)) < 1e-12)
+check("orthogonal vectors have cosine 0", lambda: abs(cosine_similarity(np.array([3., 4.]), np.array([4., -3.]))) < 1e-12)
+check("project (2,3) onto (1,0) = (2,0)", lambda: np.allclose(project(np.array([2., 3.]), np.array([1., 0.])), [2., 0.]))
+r = lambda: a - project(a, b)
+check("residual of projection is orthogonal to b", lambda: abs(np.sum(r() * b)) < 1e-9, "(a - proj) . b must be 0")
+#@@ solution
+import numpy as np
+
+def dot(a, b):
+    return np.sum(a * b)
+
+def norm(a):
+    return np.sqrt(dot(a, a))
+
+def cosine_similarity(a, b):
+    return dot(a, b) / (norm(a) * norm(b))
+
+def project(a, b):
+    return dot(a, b) / dot(b, b) * b

@@ -1,0 +1,16 @@
+[
+  { "id": "rl.02.c1", "concept": "rl.bellman", "front": "Bellman expectation equation for $V^\\pi$", "back": "$V^\\pi(s)=\\sum_a\\pi(a|s)\\sum_{s'}P(s'|s,a)[R(s,a,s')+\\gamma V^\\pi(s')]$." },
+  { "id": "rl.02.c2", "concept": "rl.bellman", "front": "Relation between $V^\\pi$ and $Q^\\pi$", "back": "$V^\\pi(s)=\\sum_a\\pi(a|s)Q^\\pi(s,a)$ and $Q^\\pi(s,a)=\\sum_{s'}P(s'|s,a)[R+\\gamma V^\\pi(s')]$." },
+  { "id": "rl.02.c3", "concept": "rl.bellman", "front": "Bellman optimality equation", "back": "$V^*(s)=\\max_a\\sum_{s'}P(s'|s,a)[R(s,a,s')+\\gamma V^*(s')]$." },
+  { "id": "rl.02.c4", "concept": "rl.bellman", "front": "Which step of the derivation needs the Markov property?", "back": "Replacing $\\mathbb{E}[G_{t+1}|s_t=s,a_t=a,s_{t+1}=s']$ by $V^\\pi(s')$: the future depends only on $s'$." },
+  { "id": "rl.02.c5", "concept": "rl.bellman", "front": "Matrix form of policy evaluation", "back": "$V=r_\\pi+\\gamma P_\\pi V\\Rightarrow V=(I-\\gamma P_\\pi)^{-1}r_\\pi$; $P_\\pi$ is $S\\times S$, row-stochastic." },
+  { "id": "rl.02.c6", "concept": "rl.dp", "front": "Why is the Bellman operator a contraction?", "back": "$\\|TV-TW\\|_\\infty\\le\\gamma\\|V-W\\|_\\infty$ because rows of $P$ are probability vectors (and $|\\max x-\\max y|\\le\\max|x-y|$ for the optimality operator)." },
+  { "id": "rl.02.c7", "concept": "rl.dp", "front": "Policy evaluation", "back": "Compute $V^\\pi$ for a fixed policy by sweeping $V\\leftarrow T^\\pi V$ until the largest change is below a tolerance." },
+  { "id": "rl.02.c8", "concept": "rl.dp", "front": "Policy improvement step", "back": "$\\pi'(s)=\\arg\\max_a Q^\\pi(s,a)$; the improvement theorem guarantees $V^{\\pi'}\\ge V^\\pi$." },
+  { "id": "rl.02.c9", "concept": "rl.dp", "front": "Policy iteration", "back": "Alternate full evaluation and greedy improvement until the policy is stable; the result satisfies the optimality equation." },
+  { "id": "rl.02.c10", "concept": "rl.dp", "front": "Value iteration", "back": "Repeat $V\\leftarrow\\max_a Q_V(s,a)$; extract the greedy policy at the end. One sweep merges evaluation and improvement." },
+  { "id": "rl.02.c11", "concept": "rl.dp", "front": "Generalised policy iteration", "back": "Any interleaving of evaluation and improvement; the value and policy converge together to $V^*,\\pi^*$." },
+  { "id": "rl.02.c12", "concept": "rl.dp", "front": "Shapes in tabular DP", "back": "$P,R$: $(S,A,S)$; $V$: $(S,)$; $Q=(P*R).sum(2)+\\gamma P@V$: $(S,A)$; policy: $(S,A)$." },
+  { "id": "rl.02.c13", "concept": "rl.dp", "front": "Why study DP if it needs a known model?", "back": "It defines optimality, is the test oracle for model-free methods, and Q-learning/TD are sampled versions of its backups." },
+  { "id": "rl.02.c14", "concept": "rl.dp", "front": "Cost comparison: linear solve vs sweeps", "back": "Solving $(I-\\gamma P_\\pi)V=r_\\pi$ costs $O(S^3)$; one sweep costs $O(S^2A)$ (less for sparse $P$)." }
+]

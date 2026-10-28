@@ -1,0 +1,132 @@
+#@@ meta
+{"id": "llm.05.ex2", "title": "KL-regularised optimum and the DPO loss", "difficulty": 4, "runtime": "pyodide", "concepts": ["llm.dpo", "llm.reward-model", "info.entropy"], "hints": ["RLHF objective on a finite set of responses: J(pi) = sum_y pi(y) r(y) - beta * KL(pi || ref). The closed-form maximiser is pi*(y) = ref(y) * exp(r(y)/beta) / Z, and the maximum equals beta * log Z with Z = sum_y ref(y) exp(r(y)/beta).", "DPO margin: z = beta * ((logp_w - ref_w) - (logp_l - ref_l)); loss = -log sigmoid(z) = logaddexp(0, -z). dL/dz = -sigmoid(-z), so dL/dlogp_w = -beta * sigmoid(-z) and dL/dlogp_l = +beta * sigmoid(-z) (average over pairs).", "Tabular policy: logits theta over K responses, logp = theta - logsumexp(theta). Chain rule through the log-softmax: d logp_i / d theta_j = 1[i=j] - pi_j, so gradient wrt theta = sum over pairs of g_w * (e_w - pi) + g_l * (e_l - pi)."]}
+#@@ prompt
+Work with the KL-regularised RLHF objective and derive-and-implement the DPO loss.
+
+- `rlhf_objective(pi, ref, r, beta)`: $\sum_y \pi(y)r(y)-\beta\,\mathrm{KL}(\pi\,\|\,\mathrm{ref})$ for probability vectors over a finite response set.
+- `optimal_policy(ref, r, beta)`: the closed-form maximiser.
+- `dpo_loss(lp_w, lp_l, ref_w, ref_l, beta)`: mean DPO loss over pairs of arrays (log-probabilities of the chosen / rejected responses under the policy and under the frozen reference).
+- `dpo_grads(lp_w, lp_l, ref_w, ref_l, beta)`: gradients of the mean loss with respect to `lp_w` and `lp_l`.
+- `implicit_reward(lp, ref, beta)`: $\beta\,(\log\pi-\log\pi_{\mathrm{ref}})$.
+- `train_dpo_tabular(ref_logp, pairs, beta, lr, steps)`: a policy given by free logits `theta` over `K` responses, initialised at `theta = ref_logp`; `pairs` is a list of `(winner_index, loser_index)`; run gradient descent on the mean DPO loss and return `theta`.
+#@@ starter
+import numpy as np
+
+def rlhf_objective(pi, ref, r, beta):
+    # TODO
+    raise NotImplementedError
+
+def optimal_policy(ref, r, beta):
+    # TODO
+    raise NotImplementedError
+
+def dpo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    # TODO
+    raise NotImplementedError
+
+def dpo_grads(lp_w, lp_l, ref_w, ref_l, beta):
+    # TODO: return (d_lp_w, d_lp_l)
+    raise NotImplementedError
+
+def implicit_reward(lp, ref, beta):
+    # TODO
+    raise NotImplementedError
+
+def train_dpo_tabular(ref_logp, pairs, beta=1.0, lr=0.5, steps=100):
+    # TODO
+    raise NotImplementedError
+
+print(dpo_loss(np.array([-12.0]), np.array([-15.0]), np.array([-13.0]), np.array([-14.0]), 0.1))
+#@@ tests
+import numpy as np
+ref = np.array([0.5, 0.3, 0.2]); r = np.array([1.0, 0.0, -1.0])
+pi = optimal_policy(ref, r, 1.0)
+check("optimal policy for beta=1 (lesson numbers)", lambda: np.allclose(pi, [0.7844, 0.1731, 0.0425], atol=1e-4) and abs(pi.sum() - 1) < 1e-12)
+check("objective of the reference is its expected reward (KL=0)", lambda: abs(rlhf_objective(ref, ref, r, 1.0) - 0.3) < 1e-12)
+check("objective at the optimum equals beta*log Z = 0.5497", lambda: abs(rlhf_objective(pi, ref, r, 1.0) - 0.5497) < 1e-4 and abs(rlhf_objective(pi, ref, r, 1.0) - np.log((ref * np.exp(r)).sum())) < 1e-12)
+rng = np.random.default_rng(0)
+cands = rng.dirichlet(np.ones(3), size=3000)
+check("no random policy beats the closed form", lambda: all(rlhf_objective(c, ref, r, 1.0) <= rlhf_objective(pi, ref, r, 1.0) + 1e-12 for c in cands))
+check("small beta concentrates on the best reward", lambda: optimal_policy(ref, r, 0.1)[0] > 0.999)
+check("large beta stays near the reference", lambda: np.abs(optimal_policy(ref, r, 1000.0) - ref).max() < 1e-3)
+check("implicit reward of the optimum is r + beta*log Z (constant offset)", lambda: np.ptp(implicit_reward(np.log(pi), np.log(ref), 1.0) - r) < 1e-12, "log pi*/ref = r/beta - log Z")
+lw, ll, rw_, rl_ = np.array([-12.0]), np.array([-15.0]), np.array([-13.0]), np.array([-14.0])
+check("DPO loss at the lesson example: z=0.2, loss 0.5981", lambda: abs(dpo_loss(lw, ll, rw_, rl_, 0.1) - 0.5981) < 1e-4)
+check("DPO loss at the reference is ln 2", lambda: abs(dpo_loss(rw_, rl_, rw_, rl_, 0.1) - np.log(2)) < 1e-12)
+gw, gl = dpo_grads(lw, ll, rw_, rl_, 0.1)
+check("gradient values -0.0450 / +0.0450", lambda: abs(gw[0] + 0.0450) < 1e-4 and abs(gl[0] - 0.0450) < 1e-4)
+a = np.array([-1.0, -2.0, -0.5]); b = np.array([-1.5, -1.0, -2.5]); c = np.array([-1.2, -1.8, -0.7]); d = np.array([-1.3, -1.1, -2.0])
+gw, gl = dpo_grads(a, b, c, d, 0.3)
+def fd(f, x):
+    g = np.zeros_like(x)
+    for i in range(len(x)):
+        p = x.copy(); m = x.copy(); p[i] += 1e-6; m[i] -= 1e-6
+        g[i] = (f(p) - f(m)) / 2e-6
+    return g
+check("d lp_w matches finite differences", lambda: np.allclose(gw, fd(lambda v: dpo_loss(v, b, c, d, 0.3), a), atol=1e-7))
+check("d lp_l matches finite differences", lambda: np.allclose(gl, fd(lambda v: dpo_loss(a, v, c, d, 0.3), b), atol=1e-7))
+check("loss is stable for huge margins", lambda: np.isfinite(dpo_loss(np.array([0.0]), np.array([-1e5]), np.array([-1.0]), np.array([-1.0]), 1.0)))
+ref_logp = np.log(np.array([0.25, 0.25, 0.25, 0.25]))
+pairs = [(0, 1), (0, 2), (1, 3), (2, 3), (0, 3)]
+th0 = train_dpo_tabular(ref_logp, pairs, beta=1.0, lr=0.5, steps=0)
+th = train_dpo_tabular(ref_logp, pairs, beta=1.0, lr=0.5, steps=60)
+def pol(t):
+    t = t - t.max(); p = np.exp(t); return p / p.sum()
+def tab_loss(t):
+    lp = t - (t.max() + np.log(np.exp(t - t.max()).sum()))
+    w = np.array([p[0] for p in pairs]); l = np.array([p[1] for p in pairs])
+    return dpo_loss(lp[w], lp[l], ref_logp[w], ref_logp[l], 1.0)
+check("zero steps returns the reference logits", lambda: np.allclose(pol(th0), 0.25))
+check("tabular DPO lowers the loss", lambda: tab_loss(th) < tab_loss(th0) - 0.1)
+check("policy ranks responses as the preferences say (0 > 1,2 > 3)", lambda: pol(th)[0] > pol(th)[1] and pol(th)[0] > pol(th)[2] and pol(th)[1] > pol(th)[3] and pol(th)[2] > pol(th)[3])
+check("the policy moved away from the reference (KL > 0.1)", lambda: (pol(th) * (np.log(pol(th)) - ref_logp)).sum() > 0.1)
+#@@ solution
+import numpy as np
+
+def _sig(x):
+    return 0.5 * (1.0 + np.tanh(0.5 * np.asarray(x, dtype=float)))
+
+def rlhf_objective(pi, ref, r, beta):
+    pi, ref, r = map(lambda v: np.asarray(v, dtype=float), (pi, ref, r))
+    mask = pi > 0
+    kl = np.sum(pi[mask] * np.log(pi[mask] / ref[mask]))
+    return float(np.sum(pi * r) - beta * kl)
+
+def optimal_policy(ref, r, beta):
+    ref, r = np.asarray(ref, dtype=float), np.asarray(r, dtype=float)
+    w = np.log(ref) + r / beta
+    w = w - w.max()
+    p = np.exp(w)
+    return p / p.sum()
+
+def dpo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    z = beta * ((np.asarray(lp_w) - np.asarray(ref_w)) - (np.asarray(lp_l) - np.asarray(ref_l)))
+    return float(np.mean(np.logaddexp(0.0, -z)))
+
+def dpo_grads(lp_w, lp_l, ref_w, ref_l, beta):
+    z = beta * ((np.asarray(lp_w) - np.asarray(ref_w)) - (np.asarray(lp_l) - np.asarray(ref_l)))
+    g = -beta * _sig(-z) / z.size
+    return g, -g
+
+def implicit_reward(lp, ref, beta):
+    return beta * (np.asarray(lp) - np.asarray(ref))
+
+def train_dpo_tabular(ref_logp, pairs, beta=1.0, lr=0.5, steps=100):
+    theta = np.array(ref_logp, dtype=float)
+    w = np.array([p[0] for p in pairs])
+    l = np.array([p[1] for p in pairs])
+    ref_logp = np.asarray(ref_logp, dtype=float)
+    for _ in range(steps):
+        m = theta.max()
+        logp = theta - (m + np.log(np.exp(theta - m).sum()))
+        pi = np.exp(logp)
+        gw, gl = dpo_grads(logp[w], logp[l], ref_logp[w], ref_logp[l], beta)
+        grad = np.zeros_like(theta)
+        for i in range(len(pairs)):
+            grad[w[i]] += gw[i]
+            grad[l[i]] += gl[i]
+            grad -= (gw[i] + gl[i]) * pi
+        theta = theta - lr * grad
+    return theta
+
+print(dpo_loss(np.array([-12.0]), np.array([-15.0]), np.array([-13.0]), np.array([-14.0]), 0.1))

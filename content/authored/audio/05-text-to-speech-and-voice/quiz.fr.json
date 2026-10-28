@@ -1,0 +1,86 @@
+[
+ {
+  "id": "aud.05.q1",
+  "prompt": "Quel est l'ordre correct du pipeline TTS classique ?",
+  "options": [
+   "vocodeur, modèle acoustique, front-end textuel",
+   "modèle acoustique, front-end textuel, vocodeur",
+   "front-end textuel, modèle acoustique (vers mel), vocodeur",
+   "front-end textuel, vocodeur, modèle acoustique"
+  ],
+  "explanation": "Le texte est normalisé et phonémisé, le modèle acoustique prédit un spectrogramme mel, le vocodeur le convertit en forme d'onde."
+ },
+ {
+  "id": "aud.05.q2",
+  "prompt": "Un régulateur de longueur étend 4 phonèmes de durées (2, 3, 1, 2). Combien de trames mel obtient-on ?",
+  "options": [],
+  "explanation": "$T=\\sum_ud_u=2+3+1+2=8$."
+ },
+ {
+  "id": "aud.05.q3",
+  "prompt": "Pourquoi un spectrogramme mel ne peut-il pas être inversé exactement, même en principe ?",
+  "options": [
+   "les filtres mel sont linéaires, donc l'inversion est triviale",
+   "il écarte la phase et, à cause des filtres, le détail fin en fréquence",
+   "il est stocké avec trop peu de bits",
+   "il utilise la mauvaise fenêtre"
+  ],
+  "explanation": "La phase et la résolution à l'intérieur de chaque bande mel sont toutes deux perdues ; de nombreuses formes d'onde partagent la même image mel."
+ },
+ {
+  "id": "aud.05.q4",
+  "prompt": "La STFT inverse au sens des moindres carrés avec une fenêtre d'analyse $w$ se calcule par...",
+  "options": [
+   "FFT inverse de chaque trame, fenêtrage à nouveau, recouvrement-addition, division par la somme des $w^2$",
+   "FFT inverse suivie d'une moyenne des trames adjacentes sans fenêtre",
+   "ne garder que la première trame",
+   "multiplication par la pseudo-inverse du banc de filtres mel"
+  ],
+  "explanation": "Annuler la dérivée de $\\sum_t\\|w\\odot x_t-y_t\\|^2$ donne $x[m]=\\sum_tw\\,y_t/\\sum_tw^2$."
+ },
+ {
+  "id": "aud.05.q5",
+  "prompt": "Une itération de Griffin-Lim consiste à...",
+  "options": [
+   "ajouter du bruit au module et renormaliser",
+   "entraîner un réseau de neurones pendant un pas",
+   "diviser le saut par deux",
+   "STFT inverse, STFT, puis garder la nouvelle phase et restaurer le module cible"
+  ],
+  "explanation": "Projection alternée sur les spectrogrammes cohérents (ISTFT puis STFT) et sur les spectrogrammes de module prescrit."
+ },
+ {
+  "id": "aud.05.q6",
+  "prompt": "Après de nombreuses itérations de Griffin-Lim, la forme d'onde reconstruite diffère de l'originale par une grande erreur RMS bien que la convergence spectrale soit faible. Pourquoi ce n'est pas un bug ?",
+  "options": [
+   "la fréquence d'échantillonnage était mauvaise",
+   "seul le module était spécifié ; de nombreuses formes d'onde (par ex. $x$ et $-x$) le partagent",
+   "la fenêtre n'était pas de Hann",
+   "la STFT inverse est inexacte"
+  ],
+  "explanation": "La récupération de phase à partir du module n'est pas unique, donc compare les modules (convergence spectrale), pas les échantillons."
+ },
+ {
+  "id": "aud.05.q7",
+  "prompt": "Dix auditeurs donnent un MOS de moyenne d'échantillon 3,8 et d'écart type d'échantillon 0,9. Quelle est la demi-largeur de l'intervalle de confiance à 95 % par approximation normale (utilise 1,96) ? Arrondis à deux décimales.",
+  "options": [],
+  "explanation": "$1.96\\cdot0.9/\\sqrt{10}=1.96\\cdot0.2846=0.558$."
+ },
+ {
+  "id": "aud.05.q8",
+  "prompt": "Un codec neuronal fonctionne à 75 trames/s avec 8 livres de codes de 1024 entrées. Quel est le débit en bits par seconde ?",
+  "options": [],
+  "explanation": "$75\\cdot8\\cdot\\log_2 1024=75\\cdot8\\cdot10=6000$."
+ },
+ {
+  "id": "aud.05.q9",
+  "prompt": "Quelle affirmation sur les garde-fous contre le détournement du clonage de voix est la plus exacte ?",
+  "options": [
+   "un tatouage rend le détournement impossible",
+   "les détecteurs atteignent une exactitude fixe sur tout nouveau générateur",
+   "consentement, marques de provenance, détection et politique sont complémentaires et chacun a des limites",
+   "une valeur élevée de SECS prouve que le locuteur a consenti"
+  ],
+  "explanation": "Aucun des contrôles n'est suffisant seul : les tatouages peuvent être supprimés ou absents, les détecteurs vieillissent face aux nouveaux générateurs, le SECS mesure la similarité et non l'autorisation."
+ }
+]

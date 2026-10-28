@@ -1,0 +1,9 @@
+[
+  {"id": "trf.attention", "title": "Scaled dot-product self-attention", "description": "Queries, keys and values, softmax(QK^T/sqrt(d_k))V, the variance argument for the scale, shapes and O(T^2) cost.", "stage": "V", "prereqs": ["la.matrix", "la.dot", "nn.layer", "calc.chain"]},
+  {"id": "trf.multihead", "title": "Multi-head attention", "description": "Heads as subspaces: split and merge reshapes, output projection, parameter count 4d^2.", "stage": "V", "prereqs": ["trf.attention"]},
+  {"id": "trf.mask", "title": "Causal and padding masks", "description": "Adding -inf to scores before softmax so that future or padded tokens receive zero weight.", "stage": "V", "prereqs": ["trf.attention"]},
+  {"id": "trf.position", "title": "Positional information", "description": "Permutation equivariance of attention, sinusoidal and learned position encodings.", "stage": "V", "prereqs": ["trf.attention"]},
+  {"id": "trf.rope", "title": "Rotary position embeddings (RoPE)", "description": "Rotating query/key coordinate pairs so that the attention score depends only on relative position.", "stage": "V", "prereqs": ["trf.position", "la.matrix"]},
+  {"id": "trf.block", "title": "The transformer block", "description": "Residual connections, pre-norm, LayerNorm vs RMSNorm, feed-forward and SwiGLU, stacking and parameter counts.", "stage": "V", "prereqs": ["trf.multihead", "trf.mask", "trf.position", "nn.layer"]},
+  {"id": "trf.architectures", "title": "Encoder, decoder and encoder-decoder transformers", "description": "BERT-style, GPT-style and cross-attention models: masks, objectives and shapes.", "stage": "V", "prereqs": ["trf.block"]}
+]

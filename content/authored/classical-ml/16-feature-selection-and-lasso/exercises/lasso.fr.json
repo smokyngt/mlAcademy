@@ -1,0 +1,10 @@
+{
+  "id": "cml.16.ex1",
+  "title": "Seuillage doux, lasso par descente de coordonnées et sélection par stabilité",
+  "prompt": "On minimise l'objectif du lasso `(1/(2n)) * ||y - X w||^2 + lam * ||w||_1` (sans ordonnée à l'origine : y est centré, X est standardisé).\n\n- `soft_threshold(z, t)` : fonctionne sur des scalaires et des tableaux.\n- `lasso_cd(X, y, lam, n_iter=500, tol=1e-10)` -> `w` de forme `(d,)` : descente de coordonnées cyclique partant de zéros, s'arrêtant quand la plus grande variation d'un balayage est inférieure à `tol`.\n- `lambda_max(X, y)` -> plus petit `lam` donnant la solution entièrement nulle.\n- `lasso_path(X, y, lams)` -> tableau `(len(lams), d)`.\n- `stability_selection(X, y, lam, B, seed)` -> fréquence de sélection de chaque variable sur `B` demi-échantillons, avec `rng = np.random.default_rng(seed)` et `rng.choice(n, n // 2, replace=False)` pour chaque sous-échantillon.\n- `mutual_information(x, y, bins)` -> information mutuelle en nats entre deux tableaux 1D continus, estimée à partir d'un histogramme `bins x bins` dont les bords sont les quantiles intérieurs `np.quantile(v, np.linspace(0, 1, bins + 1)[1:-1])` de chaque variable (utilise `np.digitize`).",
+  "hints": [
+    "Seuillage doux : sign(z) * max(|z| - t, 0).",
+    "La descente de coordonnées garde le résidu r = y - X w. Pour la coordonnée j : remets sa contribution (r += X[:, j] * w[j]), rho = X[:, j] @ r / n, w[j] = soft_threshold(rho, lam) / z_j avec z_j = mean(X[:, j]**2), puis soustrais la nouvelle contribution de r.",
+    "lambda_max = max_j |X[:, j] @ y| / n est la plus petite pénalité pour laquelle tous les coefficients sont nuls. Sélection par stabilité : répète B fois : sous-échantillonne n//2 lignes SANS remise, centre y, lance le lasso, note quels coefficients sont non nuls, puis fais la moyenne."
+  ]
+}

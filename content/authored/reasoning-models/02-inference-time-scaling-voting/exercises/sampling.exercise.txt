@@ -1,0 +1,99 @@
+#@@ meta
+{"id": "rsn.02.ex1", "title": "Temperature, top-p and a seedless sampler", "difficulty": 2, "runtime": "pyodide", "concepts": ["rsn.vote"], "hints": ["Subtract the maximum before exponentiating so large logits do not overflow; divide the logits by T first.", "Sort probabilities in decreasing order and compute the cumulative mass BEFORE each token (cumsum minus the token's own probability). Keep a token while that prefix mass is below top_p; always keep the first one. Then zero the rest in the ORIGINAL order and renormalise.", "To sample without a random number generator, take a uniform number u in [0,1) and return the smallest index whose cumulative probability is strictly greater than u (np.searchsorted with side='right')."]}
+#@@ prompt
+Decoding turns next-token scores (logits) into a token. Implement the pieces with NumPy:
+
+- `softmax_T(logits, T=1.0)`: probabilities from logits divided by temperature `T` (numerically stable). `T` must be positive; raise `ValueError` otherwise.
+- `top_p_filter(probs, top_p)`: keep the smallest set of most-likely tokens whose cumulative mass reaches `top_p` (in practice: keep a token while the mass *before* it is `< top_p`; always keep the most likely token), zero out the others (in the original positions) and renormalise. `top_p=None` or `>= 1` returns a copy unchanged.
+- `sample_index(probs, u)`: the inverse-CDF draw: the smallest index `i` with `cumsum(probs)[i] > u`, for a uniform `u` in `[0, 1)`.
+- `sampling_frequencies(probs, num=1000)`: draw with the deterministic grid `u_j = (j + 0.5) / num` for `j = 0..num-1` and return the fraction of draws per index (an array summing to 1). This shows what a sampler does without any randomness.
+#@@ starter
+import numpy as np
+
+
+def softmax_T(logits, T=1.0):
+    raise NotImplementedError
+
+
+def top_p_filter(probs, top_p):
+    raise NotImplementedError
+
+
+def sample_index(probs, u):
+    raise NotImplementedError
+
+
+def sampling_frequencies(probs, num=1000):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+toy = [-0.7, -3.0, 0.1, -1.2, 2.0, -1.0, -0.5, -2.0, 0.3, 1.5]
+p1 = softmax_T(toy)
+check("probabilities sum to 1", lambda: abs(p1.sum() - 1) < 1e-12)
+check("T=1 largest probability 0.4538", lambda: abs(p1.max() - 0.4538) < 5e-5 and int(p1.argmax()) == 4)
+check("T=0.5 sharpens (0.6947)", lambda: abs(softmax_T(toy, 0.5).max() - 0.6947) < 5e-5)
+check("T=5 flattens (0.1567)", lambda: abs(softmax_T(toy, 5.0).max() - 0.1567) < 5e-5)
+check("order of tokens is unchanged by T", lambda: list(np.argsort(softmax_T(toy, 0.3))) == list(np.argsort(p1)))
+check("huge logits do not overflow", lambda: np.all(np.isfinite(softmax_T([1000.0, 999.0, 0.0]))))
+def raises():
+    try:
+        softmax_T(toy, 0.0)
+    except ValueError:
+        return True
+    return False
+check("T <= 0 raises ValueError", raises)
+
+f = top_p_filter(p1, 0.8)
+check("top-p 0.8 keeps exactly three tokens (4, 9, 8)", lambda: set(np.nonzero(f)[0]) == {4, 8, 9})
+check("renormalised kept probabilities", lambda: abs(f.sum() - 1) < 1e-12 and abs(f[4] - 0.5589) < 5e-5 and abs(f[8] - 0.1021) < 5e-5 and abs(f[9] - 0.3390) < 5e-5)
+check("token crossing the threshold is kept (0.4538, 0.2752, 0.0829)", lambda: f[8] > 0)
+check("top_p=1.0 or None changes nothing", lambda: np.allclose(top_p_filter(p1, 1.0), p1) and np.allclose(top_p_filter(p1, None), p1))
+check("tiny top_p keeps only the argmax", lambda: np.count_nonzero(top_p_filter(p1, 1e-9)) == 1 and top_p_filter(p1, 1e-9)[4] == 1.0)
+check("does not mutate its input", lambda: abs(p1.sum() - 1) < 1e-12 and np.allclose(p1, softmax_T(toy)))
+check("ties handled: uniform probs, p=0.5 keeps half", lambda: np.count_nonzero(top_p_filter(np.full(10, 0.1), 0.5)) == 5)
+
+pr = np.array([0.2, 0.5, 0.3])
+check("sample_index boundaries", lambda: sample_index(pr, 0.0) == 0 and sample_index(pr, 0.1999) == 0 and sample_index(pr, 0.2) == 1 and sample_index(pr, 0.6999) == 1 and sample_index(pr, 0.7) == 2 and sample_index(pr, 0.9999) == 2)
+fr = sampling_frequencies(pr, 1000)
+check("grid sampler reproduces the probabilities", lambda: np.allclose(fr, pr, atol=1e-3) and abs(fr.sum() - 1) < 1e-12)
+fr_low = sampling_frequencies(softmax_T(toy, 0.35), 1000)
+check("low temperature concentrates the draws on token 4", lambda: fr_low[4] > 0.75)
+check("top-p 0.8 never draws a token outside the nucleus", lambda: np.all(sampling_frequencies(f, 1000)[[0, 1, 2, 3, 5, 6, 7]] == 0))
+#@@ solution
+import numpy as np
+
+
+def softmax_T(logits, T=1.0):
+    if T <= 0:
+        raise ValueError("temperature must be positive")
+    z = np.asarray(logits, float) / T
+    z = z - z.max()
+    e = np.exp(z)
+    return e / e.sum()
+
+
+def top_p_filter(probs, top_p):
+    probs = np.asarray(probs, float)
+    if top_p is None or top_p >= 1.0:
+        return probs.copy()
+    order = np.argsort(-probs, kind="stable")
+    sorted_p = probs[order]
+    prefix = np.cumsum(sorted_p) - sorted_p
+    keep = prefix < top_p
+    keep[0] = True
+    out = np.zeros_like(probs)
+    out[order[keep]] = sorted_p[keep]
+    return out / out.sum()
+
+
+def sample_index(probs, u):
+    return int(np.searchsorted(np.cumsum(probs), u, side="right"))
+
+
+def sampling_frequencies(probs, num=1000):
+    probs = np.asarray(probs, float)
+    counts = np.zeros(len(probs))
+    for j in range(num):
+        counts[sample_index(probs, (j + 0.5) / num)] += 1
+    return counts / num

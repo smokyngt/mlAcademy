@@ -1,0 +1,10 @@
+{
+  "id": "mf.01.ex1",
+  "title": "Échauffement Python et NumPy",
+  "prompt": "Cinq petites tâches qui utilisent tout ce que contient la leçon.\n\n- `sum_of_squares(n)` : renvoie $1^2+2^2+\\dots+n^2$ à l'aide d'une boucle `for` (renvoie 0 pour `n = 0`).\n- `classify(x)` : renvoie la chaîne `\"negative\"`, `\"zero\"` ou `\"positive\"`.\n- `standardize(a)` : pour un tableau 1-D, renvoie `(a - mean) / std` (écart type de population, la valeur par défaut de NumPy).\n- `center_columns(M)` : soustrais la moyenne de chaque colonne à cette colonne du tableau 2-D `M` ; le résultat a la même forme.\n- `times_table(n)` : un tableau `(n, n)` dont l'entrée à la ligne `i`, colonne `j` vaut `(i+1)*(j+1)`, construit **sans boucle** grâce au broadcasting.",
+  "hints": [
+    "sum_of_squares : commence avec total = 0, puis boucle avec for i in range(1, n+1) et ajoute i*i.",
+    "standardize : (a - a.mean()) / a.std(). center_columns : M - M.mean(axis=0) (le broadcasting d'une ligne (d,) sur (n,d)).",
+    "times_table : construis une colonne np.arange(1,n+1)[:, None] et une ligne np.arange(1,n+1)[None, :] puis multiplie-les."
+  ]
+}

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "lstm-cell",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The LSTM cell. One stacked matrix product (4H, n)+(4H, H) gives the pre-activations that are split into the input, forget and output gates and the candidate. The cell state c is the additive highway: c_t = f ⊙ c_(t-1) + i ⊙ g.",
+      "fr": "La cellule LSTM. Un produit matriciel empilé (4H, n)+(4H, H) donne les pré-activations découpées en portes d'entrée, d'oubli et de sortie et en candidat. L'état de cellule c est l'autoroute additive : c_t = f ⊙ c_(t-1) + i ⊙ g."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x_t (n,)\"] --> A[\"a = W x_t + U h_(t-1) + b\\n(4H,) split into 4 x (H,)\"]\n  HP[\"h_(t-1) (H,)\"] --> A\n  A --> I[\"i = σ(a_i)\\ninput gate\"]\n  A --> F[\"f = σ(a_f)\\nforget gate\"]\n  A --> Gc[\"g = tanh(a_g)\\ncandidate\"]\n  A --> O[\"o = σ(a_o)\\noutput gate\"]\n  CP[\"c_(t-1) (H,)\\nCELL STATE highway\"] ==> MF((\"⊙\"))\n  F --> MF\n  I --> MI((\"⊙\"))\n  Gc --> MI\n  MF ==> PL((\"+\"))\n  MI --> PL\n  PL ==>|\"c_t (H,)\"| CN[\"c_t → next step\"]\n  PL --> TH[\"tanh(c_t)\"]\n  TH --> MO((\"⊙\"))\n  O --> MO\n  MO --> HN[\"h_t (H,) → next step and output\"]",
+      "fr": "flowchart LR\n  X[\"x_t (n,)\"] --> A[\"a = W x_t + U h_(t-1) + b\\n(4H,) découpé en 4 x (H,)\"]\n  HP[\"h_(t-1) (H,)\"] --> A\n  A --> I[\"i = σ(a_i)\\nporte d'entrée\"]\n  A --> F[\"f = σ(a_f)\\nporte d'oubli\"]\n  A --> Gc[\"g = tanh(a_g)\\ncandidat\"]\n  A --> O[\"o = σ(a_o)\\nporte de sortie\"]\n  CP[\"c_(t-1) (H,)\\nAUTOROUTE de l'état de cellule\"] ==> MF((\"⊙\"))\n  F --> MF\n  I --> MI((\"⊙\"))\n  Gc --> MI\n  MF ==> PL((\"+\"))\n  MI --> PL\n  PL ==>|\"c_t (H,)\"| CN[\"c_t → pas suivant\"]\n  PL --> TH[\"tanh(c_t)\"]\n  TH --> MO((\"⊙\"))\n  O --> MO\n  MO --> HN[\"h_t (H,) → pas suivant et sortie\"]"
+    }
+  },
+  {
+    "id": "gru-cell",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The GRU cell: no separate cell state. The update gate z interpolates between keeping h_(t-1) and the candidate; the reset gate r controls how much of h_(t-1) the candidate may see. Stacked weights are (3H, n), (3H, H).",
+      "fr": "La cellule GRU : pas d'état de cellule séparé. La porte de mise à jour z interpole entre garder h_(t-1) et le candidat ; la porte de réinitialisation r contrôle la part de h_(t-1) que le candidat peut voir. Poids empilés (3H, n), (3H, H)."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x_t (n,)\"] --> R[\"r = σ(W_r x + U_r h + b_r)\\nreset gate\"]\n  X --> Z[\"z = σ(W_z x + U_z h + b_z)\\nupdate gate\"]\n  HP[\"h_(t-1) (H,)\"] --> R\n  HP --> Z\n  R --> N[\"h~ = tanh(W_n x + r ⊙ (U_n h_(t-1)) + b_n)\\ncandidate (H,)\"]\n  X --> N\n  HP --> N\n  Z -->|\"1 - z\"| MIX\n  N --> MIX((\"blend\"))\n  Z -->|\"z\"| MIX\n  HP ==>|\"identity path scaled by z\"| MIX\n  MIX --> HN[\"h_t = (1 - z) ⊙ h~ + z ⊙ h_(t-1)  (H,)\"]",
+      "fr": "flowchart LR\n  X[\"x_t (n,)\"] --> R[\"r = σ(W_r x + U_r h + b_r)\\nporte de réinitialisation\"]\n  X --> Z[\"z = σ(W_z x + U_z h + b_z)\\nporte de mise à jour\"]\n  HP[\"h_(t-1) (H,)\"] --> R\n  HP --> Z\n  R --> N[\"h~ = tanh(W_n x + r ⊙ (U_n h_(t-1)) + b_n)\\ncandidat (H,)\"]\n  X --> N\n  HP --> N\n  Z -->|\"1 - z\"| MIX\n  N --> MIX((\"mélange\"))\n  Z -->|\"z\"| MIX\n  HP ==>|\"chemin identité pondéré par z\"| MIX\n  MIX --> HN[\"h_t = (1 - z) ⊙ h~ + z ⊙ h_(t-1)  (H,)\"]"
+    }
+  },
+  {
+    "id": "gates-act",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The gate nonlinearities: the sigmoid σ (blue) squashes gate values into (0, 1) so they act as soft switches; tanh (orange) gives the candidate and the output squashing in (-1, 1).",
+      "fr": "Les non-linéarités des portes : la sigmoïde σ (bleu) écrase les valeurs des portes dans (0, 1), ce qui en fait des interrupteurs doux ; tanh (orange) donne le candidat et l'écrasement de sortie dans (-1, 1)."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -1.2,
+        1.2
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+exp(-x))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "tanh(x)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "param-counts",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Parameter counts for n = 128, H = 256: the GRU has 3/4 of the LSTM's parameters, and the LSTM has four times those of a plain RNN.",
+      "fr": "Nombre de paramètres pour n = 128, H = 256 : le GRU a les 3/4 des paramètres du LSTM, et le LSTM en a quatre fois plus qu'un RNN simple."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Parameters per layer, n = 128, H = 256\"\n  x-axis [\"RNN\", \"GRU\", \"LSTM\"]\n  y-axis \"parameters\" 0 --> 420000\n  bar [98560, 295680, 394240]",
+      "fr": "xychart-beta\n  title \"Paramètres par couche, n = 128, H = 256\"\n  x-axis [\"RNN\", \"GRU\", \"LSTM\"]\n  y-axis \"paramètres\" 0 --> 420000\n  bar [98560, 295680, 394240]"
+    }
+  },
+  {
+    "id": "forget-product",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Per-step factor raised to T steps (the product of forget gates along the direct cell path): 0.9^t (blue) is gone after ~50 steps; 0.99^t (green) and sigma(5)^t = 0.9933^t (orange) survive 100 steps (0.37 and 0.51). The gate can learn to stay near 1.",
+      "fr": "Facteur par pas élevé à la puissance T (produit des portes d'oubli le long du chemin direct de la cellule) : 0,9^t (bleu) disparaît après ~50 pas ; 0,99^t (vert) et sigma(5)^t = 0,9933^t (orange) survivent à 100 pas (0,37 et 0,51). La porte peut apprendre à rester proche de 1."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        100
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "exp(-0.1053605*x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-0.0100503*x)",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "exp(-0.0067152*x)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              100,
+              0.37
+            ],
+            [
+              100,
+              0.51
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "highway",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The gradient highway through time: along the cell state the backward factor is just the forget gate f_t (no weight matrix, no squashing derivative), whereas the plain RNN path goes through W_hh and diag(1 - h²) at every step.",
+      "fr": "L'autoroute du gradient dans le temps : le long de l'état de cellule, le facteur arrière est simplement la porte d'oubli f_t (ni matrice de poids, ni dérivée d'écrasement), alors que le chemin du RNN simple traverse W_hh et diag(1 - h²) à chaque pas."
+    },
+    "code": {
+      "en": "flowchart RL\n  C3[\"c̄_t\"] -->|\"× f_t\"| C2[\"c̄_(t-1)\"] -->|\"× f_(t-1)\"| C1[\"c̄_(t-2)\"] -->|\"× f_(t-2)\"| C0[\"... c̄_0\"]\n  R3[\"h̄_t\"] -->|\"× diag(1 - h²) W_hh\"| R2[\"h̄_(t-1)\"] -->|\"× diag(1 - h²) W_hh\"| R1[\"h̄_(t-2)\"] -->|\"× diag(1 - h²) W_hh\"| R0[\"... h̄_0\"]",
+      "fr": "flowchart RL\n  C3[\"c̄_t\"] -->|\"× f_t\"| C2[\"c̄_(t-1)\"] -->|\"× f_(t-1)\"| C1[\"c̄_(t-2)\"] -->|\"× f_(t-2)\"| C0[\"... c̄_0\"]\n  R3[\"h̄_t\"] -->|\"× diag(1 - h²) W_hh\"| R2[\"h̄_(t-1)\"] -->|\"× diag(1 - h²) W_hh\"| R1[\"h̄_(t-2)\"] -->|\"× diag(1 - h²) W_hh\"| R0[\"... h̄_0\"]"
+    }
+  },
+  {
+    "id": "lstm-backward",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Backward through one LSTM step: the incoming h̄ and c̄ are combined into c̄_tot, which splits into the gate gradients and the additive path c̄_(t-1) = c̄_tot ⊙ f; one stacked matrix product then yields W̄, Ū, b̄, x̄ and h̄_(t-1).",
+      "fr": "Passe arrière d'un pas de LSTM : les h̄ et c̄ entrants se combinent en c̄_tot, qui se répartit entre les gradients des portes et le chemin additif c̄_(t-1) = c̄_tot ⊙ f ; un produit matriciel empilé donne ensuite W̄, Ū, b̄, x̄ et h̄_(t-1)."
+    },
+    "code": {
+      "en": "flowchart TB\n  IN[\"h̄_t, c̄_t from the future / output\"] --> CT[\"c̄_tot = c̄_t + h̄_t ⊙ o ⊙ (1 - tanh²(c_t))\"]\n  IN --> OB[\"ō = h̄_t ⊙ tanh(c_t)\"]\n  CT --> FB[\"f̄ = c̄_tot ⊙ c_(t-1)\"]\n  CT --> IB[\"ī = c̄_tot ⊙ g\"]\n  CT --> GB[\"ḡ = c̄_tot ⊙ i\"]\n  CT ==>|\"c̄_(t-1) = c̄_tot ⊙ f\"| CPV[\"to previous step\"]\n  FB --> AB[\"ā_f = f̄ f(1-f), ā_i = ī i(1-i)\\nā_g = ḡ (1-g²), ā_o = ō o(1-o)\"]\n  IB --> AB\n  GB --> AB\n  OB --> AB\n  AB --> ST[\"ā = [ā_i; ā_f; ā_g; ā_o]  (4H,)\"]\n  ST --> GR[\"W̄ = ā xᵀ (4H, n),  Ū = ā h_(t-1)ᵀ (4H, H),  b̄ = ā\\nx̄ = Wᵀ ā,  h̄_(t-1) = Uᵀ ā\"]",
+      "fr": "flowchart TB\n  IN[\"h̄_t, c̄_t venant du futur / de la sortie\"] --> CT[\"c̄_tot = c̄_t + h̄_t ⊙ o ⊙ (1 - tanh²(c_t))\"]\n  IN --> OB[\"ō = h̄_t ⊙ tanh(c_t)\"]\n  CT --> FB[\"f̄ = c̄_tot ⊙ c_(t-1)\"]\n  CT --> IB[\"ī = c̄_tot ⊙ g\"]\n  CT --> GB[\"ḡ = c̄_tot ⊙ i\"]\n  CT ==>|\"c̄_(t-1) = c̄_tot ⊙ f\"| CPV[\"vers le pas précédent\"]\n  FB --> AB[\"ā_f = f̄ f(1-f), ā_i = ī i(1-i)\\nā_g = ḡ (1-g²), ā_o = ō o(1-o)\"]\n  IB --> AB\n  GB --> AB\n  OB --> AB\n  AB --> ST[\"ā = [ā_i; ā_f; ā_g; ā_o]  (4H,)\"]\n  ST --> GR[\"W̄ = ā xᵀ (4H, n),  Ū = ā h_(t-1)ᵀ (4H, H),  b̄ = ā\\nx̄ = Wᵀ ā,  h̄_(t-1) = Uᵀ ā\"]"
+    }
+  }
+]

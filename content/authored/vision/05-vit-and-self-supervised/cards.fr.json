@@ -1,0 +1,17 @@
+[
+  {"id": "vis.05.c1", "front": "Pipeline du ViT", "back": "Découpage en patchs, projection linéaire vers la largeur $D$, token de classe en tête, plongement positionnel ajouté, $L$ blocs transformer à pré-normalisation, tête sur le token de classe."},
+  {"id": "vis.05.c2", "front": "Nombre de patchs", "back": "$N=(H/p)(W/p)$ ; chaque patch a $Cp^2$ valeurs. $224$ et $p=16$ donnent $196$ (197 tokens avec le token de classe)."},
+  {"id": "vis.05.c3", "front": "Plongement de patchs comme convolution", "back": "Une convolution de noyau $p$, de pas $p$ et à $D$ canaux de sortie équivaut à la projection linéaire de chaque patch aplati."},
+  {"id": "vis.05.c4", "front": "Compromis de la taille de patch", "back": "Patchs plus petits : plus de tokens, détail plus fin, coût d'attention $\\propto(N+1)^2$ (diviser $p$ par deux le multiplie par 16). Plus grands : plus rapide, plus grossier."},
+  {"id": "vis.05.c5", "front": "Token de classe", "back": "Vecteur appris placé en tête de séquence ; son état final est la représentation globale de l'image fournie au classifieur."},
+  {"id": "vis.05.c6", "front": "Biais inductif ViT vs CNN", "back": "CNN : localité et équivariance par translation intégrées. ViT : apprises, donc plus de données ou des recettes plus fortes sont nécessaires (augmentation DeiT, pré-entraînement)."},
+  {"id": "vis.05.c7", "front": "Ingrédients de la recette DeiT", "back": "Forte augmentation (RandAugment, mixup, CutMix, effacement aléatoire), profondeur stochastique, augmentation répétée, distillation optionnelle depuis un CNN."},
+  {"id": "vis.05.c8", "front": "Trois familles auto-supervisées", "back": "Contrastive (SimCLR, MoCo, CLIP), enseignant-élève (DINO, BYOL), reconstruction masquée (MAE, BEiT)."},
+  {"id": "vis.05.c9", "front": "Perte NT-Xent", "back": "$\\ell_i=-\\log\\frac{\\exp(s_{i,i^+}/\\tau)}{\\sum_{k\\ne i}\\exp(s_{ik}/\\tau)}$ avec la similarité cosinus $s$, moyennée sur les $2N$ vues."},
+  {"id": "vis.05.c10", "front": "NT-Xent au niveau du hasard", "back": "$\\log(2N-1)$ quand toutes les similarités sont égales (un tirage au hasard parmi $(2N-1)$ choix)."},
+  {"id": "vis.05.c11", "front": "Rôle de la température", "back": "Un petit $\\tau$ affûte le softmax et met l'accent sur les négatifs difficiles ; un grand $\\tau$ pèse tous les négatifs de la même façon."},
+  {"id": "vis.05.c12", "front": "Pourquoi de grands lots pour SimCLR ?", "back": "Plus de négatifs par ancre rendent la tâche plus difficile et plus informative ; MoCo utilise plutôt une file de plongements passés."},
+  {"id": "vis.05.c13", "front": "DINO", "back": "L'élève s'aligne sur un enseignant EMA sur une autre vue ; le centrage et l'affûtage de la sortie de l'enseignant empêchent l'effondrement ; pas de négatifs."},
+  {"id": "vis.05.c14", "front": "MAE", "back": "Masquer environ 75 % des patchs, encoder les visibles, un petit décodeur reconstruit les pixels masqués (MSE sur les patchs masqués) ; jeter le décodeur après le pré-entraînement."},
+  {"id": "vis.05.c15", "front": "Évaluation par sonde linéaire", "back": "Geler l'encodeur, entraîner un classifieur linéaire avec les étiquettes, rapporter le top-1 ; une mesure propre de la qualité des caractéristiques."}
+]

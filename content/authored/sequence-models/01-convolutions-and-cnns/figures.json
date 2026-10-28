@@ -1,0 +1,226 @@
+[
+  {
+    "id": "receptive",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Receptive field after L layers of 3x3 convolutions: with stride 1 it grows linearly, r = 1 + 2L (blue; three layers give 7, two give 5); with stride 2 in every layer it grows exponentially, r = 2^(L+1) - 1 (orange).",
+      "fr": "Champ réceptif après L couches de convolutions 3x3 : avec un pas de 1 il croît linéairement, r = 1 + 2L (bleu ; trois couches donnent 7, deux donnent 5) ; avec un pas de 2 à chaque couche il croît exponentiellement, r = 2^(L+1) - 1 (orange)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        6
+      ],
+      "yDomain": [
+        0,
+        70
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1 + 2*x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(0.693147*(x+1)) - 1",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              7
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "out-size",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Output size H_out = floor((H - K + 2P)/S) + 1 for K = 3 as the input size H grows: S = 1, P = 0 (blue) shrinks by 2; S = 1, P = 1 'same' padding (green) keeps H; S = 2, P = 1 (orange) halves it (staircase). The red point is the worked example: H = 5 gives 3.",
+      "fr": "Taille de sortie H_out = floor((H - K + 2P)/S) + 1 pour K = 3 quand la taille d'entrée H croît : S = 1, P = 0 (bleu) perd 2 ; S = 1, P = 1 padding « same » (vert) conserve H ; S = 2, P = 1 (orange) la divise par deux (escalier). Le point rouge est l'exemple : H = 5 donne 3."
+    },
+    "spec": {
+      "xDomain": [
+        3,
+        17
+      ],
+      "yDomain": [
+        0,
+        16
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "x - 2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              3,
+              2
+            ],
+            [
+              4,
+              2
+            ],
+            [
+              5,
+              3
+            ],
+            [
+              6,
+              3
+            ],
+            [
+              7,
+              4
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              5
+            ],
+            [
+              10,
+              5
+            ],
+            [
+              11,
+              6
+            ],
+            [
+              12,
+              6
+            ],
+            [
+              13,
+              7
+            ],
+            [
+              14,
+              7
+            ],
+            [
+              15,
+              8
+            ],
+            [
+              16,
+              8
+            ],
+            [
+              17,
+              9
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              5,
+              3
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "sliding",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The kernel slides over the 5x5 input with stride 1: each output value is a dot product of the Sobel-like kernel with one 3x3 window (shared weights), giving the 3x3 feature map.",
+      "fr": "Le noyau glisse sur l'entrée 5x5 avec un pas de 1 : chaque valeur de sortie est le produit scalaire du noyau de type Sobel avec une fenêtre 3x3 (poids partagés), ce qui donne la carte 3x3."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"input x (1, 5, 5)\"] --> W1[\"window (0,0)\\n1 2 0 / 0 1 3 / 2 1 0\"]\n  X --> W2[\"window (0,1)\\nslide right by S = 1\"]\n  X --> W3[\"window (0,2)\\n...\"]\n  K[\"kernel w (3, 3)\\n1 0 -1 / 2 0 -2 / 1 0 -1\\nSAME weights every time\"] --> D1\n  W1 --> D1[\"dot: (1 + 0 + 0) + (0 + 0 - 6) + (2 + 0 + 0)\"] --> Y1[\"Y00 = -3\"]\n  W2 --> D2[\"dot with w\"] --> Y2[\"Y01 = 0\"]\n  W3 --> D3[\"dot with w\"] --> Y3[\"Y02 = 3\"]\n  K --> D2\n  K --> D3\n  Y1 --> OUT[\"feature map Y (1, 3, 3)\\nH_out = (5 - 3)/1 + 1 = 3\"]\n  Y2 --> OUT\n  Y3 --> OUT",
+      "fr": "flowchart LR\n  X[\"entrée x (1, 5, 5)\"] --> W1[\"fenêtre (0,0)\\n1 2 0 / 0 1 3 / 2 1 0\"]\n  X --> W2[\"fenêtre (0,1)\\nglisser à droite de S = 1\"]\n  X --> W3[\"fenêtre (0,2)\\n...\"]\n  K[\"noyau w (3, 3)\\n1 0 -1 / 2 0 -2 / 1 0 -1\\nMÊMES poids à chaque fois\"] --> D1\n  W1 --> D1[\"produit scalaire : (1 + 0 + 0) + (0 + 0 - 6) + (2 + 0 + 0)\"] --> Y1[\"Y00 = -3\"]\n  W2 --> D2[\"produit scalaire avec w\"] --> Y2[\"Y01 = 0\"]\n  W3 --> D3[\"produit scalaire avec w\"] --> Y3[\"Y02 = 3\"]\n  K --> D2\n  K --> D3\n  Y1 --> OUT[\"carte de caractéristiques Y (1, 3, 3)\\nH_out = (5 - 3)/1 + 1 = 3\"]\n  Y2 --> OUT\n  Y3 --> OUT"
+    }
+  },
+  {
+    "id": "conv-backward",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The conv backward pass as matrix products (im2col): the upstream gradient gives dW and db by summing over positions, and dX_col, which col2im scatter-ADDS back into overlapping windows.",
+      "fr": "La passe arrière d'une convolution en produits matriciels (im2col) : le gradient amont donne dW et db en sommant sur les positions, et dX_col, que col2im rajoute par ADDITION dans les fenêtres qui se chevauchent."
+    },
+    "code": {
+      "en": "flowchart TB\n  F1[\"forward: X_col (Cin K², Ho Wo) from im2col\\nY_mat = W_mat X_col + b 1ᵀ  (Cout, Ho Wo)\"] --> UP\n  UP[\"upstream gradient Ȳ_mat (Cout, Ho Wo)\"] --> GW[\"W̄_mat = Ȳ_mat X_colᵀ\\n(Cout, Cin K²) → reshape to W\"]\n  UP --> GB[\"b̄ = Ȳ_mat 1\\n(Cout,)  sum over positions\"]\n  UP --> GX[\"X̄_col = W_matᵀ Ȳ_mat\\n(Cin K², Ho Wo)\"]\n  GX --> C2[\"col2im: scatter-ADD each column\\ninto its window (+=, never =)\"]\n  C2 --> CR[\"crop the padding\"]\n  CR --> XB[\"x̄ (Cin, H, W)\"]",
+      "fr": "flowchart TB\n  F1[\"avant : X_col (Cin K², Ho Wo) par im2col\\nY_mat = W_mat X_col + b 1ᵀ  (Cout, Ho Wo)\"] --> UP\n  UP[\"gradient amont Ȳ_mat (Cout, Ho Wo)\"] --> GW[\"W̄_mat = Ȳ_mat X_colᵀ\\n(Cout, Cin K²) → remettre en forme de W\"]\n  UP --> GB[\"b̄ = Ȳ_mat 1\\n(Cout,)  somme sur les positions\"]\n  UP --> GX[\"X̄_col = W_matᵀ Ȳ_mat\\n(Cin K², Ho Wo)\"]\n  GX --> C2[\"col2im : ajouter (scatter-ADD) chaque colonne\\ndans sa fenêtre (+=, jamais =)\"]\n  C2 --> CR[\"retirer le padding\"]\n  CR --> XB[\"x̄ (Cin, H, W)\"]"
+    }
+  },
+  {
+    "id": "lenet",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "LeNet-5 with tensor shapes and parameter counts: 156 + 2,416 + 48,120 + 10,164 + 850 = 61,706. The conv-pool-dense template is still the skeleton of every CNN.",
+      "fr": "LeNet-5 avec les formes des tenseurs et le nombre de paramètres : 156 + 2 416 + 48 120 + 10 164 + 850 = 61 706. Le schéma conv-pool-dense reste le squelette de tout CNN."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"input\\n1 x 32 x 32\"] -->|\"conv 5x5, 1→6\\n156 params\"| C1[\"6 x 28 x 28\"]\n  C1 -->|\"avg pool 2x2\"| S1[\"6 x 14 x 14\"]\n  S1 -->|\"conv 5x5, 6→16\\n2,416 params\"| C2[\"16 x 10 x 10\"]\n  C2 -->|\"avg pool 2x2\"| S2[\"16 x 5 x 5\"]\n  S2 -->|\"flatten\"| F[\"400\"]\n  F -->|\"dense\\n48,120\"| D1[\"120\"]\n  D1 -->|\"dense\\n10,164\"| D2[\"84\"]\n  D2 -->|\"dense\\n850\"| O[\"10 classes\"]",
+      "fr": "flowchart LR\n  I[\"entrée\\n1 x 32 x 32\"] -->|\"conv 5x5, 1→6\\n156 paramètres\"| C1[\"6 x 28 x 28\"]\n  C1 -->|\"pooling moyen 2x2\"| S1[\"6 x 14 x 14\"]\n  S1 -->|\"conv 5x5, 6→16\\n2 416 paramètres\"| C2[\"16 x 10 x 10\"]\n  C2 -->|\"pooling moyen 2x2\"| S2[\"16 x 5 x 5\"]\n  S2 -->|\"aplatir\"| F[\"400\"]\n  F -->|\"dense\\n48 120\"| D1[\"120\"]\n  D1 -->|\"dense\\n10 164\"| D2[\"84\"]\n  D2 -->|\"dense\\n850\"| O[\"10 classes\"]"
+    }
+  },
+  {
+    "id": "resblock",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A residual block y = x + F(x): the skip connection carries x unchanged, so the Jacobian is I + dF/dx and the upstream gradient always contains a direct copy of itself.",
+      "fr": "Un bloc résiduel y = x + F(x) : la connexion de saut transporte x inchangé, donc le jacobien vaut I + dF/dx et le gradient amont contient toujours une copie directe de lui-même."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (C, H, W)\"] --> CV1[\"conv 3x3 + BN + ReLU\"]\n  CV1 --> CV2[\"conv 3x3 + BN\\nF(x) (C, H, W)\"]\n  X ==>|\"skip: identity\"| ADD((\"+\"))\n  CV2 --> ADD\n  ADD --> RL[\"ReLU\"] --> Y[\"y = x + F(x)\"]\n  Y -.->|\"backward: x̄ = ȳ + ȳ dF/dx\"| X",
+      "fr": "flowchart LR\n  X[\"x (C, H, W)\"] --> CV1[\"conv 3x3 + BN + ReLU\"]\n  CV1 --> CV2[\"conv 3x3 + BN\\nF(x) (C, H, W)\"]\n  X ==>|\"saut : identité\"| ADD((\"+\"))\n  CV2 --> ADD\n  ADD --> RL[\"ReLU\"] --> Y[\"y = x + F(x)\"]\n  Y -.->|\"arrière : x̄ = ȳ + ȳ dF/dx\"| X"
+    }
+  },
+  {
+    "id": "timeline",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "From LeNet to ResNet: what each architecture added.",
+      "fr": "De LeNet à ResNet : ce qu'apporte chaque architecture."
+    },
+    "code": {
+      "en": "timeline\n  title CNN milestones\n  1998 : LeNet-5 : conv-pool-dense template\n  2012 : AlexNet : ReLU, dropout, GPUs, depth\n  2014 : VGG : only 3x3 convs stacked\n       : Inception : parallel kernel sizes, 1x1 reductions\n  2015 : ResNet : residual block y = x + F(x)",
+      "fr": "timeline\n  title Jalons des CNN\n  1998 : LeNet-5 : schéma conv-pool-dense\n  2012 : AlexNet : ReLU, dropout, GPU, profondeur\n  2014 : VGG : uniquement des convs 3x3 empilées\n       : Inception : tailles de noyau en parallèle, réductions 1x1\n  2015 : ResNet : bloc résiduel y = x + F(x)"
+    }
+  }
+]

@@ -1,0 +1,14 @@
+[
+  { "id": "cml.03.c1", "front": "Décomposition biais-variance", "back": "$E[(y-\\hat f)^2]=\\text{bias}^2+\\text{variance}+\\sigma^2$ (bruit irréductible)." },
+  { "id": "cml.03.c2", "front": "Signature du sous-apprentissage", "back": "Erreurs d'entraînement et de validation toutes deux élevées et proches. Remède : modèle plus riche / meilleures variables." },
+  { "id": "cml.03.c3", "front": "Signature du surapprentissage", "back": "Erreur d'entraînement faible, erreur de validation bien plus élevée. Remède : plus de données, régularisation, modèle plus simple." },
+  { "id": "cml.03.c4", "front": "Rôle des jeux d'entraînement / validation / test", "back": "Entraînement : ajuster les poids. Validation : choisir les réglages. Test : rapporter une seule fois à la fin." },
+  { "id": "cml.03.c5", "front": "Validation croisée à k blocs", "back": "Découper en $k$ blocs ; entraîner sur $k-1$, valider sur le bloc mis de côté ; moyenner les $k$ erreurs. Chaque point valide exactement une fois." },
+  { "id": "cml.03.c6", "front": "L'erreur d'entraînement baisse-t-elle avec la complexité du modèle ?", "back": "Toujours (pour des modèles emboîtés). L'erreur de validation a une forme en U." },
+  { "id": "cml.03.c7", "front": "Fuite de données", "back": "Utiliser de l'information des données de validation/test pour ajuster quoi que ce soit (normaliseurs, sélection de variables, hyperparamètres). Fais tout à l'intérieur du bloc d'entraînement." },
+  { "id": "cml.03.c8", "front": "Effet d'un $\\lambda$ plus grand dans ridge", "back": "Plus de biais, moins de variance." },
+  { "id": "cml.03.c9", "front": "Plus de données corrige-t-il un biais élevé ?", "back": "Non. Plus de données réduit la variance ; un biais élevé demande un modèle plus expressif." },
+  { "id": "cml.03.c10", "front": "Erreur irréductible", "back": "$\\sigma^2$, le bruit dans les cibles : aucun modèle ne peut descendre en dessous." },
+  { "id": "cml.03.c11", "front": "Découpage des séries temporelles", "back": "Entraîner sur le passé, valider sur une période ultérieure ; ne jamais mélanger à travers le temps." },
+  { "id": "cml.03.c12", "front": "Règle de l'écart-type", "back": "Choisir le modèle le plus simple dont l'erreur de validation croisée est à moins d'un écart-type de celle du meilleur." }
+]

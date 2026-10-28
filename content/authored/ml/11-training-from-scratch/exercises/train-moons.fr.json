@@ -1,0 +1,10 @@
+{
+  "id": "f2n.11.ex1",
+  "title": "Entraîner un MLP sur les demi-lunes",
+  "prompt": "`make_moons` et `forward_backward` (la rétropropagation de la leçon précédente) sont fournis. Tu écris le reste :\n\n- `init_params(n_in, hidden, n_out, seed)` - initialisation de He, biais nuls. Renvoie `(W1, b1, W2, b2)`.\n- `sgd_step(params, grads, lr)` - renvoie les paramètres mis à jour (ne modifie pas les entrées).\n- `train(X, y, hidden, lr, epochs, seed)` - descente de gradient sur batch complet. Renvoie `(params, history)` où `history` est la liste des pertes.\n- `accuracy(params, X, y)` - proportion d'exemples classés correctement (argmax des logits).\n\nObjectif : > 95 % de précision d'entraînement avec `hidden=16, lr=0.5, epochs=400`. Puis expérimente : que se passe-t-il avec `lr=5` ? avec `lr=0.001` ?",
+  "hints": [
+    "init_params : W1 ~ N(0, 2/n_in) de forme (n_in, hidden), b1 = zeros(hidden), W2 ~ N(0, 2/hidden) de forme (hidden, n_out), b2 = zeros(n_out). Utilise np.random.default_rng(seed).",
+    "sgd_step renvoie un NOUVEAU tuple : tuple(p - lr * g for p, g in zip(params, grads)).",
+    "train : boucle `epochs` fois : loss, grads = forward_backward(params, X, y) ; params = sgd_step(params, grads, lr) ; history.append(loss)."
+  ]
+}

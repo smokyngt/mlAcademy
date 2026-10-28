@@ -1,0 +1,17 @@
+[
+  {"id": "vis.02.c1", "concept": "vis.classification", "front": "Softmax and cross-entropy", "back": "$p_i=e^{z_i}/\\sum_j e^{z_j}$; $\\ell=-\\log p_y=-z_y+\\log\\sum_j e^{z_j}$ (subtract $\\max z$ for stability)."},
+  {"id": "vis.02.c2", "concept": "vis.classification", "front": "Gradient of cross-entropy w.r.t. logits", "back": "$p-e_y$ (prediction minus one-hot target)."},
+  {"id": "vis.02.c3", "concept": "vis.classification", "front": "Top-k accuracy", "back": "Correct if the true class is among the $k$ highest logits. Top-$C$ is always 1; top-5 matters when classes are near-duplicates."},
+  {"id": "vis.02.c4", "concept": "vis.classification", "front": "Confusion matrix", "back": "$C\\times C$, entry $(i,j)$ = images of true class $i$ predicted $j$. Diagonal = correct; off-diagonals show which classes mix."},
+  {"id": "vis.02.c5", "concept": "vis.classification", "front": "Five training-loop invariants", "back": "train()/eval() modes; zero grads each step; logits into the loss; no_grad at evaluation; augment training data only."},
+  {"id": "vis.02.c6", "concept": "vis.augment", "front": "Mixup", "back": "$x=\\lambda x_i+(1-\\lambda)x_j$, $y=\\lambda y_i+(1-\\lambda)y_j$, $\\lambda\\sim\\mathrm{Beta}(\\alpha,\\alpha)$. Raises training loss but improves robustness."},
+  {"id": "vis.02.c7", "concept": "vis.classification", "front": "Label smoothing", "back": "Target $(1-\\varepsilon)e_y+\\varepsilon/C$; prevents arbitrarily large logits and improves calibration."},
+  {"id": "vis.02.c8", "concept": "vis.transfer", "front": "Feature extraction vs fine-tuning", "back": "Feature extraction: backbone frozen, only the new head trains. Fine-tuning: backbone trainable too, with a small learning rate."},
+  {"id": "vis.02.c9", "concept": "vis.transfer", "front": "Linear probe", "back": "Train one linear layer on frozen features. Measures how linearly separable the representation is; the floor for transfer."},
+  {"id": "vis.02.c10", "concept": "vis.transfer", "front": "Probe gradient", "back": "$\\nabla_W=\\frac1N X^\\top(P-Y)$ with $X\\in\\mathbb R^{N\\times d}$, $W\\in\\mathbb R^{d\\times C}$; convex because features are frozen."},
+  {"id": "vis.02.c11", "concept": "vis.transfer", "front": "Layer-wise learning-rate decay", "back": "$\\eta_k=\\eta_{base}\\gamma^{L-k}$; earliest layers get the smallest steps, the head the base rate."},
+  {"id": "vis.02.c12", "concept": "vis.transfer", "front": "Why do early layers transfer?", "back": "They capture generic natural-image statistics (edges, textures); late layers are tied to the original task."},
+  {"id": "vis.02.c13", "concept": "vis.transfer", "front": "Progressive unfreezing", "back": "Start with only the head trainable, unfreeze one more layer (nearest the head first) each epoch; rebuild the optimiser when the trainable set changes."},
+  {"id": "vis.02.c14", "concept": "vis.transfer", "front": "BatchNorm during fine-tuning", "back": "Running stats come from the pre-training data. Medium data: train BN normally; tiny data: freeze BN in eval mode; tiny batches: use group norm."},
+  {"id": "vis.02.c15", "concept": "vis.transfer", "front": "Which two accuracies to report in transfer learning?", "back": "Frozen (linear-probe) accuracy as the floor and fine-tuned accuracy as the ceiling; fine-tuned below frozen signals a bug."}
+]

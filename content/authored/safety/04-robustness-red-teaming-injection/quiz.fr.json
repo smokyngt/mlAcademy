@@ -1,0 +1,91 @@
+[
+ {
+  "id": "saf.04.q1",
+  "prompt": "Pourquoi un filtre sur le message de l'utilisateur n'arrête-t-il pas l'injection de prompt indirecte ?",
+  "options": [
+   "L'injection indirecte ne cible que les poids",
+   "Les filtres ne savent pas lire l'anglais",
+   "Le texte hostile arrive par le contenu récupéré ou celui des outils, pas par l'entrée de l'utilisateur",
+   "L'injection indirecte nécessite le mot de passe de l'utilisateur"
+  ],
+  "explanation": "L'attaquant ne touche jamais l'utilisateur ; la charge utile est dans un contenu que l'application récupère."
+ },
+ {
+  "id": "saf.04.q2",
+  "prompt": "Quel est le principe directeur du contrôle de flux d'information pour les agents ?",
+  "options": [
+   "Étiqueter le contenu par sa fiabilité, propager les étiquettes, et exiger une ratification avant les effets de bord déclenchés par un contenu non fiable",
+   "Détecter et supprimer chaque instruction injectée",
+   "Ne jamais laisser le modèle lire de contenu externe",
+   "Compter sur un modèle plus grand pour ignorer les instructions dans les données"
+  ],
+  "explanation": "Il vise l'endiguement plutôt qu'une prévention parfaite."
+ },
+ {
+  "id": "saf.04.q3",
+  "prompt": "Un agent peut lire des données privées, lire des pages web non fiables, et envoyer des e-mails à l'extérieur. Quel est le moyen le moins coûteux de briser la combinaison risquée ?",
+  "options": [
+   "Ajouter plus de données privées",
+   "Allonger les pages",
+   "Augmenter la fenêtre de contexte",
+   "Retirer l'une des trois capacités"
+  ],
+  "explanation": "Le risque exige les trois branches ; en retirer une seule brise la chaîne."
+ },
+ {
+  "id": "saf.04.q4",
+  "prompt": "Une défense obtient 0 succès sur 50 comportements. La borne supérieure de Wilson à 95 % est la plus proche de...",
+  "options": [],
+  "explanation": "Pour k=0 la borne supérieure est $z^2/(n+z^2)=3.84/53.84=0.0713$."
+ },
+ {
+  "id": "saf.04.q5",
+  "prompt": "Quelle information DOIT accompagner un chiffre d'ASR pour le rendre comparable ?",
+  "options": [
+   "Seulement le nom du modèle",
+   "Seulement le nombre de GPU",
+   "L'ensemble de comportements, l'attaque, le budget de requêtes et le juge",
+   "Rien : l'ASR se suffit à elle-même"
+  ],
+  "explanation": "L'ASR dépend des quatre ; 90 % à 200 requêtes n'est pas comparable à 85 % à 20."
+ },
+ {
+  "id": "saf.04.q6",
+  "prompt": "Cinq attaques ont des taux de réussite individuels de 1, 10, 0, 7 et 6 pour cent sur les mêmes 100 comportements ; 24 comportements sont brisés par au moins une. Que rapporte un évaluateur adaptatif ?",
+  "options": [
+   "24 %",
+   "10 %",
+   "24 sur 5 %",
+   "La moyenne, 4,8 %"
+  ],
+  "explanation": "Un attaquant utilise l'attaque qui marche, donc l'union sur les attaques est le nombre pertinent."
+ },
+ {
+  "id": "saf.04.q7",
+  "prompt": "Nombre d'essais nécessaires pour un intervalle à 95 % de demi-largeur 0.05 autour de $p=0.5$ (approximation normale) ?",
+  "options": [],
+  "explanation": "$1.96^2\\\\cdot0.25/0.05^2=384.2$, arrondi à 385."
+ },
+ {
+  "id": "saf.04.q8",
+  "prompt": "Pourquoi est-il délicat de se défendre contre le jailbreaking many-shot ?",
+  "options": [
+   "Il ne marche que sur les petits modèles",
+   "Il nécessite les poids du modèle",
+   "Il ne peut pas être mesuré",
+   "Le mécanisme est de l'apprentissage en contexte ordinaire, donc le bloquer bloquerait aussi le prompting few-shot bénin"
+  ],
+  "explanation": "Les défenses pratiques classifient le contexte et réécrivent ou tronquent la partie fautive."
+ },
+ {
+  "id": "saf.04.q9",
+  "prompt": "Une étude constate que des défenses publiées contre l'injection, avec une ASR quasi nulle contre des attaques fixes, sont brisées par des attaques adaptatives. Quelle est la leçon méthodologique ?",
+  "options": [
+   "N'utiliser que des listes d'attaques fixes",
+   "Ne rapporter que la meilleure attaque seule",
+   "Évaluer les défenses avec des attaquants qui connaissent la défense",
+   "Éviter de publier des défenses"
+  ],
+  "explanation": "Les benchmarks statiques ne montrent pas la robustesse face à un adversaire adaptatif."
+ }
+]

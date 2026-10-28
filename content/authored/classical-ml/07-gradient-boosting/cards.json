@@ -1,0 +1,16 @@
+[
+  { "id": "cml.07.c1", "concept": "ml.boosting", "front": "Stagewise additive model", "back": "$F_M(x)=F_0+\\nu\\sum_{m=1}^M h_m(x)$; each $h_m$ is fitted with earlier terms frozen." },
+  { "id": "cml.07.c2", "concept": "ml.boosting", "front": "Boosting vs bagging: what each reduces", "back": "Bagging reduces variance of low-bias learners; boosting reduces bias by adding weak learners sequentially." },
+  { "id": "cml.07.c3", "concept": "ml.boosting", "front": "Weak learner", "back": "A base model only slightly better than chance, such as a decision stump (one split)." },
+  { "id": "cml.07.c4", "concept": "ml.boosting", "front": "AdaBoost weighted error", "back": "$\\epsilon_m=\\sum_n w_n[y_m(x_n)\\ne t_n]/\\sum_n w_n$." },
+  { "id": "cml.07.c5", "concept": "ml.boosting", "front": "AdaBoost model coefficient", "back": "$\\alpha_m=\\ln\\frac{1-\\epsilon_m}{\\epsilon_m}$ (Bishop convention); zero at $\\epsilon=0.5$." },
+  { "id": "cml.07.c6", "concept": "ml.boosting", "front": "AdaBoost weight update", "back": "$w_n\\leftarrow w_n e^{\\alpha_m[y_m(x_n)\\ne t_n]}$: misclassified points are multiplied by $e^{\\alpha_m}$." },
+  { "id": "cml.07.c7", "concept": "ml.boosting", "front": "What loss does AdaBoost minimise?", "back": "The exponential error $\\sum_n e^{-t_nf(x_n)}$, by stagewise optimisation." },
+  { "id": "cml.07.c8", "concept": "ml.boosting", "front": "Weakness of exponential loss", "back": "Penalty grows exponentially for large negative margins, so outliers and mislabelled points dominate; not a probabilistic model." },
+  { "id": "cml.07.c9", "concept": "ml.boosting", "front": "Gradient boosting in one sentence", "back": "Gradient descent on the loss with respect to the model's predictions $F(x_i)$, each step realised by fitting a small model to the negative gradient." },
+  { "id": "cml.07.c10", "concept": "ml.boosting", "front": "Pseudo-residual", "back": "$r_i=-\\partial\\ell(y_i,F_i)/\\partial F_i$; equals $y_i-F_i$ for $\\ell=\\frac12(y-F)^2$, $\\operatorname{sign}(y_i-F_i)$ for absolute loss." },
+  { "id": "cml.07.c11", "concept": "ml.boosting", "front": "Gradient boosting algorithm (squared loss)", "back": "$F_0=\\bar y$; repeat: $r=y-F$; fit tree $h$ to $r$; $F\\leftarrow F+\\nu h$." },
+  { "id": "cml.07.c12", "concept": "ml.boosting", "front": "Role of the learning rate (shrinkage) $\\nu$", "back": "Scales each tree's contribution; smaller $\\nu$ needs more rounds but usually generalises better." },
+  { "id": "cml.07.c13", "concept": "ml.boosting", "front": "Tree depth in boosting", "back": "Controls interaction order: stumps give additive models; depth $d$ allows interactions among up to $d$ features. Typically 3-6." },
+  { "id": "cml.07.c14", "concept": "ml.boosting", "front": "Does boosting overfit with too many rounds?", "back": "Yes: training loss keeps falling but validation loss eventually rises; use early stopping." }
+]

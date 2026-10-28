@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.10.c1", "concept": "nn.backprop", "front": "Backward of $Z=XW+b$ (batched)", "back": "$\\bar W=X^\\top\\bar Z$, $\\bar b=\\sum_b\\bar Z_{b,:}$, $\\bar X=\\bar ZW^\\top$." },
+  { "id": "f2n.10.c2", "concept": "nn.backprop", "front": "Backward of softmax + mean cross-entropy", "back": "$\\bar Z=(P-Y)/B$, shape $(B,K)$." },
+  { "id": "f2n.10.c3", "concept": "nn.backprop", "front": "Backward of ReLU", "back": "$\\bar Z=\\bar A\\odot\\mathbb{1}[Z>0]$. Needs $Z$ cached." },
+  { "id": "f2n.10.c4", "concept": "nn.backprop", "front": "Which tensors does backprop need cached?", "back": "Layer inputs ($X$, $A_1$), pre-activations ($Z_1$ for ReLU masks) and softmax output $P$." },
+  { "id": "f2n.10.c5", "concept": "nn.backprop", "front": "Every gradient must have...", "back": "exactly the shape of the quantity it is the gradient of." },
+  { "id": "f2n.10.c6", "concept": "nn.backprop", "front": "Gradient check pass criterion", "back": "Max relative error below about $10^{-6}$ with central differences, $h\\approx10^{-5}$." }
+]

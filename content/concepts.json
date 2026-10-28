@@ -1,0 +1,303 @@
+[
+  {
+    "id": "alg.functions",
+    "title": "Functions, graphs and notation",
+    "description": "A function maps each input to one output; reading f: R^n -> R^m, graphs, and composition.",
+    "stage": "I",
+    "prereqs": []
+  },
+  {
+    "id": "alg.summation",
+    "title": "Summation and product notation",
+    "description": "Sigma notation, index ranges, and rewriting sums as vector/matrix expressions.",
+    "stage": "I",
+    "prereqs": [
+      "alg.functions"
+    ]
+  },
+  {
+    "id": "alg.exp-log",
+    "title": "Exponentials and logarithms",
+    "description": "exp and ln as inverses, log of products, why ML works in log space.",
+    "stage": "I",
+    "prereqs": [
+      "alg.functions"
+    ]
+  },
+  {
+    "id": "la.vector",
+    "title": "Vectors and vector operations",
+    "description": "Vectors as ordered lists / arrows, addition, scaling, linear combinations.",
+    "stage": "I",
+    "prereqs": [
+      "alg.functions"
+    ]
+  },
+  {
+    "id": "la.dot",
+    "title": "Dot product, norm and angle",
+    "description": "Dot product as sum of products and as |a||b|cos(theta); norms; projection.",
+    "stage": "I",
+    "prereqs": [
+      "la.vector",
+      "alg.summation"
+    ]
+  },
+  {
+    "id": "la.matrix",
+    "title": "Matrices and matrix multiplication",
+    "description": "Shapes, the (m,n)@(n,p) rule, row-by-column dot products, transpose.",
+    "stage": "I",
+    "prereqs": [
+      "la.dot"
+    ]
+  },
+  {
+    "id": "la.linear-map",
+    "title": "Matrices as linear transformations",
+    "description": "A matrix is a function that rotates, scales, shears; columns are images of basis vectors.",
+    "stage": "I",
+    "prereqs": [
+      "la.matrix"
+    ]
+  },
+  {
+    "id": "calc.derivative",
+    "title": "Derivative as rate of change",
+    "description": "Limit definition, slope of tangent, derivative rules for power, exp, log, sum, product.",
+    "stage": "I",
+    "prereqs": [
+      "alg.functions",
+      "alg.exp-log"
+    ]
+  },
+  {
+    "id": "calc.numerical-diff",
+    "title": "Numerical differentiation",
+    "description": "Forward and central finite differences, truncation versus round-off error.",
+    "stage": "I",
+    "prereqs": [
+      "calc.derivative"
+    ]
+  },
+  {
+    "id": "calc.partial",
+    "title": "Partial derivatives",
+    "description": "Differentiate with respect to one variable holding the others fixed.",
+    "stage": "I",
+    "prereqs": [
+      "calc.derivative"
+    ]
+  },
+  {
+    "id": "calc.gradient",
+    "title": "Gradient",
+    "description": "Vector of partial derivatives; direction of steepest local ascent.",
+    "stage": "I",
+    "prereqs": [
+      "calc.partial",
+      "la.dot"
+    ]
+  },
+  {
+    "id": "calc.chain",
+    "title": "Chain rule",
+    "description": "Derivative of a composition; multiply local derivatives along the path.",
+    "stage": "I",
+    "prereqs": [
+      "calc.derivative"
+    ]
+  },
+  {
+    "id": "calc.jacobian",
+    "title": "Jacobian and the multivariate chain rule",
+    "description": "Matrix of partials for vector-valued functions; chain rule as matrix product, with shapes.",
+    "stage": "I",
+    "prereqs": [
+      "calc.chain",
+      "calc.gradient",
+      "la.matrix"
+    ]
+  },
+  {
+    "id": "opt.gradient-descent",
+    "title": "Gradient descent",
+    "description": "Iteratively step against the gradient; learning rate, convergence and divergence.",
+    "stage": "II",
+    "prereqs": [
+      "calc.gradient",
+      "calc.numerical-diff"
+    ]
+  },
+  {
+    "id": "ml.loss",
+    "title": "Loss functions",
+    "description": "Mean squared error, cross-entropy, and why they are natural objectives.",
+    "stage": "II",
+    "prereqs": [
+      "alg.exp-log",
+      "alg.summation"
+    ]
+  },
+  {
+    "id": "nn.layer",
+    "title": "Layers and forward propagation",
+    "description": "A dense layer is activation(X W + b); batch shapes; composing layers.",
+    "stage": "IV",
+    "prereqs": [
+      "la.matrix",
+      "ml.loss"
+    ]
+  },
+  {
+    "id": "nn.activation",
+    "title": "Activation functions",
+    "description": "Why nonlinearity is required; ReLU, sigmoid, tanh, softmax and their derivatives.",
+    "stage": "IV",
+    "prereqs": [
+      "nn.layer",
+      "calc.derivative"
+    ]
+  },
+  {
+    "id": "nn.backprop",
+    "title": "Backpropagation",
+    "description": "Reverse-mode application of the chain rule through a layered network, with tensor shapes.",
+    "stage": "IV",
+    "prereqs": [
+      "calc.jacobian",
+      "nn.activation",
+      "nn.layer"
+    ]
+  },
+  {
+    "id": "nn.training",
+    "title": "Training loop and gradient checking",
+    "description": "Forward, loss, backward, update; verifying gradients numerically.",
+    "stage": "IV",
+    "prereqs": [
+      "nn.backprop",
+      "opt.gradient-descent"
+    ]
+  },
+  {
+    "id": "nn.autograd",
+    "title": "Automatic differentiation",
+    "description": "Computational graphs, PyTorch autograd, and validating a from-scratch implementation against it.",
+    "stage": "IV",
+    "prereqs": [
+      "nn.training"
+    ]
+  },
+  {
+    "id": "ml.linreg",
+    "title": "Linear regression and the normal equations",
+    "description": "Fit y ~ Xw by least squares; normal equations X^T X w = X^T y; geometric view as a projection.",
+    "stage": "III",
+    "prereqs": [
+      "la.matrix",
+      "calc.gradient",
+      "ml.loss"
+    ]
+  },
+  {
+    "id": "ml.ridge",
+    "title": "Ridge regularisation",
+    "description": "Add lambda ||w||^2 to the loss; closed form (X^T X + lambda I)^-1 X^T y; shrinkage and conditioning.",
+    "stage": "III",
+    "prereqs": [
+      "ml.linreg"
+    ]
+  },
+  {
+    "id": "ml.logreg",
+    "title": "Logistic regression",
+    "description": "Linear model through a sigmoid trained with cross-entropy; gradient X^T (p - y)/N; linear decision boundary.",
+    "stage": "III",
+    "prereqs": [
+      "ml.linreg",
+      "opt.gradient-descent",
+      "ml.loss"
+    ]
+  },
+  {
+    "id": "ml.generalization",
+    "title": "Generalisation, bias-variance and validation",
+    "description": "Train/validation/test splits, the bias-variance decomposition, k-fold cross-validation, choosing hyper-parameters.",
+    "stage": "III",
+    "prereqs": [
+      "ml.linreg",
+      "ml.ridge"
+    ]
+  },
+  {
+    "id": "ml.kmeans",
+    "title": "k-means clustering",
+    "description": "Lloyd's algorithm minimises within-cluster squared distance; monotone decrease, local minima, initialisation.",
+    "stage": "III",
+    "prereqs": [
+      "la.dot",
+      "alg.summation"
+    ]
+  },
+  {
+    "id": "ml.pca",
+    "title": "Principal component analysis",
+    "description": "Directions of maximal variance are eigenvectors of the covariance matrix; projection, reconstruction error.",
+    "stage": "III",
+    "prereqs": [
+      "la.matrix",
+      "la.dot",
+      "la.eigen",
+      "ml.kmeans"
+    ]
+  },
+  {
+    "id": "la.eigen",
+    "title": "Eigenvalues and eigenvectors",
+    "description": "Directions a matrix only stretches: A x = lambda x; characteristic polynomial, diagonalisation, symmetric matrices.",
+    "stage": "I",
+    "prereqs": [
+      "la.linear-map"
+    ]
+  },
+  {
+    "id": "la.svd",
+    "title": "Singular value decomposition",
+    "description": "Any matrix factors as U Sigma V^T: rotate, scale, rotate; singular values, low-rank approximation.",
+    "stage": "I",
+    "prereqs": [
+      "la.eigen",
+      "la.dot"
+    ]
+  },
+  {
+    "id": "prob.basics",
+    "title": "Probability, conditioning and Bayes' theorem",
+    "description": "Sample space and events, sum and product rules, conditional probability, independence, Bayes' theorem.",
+    "stage": "I",
+    "prereqs": [
+      "alg.summation"
+    ]
+  },
+  {
+    "id": "prob.rv",
+    "title": "Random variables, expectation, variance and the Gaussian",
+    "description": "Discrete and continuous distributions, mean, variance, covariance, the univariate and multivariate Gaussian.",
+    "stage": "I",
+    "prereqs": [
+      "prob.basics",
+      "calc.derivative"
+    ]
+  },
+  {
+    "id": "info.entropy",
+    "title": "Entropy, cross-entropy and KL divergence",
+    "description": "Information content, entropy, cross-entropy as expected code length, KL divergence and its link to maximum likelihood.",
+    "stage": "II",
+    "prereqs": [
+      "prob.rv",
+      "alg.exp-log"
+    ]
+  }
+]

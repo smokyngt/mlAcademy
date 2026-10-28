@@ -1,0 +1,43 @@
+[
+  {
+    "id": "f2n.03.q1", "concept": "la.matrix", "stage": "pre",
+    "prompt": "$A$ is $3\\times4$ and $B$ is $4\\times2$. What is the shape of $AB$?",
+    "options": ["$3\\times2$", "$4\\times4$", "$2\\times3$", "$AB$ is undefined"],
+    "answer": 0,
+    "explanation": "$(m\\times n)(n\\times p)=(m\\times p)$ with $m=3,n=4,p=2$. The inner sizes (4 and 4) match and vanish."
+  },
+  {
+    "id": "f2n.03.q2", "concept": "la.matrix",
+    "prompt": "$A$ is $3\\times4$ and $B$ is $3\\times4$. Which product is defined?",
+    "options": ["$AB$", "$BA$", "$A^\\top B$", "$A^\\top B^\\top$"],
+    "answer": 2,
+    "explanation": "$A^\\top$ is $4\\times3$ and $B$ is $3\\times4$, so $A^\\top B$ is defined and is $4\\times4$. $AB$ and $BA$ would need $4=3$; $A^\\top B^\\top$ is $(4\\times3)(4\\times3)$, also a mismatch. (Note $AB^\\top$, not offered, would also be defined: $(3\\times4)(4\\times3)$.)"
+  },
+  {
+    "id": "f2n.03.q3", "concept": "la.matrix",
+    "prompt": "Compute the (2,1) entry (row 2, column 1) of $\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}\\begin{pmatrix}5&6\\\\7&8\\end{pmatrix}$.",
+    "kind": "numeric", "options": [], "answer": { "value": 43, "tol": 0.001 },
+    "explanation": "Row 2 of the first matrix is $(3,4)$, column 1 of the second is $(5,7)$: $3\\cdot5+4\\cdot7=15+28=43$."
+  },
+  {
+    "id": "f2n.03.q4", "concept": "la.linear-map",
+    "prompt": "A $2\\times2$ matrix sends $e_1=(1,0)$ to $(2,0)$ and $e_2=(0,1)$ to $(0,3)$. Which matrix is it?",
+    "options": ["$\\begin{pmatrix}2&3\\\\0&0\\end{pmatrix}$", "$\\begin{pmatrix}2&0\\\\0&3\\end{pmatrix}$", "$\\begin{pmatrix}0&2\\\\3&0\\end{pmatrix}$", "$\\begin{pmatrix}1&1\\\\2&3\\end{pmatrix}$"],
+    "answer": 1,
+    "explanation": "The columns of the matrix are the images of the basis vectors: column 1 $=(2,0)$, column 2 $=(0,3)$. It stretches $x$ by 2 and $y$ by 3."
+  },
+  {
+    "id": "f2n.03.q5", "concept": "la.matrix",
+    "prompt": "Which statement is true for general matrices where both products exist?",
+    "options": ["$AB=BA$", "$(AB)^\\top=A^\\top B^\\top$", "$(AB)^\\top=B^\\top A^\\top$", "$(AB)^\\top=BA$"],
+    "answer": 2,
+    "explanation": "Transposing reverses the order of a product. $A^\\top B^\\top$ usually has the wrong shape or the wrong values."
+  },
+  {
+    "id": "f2n.03.q6", "concept": "la.linear-map",
+    "prompt": "Which map is NOT linear?",
+    "options": ["$x\\mapsto 3x$ on $\\mathbb{R}$", "$x\\mapsto Ax$ for a fixed matrix $A$", "$x\\mapsto Ax+b$ with $b\\ne0$", "rotation about the origin"],
+    "answer": 2,
+    "explanation": "A linear map must send $0$ to $0$. With $b\\neq0$, $0\\mapsto b$, so $x\\mapsto Ax+b$ is affine, not linear. A neuron layer is affine followed by a nonlinearity."
+  }
+]

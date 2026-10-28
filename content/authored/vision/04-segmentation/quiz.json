@@ -1,0 +1,121 @@
+[
+ {
+  "id": "vis.04.q1",
+  "concept": "vis.segmentation",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Two cars touch in a photo. Which task gives them separate masks?",
+  "options": [
+   "Instance segmentation",
+   "Histogram equalisation",
+   "Image classification",
+   "Semantic segmentation"
+  ],
+  "answer": 0,
+  "explanation": "Semantic segmentation labels classes, so touching cars merge into one blob; instance segmentation gives each object its own mask."
+ },
+ {
+  "id": "vis.04.q2",
+  "concept": "vis.segmentation",
+  "kind": "mcq",
+  "prompt": "What is the purpose of skip connections in a U-Net?",
+  "options": [
+   "Reduce the number of classes",
+   "Normalise the batch",
+   "Give the decoder the high-resolution encoder features so it can localise edges precisely",
+   "Replace the loss function"
+  ],
+  "answer": 2,
+  "explanation": "The bottleneck has lost fine spatial detail; skips hand it back at each resolution."
+ },
+ {
+  "id": "vis.04.q3",
+  "concept": "vis.segmentation",
+  "kind": "numeric",
+  "prompt": "A U-Net with 4 downsampling stages takes a $256\\times256$ input. What is the spatial side length at the bottleneck?",
+  "options": [],
+  "answer": {
+   "value": 16,
+   "tol": 0
+  },
+  "explanation": "$256/2^4=16$."
+ },
+ {
+  "id": "vis.04.q4",
+  "concept": "vis.dice",
+  "kind": "numeric",
+  "prompt": "A predicted mask has 4 pixels, the ground truth 4 pixels, and they share 3. What is the Dice score?",
+  "options": [],
+  "answer": {
+   "value": 0.75,
+   "tol": 0.001
+  },
+  "explanation": "$2\\cdot3/(4+4)=0.75$ (IoU would be $3/5=0.6$)."
+ },
+ {
+  "id": "vis.04.q5",
+  "concept": "vis.dice",
+  "kind": "mcq",
+  "prompt": "If a mask has IoU $=0.5$, its Dice score is...",
+  "options": [
+   "0.5",
+   "0.75",
+   "2/3",
+   "1"
+  ],
+  "answer": 2,
+  "explanation": "$2\\cdot0.5/(1+0.5)=2/3$."
+ },
+ {
+  "id": "vis.04.q6",
+  "concept": "vis.dice",
+  "kind": "mcq",
+  "prompt": "Why is Dice loss favoured over pixel cross-entropy alone when the foreground is 1% of the pixels?",
+  "options": [
+   "It measures overlap, so the huge number of background pixels does not dominate",
+   "It does not need gradients",
+   "It is cheaper to compute",
+   "It always converges faster"
+  ],
+  "answer": 0,
+  "explanation": "Numerator and denominator are sums over the whole image; a tiny region counts as much as a big one."
+ },
+ {
+  "id": "vis.04.q7",
+  "concept": "vis.dice",
+  "kind": "numeric",
+  "prompt": "Confusion matrix (rows = true) $[[1,0,1],[1,2,0],[0,0,1]]$. What is the IoU of class 1 (rounded to 3 decimals)?",
+  "options": [],
+  "answer": {
+   "value": 0.667,
+   "tol": 0.002
+  },
+  "explanation": "Diagonal 2; row sum 3; column sum 2; IoU $=2/(3+2-2)=2/3$."
+ },
+ {
+  "id": "vis.04.q8",
+  "concept": "vis.instance",
+  "kind": "mcq",
+  "prompt": "What problem does RoIAlign fix relative to RoIPool?",
+  "options": [
+   "Slow NMS",
+   "Rounding of box coordinates to integers, which misaligns features and masks",
+   "Class imbalance",
+   "Too many proposals"
+  ],
+  "answer": 1,
+  "explanation": "RoIAlign samples at exact real-valued positions with bilinear interpolation, with no quantisation."
+ },
+ {
+  "id": "vis.04.q9",
+  "concept": "vis.instance",
+  "kind": "numeric",
+  "prompt": "On the feature map $f(y,x)=5y+x$, what does bilinear interpolation return at $(y,x)=(1.5,2.25)$?",
+  "options": [],
+  "answer": {
+   "value": 9.75,
+   "tol": 0.001
+  },
+  "explanation": "Bilinear interpolation reproduces linear functions exactly: $5\\cdot1.5+2.25=9.75$."
+ }
+]

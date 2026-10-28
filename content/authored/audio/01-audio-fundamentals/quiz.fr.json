@@ -1,0 +1,86 @@
+[
+ {
+  "id": "aud.01.q1",
+  "prompt": "Un enregistrement est une liste de nombres $x[n]$. Que repère l'indice $n$ ?",
+  "options": [
+   "les bins de fréquence",
+   "les instants d'échantillonnage, au temps $n/f_s$",
+   "les niveaux d'amplitude",
+   "les trames de 25 ms"
+  ],
+  "explanation": "$x[n]=s(n/f_s)$ : l'indice compte les échantillons, et diviser par la fréquence d'échantillonnage donne des secondes."
+ },
+ {
+  "id": "aud.01.q2",
+  "prompt": "Un son de 7000 Hz est échantillonné à 10000 Hz. À quelle fréquence (Hz) apparaît-il dans les échantillons ?",
+  "options": [],
+  "explanation": "$7000 \\bmod 10000 = 7000$, replié : $\\min(7000, 10000-7000)=3000$."
+ },
+ {
+  "id": "aud.01.q3",
+  "prompt": "Pourquoi un rééchantillonneur doit-il filtrer passe-bas avant de jeter des échantillons ?",
+  "options": [
+   "pour rendre l'audio plus fort",
+   "parce que l'énergie au-dessus de la nouvelle fréquence de Nyquist se replierait dans les basses fréquences",
+   "parce que la FFT exige une entrée lisse",
+   "pour réduire la profondeur de bits"
+  ],
+  "explanation": "Les fréquences $f$ et $f+m f_s$ donnent des échantillons identiques, donc tout ce qui dépasse le nouveau $f_s/2$ se replie sur du contenu valide à moins d'être supprimé d'abord."
+ },
+ {
+  "id": "aud.01.q4",
+  "prompt": "Chaque bit supplémentaire de profondeur de quantification améliore le rapport signal sur bruit de quantification d'environ...",
+  "options": [
+   "1 dB",
+   "3 dB",
+   "6 dB",
+   "12 dB"
+  ],
+  "explanation": "SNR $\\approx 6.02\\,b + 1.76 + 20\\log_{10}A$ dB : diviser le pas par deux divise la puissance du bruit par quatre, soit 6 dB."
+ },
+ {
+  "id": "aud.01.q5",
+  "prompt": "Un extrait de 10 secondes à 16 kHz est découpé en trames de 400 échantillons avec un saut de 160. Combien y a-t-il de trames complètes ?",
+  "options": [],
+  "explanation": "$(160000-400)/160=997.5$, partie entière 997, plus 1 donne 998."
+ },
+ {
+  "id": "aud.01.q6",
+  "prompt": "Quel est l'espacement en Hz entre les bins de la DFT pour $N=512$ à $f_s=16000$ Hz ?",
+  "options": [],
+  "explanation": "La résolution est $f_s/N=16000/512=31.25$ Hz ; le bin $k$ est à $k f_s/N$."
+ },
+ {
+  "id": "aud.01.q7",
+  "prompt": "Combien de valeurs complexes comporte la DFT unilatérale (`rfft`) d'une trame réelle de longueur 512 ?",
+  "options": [
+   "256",
+   "257",
+   "512",
+   "1024"
+  ],
+  "explanation": "Pour une entrée réelle $X[N-k]=\\overline{X[k]}$, donc les bins $0..N/2$ suffisent : $N/2+1=257$."
+ },
+ {
+  "id": "aud.01.q8",
+  "prompt": "Quel est l'objectif principal de la multiplication de chaque trame par une fenêtre de Hann ?",
+  "options": [
+   "normaliser l'intensité sonore",
+   "réduire la fuite spectrale causée par les bords abrupts des trames",
+   "augmenter la résolution fréquentielle",
+   "supprimer la phase"
+  ],
+  "explanation": "Les bords abrupts étalent l'énergie d'un son sur de nombreux bins. L'atténuation progressive réduit la fuite au prix d'un lobe principal plus large."
+ },
+ {
+  "id": "aud.01.q9",
+  "prompt": "Tu divises par deux la longueur de trame $N$ à fréquence d'échantillonnage fixe. Que se passe-t-il ?",
+  "options": [
+   "résolution fréquentielle plus fine et résolution temporelle plus grossière",
+   "résolution fréquentielle plus grossière et résolution temporelle plus fine",
+   "les deux s'améliorent",
+   "rien ne change"
+  ],
+  "explanation": "L'espacement en fréquence $f_s/N$ double (plus grossier) tandis que la fenêtre dure deux fois moins longtemps (localisation temporelle plus fine) : les deux se font concurrence."
+ }
+]

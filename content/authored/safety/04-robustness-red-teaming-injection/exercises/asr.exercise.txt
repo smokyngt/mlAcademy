@@ -1,0 +1,94 @@
+#@@ meta
+{"id": "saf.04.ex1", "title": "Attack success rate with confidence intervals", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.red-teaming"], "hints": ["Wilson interval: with p = k/n and z = 1.96, centre = (p + z^2/(2n)) / (1 + z^2/n), half-width = z*sqrt(p(1-p)/n + z^2/(4n^2)) / (1 + z^2/n).", "asr_at_budget: a behaviour counts as broken within k queries if its first-success query index is <= k (use np.inf for never).", "union_asr: a behaviour is broken if ANY attack (column) succeeds on it: M.any(axis=1).mean(). The slope of log(error) against log(shots) gives the power-law exponent."]}
+#@@ prompt
+Evaluating a defence means estimating how often attacks succeed, with honest uncertainty. All data here are abstract (booleans and counts); no prompts or attack text are involved.
+
+Implement:
+
+- `wilson_interval(k, n, z=1.96)` -> `(low, high)`, the Wilson score interval for a proportion `k/n`.
+- `asr_at_budget(first_success, k)`: fraction of behaviours whose first successful attack came within `k` queries (`first_success[i]` is `np.inf` if never).
+- `two_prop_z(k1, n1, k2, n2)`: pooled two-proportion z statistic for comparing two defences.
+- `n_needed(p, half_width, z=1.96)`: smallest `n` so that a normal-approximation interval around `p` has the given half-width.
+- `union_asr(M)`: `M` has shape `(behaviours, attacks)`; a behaviour counts as broken if any attack succeeds. Compare it with the best single-attack ASR (`best_single_asr(M)`): an adaptive evaluator reports the union, a static benchmark reports one column.
+- `fit_power_law(x, y)` -> `(alpha, a)` with `y ~ a * x**(-alpha)`, by least squares on logs (used for benign in-context-learning error curves versus the number of examples).
+#@@ starter
+import math
+import numpy as np
+
+def wilson_interval(k, n, z=1.96):
+    raise NotImplementedError
+
+def asr_at_budget(first_success, k):
+    raise NotImplementedError
+
+def two_prop_z(k1, n1, k2, n2):
+    raise NotImplementedError
+
+def n_needed(p, half_width, z=1.96):
+    raise NotImplementedError
+
+def union_asr(M):
+    raise NotImplementedError
+
+def best_single_asr(M):
+    raise NotImplementedError
+
+def fit_power_law(x, y):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+lo, hi = wilson_interval(30, 100)
+check("Wilson 30/100 = [0.2189, 0.3959]", lambda: abs(lo - 0.21895) < 1e-4 and abs(hi - 0.39585) < 1e-4)
+lo0, hi0 = wilson_interval(0, 50)
+check("0 successes in 50 still allows up to 7.1%", lambda: lo0 == 0.0 and abs(hi0 - 0.07135) < 1e-4)
+lo3, hi3 = wilson_interval(3, 10)
+check("small samples give wide intervals", lambda: abs(lo3 - 0.1078) < 1e-3 and abs(hi3 - 0.6032) < 1e-3)
+check("interval narrows with n", lambda: (wilson_interval(300, 1000)[1] - wilson_interval(300, 1000)[0]) < (hi - lo) / 2)
+rng = np.random.default_rng(0)
+first = np.where(rng.random(200) < 0.5, rng.integers(1, 21, 200), np.inf)
+check("ASR at budget 1 = 0.04", lambda: abs(asr_at_budget(first, 1) - 0.04) < 1e-12)
+check("ASR at budget 20 = 0.44", lambda: abs(asr_at_budget(first, 20) - 0.44) < 1e-12)
+check("ASR is nondecreasing in the budget", lambda: asr_at_budget(first, 5) <= asr_at_budget(first, 10) <= asr_at_budget(first, 20))
+check("z for 30/100 vs 15/100 = 2.54", lambda: abs(two_prop_z(30, 100, 15, 100) - 2.54) < 1e-2)
+check("n_needed(0.5, 0.05) = 385", lambda: n_needed(0.5, 0.05) == 385)
+check("n_needed(0.1, 0.02) = 865", lambda: n_needed(0.1, 0.02) == 865)
+rng = np.random.default_rng(1)
+M = rng.random((100, 5)) < np.array([.05, .08, .03, .06, .04])
+check("best single attack ASR = 0.10", lambda: abs(best_single_asr(M) - 0.10) < 1e-12)
+check("adaptive (union) ASR = 0.24", lambda: abs(union_asr(M) - 0.24) < 1e-12)
+shots = np.array([1, 2, 4, 8, 16, 32, 64, 128, 256.])
+alpha, a = fit_power_law(shots, 0.9 * shots ** -0.5)
+check("recovers exponent 0.5 and scale 0.9", lambda: abs(alpha - 0.5) < 1e-9 and abs(a - 0.9) < 1e-9)
+#@@ solution
+import math
+import numpy as np
+
+def wilson_interval(k, n, z=1.96):
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return max(0.0, c - h), min(1.0, c + h)
+
+def asr_at_budget(first_success, k):
+    return float(np.mean(np.asarray(first_success, float) <= k))
+
+def two_prop_z(k1, n1, k2, n2):
+    p1, p2 = k1 / n1, k2 / n2
+    p = (k1 + k2) / (n1 + n2)
+    se = math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2))
+    return (p1 - p2) / se
+
+def n_needed(p, half_width, z=1.96):
+    return int(math.ceil(z * z * p * (1 - p) / half_width ** 2))
+
+def union_asr(M):
+    return float(np.asarray(M).any(axis=1).mean())
+
+def best_single_asr(M):
+    return float(np.asarray(M).mean(axis=0).max())
+
+def fit_power_law(x, y):
+    slope, intercept = np.polyfit(np.log(x), np.log(y), 1)
+    return -float(slope), float(np.exp(intercept))

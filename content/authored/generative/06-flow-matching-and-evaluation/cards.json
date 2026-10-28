@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.06.c1",
+  "concept": "gen.flow-matching",
+  "front": "Straight-line path (flow matching)",
+  "back": "$x_t=(1-t)x_0+tx_1$, with velocity $x_1-x_0$."
+ },
+ {
+  "id": "gen.06.c2",
+  "concept": "gen.flow-matching",
+  "front": "Conditional flow matching loss",
+  "back": "$\\mathbb E\\|v_\\theta(x_t,t)-(x_1-x_0)\\|^2$."
+ },
+ {
+  "id": "gen.06.c3",
+  "concept": "gen.flow-matching",
+  "front": "Optimal velocity field",
+  "back": "$v^*(x,t)=\\mathbb E[x_1-x_0\\mid x_t=x]$."
+ },
+ {
+  "id": "gen.06.c4",
+  "concept": "gen.flow-matching",
+  "front": "Euler sampler for flow matching",
+  "back": "$x_{t-\\Delta t}=x_t-\\Delta t\\,v_\\theta(x_t,t)$, from $t=1$ (noise) to $0$ (data)."
+ },
+ {
+  "id": "gen.06.c5",
+  "concept": "gen.flow-matching",
+  "front": "Why one step gives the mean",
+  "back": "With crossing paths the field at noise is the average direction; one step moves every point to the data mean."
+ },
+ {
+  "id": "gen.06.c6",
+  "concept": "gen.flow-matching",
+  "front": "Rectified flow / reflow",
+  "back": "Retrain on ODE-matched pairs to straighten the paths; allows 2-4 step sampling."
+ },
+ {
+  "id": "gen.06.c7",
+  "concept": "gen.flow-matching",
+  "front": "Why flow matching is 'simulation-free'",
+  "back": "Training needs only a sampled pair and time, no ODE solve."
+ },
+ {
+  "id": "gen.06.c8",
+  "concept": "gen.eval",
+  "front": "Frechet distance",
+  "back": "$\\|\\mu_r-\\mu_g\\|^2+\\mathrm{Tr}(\\Sigma_r+\\Sigma_g-2(\\Sigma_r\\Sigma_g)^{1/2})$."
+ },
+ {
+  "id": "gen.06.c9",
+  "concept": "gen.eval",
+  "front": "FID",
+  "back": "The Frechet distance between Gaussian fits to Inception features of real and generated images."
+ },
+ {
+  "id": "gen.06.c10",
+  "concept": "gen.eval",
+  "front": "Stable trace of the matrix square root",
+  "back": "Sum of square roots of the eigenvalues of $\\Sigma_r^{1/2}\\Sigma_g\\Sigma_r^{1/2}$ (symmetric PSD)."
+ },
+ {
+  "id": "gen.06.c11",
+  "concept": "gen.eval",
+  "front": "FID and sample size",
+  "back": "Estimation noise inflates FID at small $N$; compare only at equal large $N$ with the same extractor."
+ },
+ {
+  "id": "gen.06.c12",
+  "concept": "gen.eval",
+  "front": "Precision / recall of a generator",
+  "back": "Precision: generated points inside the real support (k-NN balls). Recall: real points inside the generated support."
+ },
+ {
+  "id": "gen.06.c13",
+  "concept": "gen.eval",
+  "front": "Elo update",
+  "back": "$E_A=1/(1+10^{(R_B-R_A)/400})$, $R_A\\leftarrow R_A+K(S_A-E_A)$."
+ },
+ {
+  "id": "gen.06.c14",
+  "concept": "gen.eval",
+  "front": "CLIP score",
+  "back": "Cosine similarity of image and prompt embeddings; measures prompt adherence with CLIP's blind spots."
+ }
+]

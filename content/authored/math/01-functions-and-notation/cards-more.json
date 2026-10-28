@@ -1,0 +1,62 @@
+[
+ {
+  "id": "f2n.01.c14",
+  "concept": "alg.functions",
+  "front": "What is the domain of a function?",
+  "back": "The set of inputs it accepts; the codomain is the set its outputs live in."
+ },
+ {
+  "id": "f2n.01.c15",
+  "concept": "alg.functions",
+  "front": "Is composition commutative?",
+  "back": "No: $g\\circ f\\ne f\\circ g$ in general. Apply the right-hand function first."
+ },
+ {
+  "id": "f2n.01.c16",
+  "concept": "alg.summation",
+  "front": "Expand $\\sum_{i=1}^{3}i^2$",
+  "back": "$1+4+9=14$."
+ },
+ {
+  "id": "f2n.01.c17",
+  "concept": "alg.summation",
+  "front": "$\\sum_{i=1}^{n}c$ equals...",
+  "back": "$nc$ (a constant added $n$ times)."
+ },
+ {
+  "id": "f2n.01.c18",
+  "concept": "alg.summation",
+  "front": "Is $\\sum a_ib_i=(\\sum a_i)(\\sum b_i)$?",
+  "back": "No: the product of sums has $n^2$ cross terms."
+ },
+ {
+  "id": "f2n.01.c19",
+  "concept": "alg.exp-log",
+  "front": "$\\ln(a/b)$",
+  "back": "$\\ln a-\\ln b$."
+ },
+ {
+  "id": "f2n.01.c20",
+  "concept": "alg.exp-log",
+  "front": "$\\ln(a^p)$",
+  "back": "$p\\ln a$."
+ },
+ {
+  "id": "f2n.01.c21",
+  "concept": "alg.exp-log",
+  "front": "$\\exp(\\ln y)$ and $\\ln(\\exp x)$",
+  "back": "Both return the argument: $\\exp$ and $\\ln$ are inverses (for $y>0$)."
+ },
+ {
+  "id": "f2n.01.c22",
+  "concept": "alg.exp-log",
+  "front": "Is $\\ln(a+b)=\\ln a+\\ln b$?",
+  "back": "No. The log turns products into sums, not sums into sums."
+ },
+ {
+  "id": "f2n.01.c23",
+  "concept": "alg.exp-log",
+  "front": "Smallest positive float64 (approx.)",
+  "back": "About $2.2\\times10^{-308}$: a product of many small probabilities underflows to 0."
+ }
+]

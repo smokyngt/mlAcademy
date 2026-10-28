@@ -1,0 +1,10 @@
+{
+  "id": "sys.01.ex1",
+  "title": "Génération avec et sans cache KV",
+  "prompt": "Un « modèle de langage » à attention à une seule tête avec une règle déterministe pour le token suivant : le prochain embedding est `tanh(out_last @ Wo)`, où `out_last` est la sortie d'attention de la dernière position.\n\nImplémente :\n\n- `kv_cache_bytes(layers, kv_heads, d_head, seq_len, bytes_per=2, batch=1)`\n- `flops_naive_step(t, d_model, d_head)` et `flops_cached_step(t, d_model, d_head)` avec la convention de comptage de la leçon (un produit matriciel $(a,b)\\times(b,c)$ coûte $2abc$)\n- `generate_naive` (recalcule Q, K, V de chaque ligne à chaque pas, masque causal) et `generate_cached` (calcule k et v une fois par token et les ajoute au cache)\n\nLes deux générateurs doivent concorder à la précision numérique près. Compare ensuite le total de FLOPs.",
+  "hints": [
+    "kv_cache_bytes = 2 (K et V) * layers * kv_heads * d_head * seq_len * bytes_per * batch.",
+    "Pas naïf avec t tokens : projections 6*t*d_model*d_head plus une attention causale t x t, 2*t*(t+1)*d_head. Pas avec cache : projections pour UN token, 6*d_model*d_head, plus l'attention d'une requête sur t clés, 4*t*d_head.",
+    "Dans generate_cached, commence avec K = X0 @ Wk, V = X0 @ Wv et la sortie de la dernière ligne du prompt. À chaque pas : construis le prochain embedding à partir de la sortie précédente, ajoute son k et son v, puis attends avec sa requête sur tout le cache."
+  ]
+}

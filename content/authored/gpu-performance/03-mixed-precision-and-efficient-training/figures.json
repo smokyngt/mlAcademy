@@ -1,0 +1,176 @@
+[
+  {
+    "id": "formats",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Number formats as a trade of bits between range (exponent) and precision (mantissa): bf16 keeps fp32's 8 exponent bits and cuts the mantissa; fp16 shrinks both; fp8 comes in two splits.",
+      "fr": "Les formats de nombres comme compromis de bits entre étendue (exposant) et précision (mantisse) : le bf16 garde les 8 bits d'exposant du fp32 et réduit la mantisse ; le fp16 réduit les deux ; le fp8 existe en deux découpages."
+    },
+    "code": {
+      "en": "flowchart LR\n  F32[\"fp32: 1 / 8 / 23 bits<br/>4 B, max 3.4e38, eps 1.2e-7\"] -->|\"keep range, cut mantissa\"| BF[\"bf16: 1 / 8 / 7<br/>2 B, range of fp32, eps 7.8e-3\"]\n  F32 -->|\"cut range and mantissa\"| F16[\"fp16: 1 / 5 / 10<br/>2 B, max 65504, eps 9.8e-4\"]\n  F16 --> E5[\"fp8 E5M2: 1 / 5 / 2<br/>1 B, more range (gradients)\"]\n  BF --> E4[\"fp8 E4M3: 1 / 4 / 3<br/>1 B, more precision (weights)\"]",
+      "fr": "flowchart LR\n  F32[\"fp32: 1 / 8 / 23 bits<br/>4 B, max 3,4e38, eps 1.2e-7\"] -->|\"garder l'étendue, réduire la mantisse\"| BF[\"bf16: 1 / 8 / 7<br/>2 B, étendue du fp32, eps 7.8e-3\"]\n  F32 -->|\"réduire étendue et mantisse\"| F16[\"fp16: 1 / 5 / 10<br/>2 B, max 65504, eps 9.8e-4\"]\n  F16 --> E5[\"fp8 E5M2: 1 / 5 / 2<br/>1 B, plus d'étendue (gradients)\"]\n  BF --> E4[\"fp8 E4M3: 1 / 4 / 3<br/>1 B, plus de précision (poids)\"]"
+    }
+  },
+  {
+    "id": "loss-scaling",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Dynamic loss scaling: multiply the loss by S so tiny gradients stay representable in fp16, check for inf/nan, then unscale in fp32; overflow halves S and skips the step, a streak of good steps doubles it.",
+      "fr": "Mise à l'échelle dynamique de la perte : multiplier la perte par S pour que les petits gradients restent représentables en fp16, tester inf/nan, puis remettre à l'échelle en fp32 ; un dépassement divise S par 2 et saute le pas, une série de bons pas le double."
+    },
+    "code": {
+      "en": "flowchart LR\n  L[\"loss L\"] --> SC[\"multiply by S\"]\n  SC --> BW[\"backward in fp16<br/>gradients are S times larger\"]\n  BW --> CK{\"inf or nan?\"}\n  CK -->|yes| SK[\"skip the step<br/>S = S / 2\"]\n  CK -->|no| UN[\"cast to fp32,<br/>divide by S\"]\n  UN --> OP[\"optimizer step<br/>on fp32 master weights\"]\n  OP --> GR[\"after enough good steps:<br/>S = 2 S\"]",
+      "fr": "flowchart LR\n  L[\"perte L\"] --> SC[\"multiplier par S\"]\n  SC --> BW[\"rétropropagation en fp16<br/>gradients S fois plus grands\"]\n  BW --> CK{\"inf ou nan ?\"}\n  CK -->|oui| SK[\"sauter le pas<br/>S = S / 2\"]\n  CK -->|non| UN[\"convertir en fp32,<br/>diviser par S\"]\n  UN --> OP[\"pas d'optimiseur<br/>sur les poids maîtres fp32\"]\n  OP --> GR[\"après assez de bons pas :<br/>S = 2 S\"]"
+    }
+  },
+  {
+    "id": "underflow",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Why fp16 gradients need scaling: for gradient magnitudes log-uniform between 1e-10 and 1e-3, the share that rounds to exactly 0 is max(0, (2.477 - x)/7), with x = log10(S). It is 35% at S = 1 and vanishes by S of about 300; too large an S (2^30, beyond this chart) overflows past 65,504.",
+      "fr": "Pourquoi les gradients fp16 demandent une mise à l'échelle : pour des magnitudes de gradients log-uniformes entre 1e-10 et 1e-3, la part arrondie à 0 exactement vaut max(0, (2,477 - x)/7), avec x = log10(S). Elle est de 35 % à S = 1 et disparaît vers S d'environ 300 ; un S trop grand (2^30, hors de ce graphique) dépasse 65 504 et déborde."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        4
+      ],
+      "yDomain": [
+        0,
+        0.5
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "max(0,(2.4771-x)/7)",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              0,
+              0.354
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "memory-per-param",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Training memory per parameter with Adam: mixed precision does not shrink this part (16 bytes either way); it moves bytes around, and its memory savings are in the activations.",
+      "fr": "Mémoire d'entraînement par paramètre avec Adam : la précision mixte ne réduit pas cette partie (16 octets dans les deux cas) ; elle déplace les octets, et ses gains de mémoire sont dans les activations."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"1 parameter<br/>mixed precision\"] --> W[\"bf16 weight<br/>2 B\"]\n  P --> G[\"bf16 gradient<br/>2 B\"]\n  P --> M[\"fp32 master copy<br/>4 B\"]\n  P --> M1[\"Adam m (fp32)<br/>4 B\"]\n  P --> V[\"Adam v (fp32)<br/>4 B\"]\n  W --> T[\"total 16 B per parameter\"]\n  G --> T\n  M --> T\n  M1 --> T\n  V --> T",
+      "fr": "flowchart LR\n  P[\"1 paramètre<br/>précision mixte\"] --> W[\"poids bf16<br/>2 o\"]\n  P --> G[\"gradient bf16<br/>2 o\"]\n  P --> M[\"copie maîtresse fp32<br/>4 o\"]\n  P --> M1[\"Adam m (fp32)<br/>4 o\"]\n  P --> V[\"Adam v (fp32)<br/>4 o\"]\n  W --> T[\"total 16 o par paramètre\"]\n  G --> T\n  M --> T\n  M1 --> T\n  V --> T"
+    }
+  },
+  {
+    "id": "checkpoint-memory",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient checkpointing for n = 32 layers (a_layer = 12, a_in = 1): memory(k) = n/k * a_in + k * a_layer. The minimum is near k* = sqrt(n*a_in/a_layer) = 1.63; among divisors k = 2 gives 40 units against 384 without checkpointing, for 33% more compute.",
+      "fr": "Gradient checkpointing pour n = 32 couches (a_layer = 12, a_in = 1) : mémoire(k) = n/k * a_in + k * a_layer. Le minimum est près de k* = sqrt(n*a_in/a_layer) = 1,63 ; parmi les diviseurs k = 2 donne 40 unités contre 384 sans checkpointing, pour 33 % de calcul en plus."
+    },
+    "spec": {
+      "xDomain": [
+        0.5,
+        8.5
+      ],
+      "yDomain": [
+        0,
+        120
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "32/x+12*x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 6
+          },
+          "points": [
+            [
+              1,
+              44
+            ],
+            [
+              2,
+              40
+            ],
+            [
+              4,
+              56
+            ],
+            [
+              8,
+              100
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "loader-step",
+    "after": 9,
+    "kind": "plot",
+    "caption": {
+      "en": "Data-loader step time with t_load = 50 ms and t_gpu = 30 ms against the number of workers w: without prefetch t_load/w + t_gpu (blue), with prefetch max(t_load/w, t_gpu) (orange). Four workers with prefetch reach the GPU limit of 30 ms.",
+      "fr": "Temps d'un pas avec chargeur de données pour t_load = 50 ms et t_gpu = 30 ms en fonction du nombre de workers w : sans prefetch t_load/w + t_gpu (bleu), avec prefetch max(t_load/w, t_gpu) (orange). Quatre workers avec prefetch atteignent la limite du GPU de 30 ms."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        8
+      ],
+      "yDomain": [
+        0,
+        90
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "50/x+30",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "max(50/x,30)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "fusion",
+    "after": 10,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Kernel fusion: an eager element-wise chain round-trips every intermediate through HBM (memory-bound, time = bytes / bandwidth); a fused kernel reads x once and writes y once.",
+      "fr": "Fusion de noyaux : une chaîne élément par élément exécutée sans fusion fait passer chaque résultat intermédiaire par la HBM (limitée par la mémoire, temps = octets / bande passante) ; un noyau fusionné lit x une fois et écrit y une fois."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph EAGER[\"Eager: 3 kernels, 6 HBM transfers\"]\n    x1[\"x in HBM\"] --> k1[\"x * a\"] --> h1[\"HBM\"] --> k2[\"+ b\"] --> h2[\"HBM\"] --> k3[\"gelu\"] --> y1[\"y in HBM\"]\n  end\n  subgraph FUSED[\"Fused (torch.compile): 1 kernel, 2 transfers\"]\n    x2[\"x in HBM\"] --> kf[\"gelu(x * a + b)<br/>intermediates stay in registers\"] --> y2[\"y in HBM\"]\n  end",
+      "fr": "flowchart LR\n  subgraph EAGER[\"Sans fusion : 3 noyaux, 6 transferts HBM\"]\n    x1[\"x en HBM\"] --> k1[\"x * a\"] --> h1[\"HBM\"] --> k2[\"+ b\"] --> h2[\"HBM\"] --> k3[\"gelu\"] --> y1[\"y en HBM\"]\n  end\n  subgraph FUSED[\"Fusionné (torch.compile) : 1 noyau, 2 transferts\"]\n    x2[\"x en HBM\"] --> kf[\"gelu(x * a + b)<br/>les intermédiaires restent en registres\"] --> y2[\"y en HBM\"]\n  end"
+    }
+  }
+]

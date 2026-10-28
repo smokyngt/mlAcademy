@@ -1,0 +1,108 @@
+[
+  {
+    "id": "bm25-saturation",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Term-frequency saturation in BM25: tf (k1 + 1) / (tf + k1 (1 - b + b |d| / avg|d|)) with k1 = 1.2, b = 0.75. Blue: an average-length document; orange: twice the average length (penalised); green: half the average length (favoured). The tenth occurrence adds far less than the first.",
+      "fr": "Saturation de la fréquence du terme dans BM25 : tf (k1 + 1) / (tf + k1 (1 - b + b |d| / avg|d|)) avec k1 = 1,2, b = 0,75. Bleu : document de longueur moyenne ; orange : deux fois la moyenne (pénalisé) ; vert : la moitié de la moyenne (favorisé). La dixième occurrence apporte bien moins que la première."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        2.6
+      ],
+      "height": 320,
+      "title": "BM25 term weight (without idf) vs tf",
+      "data": [
+        {
+          "fn": "x*2.2/(x+1.2*(1-0.75+0.75*1))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x*2.2/(x+1.2*(1-0.75+0.75*2))",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x*2.2/(x+1.2*(1-0.75+0.75*0.5))",
+          "color": "#16a34a"
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2.2,
+          "text": "limit k1 + 1 = 2.2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "rag-ingest",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Offline ingestion with the shapes at each step: a corpus is cleaned and chunked (256 to 512 tokens with overlap), every chunk is embedded by the same model that will embed queries, then stored in a vector index plus a keyword index.",
+      "fr": "Ingestion hors ligne avec les formes à chaque étape : le corpus est nettoyé et découpé en chunks (256 à 512 tokens avec chevauchement), chaque chunk est encodé par le même modèle que celui des requêtes, puis stocké dans un index vectoriel et un index de mots-clés."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"documents\"] --> CL[\"clean text\"]\n  CL --> CH[\"chunker<br/>256-512 tokens, overlap<br/>n chunks\"]\n  CH --> EM[\"embedding model<br/>matrix X (n, d)<br/>rows normalised\"]\n  CH --> KW[\"tokenise<br/>TF-IDF / BM25 statistics<br/>df, avg length\"]\n  EM --> VI[(\"vector index<br/>flat, IVF or HNSW\")]\n  KW --> KI[(\"keyword index\")]\n  CH --> ST[(\"chunk store<br/>text + metadata\")]",
+      "fr": "flowchart LR\n  D[\"documents\"] --> CL[\"nettoyage du texte\"]\n  CL --> CH[\"découpeur<br/>256-512 tokens, chevauchement<br/>n chunks\"]\n  CH --> EM[\"modèle d'embedding<br/>matrice X (n, d)<br/>lignes normalisées\"]\n  CH --> KW[\"tokenisation<br/>statistiques TF-IDF / BM25<br/>df, longueur moyenne\"]\n  EM --> VI[(\"index vectoriel<br/>plat, IVF ou HNSW\")]\n  KW --> KI[(\"index de mots-clés\")]\n  CH --> ST[(\"stockage des chunks<br/>texte + métadonnées\")]"
+    }
+  },
+  {
+    "id": "rag-query",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The RAG request as a protocol: the question is embedded with the same model, two retrievers return candidates, fusion and a cross-encoder narrow them down, and only the best few passages enter the prompt.",
+      "fr": "La requête RAG comme protocole : la question est encodée avec le même modèle, deux récupérateurs renvoient des candidats, la fusion et un cross-encoder les réduisent, et seuls les meilleurs passages entrent dans le prompt."
+    },
+    "code": {
+      "en": "sequenceDiagram\n  participant U as User\n  participant A as App\n  participant V as Vector index\n  participant K as BM25 index\n  participant X as Cross-encoder\n  participant L as LLM\n  U->>A: question\n  A->>A: embed question q (d,) with the same model\n  A->>V: top 50 by scores X q (n,)\n  A->>K: top 50 by BM25\n  V-->>A: ranked list 1\n  K-->>A: ranked list 2\n  A->>A: RRF fusion, keep 100 candidates at most\n  A->>X: score query + each candidate\n  X-->>A: keep best 5 to 10 passages\n  A->>L: prompt = instructions + passages + question\n  L-->>U: answer grounded in the passages",
+      "fr": "sequenceDiagram\n  participant U as Utilisateur\n  participant A as Application\n  participant V as Index vectoriel\n  participant K as Index BM25\n  participant X as Cross-encoder\n  participant L as LLM\n  U->>A: question\n  A->>A: encode la question q (d,) avec le même modèle\n  A->>V: top 50 par scores X q (n,)\n  A->>K: top 50 par BM25\n  V-->>A: liste classée 1\n  K-->>A: liste classée 2\n  A->>A: fusion RRF, 100 candidats au plus\n  A->>X: note requête + chaque candidat\n  X-->>A: garde les 5 à 10 meilleurs passages\n  A->>L: prompt = consignes + passages + question\n  L-->>U: réponse ancrée dans les passages"
+    }
+  },
+  {
+    "id": "hybrid-rrf",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Hybrid retrieval with reciprocal rank fusion. Only ranks are used, so BM25 scores and cosines need no calibration. Worked numbers from the lesson: ranks 1 and 5 give 1/61 + 1/65 = 0.03178, but ranks 3 and 2 give 1/63 + 1/62 = 0.03200 and win.",
+      "fr": "Récupération hybride avec fusion par rangs réciproques. Seuls les rangs servent : les scores BM25 et les cosinus n'ont pas à être calibrés. Chiffres de la leçon : rangs 1 et 5 donnent 1/61 + 1/65 = 0,03178, mais rangs 3 et 2 donnent 1/63 + 1/62 = 0,03200 et gagnent."
+    },
+    "code": {
+      "en": "flowchart LR\n  Q[\"query\"] --> BM[\"BM25<br/>scores (n,) unbounded\"]\n  Q --> DN[\"dense cosine X q<br/>scores (n,) in [-1, 1]\"]\n  BM --> R1[\"ranking 1<br/>exact tokens: E-4021\"]\n  DN --> R2[\"ranking 2<br/>meaning: cancel = terminate\"]\n  R1 --> F[\"RRF(d) = sum over lists of<br/>1 / (60 + rank)\"]\n  R2 --> F\n  F --> TOP[\"fused top-k (k,)\"]\n  TOP --> RR[\"cross-encoder rerank\"]",
+      "fr": "flowchart LR\n  Q[\"requête\"] --> BM[\"BM25<br/>scores (n,) non bornés\"]\n  Q --> DN[\"cosinus dense X q<br/>scores (n,) dans [-1, 1]\"]\n  BM --> R1[\"classement 1<br/>tokens exacts : E-4021\"]\n  DN --> R2[\"classement 2<br/>sens : annuler = résilier\"]\n  R1 --> F[\"RRF(d) = somme sur les listes de<br/>1 / (60 + rang)\"]\n  R2 --> F\n  F --> TOP[\"top-k fusionné (k,)\"]\n  TOP --> RR[\"reclassement cross-encoder\"]"
+    }
+  },
+  {
+    "id": "ivf-hnsw",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Two approximate nearest-neighbour indexes. IVF: rank the c centroids against the query and scan only the nprobe closest clusters (1 cluster scanned 7 percent of 2000 vectors with recall@10 of 0.93). HNSW: descend a layered graph, long jumps at the top, fine steps at the bottom.",
+      "fr": "Deux index de plus proches voisins approchés. IVF : classer les c centroïdes par rapport à la requête et ne parcourir que les nprobe clusters les plus proches (1 cluster : 7 % des 2000 vecteurs, rappel@10 de 0,93). HNSW : descendre un graphe en couches, grands sauts en haut, petits pas en bas."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph IVF[\"IVF\"]\n    direction LR\n    q1[\"query q (d,)\"] --> C1[\"distances to c centroids (c, d)\"]\n    C1 --> NP[\"keep nprobe closest clusters\"]\n    NP --> SC[\"scan only their vectors<br/>exact scores\"]\n    SC --> T1[\"top-k\"]\n  end\n  subgraph HNSW[\"HNSW\"]\n    direction LR\n    q2[\"query q (d,)\"] --> L2[\"top layer: sparse, long jumps\"]\n    L2 --> L1[\"middle layer: closer neighbours\"]\n    L1 --> L0[\"bottom layer: dense, fine steps\"]\n    L0 --> T2[\"top-k\"]\n  end",
+      "fr": "flowchart TB\n  subgraph IVF[\"IVF\"]\n    direction LR\n    q1[\"requête q (d,)\"] --> C1[\"distances aux c centroïdes (c, d)\"]\n    C1 --> NP[\"garder les nprobe clusters les plus proches\"]\n    NP --> SC[\"parcourir seulement leurs vecteurs<br/>scores exacts\"]\n    SC --> T1[\"top-k\"]\n  end\n  subgraph HNSW[\"HNSW\"]\n    direction LR\n    q2[\"requête q (d,)\"] --> L2[\"couche haute : clairsemée, grands sauts\"]\n    L2 --> L1[\"couche médiane : voisins plus proches\"]\n    L1 --> L0[\"couche basse : dense, petits pas\"]\n    L0 --> T2[\"top-k\"]\n  end"
+    }
+  },
+  {
+    "id": "chunk-overlap",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The chunker of the worked example: 10 words, size 4, overlap 1. Boundary words w3 and w6 are repeated, so a sentence cut by one chunk edge appears whole in the neighbouring chunk.",
+      "fr": "Le découpeur de l'exemple : 10 mots, taille 4, chevauchement 1. Les mots frontières w3 et w6 sont répétés, donc une phrase coupée au bord d'un chunk apparaît entière dans le chunk voisin."
+    },
+    "code": {
+      "en": "flowchart LR\n  T[\"w0 w1 w2 w3 w4 w5 w6 w7 w8 w9\"] --> C1[\"chunk 1<br/>w0 w1 w2 w3\"]\n  T --> C2[\"chunk 2<br/>w3 w4 w5 w6\"]\n  T --> C3[\"chunk 3<br/>w6 w7 w8 w9\"]\n  C1 -. \"overlap w3\" .- C2\n  C2 -. \"overlap w6\" .- C3",
+      "fr": "flowchart LR\n  T[\"w0 w1 w2 w3 w4 w5 w6 w7 w8 w9\"] --> C1[\"chunk 1<br/>w0 w1 w2 w3\"]\n  T --> C2[\"chunk 2<br/>w3 w4 w5 w6\"]\n  T --> C3[\"chunk 3<br/>w6 w7 w8 w9\"]\n  C1 -. \"chevauchement w3\" .- C2\n  C2 -. \"chevauchement w6\" .- C3"
+    }
+  }
+]

@@ -1,0 +1,91 @@
+[
+ {
+  "id": "saf.02.q1",
+  "prompt": "Pourquoi la fonction de partition $Z(x)$ disparaît-elle de la perte DPO ?",
+  "options": [
+   "Elle est fixée à 1 par définition",
+   "Le terme KL la supprime",
+   "Elle apparaît dans les deux récompenses d'une paire et s'annule dans la différence de Bradley-Terry",
+   "Parce que $\\beta$ est petit"
+  ],
+  "explanation": "$r(x,y)=\\beta\\log(\\pi^*/\\pi_{ref})+\\beta\\log Z(x)$ ; $Z$ ne dépend que du prompt, donc elle s'annule dans $r_w-r_l$."
+ },
+ {
+  "id": "saf.02.q2",
+  "prompt": "Une paire a $\\Delta_w=1$ et $\\Delta_l=-1$ (log-rapports à la référence). La perte DPO pour $\\beta=1$ est la plus proche de...",
+  "options": [],
+  "explanation": "La marge est $\\beta\\cdot2=2$ et $-\\log\\sigma(2)=0.1269$."
+ },
+ {
+  "id": "saf.02.q3",
+  "prompt": "Dans le DPO, quelles paires reçoivent le plus grand poids de gradient ?",
+  "options": [
+   "Les paires à la plus grande marge",
+   "Les paires aux réponses les plus courtes",
+   "Toutes les paires de façon égale",
+   "Les paires que le modèle classe actuellement à tort (marge petite ou négative)"
+  ],
+  "explanation": "Le poids est $\\sigma(-m)$, proche de 1 quand $m$ est très négatif et proche de 0 quand $m$ est grand."
+ },
+ {
+  "id": "saf.02.q4",
+  "prompt": "Quel échec du DPO le phénomène de « réponse choisie dégradée » décrit-il ?",
+  "options": [
+   "Le modèle de référence est écrasé",
+   "La perte peut diminuer tandis que la log-probabilité absolue de la réponse choisie baisse, tant que celle de la rejetée baisse plus vite",
+   "La réponse rejetée devient plus probable",
+   "L'entraînement diverge vers NaN"
+  ],
+  "explanation": "Le DPO ne contraint que la différence des log-rapports."
+ },
+ {
+  "id": "saf.02.q5",
+  "prompt": "Quelle méthode n'a besoin que de sorties isolées étiquetées bon/mauvais plutôt que de paires de préférence ?",
+  "options": [
+   "DPO",
+   "IPO",
+   "KTO",
+   "SimPO"
+  ],
+  "explanation": "KTO utilise une utilité de type théorie des perspectives sur des sorties isolées."
+ },
+ {
+  "id": "saf.02.q6",
+  "prompt": "IPO avec $\\beta=0.1$, différence de log-rapports 2. Quelle est la perte $(\\Delta_w-\\Delta_l-1/(2\\beta))^2$ ?",
+  "options": [],
+  "explanation": "$1/(2\\cdot0.1)=5$ et $(2-5)^2=9$."
+ },
+ {
+  "id": "saf.02.q7",
+  "prompt": "Que change SimPO pour réduire le biais de longueur des log-probabilités sommées ?",
+  "options": [
+   "Il tronque toutes les réponses",
+   "Il divise chaque log-probabilité par la longueur de la réponse (et abandonne le modèle de référence)",
+   "Il ajoute un terme KL à la récompense",
+   "Il s'entraîne uniquement sur des réponses plus longues"
+  ],
+  "explanation": "La log-probabilité moyenne par token supprime l'avantage des séquences plus longues dans une somme."
+ },
+ {
+  "id": "saf.02.q8",
+  "prompt": "Quelle est la différence clé entre le bruit aléatoire d'un annotateur et le biais d'un annotateur IA cohérent ?",
+  "options": [
+   "Le bruit aléatoire est toujours plus grand",
+   "Un annotateur cohérent n'a aucune erreur",
+   "Le biais disparaît avec le RL",
+   "Le bruit aléatoire se moyenne avec davantage d'étiquettes ; un biais systématique reste le même quel que soit le nombre d'étiquettes collectées"
+  ],
+  "explanation": "L'exercice sur les annotateurs montre un annotateur déterministe précis à 78,5 % qui ne s'améliore jamais, alors que les votes majoritaires d'humains s'améliorent."
+ },
+ {
+  "id": "saf.02.q9",
+  "prompt": "Quelle phrase sur le RLAIF est exacte ?",
+  "options": [
+   "Il supprime le besoin d'un modèle de récompense ou d'une optimisation de politique",
+   "Il élimine la loi de Goodhart",
+   "Seule la source du signal de préférence change ; le reste du pipeline peut être de forme RLHF",
+   "Il ne nécessite aucun principe"
+  ],
+  "explanation": "RLAIF signifie que les préférences sont générées par un modèle qui lit des principes."
+ }
+]

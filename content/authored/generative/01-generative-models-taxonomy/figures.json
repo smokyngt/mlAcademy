@@ -1,0 +1,84 @@
+[
+  {
+    "id": "disc-vs-gen",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Discriminative models learn only the boundary p(y | x). Generative models learn p(x) or p(x, y), which gives both sampling and, by Bayes' rule, classification; the reverse is impossible.",
+      "fr": "Les modèles discriminatifs n'apprennent que la frontière p(y | x). Les modèles génératifs apprennent p(x) ou p(x, y), ce qui donne l'échantillonnage et, par la règle de Bayes, la classification ; l'inverse est impossible."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph DI[\"Discriminative\"]\n    direction LR\n    x1[\"x\"] --> m1[\"p(y | x)\"] --> y1[\"label y\"]\n  end\n  subgraph GE[\"Generative\"]\n    direction LR\n    m2[\"p(x, y) = p(x | y) p(y)\"] --> s2[\"sample new x\"]\n    m2 --> b2[\"Bayes: p(y | x) = p(x | y) p(y) / sum\"] --> c2[\"classify\"]\n  end",
+      "fr": "flowchart LR\n  subgraph DI[\"Discriminatif\"]\n    direction LR\n    x1[\"x\"] --> m1[\"p(y | x)\"] --> y1[\"étiquette y\"]\n  end\n  subgraph GE[\"Génératif\"]\n    direction LR\n    m2[\"p(x, y) = p(x | y) p(y)\"] --> s2[\"échantillonner un nouveau x\"]\n    m2 --> b2[\"Bayes : p(y | x) = p(x | y) p(y) / somme\"] --> c2[\"classer\"]\n  end"
+    }
+  },
+  {
+    "id": "taxonomy",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The taxonomy of the course by what a model gives up for tractability: exact likelihood, a lower bound, no density at all, or a vector field integrated as an ODE.",
+      "fr": "La taxonomie du cours selon ce qu'un modèle abandonne pour rester maniable : vraisemblance exacte, borne inférieure, aucune densité, ou champ de vecteurs intégré comme une EDO."
+    },
+    "code": {
+      "en": "flowchart TB\n  R[\"Generative models p_theta(x)\"]\n  R --> A[\"Explicit, tractable<br/>exact density\"]\n  R --> BB[\"Explicit, approximate<br/>lower bound (ELBO)\"]\n  R --> C[\"Implicit<br/>no density\"]\n  R --> D[\"Score / continuous-time<br/>ODE or SDE\"]\n  A --> A1[\"autoregressive, language models, normalising flows\"]\n  BB --> B1[\"VAE (gen.02), diffusion (gen.04)\"]\n  C --> C1[\"GAN (gen.03)\"]\n  D --> D1[\"score models, flow matching (gen.06)\"]",
+      "fr": "flowchart TB\n  R[\"Modèles génératifs p_theta(x)\"]\n  R --> A[\"Explicite, exacte<br/>densité exacte\"]\n  R --> BB[\"Explicite, approchée<br/>borne inférieure (ELBO)\"]\n  R --> C[\"Implicite<br/>pas de densité\"]\n  R --> D[\"Score / temps continu<br/>EDO ou EDS\"]\n  A --> A1[\"autorégressifs, modèles de langue, flots normalisants\"]\n  BB --> B1[\"VAE (gen.02), diffusion (gen.04)\"]\n  C --> C1[\"GAN (gen.03)\"]\n  D --> D1[\"modèles de score, flow matching (gen.06)\"]"
+    }
+  },
+  {
+    "id": "family-tradeoffs",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Choosing a family by the two questions of the lesson: can I compute p_theta(x), and can I sample cheaply? Each family pays somewhere.",
+      "fr": "Choisir une famille selon les deux questions de la leçon : puis-je calculer p_theta(x), et puis-je échantillonner à bas coût ? Chaque famille paie quelque part."
+    },
+    "code": {
+      "en": "flowchart TB\n  Q1{\"Need to evaluate p_theta(x)?\"}\n  Q1 -- exactly --> E1[\"autoregressive / flows<br/>sampling: d sequential steps\"]\n  Q1 -- a bound is fine --> E2[\"VAE / diffusion\"]\n  Q1 -- no --> Q2{\"Need one-pass sampling?\"}\n  Q2 -- yes --> E3[\"GAN<br/>unstable training, mode collapse\"]\n  Q2 -- few steps ok --> E4[\"flow matching<br/>ODE integration\"]",
+      "fr": "flowchart TB\n  Q1{\"Faut-il évaluer p_theta(x) ?\"}\n  Q1 -- exactement --> E1[\"autorégressif / flots<br/>échantillonnage : d pas séquentiels\"]\n  Q1 -- une borne suffit --> E2[\"VAE / diffusion\"]\n  Q1 -- non --> Q2{\"Faut-il un échantillonnage en une passe ?\"}\n  Q2 -- oui --> E3[\"GAN<br/>entraînement instable, effondrement de modes\"]\n  Q2 -- quelques pas --> E4[\"flow matching<br/>intégration d'EDO\"]"
+    }
+  },
+  {
+    "id": "mixture-fit",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "The worked example: data from a mixture of two Gaussians (means -2 and +2, std 0.5, blue) against the best single Gaussian fitted by maximum likelihood (mean -0.015, std 2.05, orange). The single Gaussian puts its mass at 0, where there is almost no data; the held-out NLL gap is about 0.71 nats.",
+      "fr": "L'exemple travaillé : données issues d'un mélange de deux gaussiennes (moyennes -2 et +2, écart-type 0,5, bleu) face à la meilleure gaussienne unique ajustée par maximum de vraisemblance (moyenne -0,015, écart-type 2,05, orange). La gaussienne unique place sa masse en 0, où il y a presque pas de données ; l'écart de NLL sur le test est d'environ 0,71 nat."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        0,
+        0.45
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.5*exp(-(x+2)^2/(2*0.25))/(0.5*2.5066)+0.5*exp(-(x-2)^2/(2*0.25))/(0.5*2.5066)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-(x+0.015)^2/(2*2.05^2))/(2.05*2.5066)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ancestral-sampling",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Ancestral sampling, the template of every latent-variable model: first sample the latent (here the mixture component k), then sample x given it.",
+      "fr": "L'échantillonnage ancestral, modèle de tout modèle à variable latente : on tire d'abord le latent (ici la composante k du mélange), puis x sachant ce latent."
+    },
+    "code": {
+      "en": "flowchart LR\n  W[\"weights w (K,)\"] --> K[\"k ~ Categorical(w)\"]\n  K --> X[\"x ~ Normal(mu_k, sigma_k)\"]\n  MU[\"mu (K,), sigma (K,)\"] --> X\n  X --> OUT[\"sample x\"]",
+      "fr": "flowchart LR\n  W[\"poids w (K,)\"] --> K[\"k ~ Categorical(w)\"]\n  K --> X[\"x ~ Normal(mu_k, sigma_k)\"]\n  MU[\"mu (K,), sigma (K,)\"] --> X\n  X --> OUT[\"échantillon x\"]"
+    }
+  }
+]

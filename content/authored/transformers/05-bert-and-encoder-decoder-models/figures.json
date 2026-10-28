@@ -1,0 +1,54 @@
+[
+  {
+    "id": "mlm-8010",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Masked language modelling: about 15% of positions are selected; of those, 80% become [MASK], 10% a random token, 10% stay unchanged, and the loss is averaged over the selected set S only.",
+      "fr": "Modélisation de langage masquée : environ 15 % des positions sont choisies ; parmi elles 80 % deviennent [MASK], 10 % un jeton aléatoire, 10 % restent inchangées, et la perte est moyennée sur l'ensemble choisi S seulement."
+    },
+    "code": {
+      "en": "flowchart TD\n  T[\"tokens x_1 .. x_T\"] --> SEL{\"select about 15%<br/>of positions\"}\n  SEL -->|\"85%: not selected\"| KEEP[\"unchanged, no label,<br/>no loss\"]\n  SEL -->|\"15%: set S\"| RR{\"corrupt\"}\n  RR -->|\"80%\"| M[\"[MASK]\"]\n  RR -->|\"10%\"| RND[\"random token\"]\n  RR -->|\"10%\"| ORI[\"original token\"]\n  M --> L[\"loss on S only:<br/>mean over S of -log softmax(Z_i)[x_i]\"]\n  RND --> L\n  ORI --> L",
+      "fr": "flowchart TD\n  T[\"tokens x_1 .. x_T\"] --> SEL{\"choisir environ 15 %<br/>des positions\"}\n  SEL -->|\"85 % : non choisies\"| KEEP[\"inchangées, sans étiquette,<br/>sans perte\"]\n  SEL -->|\"15 % : ensemble S\"| RR{\"corrompre\"}\n  RR -->|\"80%\"| M[\"[MASK]\"]\n  RR -->|\"10%\"| RND[\"jeton aléatoire\"]\n  RR -->|\"10%\"| ORI[\"jeton d'origine\"]\n  M --> L[\"perte sur S seulement :<br/>moyenne sur S de -log softmax(Z_i)[x_i]\"]\n  RND --> L\n  ORI --> L"
+    }
+  },
+  {
+    "id": "bert-heads",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Three BERT heads on the same encoder output H (B,T,d): the [CLS] vector for classification, every token for tagging, and start/end vectors for extractive question answering.",
+      "fr": "Trois têtes BERT sur la même sortie d'encodeur H (B,T,d) : le vecteur [CLS] pour la classification, chaque jeton pour l'étiquetage, et des vecteurs début/fin pour la question-réponse extractive."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"ids (B,T)\"] --> BE[\"BERT encoder\"]\n  BE --> H[\"H (B,T,d)\"]\n  H -->|\"H[:,0,:] (B,d)\"| C[\"W (d,K)\"] --> CL[\"class logits (B,K)\"]\n  H -->|\"all tokens (B,T,d)\"| N[\"W (d,K) shared<br/>across positions\"] --> NL[\"tag logits (B,T,K)\"]\n  H -->|\"passage tokens (B,T,d)\"| Q[\"start vector s (d)<br/>end vector e (d)\"] --> QL[\"start scores (B,T)<br/>end scores (B,T)\"]",
+      "fr": "flowchart LR\n  I[\"ids (B,T)\"] --> BE[\"encodeur BERT\"]\n  BE --> H[\"H (B,T,d)\"]\n  H -->|\"H[:,0,:] (B,d)\"| C[\"W (d,K)\"] --> CL[\"logits de classe (B,K)\"]\n  H -->|\"tous les jetons (B,T,d)\"| N[\"W (d,K) partagée<br/>entre positions\"] --> NL[\"logits d'étiquette (B,T,K)\"]\n  H -->|\"jetons du passage (B,T,d)\"| Q[\"vecteur début s (d)<br/>vecteur fin e (d)\"] --> QL[\"scores de début (B,T)<br/>scores de fin (B,T)\"]"
+    }
+  },
+  {
+    "id": "span-corruption",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "T5 span corruption on tokens 1..10 with spans (start 2, length 2) and (start 6, length 3): each span becomes one sentinel in the input, and the target lists the sentinels with the removed tokens, ending with a closing sentinel.",
+      "fr": "Corruption de segments T5 sur les jetons 1..10 avec les segments (début 2, longueur 2) et (début 6, longueur 3) : chaque segment devient un seul jeton sentinelle en entrée, et la cible liste les sentinelles avec les jetons retirés, terminée par une sentinelle de fermeture."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"tokens 1 2 3 4 5 6 7 8 9 10\"] --> B[\"remove spans<br/>(3 4) and (7 8 9)\"]\n  B --> C[\"encoder input (7 tokens)<br/>1 2 S100 5 6 S101 10\"]\n  B --> D[\"decoder target (8 tokens)<br/>S100 3 4 S101 7 8 9 S102\"]\n  C --> E[\"encoder-decoder<br/>cross-attention\"]\n  E --> D",
+      "fr": "flowchart LR\n  A[\"jetons 1 2 3 4 5 6 7 8 9 10\"] --> B[\"retirer les segments<br/>(3 4) et (7 8 9)\"]\n  B --> C[\"entrée encodeur (7 jetons)<br/>1 2 S100 5 6 S101 10\"]\n  B --> D[\"cible décodeur (8 jetons)<br/>S100 3 4 S101 7 8 9 S102\"]\n  C --> E[\"encodeur-décodeur<br/>attention croisée\"]\n  E --> D"
+    }
+  },
+  {
+    "id": "choose-family",
+    "after": 9,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Rule of thumb for choosing a family, measured against a fine-tuned small model before paying for a prompted LLM.",
+      "fr": "Règle pratique pour choisir une famille, à comparer à un petit modèle ajusté avant de payer un LLM sollicité par prompt."
+    },
+    "code": {
+      "en": "flowchart TD\n  Q{\"what must the model output?\"} -->|\"a label or vector per input\"| E[\"encoder-only<br/>BERT: fast, fine-tune\"]\n  Q -->|\"free-form text or instructions, few examples\"| D[\"decoder-only<br/>GPT: generate, few-shot\"]\n  Q -->|\"a different sequence from the input\"| ED[\"encoder-decoder<br/>BART, T5: translate, summarise\"]",
+      "fr": "flowchart TD\n  Q{\"que doit produire le modèle ?\"} -->|\"une étiquette ou un vecteur par entrée\"| E[\"encodeur seul<br/>BERT : rapide, à ajuster\"]\n  Q -->|\"texte libre ou instructions, peu d'exemples\"| D[\"décodeur seul<br/>GPT : générer, few-shot\"]\n  Q -->|\"une séquence différente de l'entrée\"| ED[\"encodeur-décodeur<br/>BART, T5 : traduire, résumer\"]"
+    }
+  }
+]

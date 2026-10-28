@@ -1,0 +1,254 @@
+[
+  {
+    "id": "f1",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Exponential families: base 2 grows, base 1/2 decays, and e^x (green) is the one whose slope at every point equals its own height. All are positive and pass through (0, 1).",
+      "fr": "Familles exponentielles : la base 2 croît, la base 1/2 décroît, et e^x (vert) est celle dont la pente en chaque point égale sa hauteur. Toutes sont positives et passent par (0, 1)."
+    },
+    "spec": {
+      "xDomain": [
+        -3,
+        3
+      ],
+      "yDomain": [
+        -1,
+        9
+      ],
+      "data": [
+        {
+          "fn": "2^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5^x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "exp(x)",
+          "color": "#16a34a"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f2",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Compound growth 1000 * 1.05^t (blue) versus simple interest 1000 + 50t (orange): interest earns interest, so the gap widens (1628.89 vs 1500 at t = 10).",
+      "fr": "Croissance composée 1000 * 1,05^t (bleu) contre intérêt simple 1000 + 50t (orange) : les intérêts rapportent des intérêts, l'écart se creuse (1628,89 contre 1500 à t = 10)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        30
+      ],
+      "yDomain": [
+        0,
+        4500
+      ],
+      "data": [
+        {
+          "fn": "1000*1.05^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "1000+50*x",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              10,
+              1628.89
+            ],
+            [
+              10,
+              1500
+            ]
+          ]
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f3",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The number e as a limit: (1 + 1/n)^n creeps up toward e = 2.71828 and never exceeds it (n = 1 gives 2, n = 10 gives 2.5937).",
+      "fr": "Le nombre e comme limite : (1 + 1/n)^n se rapproche de e = 2,71828 sans jamais le dépasser (n = 1 donne 2, n = 10 donne 2,5937)."
+    },
+    "spec": {
+      "xDomain": [
+        0.5,
+        40
+      ],
+      "yDomain": [
+        1.5,
+        3
+      ],
+      "data": [
+        {
+          "fn": "(1+1/x)^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "2.718281828",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              2
+            ],
+            [
+              10,
+              2.5937
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2.71828,
+          "text": "e"
+        }
+      ],
+      "height": 320
+    }
+  },
+  {
+    "id": "f4",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "ln is the mirror image of exp across y = x. It is defined only for x > 0, plunges to -infinity at 0, and is negative on (0, 1).",
+      "fr": "ln est l'image miroir de exp par rapport à y = x. Elle n'est définie que pour x > 0, plonge vers -infini en 0, et est négative sur (0, 1)."
+    },
+    "spec": {
+      "xDomain": [
+        -3,
+        6
+      ],
+      "yDomain": [
+        -3,
+        6
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "exp(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "log(x)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x",
+          "color": "#6b7280"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              1,
+              0
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "f5",
+    "after": 8,
+    "kind": "plot",
+    "caption": {
+      "en": "The cross-entropy cost -ln q of giving the true class probability q: 0.7 costs 0.357, 0.1 costs 2.303, and the cost explodes as q goes to 0.",
+      "fr": "Le coût d'entropie croisée -ln q quand on donne la probabilité q à la vraie classe : 0,7 coûte 0,357, 0,1 coûte 2,303, et le coût explose quand q tend vers 0."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        5
+      ],
+      "data": [
+        {
+          "fn": "-log(x)",
+          "color": "#dc2626"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0.7,
+              0.3567
+            ],
+            [
+              0.1,
+              2.3026
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 0.7,
+          "text": "q = 0.7"
+        }
+      ],
+      "height": 320
+    }
+  }
+]

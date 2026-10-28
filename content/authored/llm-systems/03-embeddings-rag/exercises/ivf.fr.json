@@ -1,0 +1,10 @@
+{
+  "id": "sys.03.ex2",
+  "title": "Plus proches voisins exacts contre approximatifs : un petit index IVF",
+  "prompt": "Les bases de données vectorielles évitent de comparer la requête à chaque vecteur stocké. L'idée la plus simple est un index **à fichier inversé (IVF)** : regrouper les vecteurs avec k-means, et au moment de la requête ne fouiller que les `nprobe` clusters dont les centroïdes sont les plus proches de la requête.\n\nImplémente `exact_knn`, `kmeans`, `ivf_search` (qui renvoie les voisins et le nombre de vecteurs parcourus) et `recall_at_k`. Observe le compromis entre vitesse (vecteurs parcourus) et rappel à mesure que `nprobe` augmente.",
+  "hints": [
+    "exact_knn : distances au carré ((X - q)**2).sum(1), np.argsort(...)[:k].",
+    "kmeans : pars de k points de données aléatoires, puis répète : affecte chaque point au centroïde le plus proche, déplace chaque centroïde non vide vers la moyenne de ses points.",
+    "ivf_search : prends les nprobe centroïdes les plus proches, forme l'ensemble candidat avec np.isin(assign, probe), et fais une recherche exacte uniquement à l'intérieur. recall = |exact ∩ approx| / k."
+  ]
+}

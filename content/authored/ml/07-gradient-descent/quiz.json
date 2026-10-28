@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.07.q1", "concept": "opt.gradient-descent", "stage": "pre",
+    "prompt": "The gradient descent update for parameters $\\theta$ with learning rate $\\eta$ is...",
+    "options": ["$\\theta\\leftarrow\\theta+\\eta\\nabla L(\\theta)$", "$\\theta\\leftarrow\\theta-\\eta\\nabla L(\\theta)$", "$\\theta\\leftarrow\\theta-\\eta L(\\theta)$", "$\\theta\\leftarrow\\eta\\nabla L(\\theta)$"],
+    "answer": 1,
+    "explanation": "We move against the gradient (the direction of steepest ascent) to decrease $L$. Adding would be gradient *ascent*."
+  },
+  {
+    "id": "f2n.07.q2", "concept": "opt.gradient-descent",
+    "prompt": "$L(\\theta)=\\theta^2$, $\\theta_0=3$, $\\eta=0.1$. What is $\\theta_2$ after two steps?",
+    "kind": "numeric", "options": [], "answer": { "value": 1.92, "tol": 0.001 },
+    "explanation": "$L'=2\\theta$, so each step multiplies by $1-2\\eta=0.8$: $3\\to2.4\\to1.92$."
+  },
+  {
+    "id": "f2n.07.q3", "concept": "opt.gradient-descent",
+    "prompt": "For $L(\\theta)=\\tfrac12\\lambda\\theta^2$, gradient descent converges iff...",
+    "options": ["$\\eta<1/\\lambda$", "$0<\\eta<2/\\lambda$", "$\\eta>2/\\lambda$", "any $\\eta>0$"],
+    "answer": 1,
+    "explanation": "$\\theta_{t+1}=(1-\\eta\\lambda)\\theta_t$ shrinks iff $|1-\\eta\\lambda|<1$, i.e. $0<\\eta<2/\\lambda$. Between $1/\\lambda$ and $2/\\lambda$ it converges while oscillating."
+  },
+  {
+    "id": "f2n.07.q4", "concept": "opt.gradient-descent",
+    "prompt": "A quadratic has curvature $\\lambda_{\\max}=20$ along one axis. The largest stable learning rate for gradient descent is (strictly less than)...",
+    "kind": "numeric", "options": [], "answer": { "value": 0.1, "tol": 0.0001 },
+    "explanation": "$\\eta<2/\\lambda_{\\max}=2/20=0.1$. Above this the steepest direction diverges regardless of the other directions."
+  },
+  {
+    "id": "f2n.07.q5", "concept": "opt.gradient-descent",
+    "prompt": "What makes gradient descent slow on $L=\\tfrac12(x^2+100y^2)$?",
+    "options": ["Too many parameters", "A large condition number $\\kappa=100$ forces a small $\\eta$ that crawls along the flat direction", "The loss is non-differentiable", "The loss is non-convex"],
+    "answer": 1,
+    "explanation": "$\\eta$ is capped by the steep axis ($<2/100$), so the flat axis ($\\lambda=1$) contracts by only about $1-0.02$ per step. The contraction rate at the best $\\eta$ is $(\\kappa-1)/(\\kappa+1)\\approx0.98$."
+  },
+  {
+    "id": "f2n.07.q6", "concept": "opt.gradient-descent",
+    "prompt": "Your training loss becomes NaN after a few steps. What is the first thing to try?",
+    "options": ["Train for more epochs", "Reduce the learning rate by about 10x", "Increase the batch size to the full dataset", "Add more layers"],
+    "answer": 1,
+    "explanation": "A learning rate above the stability limit makes the loss grow geometrically until it overflows. Lowering $\\eta$ is the cheapest test."
+  }
+]

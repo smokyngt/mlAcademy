@@ -1,0 +1,10 @@
+{
+  "id": "seq.04.ex1",
+  "title": "Pas de LSTM : passes avant et arrière et propriétés des portes",
+  "prompt": "Implémente un pas de temps de LSTM pour un seul échantillon et sa passe arrière.\n\nParamètres : `W (4H, n)`, `U (4H, H)`, `b (4H,)`, avec les quatre blocs de portes empilés dans l'ordre **entrée `i`, oubli `f`, candidat `g`, sortie `o`** :\n\n$$a=Wx+Uh_{t-1}+b,\\quad i=\\sigma(a_i),\\ f=\\sigma(a_f),\\ g=\\tanh(a_g),\\ o=\\sigma(a_o),\\quad c_t=f\\odot c_{t-1}+i\\odot g,\\quad h_t=o\\odot\\tanh(c_t).$$\n\n- `lstm_step(x, h_prev, c_prev, W, U, b)` renvoie `(h, c, cache)`.\n- `lstm_step_backward(dh, dc, cache)` prend les gradients qui arrivent dans `h_t` et `c_t` depuis le futur et renvoie `(dx, dh_prev, dc_prev, dW, dU, db)`.",
+  "hints": [
+    "Les pré-activations a = W @ x + U @ h_prev + b ont la forme (4H,). Découpe en quatre blocs de taille H dans l'ordre i, f, g, o : i = sigmoid, f = sigmoid, g = tanh, o = sigmoid. Puis c = f*c_prev + i*g et h = o*tanh(c).",
+    "Passe arrière : tc = tanh(c) ; do = dh*tc ; dc_tot = dc + dh*o*(1 - tc**2) ; df = dc_tot*c_prev ; di = dc_tot*g ; dg = dc_tot*i ; dc_prev = dc_tot*f.",
+    "Gradients des pré-activations des portes : da_i = di*i*(1-i), da_f = df*f*(1-f), da_g = dg*(1-g**2), da_o = do*o*(1-o). Concatène en da (4H,), puis dW = outer(da, x), dU = outer(da, h_prev), db = da, dx = W.T @ da, dh_prev = U.T @ da."
+  ]
+}

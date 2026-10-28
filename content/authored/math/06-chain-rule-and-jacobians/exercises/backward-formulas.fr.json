@@ -1,0 +1,10 @@
+{
+  "id": "f2n.06.ex1",
+  "title": "Formules arrière pour linéaire, biais et ReLU",
+  "prompt": "Implémente :\n\n- `linear_backward(W, x, g)` qui renvoie `(dx, dW)` pour $y=Wx$ étant donné le gradient amont $g=\\nabla_yL$.\n- `relu_backward(z, g)` pour $y=\\max(0,z)$.\n- `numerical_jacobian(f, x, h=1e-5)` qui renvoie la jacobienne $m\\times n$ d'une fonction vectorielle par différences centrées.\n\nLes tests vérifient tes formules contre la jacobienne numérique et contre l'exemple traité de la leçon.",
+  "hints": [
+    "dx = W.T @ g a la forme (n,). dW = np.outer(g, x) a la forme (m, n).",
+    "ReLU : phi'(z) = 1 là où z > 0, sinon 0, donc dz = g * (z > 0).",
+    "numerical_jacobian(f, x) : la colonne j vaut (f(x + h e_j) - f(x - h e_j)) / (2h) - elle a la forme (m, n)."
+  ]
+}

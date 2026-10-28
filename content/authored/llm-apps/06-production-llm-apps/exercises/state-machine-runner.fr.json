@@ -1,0 +1,10 @@
+{
+  "id": "app.06.ex2",
+  "title": "Un exécuteur minimal et déterministe de graphe d'agent",
+  "prompt": "Une boucle d'agent (modèle -> éventuellement outil -> modèle ...) est une **machine à états** : un dict d'état circule à travers des **nœuds** (fonctions renvoyant une mise à jour partielle) et des **arêtes** (statiques ou conditionnelles). La rendre explicite te donne des points de contrôle, des interruptions pour l'approbation humaine, et une limite stricte d'étapes.\n\nImplémente `run_graph(graph, state, start=None, max_steps=20, interrupt_before=(), resume=False)` où `graph = {\"nodes\": {name: fn(state) -> dict}, \"edges\": {name: next_name | fn(state) -> next_name}, \"reducers\": {field: fn(old, new) -> value}, \"entry\": name}` et `END = \"__end__\"`. Il renvoie un dict :\n\n- `\"state\"` : l'état final (ou courant) ;\n- `\"trace\"` : les noms des nœuds exécutés, dans l'ordre ;\n- `\"checkpoints\"` : après chaque nœud exécuté, un dict `{\"node\", \"state\"}` avec une **copie profonde** de l'état ;\n- `\"status\"` : `\"done\"` (END atteint), `\"interrupted\"` (sur le point d'exécuter un nœud listé dans `interrupt_before`, sauf si `resume=True` pour ce premier nœud), ou `\"max_steps\"` (`max_steps` nœuds exécutés sans atteindre END) ;\n- `\"next\"` : le nœud à exécuter ensuite (pour reprendre), ou `None`.\n\nNe modifie pas le `state` qu'on t'a donné : travaille sur une copie.",
+  "hints": [
+    "Boucle : si node == END, arrête-toi avec 'done'. Si node est dans interrupt_before et que resume vaut False, arrête-toi avec 'interrupted' et next=node. Sinon exécute le nœud, fusionne sa mise à jour, fais un instantané de l'état, choisis le nœud suivant.",
+    "Fusion : pour chaque clé de la mise à jour, si la clé a un réducteur utilise reducers[key](old_value, new_value), sinon écrase. Fais l'instantané avec copy.deepcopy pour que les étapes suivantes ne puissent pas modifier les points de contrôle antérieurs.",
+    "Les arêtes associent un nœud à un nom de nœud ou à une fonction de l'état renvoyant un nom de nœud. 'resume' ne s'applique qu'au PREMIER nœud de l'appel ; ensuite les interruptions s'appliquent à nouveau."
+  ]
+}

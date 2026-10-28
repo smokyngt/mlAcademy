@@ -1,0 +1,10 @@
+{
+  "id": "cml.13.ex1",
+  "title": "ACF, AR(p) par moindres carrés et prévision walk-forward",
+  "prompt": "Implémente quatre petits outils avec NumPy.\n\n- `acf(y, max_lag)` -> tableau de longueur `max_lag + 1`, l'autocorrélation empirique (centre par la moyenne globale ; divise chaque décalage par `sum((y - mean)**2)`). `acf[0]` vaut 1.\n- `fit_ar(y, p)` -> `(c, phi)` où `c` est l'ordonnée à l'origine et `phi` a la forme `(p,)`, ajustés par moindres carrés ordinaires sur le modèle `y[t] = c + phi[0]*y[t-1] + ... + phi[p-1]*y[t-p]`.\n- `forecast_ar(history, c, phi, h)` -> tableau de `h` prévisions faites récursivement : chaque prévision est ajoutée à l'historique et utilisée pour le pas suivant.\n- `walk_forward_ar(y, start, p)` -> tableau des prédictions à un pas pour `y[start], ..., y[n-1]`. La prédiction de `y[t]` doit être faite à partir d'un modèle ajusté uniquement sur `y[:t]` (fenêtre extensible).",
+  "hints": [
+    "acf : centre la série, d = y - y.mean() ; le décalage k vaut (d[k:] @ d[:n-k]) / (d @ d). Le décalage 0 doit valoir exactement 1.",
+    "fit_ar : la ligne pour la cible y[t] est [1, y[t-1], ..., y[t-p]] pour t = p..n-1. Construis les colonnes y[p-j : n-j] pour j = 1..p, ajoute une colonne de uns, et appelle np.linalg.lstsq.",
+    "walk_forward_ar : pour chaque t de start à n-1, ajuste sur y[:t] UNIQUEMENT, puis prédis y[t] à partir des p dernières valeurs de y[:t]."
+  ]
+}

@@ -1,0 +1,109 @@
+#@@ meta
+{"id": "res.02.ex2", "title": "Forking paths and the ablation-grid planner", "difficulty": 4, "runtime": "pyodide", "concepts": ["res.design"], "hints": ["forking_paths: in each simulation try n_forks independent null comparisons (both groups drawn from N(0,1)); 'first' counts a rejection of fork 0 only, 'any' counts a rejection in at least one fork.", "ablation_plan: OFAT configurations = 1 + sum(l - 1 for l in levels); grid configurations = product of levels; runs = configurations * seeds; minutes = runs * minutes_per_run.", "interaction_2x2(y) with y[i][j] = result for factor A at level i, factor B at level j: (y[1][1] - y[1][0]) - (y[0][1] - y[0][0])."]}
+#@@ prompt
+Two tools for honest design. The helpers `t_crit` and `welch_t` are given.
+
+1. `forking_paths(n_forks, n=10, n_sims=1000, seed=0)` simulates a world where **nothing works** (no true effect). In each simulated study the analyst compares two groups of `n` draws from `N(0,1)` on each of `n_forks` independent outcomes ("forks": metrics, subsets, preprocessing choices) and would report a result if any is significant at the 5 percent level (Welch, `abs(t) > t_crit(int(round(df)))`). Return the tuple `(rate_first, rate_any)`: the fraction of studies in which fork 0 alone is significant (the pre-registered analysis) and the fraction in which at least one fork is significant (the flexible analysis). Use `np.random.default_rng(seed)` once.
+2. `ablation_plan(levels, seeds, minutes_per_run, budget_minutes)` where `levels` lists the number of levels of each factor (the baseline counts as level 1). Return a dict with `ofat_configs` (baseline plus one change at a time: `1 + sum(l - 1)`), `grid_configs` (full factorial: product of levels), `ofat_minutes`, `grid_minutes` (configurations * seeds * minutes_per_run), `grid_fits` (bool, grid_minutes <= budget_minutes) and `max_seeds_grid` (largest integer number of seeds the full grid affords).
+3. `interaction_2x2(y)` -> the interaction `(y[1][1] - y[1][0]) - (y[0][1] - y[0][0])` for a 2x2 table of mean results.
+#@@ starter
+import math
+import numpy as np
+
+T975 = [12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228,
+        2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
+        2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042]
+
+def t_crit(df):
+    if df <= 30:
+        return T975[max(df, 1) - 1]
+    z = 1.959963984540054
+    return z + (z**3 + z) / (4 * df) + (5 * z**5 + 16 * z**3 + 3 * z) / (96 * df**2)
+
+def welch_t(a, b):
+    na, nb = len(a), len(b)
+    va, vb = a.var(ddof=1) / na, b.var(ddof=1) / nb
+    t = (a.mean() - b.mean()) / math.sqrt(va + vb)
+    df = (va + vb) ** 2 / (va ** 2 / (na - 1) + vb ** 2 / (nb - 1))
+    return t, df
+
+def forking_paths(n_forks, n=10, n_sims=1000, seed=0):
+    raise NotImplementedError
+
+def ablation_plan(levels, seeds, minutes_per_run, budget_minutes):
+    raise NotImplementedError
+
+def interaction_2x2(y):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+f1, a1 = forking_paths(1, n_sims=1500)
+check("with one fork both rates are near 5 percent and equal", lambda: abs(f1 - 0.05) < 0.02 and f1 == a1)
+f20, a20 = forking_paths(20, n_sims=1000)
+check("the pre-registered fork stays near 5 percent", lambda: abs(f20 - 0.05) < 0.025)
+check("20 forks give about 1-0.95^20 = 64 percent", lambda: 0.55 < a20 < 0.72)
+f5, a5 = forking_paths(5, n_sims=1000)
+check("more forks, more false positives (5 < 20)", lambda: a1 <= a5 <= a20)
+check("forking_paths is reproducible", lambda: forking_paths(3, n_sims=200, seed=4) == forking_paths(3, n_sims=200, seed=4))
+pl = ablation_plan([2, 2, 3, 2], 5, 3, 240)
+check("configs: OFAT 6, grid 24", lambda: pl["ofat_configs"] == 6 and pl["grid_configs"] == 24)
+check("minutes: 90 and 360", lambda: pl["ofat_minutes"] == 90 and pl["grid_minutes"] == 360)
+check("grid does not fit 240 minutes, 3 seeds would", lambda: pl["grid_fits"] is False and pl["max_seeds_grid"] == 3)
+check("grid fits a 1000 minute budget (13 seeds)", lambda: ablation_plan([2, 2, 3, 2], 5, 3, 1000)["grid_fits"] is True and ablation_plan([2, 2, 3, 2], 5, 3, 1000)["max_seeds_grid"] == 13)
+check("single factor: OFAT = grid", lambda: ablation_plan([4], 2, 1, 100)["ofat_configs"] == ablation_plan([4], 2, 1, 100)["grid_configs"] == 4)
+tab = [[0.80, 0.80], [0.80, 0.90]]
+check("interaction is 0.10 when only both-on helps", lambda: abs(interaction_2x2(tab) - 0.10) < 1e-12)
+check("no interaction for additive effects", lambda: abs(interaction_2x2([[0.7, 0.75], [0.8, 0.85]])) < 1e-12)
+#@@ solution
+import math
+import numpy as np
+
+T975 = [12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228,
+        2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
+        2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042]
+
+def t_crit(df):
+    if df <= 30:
+        return T975[max(df, 1) - 1]
+    z = 1.959963984540054
+    return z + (z**3 + z) / (4 * df) + (5 * z**5 + 16 * z**3 + 3 * z) / (96 * df**2)
+
+def welch_t(a, b):
+    na, nb = len(a), len(b)
+    va, vb = a.var(ddof=1) / na, b.var(ddof=1) / nb
+    t = (a.mean() - b.mean()) / math.sqrt(va + vb)
+    df = (va + vb) ** 2 / (va ** 2 / (na - 1) + vb ** 2 / (nb - 1))
+    return t, df
+
+def forking_paths(n_forks, n=10, n_sims=1000, seed=0):
+    rng = np.random.default_rng(seed)
+    first = 0
+    anyhit = 0
+    for _ in range(n_sims):
+        found = False
+        for k in range(n_forks):
+            a = rng.normal(0.0, 1.0, n)
+            b = rng.normal(0.0, 1.0, n)
+            t, df = welch_t(a, b)
+            sig = abs(t) > t_crit(int(round(df)))
+            if k == 0 and sig:
+                first += 1
+            found = found or sig
+        anyhit += found
+    return first / n_sims, anyhit / n_sims
+
+def ablation_plan(levels, seeds, minutes_per_run, budget_minutes):
+    ofat = 1 + sum(l - 1 for l in levels)
+    grid = int(np.prod(levels))
+    return {
+        "ofat_configs": ofat,
+        "grid_configs": grid,
+        "ofat_minutes": ofat * seeds * minutes_per_run,
+        "grid_minutes": grid * seeds * minutes_per_run,
+        "grid_fits": grid * seeds * minutes_per_run <= budget_minutes,
+        "max_seeds_grid": int(budget_minutes // (grid * minutes_per_run)),
+    }
+
+def interaction_2x2(y):
+    y = np.asarray(y, dtype=float)
+    return float((y[1, 1] - y[1, 0]) - (y[0, 1] - y[0, 0]))

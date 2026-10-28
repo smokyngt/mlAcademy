@@ -1,0 +1,12 @@
+[
+  { "id": "f2n.12.c14", "front": "Tenseur feuille", "back": "Un tenseur créé par l'utilisateur avec `requires_grad=True` ; seules les feuilles reçoivent `.grad`." },
+  { "id": "f2n.12.c15", "front": "`torch.no_grad()`", "back": "Arrête l'enregistrement du graphe : pas de gradients, moins de mémoire ; à utiliser pour l'évaluation." },
+  { "id": "f2n.12.c16", "front": "`.detach()`", "back": "Renvoie un tenseur détaché du graphe ; les gradients ne le traversent pas." },
+  { "id": "f2n.12.c17", "front": "Accumulation des gradients dans PyTorch", "back": "`backward()` ajoute à `.grad` ; appelle `zero_grad()` à chaque pas." },
+  { "id": "f2n.12.c18", "front": "Coût du mode direct", "back": "Une passe par entrée (une colonne de la jacobienne)." },
+  { "id": "f2n.12.c19", "front": "Coût du mode inverse", "back": "Une passe par sortie (une ligne de la jacobienne)." },
+  { "id": "f2n.12.c20", "front": "Coût mémoire du mode inverse", "back": "Il faut stocker les activations de la passe avant nécessaires aux dérivées locales." },
+  { "id": "f2n.12.c21", "front": "Règle locale pour $c=\\tanh a$", "back": "$\\bar a\\mathrel{+}=(1-c^2)\\bar c$." },
+  { "id": "f2n.12.c22", "front": "Règle locale pour $c=a^p$", "back": "$\\bar a\\mathrel{+}=p\\,a^{p-1}\\bar c$." },
+  { "id": "f2n.12.c23", "front": "Pourquoi float64 pour comparer les gradients ?", "back": "float32 n'est d'accord qu'à ~1e-6 ; float64 révèle les bugs subtils." }
+]

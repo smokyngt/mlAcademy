@@ -1,0 +1,90 @@
+{
+  "math": {
+    "title": "Mathématiques pour le machine learning",
+    "summary": "La notation et les quatre outils que tous les algorithmes suivants réutilisent : fonctions et logarithmes, vecteurs, matrices comme transformations, et dérivées jusqu'aux gradients, aux jacobiennes et à la règle de dérivation en chaîne. Pas encore de machine learning ; chaque idée est construite pour que la partie ML puisse s'en servir."
+  },
+  "ml": {
+    "title": "Machine learning : de la descente de gradient à un réseau entraîné",
+    "summary": "S'appuie sur la partie mathématiques : descente de gradient, fonctions de perte issues du maximum de vraisemblance, couches, rétropropagation dérivée avec les formes des tenseurs, entraînement et débogage d'un réseau à partir de zéro, et preuve de sa justesse face à l'autograd de PyTorch."
+  },
+  "classical-ml": {
+    "title": "Machine learning classique",
+    "summary": "Les modèles qui ont précédé le deep learning et qui gagnent encore sur les données tabulaires, chacun dérivé à partir de la partie maths et implémenté à partir de zéro : régression linéaire et ridge, régression logistique, généralisation et validation croisée, k-means et ACP."
+  },
+  "deep-learning": {
+    "title": "Boîte à outils du deep learning",
+    "summary": "Optimiseurs, régularisation, normalisation et travail dans PyTorch : tout ce qui sépare un réseau écrit à partir de zéro d'un modèle que tu peux entraîner sur des données réelles."
+  },
+  "sequence-models": {
+    "title": "Images et séquences : CNN, RNN, LSTM, GRU",
+    "summary": "Convolutions et CNN pour les images, puis réseaux récurrents, gradient évanescent, portes des LSTM et des GRU et word embeddings, chacun dérivé et implémenté en NumPy."
+  },
+  "transformers": {
+    "title": "L'attention et le transformer",
+    "summary": "Auto-attention, attention multi-têtes, masquage, encodages positionnels (dont RoPE) et bloc transformer complet, construits à partir de zéro avec la forme de chaque tenseur."
+  },
+  "llms": {
+    "title": "Construire et entraîner des modèles de langage",
+    "summary": "Tokenisation, GPT décodeur seul, pré-entraînement, fine-tuning avec LoRA et alignement sur les préférences, avec le volet données inclus."
+  },
+  "llm-systems": {
+    "title": "Inférence, recherche d'information et pratique de la recherche",
+    "summary": "Rendre les modèles rapides (cache KV, quantification, décodage spéculatif), génération augmentée par récupération (RAG) et évaluation, et comment lire, reproduire et prolonger des travaux de recherche."
+  },
+  "math-foundations": {
+    "title": "Fondations mathématiques (commence ici)",
+    "summary": "Bases de programmation avec Python et NumPy, puis algèbre, fonctions et graphes, exponentielles et logarithmes, trigonométrie, suites, séries et limites : tout ce que suppose le cours de mathématiques, enseigné depuis zéro."
+  },
+  "math-extras": {
+    "title": "Compléments de maths : nombres complexes, Fourier, graphes, processus stochastiques",
+    "summary": "Des branches optionnelles qui ouvrent la porte au traitement du signal, aux modèles de graphes et aux modèles de séquences : nombres complexes, transformée de Fourier, théorie des graphes et chaînes de Markov."
+  },
+  "vision": {
+    "title": "Vision par ordinateur",
+    "summary": "Des pixels et du transfer learning jusqu'à la détection d'objets, la segmentation, les vision transformers et les modèles contrastifs image-texte."
+  },
+  "nlp": {
+    "title": "Traitement automatique du langage naturel",
+    "summary": "Traitement du texte, sac de mots et TF-IDF, classification, étiquetage de séquences, modèles de sujets, traduction, résumé automatique et question-réponse, avant et au-delà des transformers."
+  },
+  "generative": {
+    "title": "Modèles génératifs",
+    "summary": "Autoencodeurs et VAE, GAN, modèles de diffusion, diffusion latente avec conditionnement et flow matching, chacun dérivé et implémenté sous forme réduite."
+  },
+  "rl": {
+    "title": "Apprentissage par renforcement",
+    "summary": "Processus de décision markoviens, programmation dynamique, méthodes de Monte Carlo et apprentissage par différence temporelle, deep Q-networks, gradients de politique, actor-critic et PPO."
+  },
+  "audio": {
+    "title": "Parole et audio",
+    "summary": "Formes d'onde, spectrogrammes et MFCC, classification audio, reconnaissance vocale avec CTC et Whisper, et synthèse vocale."
+  },
+  "advanced-architectures": {
+    "title": "Architectures modernes",
+    "summary": "Modèles vision-langage contrastifs, LLM multimodaux, mixture-of-experts et conception des modèles ouverts récents, architectures à espace d'états et hybrides, variantes de l'attention à long contexte."
+  },
+  "safety": {
+    "title": "Sûreté, alignement, équité et vie privée",
+    "summary": "Détournement de la récompense (reward hacking) et échecs d'alignement, red-teaming et injection de prompt, biais et métriques d'équité, confidentialité différentielle, évaluations de capacités et gouvernance."
+  },
+  "llm-apps": {
+    "title": "Applications des LLM",
+    "summary": "Prompting et chaîne de raisonnement (chain-of-thought), sorties structurées et appel d'outils, ingénierie du contexte, mise en cache et coût, garde-fous, et construction d'une application en production."
+  },
+  "mlops": {
+    "title": "Systèmes et opérations de ML",
+    "summary": "Concevoir des systèmes de ML : données et données d'entraînement, de l'évaluation hors ligne au déploiement, surveillance et dérive, apprentissage continu et tests en production."
+  },
+  "reasoning-models": {
+    "title": "Modèles de raisonnement",
+    "summary": "Mise à l'échelle au moment de l'inférence, évaluation du raisonnement, apprentissage par renforcement pour le raisonnement (GRPO), amélioration et distillation des modèles de raisonnement."
+  },
+  "gpu-performance": {
+    "title": "GPU, CUDA et ingénierie de la performance",
+    "summary": "Comment un GPU exécute le travail, le modèle de programmation CUDA, la hiérarchie mémoire et le modèle roofline, le profilage et la précision mixte, pour que tu puisses raisonner sur les raisons de la lenteur d'un modèle et sur ce qu'il faut changer."
+  },
+  "research": {
+    "title": "Méthodes de recherche",
+    "summary": "Reproduire un résultat publié de bout en bout, et concevoir des expériences originales : hypothèses, puissance statistique, références de comparaison (baselines), ablations, graines aléatoires et compte rendu honnête."
+  }
+}

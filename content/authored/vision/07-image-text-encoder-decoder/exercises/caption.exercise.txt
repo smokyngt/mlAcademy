@@ -1,0 +1,116 @@
+#@@ meta
+{"id": "vis.07.ex1", "title": "Captioning step with attention over regions, temperature, BLEU-1", "difficulty": 3, "runtime": "pyodide", "concepts": ["tal.captioning", "tal.vqa"], "hints": ["Scores: q = W_att @ h_prev has shape (D,), e = A @ q has shape (R,). alpha = softmax(e); context z = alpha @ A has shape (D,).", "New hidden state: h = tanh(Wx @ emb + Wz @ z + Wh @ h_prev + b). Logits = Wo @ h with shape (V,).", "BLEU-1: clipped unigram count of each candidate word is min(count in candidate, max count over references); precision = clipped total / candidate length; brevity penalty uses the reference length closest to the candidate length: BP = 1 if c > r else exp(1 - r/c). Temperature: p_i^(1/t) renormalised, or equivalently softmax(log p / t)."]}
+#@@ prompt
+Implement the pieces of a "Show, Attend and Tell" style captioner at toy scale.
+
+1. `softmax(x)` (stable, last axis).
+2. `attend(h_prev, A, W_att)`: `A` holds `R` region features of size `D`, shape `(R, D)`; `h_prev` has size `H`; `W_att` has shape `(D, H)`. Score of region i is `A[i] . (W_att @ h_prev)`. Return `(alpha, z)` with `alpha` of shape `(R,)` summing to 1 and context `z = sum_i alpha_i A[i]` of shape `(D,)`.
+3. `decoder_step(emb, h_prev, A, P)`: `P` is a dict with `W_att, Wx, Wz, Wh, b, Wo`. Return `(logits, h, alpha)` where `h = tanh(Wx @ emb + Wz @ z + Wh @ h_prev + b)` and `logits = Wo @ h`.
+4. `apply_temperature(p, t)`: raise each probability to `1/t` and renormalise.
+5. `bleu1(candidate, references)`: BLEU with unigrams only: clipped precision times brevity penalty. Words are given as lists of strings. Return a float (0 if the candidate is empty).
+6. `answer_prior_baseline(train_answers, test_answers)`: always answer with the most frequent training answer (ties: the one that sorts first); return its accuracy on `test_answers`. This is the "language prior" baseline that exposes VQA dataset bias.
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    # TODO
+    raise NotImplementedError
+
+def attend(h_prev, A, W_att):
+    # TODO
+    raise NotImplementedError
+
+def decoder_step(emb, h_prev, A, P):
+    # TODO
+    raise NotImplementedError
+
+def apply_temperature(p, t):
+    # TODO
+    raise NotImplementedError
+
+def bleu1(candidate, references):
+    # TODO
+    raise NotImplementedError
+
+def answer_prior_baseline(train_answers, test_answers):
+    # TODO
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("softmax rows sum to 1 and is stable", lambda: np.allclose(softmax(np.array([[1000., 1001.], [0., 0.]])).sum(-1), 1) and np.isfinite(softmax(np.array([1000., 1001.]))).all())
+A = np.array([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [1., 1., 0.]])
+W = np.eye(3, 2)
+h = np.array([2., 1.])
+alpha, z = attend(h, A, W)
+check("alpha shape and sum", lambda: alpha.shape == (4,) and abs(alpha.sum() - 1) < 1e-9)
+e = np.array([2., 1., 0., 3.])
+ex = np.exp(e) / np.exp(e).sum()
+check("alpha equals softmax of dot products", lambda: np.allclose(alpha, ex), "q = W_att @ h = [2,1,0]; scores = A @ q = [2,1,0,3]")
+check("context is the alpha-weighted mean of regions", lambda: z.shape == (3,) and np.allclose(z, ex @ A))
+rng = np.random.default_rng(0)
+Hd, Dd, Ed, Vd, Rr = 5, 6, 4, 9, 7
+P = {"W_att": rng.normal(size=(Dd, Hd)), "Wx": rng.normal(size=(Hd, Ed)), "Wz": rng.normal(size=(Hd, Dd)),
+     "Wh": rng.normal(size=(Hd, Hd)), "b": np.zeros(Hd), "Wo": rng.normal(size=(Vd, Hd))}
+Ar = rng.normal(size=(Rr, Dd))
+logits, h1, al = decoder_step(rng.normal(size=Ed), np.zeros(Hd), Ar, P)
+check("decoder_step shapes", lambda: logits.shape == (Vd,) and h1.shape == (Hd,) and al.shape == (Rr,))
+check("hidden state is in (-1, 1)", lambda: np.all(np.abs(h1) < 1))
+check("logits = Wo @ h", lambda: np.allclose(logits, P["Wo"] @ h1))
+check("permuting regions permutes alpha and leaves the step unchanged", lambda: (lambda perm: np.allclose(decoder_step(np.ones(Ed), np.zeros(Hd), Ar[perm], P)[0], decoder_step(np.ones(Ed), np.zeros(Hd), Ar, P)[0]))(rng.permutation(Rr)))
+p = np.array([0.3, 0.5, 0.1, 0.1])
+check("temperature 1 is the identity", lambda: np.allclose(apply_temperature(p, 1.0), p))
+check("low temperature sharpens (0.11, 0.88, ...)", lambda: np.allclose(apply_temperature(p, 0.25), [0.1146, 0.8840, 0.0007, 0.0007], atol=2e-3), "p^4 renormalised")
+check("high temperature flattens", lambda: np.allclose(apply_temperature(p, 2.0), [0.2903, 0.3748, 0.1675, 0.1675], atol=2e-3) and abs(apply_temperature(p, 2.0).sum() - 1) < 1e-9)
+cand = "a bird flies over water".split()
+refs = ["a bird flying over a body of water".split(), "the bird is over the sea".split()]
+check("bleu1 worked example", lambda: abs(bleu1(cand, refs) - 0.8 * np.exp(1 - 6 / 5)) < 1e-9, "4 of 5 words match (a, bird, over, water); closest reference length is 6 so BP = exp(1 - 6/5)")
+check("identical caption scores 1", lambda: abs(bleu1(cand, [cand]) - 1.0) < 1e-12)
+check("clipping: repeating a matching word does not help", lambda: abs(bleu1(["the"] * 6, [["the", "cat", "sat"]]) - 1 / 6) < 1e-9)
+check("empty candidate", lambda: bleu1([], refs) == 0.0)
+check("short candidate is penalised", lambda: bleu1(["a", "bird"], [["a", "bird", "flies", "over", "water"]]) < 1.0)
+tr = ["tennis"] * 41 + ["soccer"] * 30 + ["golf"] * 29
+te = ["tennis", "soccer", "tennis", "golf"]
+check("prior baseline answers the majority training answer", lambda: abs(answer_prior_baseline(tr, te) - 0.5) < 1e-12)
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    x = np.asarray(x, dtype=float)
+    e = np.exp(x - x.max(axis=-1, keepdims=True))
+    return e / e.sum(axis=-1, keepdims=True)
+
+def attend(h_prev, A, W_att):
+    q = W_att @ h_prev
+    e = A @ q
+    alpha = softmax(e)
+    z = alpha @ A
+    return alpha, z
+
+def decoder_step(emb, h_prev, A, P):
+    alpha, z = attend(h_prev, A, P["W_att"])
+    h = np.tanh(P["Wx"] @ emb + P["Wz"] @ z + P["Wh"] @ h_prev + P["b"])
+    return P["Wo"] @ h, h, alpha
+
+def apply_temperature(p, t):
+    q = np.asarray(p, dtype=float) ** (1.0 / t)
+    return q / q.sum()
+
+def bleu1(candidate, references):
+    if len(candidate) == 0:
+        return 0.0
+    from collections import Counter
+    cc = Counter(candidate)
+    clipped = 0
+    for w, n in cc.items():
+        clipped += min(n, max(Counter(r)[w] for r in references))
+    prec = clipped / len(candidate)
+    c = len(candidate)
+    r = min((abs(len(r) - c), len(r)) for r in references)[1]
+    bp = 1.0 if c > r else float(np.exp(1 - r / c))
+    return prec * bp
+
+def answer_prior_baseline(train_answers, test_answers):
+    from collections import Counter
+    cnt = Counter(train_answers)
+    best = sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+    return sum(a == best for a in test_answers) / len(test_answers)

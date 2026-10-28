@@ -1,0 +1,108 @@
+#@@ meta
+{"id": "nlp.03.ex1", "title": "Viterbi decoding, HMM estimation and BIO spans", "difficulty": 3, "runtime": "pyodide", "concepts": ["nlp.hmm-viterbi"], "hints": ["delta[0] = log_pi + log_B[:, obs[0]]. For i >= 1: cand = delta[i-1][:, None] + log_A (rows = previous tag); back[i] = cand.argmax(axis=0); delta[i] = cand.max(axis=0) + log_B[:, obs[i]].", "Backtrack: start from delta[-1].argmax(), then t = back[i, t] for i = n-1 .. 1, finally reverse the list.", "estimate_hmm: count start tags, tag bigrams and (tag, word) pairs, add alpha to every cell, and divide each row by its sum. For BIO spans, an I-X that does not continue an open entity of type X starts a new entity."]}
+#@@ prompt
+Part A. `viterbi(obs, log_pi, log_A, log_B)` returns `(path, best_log_prob)`: `obs` is a list of word ids, `log_pi` has shape `(K,)`, `log_A` `(K, K)` (row = previous tag), `log_B` `(K, V)`. `path` is a list of tag indices. Work in log space (zero probabilities become `-inf`, that is fine).
+
+Part B. `estimate_hmm(sents, K, V, alpha)` where `sents` is a list of sentences, each a list of `(word_id, tag_id)` pairs. Return `(pi, A, B)` with shapes `(K,)`, `(K,K)`, `(K,V)`: counts plus `alpha`, every row normalised to sum to 1. `pi` counts the tag of the first word of each sentence; `A` counts tag bigrams.
+
+Part C. `bio_spans(tags)`: `tags` is a list of strings like `B-PER`, `I-PER`, `O`. Return a list of `(type, start, end)` with `end` exclusive. An `I-X` that follows `O`, the beginning of the sentence, or a different type starts a new entity.
+#@@ starter
+import numpy as np
+
+def viterbi(obs, log_pi, log_A, log_B):
+    raise NotImplementedError
+
+def estimate_hmm(sents, K, V, alpha):
+    raise NotImplementedError
+
+def bio_spans(tags):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+import itertools
+W = ["the", "a", "dog", "fish", "bark", "swim"]
+pi = np.array([.6, .3, .1])
+A = np.array([[.05, .9, .05], [.1, .3, .6], [.5, .4, .1]])
+B = np.array([[.7, .3, 0, 0, 0, 0], [0, 0, .4, .3, .3, 0], [0, 0, 0, .3, .4, .3]])
+with np.errstate(divide="ignore"):
+    lpi, lA, lB = np.log(pi), np.log(A), np.log(B)
+obs = [W.index(w) for w in "the fish bark".split()]
+path, lp = viterbi(obs, lpi, lA, lB)
+check("path is DET NOUN VERB", lambda: list(path) == [0, 1, 2])
+check("best probability 0.027216", lambda: abs(np.exp(lp) - 0.027216) < 1e-9)
+obs2 = [W.index(w) for w in "the dog bark a fish".split()]
+p2, lp2 = viterbi(obs2, lpi, lA, lB)
+check("longer sentence tagged DET NOUN VERB DET NOUN", lambda: list(p2) == [0, 1, 2, 0, 1])
+
+def brute(o):
+    best, bp = -1, None
+    for s in itertools.product(range(3), repeat=len(o)):
+        p = pi[s[0]] * B[s[0], o[0]]
+        for t in range(1, len(o)):
+            p *= A[s[t - 1], s[t]] * B[s[t], o[t]]
+        if p > best:
+            best, bp = p, list(s)
+    return bp, best
+check("matches brute force on sentence 1", lambda: brute(obs)[0] == list(path) and abs(brute(obs)[1] - np.exp(lp)) < 1e-12)
+check("matches brute force on sentence 2", lambda: brute(obs2)[0] == list(p2) and abs(brute(obs2)[1] - np.exp(lp2)) < 1e-12)
+check("single word sentence", lambda: viterbi([0], lpi, lA, lB)[0] == [0])
+
+sents = [[(0, 0), (2, 1), (4, 2)], [(1, 0), (3, 1), (4, 2)], [(0, 0), (3, 1), (5, 2)]]
+p_, A_, B_ = estimate_hmm(sents, 3, 6, 1.0)
+check("pi = (4/6, 1/6, 1/6)", lambda: np.allclose(p_, [4 / 6, 1 / 6, 1 / 6]))
+check("A[DET] = (1/6, 4/6, 1/6)", lambda: np.allclose(A_[0], [1 / 6, 4 / 6, 1 / 6]))
+check("A[VERB] has no counts so it is uniform", lambda: np.allclose(A_[2], 1 / 3))
+check("B[DET] uses 3 tokens + 6 pseudo-counts", lambda: np.allclose(B_[0], np.array([3, 2, 1, 1, 1, 1]) / 9))
+check("all rows sum to 1", lambda: np.allclose(A_.sum(1), 1) and np.allclose(B_.sum(1), 1) and abs(p_.sum() - 1) < 1e-12)
+
+check("simple spans", lambda: bio_spans(["B-PER", "I-PER", "O", "B-LOC", "I-LOC"]) == [("PER", 0, 2), ("LOC", 3, 5)])
+check("adjacent entities of same type", lambda: bio_spans(["B-ORG", "B-ORG", "I-ORG"]) == [("ORG", 0, 1), ("ORG", 1, 3)])
+check("stray I starts an entity", lambda: bio_spans(["O", "I-PER", "I-PER", "O"]) == [("PER", 1, 3)])
+check("type change closes the entity", lambda: bio_spans(["B-PER", "I-LOC"]) == [("PER", 0, 1), ("LOC", 1, 2)])
+check("no entities", lambda: bio_spans(["O", "O"]) == [])
+#@@ solution
+import numpy as np
+
+def viterbi(obs, log_pi, log_A, log_B):
+    n, K = len(obs), len(log_pi)
+    delta = np.full((n, K), -np.inf)
+    back = np.zeros((n, K), dtype=int)
+    delta[0] = log_pi + log_B[:, obs[0]]
+    for i in range(1, n):
+        cand = delta[i - 1][:, None] + log_A
+        back[i] = cand.argmax(axis=0)
+        delta[i] = cand.max(axis=0) + log_B[:, obs[i]]
+    path = [int(delta[-1].argmax())]
+    for i in range(n - 1, 0, -1):
+        path.append(int(back[i, path[-1]]))
+    return path[::-1], float(delta[-1].max())
+
+def estimate_hmm(sents, K, V, alpha):
+    pi = np.zeros(K) + alpha
+    A = np.zeros((K, K)) + alpha
+    B = np.zeros((K, V)) + alpha
+    for s in sents:
+        pi[s[0][1]] += 1
+        for i, (w, t) in enumerate(s):
+            B[t, w] += 1
+            if i > 0:
+                A[s[i - 1][1], t] += 1
+    return pi / pi.sum(), A / A.sum(axis=1, keepdims=True), B / B.sum(axis=1, keepdims=True)
+
+def bio_spans(tags):
+    spans = []
+    cur = None
+    for i, tag in enumerate(tags):
+        if tag == "O":
+            if cur:
+                spans.append((cur[0], cur[1], i))
+                cur = None
+            continue
+        prefix, typ = tag.split("-", 1)
+        if prefix == "B" or cur is None or cur[0] != typ:
+            if cur:
+                spans.append((cur[0], cur[1], i))
+            cur = (typ, i)
+    if cur:
+        spans.append((cur[0], cur[1], len(tags)))
+    return spans

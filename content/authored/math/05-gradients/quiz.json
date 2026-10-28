@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.05.q1", "concept": "calc.partial", "stage": "pre",
+    "prompt": "For $f(x,y)=x^2y+3y$, what is $\\partial f/\\partial x$ at $(x,y)=(2,5)$?",
+    "kind": "numeric", "options": [], "answer": { "value": 20, "tol": 0.001 },
+    "explanation": "Treat $y$ as a constant: $\\partial f/\\partial x=2xy=2\\cdot2\\cdot5=20$. The $3y$ term has no $x$ and vanishes."
+  },
+  {
+    "id": "f2n.05.q2", "concept": "calc.gradient",
+    "prompt": "$f:\\mathbb{R}^{10}\\to\\mathbb{R}$. What is the shape of $\\nabla f(x)$?",
+    "options": ["a scalar", "a vector of length 10", "a $10\\times10$ matrix", "a vector of length 1"],
+    "answer": 1,
+    "explanation": "One partial derivative per input coordinate. The gradient of a scalar function always has the shape of its input."
+  },
+  {
+    "id": "f2n.05.q3", "concept": "calc.gradient",
+    "prompt": "$f(x,y)=x^2+3y^2$. What is the squared norm $\\|\\nabla f(1,1)\\|^2$?",
+    "kind": "numeric", "options": [], "answer": { "value": 40, "tol": 0.001 },
+    "explanation": "$\\nabla f=(2x,6y)=(2,6)$ at $(1,1)$, so $\\|\\nabla f\\|^2=4+36=40$."
+  },
+  {
+    "id": "f2n.05.q4", "concept": "calc.gradient",
+    "prompt": "Why does $\\nabla f$ point in the direction of steepest ascent?",
+    "options": ["Because $\\nabla f$ is the largest vector available", "Because $D_uf=\\nabla f\\cdot u=\\|\\nabla f\\|\\cos\\theta$ is maximal when $u$ is parallel to $\\nabla f$", "Because $f$ is always convex", "Because $\\nabla f=0$ at the maximum"],
+    "answer": 1,
+    "explanation": "The rate of change along a unit direction is a dot product with the gradient, and the dot product with a unit vector is maximal when the vectors align (Cauchy-Schwarz)."
+  },
+  {
+    "id": "f2n.05.q5", "concept": "calc.gradient",
+    "prompt": "For $L(w)=\\frac1N\\|Xw-y\\|^2$ with $X\\in\\mathbb{R}^{N\\times d}$, which expression is $\\nabla_wL$?",
+    "options": ["$\\frac2N (Xw-y)X^\\top$", "$\\frac2N X(Xw-y)$", "$\\frac2N X^\\top(Xw-y)$", "$\\frac1N X^\\top X w$"],
+    "answer": 2,
+    "explanation": "Shapes decide: $X^\\top$ is $d\\times N$ and $(Xw-y)$ is $N$, giving a length-$d$ vector like $w$. Option B has incompatible shapes."
+  },
+  {
+    "id": "f2n.05.q6", "concept": "calc.gradient",
+    "prompt": "At a point where $\\nabla f=0$, which is guaranteed?",
+    "options": ["a global minimum", "a local minimum", "a stationary point: minimum, maximum or saddle", "a global maximum"],
+    "answer": 2,
+    "explanation": "A zero gradient only says the first-order change vanishes in every direction. Second-order information (the Hessian) decides the type."
+  }
+]

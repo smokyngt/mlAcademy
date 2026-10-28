@@ -1,0 +1,11 @@
+{
+  "id": "math.10.ex1",
+  "title": "Entropie, entropie croisée, KL, perte softmax et perplexité",
+  "prompt": "Implémente, avec NumPy uniquement (logs en bits sauf indication contraire) :\n\n- `entropy(p)` - entropie en bits (traite `0 log 0` comme 0).\n- `cross_entropy(p, q)` - `-sum p log2 q`, en ne sommant que là où `p > 0`.\n- `kl(p, q)` - divergence KL en bits.\n- `softmax_xent(Z, y)` - perte d'entropie croisée moyenne en nats des logits `Z` de forme `(B, K)` et des étiquettes entières `y` de forme `(B,)`. Elle doit être numériquement stable (elle sera testée avec des logits autour de 1000).\n- `perplexity(probs)` - perplexité d'un modèle qui a donné les probabilités `probs` (forme `(N,)`) aux `N` tokens corrects observés.\n- `mutual_information(J)` - information mutuelle en bits d'une matrice de probabilités jointes `J` de forme `(Kx, Ky)`.",
+  "hints": [
+    "entropy : retire les entrées nulles, puis -sum(p * log2(p)).",
+    "kl(p, q) = somme sur p>0 de p * log2(p / q) ; elle égale cross_entropy - entropy.",
+    "softmax_xent : décale z par son max, puis perte = log(sum(exp(z))) - z[c].",
+    "perplexity : exp de la moyenne des logarithmes naturels négatifs des probabilités attribuées aux tokens corrects."
+  ]
+}

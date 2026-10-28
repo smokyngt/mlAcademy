@@ -1,0 +1,8 @@
+[
+  { "id": "ml.trees", "title": "Decision trees", "description": "Greedy impurity-based splitting (Gini, entropy, squared error), leaf predictions, overfitting and pruning.", "stage": "III", "prereqs": ["ml.generalization", "prob.basics", "info.entropy"] },
+  { "id": "ml.bagging", "title": "Bagging and random forests", "description": "Bootstrap aggregation, decorrelating trees with random feature subsets, variance of an average and out-of-bag error.", "stage": "III", "prereqs": ["ml.trees", "prob.rv"] },
+  { "id": "ml.boosting", "title": "Boosting and gradient boosting", "description": "Stagewise additive models, AdaBoost from exponential loss, gradient descent in function space, shrinkage.", "stage": "III", "prereqs": ["ml.trees", "ml.bagging", "opt.gradient-descent"] },
+  { "id": "ml.svm", "title": "Support vector machines", "description": "Maximum margin, soft margin and hinge loss, Lagrangian dual, support vectors and kernels.", "stage": "III", "prereqs": ["ml.logreg", "la.dot", "opt.gradient-descent"] },
+  { "id": "ml.knn", "title": "k-nearest neighbours", "description": "Instance-based classification and regression, choice of k, feature scaling, curse of dimensionality.", "stage": "III", "prereqs": ["ml.generalization", "la.dot"] },
+  { "id": "ml.naive-bayes", "title": "Naive Bayes", "description": "Generative classification with conditional independence, multinomial and Gaussian variants, Laplace smoothing.", "stage": "III", "prereqs": ["prob.basics", "prob.rv"] }
+]

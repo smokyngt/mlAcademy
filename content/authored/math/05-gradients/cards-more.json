@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.05.c14",
+  "concept": "calc.partial",
+  "front": "Notation for a partial derivative",
+  "back": "$\\partial f/\\partial x_i$: differentiate in $x_i$, others held constant."
+ },
+ {
+  "id": "f2n.05.c15",
+  "concept": "calc.gradient",
+  "front": "Directional derivative along a unit $u$",
+  "back": "$D_uf=\\nabla f\\cdot u$."
+ },
+ {
+  "id": "f2n.05.c16",
+  "concept": "calc.gradient",
+  "front": "Maximal rate of increase",
+  "back": "$\\|\\nabla f\\|$, along $\\nabla f/\\|\\nabla f\\|$."
+ },
+ {
+  "id": "f2n.05.c17",
+  "concept": "calc.gradient",
+  "front": "Direction of steepest descent",
+  "back": "$-\\nabla f$."
+ },
+ {
+  "id": "f2n.05.c18",
+  "concept": "calc.gradient",
+  "front": "Rate of change along a level curve",
+  "back": "Zero: the gradient is perpendicular to level sets."
+ },
+ {
+  "id": "f2n.05.c19",
+  "concept": "calc.gradient",
+  "front": "Gradient of $\\|w\\|^2$",
+  "back": "$2w$."
+ },
+ {
+  "id": "f2n.05.c20",
+  "concept": "calc.gradient",
+  "front": "Gradient of $a^\\top w$",
+  "back": "$a$."
+ },
+ {
+  "id": "f2n.05.c21",
+  "concept": "calc.gradient",
+  "front": "Gradient of $\\frac1N\\|Xw-y\\|^2$",
+  "back": "$\\frac2NX^\\top(Xw-y)$."
+ },
+ {
+  "id": "f2n.05.c22",
+  "concept": "calc.gradient",
+  "front": "Gradient shape rule",
+  "back": "Same shape as the variable it is taken with respect to."
+ }
+]

@@ -1,0 +1,16 @@
+[
+  { "id": "cml.13.c1", "concept": "ml.timeseries", "front": "Why is time-series data not i.i.d.?", "back": "Observations depend on their neighbours (not independent) and the distribution can drift (not identically distributed)." },
+  { "id": "cml.13.c2", "concept": "ml.timeseries", "front": "Additive decomposition", "back": "$y_t=T_t+S_t+R_t$: trend, seasonal component, residual. Use logs when seasonal swings grow with the level (multiplicative)." },
+  { "id": "cml.13.c3", "concept": "ml.timeseries", "front": "Weak stationarity", "back": "Constant mean and variance, and covariance between $y_t$ and $y_{t+k}$ depending only on $k$." },
+  { "id": "cml.13.c4", "concept": "ml.timeseries", "front": "How do you remove a trend / a seasonal pattern?", "back": "First difference $y_t-y_{t-1}$ for a trend; seasonal difference $y_t-y_{t-m}$ for period $m$." },
+  { "id": "cml.13.c5", "concept": "ml.timeseries", "front": "Sample autocorrelation at lag $k$", "back": "$r_k=\\sum_{t\\ge k}d_td_{t-k}\\,/\\,\\sum_t d_t^2$ with $d_t=y_t-\\bar y$; $r_0=1$." },
+  { "id": "cml.13.c6", "concept": "ml.timeseries", "front": "Rough band for white-noise ACF", "back": "About $\\pm 2/\\sqrt n$; values outside suggest real autocorrelation." },
+  { "id": "cml.13.c7", "concept": "ml.autoreg", "front": "AR($p$) model", "back": "$y_t=c+\\phi_1y_{t-1}+\\dots+\\phi_py_{t-p}+\\varepsilon_t$." },
+  { "id": "cml.13.c8", "concept": "ml.autoreg", "front": "Normal equations for AR($p$)", "back": "$X^\\top X\\mathbf w=X^\\top\\mathbf t$, $X\\in\\mathbb R^{(n-p)\\times(p+1)}$ with rows $[1,y_{t-1},\\dots,y_{t-p}]$." },
+  { "id": "cml.13.c9", "concept": "ml.autoreg", "front": "AR(1) stationarity and ACF", "back": "Stationary iff $|\\phi_1|<1$; mean $c/(1-\\phi_1)$; $\\rho_k=\\phi_1^k$." },
+  { "id": "cml.13.c10", "concept": "ml.autoreg", "front": "Recursive multi-step forecast", "back": "Forecast one step, append it to the history as if observed, repeat. Errors compound; forecasts drift to the mean." },
+  { "id": "cml.13.c11", "concept": "ml.timeseries", "front": "Walk-forward validation", "back": "For each test time $t$: fit on data before $t$ only, predict $t$, advance. Expanding or sliding window; never shuffle." },
+  { "id": "cml.13.c12", "concept": "ml.timeseries", "front": "Three baselines to beat", "back": "Naive ($\\hat y_t=y_{t-1}$), seasonal naive ($\\hat y_t=y_{t-m}$) and the training mean." },
+  { "id": "cml.13.c13", "concept": "ml.timeseries", "front": "Shape of the AR design matrix", "back": "$(n-p)\\times(p+1)$: the first $p$ points lack a full history, plus one column of ones for the intercept." },
+  { "id": "cml.13.c14", "concept": "ml.timeseries", "front": "Why does slow ACF decay worry you?", "back": "It often signals a trend / non-stationarity; difference the series before fitting a stationary model." }
+]

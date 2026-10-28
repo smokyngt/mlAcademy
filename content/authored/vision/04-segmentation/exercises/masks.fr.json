@@ -1,0 +1,10 @@
+{
+ "id": "vis.04.ex1",
+ "title": "Dice, IoU, IoU moyenne et formes d'un U-Net",
+ "prompt": "- `dice_score(p, y, eps)` : `2 * sum(p*y) / (sum(p) + sum(y) + eps)` pour une carte de probabilités (ou 0/1) `p` et un masque 0/1 `y` de même forme.\n- `dice_loss(p, y, eps)` : `1 - dice_score`.\n- `iou_score(p, y, eps)` : `sum(p*y) / (sum(p) + sum(y) - sum(p*y) + eps)`.\n- `confusion_matrix(pred, target, n_classes)` : matrice d'entiers dont l'entrée `[t, p]` = nombre de pixels de vraie classe `t` prédits comme `p`.\n- `miou(cm)` : `(per_class_iou, mean)` où `iou_c = cm[c,c] / (row_c + col_c - cm[c,c])` ; une classe absente à la fois de la prédiction et de la cible est ignorée dans la moyenne.\n- `unet_shapes(H, W, base, depth)` : liste de `(channels, height, width)` pour les `depth` étages de l'encodeur (le premier a `base` canaux à pleine taille), puis le goulot d'étranglement, puis les `depth` étages du décodeur (miroir de l'encodeur, se terminant en `(base, H, W)`). `H` et `W` doivent être divisibles par `2**depth` ; lève `ValueError` sinon.",
+ "hints": [
+  "Masques binaires : intersection = sum(p * y), Dice = 2*inter / (sum(p) + sum(y) + eps), IoU = inter / (sum(p) + sum(y) - inter + eps).",
+  "Matrice de confusion : np.add.at(cm, (target, pred), 1). IoU par classe = diag / (somme_ligne + somme_colonne - diag).",
+  "unet_shapes : l'encodeur divise H et W par deux et double les canaux à chaque niveau ; le goulot d'étranglement est une division par deux de plus ; le décodeur reflète l'encodeur. Renvoie une liste de (channels, H, W)."
+ ]
+}

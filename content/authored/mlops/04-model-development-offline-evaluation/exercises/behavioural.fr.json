@@ -1,0 +1,10 @@
+{
+  "id": "ops.04.ex2",
+  "title": "Tests de perturbation, d'invariance et directionnels",
+  "prompt": "Les tests comportementaux détectent des problèmes qu'un chiffre d'accuracy sur un jeu de test ne peut pas voir. `predict` ci-dessous est n'importe quelle fonction qui associe une matrice `X` de forme `(n, d)` à des prédictions de forme `(n,)`.\n\n- `perturbation_drop(predict, X, y, noise_std, rng)` -> accuracy sur `X` propre moins accuracy sur `X + bruit gaussien` (bruit tiré avec `rng.normal(0, noise_std, X.shape)`).\n- `invariance_flip_rate(predict, X, col, new_value)` -> part des lignes dont la prédiction change quand la colonne `col` est écrasée avec `new_value` (un attribut sensible ne devrait pas compter).\n- `directional_violation_rate(score, X, col, delta, direction)` -> part des lignes pour lesquelles ajouter `delta` à la colonne `col` déplace le score dans le mauvais sens (`direction=+1` signifie que le score ne doit pas diminuer ; `-1` qu'il ne doit pas augmenter).",
+  "hints": [
+    "perturbation_drop : accuracy sur X propre moins accuracy sur X + rng.normal(0, noise_std, X.shape).",
+    "invariance_flip_rate : copie X, écrase la colonne `col` avec `new_value`, compare les prédictions ; retourne la part de celles qui ont changé.",
+    "directional_violation_rate : augmente la colonne `col` de `delta` ; les prédictions d'un modèle de score ne doivent pas baisser (pour direction=+1) ou ne doivent pas monter (direction=-1) ; compte les violations."
+  ]
+}

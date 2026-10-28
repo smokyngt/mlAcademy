@@ -1,0 +1,58 @@
+[
+  {
+    "id": "margin-geometry",
+    "after": 3,
+    "kind": "plot",
+    "caption": { "en": "Margin geometry from the worked example. The black line is the boundary f(x) = 0 (x₁ = 0, with w = (½, 0), b = 0); the grey lines are the margins f = ±1 (x₁ = ±2). The circled points (2, 0) and (−2, 0) lie on the margins: they are the support vectors. The margin width on each side is 1/‖w‖ = 2. Red = class +1, blue = class −1.", "fr": "Géométrie de la marge de l'exemple traité. La droite noire est la frontière f(x) = 0 (x₁ = 0, avec w = (½, 0), b = 0) ; les droites grises sont les marges f = ±1 (x₁ = ±2). Les points (2, 0) et (−2, 0) reposent sur les marges : ce sont les vecteurs de support. La largeur de marge de chaque côté est 1/‖w‖ = 2. Rouge = classe +1, bleu = classe −1." },
+    "spec": {
+      "xDomain": [-4.5, 4.5], "yDomain": [-3, 3], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "polyline", "color": "#111827", "points": [[0, -3], [0, 3]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[2, -3], [2, 3]] },
+        { "fnType": "points", "graphType": "polyline", "color": "#9ca3af", "points": [[-2, -3], [-2, 3]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[2, 0], [3, 1]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 6 }, "points": [[-2, 0], [-3, -1]] },
+        { "fnType": "implicit", "fn": "(x-2)^2 + y^2 - 0.0625", "color": "#111827" },
+        { "fnType": "implicit", "fn": "(x+2)^2 + y^2 - 0.0625", "color": "#111827" }
+      ]
+    }
+  },
+  {
+    "id": "hinge-loss",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "The hinge loss max(0, 1 − t) with t = y f(x) (blue). It is 0 once a point is correct and outside the margin (t ≥ 1), and grows linearly for points inside the margin (0 < t < 1) and for misclassified points (t < 0). The orange line is 1 − t, showing the kink at t = 1 that forces a subgradient.", "fr": "La perte charnière max(0, 1 − t) avec t = y f(x) (bleu). Elle vaut 0 dès qu'un point est correct et hors marge (t ≥ 1), et croît linéairement pour les points dans la marge (0 < t < 1) et mal classés (t < 0). La droite orange est 1 − t, ce qui montre le coude en t = 1 qui impose un sous-gradient." },
+    "spec": {
+      "xDomain": [-2, 3], "yDomain": [-0.5, 3.5], "height": 300,
+      "data": [
+        { "fn": "max(0, 1 - x)", "color": "#2563eb" },
+        { "fn": "1 - x", "color": "#d97706" }
+      ],
+      "annotations": [{ "x": 1, "text": "t = 1 (margin)" }]
+    }
+  },
+  {
+    "id": "primal-dual",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": { "en": "From the primal to the dual: the Lagrangian turns w into a combination of training points, only support vectors keep α > 0, and since only inner products appear we can swap in a kernel.", "fr": "Du primal au dual : le lagrangien exprime w comme une combinaison de points d'entraînement, seuls les vecteurs de support gardent α > 0, et comme seuls les produits scalaires apparaissent on peut leur substituer un noyau." },
+    "code": {
+      "en": "flowchart LR\n  P[\"Primal: min 1/2 ||w||^2 + C sum xi\"] --> LG[\"Lagrangian, multipliers alpha_n >= 0\"]\n  LG --> W[\"w = sum alpha_n y_n x_n\\nsum alpha_n y_n = 0, 0 <= alpha_n <= C\"]\n  W --> D[\"Dual in alpha, only <x_i, x_j>\"]\n  D --> SV[\"alpha_n > 0 only for support vectors\"]\n  D --> K[\"replace <x_i, x_j> by k(x_i, x_j)\"]\n  K --> F[\"f(x) = sum alpha_n y_n k(x_n, x) + b\"]",
+      "fr": "flowchart LR\n  P[\"Primal : min 1/2 ||w||^2 + C somme xi\"] --> LG[\"Lagrangien, multiplicateurs alpha_n >= 0\"]\n  LG --> W[\"w = somme alpha_n y_n x_n\\nsomme alpha_n y_n = 0, 0 <= alpha_n <= C\"]\n  W --> D[\"Dual en alpha, seulement <x_i, x_j>\"]\n  D --> SV[\"alpha_n > 0 seulement pour les vecteurs de support\"]\n  D --> K[\"remplacer <x_i, x_j> par k(x_i, x_j)\"]\n  K --> F[\"f(x) = somme alpha_n y_n k(x_n, x) + b\"]"
+    }
+  },
+  {
+    "id": "rbf-kernel",
+    "after": 7,
+    "kind": "plot",
+    "caption": { "en": "The RBF kernel k(x, z) = exp(−γ‖x − z‖²) as a function of the distance r = ‖x − z‖ (x-axis). It is 1 for identical points and decays with distance; larger γ makes the kernel more local (γ = 0.1 blue, 1 orange, 5 red), which gives wigglier boundaries.", "fr": "Le noyau RBF k(x, z) = exp(−γ‖x − z‖²) en fonction de la distance r = ‖x − z‖ (axe x). Il vaut 1 pour des points identiques et décroît avec la distance ; un γ plus grand rend le noyau plus local (γ = 0,1 bleu, 1 orange, 5 rouge), ce qui donne des frontières plus sinueuses." },
+    "spec": {
+      "xDomain": [0, 4], "yDomain": [0, 1.1], "height": 300,
+      "data": [
+        { "fn": "exp(-0.1*x^2)", "color": "#2563eb" },
+        { "fn": "exp(-1*x^2)", "color": "#d97706" },
+        { "fn": "exp(-5*x^2)", "color": "#dc2626" }
+      ]
+    }
+  }
+]

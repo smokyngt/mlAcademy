@@ -1,0 +1,137 @@
+#@@ meta
+{"id": "app.02.ex1", "title": "A JSON Schema validator and a repair loop", "difficulty": 3, "runtime": "pyodide", "concepts": ["app.structured-output", "app.tool-calling"], "hints": ["Check bool before int: in Python isinstance(True, int) is True, but JSON booleans are not numbers.", "validate returns a list of strings, each starting with a path like $.price or $.tags[0]. Recurse into properties and items, extending the path.", "extract_json: if the text contains a ``` fence take what is inside it (dropping a leading 'json' tag); otherwise slice from the first { or [ to the last } or ]. The repair loop appends the joined error list to feedback after every failed attempt."]}
+#@@ prompt
+Your application receives model outputs as **strings** and needs typed data. Build the two pieces that sit between the model and your code. No model is called: the outputs are canned.
+
+1. `validate(value, schema, path="$")` -> list of error strings (empty list means valid). Support these JSON Schema keywords: `type` (`object`, `array`, `string`, `integer`, `number`, `boolean`, `null`), `required`, `properties`, `additionalProperties` (only the value `False`), `enum`, `minimum`, `maximum`, `minLength`, `items`. Each error string starts with the path, e.g. `$.price: expected number, got str`. Remember: a Python `bool` is not an `integer` or `number` in JSON Schema.
+2. `extract_json(text)` -> the JSON text inside a model reply: if there is a fenced block (three backticks, optional `json` tag) take its content; otherwise slice from the first `{` or `[` to the last `}` or `]`; otherwise return the text unchanged.
+3. `repair_loop(outputs, schema, max_attempts)` -> dict `{"ok", "value", "attempts", "feedback"}`. For attempt `i` take `outputs[i]`: extract, `json.loads` (on failure the feedback is `"invalid JSON: ..."`), then `validate` (on failure the feedback is the errors joined by `"; "`). Stop at the first valid output. `feedback` is the list of messages you would send back to the model, one per failed attempt. If `max_attempts` is exhausted, return `ok=False`, `value=None`.
+#@@ starter
+import json
+
+def validate(value, schema, path="$"):
+    raise NotImplementedError
+
+def extract_json(text):
+    raise NotImplementedError
+
+def repair_loop(outputs, schema, max_attempts=3):
+    raise NotImplementedError
+#@@ tests
+import json
+S = {
+    "type": "object",
+    "properties": {
+        "product": {"type": "string", "minLength": 1},
+        "price": {"type": "number", "minimum": 0},
+        "in_stock": {"type": "boolean"},
+        "rating": {"type": "integer", "minimum": 1, "maximum": 5},
+        "condition": {"type": "string", "enum": ["new", "used"]},
+        "tags": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["product", "price", "in_stock"],
+    "additionalProperties": False,
+}
+ok = {"product": "Sony WH-1000XM5", "price": 348.0, "in_stock": True}
+check("valid object has no errors", lambda: validate(ok, S) == [])
+check("missing required key is reported", lambda: any("in_stock" in e for e in validate({"product": "x", "price": 1}, S)))
+check("string where number expected", lambda: any(e.startswith("$.price") for e in validate({**ok, "price": "348"}, S)))
+check("bool is not a number", lambda: len(validate({**ok, "price": True}, S)) == 1)
+check("bool is not an integer", lambda: any("rating" in e for e in validate({**ok, "rating": True}, S)))
+check("float is not an integer", lambda: any("rating" in e for e in validate({**ok, "rating": 4.5}, S)))
+check("minimum violated", lambda: any("price" in e for e in validate({**ok, "price": -1}, S)))
+check("maximum violated", lambda: any("rating" in e for e in validate({**ok, "rating": 6}, S)))
+check("enum violated", lambda: any("condition" in e for e in validate({**ok, "condition": "broken"}, S)))
+check("empty string violates minLength", lambda: any("product" in e for e in validate({**ok, "product": ""}, S)))
+check("extra key rejected", lambda: any("discount" in e for e in validate({**ok, "discount": 5}, S)))
+check("array item error has an indexed path", lambda: any("$.tags[1]" in e for e in validate({**ok, "tags": ["a", 2]}, S)))
+check("wrong top-level type", lambda: len(validate([1, 2], S)) >= 1)
+check("two independent errors give two messages", lambda: len(validate({"product": "x", "price": "1", "in_stock": 0}, S)) == 2)
+check("extract from a fenced block", lambda: json.loads(extract_json("Here you go:\n```json\n{\"a\": 1}\n```\nHope that helps")) == {"a": 1})
+check("extract from prose", lambda: json.loads(extract_json("Sure! {\"a\": [1, 2]} - done")) == {"a": [1, 2]})
+bad1 = 'Sure! Here is the JSON: {"product": "Sony", "price": "348", "in_stock": true}'
+bad2 = '```json\n{"product": "Sony", "price": 348.0,}\n```'
+good = '```json\n{"product": "Sony", "price": 348.0, "in_stock": true}\n```'
+r = repair_loop([bad1, bad2, good], S, 3)
+check("third attempt succeeds", lambda: r["ok"] and r["attempts"] == 3 and r["value"]["price"] == 348.0)
+check("two feedback messages", lambda: len(r["feedback"]) == 2)
+check("schema feedback names the field", lambda: "price" in r["feedback"][0])
+check("syntax feedback is flagged", lambda: r["feedback"][1].startswith("invalid JSON"))
+r2 = repair_loop([good, bad1], S, 3)
+check("stops at the first valid output", lambda: r2["ok"] and r2["attempts"] == 1 and r2["feedback"] == [])
+r3 = repair_loop([bad1, bad2, bad1, good], S, 3)
+check("gives up after max_attempts", lambda: (not r3["ok"]) and r3["value"] is None and r3["attempts"] == 3)
+#@@ solution
+import json
+
+def _type_ok(v, t):
+    if t == "object":
+        return isinstance(v, dict)
+    if t == "array":
+        return isinstance(v, list)
+    if t == "string":
+        return isinstance(v, str)
+    if t == "boolean":
+        return isinstance(v, bool)
+    if t == "null":
+        return v is None
+    if t == "integer":
+        return isinstance(v, int) and not isinstance(v, bool)
+    if t == "number":
+        return isinstance(v, (int, float)) and not isinstance(v, bool)
+    return True
+
+def validate(value, schema, path="$"):
+    errs = []
+    t = schema.get("type")
+    if t is not None and not _type_ok(value, t):
+        return [f"{path}: expected {t}, got {type(value).__name__}"]
+    if "enum" in schema and value not in schema["enum"]:
+        errs.append(f"{path}: {value!r} not in {schema['enum']}")
+    if isinstance(value, str) and len(value) < schema.get("minLength", 0):
+        errs.append(f"{path}: shorter than minLength {schema['minLength']}")
+    if _type_ok(value, "number") and not isinstance(value, bool):
+        if "minimum" in schema and value < schema["minimum"]:
+            errs.append(f"{path}: {value} < minimum {schema['minimum']}")
+        if "maximum" in schema and value > schema["maximum"]:
+            errs.append(f"{path}: {value} > maximum {schema['maximum']}")
+    if isinstance(value, dict):
+        props = schema.get("properties", {})
+        for k in schema.get("required", []):
+            if k not in value:
+                errs.append(f"{path}: missing required key '{k}'")
+        for k, v in value.items():
+            if k in props:
+                errs += validate(v, props[k], f"{path}.{k}")
+            elif schema.get("additionalProperties") is False:
+                errs.append(f"{path}: unexpected key '{k}'")
+    if isinstance(value, list) and "items" in schema:
+        for i, v in enumerate(value):
+            errs += validate(v, schema["items"], f"{path}[{i}]")
+    return errs
+
+def extract_json(text):
+    if "```" in text:
+        inner = text.split("```")[1]
+        if inner.startswith("json"):
+            inner = inner[4:]
+        return inner.strip()
+    starts = [i for i in (text.find("{"), text.find("[")) if i >= 0]
+    ends = [i for i in (text.rfind("}"), text.rfind("]")) if i >= 0]
+    if starts and ends and max(ends) > min(starts):
+        return text[min(starts):max(ends) + 1]
+    return text
+
+def repair_loop(outputs, schema, max_attempts=3):
+    feedback = []
+    for i, out in enumerate(outputs[:max_attempts]):
+        try:
+            value = json.loads(extract_json(out))
+        except json.JSONDecodeError as e:
+            feedback.append(f"invalid JSON: {e.msg}")
+            continue
+        errs = validate(value, schema)
+        if not errs:
+            return {"ok": True, "value": value, "attempts": i + 1, "feedback": feedback}
+        feedback.append("; ".join(errs))
+    return {"ok": False, "value": None, "attempts": min(max_attempts, len(outputs)), "feedback": feedback}

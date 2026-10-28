@@ -1,0 +1,16 @@
+[
+  { "id": "rsn.02.c1", "concept": "rsn.vote", "front": "Inference-time scaling", "back": "Improving answers by spending more compute at inference (more or longer samples, scorers, refinement) with the model weights unchanged." },
+  { "id": "rsn.02.c2", "concept": "rsn.vote", "front": "Temperature scaling", "back": "Divide logits by T before the softmax: T<1 sharpens, T>1 flattens; T must be positive." },
+  { "id": "rsn.02.c3", "concept": "rsn.vote", "front": "Top-p (nucleus) rule in the book", "back": "Sort probabilities descending, keep a token while the cumulative mass before it is < top_p (always keep the first), zero the rest, renormalise." },
+  { "id": "rsn.02.c4", "concept": "rsn.vote", "front": "Self-consistency", "back": "Sample n chains of thought, extract each final answer, return the most frequent one." },
+  { "id": "rsn.02.c5", "concept": "rsn.vote", "front": "Plurality versus majority", "back": "Plurality needs the largest count; majority needs more than half. Self-consistency is a plurality vote." },
+  { "id": "rsn.02.c6", "concept": "rsn.vote", "front": "Tie handling in voting", "back": "Return no answer (the book's rule), pick at random, or break ties with a scorer such as mean log-probability; each choice is a policy." },
+  { "id": "rsn.02.c7", "concept": "rsn.vote", "front": "Best-of-n", "back": "Score all n responses and keep the best. With a perfect verifier it equals pass@n; with a proxy scorer it inherits the scorer's errors." },
+  { "id": "rsn.02.c8", "concept": "rsn.vote", "front": "Binomial voting accuracy", "back": "A(n,p) = sum_{c>n/2} C(n,c) p^c (1-p)^(n-c) when wrong samples all give the same wrong answer." },
+  { "id": "rsn.02.c9", "concept": "rsn.vote", "front": "Threshold for voting", "back": "With one wrong answer, voting helps iff p > 1/2 (to 1), hurts if p < 1/2 (to 0), stays at 1/2 at p = 1/2." },
+  { "id": "rsn.02.c10", "concept": "rsn.vote", "front": "Hoeffding bound for voting", "back": "1 - A(n,p) <= exp(-2n(p-1/2)^2): exponential in n, controlled by the gap p - 1/2, but loose." },
+  { "id": "rsn.02.c11", "concept": "rsn.vote", "front": "Why scattered wrong answers help voting", "back": "The correct answer only needs the largest count, so it can win with p < 1/2. Correlated, repeated mistakes remove that benefit." },
+  { "id": "rsn.02.c12", "concept": "rsn.vote", "front": "Diminishing returns of more samples", "back": "In the book's CoT table accuracy per extra minute falls from about 0.107 to 0.024 to 0.0098 points/min as n goes 1 to 3 to 5 to 10." },
+  { "id": "rsn.02.c13", "concept": "rsn.vote", "front": "Thinking budget", "back": "A cap on generated tokens. Cutting a chain before its final box usually yields no extractable answer; budget forcing also extends short chains (general background, not implemented in the chapters read)." },
+  { "id": "rsn.02.c14", "concept": "rsn.vote", "front": "Why sampling n answers to one prompt batches well", "back": "All rows start from the same prompt length, so no padding is needed; throughput improves with batch size at the cost of memory (appendix E.5)." }
+]

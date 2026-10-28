@@ -1,0 +1,10 @@
+{
+ "id": "rl.01.ex1",
+ "title": "Bandits epsilon-greedy et UCB",
+ "prompt": "Implémente les briques de l'apprentissage par bandits et le retour d'un épisode de MDP.\n\n- `discounted_return(rewards, gamma)` -> le retour $G_0=\\sum_k\\gamma^k r_k$ d'une liste de récompenses.\n- `update_mean(Q, N, a, r)` -> de nouvelles copies `(Q, N)` après observation de la récompense `r` pour le bras `a` (moyenne empirique incrémentale ; `N` compte les tirages). Ne modifie pas les arguments.\n- `epsilon_greedy_action(Q, eps, rng)` -> avec une probabilité `eps` un bras uniformément aléatoire (utilise d'abord `rng.random()`, puis `rng.integers`), sinon `argmax(Q)`.\n- `ucb_action(Q, N, t, c)` -> d'abord un bras non tiré, sinon le bras maximisant `Q + c*sqrt(log(t)/N)` ; `t` est le numéro d'étape courant (à partir de 1).\n\nLes tests exécutent les deux stratégies sur un bandit gaussien à 5 bras.",
+ "hints": [
+  "update_mean : incrémente d'abord N[a], puis Q[a] += (r - Q[a]) / N[a]. Travaille sur des copies pour ne pas modifier les entrées.",
+  "ucb_action : si un bras a N == 0, renvoie le premier de ces bras (np.argmin(N) convient car le compte minimal est 0). Sinon, argmax de Q + c * sqrt(log(t) / N).",
+  "discounted_return : parcours les récompenses à l'envers avec g = r + gamma * g."
+ ]
+}

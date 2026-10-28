@@ -1,0 +1,28 @@
+[
+  {
+    "id": "bayes-update", "after": 3, "kind": "mermaid",
+    "caption": { "en": "Bayes' rule as an update: the prior is reweighted by the likelihood and renormalised by the evidence. The posterior can serve as the next prior.", "fr": "La règle de Bayes comme mise à jour : l'a priori est repondéré par la vraisemblance et renormalisé par l'évidence. L'a posteriori peut servir d'a priori suivant." },
+    "code": {
+      "en": "flowchart LR\n  Pr[\"prior P(H)\"] --> M[\"multiply\"]\n  Li[\"likelihood P(E | H)\"] --> M\n  M --> N[\"divide by evidence P(E)\"] --> Po[\"posterior P(H | E)\"]\n  Po -.->|\"becomes next prior\"| Pr",
+      "fr": "flowchart LR\n  Pr[\"a priori P(H)\"] --> M[\"multiplier\"]\n  Li[\"vraisemblance P(E | H)\"] --> M\n  M --> N[\"diviser par l'évidence P(E)\"] --> Po[\"a posteriori P(H | E)\"]\n  Po -.->|\"devient le prochain a priori\"| Pr"
+    }
+  },
+  {
+    "id": "medical-test-tree", "after": 4, "kind": "mermaid",
+    "caption": { "en": "The medical test with 10,000 people: of 585 positives, only 90 are sick, so P(disease | positive) ≈ 15%.", "fr": "Le test médical sur 10 000 personnes : sur 585 positifs, seuls 90 sont malades, donc P(maladie | positif) ≈ 15 %." },
+    "code": {
+      "en": "flowchart TD\n  A[\"10,000 people\"] --> S[\"100 sick (1%)\"]\n  A --> H[\"9,900 healthy\"]\n  S --> SP[\"90 test positive\"]\n  S --> SN[\"10 test negative\"]\n  H --> HP[\"495 test positive\"]\n  H --> HN[\"9,405 test negative\"]\n  SP --> R[\"585 positives, 90 sick = 15.4%\"]\n  HP --> R",
+      "fr": "flowchart TD\n  A[\"10 000 personnes\"] --> S[\"100 malades (1 %)\"]\n  A --> H[\"9 900 sains\"]\n  S --> SP[\"90 testés positifs\"]\n  S --> SN[\"10 testés négatifs\"]\n  H --> HP[\"495 testés positifs\"]\n  H --> HN[\"9 405 testés négatifs\"]\n  SP --> R[\"585 positifs, 90 malades = 15,4 %\"]\n  HP --> R"
+    }
+  },
+  {
+    "id": "posterior-vs-prior", "after": 4, "kind": "plot",
+    "caption": { "en": "Posterior P(disease | positive) as a function of the prior (prevalence), for sensitivity 0.9 and false-alarm rate 0.05. At 1% prevalence the posterior is only 0.154; the curve (blue) lies far below the diagonal-like 'accuracy' intuition.", "fr": "A posteriori P(maladie | positif) en fonction de l'a priori (prévalence), pour une sensibilité de 0,9 et un taux de fausses alarmes de 0,05. À 1 % de prévalence, il n'est que de 0,154 ; la courbe (bleu) reste loin de l'intuition de « précision »." },
+    "spec": { "xDomain": [0, 0.5], "yDomain": [0, 1], "height": 300,
+      "data": [
+        { "fn": "0.9*x/(0.9*x+0.05*(1-x))", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 4 }, "points": [[0.01, 0.1538]] }
+      ],
+      "annotations": [{ "x": 0.01, "text": "prior 1% -> 0.154" }] }
+  }
+]

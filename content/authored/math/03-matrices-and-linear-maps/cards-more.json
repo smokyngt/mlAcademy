@@ -1,0 +1,56 @@
+[
+ {
+  "id": "f2n.03.c14",
+  "concept": "la.matrix",
+  "front": "$(AB)_{ij}$",
+  "back": "$\\sum_ka_{ik}b_{kj}$."
+ },
+ {
+  "id": "f2n.03.c15",
+  "concept": "la.linear-map",
+  "front": "Is $AB=BA$?",
+  "back": "Not in general. Right-multiplying acts on columns, left-multiplying on rows."
+ },
+ {
+  "id": "f2n.03.c16",
+  "concept": "la.linear-map",
+  "front": "Definition of a linear map",
+  "back": "$A(\\alpha x+\\beta y)=\\alpha Ax+\\beta Ay$; it sends $0$ to $0$."
+ },
+ {
+  "id": "f2n.03.c17",
+  "concept": "la.linear-map",
+  "front": "Affine map",
+  "back": "$x\\mapsto Ax+b$: linear plus a shift; a neural layer before the activation."
+ },
+ {
+  "id": "f2n.03.c18",
+  "concept": "la.linear-map",
+  "front": "Determinant of a $2\\times2$ matrix",
+  "back": "$ad-bc$: the factor by which areas scale (negative flips orientation)."
+ },
+ {
+  "id": "f2n.03.c19",
+  "concept": "la.matrix",
+  "front": "Transpose shape",
+  "back": "$A:(m,n)\\Rightarrow A^\\top:(n,m)$, $(A^\\top)_{ij}=a_{ji}$."
+ },
+ {
+  "id": "f2n.03.c20",
+  "concept": "la.matrix",
+  "front": "Identity matrix",
+  "back": "$I$ with ones on the diagonal; $AI=IA=A$."
+ },
+ {
+  "id": "f2n.03.c21",
+  "concept": "la.matrix",
+  "front": "$Ax$ as a combination",
+  "back": "$Ax=x_1a^{(1)}+\\dots+x_na^{(n)}$ (columns of $A$)."
+ },
+ {
+  "id": "f2n.03.c22",
+  "concept": "la.linear-map",
+  "front": "Rank-1 / singular $2\\times2$ matrix",
+  "back": "It squashes the plane onto a line (det $=0$); information is lost."
+ }
+]

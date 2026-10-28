@@ -1,0 +1,9 @@
+[
+  {"id":"nlp.text-preprocessing","title":"Text normalisation, tokenisation, stemming and lemmatisation","description":"Turn raw strings into clean tokens; stems versus lemmas; what is lost at each step.","stage":"V","prereqs":["alg.functions"]},
+  {"id":"nlp.tfidf","title":"Bag of words, n-grams and TF-IDF","description":"Sparse count vectors, inverse document frequency weighting, L2 normalisation and cosine similarity.","stage":"V","prereqs":["nlp.text-preprocessing","alg.exp-log","la.dot"]},
+  {"id":"nlp.text-classification","title":"Text classification with Naive Bayes and logistic regression","description":"Multinomial Naive Bayes with smoothing, linear models on TF-IDF, precision/recall/F1 on text, error analysis and class imbalance.","stage":"V","prereqs":["nlp.tfidf","prob.basics","ml.logreg","ml.eval-metrics"]},
+  {"id":"nlp.hmm-viterbi","title":"Sequence labelling: HMMs and the Viterbi algorithm","description":"POS tagging and BIO named-entity tagging with a hidden Markov model, exact decoding by dynamic programming, and the CRF idea.","stage":"V","prereqs":["prob.basics","alg.exp-log"]},
+  {"id":"nlp.ngram-lm","title":"N-gram language models, smoothing and perplexity","description":"Count-based next-word models, add-k, interpolation and backoff, and perplexity as exponentiated cross-entropy.","stage":"V","prereqs":["prob.basics","info.entropy","alg.exp-log"]},
+  {"id":"nlp.topic-models","title":"Topic modelling with LDA","description":"The LDA generative story, Dirichlet priors, collapsed Gibbs sampling, topic evaluation and embedding-based topics.","stage":"V","prereqs":["prob.basics","nlp.tfidf"]},
+  {"id":"nlp.seq-eval","title":"Translation, summarisation and QA evaluation","description":"BLEU, ROUGE, extractive span prediction and the pitfalls of overlap metrics.","stage":"V","prereqs":["nlp.ngram-lm","info.entropy"]}
+]

@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mx.05.c1",
+  "front": "Somme de Riemann",
+  "back": "$S_n=\\sum f(x_k)h$ ; l'intégrale définie est sa limite quand $n\\to\\infty$."
+ },
+ {
+  "id": "mx.05.c2",
+  "front": "Théorème fondamental de l'analyse",
+  "back": "$\\frac{d}{dx}\\int_a^xf=f(x)$ et $\\int_a^bf=G(b)-G(a)$ pour toute primitive $G$."
+ },
+ {
+  "id": "mx.05.c3",
+  "front": "Substitution",
+  "back": "Règle en chaîne à l'envers : $\\int f(g(x))g'(x)dx=\\int f(u)du$ avec $u=g(x)$."
+ },
+ {
+  "id": "mx.05.c4",
+  "front": "Intégration par parties",
+  "back": "$\\int uv'=[uv]-\\int u'v$ (règle du produit à l'envers)."
+ },
+ {
+  "id": "mx.05.c5",
+  "front": "Densité de probabilité",
+  "back": "$p\\ge0$, $\\int p=1$, $P(a\\le X\\le b)=\\int_a^bp$ ; la hauteur peut dépasser 1."
+ },
+ {
+  "id": "mx.05.c6",
+  "front": "Espérance comme intégrale",
+  "back": "$\\mathbb{E}[g(X)]=\\int g(x)p(x)dx$ ; la variance est $\\mathbb{E}[X^2]-(\\mathbb{E}X)^2$."
+ },
+ {
+  "id": "mx.05.c7",
+  "front": "Marginale d'une densité jointe",
+  "back": "$p(x)=\\int p(x,y)dy$ : intègre les autres variables."
+ },
+ {
+  "id": "mx.05.c8",
+  "front": "Intégrale gaussienne",
+  "back": "$\\int_{-\\infty}^\\infty e^{-x^2/2}dx=\\sqrt{2\\pi}$ (élève-la au carré, coordonnées polaires)."
+ },
+ {
+  "id": "mx.05.c9",
+  "front": "Élément d'aire polaire",
+  "back": "$dx\\,dy=r\\,dr\\,d\\theta$ : le $r$ supplémentaire est le jacobien."
+ },
+ {
+  "id": "mx.05.c10",
+  "front": "Méthode des trapèzes",
+  "back": "$h(\\frac12y_0+y_1+\\dots+y_{n-1}+\\frac12y_n)$ ; erreur $O(h^2)$."
+ },
+ {
+  "id": "mx.05.c11",
+  "front": "Méthode de Simpson",
+  "back": "$\\frac h3(y_0+4y_1+2y_2+\\dots+4y_{n-1}+y_n)$, $n$ pair ; erreur $O(h^4)$ ; exacte pour les cubiques."
+ },
+ {
+  "id": "mx.05.c12",
+  "front": "Intégration de Monte-Carlo",
+  "back": "$\\int_a^bf\\approx\\frac{b-a}n\\sum f(u_i)$ avec des $u_i$ uniformes ; erreur $\\sigma/\\sqrt n$."
+ },
+ {
+  "id": "mx.05.c13",
+  "front": "Fléau de la dimension pour les grilles",
+  "back": "Une grille avec $m$ points par axe demande $m^d$ évaluations ; le taux $n^{-1/2}$ de Monte-Carlo est indépendant de la dimension."
+ },
+ {
+  "id": "mx.05.c14",
+  "front": "L'entraînement par mini-lots comme Monte-Carlo",
+  "back": "La perte moyenne sur un lot aléatoire est une estimation de Monte-Carlo de l'intégrale de la perte espérée."
+ }
+]

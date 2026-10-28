@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.01.c1",
+  "front": "Modèle discriminatif vs génératif",
+  "back": "Discriminatif : $p(y\\mid x)$. Génératif : $p(x)$ ou $p(x,y)$, il peut donc échantillonner (et classer via Bayes)."
+ },
+ {
+  "id": "gen.01.c2",
+  "front": "Les deux tâches d'un modèle génératif",
+  "back": "Estimation de densité (évaluer $p_\\theta(x)$) et échantillonnage ($x\\sim p_\\theta$)."
+ },
+ {
+  "id": "gen.01.c3",
+  "front": "Objectif du maximum de vraisemblance",
+  "back": "$\\max_\\theta\\frac1N\\sum_i\\log p_\\theta(x_i)$."
+ },
+ {
+  "id": "gen.01.c4",
+  "front": "EMV et divergence KL",
+  "back": "L'EMV minimise $\\mathrm{KL}(p_\\text{data}\\|p_\\theta)$ parce que l'entropie $H(p_\\text{data})$ ne dépend pas de $\\theta$."
+ },
+ {
+  "id": "gen.01.c5",
+  "front": "Log-vraisemblance négative moyenne",
+  "back": "$-\\frac1N\\sum_i\\log p_\\theta(x_i)$ ; plus bas est mieux ; à mesurer sur des données de validation."
+ },
+ {
+  "id": "gen.01.c6",
+  "front": "Factorisation autorégressive",
+  "back": "$p(x)=\\prod_j p(x_j\\mid x_{<j})$ : vraisemblance exacte, échantillonnage séquentiel."
+ },
+ {
+  "id": "gen.01.c7",
+  "front": "Modèle à variables latentes",
+  "back": "$p(x)=\\int p(x\\mid z)p(z)\\,dz$ ; l'intégrale est en général intractable."
+ },
+ {
+  "id": "gen.01.c8",
+  "front": "Modèle génératif implicite",
+  "back": "Définit un échantillonneur $x=G(z)$ mais aucune densité (GAN)."
+ },
+ {
+  "id": "gen.01.c9",
+  "front": "Échantillonnage ancestral",
+  "back": "Tirer d'abord la variable latente, puis $x$ sachant la variable latente."
+ },
+ {
+  "id": "gen.01.c10",
+  "front": "Classification générative",
+  "back": "$p(y\\mid x)\\propto p(x\\mid y)p(y)$ (règle de Bayes)."
+ },
+ {
+  "id": "gen.01.c11",
+  "front": "Pourquoi une densité peut dépasser 1",
+  "back": "C'est une densité par unité de volume, pas une probabilité ; seules les intégrales sont des probabilités."
+ },
+ {
+  "id": "gen.01.c12",
+  "front": "Qualité vs couverture",
+  "back": "Qualité : les échantillons sont-ils réalistes ? Couverture/diversité : le modèle atteint-il toutes les données ? Une métrique peut n'en mesurer qu'une."
+ },
+ {
+  "id": "gen.01.c13",
+  "front": "Log-sum-exp",
+  "back": "$\\log\\sum_k e^{a_k}=m+\\log\\sum_k e^{a_k-m}$ avec $m=\\max a$ ; évite le dépassement de capacité dans les log-densités de mélange."
+ },
+ {
+  "id": "gen.01.c14",
+  "front": "Pourquoi la diffusion a succédé aux GAN et aux VAE",
+  "back": "Les VAE donnent des échantillons flous, les GAN sont instables et oublient des modes ; la diffusion a une seule perte stable et une borne sur la vraisemblance."
+ }
+]

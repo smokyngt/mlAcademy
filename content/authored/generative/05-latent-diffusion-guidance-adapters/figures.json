@@ -1,0 +1,209 @@
+[
+  {
+    "id": "latent-diffusion",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Latent diffusion: a frozen VAE compresses a 512x512x3 image to a 64x64x4 latent (48 times fewer numbers); the DDPM of the previous lesson runs in that small space, and the decoder paints the final pixels once.",
+      "fr": "Diffusion latente : un VAE gelé compresse une image 512x512x3 en un latent 64x64x4 (48 fois moins de nombres) ; le DDPM de la leçon précédente tourne dans ce petit espace, et le décodeur peint les pixels finaux une seule fois."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph TRAIN[\"Training\"]\n    direction LR\n    x0[\"x_0 (3,512,512)\"] --> E[\"frozen encoder E\"] --> z0[\"z_0 (4,64,64)\"] --> DD[\"noise + denoiser loss\"]\n  end\n  subgraph SAMP[\"Sampling\"]\n    direction LR\n    zt[\"z_T ~ N(0,I) (4,64,64)\"] --> DN[\"denoise T steps\"] --> zz[\"z_0 (4,64,64)\"] --> DEC[\"frozen decoder D\"] --> xo[\"x (3,512,512)\"]\n  end",
+      "fr": "flowchart LR\n  subgraph TRAIN[\"Entraînement\"]\n    direction LR\n    x0[\"x_0 (3,512,512)\"] --> E[\"encodeur gelé E\"] --> z0[\"z_0 (4,64,64)\"] --> DD[\"bruitage + perte du débruiteur\"]\n  end\n  subgraph SAMP[\"Échantillonnage\"]\n    direction LR\n    zt[\"z_T ~ N(0,I) (4,64,64)\"] --> DN[\"débruiter T pas\"] --> zz[\"z_0 (4,64,64)\"] --> DEC[\"décodeur gelé D\"] --> xo[\"x (3,512,512)\"]\n  end"
+    }
+  },
+  {
+    "id": "cross-attention",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Cross-attention conditioning with shapes: queries come from the image features, keys and values from the frozen text encoder's token embeddings. Scores are (B, n_pix, n_tok), so each pixel gets a convex combination of text values.",
+      "fr": "Conditionnement par cross-attention avec les formes : les requêtes viennent des caractéristiques de l'image, les clés et valeurs des embeddings de tokens de l'encodeur de texte gelé. Les scores sont (B, n_pix, n_tok), donc chaque pixel reçoit une combinaison convexe de valeurs de texte."
+    },
+    "code": {
+      "en": "flowchart LR\n  F[\"F image (B,n_pix,d)\"] --> Q[\"Q = F W_Q<br/>(B,n_pix,d_k)\"]\n  PR[\"prompt\"] --> TE[\"frozen text encoder\"] --> C[\"C (B,n_tok,d_c)<br/>n_tok ~ 77\"]\n  C --> K[\"K = C W_K<br/>(B,n_tok,d_k)\"]\n  C --> V[\"V = C W_V<br/>(B,n_tok,d_k)\"]\n  Q --> SC[\"softmax(Q K^T / sqrt(d_k))<br/>(B,n_pix,n_tok)\"]\n  K --> SC\n  SC --> OUT[\"... V<br/>(B,n_pix,d_k)\"]\n  V --> OUT",
+      "fr": "flowchart LR\n  F[\"F image (B,n_pix,d)\"] --> Q[\"Q = F W_Q<br/>(B,n_pix,d_k)\"]\n  PR[\"prompt\"] --> TE[\"encodeur de texte gelé\"] --> C[\"C (B,n_tok,d_c)<br/>n_tok ~ 77\"]\n  C --> K[\"K = C W_K<br/>(B,n_tok,d_k)\"]\n  C --> V[\"V = C W_V<br/>(B,n_tok,d_k)\"]\n  Q --> SC[\"softmax(Q K^T / sqrt(d_k))<br/>(B,n_pix,n_tok)\"]\n  K --> SC\n  SC --> OUT[\"... V<br/>(B,n_pix,d_k)\"]\n  V --> OUT"
+    }
+  },
+  {
+    "id": "cfg-flow",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Classifier-free guidance: run the denoiser twice (with the prompt and with the empty condition), then extrapolate along the difference by the scale w. w = 1 is the plain conditional model, w > 1 over-follows the prompt. Two network evaluations per step.",
+      "fr": "Guidage sans classifieur : exécuter le débruiteur deux fois (avec le prompt et avec la condition vide), puis extrapoler le long de la différence avec l'échelle w. w = 1 est le modèle conditionnel simple, w > 1 suit trop le prompt. Deux évaluations du réseau par pas."
+    },
+    "code": {
+      "en": "flowchart LR\n  XT[\"x_t, t\"] --> NC[\"eps_theta(x_t, c)<br/>conditional\"]\n  XT --> NU[\"eps_theta(x_t, empty)<br/>unconditional\"]\n  C[\"c (prompt)\"] --> NC\n  NU --> DF[\"eps_c - eps_u<br/>direction 'means the prompt'\"]\n  NC --> DF\n  DF --> CM[\"eps_tilde = eps_u + w (eps_c - eps_u)\"]\n  NU --> CM\n  W[\"guidance scale w\"] --> CM\n  CM --> ST[\"denoising step\"]",
+      "fr": "flowchart LR\n  XT[\"x_t, t\"] --> NC[\"eps_theta(x_t, c)<br/>conditionnel\"]\n  XT --> NU[\"eps_theta(x_t, empty)<br/>inconditionnel\"]\n  C[\"c (prompt)\"] --> NC\n  NU --> DF[\"eps_c - eps_u<br/>direction « veut dire le prompt »\"]\n  NC --> DF\n  DF --> CM[\"eps_tilde = eps_u + w (eps_c - eps_u)\"]\n  NU --> CM\n  W[\"échelle de guidage w\"] --> CM\n  CM --> ST[\"pas de débruitage\"]"
+    }
+  },
+  {
+    "id": "cfg-table",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Guidance on the two-class mixture (condition = class +2). Blue: sample mean against w; it reaches the class mean 2 at w = 1 and overshoots beyond. Orange: sample std; w = 0 shows both modes (2.058), w >= 1 collapses to about 0.5. Values from the worked-example table.",
+      "fr": "Guidage sur le mélange à deux classes (condition = classe +2). Bleu : moyenne des échantillons selon w ; elle atteint la moyenne de classe 2 en w = 1 et la dépasse ensuite. Orange : écart-type des échantillons ; w = 0 montre les deux modes (2,058), w >= 1 se réduit à environ 0,5. Valeurs du tableau de l'exemple travaillé."
+    },
+    "spec": {
+      "xDomain": [
+        -0.5,
+        9
+      ],
+      "yDomain": [
+        -0.5,
+        2.6
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              0,
+              -0.026
+            ],
+            [
+              1,
+              1.992
+            ],
+            [
+              2,
+              2.078
+            ],
+            [
+              4,
+              2.138
+            ],
+            [
+              8,
+              2.19
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#2563eb",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              -0.026
+            ],
+            [
+              1,
+              1.992
+            ],
+            [
+              2,
+              2.078
+            ],
+            [
+              4,
+              2.138
+            ],
+            [
+              8,
+              2.19
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              0,
+              2.058
+            ],
+            [
+              1,
+              0.503
+            ],
+            [
+              2,
+              0.486
+            ],
+            [
+              4,
+              0.483
+            ],
+            [
+              8,
+              0.483
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#d97706",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              2.058
+            ],
+            [
+              1,
+              0.503
+            ],
+            [
+              2,
+              0.486
+            ],
+            [
+              4,
+              0.483
+            ],
+            [
+              8,
+              0.483
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "y": 2,
+          "text": "class mean = 2"
+        }
+      ]
+    }
+  },
+  {
+    "id": "controlnet",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "ControlNet: the pretrained denoiser stays frozen; a trainable copy of its encoder also receives the spatial condition (edges, depth, pose) and feeds the frozen decoder through zero-initialised convolutions, so training starts exactly from the original model.",
+      "fr": "ControlNet : le débruiteur pré-entraîné reste gelé ; une copie entraînable de son encodeur reçoit en plus la condition spatiale (contours, profondeur, pose) et alimente le décodeur gelé par des convolutions initialisées à zéro, donc l'entraînement part exactement du modèle d'origine."
+    },
+    "code": {
+      "en": "flowchart LR\n  XT[\"x_t, t, prompt\"] --> FE[\"frozen encoder\"]\n  XT --> TC[\"trainable encoder copy\"]\n  CD[\"condition (edge map, depth, pose)\"] --> TC\n  FE --> FD[\"frozen decoder\"]\n  TC --> ZC[\"zero conv<br/>init 0\"]\n  ZC --> AD((\"+\"))\n  FD --> AD\n  AD --> OUT[\"eps_hat\"]\n  style TC fill:#dcfce7,stroke:#16a34a\n  style ZC fill:#dcfce7,stroke:#16a34a\n  style FE fill:#e5e7eb,stroke:#6b7280\n  style FD fill:#e5e7eb,stroke:#6b7280",
+      "fr": "flowchart LR\n  XT[\"x_t, t, prompt\"] --> FE[\"encodeur gelé\"]\n  XT --> TC[\"copie d'encodeur entraînable\"]\n  CD[\"condition (contours, profondeur, pose)\"] --> TC\n  FE --> FD[\"décodeur gelé\"]\n  TC --> ZC[\"zero conv<br/>init 0\"]\n  ZC --> AD((\"+\"))\n  FD --> AD\n  AD --> OUT[\"eps_hat\"]\n  style TC fill:#dcfce7,stroke:#16a34a\n  style ZC fill:#dcfce7,stroke:#16a34a\n  style FE fill:#e5e7eb,stroke:#6b7280\n  style FD fill:#e5e7eb,stroke:#6b7280"
+    }
+  },
+  {
+    "id": "lora",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "LoRA: the pretrained weight W is frozen and a low-rank update (alpha/r) B A is added in parallel. B starts at 0, so the model initially equals the original. For d = 640 and r = 16: 20,480 trainable parameters against 409,600.",
+      "fr": "LoRA : le poids pré-entraîné W est gelé et une mise à jour de rang faible (alpha/r) B A est ajoutée en parallèle. B démarre à 0, donc le modèle égale d'abord l'original. Pour d = 640 et r = 16 : 20 480 paramètres entraînables contre 409 600."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (d_in)\"] --> W[\"W frozen<br/>(d_out, d_in)\"]\n  X --> A[\"A trainable<br/>(r, d_in)<br/>random init\"]\n  A --> BB[\"B trainable<br/>(d_out, r)<br/>init 0\"]\n  BB --> SCL[\"x alpha/r\"]\n  W --> AD((\"+\"))\n  SCL --> AD\n  AD --> Y[\"y (d_out)\"]\n  style W fill:#e5e7eb,stroke:#6b7280\n  style A fill:#dcfce7,stroke:#16a34a\n  style BB fill:#dcfce7,stroke:#16a34a",
+      "fr": "flowchart LR\n  X[\"x (d_in)\"] --> W[\"W frozen<br/>(d_out, d_in)\"]\n  X --> A[\"A trainable<br/>(r, d_in)<br/>init aléatoire\"]\n  A --> BB[\"B trainable<br/>(d_out, r)<br/>init 0\"]\n  BB --> SCL[\"x alpha/r\"]\n  W --> AD((\"+\"))\n  SCL --> AD\n  AD --> Y[\"y (d_out)\"]\n  style W fill:#e5e7eb,stroke:#6b7280\n  style A fill:#dcfce7,stroke:#16a34a\n  style BB fill:#dcfce7,stroke:#16a34a"
+    }
+  }
+]

@@ -1,0 +1,183 @@
+[
+  {
+    "id": "zero-bars",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Per-GPU model state for 7.5 B parameters on 8 GPUs under ZeRO: 111.76 GiB without sharding, 38.42 with optimizer sharding, 26.19 with gradients too, and 13.97 with parameters (stage 3, FSDP). An 80 GB card holds only stages 1 and above.",
+      "fr": "État du modèle par GPU pour 7,5 Md de paramètres sur 8 GPU avec ZeRO : 111,76 GiB sans partitionnement, 38,42 avec l'état de l'optimiseur partitionné, 26,19 avec les gradients aussi, et 13,97 avec les paramètres (étape 3, FSDP). Une carte de 80 Go ne tient qu'à partir de l'étape 1."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"Model state per GPU, 7.5B parameters, N = 8 (GiB)\"\n  x-axis [\"stage 0 (DP)\", \"stage 1\", \"stage 2\", \"stage 3 (FSDP)\"]\n  y-axis \"GiB\" 0 --> 120\n  bar [111.76, 38.42, 26.19, 13.97]"
+    }
+  },
+  {
+    "id": "zero-partition",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "ZeRO stage 3 on N GPUs: parameters (2 bytes each), gradients (2) and optimizer state (12 = fp32 copy 4 + two Adam moments 8) are all split into N shards, 16 psi / N bytes per GPU. Before each layer the shards are all-gathered, then freed.",
+      "fr": "ZeRO étape 3 sur N GPU : paramètres (2 octets chacun), gradients (2) et état de l'optimiseur (12 = copie fp32 4 + deux moments d'Adam 8) sont tous partitionnés en N parts, 16 psi / N octets par GPU. Avant chaque couche les parts sont rassemblées par all-gather puis libérées."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph GPU0[\"GPU 0\"]\n    p0[\"params shard 1/N (2 B)\"]\n    g0[\"grads shard 1/N (2 B)\"]\n    o0[\"optimizer shard 1/N (12 B)\"]\n  end\n  subgraph GPU1[\"GPU 1\"]\n    p1[\"params shard 2/N\"]\n    g1[\"grads shard 2/N\"]\n    o1[\"optimizer shard 2/N\"]\n  end\n  subgraph GPUN[\"GPU N-1\"]\n    pn[\"params shard N/N\"]\n    gn[\"grads shard N/N\"]\n    on[\"optimizer shard N/N\"]\n  end\n  p0 -. all-gather before layer .-> AG((\"full layer weights<br/>temporary\"))\n  p1 -. all-gather .-> AG\n  pn -. all-gather .-> AG\n  AG --> FW[\"forward / backward of the layer<br/>then free full weights\"]\n  FW --> RS[\"reduce-scatter of gradients<br/>each GPU keeps its shard\"]",
+      "fr": "flowchart TB\n  subgraph GPU0[\"GPU 0\"]\n    p0[\"part params 1/N (2 o)\"]\n    g0[\"part gradients 1/N (2 o)\"]\n    o0[\"part optimiseur 1/N (12 o)\"]\n  end\n  subgraph GPU1[\"GPU 1\"]\n    p1[\"part params 2/N\"]\n    g1[\"part gradients 2/N\"]\n    o1[\"part optimiseur 2/N\"]\n  end\n  subgraph GPUN[\"GPU N-1\"]\n    pn[\"part params N/N\"]\n    gn[\"part gradients N/N\"]\n    on[\"part optimiseur N/N\"]\n  end\n  p0 -. all-gather avant la couche .-> AG((\"poids complets de la couche<br/>temporaires\"))\n  p1 -. all-gather .-> AG\n  pn -. all-gather .-> AG\n  AG --> FW[\"forward / backward de la couche<br/>puis libérer les poids complets\"]\n  FW --> RS[\"reduce-scatter des gradients<br/>chaque GPU garde sa part\"]"
+    }
+  },
+  {
+    "id": "tensor-parallel-mlp",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Tensor parallelism of a transformer MLP on two GPUs. The first matrix is split by columns (each GPU computes x W_i, no communication, then the activation), the second by rows (partial products x_i W_i added by one all-reduce). Exact, but communicates inside every layer.",
+      "fr": "Parallélisme tensoriel d'un MLP de transformeur sur deux GPU. La première matrice est découpée par colonnes (chaque GPU calcule x W_i, sans communication, puis l'activation), la seconde par lignes (produits partiels x_i W_i additionnés par un all-reduce). Exact, mais communique dans chaque couche."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (B, d_in), copied on both GPUs\"] --> C1[\"GPU 1: h1 = act(x W1a)<br/>W1a (d_in, d_ff/2)\"]\n  X --> C2[\"GPU 2: h2 = act(x W1b)<br/>W1b (d_in, d_ff/2)\"]\n  C1 --> R1[\"GPU 1: p1 = h1 W2a<br/>W2a (d_ff/2, d_out)\"]\n  C2 --> R2[\"GPU 2: p2 = h2 W2b<br/>W2b (d_ff/2, d_out)\"]\n  R1 --> AR((\"all-reduce<br/>p1 + p2\"))\n  R2 --> AR\n  AR --> Y[\"y (B, d_out)\"]",
+      "fr": "flowchart LR\n  X[\"x (B, d_in), copié sur les deux GPU\"] --> C1[\"GPU 1 : h1 = act(x W1a)<br/>W1a (d_in, d_ff/2)\"]\n  X --> C2[\"GPU 2 : h2 = act(x W1b)<br/>W1b (d_in, d_ff/2)\"]\n  C1 --> R1[\"GPU 1 : p1 = h1 W2a<br/>W2a (d_ff/2, d_out)\"]\n  C2 --> R2[\"GPU 2 : p2 = h2 W2b<br/>W2b (d_ff/2, d_out)\"]\n  R1 --> AR((\"all-reduce<br/>p1 + p2\"))\n  R2 --> AR\n  AR --> Y[\"y (B, d_out)\"]"
+    }
+  },
+  {
+    "id": "bubble-fraction",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Pipeline bubble (idle fraction) of a GPipe schedule, (p - 1)/(m + p - 1), against the number of micro-batches m. Blue: p = 4 stages (75 percent at m = 1, 42.9 at m = 4, 15.8 at m = 16). Orange: p = 8 stages. More stages make the bubble larger for the same m.",
+      "fr": "Bulle du pipeline (fraction inactive) d'un ordonnancement GPipe, (p - 1)/(m + p - 1), selon le nombre de micro-lots m. Bleu : p = 4 étages (75 % à m = 1, 42,9 à m = 4, 15,8 à m = 16). Orange : p = 8 étages. Plus d'étages agrandissent la bulle pour le même m."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        32
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "height": 320,
+      "title": "idle fraction vs micro-batches m",
+      "data": [
+        {
+          "fn": "(4-1)/(x+4-1)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(8-1)/(x+8-1)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              0.75
+            ],
+            [
+              4,
+              0.4286
+            ],
+            [
+              16,
+              0.1579
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "pipeline-schedule",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Forward pass of a GPipe schedule with p = 4 stages and m = 4 micro-batches (F1..F4). The staircase of idle cells is the bubble: each stage idles 3 of 7 steps, 3/7 = 42.9 percent, matching (p - 1)/(m + p - 1).",
+      "fr": "Passe avant d'un ordonnancement GPipe avec p = 4 étages et m = 4 micro-lots (F1..F4). L'escalier de cases inactives est la bulle : chaque étage reste inactif 3 pas sur 7, 3/7 = 42,9 %, ce qui correspond à (p - 1)/(m + p - 1)."
+    },
+    "code": {
+      "en": "block-beta\n  columns 8\n  s1[\"stage 1\"] a1[\"F1\"] a2[\"F2\"] a3[\"F3\"] a4[\"F4\"] a5[\"idle\"] a6[\"idle\"] a7[\"idle\"]\n  s2[\"stage 2\"] b1[\"idle\"] b2[\"F1\"] b3[\"F2\"] b4[\"F3\"] b5[\"F4\"] b6[\"idle\"] b7[\"idle\"]\n  s3[\"stage 3\"] c1[\"idle\"] c2[\"idle\"] c3[\"F1\"] c4[\"F2\"] c5[\"F3\"] c6[\"F4\"] c7[\"idle\"]\n  s4[\"stage 4\"] d1[\"idle\"] d2[\"idle\"] d3[\"idle\"] d4[\"F1\"] d5[\"F2\"] d6[\"F3\"] d7[\"F4\"]",
+      "fr": "block-beta\n  columns 8\n  s1[\"étage 1\"] a1[\"F1\"] a2[\"F2\"] a3[\"F3\"] a4[\"F4\"] a5[\"inactif\"] a6[\"inactif\"] a7[\"inactif\"]\n  s2[\"étage 2\"] b1[\"inactif\"] b2[\"F1\"] b3[\"F2\"] b4[\"F3\"] b5[\"F4\"] b6[\"inactif\"] b7[\"inactif\"]\n  s3[\"étage 3\"] c1[\"inactif\"] c2[\"inactif\"] c3[\"F1\"] c4[\"F2\"] c5[\"F3\"] c6[\"F4\"] c7[\"inactif\"]\n  s4[\"étage 4\"] d1[\"inactif\"] d2[\"inactif\"] d3[\"inactif\"] d4[\"F1\"] d5[\"F2\"] d6[\"F3\"] d7[\"F4\"]"
+    }
+  },
+  {
+    "id": "parallel-3d",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "3D parallelism: 8-way tensor parallelism inside a node (fast interconnect), 16-way pipeline parallelism across nodes, and 128-way data parallelism over replicas, 8 x 16 x 128 = 16,384 GPUs.",
+      "fr": "Parallélisme 3D : tensoriel à 8 voies dans un noeud (interconnexion rapide), pipeline à 16 voies entre noeuds, et données à 128 voies sur des répliques, 8 x 16 x 128 = 16 384 GPU."
+    },
+    "code": {
+      "en": "flowchart TB\n  JOB[\"training job, 16,384 GPUs\"] --> DP[\"128 data-parallel replicas<br/>split the batch, all-reduce gradients\"]\n  DP --> PP[\"per replica: 16 pipeline stages<br/>L/16 consecutive layers each, across nodes\"]\n  PP --> TP[\"per stage: 8-way tensor parallel<br/>one node, matrices split by columns and rows\"]\n  TP --> GPU[\"one GPU holds a 1/8 slice of 1/16 of the layers\"]",
+      "fr": "flowchart TB\n  JOB[\"job d'entraînement, 16 384 GPU\"] --> DP[\"128 répliques en parallélisme de données<br/>découpent le lot, all-reduce des gradients\"]\n  DP --> PP[\"par réplique : 16 étages de pipeline<br/>L/16 couches consécutives chacun, entre noeuds\"]\n  PP --> TP[\"par étage : tensoriel à 8 voies<br/>un noeud, matrices découpées par colonnes et lignes\"]\n  TP --> GPU[\"un GPU détient une tranche 1/8 de 1/16 des couches\"]"
+    }
+  },
+  {
+    "id": "loss-scaling",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Mixed-precision step with dynamic loss scaling. The loss is multiplied by S before backward so tiny fp16 gradients survive (1e-8 becomes 1.025e-5 at S = 1024); gradients are divided by S in fp32 before the optimizer step; a non-finite gradient skips the step and halves S.",
+      "fr": "Pas en précision mixte avec mise à l'échelle dynamique de la perte. La perte est multipliée par S avant le backward pour que les petits gradients fp16 survivent (1e-8 devient 1,025e-5 pour S = 1024) ; les gradients sont divisés par S en fp32 avant l'optimiseur ; un gradient non fini saute le pas et divise S par deux."
+    },
+    "code": {
+      "en": "flowchart TB\n  FW[\"forward in fp16 / bf16\"] --> LS[\"loss x S\"]\n  LS --> BW[\"backward in fp16<br/>gradients g x S\"]\n  BW --> CK{\"all gradients finite?\"}\n  CK -- no --> SK[\"skip step, S = S / 2\"]\n  CK -- yes --> DV[\"divide by S, in fp32\"]\n  DV --> OP[\"Adam on fp32 master weights<br/>m and v in fp32\"]\n  OP --> CP[\"cast to fp16 / bf16 copy\"]\n  OP --> GR{\"2000 clean steps?\"}\n  GR -- yes --> DB[\"S = 2 S\"]",
+      "fr": "flowchart TB\n  FW[\"forward en fp16 / bf16\"] --> LS[\"perte x S\"]\n  LS --> BW[\"backward en fp16<br/>gradients g x S\"]\n  BW --> CK{\"tous les gradients finis ?\"}\n  CK -- non --> SK[\"sauter le pas, S = S / 2\"]\n  CK -- oui --> DV[\"diviser par S, en fp32\"]\n  DV --> OP[\"Adam sur les poids maîtres fp32<br/>m et v en fp32\"]\n  OP --> CP[\"conversion en copie fp16 / bf16\"]\n  OP --> GR{\"2000 pas propres ?\"}\n  GR -- oui --> DB[\"S = 2 S\"]"
+    }
+  },
+  {
+    "id": "checkpoint-memory",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Activation memory with checkpointing every k layers, M(k) = (L/k) a + k A, for L = 64 and a = A = 1: M(k) = 64/k + k. The minimum is at k = sqrt(L a / A) = 8 with M = 16 instead of 64 (no checkpointing), a 4x saving for about 33 percent more compute.",
+      "fr": "Mémoire d'activations avec point de contrôle toutes les k couches, M(k) = (L/k) a + k A, pour L = 64 et a = A = 1 : M(k) = 64/k + k. Le minimum est en k = sqrt(L a / A) = 8 avec M = 16 au lieu de 64 (sans checkpointing), un gain de 4x pour environ 33 % de calcul en plus."
+    },
+    "spec": {
+      "xDomain": [
+        1,
+        32
+      ],
+      "yDomain": [
+        0,
+        70
+      ],
+      "height": 320,
+      "title": "M(k) = 64/k + k vs checkpoint interval k",
+      "data": [
+        {
+          "fn": "64/x + x",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              8,
+              16
+            ]
+          ]
+        }
+      ],
+      "annotations": [
+        {
+          "x": 8,
+          "text": "k* = 8, M = 16"
+        },
+        {
+          "y": 64,
+          "text": "no checkpointing: 64"
+        }
+      ]
+    }
+  }
+]

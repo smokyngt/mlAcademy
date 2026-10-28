@@ -1,0 +1,546 @@
+[
+  {
+    "id": "train-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The training loop: shuffle, then for each mini-batch forward, loss, backward and update. All gradients are computed before the update, and gradients are reset per batch.",
+      "fr": "La boucle d'entraînement : mélanger, puis pour chaque mini-lot passe avant, perte, passe arrière et mise à jour. Tous les gradients sont calculés avant la mise à jour, et remis à zéro à chaque lot."
+    },
+    "code": {
+      "en": "flowchart TD\n  S[\"Start epoch: shuffle data\"] --> Bt[\"Take next mini-batch X, y\"]\n  Bt --> F[\"Forward: predictions\"]\n  F --> Lo[\"Loss on the batch\"]\n  Lo --> Bw[\"Backward: all gradients\"]\n  Bw --> Up[\"Update: theta = theta - eta * grad\"]\n  Up --> Zg[\"Reset gradients\"]\n  Zg --> Q{\"More batches?\"}\n  Q -->|\"yes\"| Bt\n  Q -->|\"no\"| V[\"Validation loss, next epoch\"]\n  V --> S",
+      "fr": "flowchart TD\n  S[\"Début d'époque : mélanger les données\"] --> Bt[\"Prendre le mini-lot suivant X, y\"]\n  Bt --> F[\"Passe avant : prédictions\"]\n  F --> Lo[\"Perte sur le lot\"]\n  Lo --> Bw[\"Passe arrière : tous les gradients\"]\n  Bw --> Up[\"Mise à jour : theta = theta - eta * grad\"]\n  Up --> Zg[\"Remettre les gradients à zéro\"]\n  Zg --> Q{\"Encore des lots ?\"}\n  Q -->|\"oui\"| Bt\n  Q -->|\"non\"| V[\"Perte de validation, époque suivante\"]\n  V --> S"
+    }
+  },
+  {
+    "id": "init-scale",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Second moment of the activations in a ReLU network of square layers: with Var(w) = 2/n_in (He, blue) it stays at 1; with Var(w) = 1/n_in it is multiplied by 1/2 per layer and is 2^-20 (about 1e-6) after 20 layers (orange).",
+      "fr": "Moment d'ordre 2 des activations dans un réseau ReLU à couches carrées : avec Var(w) = 2/n_in (He, bleu) il reste à 1 ; avec Var(w) = 1/n_in il est multiplié par 1/2 à chaque couche et vaut 2^-20 (environ 1e-6) après 20 couches (orange)."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        20
+      ],
+      "yDomain": [
+        -0.05,
+        1.2
+      ],
+      "height": 280,
+      "title": "E[a²] versus layer",
+      "data": [
+        {
+          "fn": "1",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5^x",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "momentum-valley",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Plain SGD (blue, eta = 0.15) versus momentum (orange, eta = 0.03, mu = 0.9) from the same start on L = (x² + 10y²)/2, first 45 steps. SGD kills the steep y coordinate fast, then creeps along the flat x axis. Momentum accumulates the consistent x direction (effective step eta/(1-mu)) but overshoots and spirals, so it needs a well-chosen mu.",
+      "fr": "SGD simple (bleu, eta = 0,15) contre momentum (orange, eta = 0,03, mu = 0,9) depuis le même départ sur L = (x² + 10y²)/2, 45 premiers pas. SGD annule vite la coordonnée raide y, puis rampe le long de l'axe plat x. Le momentum accumule la direction x cohérente (pas effectif eta/(1-mu)) mais dépasse la cible et spirale : mu doit être bien choisi."
+    },
+    "spec": {
+      "xDomain": [
+        -5,
+        3
+      ],
+      "yDomain": [
+        -3,
+        3
+      ],
+      "height": 380,
+      "data": [
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 2",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 8",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 18",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "implicit",
+          "fn": "x*x + 10*y*y - 32",
+          "color": "#9ca3af"
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#2563eb",
+          "points": [
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.4,
+              -0.75
+            ],
+            [
+              -2.89,
+              0.375
+            ],
+            [
+              -2.456,
+              -0.188
+            ],
+            [
+              -2.088,
+              0.094
+            ],
+            [
+              -1.775,
+              -0.047
+            ],
+            [
+              -1.509,
+              0.023
+            ],
+            [
+              -1.282,
+              -0.012
+            ],
+            [
+              -1.09,
+              0.006
+            ],
+            [
+              -0.926,
+              -0.003
+            ],
+            [
+              -0.787,
+              0.001
+            ],
+            [
+              -0.669,
+              -0.001
+            ],
+            [
+              -0.569,
+              0
+            ],
+            [
+              -0.484,
+              0
+            ],
+            [
+              -0.411,
+              0
+            ],
+            [
+              -0.349,
+              0
+            ],
+            [
+              -0.297,
+              0
+            ],
+            [
+              -0.252,
+              0
+            ],
+            [
+              -0.215,
+              0
+            ],
+            [
+              -0.182,
+              0
+            ],
+            [
+              -0.155,
+              0
+            ],
+            [
+              -0.132,
+              0
+            ],
+            [
+              -0.112,
+              0
+            ],
+            [
+              -0.095,
+              0
+            ],
+            [
+              -0.081,
+              0
+            ],
+            [
+              -0.069,
+              0
+            ],
+            [
+              -0.058,
+              0
+            ],
+            [
+              -0.05,
+              0
+            ],
+            [
+              -0.042,
+              0
+            ],
+            [
+              -0.036,
+              0
+            ],
+            [
+              -0.031,
+              0
+            ],
+            [
+              -0.026,
+              0
+            ],
+            [
+              -0.022,
+              0
+            ],
+            [
+              -0.019,
+              0
+            ],
+            [
+              -0.016,
+              0
+            ],
+            [
+              -0.014,
+              0
+            ],
+            [
+              -0.012,
+              0
+            ],
+            [
+              -0.01,
+              0
+            ],
+            [
+              -0.008,
+              0
+            ],
+            [
+              -0.007,
+              0
+            ],
+            [
+              -0.006,
+              0
+            ],
+            [
+              -0.005,
+              0
+            ],
+            [
+              -0.004,
+              0
+            ],
+            [
+              -0.004,
+              0
+            ],
+            [
+              -0.003,
+              0
+            ],
+            [
+              -0.003,
+              0
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "polyline",
+          "color": "#d97706",
+          "points": [
+            [
+              -4,
+              1.5
+            ],
+            [
+              -3.88,
+              1.05
+            ],
+            [
+              -3.656,
+              0.33
+            ],
+            [
+              -3.344,
+              -0.417
+            ],
+            [
+              -2.963,
+              -0.964
+            ],
+            [
+              -2.532,
+              -1.167
+            ],
+            [
+              -2.067,
+              -1
+            ],
+            [
+              -1.587,
+              -0.549
+            ],
+            [
+              -1.108,
+              0.021
+            ],
+            [
+              -0.643,
+              0.528
+            ],
+            [
+              -0.205,
+              0.826
+            ],
+            [
+              0.195,
+              0.846
+            ],
+            [
+              0.549,
+              0.611
+            ],
+            [
+              0.851,
+              0.216
+            ],
+            [
+              1.098,
+              -0.205
+            ],
+            [
+              1.287,
+              -0.522
+            ],
+            [
+              1.418,
+              -0.65
+            ],
+            [
+              1.494,
+              -0.571
+            ],
+            [
+              1.517,
+              -0.328
+            ],
+            [
+              1.493,
+              -0.011
+            ],
+            [
+              1.426,
+              0.277
+            ],
+            [
+              1.323,
+              0.454
+            ],
+            [
+              1.191,
+              0.477
+            ],
+            [
+              1.036,
+              0.354
+            ],
+            [
+              0.866,
+              0.138
+            ],
+            [
+              0.686,
+              -0.098
+            ],
+            [
+              0.504,
+              -0.281
+            ],
+            [
+              0.325,
+              -0.362
+            ],
+            [
+              0.154,
+              -0.325
+            ],
+            [
+              -0.004,
+              -0.195
+            ],
+            [
+              -0.146,
+              -0.019
+            ],
+            [
+              -0.27,
+              0.145
+            ],
+            [
+              -0.373,
+              0.249
+            ],
+            [
+              -0.455,
+              0.268
+            ],
+            [
+              -0.515,
+              0.205
+            ],
+            [
+              -0.554,
+              0.087
+            ],
+            [
+              -0.572,
+              -0.046
+            ],
+            [
+              -0.571,
+              -0.151
+            ],
+            [
+              -0.553,
+              -0.201
+            ],
+            [
+              -0.52,
+              -0.185
+            ],
+            [
+              -0.475,
+              -0.115
+            ],
+            [
+              -0.42,
+              -0.018
+            ],
+            [
+              -0.358,
+              0.075
+            ],
+            [
+              -0.292,
+              0.136
+            ],
+            [
+              -0.223,
+              0.15
+            ],
+            [
+              -0.155,
+              0.118
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              -4,
+              1.5
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#111827",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "debug-ladder",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The debugging ladder: climb one rung at a time; the first failing check names the class of bug.",
+      "fr": "L'échelle de débogage : un barreau à la fois ; le premier test qui échoue désigne la classe de bug."
+    },
+    "code": {
+      "en": "flowchart TD\n  A[\"1. Initial loss near ln K?\"] -->|\"no\"| A1[\"Output scale or loss is wrong\"]\n  A -->|\"yes\"| B[\"2. Gradient check on a tiny net\"]\n  B -->|\"fails\"| B1[\"Backward bug\"]\n  B -->|\"passes\"| C[\"3. Overfit 8 examples\"]\n  C -->|\"stuck\"| C1[\"Labels, update sign or learning rate\"]\n  C -->|\"loss near 0\"| D[\"4. Learning-rate sweep, largest that does not diverge\"]\n  D --> E[\"5. Full training, watch validation loss\"]\n  E -->|\"train and validation diverge\"| E1[\"Overfitting, not a bug\"]",
+      "fr": "flowchart TD\n  A[\"1. Perte initiale proche de ln K ?\"] -->|\"non\"| A1[\"Échelle de sortie ou perte erronée\"]\n  A -->|\"oui\"| B[\"2. Vérification du gradient sur un petit réseau\"]\n  B -->|\"échec\"| B1[\"Bug dans la passe arrière\"]\n  B -->|\"réussi\"| C[\"3. Surapprendre 8 exemples\"]\n  C -->|\"bloqué\"| C1[\"Labels, signe de la mise à jour ou taux d'apprentissage\"]\n  C -->|\"perte proche de 0\"| D[\"4. Balayage du taux d'apprentissage, le plus grand sans divergence\"]\n  D --> E[\"5. Entraînement complet, surveiller la perte de validation\"]\n  E -->|\"entraînement et validation divergent\"| E1[\"Surapprentissage, pas un bug\"]"
+    }
+  },
+  {
+    "id": "lr-curves",
+    "after": 7,
+    "kind": "plot",
+    "caption": {
+      "en": "Loss curves for L = theta² from theta_0 = 3 (exact: 9·(1 - 2·eta)^(2t)). Too small, eta = 0.01 (blue): a slow, steady decline. About right, eta = 0.4 (green): near zero in a few steps. Too large, eta = 1.05 (red): the loss grows geometrically.",
+      "fr": "Courbes de perte pour L = theta² depuis theta_0 = 3 (exact : 9·(1 - 2·eta)^(2t)). Trop petit, eta = 0,01 (bleu) : baisse lente et régulière. Bien choisi, eta = 0,4 (vert) : quasi nulle en quelques pas. Trop grand, eta = 1,05 (rouge) : la perte croît géométriquement."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        15
+      ],
+      "yDomain": [
+        0,
+        20
+      ],
+      "height": 300,
+      "title": "loss versus step t",
+      "data": [
+        {
+          "fn": "9*0.9604^x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "9*0.04^x",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "9*1.21^x",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  }
+]

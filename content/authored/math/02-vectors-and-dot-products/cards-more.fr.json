@@ -1,0 +1,11 @@
+[
+  { "id": "f2n.02.c14", "front": "Combinaison linéaire de vecteurs", "back": "$\\lambda_1v_1+\\dots+\\lambda_kv_k$." },
+  { "id": "f2n.02.c15", "front": "Norme de $(3,4)$", "back": "$5$ (le triangle 3-4-5)." },
+  { "id": "f2n.02.c16", "front": "Condition d'orthogonalité", "back": "$a\\cdot b=0$." },
+  { "id": "f2n.02.c17", "front": "Distance entre $a$ et $b$", "back": "$\\|a-b\\|$." },
+  { "id": "f2n.02.c18", "front": "Produit scalaire de $a$ avec lui-même", "back": "$a\\cdot a=\\|a\\|^2$." },
+  { "id": "f2n.02.c19", "front": "Plage de la similarité cosinus", "back": "$[-1,1]$ : 1 même direction, 0 perpendiculaires, -1 opposés." },
+  { "id": "f2n.02.c20", "front": "Loi des cosinus utilisée dans la démonstration", "back": "$\\|a-b\\|^2=\\|a\\|^2+\\|b\\|^2-2\\|a\\|\\|b\\|\\cos\\theta$." },
+  { "id": "f2n.02.c21", "front": "Résidu de la projection", "back": "$a-\\operatorname{proj}_ba$ est orthogonal à $b$." },
+  { "id": "f2n.02.c22", "front": "Pré-activation d'un neurone", "back": "$w\\cdot x+b$ : un produit scalaire plus un biais." }
+]

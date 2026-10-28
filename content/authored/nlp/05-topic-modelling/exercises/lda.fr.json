@@ -1,0 +1,10 @@
+{
+ "id": "nlp.05.ex1",
+ "title": "Un minuscule LDA avec échantillonnage de Gibbs collapsé",
+ "prompt": "Implémente un LDA minimal et ses lectures.\n\n- `conditional(ndk_d, nkw_w, nk, alpha, beta, V)` -> vecteur `(K,)` de somme 1 : la probabilité de chaque sujet pour le token courant, étant donnés des comptes qui EXCLUENT ce token (`ndk_d` : tokens de ce document par sujet, `nkw_w` : combien de fois ce mot est affecté à chaque sujet, `nk` : tokens par sujet).\n- `lda_gibbs(docs, K, V, alpha, beta, iters, seed)` -> `(ndk, nkw)` de formes `(D, K)` et `(K, V)` après `iters` balayages. Utilise `rng = np.random.default_rng(seed)` ; initialise les sujets au hasard.\n- `estimate(ndk, nkw, alpha, beta)` -> `(theta, phi)` de formes `(D, K)` et `(K, V)`.\n- `top_words(phi, n)` -> liste de K listes avec les identifiants des `n` mots les plus probables de chaque sujet.\n- `topic_diversity(tops)` -> mots distincts sur tous les sujets divisés par le nombre total de mots listés.",
+ "hints": [
+  "conditional : p = (ndk_d + alpha) * (nkw_w + beta) / (nk + V * beta), puis divise par p.sum(). Les comptes passés excluent déjà le token courant.",
+  "Par token : retire-le (ndk[d,k]-=1, nkw[k,w]-=1, nk[k]-=1), échantillonne k avec rng.choice(K, p=conditional(...)), puis rajoute-le au nouveau sujet.",
+  "theta = (ndk + alpha) / (Nd + K*alpha), phi = (nkw + beta) / (nk + V*beta) ; diversité = nombre de mots distincts parmi les n mots principaux de tous les sujets / (K*n)."
+ ]
+}

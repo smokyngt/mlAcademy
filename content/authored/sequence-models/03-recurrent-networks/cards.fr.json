@@ -1,0 +1,17 @@
+[
+  { "id": "seq.03.c1", "front": "Récurrence d'un RNN simple", "back": "$h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b)$, $h_0=0$ ; mêmes poids à chaque pas." },
+  { "id": "seq.03.c2", "front": "Dimensions : $W_{xh}$, $W_{hh}$, $b$, $h_t$", "back": "$(H,n)$, $(H,H)$, $(H)$, $(H)$ (par batch $(B,H)$). Code par batch en lignes : `X_t @ Wxh.T + h @ Whh.T + b`." },
+  { "id": "seq.03.c3", "front": "Que donne le dépliage d'un RNN ?", "back": "Un réseau feed-forward de profondeur $T$ dont les couches partagent les mêmes poids ; on l'entraîne par rétropropagation ordinaire (BPTT)." },
+  { "id": "seq.03.c4", "front": "Un pas de BPTT", "back": "$\\bar a_t=\\bar h_t\\odot(1-h_t^2)$ ; $\\bar h_{t-1}=W_{hh}^\\top\\bar a_t$ ; $\\bar W_{hh}\\mathrel{+}=\\bar a_th_{t-1}^\\top$ ; $\\bar W_{xh}\\mathrel{+}=\\bar a_tx_t^\\top$ ; $\\bar b\\mathrel{+}=\\bar a_t$." },
+  { "id": "seq.03.c5", "front": "Pourquoi les gradients des poids d'un RNN sont-ils des sommes sur le temps ?", "back": "Les poids sont partagés par tous les pas ; la règle de la chaîne additionne la contribution de chaque copie." },
+  { "id": "seq.03.c6", "front": "Que doit mettre en cache la passe avant pour la BPTT ?", "back": "Chaque état caché $h_t$ (et les entrées). La mémoire croît linéairement avec $T$." },
+  { "id": "seq.03.c7", "front": "Têtes de sortie : classification vs annotation", "back": "Classification/régression : perte sur le dernier état seulement. Annotation (étiquetage) : un classifieur et une perte à chaque pas, sommés." },
+  { "id": "seq.03.c8", "front": "Jacobienne d'un pas de RNN", "back": "$\\partial h_t/\\partial h_{t-1}=\\operatorname{diag}(1-h_t^2)W_{hh}$ ; $\\partial h_T/\\partial h_0=J_T\\cdots J_1$." },
+  { "id": "seq.03.c9", "front": "Borne de norme pour les gradients évanescents", "back": "$\\lVert\\partial h_T/\\partial h_0\\rVert\\le\\lVert W_{hh}\\rVert^T$ car $0<1-h^2\\le1$ ; si $\\lVert W_{hh}\\rVert<1$ le gradient décroît géométriquement." },
+  { "id": "seq.03.c10", "front": "Rôle du rayon spectral", "back": "En régime linéaire $\\lVert W_{hh}^T\\rVert\\approx c\\,\\rho^T$ : s'évanouit pour $\\rho<1$, explose pour $\\rho>1$, fil du rasoir à 1." },
+  { "id": "seq.03.c11", "front": "Pourquoi tanh peut-il transformer une explosion en évanouissement ?", "back": "De grands états saturent ($h\\to\\pm1$), donc $1-h^2\\to0$ et la jacobienne rétrécit." },
+  { "id": "seq.03.c12", "front": "Écrêtage du gradient par norme globale", "back": "$g\\leftarrow g\\min(1,\\tau/\\lVert g\\rVert)$ avec $\\lVert g\\rVert$ sur tous les paramètres ; même direction, pas borné. Ne corrige que les explosions." },
+  { "id": "seq.03.c13", "front": "BPTT tronquée", "back": "Rétropropager seulement $k$ pas ; borne mémoire/calcul mais ignore les dépendances plus longues." },
+  { "id": "seq.03.c14", "front": "Pourquoi les gradients évanescents nuisent à l'apprentissage à longue portée", "back": "Le signal d'apprentissage de la perte vers une entrée ancienne est multiplié par $\\approx\\rho^{T}$, donc les premières entrées ne peuvent pas être créditées des erreurs tardives." },
+  { "id": "seq.03.c15", "front": "Principaux inconvénients des RNN", "back": "Calcul séquentiel (pas de parallélisme sur le temps), mémoire de taille fixe, dépendances à longue portée difficiles." }
+]

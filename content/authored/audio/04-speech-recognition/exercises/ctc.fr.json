@@ -1,0 +1,10 @@
+{
+  "id": "aud.04.ex1",
+  "title": "CTC : réduction, probabilité avant, recherche gloutonne et en faisceau sur préfixes",
+  "prompt": "Implémente la CTC pour un seul énoncé. `logp` est un tableau `(T, V)` de **log**-probabilités par trame (chaque ligne est un log-softmax ; le symbole 0 est le blank).\n\n- `collapse(path, blank=0)` -> liste : fusionne les répétitions consécutives, puis supprime les blanks.\n- `ctc_forward(logp, target, blank=0)` -> `log P(target | x)` (flottant ; `-inf` quand c'est impossible) avec l'algorithme avant en espace logarithmique. `target` est une liste de symboles non-blank (elle peut être vide).\n- `ctc_greedy(logp, blank=0)` -> décodage du meilleur chemin (argmax par trame, puis réduction).\n- `ctc_prefix_beam_search(logp, beam=8, blank=0)` -> `(label_list, log_prob)` du meilleur préfixe trouvé. Avec un faisceau assez large pour tout garder, le résultat doit être la transcription exacte la plus probable, et `log_prob` doit être égal à `ctc_forward` de cette transcription.",
+  "hints": [
+    "collapse : parcours le chemin, ne garde un symbole que s'il diffère du symbole précédent ET n'est pas le blank.",
+    "ctc_forward : étiquettes étendues ext = [blank, y1, blank, y2, ..., blank]. alpha[0,0]=logp[0,blank], alpha[0,1]=logp[0,ext[1]]. alpha[t,s] = logaddexp de alpha[t-1,s], alpha[t-1,s-1] et (seulement si ext[s] != blank et ext[s] != ext[s-2]) alpha[t-1,s-2], plus logp[t, ext[s]]. Réponse = logaddexp(alpha[T-1,S-1], alpha[T-1,S-2]).",
+    "La recherche en faisceau sur préfixes garde pour chaque préfixe (pb, pnb) en espace logarithmique. Pour chaque trame : blank -> même préfixe, va dans pb ; dernière étiquette répétée -> rester (pnb + p) dans pnb, étendre (pb + p) dans le pnb du nouveau préfixe ; autre étiquette -> étendre avec (pb et pnb combinés) dans le pnb du nouveau préfixe. Garde les `beam` meilleurs préfixes selon logaddexp(pb, pnb)."
+  ]
+}

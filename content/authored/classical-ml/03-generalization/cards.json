@@ -1,0 +1,14 @@
+[
+  { "id": "cml.03.c1", "concept": "ml.generalization", "front": "Bias-variance decomposition", "back": "$E[(y-\\hat f)^2]=\\text{bias}^2+\\text{variance}+\\sigma^2$ (irreducible noise)." },
+  { "id": "cml.03.c2", "concept": "ml.generalization", "front": "Underfitting signature", "back": "Training and validation error both high and close. Fix: richer model / better features." },
+  { "id": "cml.03.c3", "concept": "ml.generalization", "front": "Overfitting signature", "back": "Training error low, validation error much higher. Fix: more data, regularisation, simpler model." },
+  { "id": "cml.03.c4", "concept": "ml.generalization", "front": "Role of train / validation / test sets", "back": "Train: fit weights. Validation: choose settings. Test: report once at the end." },
+  { "id": "cml.03.c5", "concept": "ml.generalization", "front": "k-fold cross-validation", "back": "Split into $k$ folds; train on $k-1$, validate on the held-out fold; average the $k$ errors. Each point validates exactly once." },
+  { "id": "cml.03.c6", "concept": "ml.generalization", "front": "Does training error fall with model complexity?", "back": "Always (for nested models). Validation error is U-shaped." },
+  { "id": "cml.03.c7", "concept": "ml.generalization", "front": "Data leakage", "back": "Using information from validation/test data when fitting anything (scalers, feature selection, hyper-parameters). Do everything inside the training fold." },
+  { "id": "cml.03.c8", "concept": "ml.generalization", "front": "Effect of larger $\\lambda$ in ridge", "back": "More bias, less variance." },
+  { "id": "cml.03.c9", "concept": "ml.generalization", "front": "Does more data fix high bias?", "back": "No. More data lowers variance; high bias needs a more expressive model." },
+  { "id": "cml.03.c10", "concept": "ml.generalization", "front": "Irreducible error", "back": "$\\sigma^2$, the noise in the targets: no model can go below it." },
+  { "id": "cml.03.c11", "concept": "ml.generalization", "front": "Time series splitting", "back": "Train on the past, validate on a later period; never shuffle across time." },
+  { "id": "cml.03.c12", "concept": "ml.generalization", "front": "One-standard-error rule", "back": "Pick the simplest model whose CV error is within one standard error of the best." }
+]

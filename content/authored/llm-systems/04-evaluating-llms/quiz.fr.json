@@ -1,0 +1,91 @@
+[
+ {
+  "id": "sys.04.q1",
+  "prompt": "Pourquoi un score élevé sur un benchmark public peut-il échouer à prédire la performance sur ton produit ?",
+  "options": [
+   "Les scores ne sont pas des nombres",
+   "La contamination, la saturation et un décalage de tâche",
+   "Les benchmarks utilisent un autre GPU",
+   "Les benchmarks n'ont pas de questions"
+  ],
+  "explanation": "Le benchmark peut être dans les données d'entraînement, ne plus discriminer, et correspond rarement à tes données et à tes modes de défaillance."
+ },
+ {
+  "id": "sys.04.q2",
+  "prompt": "Quelle métrique récompense le fait de placer le premier document pertinent au rang 1 plutôt qu'au rang 4 ?",
+  "options": [
+   "La perplexité",
+   "L'accuracy@10",
+   "Le MRR",
+   "Le recall@10"
+  ],
+  "explanation": "Le rang réciproque vaut 1 au rang 1 et 0.25 au rang 4 ; le recall@10 ignore la position dans le top 10."
+ },
+ {
+  "id": "sys.04.q3",
+  "prompt": "Requête dont l'ensemble pertinent est {d1}, classement d3 d1 d7. Rang réciproque ?",
+  "options": [],
+  "explanation": "Le premier élément pertinent est au rang 2, donc RR = 1/2."
+ },
+ {
+  "id": "sys.04.q4",
+  "prompt": "Ensemble pertinent {d1, d2} ; classement d4 d5 d6 d1 d2. Recall@4 ?",
+  "options": [],
+  "explanation": "Seul d1 est dans le top 4 : 1 pertinent sur 2."
+ },
+ {
+  "id": "sys.04.q5",
+  "prompt": "Dans le nDCG, pourquoi diviser par le DCG idéal ?",
+  "options": [
+   "Pour le rendre non dérivable",
+   "Pour placer le score dans [0, 1] quel que soit le nombre de documents pertinents",
+   "Pour supprimer le log",
+   "Pour pénaliser les longues listes"
+  ],
+  "explanation": "La valeur normalisée vaut 1 pour un ordre parfait, ce qui rend les requêtes comparables."
+ },
+ {
+  "id": "sys.04.q6",
+  "prompt": "Système A : 74/100 corrects, B : 67/100 sur les mêmes éléments. Quelle est la bonne façon de tester la différence ?",
+  "options": [
+   "Comparer seulement les moyennes",
+   "Utiliser la perte d'entraînement",
+   "Un bootstrap apparié des différences par élément",
+   "Vérifier si les deux IC séparés se chevauchent et s'arrêter là"
+  ],
+  "explanation": "L'appariement supprime la difficulté partagée des éléments ; le chevauchement d'intervalles marginaux n'est ni nécessaire ni suffisant."
+ },
+ {
+  "id": "sys.04.q7",
+  "prompt": "Tu quadruples le nombre d'éléments d'évaluation. L'IC à 95 % de la moyenne...",
+  "options": [
+   "reste le même",
+   "double",
+   "rétrécit d'un facteur 4",
+   "voit sa largeur divisée par deux"
+  ],
+  "explanation": "L'erreur standard varie comme 1/sqrt(n)."
+ },
+ {
+  "id": "sys.04.q8",
+  "prompt": "Un juge choisit la réponse affichée EN PREMIER dans 70 % des comparaisons par paires alors que l'ordre d'affichage a été attribué au hasard. De quel biais s'agit-il ?",
+  "options": [
+   "Biais de position (quand l'ordre n'est pas randomisé)",
+   "Auto-préférence",
+   "Verbosité",
+   "Contamination"
+  ],
+  "explanation": "Une préférence liée à la position plutôt qu'au contenu est un biais de position ; randomise ou évalue les deux ordres."
+ },
+ {
+  "id": "sys.04.q9",
+  "prompt": "Le modèle A bat le modèle B dans chaque tranche mais B a la meilleure précision globale. C'est...",
+  "options": [
+   "La preuve que B est meilleur dans chaque tranche",
+   "Le paradoxe de Simpson : les tailles de tranches diffèrent entre les modèles",
+   "Un bug de la métrique",
+   "Impossible"
+  ],
+  "explanation": "Des poids inégaux des tranches renversent l'agrégat ; regarde toujours les tranches."
+ }
+]

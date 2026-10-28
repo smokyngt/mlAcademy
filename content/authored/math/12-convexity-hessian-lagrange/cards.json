@@ -1,0 +1,17 @@
+[
+  { "id": "math.12.c1", "concept": "opt.convex", "front": "Hessian", "back": "$H_{ij}=\\partial^2f/\\partial x_i\\partial x_j$, an $(n,n)$ symmetric matrix of curvatures (mixed partials commute)." },
+  { "id": "math.12.c2", "concept": "opt.convex", "front": "Second-order Taylor expansion", "back": "$f(\\mathbf x_0+\\boldsymbol\\delta)\\approx f+\\nabla f^\\top\\boldsymbol\\delta+\\frac12\\boldsymbol\\delta^\\top H\\boldsymbol\\delta$." },
+  { "id": "math.12.c3", "concept": "opt.convex", "front": "Classify a stationary point", "back": "Eigenvalues of $H$: all $>0$ minimum; all $<0$ maximum; mixed signs saddle; zeros inconclusive." },
+  { "id": "math.12.c4", "concept": "opt.convex", "front": "Why eigenvalues and not the diagonal?", "back": "$\\boldsymbol\\delta^\\top H\\boldsymbol\\delta=\\sum\\lambda_ic_i^2$ in the eigenbasis. $x^2+3xy+y^2$ has eigenvalues $5,-1$: a saddle." },
+  { "id": "math.12.c5", "concept": "opt.convex", "front": "Convex set", "back": "$\\theta\\mathbf x+(1-\\theta)\\mathbf y\\in C$ for all $\\mathbf x,\\mathbf y\\in C$, $\\theta\\in[0,1]$: segments stay inside." },
+  { "id": "math.12.c6", "concept": "opt.convex", "front": "Convex function (definition)", "back": "$f(\\theta\\mathbf x+(1-\\theta)\\mathbf y)\\le\\theta f(\\mathbf x)+(1-\\theta)f(\\mathbf y)$: the chord lies above the graph." },
+  { "id": "math.12.c7", "concept": "opt.convex", "front": "First-order convexity condition", "back": "$f(\\mathbf y)\\ge f(\\mathbf x)+\\nabla f(\\mathbf x)^\\top(\\mathbf y-\\mathbf x)$: the graph lies above every tangent plane." },
+  { "id": "math.12.c8", "concept": "opt.convex", "front": "Second-order convexity condition", "back": "$H(\\mathbf x)\\succeq0$ for every $\\mathbf x$ in the (convex) domain; in 1-D, $f''\\ge0$." },
+  { "id": "math.12.c9", "concept": "opt.convex", "front": "Closure properties of convexity", "back": "$\\alpha f_1+\\beta f_2$ with $\\alpha,\\beta\\ge0$ is convex; so convex loss + ridge or lasso penalty stays convex." },
+  { "id": "math.12.c10", "concept": "opt.convex", "front": "Main theorem about convex minimisation", "back": "Every local minimum is a global minimum; a stationary point is a global minimum. Gradient descent cannot be trapped." },
+  { "id": "math.12.c11", "concept": "opt.convex", "front": "Newton's method", "back": "$\\mathbf x\\leftarrow\\mathbf x-H^{-1}\\nabla f$, i.e. solve $H\\boldsymbol\\delta=-\\nabla f$. Exact on quadratics, quadratic convergence near a minimum, $O(n^2)$ memory and $O(n^3)$ time." },
+  { "id": "math.12.c12", "concept": "opt.convex", "front": "Lagrangian for $g(\\mathbf x)=0$", "back": "$\\mathcal L=f+\\lambda g$; stationarity $\\nabla f=-\\lambda\\nabla g$ plus $g=0$ ($n+1$ equations, $n+1$ unknowns)." },
+  { "id": "math.12.c13", "concept": "opt.convex", "front": "Why are $\\nabla f$ and $\\nabla g$ parallel at a constrained optimum?", "back": "$\\nabla g$ is normal to the constraint surface; $\\nabla f$ must also be normal, else sliding along the surface would improve $f$." },
+  { "id": "math.12.c14", "concept": "opt.convex", "front": "Inequality constraints $g_i\\le0$", "back": "Multipliers $\\lambda_i\\ge0$; complementary slackness $\\lambda_ig_i=0$ (active constraint or zero multiplier)." },
+  { "id": "math.12.c15", "concept": "opt.convex", "front": "Dual function and weak duality", "back": "$D(\\boldsymbol\\lambda)=\\min_{\\mathbf x}\\mathcal L$ is concave and lower-bounds the primal optimum; for convex problems the maximum of $D$ equals the primal optimum (strong duality)." }
+]

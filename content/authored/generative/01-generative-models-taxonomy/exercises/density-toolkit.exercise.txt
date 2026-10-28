@@ -1,0 +1,76 @@
+#@@ meta
+{"id": "gen.01.ex1", "title": "Density estimation, sampling and Bayes", "difficulty": 2, "runtime": "pyodide", "concepts": ["gen.taxonomy"], "hints": ["gmm_logpdf: build a (N,K) matrix log(w_k)+log N(x|mu_k,sigma_k), subtract its row max, exp, sum, log, add the max back.", "gmm_sample: k = rng.choice(len(w), size=n, p=w), then rng.normal(mu[k], sigma[k]) (index arrays).", "generative_classify is a softmax over log prior + log likelihood."]}
+#@@ prompt
+Build the density-and-sampling toolkit used in the lesson (NumPy only).
+
+- `gauss_logpdf(x, mu, sigma)`: log density of $\mathcal N(\mu,\sigma^2)$.
+- `gmm_logpdf(x, w, mu, sigma)`: log density of a 1-D Gaussian mixture, shape `(N,)`; use log-sum-exp so far points do not underflow.
+- `gmm_sample(n, w, mu, sigma, rng)`: ancestral sampling (choose a component with `rng.choice`, then draw a normal).
+- `mle_gauss(x)`: maximum-likelihood mean and (biased) standard deviation.
+- `avg_nll(logp)`: average negative log-likelihood.
+- `generative_classify(x, priors, mus, sigmas)`: posterior class probabilities `(N, C)` from Gaussian class-conditionals via Bayes' rule.
+#@@ starter
+import numpy as np
+
+def gauss_logpdf(x, mu, sigma):
+    raise NotImplementedError
+
+def gmm_logpdf(x, w, mu, sigma):
+    raise NotImplementedError
+
+def gmm_sample(n, w, mu, sigma, rng):
+    raise NotImplementedError
+
+def mle_gauss(x):
+    raise NotImplementedError
+
+def avg_nll(logp):
+    raise NotImplementedError
+
+def generative_classify(x, priors, mus, sigmas):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+w, mu, sg = [0.5, 0.5], [-2, 2], [0.5, 0.5]
+rng = np.random.default_rng(0)
+tr = gmm_sample(2000, w, mu, sg, rng)
+te = gmm_sample(2000, w, mu, sg, rng)
+m, s = mle_gauss(tr)
+check("gauss_logpdf at the mean of N(0,1) is -0.9189", lambda: abs(gauss_logpdf(0.0, 0.0, 1.0) + 0.9189385) < 1e-6)
+check("gmm with one component equals gaussian", lambda: np.allclose(gmm_logpdf([0.3, 1.0], [1.0], [0.0], [2.0]), gauss_logpdf(np.array([0.3, 1.0]), 0.0, 2.0)))
+check("gmm density integrates to 1", lambda: abs(np.exp(gmm_logpdf(np.linspace(-6, 6, 4001), w, mu, sg)).sum() * 12 / 4000 - 1) < 1e-3)
+check("sample mean ~ 0 and std ~ 2.05 (worked example)", lambda: abs(m) < 0.05 and abs(s - 2.0476) < 0.01)
+check("held-out NLL of the single Gaussian ~ 2.148", lambda: abs(avg_nll(gauss_logpdf(te, m, s)) - 2.1485) < 0.01)
+check("held-out NLL of the true mixture ~ 1.437 and better", lambda: abs(avg_nll(gmm_logpdf(te, w, mu, sg)) - 1.4372) < 0.01)
+check("log-sum-exp is stable for far points", lambda: np.isfinite(gmm_logpdf([100.0], w, mu, sg)).all())
+p = generative_classify([-2, 0, 1], [0.5, 0.5], [-2, 2], [0.5, 0.5])
+check("posterior rows sum to 1 and p(0)=0.5", lambda: np.allclose(p.sum(1), 1) and abs(p[1, 1] - 0.5) < 1e-9)
+check("prior 0.9/0.1 at x=0.5 gives 0.997 for class 2", lambda: abs(generative_classify([0.5], [0.9, 0.1], [-2, 2], [0.5, 0.5])[0, 1] - 0.997) < 1e-3)
+#@@ solution
+import numpy as np
+
+def gauss_logpdf(x, mu, sigma):
+    return -0.5 * np.log(2 * np.pi * sigma ** 2) - (x - mu) ** 2 / (2 * sigma ** 2)
+
+def gmm_logpdf(x, w, mu, sigma):
+    x = np.asarray(x, float)[:, None]
+    lp = np.log(np.asarray(w)) + gauss_logpdf(x, np.asarray(mu), np.asarray(sigma))
+    m = lp.max(1, keepdims=True)
+    return (m + np.log(np.exp(lp - m).sum(1, keepdims=True)))[:, 0]
+
+def gmm_sample(n, w, mu, sigma, rng):
+    k = rng.choice(len(w), size=n, p=w)
+    return rng.normal(np.asarray(mu)[k], np.asarray(sigma)[k])
+
+def mle_gauss(x):
+    return x.mean(), x.std()
+
+def avg_nll(logp):
+    return -np.mean(logp)
+
+def generative_classify(x, priors, mus, sigmas):
+    x = np.asarray(x, float)[:, None]
+    lp = np.log(np.asarray(priors)) + gauss_logpdf(x, np.asarray(mus), np.asarray(sigmas))
+    lp = lp - lp.max(1, keepdims=True)
+    p = np.exp(lp)
+    return p / p.sum(1, keepdims=True)

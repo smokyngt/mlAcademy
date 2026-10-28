@@ -1,0 +1,78 @@
+#@@ meta
+{"id": "ops.04.ex1", "title": "Slice metrics, baselines and ensembles", "difficulty": 3, "runtime": "pyodide", "concepts": ["ops.offline-eval", "ops.slice-eval"], "hints": ["slice_metrics: loop over np.unique(slice_ids); a slice with n items and c correct has accuracy c/n.", "Random baseline that predicts positive with probability q on data with positive prevalence p: precision = p, recall = q, accuracy = p*q + (1-p)*(1-q).", "Majority of n independent classifiers: sum over k > n/2 of C(n,k) p^k (1-p)^(n-k). math.comb is available."]}
+#@@ prompt
+Aggregate accuracy hides failures. Implement:
+
+- `slice_metrics(y_true, y_pred, slice_ids)` -> dict `{slice_id: (n, accuracy)}`.
+- `worst_slice(metrics, min_n)` -> the id of the slice with the lowest accuracy among slices with at least `min_n` examples (ties: smallest id).
+- `random_baseline(p, q)` -> `(f1, accuracy)` of a model that predicts the positive class with probability `q`, independently of the input, when the positive class has prevalence `p`.
+- `majority_accuracy(p, n)` -> accuracy of a majority vote over `n` (odd) independent classifiers that are each correct with probability `p`.
+#@@ starter
+import numpy as np
+from math import comb
+
+def slice_metrics(y_true, y_pred, slice_ids):
+    raise NotImplementedError
+
+def worst_slice(metrics, min_n):
+    raise NotImplementedError
+
+def random_baseline(p, q):
+    raise NotImplementedError
+
+def majority_accuracy(p, n):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+# Simpson's paradox with counts (correct, total) per group
+A_grp = {"A": (81, 87), "B": (192, 263)}   # model A
+B_grp = {"A": (234, 270), "B": (55, 80)}   # model B
+def build(counts):
+    y_true, y_pred, sl = [], [], []
+    for g, (c, n) in counts.items():
+        y_true += [1] * n
+        y_pred += [1] * c + [0] * (n - c)
+        sl += [g] * n
+    return np.array(y_true), np.array(y_pred), np.array(sl)
+ya, pa, sa = build(A_grp)
+yb, pb, sb = build(B_grp)
+ma = slice_metrics(ya, pa, sa)
+mb = slice_metrics(yb, pb, sb)
+check("slice sizes", lambda: ma["A"][0] == 87 and ma["B"][0] == 263)
+check("model A accuracy per slice", lambda: abs(ma["A"][1] - 81 / 87) < 1e-12 and abs(ma["B"][1] - 192 / 263) < 1e-12)
+check("model A wins in both slices", lambda: ma["A"][1] > mb["A"][1] and ma["B"][1] > mb["B"][1])
+check("model B wins overall (Simpson's paradox)", lambda: (pb == yb).mean() > (pa == ya).mean(), "overall 289/350 vs 273/350")
+check("worst slice for model A is B", lambda: worst_slice(ma, 10) == "B")
+check("worst_slice respects min_n", lambda: worst_slice({"x": (3, 0.0), "y": (50, 0.8), "z": (40, 0.7)}, 10) == "z")
+f1u, accu = random_baseline(0.1, 0.5)
+f1l, accl = random_baseline(0.1, 0.1)
+check("uniform random baseline: F1 = 0.167, accuracy = 0.5", lambda: abs(f1u - 1 / 6) < 1e-9 and abs(accu - 0.5) < 1e-12)
+check("label-distribution random baseline: F1 = 0.1, accuracy = 0.82", lambda: abs(f1l - 0.1) < 1e-9 and abs(accl - 0.82) < 1e-12)
+check("three 70% classifiers -> 78.4%", lambda: abs(majority_accuracy(0.7, 3) - 0.784) < 1e-12)
+check("one classifier is just itself", lambda: abs(majority_accuracy(0.7, 1) - 0.7) < 1e-12)
+check("more independent voters help", lambda: majority_accuracy(0.7, 11) > majority_accuracy(0.7, 3) > 0.7)
+#@@ solution
+import numpy as np
+from math import comb
+
+def slice_metrics(y_true, y_pred, slice_ids):
+    y_true, y_pred, slice_ids = map(np.asarray, (y_true, y_pred, slice_ids))
+    out = {}
+    for s in np.unique(slice_ids):
+        m = slice_ids == s
+        key = s.item() if hasattr(s, "item") else s
+        out[key] = (int(m.sum()), float(np.mean(y_true[m] == y_pred[m])))
+    return out
+
+def worst_slice(metrics, min_n):
+    cand = [(acc, k) for k, (n, acc) in metrics.items() if n >= min_n]
+    return min(cand, key=lambda t: (t[0], str(t[1])))[1]
+
+def random_baseline(p, q):
+    precision, recall = p, q
+    f1 = 2 * precision * recall / (precision + recall)
+    acc = p * q + (1 - p) * (1 - q)
+    return f1, acc
+
+def majority_accuracy(p, n):
+    return sum(comb(n, k) * p ** k * (1 - p) ** (n - k) for k in range(n // 2 + 1, n + 1))

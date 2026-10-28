@@ -1,0 +1,10 @@
+{
+ "id": "gen.04.ex1",
+ "title": "Calendrier DDPM, bruitage direct et échantillonnage",
+ "prompt": "Implémente les éléments d'un DDPM et teste-les contre un débruiteur exact pour des données gaussiennes 1-D $x_0\\sim\\mathcal N(m_0,s_0^2)$ (NumPy uniquement).\n\n- `linear_betas(T)`, `alpha_bars(betas)`, `q_sample(x0, t, abar, eps)` (indice d'étape `t` à base zéro).\n- `analytic_x0_hat(xt, t, abar, m0, s0)` : $\\mathbb E[x_0|x_t]$, et `analytic_eps(...)` : la prédiction de bruit optimale $(x_t-\\sqrt{\\bar\\alpha_t}\\hat x_0)/\\sqrt{1-\\bar\\alpha_t}$.\n- `posterior_mean_var(x0, xt, t, betas)` : moyenne et variance de $q(x_{t-1}|x_t,x_0)$ (utilise $\\bar\\alpha_{-1}=1$ pour la première étape).\n- `sample(n, betas, eps_fn, rng)` : la boucle d'échantillonnage ancestral avec $\\sigma_t^2=\\beta_t$ et sans bruit à la dernière étape ; `eps_fn(x, t)` renvoie la prédiction de bruit.",
+ "hints": [
+  "alpha_bar vaut np.cumprod(1 - betas) ; q_sample utilise sqrt(abar[t]) et sqrt(1-abar[t]).",
+  "Moyenne a posteriori = sqrt(abar_{t-1}) beta_t/(1-abar_t) x0 + sqrt(alpha_t)(1-abar_{t-1})/(1-abar_t) x_t.",
+  "Échantillonnage : boucle de t = T-1 à 0, x = (x - beta/sqrt(1-abar)*eps)/sqrt(alpha), puis ajoute sqrt(beta)*bruit sauf si t == 0."
+ ]
+}

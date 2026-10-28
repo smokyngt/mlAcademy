@@ -1,0 +1,91 @@
+[
+ {
+  "id": "vis.02.q1",
+  "prompt": "Que faut-il passer à une perte d'entropie croisée qui applique le softmax en interne ?",
+  "options": [
+   "Les logits bruts",
+   "Des prédictions one-hot",
+   "Les probabilités après softmax",
+   "Des images normalisées"
+  ],
+  "explanation": "La perte fusionne softmax et log ; lui donner des probabilités applique le softmax deux fois et donne de mauvais gradients."
+ },
+ {
+  "id": "vis.02.q2",
+  "prompt": "Pour l'entropie croisée softmax avec la vraie classe $y$, le gradient par rapport au logit $z_i$ est...",
+  "options": [
+   "$\\log p_i$",
+   "$1 - p_y$ pour tout $i$",
+   "$p_i - \\mathbf 1[i=y]$",
+   "$p_i^2$"
+  ],
+  "explanation": "Dériver $-z_y+\\log\\sum_j e^{z_j}$ donne $-\\mathbf 1[i=y]+p_i$."
+ },
+ {
+  "id": "vis.02.q3",
+  "prompt": "Logits $(2.0,1.0,0.1)$, vraie classe 0. Quelle est la perte d'entropie croisée (3 décimales) ?",
+  "options": [],
+  "explanation": "$p_0=e^2/(e^2+e+e^{0.1})=0.659$, perte $=-\\ln0.659=0.417$."
+ },
+ {
+  "id": "vis.02.q4",
+  "prompt": "Un jeu de données à 10 classes est composé à 95 % de la classe A. Un modèle qui prédit toujours A a 95 % de précision. Quel outil révèle le problème le plus vite ?",
+  "options": [
+   "La perte d'entraînement",
+   "La précision top-5",
+   "Le planning de taux d'apprentissage",
+   "La matrice de confusion avec le rappel par classe"
+  ],
+  "explanation": "Le rappel des neuf classes rares serait 0. Le top-5 paraîtrait même excellent."
+ },
+ {
+  "id": "vis.02.q5",
+  "prompt": "Trois images ont des logits dont les rangs de la vraie classe sont 1er, 2e et 4e. Quelle est la précision top-2 ?",
+  "options": [
+   "1",
+   "0",
+   "2/3",
+   "1/3"
+  ],
+  "explanation": "Pour les deux premières, la vraie classe est parmi les deux premières ; pas pour la troisième."
+ },
+ {
+  "id": "vis.02.q6",
+  "prompt": "Tu as 600 photos étiquetées d'objets du quotidien (un domaine proche d'ImageNet). La première expérience la plus raisonnable est...",
+  "options": [
+   "Geler un backbone pré-entraîné et entraîner une nouvelle tête linéaire",
+   "N'utiliser que la première couche d'un modèle pré-entraîné",
+   "Fine-tuner tout avec le plus grand taux d'apprentissage qui ne plante pas",
+   "Entraîner un grand CNN à partir de zéro"
+  ],
+  "explanation": "Avec peu de données et un domaine proche, les caractéristiques gelées forment le plancher le plus sûr et le moins coûteux ; fais ensuite du fine-tuning si nécessaire."
+ },
+ {
+  "id": "vis.02.q7",
+  "prompt": "Décroissance par couche $\\eta_k=\\eta_{base}\\gamma^{L-k}$ avec $\\gamma=0.5$, $L=4$, $\\eta_{base}=0.016$. Quel est le taux d'apprentissage de la couche $k=1$ ?",
+  "options": [],
+  "explanation": "$0.016\\cdot0.5^{3}=0.002$."
+ },
+ {
+  "id": "vis.02.q8",
+  "prompt": "Pourquoi les premières couches doivent-elles recevoir un taux d'apprentissage plus petit que les suivantes lors du fine-tuning ?",
+  "options": [
+   "Elles ont moins de paramètres",
+   "Elles encodent des caractéristiques génériques que l'on veut préserver, alors que les dernières couches sont spécifiques à la tâche",
+   "BatchNorm l'exige",
+   "Leurs gradients sont toujours plus grands"
+  ],
+  "explanation": "De grosses mises à jour des caractéristiques génériques précoces peuvent les détruire avant que la nouvelle tâche n'ait rien appris (oubli catastrophique)."
+ },
+ {
+  "id": "vis.02.q9",
+  "prompt": "Après le fine-tuning, la précision de validation est inférieure à celle de la sonde linéaire gelée. Les causes les plus probables sont...",
+  "options": [
+   "La sonde est toujours imbattable",
+   "Utiliser le top-1 au lieu du top-5",
+   "Un taux d'apprentissage trop élevé ou un problème de statistiques BatchNorm",
+   "Trop de données"
+  ],
+  "explanation": "Le fine-tuning ne devrait pas perdre contre son propre point de départ ; un bug de taux d'apprentissage ou de BN est le coupable habituel."
+ }
+]

@@ -1,0 +1,99 @@
+#@@ meta
+{"id": "saf.02.ex1", "title": "Preference losses: DPO, IPO, SimPO, KTO, ORPO", "difficulty": 3, "runtime": "pyodide", "concepts": ["saf.pref-optimisation"], "hints": ["DPO margin m = beta * ((lp_w - ref_w) - (lp_l - ref_l)); loss = -log(sigmoid(m)). Its derivative with respect to lp_w is -beta*sigmoid(-m), and with respect to lp_l it is +beta*sigmoid(-m).", "IPO is a squared error: (log-ratio difference - 1/(2*beta))**2. SimPO divides each log-probability by its length, has no reference model, and subtracts a margin gamma.", "implicit_reward(pi, pi_ref, beta) = beta*log(pi/pi_ref). At the KL-regularised optimum it equals r + const, so differences of implicit rewards recover differences of true rewards."]}
+#@@ prompt
+Implement the per-example preference losses on sequence log-probabilities.
+
+- `sigmoid(z)`.
+- `dpo_loss(lp_w, lp_l, ref_w, ref_l, beta)`: `-log sigmoid(beta*((lp_w-ref_w)-(lp_l-ref_l)))`.
+- `dpo_grad(lp_w, lp_l, ref_w, ref_l, beta)` -> `(dL/dlp_w, dL/dlp_l)`.
+- `ipo_loss(lp_w, lp_l, ref_w, ref_l, beta)`: squared distance of the log-ratio difference from `1/(2*beta)`.
+- `simpo_loss(lp_w, lp_l, len_w, len_l, beta, gamma)`: `-log sigmoid(beta*lp_w/len_w - beta*lp_l/len_l - gamma)`; no reference model.
+- `kto_loss(lp, ref, desirable, beta, z_ref)`: with `r = lp - ref`, return `1 - sigmoid(beta*r - z_ref)` if `desirable` else `1 - sigmoid(z_ref - beta*r)` (a simplified KTO value, without the loss-aversion weights).
+- `orpo_or_loss(p_w, p_l)`: `-log sigmoid(log(odds(p_w)/odds(p_l)))` where `odds(p) = p/(1-p)`.
+- `implicit_reward(pi, pi_ref, beta)`: `beta*log(pi/pi_ref)` elementwise.
+#@@ starter
+import numpy as np
+
+def sigmoid(z):
+    raise NotImplementedError
+
+def dpo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    raise NotImplementedError
+
+def dpo_grad(lp_w, lp_l, ref_w, ref_l, beta):
+    raise NotImplementedError
+
+def ipo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    raise NotImplementedError
+
+def simpo_loss(lp_w, lp_l, len_w, len_l, beta, gamma):
+    raise NotImplementedError
+
+def kto_loss(lp, ref, desirable, beta, z_ref):
+    raise NotImplementedError
+
+def orpo_or_loss(p_w, p_l):
+    raise NotImplementedError
+
+def implicit_reward(pi, pi_ref, beta):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("sigmoid(0) = 0.5", lambda: abs(sigmoid(0.0) - 0.5) < 1e-12)
+check("DPO beta=0.1 example = 0.5981", lambda: abs(dpo_loss(-10, -12, -11, -11, 0.1) - 0.59814) < 1e-4)
+check("DPO beta=1 example = 0.1269", lambda: abs(dpo_loss(-10, -12, -11, -11, 1.0) - 0.12693) < 1e-4)
+check("DPO loss is log 2 when policy equals reference", lambda: abs(dpo_loss(-5, -7, -5, -7, 0.3) - np.log(2)) < 1e-12)
+def num_grad():
+    e = 1e-6
+    a = (dpo_loss(-10 + e, -12, -11, -11, 0.7) - dpo_loss(-10 - e, -12, -11, -11, 0.7)) / (2 * e)
+    b = (dpo_loss(-10, -12 + e, -11, -11, 0.7) - dpo_loss(-10, -12 - e, -11, -11, 0.7)) / (2 * e)
+    ga, gb = dpo_grad(-10, -12, -11, -11, 0.7)
+    return abs(a - ga) < 1e-6 and abs(b - gb) < 1e-6
+check("DPO gradient matches finite differences", num_grad)
+check("DPO gradient pushes chosen up and rejected down", lambda: dpo_grad(-10, -12, -11, -11, 0.7)[0] < 0 < dpo_grad(-10, -12, -11, -11, 0.7)[1])
+check("IPO beta=0.1 gives 9", lambda: abs(ipo_loss(-10, -12, -11, -11, 0.1) - 9.0) < 1e-9)
+check("IPO beta=1 gives 2.25", lambda: abs(ipo_loss(-10, -12, -11, -11, 1.0) - 2.25) < 1e-9)
+check("SimPO example = 0.9741", lambda: abs(simpo_loss(-10, -18, 5, 9, 2.0, 0.5) - 0.97408) < 1e-4)
+check("KTO desirable = 0.2689", lambda: abs(kto_loss(20.0, 0.0, True, 0.1, 1.0) - 0.26894) < 1e-4)
+check("KTO undesirable = 0.7311", lambda: abs(kto_loss(20.0, 0.0, False, 0.1, 1.0) - 0.73106) < 1e-4)
+check("ORPO term = 0.2513", lambda: abs(orpo_or_loss(0.6, 0.3) - 0.25131) < 1e-4)
+pi = np.array([.5, .3, .2]); r = np.array([1., 1.3, 0.]); beta = 0.5
+w = pi * np.exp(r / beta); star = w / w.sum()
+imp = implicit_reward(star, pi, beta)
+check("implicit reward differences recover true reward differences", lambda: np.allclose(imp - imp[0], r - r[0]))
+check("DPO loss at the optimum equals the Bradley-Terry loss of the true rewards", lambda: abs(dpo_loss(np.log(star[0]), np.log(star[2]), np.log(pi[0]), np.log(pi[2]), beta) - (-np.log(sigmoid(r[0] - r[2])))) < 1e-9)
+#@@ solution
+import numpy as np
+
+def sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+
+def dpo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    m = beta * ((lp_w - ref_w) - (lp_l - ref_l))
+    return float(-np.log(sigmoid(m)))
+
+def dpo_grad(lp_w, lp_l, ref_w, ref_l, beta):
+    m = beta * ((lp_w - ref_w) - (lp_l - ref_l))
+    s = sigmoid(-m)
+    return (-beta * s, beta * s)
+
+def ipo_loss(lp_w, lp_l, ref_w, ref_l, beta):
+    d = (lp_w - ref_w) - (lp_l - ref_l)
+    return float((d - 1.0 / (2.0 * beta)) ** 2)
+
+def simpo_loss(lp_w, lp_l, len_w, len_l, beta, gamma):
+    m = beta * lp_w / len_w - beta * lp_l / len_l - gamma
+    return float(-np.log(sigmoid(m)))
+
+def kto_loss(lp, ref, desirable, beta, z_ref):
+    r = lp - ref
+    if desirable:
+        return float(1.0 - sigmoid(beta * r - z_ref))
+    return float(1.0 - sigmoid(z_ref - beta * r))
+
+def orpo_or_loss(p_w, p_l):
+    lo = lambda p: np.log(p / (1.0 - p))
+    return float(-np.log(sigmoid(lo(p_w) - lo(p_l))))
+
+def implicit_reward(pi, pi_ref, beta):
+    return beta * np.log(np.asarray(pi) / np.asarray(pi_ref))

@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.12.c1", "front": "L'autodiff en mode inverse en deux phases", "back": "Passe avant : évaluer et enregistrer le graphe. Passe arrière : amorcer $\\bar L=1$ et visiter les nœuds dans l'ordre topologique inverse, en accumulant `parent.grad += local_derivative * node.grad`." },
+  { "id": "f2n.12.c2", "front": "Coût du mode direct contre le mode inverse", "back": "Direct : une passe par entrée (une colonne de la jacobienne). Inverse : une passe par sortie (une ligne). La perte est scalaire, donc inverse." },
+  { "id": "f2n.12.c3", "front": "Pourquoi `+=` dans la passe arrière ?", "back": "Un nœud utilisé par plusieurs consommateurs reçoit une contribution par chemin ; elles doivent s'additionner (règle de la chaîne multivariée)." },
+  { "id": "f2n.12.c4", "front": "Valider contre PyTorch", "back": "Même passe avant en float64 avec `requires_grad=True`, appelle `.backward()`, compare `.grad` à tes gradients ; attends-toi à ~1e-10." },
+  { "id": "f2n.12.c5", "front": "Pièges des gradients PyTorch", "back": "Les gradients s'accumulent (remets-les à zéro) ; les opérations en place peuvent casser backward ; `detach`/`no_grad` coupent le graphe ; seules les feuilles reçoivent `.grad`." }
+]

@@ -1,0 +1,91 @@
+[
+ {
+  "id": "gen.03.q1",
+  "prompt": "Dans un GAN, le générateur est entraîné à...",
+  "options": [
+   "classer des images réelles",
+   "faire étiqueter ses échantillons comme réels par le discriminateur",
+   "minimiser une erreur de reconstruction pixel par pixel",
+   "maximiser l'entropie du discriminateur"
+  ],
+  "explanation": "Il utilise le verdict du discriminateur comme signal d'entraînement."
+ },
+ {
+  "id": "gen.03.q2",
+  "prompt": "Pour $G$ fixé, le discriminateur optimal est...",
+  "options": [
+   "$p_g/(p_\\text{data}+p_g)$",
+   "$p_\\text{data}/(p_\\text{data}+p_g)$",
+   "$p_\\text{data}-p_g$",
+   "$1/2$ toujours"
+  ],
+  "explanation": "On maximise $a\\log y+b\\log(1-y)$ point par point : $y=a/(a+b)$."
+ },
+ {
+  "id": "gen.03.q3",
+  "prompt": "$V(D^*,G)$ vaut...",
+  "options": [
+   "$-\\log4+2\\,\\mathrm{JS}(p_\\text{data}\\|p_g)$",
+   "$\\mathrm{KL}(p_\\text{data}\\|p_g)$",
+   "$\\log 2$",
+   "$-\\log4-2\\,\\mathrm{JS}$"
+  ],
+  "explanation": "Les deux termes croisés se combinent en deux KL vers le mélange $m$."
+ },
+ {
+  "id": "gen.03.q4",
+  "prompt": "À l'optimum global $p_g=p_\\text{data}$, quelle est la valeur de $D^*(x)$ ?",
+  "options": [],
+  "explanation": "$p/(p+p)=1/2$ : le discriminateur ne peut que deviner."
+ },
+ {
+  "id": "gen.03.q5",
+  "prompt": "Logit $s=-6$ pour un faux échantillon. Quelle est la grandeur du gradient de $\\log(1-\\sigma(s))$ par rapport à $s$ ? (3 décimales)",
+  "options": [],
+  "explanation": "$\\sigma(-6)=0.00247$ : la perte saturante n'a presque aucun gradient."
+ },
+ {
+  "id": "gen.03.q6",
+  "prompt": "La perte non saturante du générateur $-\\log D(G(z))$ est utilisée parce que...",
+  "options": [
+   "elle a un optimum différent",
+   "son gradient ne s'évanouit pas quand $D$ rejette les faux avec confiance",
+   "elle n'a pas besoin de discriminateur",
+   "elle est convexe"
+  ],
+  "explanation": "Même point fixe, mais des gradients forts au début."
+ },
+ {
+  "id": "gen.03.q7",
+  "prompt": "Deux distributions à supports disjoints ont une divergence JS...",
+  "options": [
+   "égale à $\\log2$ quelle que soit la distance",
+   "croissante avec la distance",
+   "nulle",
+   "indéfinie"
+  ],
+  "explanation": "La JS sature à $\\log2$, sans donner de gradient sur la façon de se rapprocher."
+ },
+ {
+  "id": "gen.03.q8",
+  "prompt": "L'effondrement de modes, c'est quand...",
+  "options": [
+   "le discriminateur sort 0.5 partout",
+   "le générateur ne couvre que quelques modes des données",
+   "la sortie du générateur n'est que des zéros",
+   "la perte devient NaN"
+  ],
+  "explanation": "Le générateur s'en tient aux sorties que le discriminateur accepte et perd en diversité."
+ },
+ {
+  "id": "gen.03.q9",
+  "prompt": "La distance de Wasserstein-1 entre des masses ponctuelles en $0$ et $\\theta$ vaut...",
+  "options": [
+   "$\\log 2$",
+   "$\\theta^2$",
+   "$1$",
+   "$|\\theta|$"
+  ],
+  "explanation": "Le coût du déplacement d'une masse unité sur une distance $|\\theta|$ ; elle croît progressivement avec l'écart."
+ }
+]

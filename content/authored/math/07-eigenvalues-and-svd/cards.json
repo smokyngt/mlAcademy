@@ -1,0 +1,17 @@
+[
+  { "id": "math.07.c1", "concept": "la.eigen", "front": "Eigenvalue equation", "back": "$Ax=\\lambda x$, $x\\ne0$: $x$ is only stretched (by $\\lambda$), not turned." },
+  { "id": "math.07.c2", "concept": "la.eigen", "front": "How to find eigenvalues", "back": "Roots of the characteristic polynomial $\\det(A-\\lambda I)=0$." },
+  { "id": "math.07.c3", "concept": "la.eigen", "front": "Characteristic polynomial of a $2\\times2$", "back": "$\\lambda^2-\\operatorname{tr}(A)\\lambda+\\det(A)$." },
+  { "id": "math.07.c4", "concept": "la.eigen", "front": "Trace and determinant via eigenvalues", "back": "$\\operatorname{tr}A=\\sum\\lambda_i$, $\\det A=\\prod\\lambda_i$." },
+  { "id": "math.07.c5", "concept": "la.eigen", "front": "Eigenspace", "back": "$E_\\lambda=\\ker(A-\\lambda I)$: all eigenvectors for $\\lambda$, plus $0$." },
+  { "id": "math.07.c6", "concept": "la.eigen", "front": "Eigendecomposition", "back": "$A=PDP^{-1}$ with eigenvectors as columns of $P$ and eigenvalues on the diagonal of $D$; needs $n$ independent eigenvectors." },
+  { "id": "math.07.c7", "concept": "la.eigen", "front": "Matrix power via diagonalisation", "back": "$A^k=PD^kP^{-1}$." },
+  { "id": "math.07.c8", "concept": "la.eigen", "front": "Symmetric matrices", "back": "Real eigenvalues and orthogonal eigenvectors; positive definite means all $\\lambda_i>0$." },
+  { "id": "math.07.c9", "concept": "la.eigen", "front": "Are eigenvectors unique?", "back": "Only up to a non-zero scale factor (including sign)." },
+  { "id": "math.07.c10", "concept": "la.svd", "front": "SVD theorem", "back": "Every $A\\in\\mathbb{R}^{m\\times n}$: $A=U\\Sigma V^\\top$, $U,V$ orthogonal, $\\Sigma$ diagonal with $\\sigma_1\\ge\\sigma_2\\ge\\dots\\ge0$." },
+  { "id": "math.07.c11", "concept": "la.svd", "front": "Geometric meaning of the SVD", "back": "Rotate ($V^\\top$), stretch by the singular values ($\\Sigma$), rotate ($U$)." },
+  { "id": "math.07.c12", "concept": "la.svd", "front": "Singular values and $A^\\top A$", "back": "$\\sigma_i=\\sqrt{\\lambda_i(A^\\top A)}$; right singular vectors are the eigenvectors of $A^\\top A$." },
+  { "id": "math.07.c13", "concept": "la.svd", "front": "Best rank-$k$ approximation", "back": "$A_k=\\sum_{i\\le k}\\sigma_iu_iv_i^\\top$, error $\\sqrt{\\sigma_{k+1}^2+\\dots}$ (Eckart-Young)." },
+  { "id": "math.07.c14", "concept": "la.svd", "front": "Storage of a rank-$k$ approximation", "back": "$k(m+n+1)$ numbers instead of $mn$." },
+  { "id": "math.07.c15", "concept": "la.svd", "front": "SVD vs eigendecomposition", "back": "SVD exists for every matrix and uses two bases; eigendecomposition needs a square matrix with enough eigenvectors and uses one basis." }
+]

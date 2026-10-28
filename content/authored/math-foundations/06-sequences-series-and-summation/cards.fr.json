@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mf.06.c1",
+  "front": "Suite",
+  "back": "Une liste ordonnée de nombres $a_1,a_2,a_3,\\dots$, fonction de la position $n$."
+ },
+ {
+  "id": "mf.06.c2",
+  "front": "Suite arithmétique",
+  "back": "Différence constante $d$ : $a_n=a_1+(n-1)d$."
+ },
+ {
+  "id": "mf.06.c3",
+  "front": "Suite géométrique",
+  "back": "Rapport constant $r$ : $a_n=a_1r^{n-1}$."
+ },
+ {
+  "id": "mf.06.c4",
+  "front": "Série et somme partielle",
+  "back": "Une série est une somme de termes ; $S_n=a_1+\\dots+a_n$ est sa $n$-ième somme partielle."
+ },
+ {
+  "id": "mf.06.c5",
+  "front": "Somme arithmétique",
+  "back": "$S_n=\\frac n2(a_1+a_n)=\\frac n2\\big(2a_1+(n-1)d\\big)$ (appariement de Gauss)."
+ },
+ {
+  "id": "mf.06.c6",
+  "front": "Somme géométrique",
+  "back": "$S_n=a\\frac{1-r^n}{1-r}$ pour $r\\ne1$."
+ },
+ {
+  "id": "mf.06.c7",
+  "front": "Série géométrique infinie",
+  "back": "$\\sum_{k\\ge0}ar^k=\\frac{a}{1-r}$ si $|r|<1$ ; diverge sinon."
+ },
+ {
+  "id": "mf.06.c8",
+  "front": "Notation sigma",
+  "back": "$\\sum_{k=m}^{n}a_k=a_m+a_{m+1}+\\dots+a_n$ ; $k$ est un indice muet."
+ },
+ {
+  "id": "mf.06.c9",
+  "front": "Notation produit",
+  "back": "$\\prod_{k=1}^{n}a_k=a_1a_2\\cdots a_n$ ; $n!=\\prod_{k=1}^nk$."
+ },
+ {
+  "id": "mf.06.c10",
+  "front": "Somme des $n$ premiers carrés",
+  "back": "$\\sum_{k=1}^nk^2=\\frac{n(n+1)(2n+1)}6$."
+ },
+ {
+  "id": "mf.06.c11",
+  "front": "Convergence",
+  "back": "Une série converge si ses sommes partielles s'approchent d'une limite finie."
+ },
+ {
+  "id": "mf.06.c12",
+  "front": "Termes vers zéro ne suffit pas",
+  "back": "La série harmonique $\\sum1/k$ a des termes $\\to0$ et pourtant diverge (elle croît comme $\\ln n$)."
+ },
+ {
+  "id": "mf.06.c13",
+  "front": "Propriétés des sommes",
+  "back": "$\\sum(a_k+b_k)=\\sum a_k+\\sum b_k$ et $\\sum ca_k=c\\sum a_k$ (linéarité)."
+ },
+ {
+  "id": "mf.06.c14",
+  "front": "Boucles contre formes closes",
+  "back": "Les formes closes remplacent $n$ additions par une formule ; en NumPy, `np.sum`/`np.cumsum` remplacent les boucles Python explicites."
+ }
+]

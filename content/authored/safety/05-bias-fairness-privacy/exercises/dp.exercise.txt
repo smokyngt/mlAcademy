@@ -1,0 +1,107 @@
+#@@ meta
+{"id": "saf.05.ex2", "title": "Differential privacy mechanisms and an empirical check", "difficulty": 4, "runtime": "pyodide", "concepts": ["saf.differential-privacy"], "hints": ["Laplace mechanism: add Laplace noise with scale sensitivity/epsilon. Gaussian: sigma = sensitivity*sqrt(2*ln(1.25/delta))/epsilon.", "Per-example clipping: scale each row by min(1, C/||row||). Then removing or adding one row moves the sum by at most C in L2 norm.", "dp_violation: for each threshold t compare P'(x>t) with exp(eps)*P(x>t)+delta, and P(x>t) with exp(eps)*P'(x>t)+delta; return the largest excess."]}
+#@@ prompt
+A randomised algorithm `M` is (epsilon, delta)-differentially private if for neighbouring datasets `D, D'` and every event `S`: `P(M(D) in S) <= exp(epsilon) * P(M(D') in S) + delta`.
+
+Implement:
+
+- `laplace_release(value, sensitivity, eps, rng, size)`: `value` plus Laplace noise of scale `sensitivity/eps`, `size` independent draws.
+- `gaussian_sigma(sensitivity, eps, delta)`: the classical calibration `sensitivity*sqrt(2*ln(1.25/delta))/eps` (valid for `eps < 1`).
+- `gaussian_release(value, sigma, rng, size)`.
+- `dp_violation(x_d, x_dp, eps, delta, thresholds)`: from samples of `M(D)` and `M(D')`, the largest excess of the (eps, delta) inequality over events `S = {x > t}`, in both directions (positive means a detected violation, up to sampling error).
+- `clip_rows(G, C)`: scale each row of per-example gradients `G` of shape `(B, d)` to L2 norm at most `C`.
+- `dp_sgd_sum(G, C, sigma, rng)`: the noisy aggregated gradient `sum(clip_rows(G, C)) + N(0, (sigma*C)^2 I)`, shape `(d,)`.
+- `basic_composition(eps_list, delta_list)`: total (epsilon, delta) of sequential release by adding.
+
+The query is a count with sensitivity 1; neighbouring datasets give counts 100 and 101.
+#@@ starter
+import math
+import numpy as np
+
+def laplace_release(value, sensitivity, eps, rng, size):
+    raise NotImplementedError
+
+def gaussian_sigma(sensitivity, eps, delta):
+    raise NotImplementedError
+
+def gaussian_release(value, sigma, rng, size):
+    raise NotImplementedError
+
+def dp_violation(x_d, x_dp, eps, delta, thresholds):
+    raise NotImplementedError
+
+def clip_rows(G, C):
+    raise NotImplementedError
+
+def dp_sgd_sum(G, C, sigma, rng):
+    raise NotImplementedError
+
+def basic_composition(eps_list, delta_list):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+check("gaussian sigma (eps 0.9, delta 1e-2) = 3.4528", lambda: abs(gaussian_sigma(1, 0.9, 1e-2) - 3.4528) < 1e-3)
+check("gaussian sigma (eps 0.5, delta 1e-5) = 9.6896", lambda: abs(gaussian_sigma(1, 0.5, 1e-5) - 9.6896) < 1e-3)
+check("sigma scales with sensitivity", lambda: abs(gaussian_sigma(2, 0.9, 1e-2) - 2 * gaussian_sigma(1, 0.9, 1e-2)) < 1e-9)
+rng = np.random.default_rng(0)
+N = 200000
+eps, delta = 0.9, 1e-2
+sg = gaussian_sigma(1, eps, delta)
+a = gaussian_release(100.0, sg, rng, N)
+b = gaussian_release(101.0, sg, rng, N)
+ts = np.linspace(90, 115, 51)
+check("Gaussian noise has the requested std", lambda: abs(a.std() - sg) < 0.02 and abs(a.mean() - 100) < 0.02)
+check("calibrated Gaussian mechanism shows no violation", lambda: dp_violation(a, b, eps, delta, ts) < 0.01)
+a2 = gaussian_release(100.0, sg / 4, rng, N)
+b2 = gaussian_release(101.0, sg / 4, rng, N)
+check("a quarter of the noise visibly violates (eps, delta)", lambda: dp_violation(a2, b2, eps, delta, ts) > 0.1)
+l1 = laplace_release(100.0, 1.0, 1.0, rng, N)
+l2 = laplace_release(101.0, 1.0, 1.0, rng, N)
+lts = np.linspace(90, 111, 43)
+check("Laplace noise has scale 1 (std sqrt(2))", lambda: abs(l1.std() - math.sqrt(2)) < 0.02)
+check("calibrated Laplace mechanism satisfies pure eps=1 DP", lambda: dp_violation(l1, l2, 1.0, 0.0, lts) < 0.01)
+s1 = laplace_release(100.0, 1.0, 4.0, rng, N)
+s2 = laplace_release(101.0, 1.0, 4.0, rng, N)
+check("claiming eps=1 with scale 0.25 is caught", lambda: dp_violation(s1, s2, 1.0, 0.0, np.linspace(95, 106, 23)) > 0.1)
+G = np.random.default_rng(5).normal(size=(32, 10)) * 3
+Cg = clip_rows(G, 1.0)
+check("clipped rows have norm <= C", lambda: np.linalg.norm(Cg, axis=1).max() <= 1.0 + 1e-9)
+check("small rows are untouched", lambda: np.allclose(clip_rows(G * 0.001, 1.0), G * 0.001))
+check("removing one example changes the clipped sum by at most C", lambda: np.linalg.norm(Cg.sum(0) - clip_rows(G[1:], 1.0).sum(0)) <= 1.0 + 1e-9)
+out = dp_sgd_sum(G, 1.0, 0.0, np.random.default_rng(1))
+check("with sigma = 0 the result is the clipped sum", lambda: np.allclose(out, Cg.sum(0)) and out.shape == (10,))
+noisy = np.array([dp_sgd_sum(G, 1.0, 2.0, np.random.default_rng(i)) for i in range(2000)])
+check("noise has std sigma*C per coordinate", lambda: abs(noisy.std(axis=0).mean() - 2.0) < 0.1)
+e, d = basic_composition([0.5, 0.25, 0.25], [1e-6, 1e-6, 0.0])
+check("basic composition adds epsilons and deltas", lambda: abs(e - 1.0) < 1e-12 and abs(d - 2e-6) < 1e-15)
+#@@ solution
+import math
+import numpy as np
+
+def laplace_release(value, sensitivity, eps, rng, size):
+    return value + rng.laplace(0.0, sensitivity / eps, size)
+
+def gaussian_sigma(sensitivity, eps, delta):
+    return sensitivity * math.sqrt(2.0 * math.log(1.25 / delta)) / eps
+
+def gaussian_release(value, sigma, rng, size):
+    return value + sigma * rng.normal(size=size)
+
+def dp_violation(x_d, x_dp, eps, delta, thresholds):
+    worst = -1.0
+    for t in thresholds:
+        p = float((x_d > t).mean())
+        q = float((x_dp > t).mean())
+        worst = max(worst, q - math.exp(eps) * p - delta, p - math.exp(eps) * q - delta)
+    return worst
+
+def clip_rows(G, C):
+    norms = np.linalg.norm(G, axis=1, keepdims=True)
+    return G * np.minimum(1.0, C / np.maximum(norms, 1e-12))
+
+def dp_sgd_sum(G, C, sigma, rng):
+    return clip_rows(G, C).sum(axis=0) + sigma * C * rng.normal(size=G.shape[1])
+
+def basic_composition(eps_list, delta_list):
+    return float(sum(eps_list)), float(sum(delta_list))

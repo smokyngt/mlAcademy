@@ -1,0 +1,12 @@
+[
+  { "id": "cml.04.c1", "concept": "ml.kmeans", "front": "k-means objective", "back": "$J=\\sum_i\\|x_i-\\mu_{c(i)}\\|^2$: within-cluster sum of squared distances (inertia)." },
+  { "id": "cml.04.c2", "concept": "ml.kmeans", "front": "Assignment step", "back": "Send each point to its nearest centre. Minimises $J$ over assignments." },
+  { "id": "cml.04.c3", "concept": "ml.kmeans", "front": "Update step", "back": "Set each centre to the mean of its points: from $\\nabla\\sum\\|x_i-\\mu\\|^2=0$." },
+  { "id": "cml.04.c4", "concept": "ml.kmeans", "front": "Does k-means find the global optimum?", "back": "No: it converges to a local minimum. Use restarts or k-means++." },
+  { "id": "cml.04.c5", "concept": "ml.kmeans", "front": "k-means++ initialisation", "back": "Pick the first centre at random; each next centre with probability proportional to squared distance to the nearest chosen centre." },
+  { "id": "cml.04.c6", "concept": "ml.kmeans", "front": "Choosing $k$", "back": "Inertia always falls with $k$; look for an elbow or use a validation criterion." },
+  { "id": "cml.04.c7", "concept": "ml.kmeans", "front": "Empty cluster", "back": "Keep the previous centre or re-seed at the farthest point." },
+  { "id": "cml.04.c8", "concept": "ml.kmeans", "front": "Pairwise squared distances with broadcasting", "back": "`((X[:,None,:] - C[None,:,:])**2).sum(-1)` has shape $(N,k)$." },
+  { "id": "cml.04.c9", "concept": "ml.kmeans", "front": "Why must k-means terminate?", "back": "$J$ decreases whenever an assignment changes and there are finitely many assignments." },
+  { "id": "cml.04.c10", "concept": "ml.kmeans", "front": "k-means assumptions", "back": "Roughly round, similar-sized clusters in a Euclidean space; features on comparable scales." }
+]

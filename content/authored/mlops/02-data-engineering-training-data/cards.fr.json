@@ -1,0 +1,16 @@
+[
+  { "id": "ops.02.c1", "front": "Stockage row-major contre column-major", "back": "Row-major (CSV) : lectures de lignes et ajouts rapides. Column-major (Parquet) : lecture rapide de quelques colonnes." },
+  { "id": "ops.02.c2", "front": "Traitement batch contre stream", "back": "Batch : jobs périodiques sur des données historiques (features statiques). Stream : calcul sur les données en transit avec un faible délai et des mises à jour avec état (features dynamiques)." },
+  { "id": "ops.02.c3", "front": "Algorithme d'échantillonnage par réservoir", "back": "Garder les $k$ premiers éléments ; pour l'élément $n>k$, tirer $j\\sim U\\{1..n\\}$ et remplacer l'emplacement $j$ si $j\\le k$." },
+  { "id": "ops.02.c4", "front": "Pourquoi l'échantillonnage par réservoir est uniforme", "back": "Le nouvel élément entre avec $k/(n+1)$ ; un ancien survit avec $n/(n+1)$ ; le produit avec $k/n$ donne $k/(n+1)$." },
+  { "id": "ops.02.c5", "front": "Échantillonnage stratifié", "back": "Échantillonner chaque groupe (strate) séparément pour que les groupes rares soient représentés ; difficile quand les éléments ont plusieurs étiquettes." },
+  { "id": "ops.02.c6", "front": "Poids d'échantillonnage préférentiel", "back": "$P(x)/Q(x)$ pour un échantillon tiré de la proposition $Q$ afin d'estimer sous $P$." },
+  { "id": "ops.02.c7", "front": "Exemples d'échantillonnage non probabiliste", "back": "Échantillonnage de commodité, boule de neige, par jugement et par quotas ; peu coûteux mais biaisé." },
+  { "id": "ops.02.c8", "front": "Étiquettes naturelles (comportementales)", "back": "Étiquettes issues du retour du système comme les clics ou les heures d'arrivée réelles ; elles arrivent avec un délai appelé longueur de la boucle de rétroaction." },
+  { "id": "ops.02.c9", "front": "Pourquoi l'étiquetage manuel est difficile", "back": "Coûteux, lent, un risque pour la vie privée, et les annotateurs sont en désaccord." },
+  { "id": "ops.02.c10", "front": "Fonction d'étiquetage", "back": "Un petit programme encodant une heuristique qui vote pour une classe ou s'abstient ; ses sorties sont bruitées et peuvent entrer en conflit." },
+  { "id": "ops.02.c11", "front": "Poids d'une fonction d'étiquetage dans un vote pondéré", "back": "$w=\\log\\frac{a}{1-a}$ pour une précision $a$ ; voter $+w$ pour la classe 1, $-w$ pour la classe 0." },
+  { "id": "ops.02.c12", "front": "Semi-supervision, transfer learning, apprentissage actif", "back": "Étendre les étiquettes par la structure ou l'auto-entraînement ; partir d'un modèle pré-entraîné ; choisir les exemples à étiqueter selon l'incertitude." },
+  { "id": "ops.02.c13", "front": "Augmentation préservant l'étiquette", "back": "Transformations qui conservent l'étiquette (retournement, recadrage, échange de synonymes) ; à appliquer à la partition d'entraînement uniquement." },
+  { "id": "ops.02.c14", "front": "Pourquoi le déséquilibre de classes est difficile", "back": "Peu de signal pour la classe rare, un raccourci trivial de classe majoritaire, et des erreurs coûteuses sur la classe rare. Voir cml.11." }
+]

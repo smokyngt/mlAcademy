@@ -1,0 +1,10 @@
+{
+  "id": "saf.05.ex1",
+  "title": "Métriques d'équité de groupe et leur compromis",
+  "prompt": "Un score de risque synthétique `s` est **parfaitement calibré dans les deux groupes par construction** (l'étiquette est tirée avec la probabilité `s`), mais les groupes ont des distributions de scores différentes et donc des taux de base différents. `make_data` (fournie) retourne le groupe `g`, le score `s`, l'étiquette `y`.\n\nImplémente, pour un tableau booléen de prédictions `pred` et un masque d'un groupe :\n\n- `selection_rate(pred, mask)`, `tpr(pred, y, mask)`, `fpr(pred, y, mask)`, `ppv(pred, y, mask)` ;\n- `dp_gap(pred, g)` : différence absolue des taux de sélection entre les groupes 0 et 1 (parité démographique) ;\n- `eo_gap(pred, y, g)` : le plus grand de l'écart de TPR et de l'écart de FPR (cotes égalisées) ;\n- `ece(scores, y, bins=10)` : erreur de calibration attendue d'un groupe ;\n- `threshold_for_tpr(scores, y, target)` : un seuil de score dont le TPR est au moins `target`.\n\nObserve ensuite le compromis : avec un seuil commun, les groupes diffèrent par le taux de sélection et les taux d'erreur ; abaisser le seuil du groupe 0 pour égaler le TPR du groupe 1 rend les TPR égaux mais casse la précision égale (PPV) et laisse encore les FPR inégaux.",
+  "hints": [
+    "selection_rate = moyenne des prédictions dans le groupe ; tpr = moyenne des prédictions parmi y==1 ; fpr = moyenne des prédictions parmi y==0 ; ppv = moyenne de y parmi les positifs prédits.",
+    "ECE : répartis les scores en intervalles de largeur égale, et somme (part de l'intervalle) * |score moyen - résultat moyen| sur les intervalles non vides. Utilise min(int(s*bins), bins-1) comme indice d'intervalle.",
+    "threshold_for_tpr : trie par ordre croissant les scores des positifs ; le seuil est l'élément d'indice floor((1-target)*len) ; prédire score >= seuil donne alors un TPR >= target."
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f2n.02.q1", "concept": "la.dot", "stage": "pre",
+    "prompt": "Compute $(1,2,3)\\cdot(4,5,6)$.",
+    "kind": "numeric", "options": [], "answer": { "value": 32, "tol": 0.001 },
+    "explanation": "$1\\cdot4+2\\cdot5+3\\cdot6=4+10+18=32$. The result of a dot product is a single number."
+  },
+  {
+    "id": "f2n.02.q2", "concept": "la.dot",
+    "prompt": "Which pair of vectors is orthogonal?",
+    "options": ["$(1,1)$ and $(1,2)$", "$(2,3)$ and $(3,-2)$", "$(1,0)$ and $(2,0)$", "$(3,4)$ and $(4,3)$"],
+    "answer": 1,
+    "explanation": "$(2,3)\\cdot(3,-2)=6-6=0$. The others are not zero: $(1,1)\\cdot(1,2)=3$, $(1,0)\\cdot(2,0)=2$, $(3,4)\\cdot(4,3)=24$."
+  },
+  {
+    "id": "f2n.02.q3", "concept": "la.dot",
+    "prompt": "$a$ and $b$ have $\\|a\\|=2$, $\\|b\\|=5$ and the angle between them is $60^\\circ$. What is $a\\cdot b$?",
+    "kind": "numeric", "options": [], "answer": { "value": 5, "tol": 0.001 },
+    "explanation": "$a\\cdot b=\\|a\\|\\|b\\|\\cos 60^\\circ=2\\cdot5\\cdot0.5=5$."
+  },
+  {
+    "id": "f2n.02.q4", "concept": "la.dot",
+    "prompt": "Cosine similarity of $(1,1)$ and $(100,100)$ is...",
+    "options": ["0", "about 0.01", "1", "undefined"],
+    "answer": 2,
+    "explanation": "The vectors point in the same direction, so $\\cos\\theta=1$. Cosine similarity ignores length; the Euclidean distance between them is large."
+  },
+  {
+    "id": "f2n.02.q5", "concept": "la.vector",
+    "prompt": "In NumPy, `a * b` for two length-$n$ arrays returns...",
+    "options": ["the dot product (a scalar)", "an array of length $n$ with elementwise products", "an $n\\times n$ outer product", "an error unless $n=1$"],
+    "answer": 1,
+    "explanation": "`*` is elementwise (Hadamard). The dot product is `a @ b` or `np.sum(a*b)`; the outer product is `np.outer(a, b)`."
+  },
+  {
+    "id": "f2n.02.q6", "concept": "la.dot",
+    "prompt": "The projection of $a$ onto $b$ is $\\lambda b$ with $\\lambda=$ ...",
+    "options": ["$a\\cdot b$", "$(a\\cdot b)/(a\\cdot a)$", "$(a\\cdot b)/(b\\cdot b)$", "$\\|a\\|/\\|b\\|$"],
+    "answer": 2,
+    "explanation": "We need $(a-\\lambda b)\\cdot b=0$, so $a\\cdot b=\\lambda\\, b\\cdot b$ and $\\lambda=(a\\cdot b)/(b\\cdot b)$."
+  }
+]

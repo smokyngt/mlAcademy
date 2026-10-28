@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.06.c1","concept":"nlp.seq-eval","front":"Encoder-decoder translation","back":"The encoder reads the source; the decoder, initialised from the encoder state (or attending to it), emits target tokens one by one: a conditional LM $P(y_t\\mid y_{<t},x)$."},
+ {"id":"nlp.06.c2","concept":"nlp.seq-eval","front":"Greedy vs beam search","back":"Greedy takes the arg max token at each step; beam search keeps the B best partial outputs (B around 4-5 in translation)."},
+ {"id":"nlp.06.c3","concept":"nlp.seq-eval","front":"Clipped n-gram precision","back":"Each candidate n-gram is counted at most as often as its maximum count in any reference."},
+ {"id":"nlp.06.c4","concept":"nlp.seq-eval","front":"BLEU formula","back":"$\\mathrm{BP}\\cdot\\exp(\\frac1N\\sum_n\\ln p_n)$ with $N=4$ usually."},
+ {"id":"nlp.06.c5","concept":"nlp.seq-eval","front":"Brevity penalty","back":"$1$ if $|c|>\\rho$, else $e^{1-\\rho/|c|}$; $\\rho$ is the closest reference length. Stands in for recall."},
+ {"id":"nlp.06.c6","concept":"nlp.seq-eval","front":"Why is sentence-level BLEU unstable?","back":"Any zero n-gram precision gives 0; BLEU is designed for corpora (or needs smoothing)."},
+ {"id":"nlp.06.c7","concept":"nlp.seq-eval","front":"ROUGE-n","back":"n-gram overlap (clipped) reported as precision, recall and F1; recall-oriented, standard for summaries."},
+ {"id":"nlp.06.c8","concept":"nlp.seq-eval","front":"ROUGE-L and LCS","back":"Uses the longest common subsequence (in order, not necessarily adjacent); DP in $O(|c||r|)$."},
+ {"id":"nlp.06.c9","concept":"nlp.seq-eval","front":"Extractive vs abstractive summaries","back":"Extractive selects source sentences (faithful, rigid). Abstractive generates new text (fluent, can hallucinate)."},
+ {"id":"nlp.06.c10","concept":"nlp.seq-eval","front":"Extractive QA mechanism","back":"Encode question+passage, score each token as start and end; pick $i\\le j<i+L_{max}$ maximising $s_i+e_j$."},
+ {"id":"nlp.06.c11","concept":"nlp.seq-eval","front":"Exact match and token F1","back":"After normalising (lowercase, no punctuation or articles): EM requires equal strings; F1 uses bag-of-token overlap."},
+ {"id":"nlp.06.c12","concept":"nlp.seq-eval","front":"Open-domain QA structure","back":"Retriever finds passages, reader extracts or generates the answer: the basis of RAG."},
+ {"id":"nlp.06.c13","concept":"nlp.seq-eval","front":"Main pitfall of overlap metrics","back":"They measure surface similarity, not meaning: paraphrases score low, fluent errors can score high; compare with baselines and humans."},
+ {"id":"nlp.06.c14","concept":"nlp.seq-eval","front":"Why use sacrebleu?","back":"Standard tokenisation and a signature make BLEU scores reproducible and comparable."}
+]

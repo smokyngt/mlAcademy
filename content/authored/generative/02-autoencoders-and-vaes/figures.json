@@ -1,0 +1,89 @@
+[
+  {
+    "id": "ae-vs-vae",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Autoencoder versus VAE with batch shapes. The AE maps x to one code z; the VAE encoder outputs a cloud (mu, logvar), a noisy z is sampled from it, and the decoder rebuilds x from that z.",
+      "fr": "Autoencodeur contre VAE avec les formes de batch. L'AE envoie x vers un code z ; l'encodeur du VAE sort un nuage (mu, logvar), un z bruité en est tiré, et le décodeur reconstruit x depuis ce z."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph AE[\"Autoencoder\"]\n    direction LR\n    xa[\"x (B,d)\"] --> ea[\"encoder\"] --> za[\"z (B,k)\"] --> da[\"decoder\"] --> ra[\"x_hat (B,d)\"]\n  end\n  subgraph VAE[\"VAE\"]\n    direction LR\n    xv[\"x (B,d)\"] --> ev[\"encoder\"]\n    ev --> mu[\"mu (B,k)\"]\n    ev --> lv[\"logvar (B,k)\"]\n    mu --> zv[\"z = mu + exp(logvar/2) * eps<br/>(B,k)\"]\n    lv --> zv\n    ep[\"eps ~ N(0,I) (B,k)\"] --> zv\n    zv --> dv[\"decoder\"] --> rv[\"x_hat (B,d)\"]\n  end",
+      "fr": "flowchart LR\n  subgraph AE[\"Autoencodeur\"]\n    direction LR\n    xa[\"x (B,d)\"] --> ea[\"encodeur\"] --> za[\"z (B,k)\"] --> da[\"décodeur\"] --> ra[\"x_hat (B,d)\"]\n  end\n  subgraph VAE[\"VAE\"]\n    direction LR\n    xv[\"x (B,d)\"] --> ev[\"encodeur\"]\n    ev --> mu[\"mu (B,k)\"]\n    ev --> lv[\"logvar (B,k)\"]\n    mu --> zv[\"z = mu + exp(logvar/2) * eps<br/>(B,k)\"]\n    lv --> zv\n    ep[\"eps ~ N(0,I) (B,k)\"] --> zv\n    zv --> dv[\"décodeur\"] --> rv[\"x_hat (B,d)\"]\n  end"
+    }
+  },
+  {
+    "id": "elbo-decomposition",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The identity behind the VAE: log p(x) equals the ELBO plus a non-negative KL between the encoder and the true posterior, so the ELBO is a lower bound that is tight exactly when q equals the posterior.",
+      "fr": "L'identité derrière le VAE : log p(x) vaut l'ELBO plus un KL positif entre l'encodeur et le vrai postérieur, donc l'ELBO est une borne inférieure, exacte précisément quand q égale le postérieur."
+    },
+    "code": {
+      "en": "flowchart TB\n  L[\"log p_theta(x)\"] --- EQ((\"=\"))\n  EQ --> E[\"ELBO\"]\n  EQ --> K[\"KL( q(z | x) || p(z | x) ) >= 0\"]\n  E --> R[\"E_q[ log p(x | z) ]<br/>reconstruction\"]\n  E --> KP[\"- KL( q(z | x) || p(z) )<br/>regulariser\"]\n  K --> T0[\"zero when q = true posterior: bound is tight\"]",
+      "fr": "flowchart TB\n  L[\"log p_theta(x)\"] --- EQ((\"=\"))\n  EQ --> E[\"ELBO\"]\n  EQ --> K[\"KL( q(z | x) || p(z | x) ) >= 0\"]\n  E --> R[\"E_q[ log p(x | z) ]<br/>reconstruction\"]\n  E --> KP[\"- KL( q(z | x) || p(z) )<br/>régularisation\"]\n  K --> T0[\"nul quand q = vrai postérieur : la borne est serrée\"]"
+    }
+  },
+  {
+    "id": "kl-gaussian",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "The per-coordinate KL(N(mu, sigma^2) || N(0,1)) = (mu^2 + sigma^2 - ln sigma^2 - 1)/2 against sigma: mu = 0 in blue, mu = 1 in orange. It is 0 only at mu = 0, sigma = 1 and grows when the cloud is too narrow, too wide or off-centre. Dots: the worked example, sigma = 1 with mu = 1 (0.5) and sigma = 2 with mu = 0 (0.8069), summing to 1.3069.",
+      "fr": "Le KL par coordonnée KL(N(mu, sigma^2) || N(0,1)) = (mu^2 + sigma^2 - ln sigma^2 - 1)/2 selon sigma : mu = 0 en bleu, mu = 1 en orange. Il est nul seulement en mu = 0, sigma = 1 et croît quand le nuage est trop étroit, trop large ou décentré. Points : l'exemple travaillé, sigma = 1 avec mu = 1 (0,5) et sigma = 2 avec mu = 0 (0,8069), de somme 1,3069."
+    },
+    "spec": {
+      "xDomain": [
+        0.15,
+        3
+      ],
+      "yDomain": [
+        0,
+        3
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "0.5*(x^2-log(x^2)-1)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "0.5*(1+x^2-log(x^2)-1)",
+          "color": "#d97706"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              1,
+              0.5
+            ],
+            [
+              2,
+              0.8069
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "reparam-trick",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The reparameterisation trick as a computation graph: the randomness eps is moved off the parameters, so the gradient (dashed) flows from the loss through z into mu and logvar. dL/dmu = delta_z and dL/dlogvar = delta_z * (1/2) sigma * eps.",
+      "fr": "L'astuce de reparamétrisation comme graphe de calcul : l'aléa eps est sorti des paramètres, donc le gradient (pointillés) circule de la perte à travers z vers mu et logvar. dL/dmu = delta_z et dL/dlogvar = delta_z * (1/2) sigma * eps."
+    },
+    "code": {
+      "en": "flowchart LR\n  ENC[\"encoder\"] --> MU[\"mu\"]\n  ENC --> LV[\"logvar\"]\n  LV --> SG[\"sigma = exp(logvar / 2)\"]\n  EPS[\"eps ~ N(0, I)<br/>(no parameters)\"] --> Z\n  MU --> Z[\"z = mu + sigma * eps\"]\n  SG --> Z\n  Z --> DEC[\"decoder\"] --> LOSS[\"L\"]\n  LOSS -. \"delta_z\" .-> Z\n  Z -. \"delta_z\" .-> MU\n  Z -. \"delta_z * eps * sigma/2\" .-> LV",
+      "fr": "flowchart LR\n  ENC[\"encodeur\"] --> MU[\"mu\"]\n  ENC --> LV[\"logvar\"]\n  LV --> SG[\"sigma = exp(logvar / 2)\"]\n  EPS[\"eps ~ N(0, I)<br/>(aucun paramètre)\"] --> Z\n  MU --> Z[\"z = mu + sigma * eps\"]\n  SG --> Z\n  Z --> DEC[\"décodeur\"] --> LOSS[\"L\"]\n  LOSS -. \"delta_z\" .-> Z\n  Z -. \"delta_z\" .-> MU\n  Z -. \"delta_z * eps * sigma/2\" .-> LV"
+    }
+  }
+]

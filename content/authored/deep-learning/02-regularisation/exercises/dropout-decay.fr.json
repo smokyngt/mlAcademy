@@ -1,0 +1,10 @@
+{
+  "id": "dl.02.ex1",
+  "title": "Dropout inversé, décroissance des poids et ridge comme MAP",
+  "prompt": "Implémente trois petits morceaux.\n\n1. `Dropout(p, seed)` avec `forward(x, train=True)` et `backward(dy)`. Utilise la mise à l'échelle **inversée** : les unités conservées sont multipliées par `1/(1-p)`. En mode évaluation (`train=False`), renvoie `x` inchangé. `backward` doit réutiliser le masque de la dernière passe avant d'entraînement (les unités éliminées reçoivent un gradient nul, les unités conservées reçoivent `dy/(1-p)`) ; si la dernière passe avant était en mode évaluation, backward renvoie `dy`.\n2. `decay_step(W, g, lr, lam)` renvoyant les nouveaux poids après un pas de gradient sur `loss + lam/2 * ||W||^2`, écrit sous la forme rétrécir-puis-avancer : `(1 - lr*lam) * W - lr * g`. Ne modifie pas `W` en place.\n3. `ridge_map(X, y, sigma2, tau2)` renvoyant les poids MAP d'un modèle linéaire avec bruit gaussien (variance `sigma2`) et un a priori gaussien centré (variance `tau2`) sur les poids, c'est-à-dire une régression ridge avec `lam = sigma2 / tau2`.",
+  "hints": [
+    "Masque : (rng.random(x.shape) >= p) / (1 - p). Stocke-le dans self.mask et réutilise-le dans backward.",
+    "decay_step : (1 - lr*lam) * W - lr * g. Vérifie que cela égale W - lr*(g + lam*W).",
+    "Ridge MAP : résous (X^T X + lam I) w = X^T y avec lam = sigma2 / tau2 ; np.linalg.solve vaut mieux que d'inverser."
+  ]
+}

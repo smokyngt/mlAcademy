@@ -1,0 +1,77 @@
+[
+ {
+  "id": "sys.01.c1",
+  "front": "Génération autorégressive",
+  "back": "Un token par passe avant ; chaque token dépend de tous les précédents, donc une réponse de N tokens exige N passes séquentielles."
+ },
+ {
+  "id": "sys.01.c2",
+  "front": "Que stocke le cache KV ?",
+  "back": "Les vecteurs clé et valeur de chaque token précédent, pour chaque couche et chaque tête KV. Les requêtes ne sont pas mises en cache."
+ },
+ {
+  "id": "sys.01.c3",
+  "front": "Pourquoi la mise en cache est-elle exacte ?",
+  "back": "Avec un masque causal, K et V du token i ne dépendent que des tokens jusqu'à i ; ajouter des tokens ne les modifie jamais."
+ },
+ {
+  "id": "sys.01.c4",
+  "front": "Coût d'un pas naïf avec t tokens",
+  "back": "$F_\\text{naive}(t)=6\\,t\\,d\\,d_h+2\\,t(t+1)\\,d_h$ : projections de toutes les lignes plus une attention causale $t\\times t$. Quadratique en t."
+ },
+ {
+  "id": "sys.01.c5",
+  "front": "Coût d'un pas avec cache et t tokens",
+  "back": "$F_\\text{cached}(t)=6\\,d\\,d_h+4\\,t\\,d_h$ : projections d'un seul token plus une requête contre t clés. Linéaire en t."
+ },
+ {
+  "id": "sys.01.c6",
+  "front": "Formule de la mémoire du cache KV",
+  "back": "$2\\cdot L\\cdot n_{kv}\\cdot d_h\\cdot T\\cdot b\\cdot B$ octets (2 = K et V ; b = octets par nombre ; B = batch)."
+ },
+ {
+  "id": "sys.01.c7",
+  "front": "Prefill contre decode",
+  "back": "Prefill : tous les tokens du prompt en parallèle, limité par le calcul, remplit le cache. Decode : un token par pas, limité par la bande passante mémoire."
+ },
+ {
+  "id": "sys.01.c8",
+  "front": "Pourquoi le decode est-il limité par la mémoire ?",
+  "back": "Chaque pas lit tous les poids et tout le cache pour l'arithmétique d'un seul token : très faible rapport opérations par octet."
+ },
+ {
+  "id": "sys.01.c9",
+  "front": "Attention à requêtes groupées (GQA)",
+  "back": "Des groupes de têtes de requête partagent une même tête K/V, donc $n_{kv}=n_\\text{heads}/g$ et le cache rétrécit de la taille de groupe g."
+ },
+ {
+  "id": "sys.01.c10",
+  "front": "Attention multi-requête",
+  "back": "GQA extrême avec une seule tête K/V partagée par toutes les têtes de requête : cache le plus petit, plus grand risque pour la qualité."
+ },
+ {
+  "id": "sys.01.c11",
+  "front": "Forme du cache pour une couche",
+  "back": "$K,V\\in\\mathbb{R}^{t\\times d_h}$ par tête KV ; le tenseur complet est $(L,2,B,n_{kv},T,d_h)$."
+ },
+ {
+  "id": "sys.01.c12",
+  "front": "Comment tester une implémentation de cache",
+  "back": "Générer avec et sans cache à partir des mêmes poids et comparer les sorties : elles doivent concorder à l'erreur d'arrondi près."
+ },
+ {
+  "id": "sys.01.c13",
+  "front": "Pourquoi ne pas mettre en cache à l'entraînement ?",
+  "back": "La séquence complète est disponible et traitée en parallèle avec un masque causal ; il n'y a pas de régénération pas à pas à économiser."
+ },
+ {
+  "id": "sys.01.c14",
+  "front": "Effet de la quantification du cache",
+  "back": "Divise la mémoire par deux (int8) ou par quatre, mais les erreurs sur K et V influencent tous les tokens suivants, donc la perte de qualité croît avec la longueur du contexte."
+ },
+ {
+  "id": "sys.01.c15",
+  "front": "Ce que change FlashAttention",
+  "back": "Le trafic mémoire de l'attention (découpage en tuiles, pas de matrice de scores complète en mémoire lente) ; le résultat est mathématiquement le même."
+ }
+]

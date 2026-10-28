@@ -1,0 +1,139 @@
+#@@ meta
+{"id": "aud.05.ex1", "title": "STFT, inverse STFT and Griffin-Lim phase reconstruction", "difficulty": 5, "runtime": "pyodide", "concepts": ["aud.griffinlim", "aud.stft", "aud.tts"], "hints": ["stft: pad the signal by n_fft//2 on both sides with mode='reflect', frame it with hop, multiply by the periodic Hann window, np.fft.rfft along axis 1.", "istft: frames = np.fft.irfft(S, n=n_fft, axis=1) * hann; overlap-add them at i*hop into y, add hann**2 into a second buffer wsum, divide y by np.maximum(wsum, 1e-8), then trim n_fft//2 samples from both ends (and cut to `length` if given).", "griffin_lim: S = mag * exp(2j*pi*rng.random(mag.shape)) with rng = np.random.default_rng(seed); repeat n_iter times: x = istft(S); S = mag * exp(1j * angle(stft(x))); finally return istft(S)."]}
+#@@ prompt
+Rebuild a waveform from a magnitude spectrogram.
+
+- `stft(x, n_fft=256, hop=64)` -> complex `(frames, n_fft//2+1)`; the signal is reflect-padded by `n_fft//2` on both sides (centred frames) and a **periodic** Hann window is used.
+- `istft(S, n_fft=256, hop=64, length=None)` -> the least-squares inverse: weighted overlap-add (window the inverse-FFT frames again, sum, divide by the summed squared windows), trimmed to the original length (`n_fft//2` samples removed from each end).
+- `spectral_convergence(S_hat, mag)` = `||abs(S_hat) - mag||_F / ||mag||_F`.
+- `griffin_lim(mag, n_fft=256, hop=64, n_iter=100, seed=0, length=None)`: start from random phase `mag * exp(2j*pi*rng.random(mag.shape))` with `rng = np.random.default_rng(seed)`, iterate (inverse STFT, STFT, keep the phase, restore the magnitude) and return the waveform of the final spectrogram.
+- `invert_mel(M, fb)` -> estimate of the linear magnitude from a mel **power** spectrogram `M` of shape `(T, n_mels)`: `sqrt(max(0, M @ pinv(fb).T))`.
+#@@ starter
+import numpy as np
+
+def hann(N):
+    return 0.5 - 0.5 * np.cos(2 * np.pi * np.arange(N) / N)
+
+def hz_to_mel(f):
+    return 2595.0 * np.log10(1.0 + np.asarray(f, float) / 700.0)
+
+def mel_to_hz(m):
+    return 700.0 * (10.0 ** (np.asarray(m, float) / 2595.0) - 1.0)
+
+def mel_filterbank(n_mels, n_fft, sr):
+    # given (from the mel lesson)
+    pts = mel_to_hz(np.linspace(0.0, hz_to_mel(sr / 2), n_mels + 2))
+    freqs = np.arange(n_fft // 2 + 1) * sr / n_fft
+    fb = np.zeros((n_mels, len(freqs)))
+    for j in range(n_mels):
+        lo, mid, hi = pts[j], pts[j + 1], pts[j + 2]
+        fb[j] = np.maximum(0, np.minimum((freqs - lo) / (mid - lo), (hi - freqs) / (hi - mid)))
+    return fb
+
+def stft(x, n_fft=256, hop=64):
+    raise NotImplementedError
+
+def istft(S, n_fft=256, hop=64, length=None):
+    raise NotImplementedError
+
+def spectral_convergence(S_hat, mag):
+    raise NotImplementedError
+
+def griffin_lim(mag, n_fft=256, hop=64, n_iter=100, seed=0, length=None):
+    raise NotImplementedError
+
+def invert_mel(M, fb):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+sr = 8000
+t = np.arange(sr) / sr
+x = (np.sin(2 * np.pi * 300 * t) + 0.5 * np.sin(2 * np.pi * 900 * t)) * (0.6 + 0.4 * np.sin(2 * np.pi * 3 * t)) + 0.3 * np.sin(2 * np.pi * (1000 * t + 500 * t ** 2))
+x = x / np.abs(x).max()
+
+S = stft(x)
+check("stft shape (126, 129)", lambda: S.shape == (126, 129))
+y = istft(S, length=len(x))
+check("round trip with the true phase is exact", lambda: y.shape == x.shape and np.abs(y - x).max() < 1e-10)
+check("istft without length has the same number of samples as the input", lambda: len(istft(S)) == len(x))
+rng = np.random.default_rng(5)
+z = rng.normal(size=3008)
+check("round trip on random noise", lambda: np.abs(istft(stft(z), length=len(z)) - z).max() < 1e-10)
+check("tone peaks in the right bin", lambda: int(np.argmax(np.abs(stft(np.sin(2 * np.pi * 1000 * t))).mean(axis=0))) == 32)
+
+mag = np.abs(S)
+check("spectral convergence of the true spectrogram is 0", lambda: spectral_convergence(S, mag) < 1e-12)
+rr = np.random.default_rng(0)
+S0 = mag * np.exp(2j * np.pi * rr.random(mag.shape))
+check("random phase starts far from consistency (about 0.64)", lambda: abs(spectral_convergence(stft(istft(S0, length=len(x))), mag) - 0.6406) < 0.02)
+
+sc = {}
+for it in (1, 5, 20, 100):
+    sc[it] = spectral_convergence(stft(griffin_lim(mag, n_iter=it, length=len(x))), mag)
+check("spectral convergence decreases with iterations", lambda: sc[1] > sc[5] > sc[20] > sc[100])
+check("20 iterations is about 0.19", lambda: abs(sc[20] - 0.1905) < 0.02)
+check("100 iterations is about 0.107", lambda: abs(sc[100] - 0.1067) < 0.02)
+xh = griffin_lim(mag, n_iter=100, length=len(x))
+check("output has the input length", lambda: xh.shape == x.shape)
+check("waveform is NOT recovered even though the magnitude is (RMS error stays large)", lambda: min(np.sqrt(np.mean((xh - x) ** 2)), np.sqrt(np.mean((xh + x) ** 2))) > 0.2)
+
+fb = mel_filterbank(40, 256, sr)
+M = (mag ** 2) @ fb.T
+mh = invert_mel(M, fb)
+check("invert_mel shape and non-negativity", lambda: mh.shape == mag.shape and mh.min() >= 0)
+check("mel inversion already loses about 44% of the magnitude", lambda: abs(np.linalg.norm(mh - mag) / np.linalg.norm(mag) - 0.4437) < 0.01)
+check("filterbank has rank 40 < 129 bins (information is discarded)", lambda: np.linalg.matrix_rank(fb) == 40)
+#@@ solution
+import numpy as np
+
+def hann(N):
+    return 0.5 - 0.5 * np.cos(2 * np.pi * np.arange(N) / N)
+
+def hz_to_mel(f):
+    return 2595.0 * np.log10(1.0 + np.asarray(f, float) / 700.0)
+
+def mel_to_hz(m):
+    return 700.0 * (10.0 ** (np.asarray(m, float) / 2595.0) - 1.0)
+
+def mel_filterbank(n_mels, n_fft, sr):
+    pts = mel_to_hz(np.linspace(0.0, hz_to_mel(sr / 2), n_mels + 2))
+    freqs = np.arange(n_fft // 2 + 1) * sr / n_fft
+    fb = np.zeros((n_mels, len(freqs)))
+    for j in range(n_mels):
+        lo, mid, hi = pts[j], pts[j + 1], pts[j + 2]
+        fb[j] = np.maximum(0, np.minimum((freqs - lo) / (mid - lo), (hi - freqs) / (hi - mid)))
+    return fb
+
+def stft(x, n_fft=256, hop=64):
+    xp = np.pad(x, (n_fft // 2, n_fft // 2), mode="reflect")
+    n = 1 + (len(xp) - n_fft) // hop
+    idx = np.arange(n_fft)[None, :] + hop * np.arange(n)[:, None]
+    return np.fft.rfft(xp[idx] * hann(n_fft), axis=1)
+
+def istft(S, n_fft=256, hop=64, length=None):
+    n = S.shape[0]
+    fr = np.fft.irfft(S, n=n_fft, axis=1) * hann(n_fft)
+    L = n_fft + hop * (n - 1)
+    y = np.zeros(L)
+    wsum = np.zeros(L)
+    w2 = hann(n_fft) ** 2
+    for i in range(n):
+        y[i * hop:i * hop + n_fft] += fr[i]
+        wsum[i * hop:i * hop + n_fft] += w2
+    y = y / np.maximum(wsum, 1e-8)
+    y = y[n_fft // 2:L - n_fft // 2]
+    return y if length is None else y[:length]
+
+def spectral_convergence(S_hat, mag):
+    return float(np.linalg.norm(np.abs(S_hat) - mag) / np.linalg.norm(mag))
+
+def griffin_lim(mag, n_fft=256, hop=64, n_iter=100, seed=0, length=None):
+    rng = np.random.default_rng(seed)
+    S = mag * np.exp(2j * np.pi * rng.random(mag.shape))
+    for _ in range(n_iter):
+        x = istft(S, n_fft, hop, length)
+        S = mag * np.exp(1j * np.angle(stft(x, n_fft, hop)))
+    return istft(S, n_fft, hop, length)
+
+def invert_mel(M, fb):
+    return np.sqrt(np.maximum(0.0, M @ np.linalg.pinv(fb).T))

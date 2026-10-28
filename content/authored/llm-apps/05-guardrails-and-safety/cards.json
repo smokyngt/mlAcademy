@@ -1,0 +1,86 @@
+[
+ {
+  "id": "app.05.c1",
+  "concept": "app.guardrails",
+  "front": "Guardrail sandwich",
+  "back": "Validate input, process (model and tools), validate output; add rate limiting, auth and tool-level permissions."
+ },
+ {
+  "id": "app.05.c2",
+  "concept": "app.guardrails",
+  "front": "Direct vs indirect injection",
+  "back": "Direct: the user's message tries to override instructions. Indirect: instructions hidden in content the model reads (pages, emails, tool results)."
+ },
+ {
+  "id": "app.05.c3",
+  "concept": "app.guardrails",
+  "front": "Why injection is hard",
+  "back": "Instructions and data share one text channel, so the model cannot reliably separate them."
+ },
+ {
+  "id": "app.05.c4",
+  "concept": "app.guardrails",
+  "front": "Jailbreak",
+  "back": "A technique that bypasses the model's own safety behaviour (role-play, multi-turn manipulation), as opposed to overriding your system prompt."
+ },
+ {
+  "id": "app.05.c5",
+  "concept": "app.guardrails",
+  "front": "Least privilege for agents",
+  "back": "Give tools minimal scopes; require approval for irreversible actions; enforce permissions in code, not in the prompt."
+ },
+ {
+  "id": "app.05.c6",
+  "concept": "app.guardrails",
+  "front": "Luhn algorithm",
+  "back": "From the right double every second digit, subtract 9 if above 9, sum; valid iff the sum is divisible by 10."
+ },
+ {
+  "id": "app.05.c7",
+  "concept": "app.guardrails",
+  "front": "What Luhn guarantees",
+  "back": "Detects all single-digit errors and most adjacent transpositions; about 10 percent of random digit strings still pass."
+ },
+ {
+  "id": "app.05.c8",
+  "concept": "app.guardrails",
+  "front": "IBAN mod-97",
+  "back": "Move the first four characters to the end, letters to 10-35, read as an integer: remainder 1 modulo 97 means well-formed."
+ },
+ {
+  "id": "app.05.c9",
+  "concept": "app.guardrails",
+  "front": "US SSN structure rules",
+  "back": "AAA-GG-SSSS with AAA not 000, 666 or 9xx; GG not 00; SSSS not 0000; no checksum, so keep context words."
+ },
+ {
+  "id": "app.05.c10",
+  "concept": "app.guardrails",
+  "front": "Why ignore overlapping matches in PII detection?",
+  "back": "Digits inside an IBAN could otherwise be re-read as a card; run specific patterns first and skip overlaps."
+ },
+ {
+  "id": "app.05.c11",
+  "concept": "app.guardrails",
+  "front": "False-positive vs false-negative rate",
+  "back": "FPR: share of benign inputs blocked. FNR: share of attacks let through. Lowering the threshold trades FNR for FPR."
+ },
+ {
+  "id": "app.05.c12",
+  "concept": "app.guardrails",
+  "front": "Token bucket",
+  "back": "Capacity C, refill R per second; level = min(C, level + R*dt); admit if level >= cost. Allows bursts, enforces an average rate."
+ },
+ {
+  "id": "app.05.c13",
+  "concept": "app.guardrails",
+  "front": "Fallback chain",
+  "back": "Primary model, backup model, cached or canned reply, error; record which tier answered; fail closed for high-risk actions."
+ },
+ {
+  "id": "app.05.c14",
+  "concept": "app.guardrails",
+  "front": "Threat-model questions",
+  "back": "What can the model read, what can it do, which secrets are reachable, who attacks, worst outcome, what is logged, what if a layer fails."
+ }
+]

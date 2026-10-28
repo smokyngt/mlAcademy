@@ -1,0 +1,119 @@
+[
+ {
+  "id": "mf.01.q1",
+  "concept": "mf.python",
+  "stage": "pre",
+  "prompt": "What does `[x*x for x in range(4)]` produce?",
+  "options": [
+   "[0, 1, 4, 9]",
+   "[1, 4, 9, 16]",
+   "[0, 1, 2, 3]",
+   "[0, 2, 4, 6]"
+  ],
+  "answer": 0,
+  "explanation": "`range(4)` gives 0,1,2,3 (it stops before 4), and each is squared."
+ },
+ {
+  "id": "mf.01.q2",
+  "concept": "mf.python",
+  "prompt": "After `a = [1, 2, 3]` and `b = a` and `b.append(4)`, what is `len(a)`?",
+  "options": [
+   "3",
+   "4",
+   "1",
+   "an error"
+  ],
+  "answer": 1,
+  "explanation": "`b = a` does not copy the list: both names point to the same list, so appending through `b` changes what `a` sees."
+ },
+ {
+  "id": "mf.01.q3",
+  "concept": "mf.numpy",
+  "prompt": "What is `np.arange(10)[2:5]`?",
+  "options": [
+   "[2, 3, 4, 5]",
+   "[3, 4, 5]",
+   "[2, 3, 4]",
+   "[2, 5]"
+  ],
+  "answer": 2,
+  "explanation": "A slice `start:stop` includes start and excludes stop."
+ },
+ {
+  "id": "mf.01.q4",
+  "concept": "mf.numpy",
+  "prompt": "`A` has shape (3, 4). What is the shape of `A.sum(axis=0)`?",
+  "options": [
+   "(3,)",
+   "(4,)",
+   "(3, 4)",
+   "()"
+  ],
+  "answer": 1,
+  "explanation": "`axis=0` sums down the rows and removes axis 0, leaving the 4 column sums."
+ },
+ {
+  "id": "mf.01.q5",
+  "concept": "mf.numpy",
+  "prompt": "Shapes (3, 1) and (1, 4) are combined with `+`. What shape results?",
+  "options": [
+   "(3, 4)",
+   "(4, 3)",
+   "error",
+   "(1, 1)"
+  ],
+  "answer": 0,
+  "explanation": "Broadcasting stretches each axis of size 1 to match the other: (3,4)."
+ },
+ {
+  "id": "mf.01.q6",
+  "concept": "mf.numpy",
+  "prompt": "`a = np.array([1, 2, 3])`. What is `a * 2`?",
+  "options": [
+   "[1, 2, 3, 1, 2, 3]",
+   "[2, 4, 6]",
+   "[2, 2, 2]",
+   "an error"
+  ],
+  "answer": 1,
+  "explanation": "NumPy arithmetic is element-wise. (A Python list times 2 would repeat the list instead.)"
+ },
+ {
+  "id": "mf.01.q7",
+  "concept": "mf.numpy",
+  "kind": "numeric",
+  "prompt": "`np.arange(12).reshape(3, 4)[1, 2]` equals...",
+  "options": [],
+  "answer": {
+   "value": 6,
+   "tol": 0.01
+  },
+  "explanation": "Row 1 is [4,5,6,7]; its element at index 2 is 6."
+ },
+ {
+  "id": "mf.01.q8",
+  "concept": "mf.python",
+  "prompt": "A function has no `return` statement. What does calling it give you?",
+  "options": [
+   "0",
+   "an error",
+   "`None`",
+   "an empty list"
+  ],
+  "answer": 2,
+  "explanation": "Python functions return `None` unless a `return` says otherwise: a classic cause of 'my result is None' bugs."
+ },
+ {
+  "id": "mf.01.q9",
+  "concept": "mf.numpy",
+  "prompt": "`np.array([1,2,3]) + np.array([10,20])` raises an error because...",
+  "options": [
+   "NumPy forbids addition of arrays",
+   "the shapes (3,) and (2,) are incompatible",
+   "the arrays hold integers",
+   "the second array is too short to broadcast but NumPy pads it with zeros"
+  ],
+  "answer": 1,
+  "explanation": "Broadcasting needs equal sizes or a size of 1 on each axis. 3 and 2 are neither, so NumPy raises a shape error."
+ }
+]

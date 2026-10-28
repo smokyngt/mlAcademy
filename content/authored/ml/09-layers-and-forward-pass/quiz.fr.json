@@ -1,0 +1,38 @@
+[
+  {
+    "id": "f2n.09.q1",
+    "prompt": "Un batch $X$ a la forme $(32,100)$ et une couche dense a un $W$ de forme $(100,64)$. Quelle est la forme de `X @ W + b` ?",
+    "options": ["$(32,100)$", "$(100,64)$", "$(32,64)$", "$(64,32)$"],
+    "explanation": "$(32\\times100)(100\\times64)=(32\\times64)$ ; le biais de forme $(64,)$ est diffusé (broadcast) sur les 32 lignes."
+  },
+  {
+    "id": "f2n.09.q2",
+    "prompt": "Combien de paramètres (poids et biais) possède un MLP $784\\to128\\to10$ ?",
+    "options": [],
+    "explanation": "$(784\\cdot128+128)+(128\\cdot10+10)=100480+1290=101770$."
+  },
+  {
+    "id": "f2n.09.q3",
+    "prompt": "Pourquoi un empilement de couches linéaires sans activation ne peut-il pas modéliser le XOR ?",
+    "options": ["Trop peu de paramètres", "La composition $W_2W_1x$ est elle-même une seule application linéaire, donc elle ne produit que des frontières de décision linéaires", "Le XOR nécessite un biais", "Les couches linéaires n'ont pas de gradients"],
+    "explanation": "La multiplication matricielle est associative : $W_2(W_1x)=(W_2W_1)x$. Le XOR n'est pas linéairement séparable, donc aucune application linéaire ne le résout ; une non-linéarité entre les couches règle le problème."
+  },
+  {
+    "id": "f2n.09.q4",
+    "prompt": "La plus grande valeur de la dérivée de la sigmoïde est...",
+    "options": [],
+    "explanation": "$\\sigma'(z)=\\sigma(1-\\sigma)\\le\\frac12\\cdot\\frac12=0.25$ en $z=0$. Rétropropager à travers $L$ couches sigmoïdes peut réduire les gradients d'un facteur $4^{-L}$."
+  },
+  {
+    "id": "f2n.09.q5",
+    "prompt": "Laquelle est la dérivée de $\\tanh$ ?",
+    "options": ["$\\tanh(z)$", "$1-\\tanh^2(z)$", "$\\tanh(z)(1-\\tanh(z))$", "$1/\\cosh(z)$"],
+    "explanation": "$\\tanh'=1-\\tanh^2$ (de façon équivalente $1/\\cosh^2$, et non $1/\\cosh$). Sa pente maximale est 1 en $z=0$."
+  },
+  {
+    "id": "f2n.09.q6",
+    "prompt": "Si $\\operatorname{Var}(z)=n\\sigma_w^2\\sigma_x^2$ et que l'on veut que la variance reste constante à travers une couche tanh à $n$ entrées, on doit initialiser les poids avec une variance...",
+    "options": ["$\\sigma_w^2=1$", "$\\sigma_w^2=1/n$", "$\\sigma_w^2=n$", "$\\sigma_w^2=0$"],
+    "explanation": "Poser $n\\sigma_w^2=1$ maintient $\\operatorname{Var}(z)=\\sigma_x^2$. ReLU élimine la moitié du signal, donc l'initialisation de He utilise $2/n$. Des poids nuls ne brisent pas la symétrie et n'apprennent rien."
+  }
+]

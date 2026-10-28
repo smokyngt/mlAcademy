@@ -1,0 +1,76 @@
+#@@ meta
+{"id": "trf.01.ex1", "title": "Scaled dot-product attention and the variance test", "difficulty": 3, "runtime": "pyodide", "concepts": ["trf.attention"], "hints": ["softmax: subtract the row max, exponentiate, divide by the row sum (axis=-1, keepdims=True).", "scores = Q @ np.swapaxes(K, -1, -2) / np.sqrt(d_k); if a boolean mask is given, use np.where(mask, -np.inf, scores) before softmax.", "score_variance: draw q and k of shape (n, d) with rng.normal, the raw score of each row is (q*k).sum(axis=1); the scaled one divides by sqrt(d). Return the two .var() values."]}
+#@@ prompt
+Implement three functions.
+
+1. `softmax(x)`: numerically stable softmax over the **last** axis.
+2. `attention(Q, K, V, mask=None)`: scaled dot-product attention. `Q, K` have shape `(..., T, d_k)`, `V` has shape `(..., T, d_v)`. `mask` is an optional boolean `(T, T)` array where `True` means "this query may NOT look at this key". Return `(output, weights)` with shapes `(..., T, d_v)` and `(..., T, T)`.
+3. `score_variance(d, n=20000, seed=0)`: draw `n` pairs of independent standard-normal vectors of length `d` using `np.random.default_rng(seed)` (first `q` of shape `(n, d)`, then `k`), compute the dot-product score of each pair, and return `(variance_of_raw_scores, variance_of_scores_divided_by_sqrt_d)`.
+
+The lesson's worked example (3 tokens, `d_k = 2`) must come out exactly as printed in the lesson.
+#@@ starter
+import numpy as np
+
+def softmax(x):
+    # TODO: stable softmax over the last axis
+    raise NotImplementedError
+
+def attention(Q, K, V, mask=None):
+    # TODO: scores (..., T, T), optional mask, softmax, weights @ V
+    raise NotImplementedError
+
+def score_variance(d, n=20000, seed=0):
+    # TODO: return (var of raw q.k, var of q.k / sqrt(d))
+    raise NotImplementedError
+
+X = np.array([[1., 0], [0, 1], [1, 1]])
+Wq = np.array([[1., 1], [0, 1]]); Wk = np.array([[1., 0], [1, 1]]); Wv = np.array([[1., 0], [0, 2]])
+out, A = attention(X @ Wq, X @ Wk, X @ Wv)
+print(np.round(A, 4)); print(np.round(out, 4))
+print(score_variance(64))
+#@@ tests
+import numpy as np
+X = np.array([[1., 0], [0, 1], [1, 1]])
+Wq = np.array([[1., 1], [0, 1]]); Wk = np.array([[1., 0], [1, 1]]); Wv = np.array([[1., 0], [0, 2]])
+out, A = attention(X @ Wq, X @ Wk, X @ Wv)
+check("softmax rows sum to one", lambda: np.allclose(softmax(np.array([[1., 2, 3], [1000, 1000, 1000]])).sum(-1), 1) and np.all(np.isfinite(softmax(np.array([[1000., 0]])))), "subtract the max first so exp does not overflow")
+check("worked example weights", lambda: np.allclose(A, [[0.1400, 0.2840, 0.5760], [0.1978, 0.4011, 0.4011], [0.0743, 0.3057, 0.6200]], atol=1e-3), "divide the scores by sqrt(d_k) before softmax")
+check("worked example output", lambda: np.allclose(out, [[0.7160, 1.7199], [0.5989, 1.6044], [0.6943, 1.8514]], atol=1e-3), "output = weights @ V")
+rng = np.random.default_rng(1)
+Qb = rng.normal(size=(2, 5, 4)); Kb = rng.normal(size=(2, 5, 4)); Vb = rng.normal(size=(2, 5, 3))
+ob, Ab = attention(Qb, Kb, Vb)
+check("batched shapes", lambda: ob.shape == (2, 5, 3) and Ab.shape == (2, 5, 5), "output (B,T,d_v), weights (B,T,T)")
+check("batch equals loop", lambda: np.allclose(ob[1], attention(Qb[1], Kb[1], Vb[1])[0]))
+mask = np.triu(np.ones((5, 5), dtype=bool), k=1)
+om, Am = attention(Qb, Kb, Vb, mask)
+check("masked weights are zero above the diagonal", lambda: np.allclose(Am[:, mask], 0) and np.allclose(Am.sum(-1), 1))
+check("first token under a causal mask copies V[0]", lambda: np.allclose(om[:, 0], Vb[:, 0]))
+v4 = score_variance(4); v64 = score_variance(64); v512 = score_variance(512)
+check("raw variance is about d", lambda: abs(v64[0] / 64 - 1) < 0.1 and abs(v512[0] / 512 - 1) < 0.1 and abs(v4[0] / 4 - 1) < 0.1, "Var(q.k) = d for unit-variance entries")
+check("scaled variance is about 1", lambda: all(abs(v[1] - 1) < 0.1 for v in (v4, v64, v512)), "divide the score by sqrt(d)")
+#@@ solution
+import numpy as np
+
+def softmax(x):
+    e = np.exp(x - x.max(axis=-1, keepdims=True))
+    return e / e.sum(axis=-1, keepdims=True)
+
+def attention(Q, K, V, mask=None):
+    d_k = Q.shape[-1]
+    S = Q @ np.swapaxes(K, -1, -2) / np.sqrt(d_k)
+    if mask is not None:
+        S = np.where(mask, -np.inf, S)
+    A = softmax(S)
+    return A @ V, A
+
+def score_variance(d, n=20000, seed=0):
+    rng = np.random.default_rng(seed)
+    q = rng.normal(size=(n, d)); k = rng.normal(size=(n, d))
+    s = (q * k).sum(axis=1)
+    return float(s.var()), float((s / np.sqrt(d)).var())
+
+X = np.array([[1., 0], [0, 1], [1, 1]])
+Wq = np.array([[1., 1], [0, 1]]); Wk = np.array([[1., 0], [1, 1]]); Wv = np.array([[1., 0], [0, 2]])
+out, A = attention(X @ Wq, X @ Wk, X @ Wv)
+print(np.round(A, 4)); print(np.round(out, 4))
+print(score_variance(64))

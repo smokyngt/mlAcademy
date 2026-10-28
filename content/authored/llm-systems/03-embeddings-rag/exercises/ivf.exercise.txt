@@ -1,0 +1,71 @@
+#@@ meta
+{"id": "sys.03.ex2", "title": "Exact vs approximate nearest neighbours: a tiny IVF index", "difficulty": 3, "runtime": "pyodide", "concepts": ["llm.rag"], "hints": ["exact_knn: squared distances ((X - q)**2).sum(1), np.argsort(...)[:k].", "kmeans: start from k random data points, then repeat: assign every point to the nearest centroid, move each non-empty centroid to the mean of its points.", "ivf_search: take the nprobe nearest centroids, form the candidate set with np.isin(assign, probe), and do an exact search only inside it. recall = |exact ∩ approx| / k."]}
+#@@ prompt
+Vector databases avoid comparing the query with every stored vector. The simplest idea is an **inverted file (IVF)** index: cluster the vectors with k-means, and at query time search only the `nprobe` clusters whose centroids are closest to the query.
+
+Implement `exact_knn`, `kmeans`, `ivf_search` (returning the neighbours and the number of vectors scanned) and `recall_at_k`. Observe the speed (vectors scanned) versus recall trade-off as `nprobe` grows.
+#@@ starter
+import numpy as np
+
+def exact_knn(X, q, k):
+    raise NotImplementedError
+
+def kmeans(X, k, iters, seed):
+    # returns (centroids (k, d), assignment (n,))
+    raise NotImplementedError
+
+def ivf_search(q, X, centroids, assign, k, nprobe):
+    # returns (indices of the k nearest among the candidates, number of candidates scanned)
+    raise NotImplementedError
+
+def recall_at_k(exact, approx):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+rng = np.random.default_rng(0)
+cent = rng.normal(0, 3, (20, 16))
+X = cent[rng.integers(0, 20, 2000)] + rng.normal(0, 1, (2000, 16))
+C, a = kmeans(X, 20, 8, 0)
+check("centroid and assignment shapes", lambda: C.shape == (20, 16) and a.shape == (2000,))
+check("exact_knn of a stored vector returns itself first", lambda: exact_knn(X, X[17], 5)[0] == 17)
+check("recall of identical lists is 1", lambda: recall_at_k([1, 2, 3], [3, 2, 1]) == 1.0)
+check("recall of disjoint lists is 0", lambda: recall_at_k([1, 2], [3, 4]) == 0.0)
+Qs = X[rng.choice(2000, 50, replace=False)] + rng.normal(0, 0.5, (50, 16))
+res = {}
+for npb in (1, 2, 4, 20):
+    rec, scanned = [], []
+    for q in Qs:
+        got, n = ivf_search(q, X, C, a, 10, npb)
+        rec.append(recall_at_k(exact_knn(X, q, 10), got))
+        scanned.append(n)
+    res[npb] = (float(np.mean(rec)), float(np.mean(scanned)))
+check("probing all clusters is exact", lambda: res[20][0] == 1.0 and res[20][1] == 2000)
+check("recall never decreases with nprobe", lambda: res[1][0] <= res[2][0] <= res[4][0] <= res[20][0])
+check("nprobe=1 scans far fewer vectors than 2000", lambda: res[1][1] < 300)
+check("nprobe=1 still has decent recall but is not perfect", lambda: 0.85 < res[1][0] < 1.0)
+check("nprobe=2 reaches high recall", lambda: res[2][0] > 0.97)
+#@@ solution
+import numpy as np
+
+def exact_knn(X, q, k):
+    return np.argsort(((X - q) ** 2).sum(1))[:k]
+
+def kmeans(X, k, iters, seed):
+    rng = np.random.default_rng(seed)
+    C = X[rng.choice(len(X), k, replace=False)].copy()
+    for _ in range(iters):
+        a = np.argmin(((X[:, None] - C[None]) ** 2).sum(-1), axis=1)
+        for j in range(k):
+            if (a == j).any():
+                C[j] = X[a == j].mean(0)
+    a = np.argmin(((X[:, None] - C[None]) ** 2).sum(-1), axis=1)
+    return C, a
+
+def ivf_search(q, X, centroids, assign, k, nprobe):
+    probe = np.argsort(((centroids - q) ** 2).sum(1))[:nprobe]
+    cand = np.where(np.isin(assign, probe))[0]
+    d = ((X[cand] - q) ** 2).sum(1)
+    return cand[np.argsort(d)[:k]], len(cand)
+
+def recall_at_k(exact, approx):
+    return len(set(map(int, exact)) & set(map(int, approx))) / len(exact)

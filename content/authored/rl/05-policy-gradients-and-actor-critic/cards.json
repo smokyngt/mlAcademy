@@ -1,0 +1,16 @@
+[
+  { "id": "rl.05.c1", "concept": "rl.policy-gradient", "front": "Objective of policy gradient methods", "back": "$J(\\theta)=\\mathbb{E}_{\\tau\\sim\\pi_\\theta}[G(\\tau)]$, maximised by gradient ascent on $\\theta$." },
+  { "id": "rl.05.c2", "concept": "rl.policy-gradient", "front": "Log-derivative trick", "back": "$\\nabla p_\\theta=p_\\theta\\nabla\\log p_\\theta$, so $\\nabla\\mathbb{E}[G]=\\mathbb{E}[G\\,\\nabla\\log p_\\theta]$." },
+  { "id": "rl.05.c3", "concept": "rl.policy-gradient", "front": "Policy gradient theorem", "back": "$\\nabla_\\theta J=\\mathbb{E}[\\sum_t\\nabla_\\theta\\log\\pi_\\theta(a_t|s_t)\\,G_t]$ (reward-to-go form)." },
+  { "id": "rl.05.c4", "concept": "rl.policy-gradient", "front": "Why do the dynamics vanish from the gradient?", "back": "$\\log p_\\theta(\\tau)=\\sum\\log\\pi_\\theta+\\text{terms independent of }\\theta$, so only the policy terms are differentiated." },
+  { "id": "rl.05.c5", "concept": "rl.policy-gradient", "front": "Reward-to-go", "back": "Weight $\\nabla\\log\\pi(a_t|s_t)$ by $G_t$ (future rewards) rather than the whole return; same expectation, lower variance." },
+  { "id": "rl.05.c6", "concept": "rl.policy-gradient", "front": "Why a state baseline is unbiased", "back": "$\\mathbb{E}_a[b(s)\\nabla\\log\\pi(a|s)]=b(s)\\nabla\\sum_a\\pi(a|s)=b(s)\\nabla 1=0$." },
+  { "id": "rl.05.c7", "concept": "rl.policy-gradient", "front": "Softmax score function", "back": "$\\nabla_\\theta\\log\\pi(a)=e_a-\\pi$ (one-hot minus the probability vector)." },
+  { "id": "rl.05.c8", "concept": "rl.actor-critic", "front": "Advantage function", "back": "$A^\\pi(s,a)=Q^\\pi(s,a)-V^\\pi(s)$: how much better an action is than the policy's average in that state." },
+  { "id": "rl.05.c9", "concept": "rl.actor-critic", "front": "Actor and critic", "back": "Actor: the policy $\\pi_\\theta$. Critic: a value estimate $V_\\phi(s)$ that provides the baseline/advantage." },
+  { "id": "rl.05.c10", "concept": "rl.actor-critic", "front": "TD advantage vs MC advantage", "back": "TD: $r+\\gamma V(s')-V(s)$, low variance, biased. MC: $G_t-V(s_t)$, unbiased, high variance." },
+  { "id": "rl.05.c11", "concept": "rl.actor-critic", "front": "A2C", "back": "Synchronous advantage actor-critic: parallel rollouts, advantage estimates, one actor and one critic step on the batch, usually plus an entropy bonus." },
+  { "id": "rl.05.c12", "concept": "rl.actor-critic", "front": "Actor loss in code", "back": "$-\\text{adv}\\cdot\\log\\pi_\\theta(a|s)$ with the advantage detached (a constant weight)." },
+  { "id": "rl.05.c13", "concept": "rl.policy-gradient", "front": "Main weakness of vanilla policy gradients", "back": "High variance and on-policy data: each batch supports roughly one gradient step." },
+  { "id": "rl.05.c14", "concept": "rl.actor-critic", "front": "Why add an entropy bonus?", "back": "$+c_eH(\\pi_\\theta)$ discourages premature collapse to a deterministic policy and keeps exploring." }
+]

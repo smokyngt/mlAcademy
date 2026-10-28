@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mx.02.c1",
+  "concept": "mx.dft",
+  "front": "DFT definition",
+  "back": "$X[k]=\\sum_{n=0}^{N-1}x[n]e^{-2\\pi ikn/N}$."
+ },
+ {
+  "id": "mx.02.c2",
+  "concept": "mx.dft",
+  "front": "Inverse DFT",
+  "back": "$x[n]=\\frac1N\\sum_kX[k]e^{+2\\pi ikn/N}$: opposite sign and a $1/N$ factor."
+ },
+ {
+  "id": "mx.02.c3",
+  "concept": "mx.dft",
+  "front": "Why is the DFT invertible?",
+  "back": "$F_{kn}=\\omega^{-kn}$ satisfies $F^HF=NI$: $F/\\sqrt N$ is unitary (rotation in $\\mathbb{C}^N$)."
+ },
+ {
+  "id": "mx.02.c4",
+  "concept": "mx.dft",
+  "front": "Conjugate symmetry",
+  "back": "For real $x$: $X[N-k]=\\overline{X[k]}$; only bins $0..N/2$ are independent."
+ },
+ {
+  "id": "mx.02.c5",
+  "concept": "mx.dft",
+  "front": "Amplitude from a bin",
+  "back": "A real cosine of amplitude $A$ at bin $k$ gives $|X[k]|=NA/2$, so $A=2|X[k]|/N$."
+ },
+ {
+  "id": "mx.02.c6",
+  "concept": "mx.dft",
+  "front": "FFT recurrence",
+  "back": "$X[k]=E[k]+t_kO[k]$, $X[k+N/2]=E[k]-t_kO[k]$ with $t_k=e^{-2\\pi ik/N}$."
+ },
+ {
+  "id": "mx.02.c7",
+  "concept": "mx.dft",
+  "front": "Cost of DFT vs FFT",
+  "back": "DFT $O(N^2)$; FFT $O(N\\log N)$ (about 10,240 vs 1,048,576 operations for $N=1024$)."
+ },
+ {
+  "id": "mx.02.c8",
+  "concept": "mx.sampling",
+  "front": "Bin frequency and spacing",
+  "back": "$f_k=kf_s/N$; spacing $\\Delta f=f_s/N=1/T$."
+ },
+ {
+  "id": "mx.02.c9",
+  "concept": "mx.sampling",
+  "front": "Nyquist frequency",
+  "back": "$f_s/2$: the highest frequency representable by samples at rate $f_s$."
+ },
+ {
+  "id": "mx.02.c10",
+  "concept": "mx.sampling",
+  "front": "Aliasing",
+  "back": "A tone at $f$ above $f_s/2$ appears at $\\min(f\\bmod f_s,\\ f_s-f\\bmod f_s)$; identical samples, cannot be undone afterwards."
+ },
+ {
+  "id": "mx.02.c11",
+  "concept": "mx.sampling",
+  "front": "Does zero padding raise resolution?",
+  "back": "No. It interpolates the spectrum; resolution is set by the recording length."
+ },
+ {
+  "id": "mx.02.c12",
+  "concept": "mx.sampling",
+  "front": "Spectral leakage",
+  "back": "Energy spreading to neighbouring bins when the window does not contain a whole number of periods; reduced by smooth windows."
+ },
+ {
+  "id": "mx.02.c13",
+  "concept": "mx.conv-theorem",
+  "front": "Convolution theorem",
+  "back": "$\\mathrm{DFT}(a\\circledast b)=\\mathrm{DFT}(a)\\,\\mathrm{DFT}(b)$ pointwise; convolution in $O(N\\log N)$ via FFT."
+ },
+ {
+  "id": "mx.02.c14",
+  "concept": "mx.conv-theorem",
+  "front": "Spectrogram",
+  "back": "Magnitudes of DFTs of short overlapping windows: matrix (frames x frequency bins); trades time vs frequency resolution."
+ }
+]

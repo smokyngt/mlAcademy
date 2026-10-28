@@ -1,0 +1,183 @@
+#@@ meta
+{"id": "app.02.ex2", "title": "Constrained decoding: a token mask over a grammar automaton", "difficulty": 4, "runtime": "pyodide", "concepts": ["app.structured-output"], "hints": ["A multi-character token is allowed in a state iff feeding its characters one by one through the DFA never hits a missing transition. Write dfa_step first.", "The end-of-sequence token '<eos>' is allowed only when the state is in the accept set.", "Greedy constrained decoding: logits = logits_fn(...); set disallowed entries to -inf; take argmax; append the token text; advance the state; stop when '<eos>' is chosen."]}
+#@@ prompt
+Constrained decoding makes invalid output **unreachable** by setting the logits of illegal tokens to $-\infty$ before the softmax or argmax. You will implement the core of it on a tiny grammar, with a deterministic fake "model".
+
+The grammar (given) is the language of strings like `{"sentiment":"positive","score":7}`:
+
+```
+{"sentiment":"(positive|negative)","score":[0-9]{1,2}}
+```
+
+`build_dfa(pieces)` is provided and returns a character-level automaton `{"trans": [dict, ...], "start": int, "accept": int}` where `trans[state][char]` is the next state. `VOCAB` is a list of **multi-character tokens** (including junk such as `"Sure"` and the end token `"<eos>"`).
+
+Implement:
+
+- `dfa_step(dfa, state, token)` -> the state after feeding all characters of `token`, or `None` if some character has no transition.
+- `token_mask(dfa, state, vocab)` -> list of booleans, one per token: `True` iff the token can legally be emitted now. `"<eos>"` is legal only in the accept state.
+- `constrained_greedy(dfa, vocab, logits_fn, max_steps=40)` -> the generated string. At every step call `logits_fn(step)` (a list of floats), mask illegal tokens to `-inf`, take the argmax, and stop at `"<eos>"`.
+#@@ starter
+import numpy as np
+
+def build_dfa(pieces):
+    trans = [{}]
+    def new():
+        trans.append({})
+        return len(trans) - 1
+    acc = new()
+    nxt = acc
+    for p in reversed(pieces):
+        if p[0] == "lit":
+            s = nxt
+            for ch in reversed(p[1]):
+                n = new(); trans[n][ch] = s; s = n
+            nxt = s
+        elif p[0] == "choice":
+            start = new()
+            for w in p[1]:
+                s = nxt
+                for ch in reversed(w[1:]):
+                    n = new(); trans[n][ch] = s; s = n
+                trans[start][w[0]] = s
+            nxt = start
+        else:
+            lo, hi = p[1], p[2]
+            states = [new() for _ in range(hi + 1)]
+            for k in range(hi + 1):
+                if k < hi:
+                    for d in "0123456789":
+                        trans[states[k]][d] = states[k + 1]
+                if k >= lo:
+                    trans[states[k]].update(trans[nxt])
+            nxt = states[0]
+    return {"trans": trans, "start": nxt, "accept": acc}
+
+DFA = build_dfa([("lit", '{"sentiment":"'), ("choice", ["positive", "negative"]), ("lit", '","score":'), ("digits", 1, 2), ("lit", "}")])
+VOCAB = ["<eos>", "Sure", ", here", " is", "\n", '{"', '{"sentiment":"', "sent", "iment", '":"', "pos", "itive", "positive", "neg", "ative", "negative",
+         '","score":', "1", "2", "7", "0", "9", "42", "}", "}\n"]
+
+def fake_logits(step):
+    # deterministic noise, plus a strong pull toward chatty junk at the start
+    z = np.random.default_rng(step).normal(size=len(VOCAB))
+    if step == 0:
+        z[VOCAB.index("Sure")] += 5.0
+    return list(z)
+
+def dfa_step(dfa, state, token):
+    raise NotImplementedError
+
+def token_mask(dfa, state, vocab):
+    raise NotImplementedError
+
+def constrained_greedy(dfa, vocab, logits_fn, max_steps=40):
+    raise NotImplementedError
+#@@ tests
+import re
+import numpy as np
+PAT = re.compile(r'\{"sentiment":"(positive|negative)","score":[0-9]{1,2}\}')
+VOCAB_L = list(VOCAB)
+s0 = DFA["start"]
+m0 = token_mask(DFA, s0, VOCAB_L)
+check("mask has one entry per token", lambda: len(m0) == len(VOCAB_L))
+allowed0 = {t for t, ok in zip(VOCAB_L, m0) if ok}
+check("at the start only openers of the object are legal", lambda: allowed0 == {'{"', '{"sentiment":"'})
+s1 = dfa_step(DFA, s0, '{"sentiment":"')
+check("a multi-char token advances the state", lambda: s1 is not None)
+allowed1 = {t for t, ok in zip(VOCAB_L, token_mask(DFA, s1, VOCAB_L)) if ok}
+check("after the key only the label tokens are legal", lambda: allowed1 == {"pos", "positive", "neg", "negative"})
+check("an illegal token gives None", lambda: dfa_step(DFA, s1, "Sure") is None)
+check("<eos> is illegal before the end", lambda: not token_mask(DFA, s1, VOCAB_L)[0])
+full = '{"sentiment":"negative","score":42}'
+sf = dfa_step(DFA, s0, full)
+check("a complete string reaches the accept state", lambda: sf == DFA["accept"])
+check("<eos> is legal exactly in the accept state", lambda: token_mask(DFA, sf, VOCAB_L)[0] and sum(token_mask(DFA, sf, VOCAB_L)) == 1)
+s_d = dfa_step(DFA, s0, '{"sentiment":"positive","score":7')
+allowed_d = {t for t, ok in zip(VOCAB_L, token_mask(DFA, s_d, VOCAB_L)) if ok}
+check("after one digit: one more digit (not the two-digit token) or the closing brace", lambda: allowed_d == {"1", "2", "7", "0", "9", "}"})
+s_dd = dfa_step(DFA, s0, '{"sentiment":"positive","score":42')
+allowed_dd = {t for t, ok in zip(VOCAB_L, token_mask(DFA, s_dd, VOCAB_L)) if ok}
+check("after two digits only the closing brace", lambda: allowed_dd == {"}"})
+raw = "".join(VOCAB_L[int(np.argmax(fake_logits(i)))] for i in range(8))
+check("unconstrained greedy is NOT valid (sanity check on the fake model)", lambda: PAT.fullmatch(raw) is None)
+out = constrained_greedy(DFA, VOCAB_L, fake_logits)
+check("constrained output matches the grammar", lambda: PAT.fullmatch(out) is not None)
+check("constrained output is stable", lambda: out == constrained_greedy(DFA, VOCAB_L, fake_logits))
+def stubborn(step):
+    z = [0.0] * len(VOCAB_L)
+    z[VOCAB_L.index("Sure")] = 100.0
+    return z
+out2 = constrained_greedy(DFA, VOCAB_L, stubborn)
+check("even a model that only wants to say 'Sure' is forced into the grammar", lambda: PAT.fullmatch(out2) is not None)
+#@@ solution
+import numpy as np
+
+def build_dfa(pieces):
+    trans = [{}]
+    def new():
+        trans.append({})
+        return len(trans) - 1
+    acc = new()
+    nxt = acc
+    for p in reversed(pieces):
+        if p[0] == "lit":
+            s = nxt
+            for ch in reversed(p[1]):
+                n = new(); trans[n][ch] = s; s = n
+            nxt = s
+        elif p[0] == "choice":
+            start = new()
+            for w in p[1]:
+                s = nxt
+                for ch in reversed(w[1:]):
+                    n = new(); trans[n][ch] = s; s = n
+                trans[start][w[0]] = s
+            nxt = start
+        else:
+            lo, hi = p[1], p[2]
+            states = [new() for _ in range(hi + 1)]
+            for k in range(hi + 1):
+                if k < hi:
+                    for d in "0123456789":
+                        trans[states[k]][d] = states[k + 1]
+                if k >= lo:
+                    trans[states[k]].update(trans[nxt])
+            nxt = states[0]
+    return {"trans": trans, "start": nxt, "accept": acc}
+
+DFA = build_dfa([("lit", '{"sentiment":"'), ("choice", ["positive", "negative"]), ("lit", '","score":'), ("digits", 1, 2), ("lit", "}")])
+VOCAB = ["<eos>", "Sure", ", here", " is", "\n", '{"', '{"sentiment":"', "sent", "iment", '":"', "pos", "itive", "positive", "neg", "ative", "negative",
+         '","score":', "1", "2", "7", "0", "9", "42", "}", "}\n"]
+
+def fake_logits(step):
+    z = np.random.default_rng(step).normal(size=len(VOCAB))
+    if step == 0:
+        z[VOCAB.index("Sure")] += 5.0
+    return list(z)
+
+def dfa_step(dfa, state, token):
+    for ch in token:
+        state = dfa["trans"][state].get(ch)
+        if state is None:
+            return None
+    return state
+
+def token_mask(dfa, state, vocab):
+    mask = []
+    for t in vocab:
+        if t == "<eos>":
+            mask.append(state == dfa["accept"])
+        else:
+            mask.append(dfa_step(dfa, state, t) is not None)
+    return mask
+
+def constrained_greedy(dfa, vocab, logits_fn, max_steps=40):
+    state, out = dfa["start"], ""
+    for step in range(max_steps):
+        z = np.array(logits_fn(step), dtype=float)
+        z[~np.array(token_mask(dfa, state, vocab))] = -np.inf
+        tok = vocab[int(np.argmax(z))]
+        if tok == "<eos>":
+            break
+        out += tok
+        state = dfa_step(dfa, state, tok)
+    return out

@@ -1,0 +1,84 @@
+{
+  "provenance": "Two generations of lessons exist, and they were written differently. The first lessons (functions, vectors, matrices, derivatives, gradients, chain rule, gradient descent, losses, layers, backpropagation, training, autograd, linear regression, logistic regression, generalisation, k-means, PCA) were written from general knowledge, and the library files they list are pointers to where your material treats the same topic: their chapters were NOT read line by line (marked 'pointer only' below). Every later lesson was written after opening and reading the cited pages or files (marked 'read'), with page numbers recorded; explanations are in original words, nothing is quoted at length. In all cases every number, worked example and exercise solution was checked by running code (bun run verify:content). The first-generation lessons will be re-checked against their sources as time allows. External references are cited from memory, not retrieved: verify before relying on them.",
+  "library": [
+    {
+      "path": "math/math for ML.pdf",
+      "title": "Mathematics for Machine Learning",
+      "authors": "Deisenroth, Faisal, Ong",
+      "publisher": "Cambridge University Press (2020)",
+      "used": "Chapter and PDF-page pointers (Ch.2 p.23, Ch.3 p.76, Ch.5 p.145, Ch.7 p.231, Ch.8 p.257) taken from the PDF's own table of contents."
+    },
+    {
+      "path": "math/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf",
+      "title": "Pattern Recognition and Machine Learning",
+      "authors": "Christopher M. Bishop",
+      "publisher": "Springer (2006)",
+      "used": "Section pointers (1.2 p.32, 4.3 p.223, 5.1 p.247, 5.3 p.261) taken from the PDF's table of contents."
+    },
+    {
+      "path": "math/Designing Machine Learning Systems.pdf",
+      "title": "Designing Machine Learning Systems",
+      "authors": "Chip Huyen",
+      "publisher": "O'Reilly",
+      "used": "Inventoried only; not yet cited by any lesson."
+    },
+    {
+      "path": "ai-engineering-from-scratch/phases/01-math-foundations",
+      "title": "ai-engineering-from-scratch, phase 01 (math foundations)",
+      "authors": "repository authors",
+      "publisher": "local repository",
+      "used": "Pointed to from lessons 1-6; all 22 lessons imported unmodified with their quizzes."
+    },
+    {
+      "path": "ai-engineering-from-scratch/phases/03-deep-learning-core",
+      "title": "ai-engineering-from-scratch, phase 03 (deep learning core)",
+      "authors": "repository authors",
+      "publisher": "local repository",
+      "used": "Pointed to from lessons 7-12; 13 lessons imported."
+    },
+    {
+      "path": "LLMs-from-scratch",
+      "title": "Build a Large Language Model (From Scratch)",
+      "authors": "Sebastian Raschka",
+      "publisher": "Manning / local repository",
+      "used": "Appendix A pointed to from lessons 10 and 12; main-chapter notebooks imported."
+    },
+    {
+      "path": "reasoning-from-scratch",
+      "title": "Reasoning Models From Scratch",
+      "authors": "Sebastian Raschka",
+      "publisher": "local repository",
+      "used": "Chapter notebooks imported; not cited by authored lessons."
+    }
+  ],
+  "external": [
+    {
+      "ref": "He, Zhang, Ren, Sun. Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification. ICCV 2015 (arXiv:1502.01852).",
+      "for": "He initialisation, variance 2/n_in (lessons 9, 11)."
+    },
+    {
+      "ref": "Glorot, Bengio. Understanding the difficulty of training deep feedforward neural networks. AISTATS 2010.",
+      "for": "Variance-preserving initialisation, 1/n scaling argument (lesson 9)."
+    },
+    {
+      "ref": "Rumelhart, Hinton, Williams. Learning representations by back-propagating errors. Nature 323, 1986.",
+      "for": "Backpropagation as an algorithm for training networks (lesson 10)."
+    },
+    {
+      "ref": "Baydin, Pearlmutter, Radul, Siskind. Automatic differentiation in machine learning: a survey. JMLR 18, 2018.",
+      "for": "Forward vs reverse mode and their costs (lesson 12)."
+    },
+    {
+      "ref": "Goodfellow, Bengio, Courville. Deep Learning. MIT Press, 2016. Ch. 4 (numerical computation), Ch. 6 (feedforward networks), Ch. 8 (optimisation).",
+      "for": "Conditioning and gradient descent analysis, softmax stability, loss/likelihood link (lessons 7, 8)."
+    },
+    {
+      "ref": "Wozniak. SuperMemo SM-2 algorithm (1990).",
+      "for": "The basis of the flashcard scheduler; this app uses a simplified variant with a 10-minute relearning step."
+    },
+    {
+      "ref": "Pyodide 0.27 documentation, https://pyodide.org",
+      "for": "Running CPython and NumPy in a browser WebAssembly sandbox."
+    }
+  ]
+}

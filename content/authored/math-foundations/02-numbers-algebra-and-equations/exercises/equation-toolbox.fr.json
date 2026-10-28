@@ -1,0 +1,11 @@
+{
+  "id": "mf.02.ex1",
+  "title": "Boîte à outils d'arithmétique et d'équations",
+  "prompt": "Construis une petite boîte à outils d'équations.\n\n- `evaluate(a, b, c)` : renvoie $a + b \\times c^2$ en suivant l'ordre des opérations.\n- `solve_linear(a, b, c)` : résous $ax + b = c$ ; lève `ValueError` si `a == 0`.\n- `solve_inequality(a, b, c)` : résous $ax + b < c$ pour `a != 0` ; renvoie un tuple `(\"<\", bound)` ou `(\">\", bound)` signifiant `x < bound` ou `x > bound` (souviens-toi du retournement !).\n- `solve_2x2(a1, b1, c1, a2, b2, c2)` : résous $a_1x+b_1y=c_1,\\ a_2x+b_2y=c_2$ et renvoie `(x, y)`, ou `None` quand il n'y a pas de solution unique.\n- `percent_change(old, new)` : variation en pourcentage de `old` à `new` (par ex. de 100 à 120 donne `20.0`).\n- `add_fractions(p, q, r, s)` : $\\frac pq+\\frac rs$ sous la forme d'un `(numérateur, dénominateur)` réduit d'entiers.",
+  "hints": [
+    "solve_linear : x = (c - b) / a. Lève ValueError quand a == 0.",
+    "solve_2x2 : det = a1*b2 - a2*b1 ; si det == 0 renvoie None ; x = (c1*b2 - c2*b1)/det, y = (a1*c2 - a2*c1)/det.",
+    "solve_inequality(a,b,c) pour a*x + b < c : bound = (c-b)/a ; si a > 0 renvoie ('<', bound) sinon ('>', bound).",
+    "add_fractions : num = p*s + r*q, den = q*s, puis divise les deux par math.gcd(num, den)."
+  ]
+}

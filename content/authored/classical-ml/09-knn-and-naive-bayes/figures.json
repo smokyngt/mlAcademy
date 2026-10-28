@@ -1,0 +1,51 @@
+[
+  {
+    "id": "knn-neighbourhood",
+    "after": 3,
+    "kind": "plot",
+    "caption": { "en": "kNN with K = 3. The black cross is the query; the circle just contains its 3 nearest training points: two red and one blue. The posterior is p(red | x) = K_c/K = 2/3, so the majority vote says red. Points outside the circle play no role.", "fr": "kNN avec K = 3. La croix noire est la requête ; le cercle contient juste ses 3 plus proches voisins : deux rouges et un bleu. L'a posteriori est p(rouge | x) = K_c/K = 2/3, donc le vote majoritaire dit rouge. Les points hors du cercle ne jouent aucun rôle." },
+    "spec": {
+      "xDomain": [0, 6], "yDomain": [0, 6], "height": 340,
+      "data": [
+        { "fnType": "implicit", "fn": "(x-3)^2 + (y-3)^2 - 1", "color": "#9ca3af" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[2.6, 3.4], [3.7, 2.6], [1, 1], [0.8, 2], [5, 5.3]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 5 }, "points": [[3.4, 3.7], [5, 1], [5.5, 2], [4.6, 4.8], [1.2, 4.8]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#111827", "attr": { "r": 7 }, "points": [[3, 3]] }
+      ]
+    }
+  },
+  {
+    "id": "naive-bayes-graph",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": { "en": "Naive Bayes as a graphical model: the class C_k is the single parent of every feature, so the features are conditionally independent given the class and p(x | C_k) = ∏ p(x_i | C_k). Prediction multiplies the prior by one factor per feature, in log space.", "fr": "Bayes naïf comme modèle graphique : la classe C_k est l'unique parent de chaque variable, donc les variables sont conditionnellement indépendantes sachant la classe et p(x | C_k) = ∏ p(x_i | C_k). La prédiction multiplie l'a priori par un facteur par variable, en espace logarithmique." },
+    "code": {
+      "en": "flowchart TD\n  C((\"class C_k\\nprior p(C_k)\")) --> X1[\"x_1 : p(x_1 | C_k)\"]\n  C --> X2[\"x_2 : p(x_2 | C_k)\"]\n  C --> X3[\"x_3 : p(x_3 | C_k)\"]\n  C --> XD[\"x_d : p(x_d | C_k)\"]\n  X1 --> S[\"score_k = log p(C_k) + sum_i log p(x_i | C_k)\"]\n  X2 --> S\n  X3 --> S\n  XD --> S\n  S --> A[\"argmax over k\"]",
+      "fr": "flowchart TD\n  C((\"classe C_k\\na priori p(C_k)\")) --> X1[\"x_1 : p(x_1 | C_k)\"]\n  C --> X2[\"x_2 : p(x_2 | C_k)\"]\n  C --> X3[\"x_3 : p(x_3 | C_k)\"]\n  C --> XD[\"x_d : p(x_d | C_k)\"]\n  X1 --> S[\"score_k = log p(C_k) + somme_i log p(x_i | C_k)\"]\n  X2 --> S\n  X3 --> S\n  XD --> S\n  S --> A[\"argmax sur k\"]"
+    }
+  },
+  {
+    "id": "spam-pipeline",
+    "after": 6,
+    "kind": "mermaid",
+    "caption": { "en": "The tiny spam filter step by step: smoothed word probabilities per class, log-scores for the email \"free free meeting\", and the posterior as a sigmoid of the score difference.", "fr": "Le petit filtre anti-spam pas à pas : probabilités de mots lissées par classe, log-scores pour l'e-mail « free free meeting », et a posteriori comme sigmoïde de la différence de scores." },
+    "code": {
+      "en": "flowchart LR\n  CNT[\"word counts per class\\nspam (6,5,1,1), ham (1,1,7,6)\"] --> TH[\"Laplace alpha = 1\\ntheta_spam = (7,6,2,2)/17\\ntheta_ham = (2,2,8,7)/19\"]\n  EM[\"email: x = (2,0,1,0)\"] --> SC\n  TH --> SC[\"log-scores\\nspam -4.608, ham -6.061\"]\n  SC --> D[\"difference = 1.453\"]\n  D --> P[\"posterior spam = sigmoid(1.453) = 0.81\"]",
+      "fr": "flowchart LR\n  CNT[\"comptes de mots par classe\\nspam (6,5,1,1), ham (1,1,7,6)\"] --> TH[\"Laplace alpha = 1\\ntheta_spam = (7,6,2,2)/17\\ntheta_ham = (2,2,8,7)/19\"]\n  EM[\"e-mail : x = (2,0,1,0)\"] --> SC\n  TH --> SC[\"log-scores\\nspam -4,608, ham -6,061\"]\n  SC --> D[\"différence = 1,453\"]\n  D --> P[\"a posteriori spam = sigmoïde(1,453) = 0,81\"]"
+    }
+  },
+  {
+    "id": "log-odds-posterior",
+    "after": 6,
+    "kind": "plot",
+    "caption": { "en": "The posterior of a two-class naive Bayes is a sigmoid of the log-score difference a: σ(a) = 1/(1 + e^(−a)). The spam example has a = 1.453, giving 0.81 (red point). x-axis: a.", "fr": "L'a posteriori d'un Bayes naïf à deux classes est une sigmoïde de la différence de log-scores a : σ(a) = 1/(1 + e^(−a)). L'exemple spam a a = 1,453, soit 0,81 (point rouge). Axe x : a." },
+    "spec": {
+      "xDomain": [-6, 6], "yDomain": [-0.05, 1.05], "height": 280,
+      "data": [
+        { "fn": "1/(1+exp(-x))", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[1.453, 0.81]] }
+      ],
+      "annotations": [{ "y": 0.5, "text": "tie" }]
+    }
+  }
+]

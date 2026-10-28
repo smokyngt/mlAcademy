@@ -1,0 +1,11 @@
+{
+  "id": "math.12.ex1",
+  "title": "Hessiennes, points stationnaires, méthode de Newton et résolution par lagrangien",
+  "prompt": "Implémente avec NumPy :\n\n- `hessian_fd(f, x, h=1e-3)` - hessienne d'une fonction scalaire `f` en `x` (forme `(n,)`) par différences finies centrées ; renvoie un tableau symétrique `(n, n)`.\n- `classify(H, tol=1e-8)` - `'min'`, `'max'`, `'saddle'` ou `'degenerate'` à partir des valeurs propres de la matrice symétrique `H` (le type d'un point stationnaire).\n- `is_convex_quadratic(Q, tol=1e-10)` - dit si `f(x) = 1/2 x^T Q x - c^T x` est convexe, c.-à-d. si `Q` est semi-définie positive.\n- `gradient_descent(grad, x0, lr, iters)` - descente de gradient simple, renvoyant le point final.\n- `newton(grad, hess, x0, iters)` - méthode de Newton ; chaque pas résout `H delta = -g` (n'inverse pas).\n- `equality_qp(Q, c, A, b)` - minimise `1/2 x^T Q x - c^T x` sous `A x = b` via le lagrangien `f + lam^T (A x - b)` ; renvoie `(x, lam)`.\n- `dual_value(lam)` - fonction duale `D(lam) = min_x [x^2 + lam (1 - x)]` du problème « minimiser x^2 sous 1 - x <= 0 », sous forme explicite en `lam`.",
+  "hints": [
+    "hessian_fd : pour le coefficient (i, j), utilise la différence centrée (f(x+hei+hej) - f(x+hei-hej) - f(x-hei+hej) + f(x-hei-hej)) / (4 h^2).",
+    "classify : eigvalsh(H) ; toutes > tol donne 'min', toutes < -tol donne 'max', les deux signes 'saddle', sinon 'degenerate'.",
+    "newton : à chaque pas, résous H delta = -g avec np.linalg.solve et ajoute delta.",
+    "equality_qp : empile les équations de stationnarité et de contrainte dans le système par blocs [[Q, A^T], [A, 0]] [x; lam] = [c; b] et résous-le."
+  ]
+}

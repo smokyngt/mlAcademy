@@ -1,0 +1,93 @@
+#@@ meta
+{"id": "math.14.ex1", "title": "Inverse transform, rejection, importance sampling and Metropolis", "difficulty": 3, "runtime": "pyodide", "concepts": ["prob.sampling", "prob.montecarlo"], "hints": ["exp_inverse(u, lam) = -log(1 - u) / lam.", "rejection_beta22: draw x = rng.random(n) and u = rng.random(n), accept where u < 6 x (1-x) / 1.5, return x[mask]. Mean should be about 0.5, variance about 0.05.", "importance_tail: draw q ~ N(3,1); weight w = exp(-q^2/2 + (q-3)^2/2) = p(q)/q(q); estimate = mean((q > 3) * w).", "metropolis: propose xp = x + step*normal; accept if log(uniform) < logp(xp) - logp(x); always append the current x."]}
+#@@ prompt
+Implement with NumPy only:
+
+- `exp_inverse(u, lam)` - exponential samples by inverse transform from uniform `u`.
+- `rejection_beta22(n, seed)` - accepted samples from the density `6x(1-x)` on `[0,1]` using `n` proposals from `Uniform(0,1)` and bound `M = 1.5` (returns an array of length about `2n/3`).
+- `mc_pi(n, seed)` - Monte Carlo estimate of pi: `rng.random((n, 2))`, 4 times the fraction with `x^2+y^2 <= 1`.
+- `tail_naive(n, seed)` and `tail_importance(n, seed)` - two estimates of `P(Z > 3)` for a standard normal `Z`: plain Monte Carlo, and importance sampling from `N(3, 1)` with weights `p/q`.
+- `metropolis(logp, n, step, seed)` - random-walk Metropolis from `x0 = 0`; return `(chain, acceptance_rate)`; `logp` is the log of an unnormalised density.
+#@@ starter
+import numpy as np
+
+def exp_inverse(u, lam):
+    raise NotImplementedError
+
+def rejection_beta22(n, seed):
+    raise NotImplementedError
+
+def mc_pi(n, seed):
+    raise NotImplementedError
+
+def tail_naive(n, seed):
+    raise NotImplementedError
+
+def tail_importance(n, seed):
+    raise NotImplementedError
+
+def metropolis(logp, n, step, seed):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("u=0.5, lam=2 gives 0.34657", lambda: abs(exp_inverse(0.5, 2.0) - 0.3465736) < 1e-6)
+check("u=0.9, lam=2 gives 1.15129", lambda: abs(exp_inverse(0.9, 2.0) - 1.1512925) < 1e-6)
+us = np.random.default_rng(0).random(200000)
+xs = exp_inverse(us, 2.0)
+check("exponential sample mean is 1/lambda = 0.5", lambda: abs(xs.mean() - 0.5) < 0.01)
+check("exponential sample variance is 1/lambda^2 = 0.25", lambda: abs(xs.var() - 0.25) < 0.01)
+s = rejection_beta22(100000, 0)
+check("acceptance rate is about 2/3", lambda: abs(len(s) / 100000 - 2 / 3) < 0.01)
+check("Beta(2,2) mean 0.5", lambda: abs(s.mean() - 0.5) < 0.01)
+check("Beta(2,2) variance 0.05", lambda: abs(s.var() - 0.05) < 0.003)
+check("samples are inside [0,1]", lambda: s.min() >= 0 and s.max() <= 1)
+check("mc_pi with 10^6 points is within 0.01", lambda: abs(mc_pi(1000000, 1) - np.pi) < 0.01)
+check("mc_pi error shrinks like 1/sqrt(N) on average", lambda: np.mean([abs(mc_pi(100, k) - np.pi) for k in range(200)]) > 3 * np.mean([abs(mc_pi(10000, k) - np.pi) for k in range(200)]))
+true = 0.0013498980316
+naive = np.array([tail_naive(10000, k) for k in range(100)])
+imp = np.array([tail_importance(10000, k) for k in range(100)])
+check("importance estimate is unbiased (mean near 0.00135)", lambda: abs(imp.mean() - true) < 1e-5)
+check("naive estimate is also unbiased", lambda: abs(naive.mean() - true) < 1e-4)
+check("importance sampling has at least 5x smaller spread", lambda: naive.std() > 5 * imp.std())
+chain, acc = metropolis(lambda x: -0.5 * x * x, 20000, 2.4, 0)
+ch = chain[1000:]
+check("Metropolis chain has mean near 0", lambda: abs(ch.mean()) < 0.15)
+check("Metropolis chain has variance near 1", lambda: abs(ch.var() - 1.0) < 0.15)
+check("acceptance rate is between 0.3 and 0.6", lambda: 0.3 < acc < 0.6)
+check("chain has length n", lambda: len(chain) == 20000)
+#@@ solution
+import numpy as np
+
+def exp_inverse(u, lam):
+    return -np.log(1 - u) / lam
+
+def rejection_beta22(n, seed):
+    rng = np.random.default_rng(seed)
+    x = rng.random(n)
+    u = rng.random(n)
+    return x[u < 6 * x * (1 - x) / 1.5]
+
+def mc_pi(n, seed):
+    p = np.random.default_rng(seed).random((n, 2))
+    return 4 * np.mean((p ** 2).sum(axis=1) <= 1)
+
+def tail_naive(n, seed):
+    z = np.random.default_rng(seed).normal(size=n)
+    return np.mean(z > 3)
+
+def tail_importance(n, seed):
+    q = np.random.default_rng(seed).normal(3, 1, size=n)
+    w = np.exp(-q ** 2 / 2 + (q - 3) ** 2 / 2)
+    return np.mean((q > 3) * w)
+
+def metropolis(logp, n, step, seed):
+    rng = np.random.default_rng(seed)
+    x, acc = 0.0, 0
+    out = np.empty(n)
+    for t in range(n):
+        xp = x + step * rng.normal()
+        if np.log(rng.random()) < logp(xp) - logp(x):
+            x = xp
+            acc += 1
+        out[t] = x
+    return out, acc / n

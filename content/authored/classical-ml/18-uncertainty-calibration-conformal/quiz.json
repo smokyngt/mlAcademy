@@ -1,0 +1,117 @@
+[
+ {
+  "id": "cml.18.q1",
+  "concept": "ml.uncertainty",
+  "stage": "pre",
+  "prompt": "Which kind of uncertainty shrinks when you collect more training data?",
+  "options": [
+   "Epistemic (ignorance of the model)",
+   "Aleatoric (noise in the world)",
+   "Both equally",
+   "Neither"
+  ],
+  "answer": 0,
+  "explanation": "Epistemic uncertainty comes from having seen little data. Aleatoric noise is a property of the process and remains."
+ },
+ {
+  "id": "cml.18.q2",
+  "concept": "ml.uncertainty",
+  "prompt": "You divide all logits by $T=2.5$ before the softmax. What happens to accuracy and to the average top probability?",
+  "options": [
+   "Accuracy unchanged, confidence falls",
+   "Accuracy rises, confidence rises",
+   "Accuracy falls, confidence unchanged",
+   "Both unchanged"
+  ],
+  "answer": 0,
+  "explanation": "Dividing by a positive constant keeps the arg-max, so accuracy is unchanged; the distribution gets flatter, so the top probability falls."
+ },
+ {
+  "id": "cml.18.q3",
+  "concept": "ml.uncertainty",
+  "prompt": "On which data should the temperature $T$ be fitted?",
+  "options": [
+   "The training set",
+   "The test set after seeing the results",
+   "Any set, it makes no difference",
+   "A held-out calibration set"
+  ],
+  "answer": 3,
+  "explanation": "The model is overconfident on its own training data, so the training NLL would suggest $T\\approx1$ or less. Use held-out data."
+ },
+ {
+  "id": "cml.18.q4",
+  "concept": "ml.uncertainty",
+  "prompt": "Bayesian linear regression with $\\Phi=[[1]]$, $\\alpha=1$, $\\beta=1$, target $t=[2]$. What is the posterior variance $S_N$ of the single weight?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "$S_N^{-1}=\\alpha+\\beta\\Phi^\\top\\Phi=1+1=2$, so $S_N=0.5$ (and $m_N=\\beta S_N\\Phi^\\top t=1$)."
+ },
+ {
+  "id": "cml.18.q5",
+  "concept": "ml.uncertainty",
+  "prompt": "For the same model, the predictive variance at a query with $\\phi=1$ is...",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 1.5,
+   "tol": 0.001
+  },
+  "explanation": "$\\beta^{-1}+\\phi^\\top S_N\\phi=1+0.5=1.5$: noise plus parameter uncertainty."
+ },
+ {
+  "id": "cml.18.q6",
+  "concept": "ml.uncertainty",
+  "prompt": "In the Bayesian predictive variance $\\beta^{-1}+\\phi^\\top S_N\\phi$, what happens as $N\\to\\infty$?",
+  "options": [
+   "Both terms vanish",
+   "The first term vanishes",
+   "The second term vanishes, leaving the noise $\\beta^{-1}$",
+   "The variance diverges"
+  ],
+  "answer": 2,
+  "explanation": "The posterior over weights concentrates (S_N shrinks), so only the irreducible noise remains."
+ },
+ {
+  "id": "cml.18.q7",
+  "concept": "ml.conformal",
+  "prompt": "Split conformal with $n=49$ calibration scores and $\\alpha=0.1$. Which order statistic (the $k$-th smallest) gives $\\hat q$?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 45,
+   "tol": 0.01
+  },
+  "explanation": "$k=\\lceil (n+1)(1-\\alpha)\\rceil=\\lceil 50\\cdot0.9\\rceil=45$."
+ },
+ {
+  "id": "cml.18.q8",
+  "concept": "ml.conformal",
+  "prompt": "What single assumption makes the conformal coverage theorem hold?",
+  "options": [
+   "The model is correct",
+   "The noise is Gaussian",
+   "Calibration and test points are exchangeable",
+   "The model is linear"
+  ],
+  "answer": 2,
+  "explanation": "Exchangeability makes the rank of the test score uniform among the $n+1$ scores; nothing else is needed."
+ },
+ {
+  "id": "cml.18.q9",
+  "concept": "ml.conformal",
+  "prompt": "Your conformal intervals reach 90 % coverage overall but only 70 % on a hard subgroup. Is the theorem violated?",
+  "options": [
+   "Yes, it promises coverage everywhere",
+   "Yes, because the model is bad",
+   "No, because coverage is always 100 % on subgroups",
+   "No, the guarantee is marginal, not conditional on $x$ or on a subgroup"
+  ],
+  "answer": 3,
+  "explanation": "The theorem averages over the whole distribution. Subgroup coverage needs additional techniques such as normalised scores."
+ }
+]

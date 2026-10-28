@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mx.04.c1",
+  "front": "Propriété de Markov",
+  "back": "$P(X_{t+1}\\mid X_t,\\dots,X_0)=P(X_{t+1}\\mid X_t)$ : le futur est indépendant du passé sachant le présent."
+ },
+ {
+  "id": "mx.04.c2",
+  "front": "Matrice de transition",
+  "back": "$P_{ij}=P(X_{t+1}=j\\mid X_t=i)$ ; entrées $\\ge0$, chaque ligne somme à 1."
+ },
+ {
+  "id": "mx.04.c3",
+  "front": "Probabilités à n pas",
+  "back": "$\\mu_n=\\mu_0P^n$ ; $(P^n)_{ij}$ = probabilité de $i\\to j$ en exactement $n$ pas."
+ },
+ {
+  "id": "mx.04.c4",
+  "front": "Paramètres d'une chaîne d'ordre M",
+  "back": "$K^{M-1}(K-1)$ pour des tableaux généraux : exponentiel en l'ordre (Bishop 13.1)."
+ },
+ {
+  "id": "mx.04.c5",
+  "front": "Distribution stationnaire",
+  "back": "$\\pi P=\\pi$, $\\sum\\pi_i=1$ : vecteur propre à gauche de valeur propre 1."
+ },
+ {
+  "id": "mx.04.c6",
+  "front": "Pourquoi la valeur propre 1 existe",
+  "back": "$P\\mathbf 1=\\mathbf 1$ (les lignes somment à 1) ; $P^\\top$ a les mêmes valeurs propres."
+ },
+ {
+  "id": "mx.04.c7",
+  "front": "Chaîne ergodique",
+  "back": "Irréductible et apériodique ; une puissance de $P$ est strictement positive."
+ },
+ {
+  "id": "mx.04.c8",
+  "front": "Conséquences de l'ergodicité",
+  "back": "$\\pi$ unique et positif ; $\\mu_n\\to\\pi$ depuis n'importe quel départ ; les moyennes temporelles égalent les moyennes en $\\pi$."
+ },
+ {
+  "id": "mx.04.c9",
+  "front": "Vitesse de mélange",
+  "back": "Erreur $\\sim|\\lambda_2|^n$ ; trou spectral $1-|\\lambda_2|$ (petit trou = mélange lent)."
+ },
+ {
+  "id": "mx.04.c10",
+  "front": "Équilibre détaillé",
+  "back": "$\\pi_iP_{ij}=\\pi_jP_{ji}$ ; suffisant pour $\\pi P=\\pi$."
+ },
+ {
+  "id": "mx.04.c11",
+  "front": "Acceptation de Metropolis-Hastings",
+  "back": "Avec une proposition symétrique, accepte $j$ avec probabilité $\\min(1,\\pi_j/\\pi_i)$ ; la constante de normalisation s'annule."
+ },
+ {
+  "id": "mx.04.c12",
+  "front": "Étalement d'une marche aléatoire",
+  "back": "$S_n=\\sum\\xi_i$, $\\xi_i=\\pm1$ : moyenne 0, variance $n$, distance typique $\\sqrt n$."
+ },
+ {
+  "id": "mx.04.c13",
+  "front": "Processus de Poisson",
+  "back": "Intervalles exponentiels indépendants de moyenne $1/\\lambda$ ; le comptage sur $[0,T]$ suit une loi de Poisson de moyenne et variance $\\lambda T$."
+ },
+ {
+  "id": "mx.04.c14",
+  "front": "Propriété sans mémoire",
+  "back": "$P(W>s+t\\mid W>s)=P(W>t)$ pour des temps d'attente exponentiels : la propriété de Markov en temps continu."
+ }
+]

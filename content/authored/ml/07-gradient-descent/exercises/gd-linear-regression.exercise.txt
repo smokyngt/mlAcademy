@@ -1,0 +1,49 @@
+#@@ meta
+{"id": "f2n.07.ex1", "title": "Implement gradient descent and fit a linear model", "difficulty": 3, "runtime": "pyodide", "concepts": ["opt.gradient-descent", "calc.gradient"], "hints": ["Keep a list `path`; start with x0, then for each step do x = x - lr * grad(x) and append a copy.", "For fit_linear, grad(w) = 2/N * X.T @ (X @ w - y). Start at zeros(d).", "stable_lr(lam_max): any value strictly below 2/lam_max works; return 1/lam_max for monotone convergence."]}
+#@@ prompt
+1. `gradient_descent(grad, x0, lr, steps)` returns the whole trajectory as an array of shape `(steps+1, n)` (row 0 is `x0`).
+2. `fit_linear(X, y, lr, steps)` runs gradient descent on the MSE loss from $w=0$ and returns the final weights.
+3. `stable_lr(lam_max)` returns a learning rate that converges monotonically on a quadratic whose largest curvature is `lam_max`.
+
+The tests recover known weights, reproduce the lesson's worked example, and demonstrate divergence above $2/\lambda$.
+#@@ starter
+import numpy as np
+
+def gradient_descent(grad, x0, lr, steps):
+    raise NotImplementedError
+
+def fit_linear(X, y, lr, steps):
+    raise NotImplementedError
+
+def stable_lr(lam_max):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+path = gradient_descent(lambda x: 2 * x, np.array([3.0]), 0.1, 2)
+check("trajectory has shape (3, 1)", lambda: path.shape == (3, 1), "Include the starting point: steps+1 rows")
+check("worked example: 3 -> 2.4 -> 1.92", lambda: np.allclose(path[:, 0], [3.0, 2.4, 1.92]))
+check("lr = 1.1 diverges on x^2", lambda: abs(gradient_descent(lambda x: 2 * x, np.array([3.0]), 1.1, 20)[-1, 0]) > 3 * 10)
+check("lr = 0.9 oscillates but converges", lambda: abs(gradient_descent(lambda x: 2 * x, np.array([3.0]), 0.9, 200)[-1, 0]) < 1e-6)
+rng = np.random.default_rng(0)
+X = rng.normal(size=(100, 3)); w_true = np.array([2.0, -1.0, 0.5]); y = X @ w_true
+check("fit_linear recovers the weights", lambda: np.allclose(fit_linear(X, y, 0.1, 500), w_true, atol=1e-3))
+check("fit_linear with noise is near lstsq", lambda: np.allclose(fit_linear(X, y + 0.1 * rng.normal(size=100), 0.1, 800), np.linalg.lstsq(X, y, rcond=None)[0], atol=0.05))
+check("stable_lr is below 2/lam_max", lambda: 0 < stable_lr(10.0) < 0.2)
+#@@ solution
+import numpy as np
+
+def gradient_descent(grad, x0, lr, steps):
+    x = np.array(x0, dtype=float)
+    path = [x.copy()]
+    for _ in range(steps):
+        x = x - lr * grad(x)
+        path.append(x.copy())
+    return np.array(path)
+
+def fit_linear(X, y, lr, steps):
+    n, d = X.shape
+    grad = lambda w: 2.0 / n * X.T @ (X @ w - y)
+    return gradient_descent(grad, np.zeros(d), lr, steps)[-1]
+
+def stable_lr(lam_max):
+    return 1.0 / lam_max

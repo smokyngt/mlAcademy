@@ -1,0 +1,152 @@
+#@@ meta
+{"id": "sys.05.ex1", "title": "An ablation harness: seeds, mean +- std, paired comparison", "difficulty": 4, "runtime": "pyodide", "concepts": ["res.ablation"], "hints": ["lr_at: with warmup w > 0 the learning rate grows linearly, lr * min(1, (step+1)/w); with w = 0 it is constant.", "train_mlp order of random draws (so results are reproducible): rng = default_rng(seed); W1 = rng.normal(0, init_scale/sqrt(d), (d,h)); W2 = rng.normal(0, init_scale/sqrt(h), (h,1)); then at every step idx = rng.integers(0, n, batch). Backprop: p = sigmoid(h@W2+b2), g = (p-y)/batch, gW2 = h.T@g, gh = (g@W2.T)*(1-h**2), gW1 = x.T@gh.", "paired_stats: d = a - b; mean = d.mean(); sd = d.std(ddof=1); t = mean / (sd / sqrt(n)); wins = number of seeds with d > 0. welch_t uses each group's own variance: (mean_a - mean_b) / sqrt(var_a/n + var_b/n) with ddof=1."]}
+#@@ prompt
+You will build the harness for a small controlled experiment on the two-moons classifier (2-16-1 tanh MLP, minibatch SGD, 300 steps): does **learning-rate warmup** or the **initialisation scale** matter?
+
+Implement:
+
+- `lr_at(step, lr, warmup)`: linear warmup schedule.
+- `train_mlp(...)`: one training run, fully determined by `seed`, returning test accuracy.
+- `run_seeds(cfg, seeds)`: accuracies of one configuration over several seeds.
+- `summarize(accs)`: mean and sample standard deviation (`ddof=1`).
+- `paired_stats(a, b)`: for two configurations run with the **same** seeds: mean difference, std of the differences, paired t statistic and the number of seeds where `a` wins.
+- `welch_t(a, b)`: the unpaired t statistic, to see how much power pairing buys.
+
+The same seed means the same initial weights and the same minibatch order for both configurations (common random numbers), which is what makes the paired comparison sharp.
+#@@ starter
+import numpy as np
+
+def make_moons(n, noise, seed):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2
+    n2 = n - n1
+    t1 = rng.uniform(0, np.pi, n1)
+    t2 = rng.uniform(0, np.pi, n2)
+    a = np.c_[np.cos(t1), np.sin(t1)]
+    b = np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]
+    X = np.vstack([a, b]) + rng.normal(0, noise, (n, 2))
+    y = np.r_[np.zeros(n1), np.ones(n2)]
+    p = rng.permutation(n)
+    return X[p], y[p]
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
+
+Xtr, ytr = make_moons(200, 0.2, 0)
+Xte, yte = make_moons(1000, 0.2, 1)
+
+def lr_at(step, lr, warmup):
+    raise NotImplementedError
+
+def train_mlp(seed, init_scale=1.0, warmup=0, lr=0.5, steps=300, hidden=16, batch=32):
+    # return test accuracy on (Xte, yte)
+    raise NotImplementedError
+
+def run_seeds(cfg, seeds):
+    # cfg: dict of keyword arguments for train_mlp
+    raise NotImplementedError
+
+def summarize(accs):
+    # return (mean, sample std with ddof=1)
+    raise NotImplementedError
+
+def paired_stats(a, b):
+    # return dict(mean_diff=..., sd_diff=..., t=..., wins=...)
+    raise NotImplementedError
+
+def welch_t(a, b):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+check("no warmup: constant rate", lambda: lr_at(0, 0.5, 0) == 0.5 and lr_at(77, 0.5, 0) == 0.5)
+check("warmup: first step is lr/w", lambda: abs(lr_at(0, 1.0, 10) - 0.1) < 1e-12)
+check("warmup: reaches full rate at step w-1 and stays", lambda: lr_at(9, 1.0, 10) == 1.0 and lr_at(500, 1.0, 10) == 1.0)
+check("same seed gives the identical accuracy", lambda: train_mlp(3) == train_mlp(3))
+check("different seeds give different accuracies", lambda: train_mlp(0) != train_mlp(1))
+m, s = summarize(np.array([0.9, 0.8, 0.7]))
+check("summarize: mean and ddof=1 std", lambda: abs(m - 0.8) < 1e-12 and abs(s - 0.1) < 1e-12)
+w0 = np.array([0.911, 0.873, 0.900, 0.935, 0.918])
+w50 = np.array([0.904, 0.873, 0.893, 0.929, 0.908])
+ps = paired_stats(w0, w50)
+check("paired mean difference 0.006", lambda: abs(ps["mean_diff"] - 0.006) < 1e-9)
+check("paired sd of differences 0.00367", lambda: abs(ps["sd_diff"] - 0.0036742346) < 1e-8)
+check("paired t = 3.65 (df = 4)", lambda: abs(ps["t"] - 3.6515) < 1e-3)
+check("wins counts strict improvements", lambda: ps["wins"] == 4)
+check("unpaired Welch t is much smaller than the paired t", lambda: abs(welch_t(w0, w50) - 0.4345) < 0.005 and welch_t(w0, w50) < ps["t"] / 5)
+a1 = run_seeds({"init_scale": 1.0}, range(5))
+a01 = run_seeds({"init_scale": 0.1}, range(5))
+check("one accuracy per seed, between 0 and 1", lambda: a1.shape == (5,) and np.all((a1 > 0.5) & (a1 < 1.0)))
+check("init scale 1.0 reaches about 0.91 (+-0.03)", lambda: abs(a1.mean() - 0.907) < 0.03)
+check("init scale 0.1 stays near the linear-classifier level (~0.86)", lambda: abs(a01.mean() - 0.864) < 0.02)
+d = a1 - a01
+check("the init effect is large relative to seed noise: paired t > 4", lambda: paired_stats(a1, a01)["t"] > 4)
+check("harness is reproducible: running again gives the same numbers", lambda: np.array_equal(a1, run_seeds({"init_scale": 1.0}, range(5))))
+#@@ solution
+import numpy as np
+
+def make_moons(n, noise, seed):
+    rng = np.random.default_rng(seed)
+    n1 = n // 2
+    n2 = n - n1
+    t1 = rng.uniform(0, np.pi, n1)
+    t2 = rng.uniform(0, np.pi, n2)
+    a = np.c_[np.cos(t1), np.sin(t1)]
+    b = np.c_[1 - np.cos(t2), 0.5 - np.sin(t2)]
+    X = np.vstack([a, b]) + rng.normal(0, noise, (n, 2))
+    y = np.r_[np.zeros(n1), np.ones(n2)]
+    p = rng.permutation(n)
+    return X[p], y[p]
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
+
+Xtr, ytr = make_moons(200, 0.2, 0)
+Xte, yte = make_moons(1000, 0.2, 1)
+
+def lr_at(step, lr, warmup):
+    return lr * min(1.0, (step + 1) / warmup) if warmup > 0 else lr
+
+def train_mlp(seed, init_scale=1.0, warmup=0, lr=0.5, steps=300, hidden=16, batch=32):
+    rng = np.random.default_rng(seed)
+    d = Xtr.shape[1]
+    W1 = rng.normal(0, init_scale / np.sqrt(d), (d, hidden))
+    b1 = np.zeros(hidden)
+    W2 = rng.normal(0, init_scale / np.sqrt(hidden), (hidden, 1))
+    b2 = np.zeros(1)
+    n = len(Xtr)
+    for t in range(steps):
+        idx = rng.integers(0, n, batch)
+        x, y = Xtr[idx], ytr[idx][:, None]
+        h = np.tanh(x @ W1 + b1)
+        p = sigmoid(h @ W2 + b2)
+        g = (p - y) / batch
+        gW2 = h.T @ g
+        gb2 = g.sum(0)
+        gh = (g @ W2.T) * (1 - h ** 2)
+        gW1 = x.T @ gh
+        gb1 = gh.sum(0)
+        eta = lr_at(t, lr, warmup)
+        W1 -= eta * gW1
+        b1 -= eta * gb1
+        W2 -= eta * gW2
+        b2 -= eta * gb2
+    p = sigmoid(np.tanh(Xte @ W1 + b1) @ W2 + b2)[:, 0]
+    return float(((p > 0.5) == yte).mean())
+
+def run_seeds(cfg, seeds):
+    return np.array([train_mlp(s, **cfg) for s in seeds])
+
+def summarize(accs):
+    accs = np.asarray(accs, float)
+    return float(accs.mean()), float(accs.std(ddof=1))
+
+def paired_stats(a, b):
+    d = np.asarray(a, float) - np.asarray(b, float)
+    n = len(d)
+    sd = float(d.std(ddof=1))
+    t = float(d.mean() / (sd / np.sqrt(n))) if sd > 0 else float("inf")
+    return {"mean_diff": float(d.mean()), "sd_diff": sd, "t": t, "wins": int((d > 0).sum())}
+
+def welch_t(a, b):
+    a, b = np.asarray(a, float), np.asarray(b, float)
+    return float((a.mean() - b.mean()) / np.sqrt(a.var(ddof=1) / len(a) + b.var(ddof=1) / len(b)))

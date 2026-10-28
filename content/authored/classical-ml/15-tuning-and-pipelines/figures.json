@@ -1,0 +1,195 @@
+[
+  {
+    "id": "grid-vs-random",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Search on a score that depends mostly on a: f(a, 0.6) = exp(-(a - 0.37)^2 / (2 * 0.08^2)) + 0.05. A 3 x 3 grid only ever tries three values of a (red marks, best 0.314 at a = 0.5); nine random draws try nine distinct values (green marks, illustrative draw) and are likely to land near the peak.",
+      "fr": "Recherche sur un score qui dépend surtout de a : f(a, 0,6) = exp(-(a - 0,37)^2 / (2 * 0,08^2)) + 0,05. Une grille 3 x 3 n'essaie que trois valeurs de a (marques rouges, meilleur 0,314 en a = 0,5) ; neuf tirages aléatoires essaient neuf valeurs distinctes (marques vertes, tirage illustratif) et ont de bonnes chances de tomber près du pic."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -0.3,
+        1.2
+      ],
+      "height": 320,
+      "data": [
+        {
+          "fn": "exp(-(x-0.37)^2/(2*0.08^2)) + 0.05",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 5
+          },
+          "points": [
+            [
+              0,
+              -0.1
+            ],
+            [
+              0.5,
+              -0.1
+            ],
+            [
+              1,
+              -0.1
+            ]
+          ]
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#16a34a",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0.05,
+              -0.22
+            ],
+            [
+              0.12,
+              -0.22
+            ],
+            [
+              0.2,
+              -0.22
+            ],
+            [
+              0.31,
+              -0.22
+            ],
+            [
+              0.38,
+              -0.22
+            ],
+            [
+              0.52,
+              -0.22
+            ],
+            [
+              0.66,
+              -0.22
+            ],
+            [
+              0.78,
+              -0.22
+            ],
+            [
+              0.93,
+              -0.22
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "halving",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Successive halving with n = 27, eta = 3: each rung keeps the best third and triples the budget. Total cost 27 + 27 + 27 + 27 = 108 units instead of 27 x 27 = 729.",
+      "fr": "Réduction successive (successive halving) avec n = 27, eta = 3 : chaque palier garde le meilleur tiers et triple le budget. Coût total 27 + 27 + 27 + 27 = 108 unités au lieu de 27 x 27 = 729."
+    },
+    "code": {
+      "en": "flowchart LR\n  R0[\"rung 0\\n27 configs x budget 1\\ncost 27\"] -->|\"keep best 1/3\"| R1[\"rung 1\\n9 configs x budget 3\\ncost 27\"]\n  R1 -->|\"keep best 1/3\"| R2[\"rung 2\\n3 configs x budget 9\\ncost 27\"]\n  R2 -->|\"keep best 1/3\"| R3[\"rung 3\\n1 config x budget 27\\ncost 27\"]\n  R3 --> W[\"winner\\ntotal cost 108 vs 729\"]",
+      "fr": "flowchart LR\n  R0[\"palier 0\\n27 configs x budget 1\\ncoût 27\"] -->|\"garder le meilleur tiers\"| R1[\"palier 1\\n9 configs x budget 3\\ncoût 27\"]\n  R1 -->|\"garder le meilleur tiers\"| R2[\"palier 2\\n3 configs x budget 9\\ncoût 27\"]\n  R2 -->|\"garder le meilleur tiers\"| R3[\"palier 3\\n1 config x budget 27\\ncoût 27\"]\n  R3 --> W[\"gagnant\\ncoût total 108 contre 729\"]"
+    }
+  },
+  {
+    "id": "bo-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The Bayesian-optimisation loop: a Gaussian-process surrogate gives a mean and an uncertainty everywhere, expected improvement picks the next hyper-parameter, the expensive model is trained once, and the GP is updated.",
+      "fr": "La boucle d'optimisation bayésienne : un processus gaussien donne une moyenne et une incertitude partout, l'amélioration espérée choisit le prochain hyper-paramètre, le modèle coûteux est entraîné une fois, puis le GP est mis à jour."
+    },
+    "code": {
+      "en": "flowchart TB\n  I[\"few random starts\\n(x_n, t_n), n = 1..N\"] --> GP[\"fit GP surrogate\\nC = K + I/beta  (N,N)\\nCholesky C = L Lᵀ\"]\n  GP --> PR[\"posterior at candidates x*\\nmu = k*ᵀ C⁻¹ t\\ns² = k** - k*ᵀ C⁻¹ k*\"]\n  PR --> EI[\"expected improvement\\nEI = (mu - f+) Φ(z) + s φ(z)\\nz = (mu - f+)/s\"]\n  EI --> NX[\"x_next = argmax EI\"]\n  NX --> EV[\"train the real model at x_next\\n(expensive)\"]\n  EV -->|\"add (x_next, score), update f+\"| GP\n  EV --> DONE[\"budget spent: best x\"]",
+      "fr": "flowchart TB\n  I[\"quelques départs aléatoires\\n(x_n, t_n), n = 1..N\"] --> GP[\"ajuster le GP substitut\\nC = K + I/beta  (N,N)\\nCholesky C = L Lᵀ\"]\n  GP --> PR[\"postérieure aux candidats x*\\nmu = k*ᵀ C⁻¹ t\\ns² = k** - k*ᵀ C⁻¹ k*\"]\n  PR --> EI[\"amélioration espérée\\nEI = (mu - f+) Φ(z) + s φ(z)\\nz = (mu - f+)/s\"]\n  EI --> NX[\"x_suivant = argmax EI\"]\n  NX --> EV[\"entraîner le vrai modèle en x_suivant\\n(coûteux)\"]\n  EV -->|\"ajouter (x_suivant, score), mettre à jour f+\"| GP\n  EV --> DONE[\"budget épuisé : meilleur x\"]"
+    }
+  },
+  {
+    "id": "rbf-kernel",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "The RBF kernel k(x, x') = exp(-d^2 / (2 l^2)) with sigma = 1 as a function of the distance d = x - x', for l = 0.15 (blue, the worked example) and l = 0.4 (orange): nearby inputs are strongly correlated, inputs several l apart are nearly independent.",
+      "fr": "Le noyau RBF k(x, x') = exp(-d^2 / (2 l^2)) avec sigma = 1 en fonction de la distance d = x - x', pour l = 0,15 (bleu, l'exemple) et l = 0,4 (orange) : des entrées proches sont fortement corrélées, des entrées distantes de plusieurs l sont presque indépendantes."
+    },
+    "spec": {
+      "xDomain": [
+        -1,
+        1
+      ],
+      "yDomain": [
+        -0.05,
+        1.1
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "exp(-x^2/(2*0.15^2))",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-x^2/(2*0.4^2))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ei",
+    "after": 4,
+    "kind": "plot",
+    "caption": {
+      "en": "Expected improvement in units of s as a function of z = (mu - f+)/s: EI/s = z Φ(z) + φ(z) (Φ drawn with the logistic approximation 1/(1 + e^(-1.702 z))). It is positive even for z < 0 (exploration rewards uncertainty) and grows roughly linearly for z > 0 (exploitation).",
+      "fr": "Amélioration espérée en unités de s en fonction de z = (mu - f+)/s : EI/s = z Φ(z) + φ(z) (Φ tracée par l'approximation logistique 1/(1 + e^(-1,702 z))). Elle est positive même pour z < 0 (l'exploration récompense l'incertitude) et croît à peu près linéairement pour z > 0 (exploitation)."
+    },
+    "spec": {
+      "xDomain": [
+        -4,
+        4
+      ],
+      "yDomain": [
+        -0.1,
+        4.2
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "x/(1+exp(-1.702*x)) + exp(-x*x/2)/2.50663",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "max(x, 0)",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "nested-cv",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Nested cross-validation around a Pipeline: the inner loop tunes hyper-parameters, the outer loop estimates performance on folds that tuning never saw, and every fold refits all preprocessing on its own training rows.",
+      "fr": "Validation croisée imbriquée autour d'un Pipeline : la boucle interne règle les hyper-paramètres, la boucle externe estime la performance sur des plis que le réglage n'a jamais vus, et chaque pli réajuste tout le prétraitement sur ses propres lignes d'entraînement."
+    },
+    "code": {
+      "en": "flowchart TB\n  D[\"all labelled data\"] --> O[\"outer fold k of K\"]\n  O --> OT[\"outer train rows\"]\n  O --> OV[\"outer validation rows\\n(never touched by tuning)\"]\n  OT --> IN[\"inner CV: for each candidate config\\nfresh Pipeline(scaler, selector, model)\\nfit on inner-train only\"]\n  IN --> BEST[\"best config\"]\n  BEST --> REF[\"refit Pipeline on all outer-train rows\"]\n  REF --> SC[\"score on outer validation\"]\n  OV --> SC\n  SC --> AVG[\"average over K outer folds\\n= honest performance estimate\"]",
+      "fr": "flowchart TB\n  D[\"toutes les données étiquetées\"] --> O[\"pli externe k sur K\"]\n  O --> OT[\"lignes d'entraînement externes\"]\n  O --> OV[\"lignes de validation externes\\n(jamais touchées par le réglage)\"]\n  OT --> IN[\"CV interne : pour chaque configuration candidate\\nPipeline neuf (scaler, sélecteur, modèle)\\najusté sur l'entraînement interne seul\"]\n  IN --> BEST[\"meilleure configuration\"]\n  BEST --> REF[\"réajuster le Pipeline sur toutes les lignes d'entraînement externes\"]\n  REF --> SC[\"score sur la validation externe\"]\n  OV --> SC\n  SC --> AVG[\"moyenne sur les K plis externes\\n= estimation honnête de la performance\"]"
+    }
+  }
+]

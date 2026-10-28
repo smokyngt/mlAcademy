@@ -1,0 +1,10 @@
+{
+ "id": "nlp.03.ex1",
+ "title": "Décodage de Viterbi, estimation d'un HMM et segments BIO",
+ "prompt": "Partie A. `viterbi(obs, log_pi, log_A, log_B)` renvoie `(path, best_log_prob)` : `obs` est une liste d'identifiants de mots, `log_pi` a la forme `(K,)`, `log_A` `(K, K)` (ligne = étiquette précédente), `log_B` `(K, V)`. `path` est une liste d'indices d'étiquettes. Travaille en espace logarithmique (les probabilités nulles deviennent `-inf`, ce n'est pas gênant).\n\nPartie B. `estimate_hmm(sents, K, V, alpha)` où `sents` est une liste de phrases, chacune une liste de paires `(word_id, tag_id)`. Renvoie `(pi, A, B)` de formes `(K,)`, `(K,K)`, `(K,V)` : comptes plus `alpha`, chaque ligne normalisée pour avoir une somme de 1. `pi` compte l'étiquette du premier mot de chaque phrase ; `A` compte les bigrammes d'étiquettes.\n\nPartie C. `bio_spans(tags)` : `tags` est une liste de chaînes comme `B-PER`, `I-PER`, `O`. Renvoie une liste de `(type, start, end)` avec `end` exclu. Un `I-X` qui suit `O`, le début de la phrase, ou un type différent commence une nouvelle entité.",
+ "hints": [
+  "delta[0] = log_pi + log_B[:, obs[0]]. Pour i >= 1 : cand = delta[i-1][:, None] + log_A (lignes = étiquette précédente) ; back[i] = cand.argmax(axis=0) ; delta[i] = cand.max(axis=0) + log_B[:, obs[i]].",
+  "Remontée : pars de delta[-1].argmax(), puis t = back[i, t] pour i = n-1 .. 1, enfin inverse la liste.",
+  "estimate_hmm : compte les étiquettes de début, les bigrammes d'étiquettes et les paires (étiquette, mot), ajoute alpha à chaque case, et divise chaque ligne par sa somme. Pour les segments BIO, un I-X qui ne continue pas une entité ouverte de type X commence une nouvelle entité."
+ ]
+}

@@ -1,0 +1,86 @@
+[
+ {
+  "id": "aud.02.c1",
+  "concept": "aud.mel",
+  "front": "Power vs log spectrogram",
+  "back": "$P=|X|^2$; log-spectrogram $\\log(P+\\varepsilon)$ (or $10\\log_{10}$ for dB) compresses dynamic range."
+ },
+ {
+  "id": "aud.02.c2",
+  "concept": "aud.mel",
+  "front": "Mel scale formula and inverse",
+  "back": "$m=2595\\log_{10}(1+f/700)$, $f=700(10^{m/2595}-1)$; about linear below 1 kHz, logarithmic above."
+ },
+ {
+  "id": "aud.02.c3",
+  "concept": "aud.mel",
+  "front": "Why does the mel scale exist?",
+  "back": "Hearing resolves pitch roughly on a log scale: equal frequency ratios, not equal differences, sound like equal steps."
+ },
+ {
+  "id": "aud.02.c4",
+  "concept": "aud.mel",
+  "front": "How is a mel filterbank built?",
+  "back": "$M+2$ points equally spaced in mel, converted to Hz; filter $j$ is a triangle from $f_{j-1}$ up to $f_j$ and down to $f_{j+1}$, sampled at the FFT bin frequencies."
+ },
+ {
+  "id": "aud.02.c5",
+  "concept": "aud.mel",
+  "front": "Shape of the filterbank matrix and how it is applied",
+  "back": "$\\mathbf H\\in\\mathbb R^{M\\times(N/2+1)}$; mel spectrogram $=\\mathbf P\\mathbf H^\\top\\in\\mathbb R^{T\\times M}$ (one matmul)."
+ },
+ {
+  "id": "aud.02.c6",
+  "concept": "aud.mel",
+  "front": "Default ASR input features",
+  "back": "80 log-mel bins, 25 ms window, 10 ms hop (Whisper-style); classifiers often use 64-128 mels."
+ },
+ {
+  "id": "aud.02.c7",
+  "concept": "aud.mel",
+  "front": "Pitfall: feature mismatch",
+  "back": "Different window, mel variant (HTK/Slaney), filter normalisation, log base or `n_mels` between training and inference fails silently."
+ },
+ {
+  "id": "aud.02.c8",
+  "concept": "aud.mfcc",
+  "front": "MFCC pipeline",
+  "back": "Window+FFT, power spectrum, mel filterbank, log, DCT; keep the first ~13 coefficients."
+ },
+ {
+  "id": "aud.02.c9",
+  "concept": "aud.mfcc",
+  "front": "Orthonormal DCT-II matrix",
+  "back": "$D_{km}=\\alpha_k\\cos\\!\\big(\\pi k(2m+1)/(2M)\\big)$, $\\alpha_0=\\sqrt{1/M}$, $\\alpha_{k>0}=\\sqrt{2/M}$; $\\mathbf D\\mathbf D^\\top=\\mathbf I$."
+ },
+ {
+  "id": "aud.02.c10",
+  "concept": "aud.mfcc",
+  "front": "What does truncating the DCT keep?",
+  "back": "The smooth spectral envelope (vocal-tract shape); it discards fast ripples such as pitch harmonics."
+ },
+ {
+  "id": "aud.02.c11",
+  "concept": "aud.mfcc",
+  "front": "Why a DCT rather than a DFT here?",
+  "back": "It is the DFT of a mirrored signal, so no wrap-around jump; real-valued and good energy compaction."
+ },
+ {
+  "id": "aud.02.c12",
+  "concept": "aud.mfcc",
+  "front": "Delta feature formula",
+  "back": "$\\Delta c_t=\\sum_{n=1}^N n(c_{t+n}-c_{t-n})/(2\\sum_{n=1}^N n^2)$: least-squares slope over $2N+1$ frames."
+ },
+ {
+  "id": "aud.02.c13",
+  "concept": "aud.mfcc",
+  "front": "Classic 39-dim feature vector",
+  "back": "13 MFCC + 13 $\\Delta$ + 13 $\\Delta\\Delta$ per frame; shape (T, 39)."
+ },
+ {
+  "id": "aud.02.c14",
+  "concept": "aud.mfcc",
+  "front": "What is $c_0$?",
+  "back": "The DCT's constant coefficient: overall log-energy level of the frame, often dropped or modelled separately."
+ }
+]

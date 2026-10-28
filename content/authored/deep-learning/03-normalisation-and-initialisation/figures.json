@@ -1,0 +1,110 @@
+[
+  {
+    "id": "init-depth",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Theory behind the measured table: log10 of the activation standard deviation after L ReLU layers of width 256. He (blue) stays at 0; Xavier (green) loses a factor 1/sqrt(2) per layer; N(0, 0.01²) (orange) vanishes; N(0,1) (red) explodes. Exponential in depth, so a straight line on a log axis.",
+      "fr": "Théorie derrière le tableau mesuré : log10 de l'écart-type des activations après L couches ReLU de largeur 256. He (bleu) reste à 0 ; Xavier (vert) perd un facteur 1/sqrt(2) par couche ; N(0, 0,01²) (orange) disparaît ; N(0,1) (rouge) explose. Exponentiel en la profondeur, donc une droite sur un axe logarithmique."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        50
+      ],
+      "yDomain": [
+        -52,
+        56
+      ],
+      "height": 340,
+      "title": "log10(std) versus layer",
+      "data": [
+        {
+          "fn": "0",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "x*log10(0.7071)",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "x*log10(0.1131)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "x*log10(11.31)",
+          "color": "#dc2626"
+        }
+      ]
+    }
+  },
+  {
+    "id": "saturating-derivs",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Why gradients die: the derivatives of sigmoid (orange, at most 0.25) and tanh (blue, at most 1) are near zero once the unit saturates. Weights that are too large push pre-activations into those flat tails.",
+      "fr": "Pourquoi les gradients meurent : les dérivées de la sigmoïde (orange, au plus 0,25) et de tanh (bleu, au plus 1) sont proches de zéro dès que l'unité sature. Des poids trop grands poussent les pré-activations dans ces queues plates."
+    },
+    "spec": {
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        -0.05,
+        1.1
+      ],
+      "height": 280,
+      "data": [
+        {
+          "fn": "1 - tanh(x)^2",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "exp(-x)/(1+exp(-x))^2",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "bn-forward",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Batch norm in training and evaluation. Training uses the statistics of the current mini-batch and updates running averages; evaluation uses those running averages, so the output no longer depends on other examples.",
+      "fr": "La batch norm à l'entraînement et à l'évaluation. L'entraînement utilise les statistiques du mini-lot courant et met à jour des moyennes mobiles ; l'évaluation utilise ces moyennes mobiles, donc la sortie ne dépend plus des autres exemples."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"x (N,D)\"] --> St[\"per feature: mu, sigma^2 over N (D)\"]\n  St --> Xh[\"x_hat = (x - mu) / sqrt(sigma^2 + eps) (N,D)\"]\n  X --> Xh\n  Xh --> Y[\"y = gamma * x_hat + beta (N,D)\"]\n  Gm[\"learned gamma, beta (D)\"] --> Y\n  St -.->|\"m = 0.1\"| Run[\"running mu, sigma^2 (D)\"]\n  Run -.->|\"used at evaluation\"| Xh",
+      "fr": "flowchart LR\n  X[\"x (N,D)\"] --> St[\"par variable : mu, sigma^2 sur N (D)\"]\n  St --> Xh[\"x_chap = (x - mu) / sqrt(sigma^2 + eps) (N,D)\"]\n  X --> Xh\n  Xh --> Y[\"y = gamma * x_chap + beta (N,D)\"]\n  Gm[\"gamma, beta appris (D)\"] --> Y\n  St -.->|\"m = 0,1\"| Run[\"mu, sigma^2 mobiles (D)\"]\n  Run -.->|\"utilisés à l'évaluation\"| Xh"
+    }
+  },
+  {
+    "id": "norm-axes",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Which axis is normalised. Batch norm computes one mean and variance per feature (down the batch); layer norm computes them per example (across the features), so it works for any batch size, including 1.",
+      "fr": "Quel axe est normalisé. La batch norm calcule une moyenne et une variance par variable (le long du lot) ; la layer norm les calcule par exemple (sur les variables), elle fonctionne donc pour toute taille de lot, y compris 1."
+    },
+    "code": {
+      "en": "flowchart TD\n  T[\"Activation tensor x with rows = examples N, columns = features D\"] --> BN[\"Batch norm: statistics over N, one per column, D values\"]\n  T --> LN[\"Layer norm: statistics over D, one per row, N values\"]\n  T --> RN[\"RMSNorm: like layer norm, no centring, no shift\"]\n  BN --> Bd[\"Depends on the other examples, needs batch of about 32 or more\"]\n  LN --> Ld[\"Same in training and evaluation, used in transformers\"]\n  RN --> Ld",
+      "fr": "flowchart TD\n  T[\"Tenseur d'activations x : lignes = exemples N, colonnes = variables D\"] --> BN[\"Batch norm : statistiques sur N, une par colonne, D valeurs\"]\n  T --> LN[\"Layer norm : statistiques sur D, une par ligne, N valeurs\"]\n  T --> RN[\"RMSNorm : comme la layer norm, sans centrage ni décalage\"]\n  BN --> Bd[\"Dépend des autres exemples, lot d'environ 32 ou plus\"]\n  LN --> Ld[\"Identique en entraînement et en évaluation, utilisée dans les transformeurs\"]\n  RN --> Ld"
+    }
+  },
+  {
+    "id": "norm-placement",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Where normalisation sits. Left: a convolutional or dense block, linear then batch norm then activation. Right: a pre-LN transformer block, where layer norm sits before each sub-layer inside the residual branch.",
+      "fr": "Où se place la normalisation. À gauche : un bloc dense ou convolutif, linéaire puis batch norm puis activation. À droite : un bloc de transformeur pre-LN, où la layer norm précède chaque sous-couche dans la branche résiduelle."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph Dense[\"Dense or conv block\"]\n    direction TB\n    i1[\"x\"] --> l1[\"Linear\"] --> b1[\"BatchNorm\"] --> r1[\"ReLU\"] --> o1[\"out\"]\n  end\n  subgraph Pre[\"Pre-LN transformer block\"]\n    direction TB\n    i2[\"x\"] --> n1[\"LayerNorm\"] --> at[\"Attention\"] --> s1((\"+\"))\n    i2 --> s1\n    s1 --> n2[\"LayerNorm\"] --> ff[\"Feed-forward\"] --> s2((\"+\"))\n    s1 --> s2\n    s2 --> o2[\"out\"]\n  end",
+      "fr": "flowchart TB\n  subgraph Dense[\"Bloc dense ou convolutif\"]\n    direction TB\n    i1[\"x\"] --> l1[\"Linéaire\"] --> b1[\"BatchNorm\"] --> r1[\"ReLU\"] --> o1[\"sortie\"]\n  end\n  subgraph Pre[\"Bloc transformeur pre-LN\"]\n    direction TB\n    i2[\"x\"] --> n1[\"LayerNorm\"] --> at[\"Attention\"] --> s1((\"+\"))\n    i2 --> s1\n    s1 --> n2[\"LayerNorm\"] --> ff[\"Réseau feed-forward\"] --> s2((\"+\"))\n    s1 --> s2\n    s2 --> o2[\"sortie\"]\n  end"
+    }
+  }
+]

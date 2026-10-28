@@ -1,0 +1,16 @@
+[
+  { "id": "cml.09.c1", "front": "Règle de classification kNN", "back": "Trouver les $k$ points d'entraînement les plus proches de $x$ et prédire leur classe majoritaire (régression : leur cible moyenne)." },
+  { "id": "cml.09.c2", "front": "Pourquoi l'a posteriori du kNN vaut $K_c/K$", "back": "Densités locales $p(x|c)=K_c/(N_cV)$, $p(x)=K/(NV)$, $p(c)=N_c/N$ ; le théorème de Bayes simplifie $N_c$, $V$, $N$." },
+  { "id": "cml.09.c3", "front": "Effet de $k$ dans le kNN", "back": "Paramètre de lissage : un petit $k$ donne faible biais/forte variance, un grand $k$ fort biais/faible variance ; choisir par validation." },
+  { "id": "cml.09.c4", "front": "Borne de Cover-Hart", "back": "Quand $N\\to\\infty$, le taux d'erreur du 1-NN est au plus le double de l'erreur minimale atteignable (de Bayes)." },
+  { "id": "cml.09.c5", "front": "Pourquoi mettre les variables à l'échelle pour le kNN ?", "back": "La distance euclidienne somme des différences brutes au carré, donc les variables à grandes unités dominent. Standardiser avec les statistiques d'entraînement." },
+  { "id": "cml.09.c6", "front": "Fléau de la dimension pour le kNN", "back": "En grande dimension tous les points sont presque équidistants, les voisinages ne sont plus locaux, et une recherche en $O(Nd)$ par requête est coûteuse." },
+  { "id": "cml.09.c7", "front": "Profil de coût du kNN", "back": "Pas d'entraînement ; stocke toutes les données ; chaque prédiction calcule $N$ distances ($O(Nd)$) sauf si un index est utilisé." },
+  { "id": "cml.09.c8", "front": "Règle de Bayes pour la classification", "back": "$p(C_k|x)\\propto p(C_k)\\,p(x|C_k)$ ; prédire la classe de plus grande valeur." },
+  { "id": "cml.09.c9", "front": "Hypothèse du Bayes naïf", "back": "Les variables sont conditionnellement indépendantes sachant la classe : $p(x|C_k)=\\prod_ip(x_i|C_k)$." },
+  { "id": "cml.09.c10", "front": "Prédiction du Bayes naïf en espace logarithmique", "back": "$\\hat y=\\arg\\max_k\\ \\log p(C_k)+\\sum_i\\log p(x_i|C_k)$ ; pour le multinomial : `X @ log_theta.T + log_prior`." },
+  { "id": "cml.09.c11", "front": "Paramètres du NB multinomial avec lissage", "back": "$\\theta_{ki}=(n_{ki}+\\alpha)/(\\sum_in_{ki}+\\alpha V)$, $n_{ki}$ = comptage du mot $i$ dans la classe $k$." },
+  { "id": "cml.09.c12", "front": "Pourquoi le lissage de Laplace ?", "back": "Un mot jamais vu donnerait une probabilité 0 et anéantirait tout le produit ; le pseudo-comptage $\\alpha$ garde toutes les probabilités positives (un a priori de Dirichlet)." },
+  { "id": "cml.09.c13", "front": "Bayes naïf gaussien", "back": "Par classe et par variable : moyenne $\\mu_{ki}$, variance $\\sigma_{ki}^2$ ; $\\log p(x_i|C_k)=-\\frac12\\log(2\\pi\\sigma^2)-\\frac{(x_i-\\mu)^2}{2\\sigma^2}$." },
+  { "id": "cml.09.c14", "front": "Pourquoi le Bayes naïf marche encore / où il échoue", "back": "Seul l'argmax compte et peu de paramètres signifie faible variance ; il échoue quand des variables corrélées portent le signal de l'étiquette (par ex. XOR) et que les probabilités sont trop confiantes." }
+]

@@ -1,0 +1,92 @@
+#@@ meta
+{"id": "aud.01.ex1", "title": "Framing, Hann window, STFT, quantisation and aliasing", "difficulty": 3, "runtime": "pyodide", "concepts": ["aud.waveform", "aud.stft"], "hints": ["frame_signal: n = 1 + (len(x) - frame_len) // hop; build an index matrix np.arange(frame_len)[None, :] + hop * np.arange(n)[:, None] and return x[idx].", "hann(N) = 0.5 - 0.5 * cos(2 pi n / N) with n = 0..N-1 (the periodic form, dividing by N, not N-1). stft = rfft of (frames * window) along axis 1.", "quantize: step = 2 / 2**bits; q = clip(floor(x / step), -2**(bits-1), 2**(bits-1) - 1); return (q + 0.5) * step. alias_freq: r = f % sr; return min(r, sr - r)."]}
+#@@ prompt
+Implement the first stage of every audio pipeline with NumPy only:
+
+- `frame_signal(x, frame_len, hop)` -> array of shape `(n_frames, frame_len)` with `n_frames = 1 + (len(x) - frame_len) // hop` (no padding; drop incomplete frames).
+- `hann(N)` -> the **periodic** Hann window `0.5 - 0.5 cos(2 pi n / N)`.
+- `stft(x, n_fft, hop)` -> complex array `(n_frames, n_fft // 2 + 1)`: frame, multiply by the Hann window, `np.fft.rfft` along the frame axis.
+- `quantize(x, bits)` -> signal rounded to the centre of one of `2**bits` levels covering `[-1, 1)` (step `2 / 2**bits`).
+- `alias_freq(f, sr)` -> the frequency at which a tone of `f` Hz appears after sampling at `sr` Hz.
+- `bin_freq(k, n_fft, sr)` -> frequency in Hz of DFT bin `k`.
+#@@ starter
+import numpy as np
+
+def frame_signal(x, frame_len, hop):
+    raise NotImplementedError
+
+def hann(N):
+    raise NotImplementedError
+
+def stft(x, n_fft, hop):
+    raise NotImplementedError
+
+def quantize(x, bits):
+    raise NotImplementedError
+
+def alias_freq(f, sr):
+    raise NotImplementedError
+
+def bin_freq(k, n_fft, sr):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+sr = 16000
+t = np.arange(sr) / sr
+
+check("frame count for 10 s, 400/160 is 998", lambda: frame_signal(np.zeros(160000), 400, 160).shape == (998, 400))
+check("framing small example", lambda: np.array_equal(frame_signal(np.arange(10.0), 4, 2), np.array([[0, 1, 2, 3], [2, 3, 4, 5], [4, 5, 6, 7], [6, 7, 8, 9]], dtype=float)))
+w = hann(8)
+check("hann values", lambda: np.allclose(w, [0, 0.1464466, 0.5, 0.8535534, 1, 0.8535534, 0.5, 0.1464466], atol=1e-6))
+check("hann is COLA at hop N/2", lambda: np.allclose(w[:4] + w[4:], 1.0))
+x = 0.8 * np.sin(2 * np.pi * 1000 * t)
+S = stft(x, 512, 160)
+check("stft shape (97, 257)", lambda: S.shape == (97, 257))
+check("tone at 1000 Hz peaks in bin 32", lambda: int(np.argmax(np.abs(S[10]))) == 32)
+check("bin 32 is 1000 Hz", lambda: abs(bin_freq(32, 512, sr) - 1000.0) < 1e-9 and abs(bin_freq(1, 512, sr) - 31.25) < 1e-9)
+check("hann-windowed peak magnitude is A*N/4 = 102.4", lambda: abs(np.abs(S[10, 32]) - 102.4) < 1e-6)
+n = np.arange(64)
+rng = np.random.default_rng(0)
+r = rng.normal(size=64)
+naive = np.exp(-2j * np.pi * n[:, None] * n[None, :] / 64) @ r
+check("rfft equals the naive DFT matrix", lambda: np.allclose(np.fft.rfft(r), naive[:33]))
+x2 = np.sin(2 * np.pi * 1010 * t[:512])
+rect = np.abs(np.fft.rfft(x2))
+hn = np.abs(np.fft.rfft(x2 * hann(512)))
+check("Hann leaks far less four bins from the peak", lambda: hn[28] / hn[32] < 0.005 and rect[28] / rect[32] > 0.07)
+check("alias of 7 kHz at 10 kHz is 3 kHz", lambda: alias_freq(7000, 10000) == 3000 and alias_freq(440, 16000) == 440 and alias_freq(9000, 16000) == 7000)
+check("quantize(0.3, 3 bits) = 0.375", lambda: np.allclose(quantize(np.array([0.3, -0.3, 0.99, -1.0]), 3), [0.375, -0.375, 0.875, -0.875]))
+xs = 0.8 * np.sin(2 * np.pi * 1234.5 * t + 0.3)
+def snr(b):
+    e = xs - quantize(xs, b)
+    return 10 * np.log10(np.mean(xs ** 2) / np.mean(e ** 2))
+check("8-bit SNR is close to 6.02 b + 1.76 + 20 log10 A", lambda: abs(snr(8) - (6.02 * 8 + 1.76 + 20 * np.log10(0.8))) < 0.5)
+check("each extra bit gives about 6 dB", lambda: abs((snr(12) - snr(8)) - 24.08) < 0.6)
+#@@ solution
+import numpy as np
+
+def frame_signal(x, frame_len, hop):
+    n = 1 + (len(x) - frame_len) // hop
+    idx = np.arange(frame_len)[None, :] + hop * np.arange(n)[:, None]
+    return x[idx]
+
+def hann(N):
+    n = np.arange(N)
+    return 0.5 - 0.5 * np.cos(2 * np.pi * n / N)
+
+def stft(x, n_fft, hop):
+    frames = frame_signal(x, n_fft, hop) * hann(n_fft)
+    return np.fft.rfft(frames, axis=1)
+
+def quantize(x, bits):
+    L = 2 ** bits
+    step = 2.0 / L
+    q = np.clip(np.floor(x / step), -L // 2, L // 2 - 1)
+    return (q + 0.5) * step
+
+def alias_freq(f, sr):
+    r = f % sr
+    return min(r, sr - r)
+
+def bin_freq(k, n_fft, sr):
+    return k * sr / n_fft

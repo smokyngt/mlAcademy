@@ -1,0 +1,54 @@
+[
+  {
+    "id": "ctc-collapse",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The CTC collapse map B on the lesson's example: first merge consecutive repeated symbols, then delete blanks. The blank between the two a's is what lets a double letter survive.",
+      "fr": "L'application de repli B de CTC sur l'exemple de la leçon : fusionner d'abord les symboles répétés consécutifs, puis supprimer les blancs. Le blanc entre les deux a est ce qui permet de conserver une lettre double."
+    },
+    "code": {
+      "en": "flowchart LR\n  PATH[\"path, one symbol per frame<br/>a a ∅ a b b ∅ c\"] -->|\"merge repeats\"| M[\"a ∅ a b ∅ c\"]\n  M -->|\"delete blanks\"| Y[\"a a b c\"]",
+      "fr": "flowchart LR\n  PATH[\"chemin, un symbole par trame<br/>a a ∅ a b b ∅ c\"] -->|\"fusionner les répétitions\"| M[\"a ∅ a b ∅ c\"]\n  M -->|\"supprimer les blancs\"| Y[\"a a b c\"]"
+    }
+  },
+  {
+    "id": "ctc-lattice",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The extended label sequence for U = 2 tokens (S = 2U + 1 = 5 positions, odd positions are blanks). Each frame a path stays, advances by one, or jumps over a blank (only into a label that differs from the one two positions back). Valid endings: the last label or the final blank.",
+      "fr": "La séquence d'étiquettes étendue pour U = 2 jetons (S = 2U + 1 = 5 positions, les positions impaires sont des blancs). À chaque trame un chemin reste, avance d'une position ou saute un blanc (seulement vers une étiquette différente de celle deux positions avant). Fins valides : la dernière étiquette ou le blanc final."
+    },
+    "code": {
+      "en": "flowchart LR\n  S1([\"1: ∅\"]) --> S1\n  S2([\"2: y1\"]) --> S2\n  S3([\"3: ∅\"]) --> S3\n  S4([\"4: y2\"]) --> S4\n  S5([\"5: ∅\"]) --> S5\n  S1 --> S2 --> S3 --> S4 --> S5\n  S1 -.-> S2\n  S2 -.->|\"skip blank, if y1 differs from y2\"| S4\n  S4 --> END([\"P(y|x) = alpha_T(4) + alpha_T(5)\"])\n  S5 --> END",
+      "fr": "flowchart LR\n  S1([\"1: ∅\"]) --> S1\n  S2([\"2: y1\"]) --> S2\n  S3([\"3: ∅\"]) --> S3\n  S4([\"4: y2\"]) --> S4\n  S5([\"5: ∅\"]) --> S5\n  S1 --> S2 --> S3 --> S4 --> S5\n  S1 -.-> S2\n  S2 -.->|\"saut du blanc, si y1 diffère de y2\"| S4\n  S4 --> END([\"P(y|x) = alpha_T(4) + alpha_T(5)\"])\n  S5 --> END"
+    }
+  },
+  {
+    "id": "rnnt-lattice",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The RNN-T lattice (small T = 2, U = 2): at each node the joiner either emits the next label (move down, no frame consumed) or emits a blank (move right to the next frame). A transcript's probability sums over all monotone paths from the top-left to the bottom-right.",
+      "fr": "Le treillis du RNN-T (petit exemple T = 2, U = 2) : à chaque noeud le joiner émet soit l'étiquette suivante (descente, sans consommer de trame), soit un blanc (déplacement à droite vers la trame suivante). La probabilité d'une transcription somme tous les chemins monotones du coin haut-gauche au coin bas-droit."
+    },
+    "code": {
+      "en": "flowchart LR\n  A00[\"t0,u0\"] -->|\"blank\"| A10[\"t1,u0\"] -->|\"blank\"| A20[\"t2,u0\"]\n  A01[\"t0,u1\"] -->|\"blank\"| A11[\"t1,u1\"] -->|\"blank\"| A21[\"t2,u1\"]\n  A02[\"t0,u2\"] -->|\"blank\"| A12[\"t1,u2\"] -->|\"blank\"| A22[\"t2,u2\"]\n  A00 -->|\"y1\"| A01 -->|\"y2\"| A02\n  A10 -->|\"y1\"| A11 -->|\"y2\"| A12\n  A20 -->|\"y1\"| A21 -->|\"y2\"| A22",
+      "fr": "flowchart LR\n  A00[\"t0,u0\"] -->|\"blanc\"| A10[\"t1,u0\"] -->|\"blanc\"| A20[\"t2,u0\"]\n  A01[\"t0,u1\"] -->|\"blanc\"| A11[\"t1,u1\"] -->|\"blanc\"| A21[\"t2,u1\"]\n  A02[\"t0,u2\"] -->|\"blanc\"| A12[\"t1,u2\"] -->|\"blanc\"| A22[\"t2,u2\"]\n  A00 -->|\"y1\"| A01 -->|\"y2\"| A02\n  A10 -->|\"y1\"| A11 -->|\"y2\"| A12\n  A20 -->|\"y1\"| A21 -->|\"y2\"| A22"
+    }
+  },
+  {
+    "id": "whisper-arch",
+    "after": 8,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Whisper-style attention encoder-decoder with the shapes quoted in the lesson: 30 s of audio becomes an 80 x 3000 log-mel input, a stride-2 convolutional stem halves it to 1500 positions (one per 20 ms), and a causal decoder cross-attends to the encoder while emitting tokens one at a time.",
+      "fr": "Encodeur-décodeur à attention de type Whisper avec les formes citées dans la leçon : 30 s d'audio deviennent une entrée log-mel de 80 x 3000, une tête convolutive de pas 2 la réduit à 1500 positions (une par 20 ms), et un décodeur causal fait de l'attention croisée sur l'encodeur en émettant les jetons un par un."
+    },
+    "code": {
+      "en": "flowchart LR\n  A[\"30 s audio\"] --> M[\"log-mel<br/>(80, 3000)\"]\n  M --> ST[\"conv stem, stride 2<br/>(1500, d)\"]\n  ST --> EN[\"transformer encoder\"]\n  EN -->|\"keys, values (T', d)\"| DE[\"causal decoder<br/>cross-attention\"]\n  TK[\"special tokens:<br/>language, task\"] --> DE\n  DE --> OUT[\"text tokens, one by one\"]",
+      "fr": "flowchart LR\n  A[\"30 s d'audio\"] --> M[\"log-mel<br/>(80, 3000)\"]\n  M --> ST[\"tête conv, pas 2<br/>(1500, d)\"]\n  ST --> EN[\"encodeur transformer\"]\n  EN -->|\"clés, valeurs (T', d)\"| DE[\"décodeur causal<br/>attention croisée\"]\n  TK[\"jetons spéciaux :<br/>langue, tâche\"] --> DE\n  DE --> OUT[\"jetons de texte, un par un\"]"
+    }
+  }
+]

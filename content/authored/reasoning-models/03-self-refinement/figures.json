@@ -1,0 +1,55 @@
+[
+  {
+    "id": "logprob-scoring",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Scoring a response with log-probabilities: take log_softmax of the logits, read the rows that score the answer tokens (only the answer, the prompt is given), then sum (training) or average (comparing answers of different lengths).",
+      "fr": "Noter une réponse avec des log-probabilités : prendre le log_softmax des logits, lire les lignes qui notent les jetons de la réponse (seulement la réponse, le prompt est donné), puis sommer (entraînement) ou moyenner (comparer des réponses de longueurs différentes)."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"prompt + answer tokens\"] --> LG[\"model logits (L-1, V)\"]\n  LG --> LS[\"log_softmax\"]\n  LS --> RW[\"rows m-1 .. L-2<br/>log p of each answer token\"]\n  RW --> SUM[\"sum: for training\"]\n  RW --> AVG[\"mean: to compare answers<br/>(exp(-mean) = perplexity)\"]",
+      "fr": "flowchart LR\n  P[\"prompt + jetons de réponse\"] --> LG[\"logits du modèle (L-1, V)\"]\n  LG --> LS[\"log_softmax\"]\n  LS --> RW[\"lignes m-1 .. L-2<br/>log p de chaque jeton de réponse\"]\n  RW --> SUM[\"somme : pour l'entraînement\"]\n  RW --> AVG[\"moyenne : pour comparer des réponses<br/>(exp(-moyenne) = perplexité)\"]"
+    }
+  },
+  {
+    "id": "brevity-term",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "The brevity term of the book's heuristic score, 1.5 exp(-len/500), against response length in characters: 1.4732 for the 9-character answer, decaying toward 0 for long text. Together with 2.0 for a boxed answer and 1.0 for a number it rewards form, not truth.",
+      "fr": "Le terme de brièveté du score heuristique du livre, 1,5 exp(-len/500), selon la longueur de la réponse en caractères : 1,4732 pour la réponse de 9 caractères, décroissant vers 0 pour un long texte. Avec 2,0 pour une réponse encadrée et 1,0 pour un nombre, il récompense la forme, pas la vérité."
+    },
+    "spec": {
+      "height": 280,
+      "xDomain": [
+        0,
+        3000
+      ],
+      "yDomain": [
+        0,
+        1.6
+      ],
+      "title": "len",
+      "data": [
+        {
+          "fn": "1.5*exp(-x/500)",
+          "color": "#2563eb"
+        }
+      ]
+    }
+  },
+  {
+    "id": "controller",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The refinement controller: after each critique and revision, the acceptance rule keeps the old draft unless the new one scores at least as well, and four stop rules (max_iters, target score, critique says fine, patience) end the loop.",
+      "fr": "Le contrôleur de raffinement : après chaque critique et révision, la règle d'acceptation garde l'ancien brouillon sauf si le nouveau note au moins aussi bien, et quatre règles d'arrêt (max_iters, score cible, critique satisfaite, patience) terminent la boucle."
+    },
+    "code": {
+      "en": "flowchart LR\n  D[\"current draft\"] --> CR[\"critique\"] --> RV[\"revise\"] --> SC{\"score(new) >= score(old)?\"}\n  SC -->|\"yes: accept\"| ST{\"stop rule?<br/>max_iters, target,<br/>critique ok, patience\"}\n  SC -->|\"no: keep old\"| ST\n  ST -->|\"no\"| D\n  ST -->|\"yes\"| F[\"final answer\"]",
+      "fr": "flowchart LR\n  D[\"brouillon courant\"] --> CR[\"critique\"] --> RV[\"réviser\"] --> SC{\"score(nouveau) >= score(ancien) ?\"}\n  SC -->|\"oui : accepter\"| ST{\"règle d'arrêt ?<br/>max_iters, cible,<br/>critique ok, patience\"}\n  SC -->|\"non : garder l'ancien\"| ST\n  ST -->|\"non\"| D\n  ST -->|\"oui\"| F[\"réponse finale\"]"
+    }
+  }
+]

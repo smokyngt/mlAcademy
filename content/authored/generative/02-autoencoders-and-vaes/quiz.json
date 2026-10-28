@@ -1,0 +1,125 @@
+[
+ {
+  "id": "gen.02.q1",
+  "concept": "gen.vae",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A plain autoencoder is a poor generator mainly because...",
+  "options": [
+   "its loss is not differentiable",
+   "its code space has holes and no known sampling distribution",
+   "it has too few parameters",
+   "it cannot reconstruct training data"
+  ],
+  "answer": 1,
+  "explanation": "Nothing forces codes to fill a region you can sample from."
+ },
+ {
+  "id": "gen.02.q2",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "The ELBO is a lower bound on...",
+  "options": [
+   "$\\log p_\\theta(x)$",
+   "$\\mathrm{KL}(q\\|p)$",
+   "the reconstruction error",
+   "the prior $p(z)$"
+  ],
+  "answer": 0,
+  "explanation": "$\\log p_\\theta(x)=\\mathrm{ELBO}+\\mathrm{KL}(q\\|p_\\theta(z|x))\\ge\\mathrm{ELBO}$."
+ },
+ {
+  "id": "gen.02.q3",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "The ELBO bound is tight when...",
+  "options": [
+   "$q_\\phi(z|x)$ equals the true posterior $p_\\theta(z|x)$",
+   "the prior is uniform",
+   "$\\beta=0$",
+   "the decoder is linear"
+  ],
+  "answer": 0,
+  "explanation": "The gap is exactly $\\mathrm{KL}(q\\|p_\\theta(z|x))$, which is $0$ iff the distributions are equal."
+ },
+ {
+  "id": "gen.02.q4",
+  "concept": "gen.vae",
+  "kind": "numeric",
+  "prompt": "Compute $\\mathrm{KL}(\\mathcal N(1,1)\\|\\mathcal N(0,1))$ in nats.",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.001
+  },
+  "explanation": "$\\tfrac12(\\mu^2+\\sigma^2-\\log\\sigma^2-1)=\\tfrac12(1+1-0-1)=0.5$."
+ },
+ {
+  "id": "gen.02.q5",
+  "concept": "gen.vae",
+  "kind": "numeric",
+  "prompt": "Compute $\\mathrm{KL}(\\mathcal N(0,4)\\|\\mathcal N(0,1))$ in nats (variance 4). Give 3 decimals.",
+  "options": [],
+  "answer": {
+   "value": 0.807,
+   "tol": 0.002
+  },
+  "explanation": "$\\tfrac12(4-\\ln4-1)=\\tfrac12(3-1.3863)=0.8069$."
+ },
+ {
+  "id": "gen.02.q6",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "With $z=\\mu+\\sigma\\varepsilon$, $\\partial z/\\partial\\mu$ equals...",
+  "options": [
+   "$\\varepsilon$",
+   "$\\sigma$",
+   "$1$",
+   "$0$"
+  ],
+  "answer": 2,
+  "explanation": "$\\varepsilon$ is a fixed number during backprop, so $z$ is linear in $\\mu$ with slope 1."
+ },
+ {
+  "id": "gen.02.q7",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "The encoder outputs logvar instead of $\\sigma$ because...",
+  "options": [
+   "it makes KL zero",
+   "it is unconstrained and $\\sigma=e^{\\text{logvar}/2}$ is automatically positive",
+   "logvar is always smaller",
+   "it removes the need for a prior"
+  ],
+  "answer": 1,
+  "explanation": "Real-valued output with guaranteed positive $\\sigma$ and stable gradients."
+ },
+ {
+  "id": "gen.02.q8",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "Posterior collapse means...",
+  "options": [
+   "the decoder outputs zeros",
+   "the encoder ignores the input so $q(z|x)\\approx p(z)$ and the decoder ignores $z$",
+   "KL grows without bound",
+   "the batch size is too large"
+  ],
+  "answer": 1,
+  "explanation": "A powerful decoder models $x$ alone, KL goes to zero and the code is uninformative."
+ },
+ {
+  "id": "gen.02.q9",
+  "concept": "gen.vae",
+  "kind": "mcq",
+  "prompt": "Increasing $\\beta$ above 1 in a $\\beta$-VAE typically...",
+  "options": [
+   "sharpens reconstructions and irregularises the code",
+   "makes the encoder deterministic",
+   "regularises the code space more but blurs reconstructions",
+   "has no effect on the latent space"
+  ],
+  "answer": 2,
+  "explanation": "The KL penalty weighs more, so codes are closer to the prior at the cost of reconstruction fidelity."
+ }
+]

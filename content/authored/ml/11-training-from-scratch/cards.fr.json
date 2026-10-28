@@ -1,0 +1,7 @@
+[
+  { "id": "f2n.11.c1", "front": "Une itération d'entraînement", "back": "passe avant (perte) $\\to$ passe arrière (gradients) $\\to$ mise à jour ($\\theta\\leftarrow\\theta-\\eta g$)." },
+  { "id": "f2n.11.c2", "front": "Mise à jour avec momentum", "back": "$v\\leftarrow\\mu v-\\eta g$, $\\theta\\leftarrow\\theta+v$ ; pas effectif $\\approx\\eta/(1-\\mu)$ sur les directions cohérentes." },
+  { "id": "f2n.11.c3", "front": "Échelle de débogage", "back": "1) perte initiale $\\approx\\ln K$ ; 2) test de gradient ; 3) sur-apprendre 8 exemples ; 4) balayage du taux d'apprentissage ; 5) entraînement complet avec validation." },
+  { "id": "f2n.11.c4", "front": "Initialisation de He", "back": "$W\\sim\\mathcal{N}(0,2/n_{\\text{in}})$, biais $0$, pour les couches ReLU." },
+  { "id": "f2n.11.c5", "front": "Perte bloquée à $\\ln K$", "back": "Taux d'apprentissage beaucoup trop petit, ReLU mortes, ou graphe de calcul détaché ; rien n'est appris." }
+]

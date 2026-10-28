@@ -1,0 +1,76 @@
+[
+ {
+  "id": "adv.05.q1",
+  "prompt": "Quelle est la mémoire d'inférence d'une couche SSM quand le contexte croît ?",
+  "options": [
+   "Linéaire en la longueur du contexte",
+   "Quadratique en la longueur du contexte",
+   "Constante : un état de taille fixe",
+   "Nulle"
+  ],
+  "explanation": "$h_t$ a une forme fixe ; aucun cache par token n'est conservé."
+ },
+ {
+  "id": "adv.05.q2",
+  "prompt": "SSM scalaire avec $a=0.5,b=1,c=1$ et entrée $(1,2,0,1)$. Que vaut $y_4$ (la dernière sortie) ?",
+  "options": [],
+  "explanation": "$h=1,\\ 2.5,\\ 1.25,\\ 1.625$."
+ },
+ {
+  "id": "adv.05.q3",
+  "prompt": "Pour un SSM invariant dans le temps, la sortie est une convolution causale de noyau $K_k=$...",
+  "options": ["$\\sum_i c_i a_i^{k} b_i$", "$a^k+b^k$", "$c\\,b\\,k$", "$\\sum_i c_i a_i b_i^k$"],
+  "explanation": "Dérouler $h_t=a\\odot h_{t-1}+bx_t$ donne des puissances de $a$ entre l'écriture ($b$) et la lecture ($c$)."
+ },
+ {
+  "id": "adv.05.q4",
+  "prompt": "Dans un SSM sélectif, que se passe-t-il quand le pas $\\Delta_t\\to0$ pour un token ?",
+  "options": [
+   "L'état est réinitialisé",
+   "Le token est ignoré et l'état est conservé",
+   "La sortie devient infinie",
+   "Le modèle devient une convolution"
+  ],
+  "explanation": "$\\bar A=e^{\\Delta A}\\to1$ et $\\bar B\\approx\\Delta B\\to0$."
+ },
+ {
+  "id": "adv.05.q5",
+  "prompt": "Pourquoi un SSM sélectif ne peut-il pas utiliser l'astuce de la convolution par FFT ?",
+  "options": [
+   "L'état est trop petit",
+   "Ses paramètres dépendent de l'entrée, donc ce n'est pas une convolution fixe (invariante dans le temps)",
+   "La FFT a besoin de nombres complexes",
+   "Il n'a pas de récurrence"
+  ],
+  "explanation": "Un noyau unique n'existe que lorsque $a,b,c$ sont les mêmes à chaque pas."
+ },
+ {
+  "id": "adv.05.q6",
+  "prompt": "Composer $h\\mapsto a_1h+b_1$ puis $h\\mapsto a_2h+b_2$ donne la paire...",
+  "options": ["$(a_1+a_2,\\ b_1+b_2)$", "$(a_1a_2,\\ a_2b_1+b_2)$", "$(a_1a_2,\\ b_1b_2)$", "$(a_2,\\ b_1)$"],
+  "explanation": "$a_2(a_1h+b_1)+b_2$."
+ },
+ {
+  "id": "adv.05.q7",
+  "prompt": "De combien de tours de doublement un scan de Hillis-Steele a-t-il besoin pour 37 éléments ?",
+  "options": [],
+  "explanation": "$\\lceil\\log_2 37\\rceil=6$."
+ },
+ {
+  "id": "adv.05.q8",
+  "prompt": "Quelle est la recette des couches de Jamba ?",
+  "options": [
+   "Tout en attention",
+   "Environ 1 couche d'attention pour 7 couches Mamba, avec MoE une couche sur deux",
+   "Tout en Mamba",
+   "1 Mamba pour 7 couches d'attention"
+  ],
+  "explanation": "Blocs de 8 couches : 7 Mamba + 1 attention, MoE une couche sur deux."
+ },
+ {
+  "id": "adv.05.q9",
+  "prompt": "Cache KV (GiB) pour 4 couches d'attention avec 32 têtes KV, dimension de tête 128, 262144 tokens, BF16 ?",
+  "options": [],
+  "explanation": "$2\\cdot4\\cdot32\\cdot128\\cdot262144\\cdot2/2^{30}=16$."
+ }
+]

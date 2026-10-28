@@ -1,0 +1,10 @@
+{
+  "id": "cml.10.ex2",
+  "title": "Intervalles de calibration, score de Brier, métriques de régression et seuil de coût",
+  "prompt": "Implémente :\n\n- `calibration_bins(p, y, n_bins=10)` -> `(conf, freq, count)` : pour chaque intervalle de largeur égale **non vide** de $[0,1]$, la probabilité prédite moyenne, la fraction observée de positifs, et le nombre de points. (`p = 1.0` appartient au dernier intervalle.)\n- `ece(p, y, n_bins=10)` -> erreur de calibration espérée $\\sum_b \\frac{n_b}{N}\\,|\\mathrm{freq}_b-\\mathrm{conf}_b|$.\n- `brier(p, y)` -> erreur quadratique moyenne entre la probabilité et le résultat 0/1.\n- `mae(y, yhat)`, `rmse(y, yhat)`, `r2(y, yhat)`.\n- `cost_threshold(c_fp, c_fn)` -> la probabilité au-delà de laquelle prédire positif a le coût espéré le plus petit (une décision correcte coûte 0).",
+  "hints": [
+    "Indice d'intervalle = np.minimum((p * n_bins).astype(int), n_bins - 1) pour que p = 1.0 tombe dans le dernier intervalle.",
+    "Pour chaque intervalle non vide : probabilité prédite moyenne, moyenne de y (fréquence observée), effectif. Ignore les intervalles vides.",
+    "R2 = 1 - SS_res / SS_tot avec SS_tot mesuré autour de la moyenne de y_true. Le seuil de coût vient de la comparaison des pertes espérées : prédis positif quand p * C_FN > (1 - p) * C_FP."
+  ]
+}

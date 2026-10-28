@@ -1,0 +1,86 @@
+[
+ {
+  "id": "mf.01.c1",
+  "concept": "mf.python",
+  "front": "Variable",
+  "back": "A name attached to a value: `x = 5`. `=` means 'assign', not 'equals'."
+ },
+ {
+  "id": "mf.01.c2",
+  "concept": "mf.python",
+  "front": "List and index",
+  "back": "`xs = [10,20,30]`; `xs[0]` is 10 (counting starts at 0); `xs[-1]` is the last item; `len(xs)` is 3."
+ },
+ {
+  "id": "mf.01.c3",
+  "concept": "mf.python",
+  "front": "`for` loop",
+  "back": "`for x in xs:` runs the indented block once per item. `range(n)` gives 0..n-1."
+ },
+ {
+  "id": "mf.01.c4",
+  "concept": "mf.python",
+  "front": "Function",
+  "back": "`def f(a, b): return a + b` packages a recipe; `return` hands the result back."
+ },
+ {
+  "id": "mf.01.c5",
+  "concept": "mf.python",
+  "front": "Conditional",
+  "back": "`if cond: ... elif cond2: ... else: ...` runs exactly one branch."
+ },
+ {
+  "id": "mf.01.c6",
+  "concept": "mf.numpy",
+  "front": "ndarray",
+  "back": "A grid of numbers of one type with a fixed `shape`; created with `np.array`, `np.zeros`, `np.arange`, `np.linspace`."
+ },
+ {
+  "id": "mf.01.c7",
+  "concept": "mf.numpy",
+  "front": "Shape",
+  "back": "A tuple with the size along each axis. A table of 3 rows and 4 columns has shape (3, 4)."
+ },
+ {
+  "id": "mf.01.c8",
+  "concept": "mf.numpy",
+  "front": "Slicing",
+  "back": "`a[start:stop:step]` includes start, excludes stop. In 2D, `A[rows, cols]`, e.g. `A[:, 0]` is the first column."
+ },
+ {
+  "id": "mf.01.c9",
+  "concept": "mf.numpy",
+  "front": "Vectorised arithmetic",
+  "back": "`a + b`, `a * b`, `a ** 2` act element by element, with no Python loop. Much faster and shorter."
+ },
+ {
+  "id": "mf.01.c10",
+  "concept": "mf.numpy",
+  "front": "Broadcasting rule",
+  "back": "Compare shapes from the right; two sizes are compatible if equal or one is 1. The 1 is stretched."
+ },
+ {
+  "id": "mf.01.c11",
+  "concept": "mf.numpy",
+  "front": "`axis` argument",
+  "back": "`A.sum(axis=0)` collapses axis 0 (rows) giving one value per column; `axis=1` gives one value per row."
+ },
+ {
+  "id": "mf.01.c12",
+  "concept": "mf.numpy",
+  "front": "`reshape`",
+  "back": "Re-labels the same numbers with a new shape; the total count must match. `-1` means 'work this size out'."
+ },
+ {
+  "id": "mf.01.c13",
+  "concept": "mf.python",
+  "front": "Reading an error",
+  "back": "Read the last line first (error type), then the line number it points to. Shape errors name the shapes involved."
+ },
+ {
+  "id": "mf.01.c14",
+  "concept": "mf.numpy",
+  "front": "Debug habit",
+  "back": "When something is wrong, print `x.shape` and `x.dtype` first; most NumPy bugs are shape bugs."
+ }
+]

@@ -1,0 +1,17 @@
+[
+  { "id": "saf.06.c1", "front": "WMDP en une ligne", "back": "Benchmark proxy à choix multiples (4 157 questions : bio 1 520, cyber 2 225, chimie 412) de connaissances proches de sujets dangereux, aussi utilisé pour le désapprentissage." },
+  { "id": "saf.06.c2", "front": "Questions de la zone jaune", "back": "Connaissances habilitantes proches, pas des recettes ; relecture par plusieurs experts et contrôle de conformité aux exportations." },
+  { "id": "saf.06.c3", "front": "Capacité relative au novice contre absolue de l'expert", "back": "Relative : de combien un modèle aide un non-expert (un multiple). Absolue : le maximum qu'un expert peut extraire à pleine intensité." },
+  { "id": "saf.06.c4", "front": "Pourquoi un benchmark n'est pas le risque de déploiement", "back": "La difficulté de sollicitation, la connaissance tacite et les barrières d'exécution (approvisionnement, équipement) modifient toutes le risque réel." },
+  { "id": "saf.06.c5", "front": "Règle de seuil conservatrice", "back": "Traiter la capacité comme possiblement présente si la borne supérieure de confiance du taux mesuré atteint le seuil." },
+  { "id": "saf.06.c6", "front": "Rapport de risques et son IC à l'échelle log", "back": "RR = (k1/n1)/(k0/n0) ; se(log RR) = sqrt(1/k1 - 1/n1 + 1/k0 - 1/n0) ; IC = exp(log RR +- z se)." },
+  { "id": "saf.06.c7", "front": "Critères de réussite du désapprentissage", "back": "Benchmark cible proche du hasard et seulement une petite perte sur les benchmarks généraux." },
+  { "id": "saf.06.c8", "front": "Piliers d'un dossier de sécurité", "back": "Surveillance, illisibilité, incapacité." },
+  { "id": "saf.06.c9", "front": "Critères de capacité suivie du Preparedness Framework (tels que rapportés)", "back": "Plausible, mesurable, grave, nouvelle, instantanée ou irrémédiable." },
+  { "id": "saf.06.c10", "front": "Clause d'ajustement au concurrent", "back": "Un laboratoire peut assouplir ses exigences si un concurrent livre sans garde-fous comparables ; contestée comme possible course vers le bas." },
+  { "id": "saf.06.c11", "front": "Génération d'un filigrane à liste verte", "back": "Hacher le token précédent + la clé pour partitionner le vocabulaire en vert (fraction gamma) et rouge ; ajouter delta aux logits verts avant l'échantillonnage." },
+  { "id": "saf.06.c12", "front": "Statistique de détection du filigrane", "back": "z = (g - gamma T) / sqrt(T gamma (1 - gamma)) sur T paires évaluées ; ~N(0,1) sans le filigrane." },
+  { "id": "saf.06.c13", "front": "Fraction verte attendue (masse uniforme)", "back": "f = gamma e^delta / (1 + gamma (e^delta - 1)) ; 0.881 pour gamma 0.5, delta 2." },
+  { "id": "saf.06.c14", "front": "Limites des filigranes de texte", "back": "Faibles sur le texte à faible entropie, effacés par la paraphrase, spécifiques au modèle et à la clé, l'absence ne prouve rien." },
+  { "id": "saf.06.c15", "front": "Filigrane contre C2PA", "back": "Filigrane : bits intégrés, difficile à retirer, peu de bits. C2PA : métadonnées signées riches, facilement retirées. Utilisés ensemble." }
+]

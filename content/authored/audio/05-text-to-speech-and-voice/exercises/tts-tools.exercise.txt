@@ -1,0 +1,100 @@
+#@@ meta
+{"id": "aud.05.ex2", "title": "Length regulator, codec bitrate, MOS confidence interval and SECS", "difficulty": 2, "runtime": "pyodide", "concepts": ["aud.tts", "aud.voice"], "hints": ["length_regulator: np.repeat(H, durations, axis=0) copies row u exactly durations[u] times.", "codec_bitrate = frame_rate * n_codebooks * log2(codebook_size). Check the EnCodec-like setting (75 Hz, 8, 1024) gives 6000 bit/s.", "mos_ci: mean m, sample standard deviation s (ddof=1), standard error s/sqrt(n), interval m +/- z*se with z = 1.96. secs is the cosine similarity of two vectors."]}
+#@@ prompt
+Small, checkable tools from the TTS and voice-cloning toolbox:
+
+- `length_regulator(H, durations)` -> expand phoneme hidden states `H` of shape `(U, d)` to `(sum(durations), d)`.
+- `mel_frames_to_samples(T, hop)` and `frame_seconds(hop, sr)`: number of waveform samples produced by `T` mel frames and the duration of one frame.
+- `upsampling_ok(rates, hop)` -> True if the product of the vocoder's upsampling factors equals the hop length.
+- `codec_bitrate(frame_rate, n_codebooks, codebook_size)` -> bits per second of a residual-VQ codec.
+- `mos_ci(scores, z=1.96)` -> `(mean, lower, upper)` normal-approximation confidence interval (sample standard deviation with `ddof=1`).
+- `secs(e1, e2)` -> cosine similarity between two speaker embeddings.
+- `consent_ok(record, speaker_id, now)` -> True only if `record` is a dict with a `speaker_id` equal to the one requested, a boolean `signed` that is True, and `expires` (a number) greater than `now`.
+#@@ starter
+import numpy as np
+
+def length_regulator(H, durations):
+    raise NotImplementedError
+
+def mel_frames_to_samples(T, hop):
+    raise NotImplementedError
+
+def frame_seconds(hop, sr):
+    raise NotImplementedError
+
+def upsampling_ok(rates, hop):
+    raise NotImplementedError
+
+def codec_bitrate(frame_rate, n_codebooks, codebook_size):
+    raise NotImplementedError
+
+def mos_ci(scores, z=1.96):
+    raise NotImplementedError
+
+def secs(e1, e2):
+    raise NotImplementedError
+
+def consent_ok(record, speaker_id, now):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+H = np.arange(8.0).reshape(4, 2)
+E = length_regulator(H, [2, 3, 1, 2])
+check("expanded shape is (8, 2)", lambda: E.shape == (8, 2))
+check("rows are repeated in order", lambda: np.array_equal(E[:, 0], [0, 0, 2, 2, 2, 4, 6, 6]))
+check("zero duration drops a phoneme", lambda: length_regulator(H, [1, 0, 1, 1]).shape == (3, 2))
+check("8 frames at hop 256 are 2048 samples", lambda: mel_frames_to_samples(8, 256) == 2048)
+check("one frame at hop 256, 24 kHz is 10.67 ms", lambda: abs(frame_seconds(256, 24000) - 0.010667) < 1e-5)
+check("8*8*2*2 = 256", lambda: upsampling_ok([8, 8, 2, 2], 256) and not upsampling_ok([8, 8, 2], 256))
+check("EnCodec-like 6 kbps", lambda: abs(codec_bitrate(75, 8, 1024) - 6000) < 1e-9)
+check("Mimi-like parameters give 1 kbps, not 4.4 kbps", lambda: abs(codec_bitrate(12.5, 8, 1024) - 1000) < 1e-9)
+scores = [4, 5, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 3, 4, 4, 4, 5, 4, 3, 4]
+m, lo, hi = mos_ci(scores)
+check("MOS example: mean 4.0, interval [3.72, 4.28]", lambda: abs(m - 4.0) < 1e-12 and abs(lo - 3.7157) < 1e-3 and abs(hi - 4.2843) < 1e-3)
+check("interval shrinks with more ratings", lambda: (lambda a, b: (b[2] - b[1]) < (a[2] - a[1]))(mos_ci(scores), mos_ci(scores * 4)))
+check("secs of identical vectors is 1, orthogonal is 0, opposite is -1", lambda: abs(secs([1, 2, 3], [1, 2, 3]) - 1) < 1e-12 and abs(secs([1, 0], [0, 1])) < 1e-12 and abs(secs([1, 1], [-1, -1]) + 1) < 1e-12)
+check("secs ignores the scale of an embedding", lambda: abs(secs([1, 2], [3, 6]) - 1) < 1e-12)
+rec = {"speaker_id": "alice", "signed": True, "expires": 200}
+check("valid consent", lambda: consent_ok(rec, "alice", 100) is True)
+check("expired consent rejected", lambda: consent_ok(rec, "alice", 300) is False)
+check("wrong speaker rejected", lambda: consent_ok(rec, "bob", 100) is False)
+check("unsigned or malformed rejected", lambda: consent_ok({"speaker_id": "alice", "signed": False, "expires": 200}, "alice", 100) is False and consent_ok({"speaker_id": "alice"}, "alice", 100) is False and consent_ok(None, "alice", 100) is False)
+#@@ solution
+import numpy as np
+
+def length_regulator(H, durations):
+    return np.repeat(H, durations, axis=0)
+
+def mel_frames_to_samples(T, hop):
+    return T * hop
+
+def frame_seconds(hop, sr):
+    return hop / sr
+
+def upsampling_ok(rates, hop):
+    return int(np.prod(rates)) == hop
+
+def codec_bitrate(frame_rate, n_codebooks, codebook_size):
+    return frame_rate * n_codebooks * np.log2(codebook_size)
+
+def mos_ci(scores, z=1.96):
+    s = np.asarray(scores, float)
+    m = s.mean()
+    se = s.std(ddof=1) / np.sqrt(len(s))
+    return float(m), float(m - z * se), float(m + z * se)
+
+def secs(e1, e2):
+    a, b = np.asarray(e1, float), np.asarray(e2, float)
+    return float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+def consent_ok(record, speaker_id, now):
+    if not isinstance(record, dict):
+        return False
+    if record.get("speaker_id") != speaker_id:
+        return False
+    if record.get("signed") is not True:
+        return False
+    exp = record.get("expires")
+    if not isinstance(exp, (int, float)):
+        return False
+    return exp > now

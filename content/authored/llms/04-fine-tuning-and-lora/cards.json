@@ -1,0 +1,17 @@
+[
+  {"id": "llm.04.c1", "concept": "llm.sft", "front": "What does SFT change in a base model?", "back": "Behaviour (answer instructions in a given format), not knowledge. It trains on (prompt, response) demonstrations with a low learning rate for 1-3 epochs."},
+  {"id": "llm.04.c2", "concept": "llm.sft", "front": "Prompt masking: why and how?", "back": "Loss only on response and end tokens; prompt labels set to an ignore index (-100). Avoids training the model to write instructions; prompt tokens remain in the context."},
+  {"id": "llm.04.c3", "concept": "llm.sft", "front": "Masked loss formula", "back": "$\\mathcal L=-\\frac{1}{\\sum M_t}\\sum_t M_t\\ln p(y_t\\mid s_{\\le t})$; divide by the number of supervised targets, not $B\\cdot T$."},
+  {"id": "llm.04.c4", "concept": "llm.sft", "front": "Inputs and labels for an SFT sequence", "back": "ids = prompt + response + [eos]; x = ids[:-1]; y = labels[1:] with prompt positions = -100. Padding targets are also -100."},
+  {"id": "llm.04.c5", "concept": "llm.sft", "front": "Catastrophic forgetting and mitigations", "back": "Fine-tuning erases general ability. Use low LR, few epochs, mix in some pretraining data, or restrict updates (LoRA)."},
+  {"id": "llm.04.c6", "concept": "llm.lora", "front": "LoRA update", "back": "$W' = W + \\frac{\\alpha}{r}BA$ with $B:(d_{out},r)$, $A:(r,d_{in})$, $W$ frozen. Rank of the update $\\le r$."},
+  {"id": "llm.04.c7", "concept": "llm.lora", "front": "LoRA parameter count", "back": "$r(d_{out}+d_{in})$ per adapted matrix instead of $d_{out}d_{in}$. Example 4096x4096, r=16: 131,072 = 0.78%."},
+  {"id": "llm.04.c8", "concept": "llm.lora", "front": "LoRA initialisation", "back": "$B=0$ (adapter starts at zero, model unchanged), $A$ random (so $\\bar B\\ne0$ and learning starts)."},
+  {"id": "llm.04.c9", "concept": "llm.lora", "front": "LoRA forward pass", "back": "$y=xW^\\top+s\\,(xA^\\top)B^\\top$, $s=\\alpha/r$. Never forms the $d_{out}\\times d_{in}$ update."},
+  {"id": "llm.04.c10", "concept": "llm.lora", "front": "LoRA gradients", "back": "$\\bar B=sG^\\top h$, $\\bar A=s(GB)^\\top x$, $\\bar x=GW+s(GB)A$, with $h=xA^\\top$."},
+  {"id": "llm.04.c11", "concept": "llm.lora", "front": "Why scale by alpha/r?", "back": "Keeps the magnitude of the update comparable across ranks, so runs of different rank can be compared without retuning the learning rate."},
+  {"id": "llm.04.c12", "concept": "llm.lora", "front": "Merging a LoRA adapter", "back": "$W_{merged}=W+\\frac{\\alpha}{r}BA$: identical outputs, no extra latency. Or keep adapters separate to swap per task."},
+  {"id": "llm.04.c13", "concept": "llm.lora", "front": "QLoRA in one sentence", "back": "Frozen base weights stored in 4-bit (NF4, with double quantisation of the constants), LoRA adapters trained in higher precision, paged optimiser state."},
+  {"id": "llm.04.c14", "concept": "llm.lora", "front": "Main limit of LoRA", "back": "A rank-r update cannot represent changes that need higher rank; tasks needing a lot of new knowledge may need larger r or full fine-tuning."},
+  {"id": "llm.04.c15", "concept": "llm.lora", "front": "Why does full fine-tuning cost so much memory?", "back": "Gradients and optimiser state (Adam keeps two moments) for every weight: about 16 bytes/parameter in fp32 before activations."}
+]

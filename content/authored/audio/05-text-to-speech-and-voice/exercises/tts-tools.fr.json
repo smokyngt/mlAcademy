@@ -1,0 +1,10 @@
+{
+  "id": "aud.05.ex2",
+  "title": "Régulateur de longueur, débit de codec, intervalle de confiance du MOS et SECS",
+  "prompt": "Petits outils vérifiables de la boîte à outils du TTS et du clonage de voix :\n\n- `length_regulator(H, durations)` -> étend les états cachés de phonèmes `H` de forme `(U, d)` en `(sum(durations), d)`.\n- `mel_frames_to_samples(T, hop)` et `frame_seconds(hop, sr)` : nombre d'échantillons de forme d'onde produits par `T` trames mel et durée d'une trame.\n- `upsampling_ok(rates, hop)` -> True si le produit des facteurs de suréchantillonnage du vocodeur est égal à la longueur du saut.\n- `codec_bitrate(frame_rate, n_codebooks, codebook_size)` -> bits par seconde d'un codec à VQ résiduelle.\n- `mos_ci(scores, z=1.96)` -> `(mean, lower, upper)` intervalle de confiance par approximation normale (écart type d'échantillon avec `ddof=1`).\n- `secs(e1, e2)` -> similarité cosinus entre deux embeddings de locuteur.\n- `consent_ok(record, speaker_id, now)` -> True seulement si `record` est un dict avec un `speaker_id` égal à celui demandé, un booléen `signed` valant True, et `expires` (un nombre) supérieur à `now`.",
+  "hints": [
+    "length_regulator : np.repeat(H, durations, axis=0) copie la ligne u exactement durations[u] fois.",
+    "codec_bitrate = frame_rate * n_codebooks * log2(codebook_size). Vérifie que le réglage de type EnCodec (75 Hz, 8, 1024) donne 6000 bit/s.",
+    "mos_ci : moyenne m, écart type d'échantillon s (ddof=1), erreur standard s/sqrt(n), intervalle m +/- z*se avec z = 1.96. secs est la similarité cosinus de deux vecteurs."
+  ]
+}

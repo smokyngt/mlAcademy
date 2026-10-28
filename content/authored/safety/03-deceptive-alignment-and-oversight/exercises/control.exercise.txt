@@ -1,0 +1,98 @@
+#@@ meta
+{"id": "saf.03.ex1", "title": "Trusted monitoring with an audit budget", "difficulty": 4, "runtime": "pyodide", "concepts": ["saf.control"], "hints": ["norm_sf(z) = 0.5*math.erfc(z/sqrt(2)). The threshold for false-positive rate f is the z with norm_sf(z) = f: bisect on [-10, 10].", "An attack with suspicion ~ N(mu, 1) is caught when its score exceeds the threshold: c = norm_sf(thr - mu). Per attack: caught (c), harm (1-c)*q, nothing (1-c)*(1-q).", "With A attacks the red team wins when a harmful, uncaught attack happens before any caught one: P(red) = h/(c+h) * (1 - n**A) where h=(1-c)q and n=(1-c)(1-q)."]}
+#@@ prompt
+A **control protocol** assumes the strong model may be adversarial and asks how safe we can be anyway. Here is a small model of *trusted monitoring*:
+
+- An untrusted model solves `N` tasks. In each task it attacks (inserts a flaw) with probability `p`; otherwise it behaves.
+- A weaker **trusted monitor** gives every solution a suspicion score. Honest solutions score `N(0, 1)`; attacked ones score `N(mu, 1)` (`mu` is the monitor's power).
+- Humans can audit only a fraction `f` of honest solutions (the **false-positive budget**). So the audit threshold is the value exceeded by an honest score with probability `f`. An audited attack is caught for sure; a caught attack ends the game with the blue team winning.
+- An attack that is not audited succeeds in causing real harm with probability `q`; harm ends the game with the red team winning. An unaudited attack that does not succeed changes nothing.
+
+Implement:
+`norm_sf(z)`, `threshold_for_fpr(f)`, `catch_prob(mu, f)`, `safety_fixed(A, mu, f, q)` (probability blue wins when exactly `A` attacks are attempted), `safety_binomial(N, p, mu, f, q)` (average over `A ~ Binomial(N, p)`), and `simulate_safety(N, p, mu, f, q, T, seed)` (Monte Carlo over `T` games using `numpy.random.default_rng(seed)`; each game draws the attacked tasks first, then walks through them in order).
+#@@ starter
+import math
+import numpy as np
+
+def norm_sf(z):
+    raise NotImplementedError
+
+def threshold_for_fpr(f):
+    raise NotImplementedError
+
+def catch_prob(mu, f):
+    raise NotImplementedError
+
+def safety_fixed(A, mu, f, q):
+    raise NotImplementedError
+
+def safety_binomial(N, p, mu, f, q):
+    raise NotImplementedError
+
+def simulate_safety(N, p, mu, f, q, T, seed):
+    raise NotImplementedError
+#@@ tests
+import math
+import numpy as np
+check("norm_sf(0) = 0.5", lambda: abs(norm_sf(0.0) - 0.5) < 1e-12)
+check("threshold for 2% false positives = 2.0537", lambda: abs(threshold_for_fpr(0.02) - 2.0537) < 1e-3)
+check("threshold for 5% = 1.6449", lambda: abs(threshold_for_fpr(0.05) - 1.6449) < 1e-3)
+check("monitor with mu=2 at 2% budget catches 47.9% of attacks", lambda: abs(catch_prob(2.0, 0.02) - 0.4786) < 1e-3)
+check("a bigger budget catches more", lambda: catch_prob(2.0, 0.10) > catch_prob(2.0, 0.02) > catch_prob(2.0, 0.005))
+check("a stronger monitor catches more", lambda: catch_prob(3.0, 0.02) > catch_prob(2.0, 0.02) > catch_prob(1.0, 0.02))
+check("no attacks means safe", lambda: abs(safety_fixed(0, 2.0, 0.02, 0.5) - 1.0) < 1e-12)
+check("one attack: safety = c + (1-c)(1-q)", lambda: abs(safety_fixed(1, 2.0, 0.02, 0.5) - (0.4786 + 0.5214 * 0.5)) < 2e-3)
+check("five attacks, mu=2, 2% budget: 0.6478", lambda: abs(safety_fixed(5, 2.0, 0.02, 0.5) - 0.6478) < 1e-3)
+check("more attacks lower safety", lambda: safety_fixed(10, 2.0, 0.02, 0.5) < safety_fixed(5, 2.0, 0.02, 0.5) < safety_fixed(1, 2.0, 0.02, 0.5))
+check("binomial average = 0.6555", lambda: abs(safety_binomial(100, 0.05, 2.0, 0.02, 0.5) - 0.6555) < 1e-3)
+sim = simulate_safety(100, 0.05, 2.0, 0.02, 0.5, 5000, 0)
+check("Monte Carlo agrees with the formula", lambda: abs(sim - safety_binomial(100, 0.05, 2.0, 0.02, 0.5)) < 0.025)
+check("budget 0.5% is much less safe than 10%", lambda: safety_fixed(5, 2.0, 0.005, 0.5) < 0.45 < 0.86 < safety_fixed(5, 2.0, 0.10, 0.5))
+#@@ solution
+import math
+import numpy as np
+
+def norm_sf(z):
+    return 0.5 * math.erfc(z / math.sqrt(2.0))
+
+def threshold_for_fpr(f):
+    lo, hi = -10.0, 10.0
+    for _ in range(100):
+        m = (lo + hi) / 2
+        if norm_sf(m) > f:
+            lo = m
+        else:
+            hi = m
+    return (lo + hi) / 2
+
+def catch_prob(mu, f):
+    return norm_sf(threshold_for_fpr(f) - mu)
+
+def safety_fixed(A, mu, f, q):
+    c = catch_prob(mu, f)
+    h = (1 - c) * q
+    n = (1 - c) * (1 - q)
+    return 1 - h / (c + h) * (1 - n ** A)
+
+def safety_binomial(N, p, mu, f, q):
+    total = 0.0
+    for a in range(N + 1):
+        total += math.comb(N, a) * p ** a * (1 - p) ** (N - a) * safety_fixed(a, mu, f, q)
+    return total
+
+def simulate_safety(N, p, mu, f, q, T, seed):
+    rng = np.random.default_rng(seed)
+    t = threshold_for_fpr(f)
+    blue = 0
+    for _ in range(T):
+        res = 1
+        attacked = np.nonzero(rng.random(N) < p)[0]
+        for _a in attacked:
+            if rng.normal(mu, 1.0) > t:
+                res = 1
+                break
+            if rng.random() < q:
+                res = 0
+                break
+        blue += res
+    return blue / T

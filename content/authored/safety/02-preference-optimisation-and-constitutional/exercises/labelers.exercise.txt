@@ -1,0 +1,47 @@
+#@@ meta
+{"id": "saf.02.ex2", "title": "Random versus systematic labeller error", "difficulty": 2, "runtime": "pyodide", "concepts": ["saf.pref-optimisation"], "hints": ["Generate d (true quality difference) and l (length difference) as independent standard normals. A human vote is sign(d + sigma*noise) with fresh noise per annotator.", "Majority vote: sum the +-1 votes over k annotators (k odd) and take the sign.", "The AI labeller is a deterministic function of the item: sign(d + c*l). Asking it again changes nothing."]}
+#@@ prompt
+A pairwise preference label says which of two responses is better. The true quality difference of an item is `d`; the responses also differ in length by `l` (both standard normal, independent).
+
+- A **human annotator** votes `sign(d + sigma*eps)` with fresh independent noise `eps` per annotator.
+- An **AI labeller** reads the response and outputs `sign(d + c*l)`: low noise, but it leans on length.
+
+Implement `make_items(T, seed)` -> `(d, l)`, `human_accuracy(d, k, sigma, rng)` (majority of `k` annotators, `k` odd; fraction of items where the majority sign equals `sign(d)`), and `ai_accuracy(d, l, c)`.
+#@@ starter
+import numpy as np
+
+def make_items(T, seed):
+    raise NotImplementedError
+
+def human_accuracy(d, k, sigma, rng):
+    raise NotImplementedError
+
+def ai_accuracy(d, l, c):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+d, l = make_items(20000, 0)
+check("items have shape (T,)", lambda: d.shape == (20000,) and l.shape == (20000,))
+a1 = human_accuracy(d, 1, 1.0, np.random.default_rng(1))
+a15 = human_accuracy(d, 15, 1.0, np.random.default_rng(1))
+a51 = human_accuracy(d, 51, 1.0, np.random.default_rng(1))
+check("one annotator is about 75% accurate", lambda: abs(a1 - 0.75) < 0.015)
+check("majority of 15 is about 90% accurate", lambda: abs(a15 - 0.905) < 0.015)
+check("accuracy rises with more annotators", lambda: a1 < a15 < a51)
+ai = ai_accuracy(d, l, 0.8)
+check("AI labeller with length bias is about 78.5% accurate", lambda: abs(ai - 0.785) < 0.015)
+check("random error averages out, systematic error does not", lambda: a15 > ai and abs(ai_accuracy(d, l, 0.8) - ai) == 0)
+check("without the length bias the AI labeller is perfect", lambda: ai_accuracy(d, l, 0.0) == 1.0)
+#@@ solution
+import numpy as np
+
+def make_items(T, seed):
+    rng = np.random.default_rng(seed)
+    return rng.normal(size=T), rng.normal(size=T)
+
+def human_accuracy(d, k, sigma, rng):
+    votes = np.sign(d[:, None] + sigma * rng.normal(size=(len(d), k))).sum(axis=1)
+    return float(np.mean(np.sign(votes) == np.sign(d)))
+
+def ai_accuracy(d, l, c):
+    return float(np.mean(np.sign(d + c * l) == np.sign(d)))

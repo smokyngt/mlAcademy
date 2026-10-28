@@ -1,0 +1,56 @@
+[
+  {
+    "id": "linear-boundary",
+    "after": 2,
+    "kind": "plot",
+    "caption": { "en": "The decision boundary is the straight line wᵀx = 0 (here −3 + x₁ + x₂ = 0, black), even though the model is nonlinear. Red points are class 1 (score > 0, p > 0.5); blue points are class 0. The grey lines are the scores z = ±2 (p ≈ 0.88 and 0.12): probability changes across the line, not along it.", "fr": "La frontière de décision est la droite wᵀx = 0 (ici −3 + x₁ + x₂ = 0, noir), bien que le modèle soit non linéaire. Les points rouges sont de classe 1 (score > 0, p > 0,5) ; les bleus de classe 0. Les droites grises sont les scores z = ±2 (p ≈ 0,88 et 0,12) : la probabilité varie en traversant la droite, pas le long." },
+    "spec": {
+      "xDomain": [0, 5], "yDomain": [0, 5], "height": 340,
+      "data": [
+        { "fn": "3 - x", "color": "#111827" },
+        { "fn": "5 - x", "color": "#9ca3af" },
+        { "fn": "1 - x", "color": "#9ca3af" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 5 }, "points": [[2.5, 2.8], [3.5, 3], [3, 4], [4.2, 1.8], [2, 4.4]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 5 }, "points": [[0.6, 1.2], [1.2, 0.5], [1, 1.6], [0.4, 2.2], [1.6, 0.9]] }
+      ]
+    }
+  },
+  {
+    "id": "sigmoid-score",
+    "after": 3,
+    "kind": "plot",
+    "caption": { "en": "p = σ(z) = 1/(1 + e^(−z)) turns the linear score z = wᵀx into a probability. z = 0 gives p = 0.5 (the decision boundary); the worked example moves from z = 0 (p = 0.5) to z = 2.5 (p = 0.924) after one step.", "fr": "p = σ(z) = 1/(1 + e^(−z)) transforme le score linéaire z = wᵀx en probabilité. z = 0 donne p = 0,5 (la frontière de décision) ; l'exemple traité passe de z = 0 (p = 0,5) à z = 2,5 (p = 0,924) après un pas." },
+    "spec": {
+      "xDomain": [-6, 6], "yDomain": [-0.05, 1.05], "height": 300,
+      "data": [
+        { "fn": "1/(1+exp(-x))", "color": "#2563eb" },
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 6 }, "points": [[0, 0.5], [2.5, 0.924]] }
+      ],
+      "annotations": [{ "y": 0.5, "text": "p = 0.5" }]
+    }
+  },
+  {
+    "id": "cross-entropy",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "The per-example loss. For a positive example (y = 1) the loss is −ln p (blue): zero when the model is sure and right, and exploding when it is confidently wrong. For a negative example it is −ln(1 − p) (orange). At p = 0.5 both equal 0.693.", "fr": "La perte par exemple. Pour un exemple positif (y = 1) la perte est −ln p (bleu) : nulle quand le modèle est sûr et a raison, explosive quand il se trompe avec assurance. Pour un exemple négatif c'est −ln(1 − p) (orange). En p = 0,5 les deux valent 0,693." },
+    "spec": {
+      "xDomain": [0.01, 0.99], "yDomain": [0, 4], "height": 300,
+      "data": [
+        { "fn": "-log(x)", "color": "#2563eb" },
+        { "fn": "-log(1-x)", "color": "#d97706" }
+      ],
+      "annotations": [{ "y": 0.693, "text": "ln 2 = 0.693" }]
+    }
+  },
+  {
+    "id": "training-loop",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": { "en": "Training logistic regression: the same loop as linear regression, with p in place of the prediction. No closed form, so we iterate; convexity guarantees the global optimum.", "fr": "Entraîner une régression logistique : la même boucle que la régression linéaire, avec p à la place de la prédiction. Pas de forme fermée, donc on itère ; la convexité garantit l'optimum global." },
+    "code": {
+      "en": "flowchart LR\n  X[\"X (N,d), w (d)\"] --> Z[\"z = Xw (N)\"]\n  Z --> P[\"p = sigmoid(z) (N)\"]\n  P --> L[\"loss: cross-entropy\"]\n  P --> G[\"grad = X^T (p - y) / N (d)\"]\n  G --> U[\"w <- w - eta * grad\"]\n  U -->|\"repeat\"| X",
+      "fr": "flowchart LR\n  X[\"X (N,d), w (d)\"] --> Z[\"z = Xw (N)\"]\n  Z --> P[\"p = sigmoïde(z) (N)\"]\n  P --> L[\"perte : entropie croisée\"]\n  P --> G[\"grad = X^T (p - y) / N (d)\"]\n  G --> U[\"w <- w - eta * grad\"]\n  U -->|\"répéter\"| X"
+    }
+  }
+]

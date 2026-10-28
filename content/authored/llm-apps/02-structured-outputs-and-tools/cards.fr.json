@@ -1,0 +1,72 @@
+[
+ {
+  "id": "app.02.c1",
+  "front": "Quatre niveaux de force des sorties structurées",
+  "back": "Prompt seul ; mode JSON (s'analyse) ; mode schéma (respecte le schéma) ; décodage contraint (jetons invalides inatteignables)."
+ },
+ {
+  "id": "app.02.c2",
+  "front": "Que garantit le mode JSON ?",
+  "back": "Que la sortie est du JSON syntaxiquement valide ; pas qu'elle a tes clés ou tes types."
+ },
+ {
+  "id": "app.02.c3",
+  "front": "Mots-clés JSON Schema à connaître",
+  "back": "type, properties, required, additionalProperties, enum, minimum/maximum, minLength, items."
+ },
+ {
+  "id": "app.02.c4",
+  "front": "Piège : bool vs nombre",
+  "back": "En Python, True est un int, mais JSON Schema traite les booléens comme un type distinct ; vérifie bool avant int/number."
+ },
+ {
+  "id": "app.02.c5",
+  "front": "Processeur de logits",
+  "back": "Code entre le modèle et l'échantillonneur qui met à $-\\infty$ les logits des jetons illégaux selon l'état de la grammaire."
+ },
+ {
+  "id": "app.02.c6",
+  "front": "Distribution masquée",
+  "back": "$p_c(t\\mid s)=e^{z_t}/\\sum_{u\\in A(s)}e^{z_u}$ pour les jetons autorisés, 0 sinon."
+ },
+ {
+  "id": "app.02.c7",
+  "front": "Pourquoi vérifier chaque caractère d'un jeton ?",
+  "back": "Les jetons couvrent plusieurs caractères ; un jeton est légal si et seulement si ses caractères peuvent traverser l'automate dans l'ordre."
+ },
+ {
+  "id": "app.02.c8",
+  "front": "Impasse en décodage contraint",
+  "back": "Un état où aucun jeton du vocabulaire n'est légal ; compile la grammaire contre le vrai tokenizer pour l'éviter."
+ },
+ {
+  "id": "app.02.c9",
+  "front": "Limite du décodage contraint",
+  "back": "Garantit la forme, pas la vérité ; il renormalise aussi les probabilités, ce qui peut pousser le modèle vers des valeurs peu naturelles."
+ },
+ {
+  "id": "app.02.c10",
+  "front": "Pourquoi le décodage contraint peut-il être plus rapide ?",
+  "back": "Les jetons d'échafaudage imposés n'ont pas besoin d'échantillonnage, et l'espace de recherche se réduit."
+ },
+ {
+  "id": "app.02.c11",
+  "front": "Boucle valider-et-réparer",
+  "back": "Extraire le JSON, analyser, valider, renvoyer des erreurs précises par chemin, réessayer jusqu'à un plafond ; suivre le taux de réessais."
+ },
+ {
+  "id": "app.02.c12",
+  "front": "Boucle d'appel de fonctions",
+  "back": "Envoyer messages + schémas d'outils ; le modèle émet un appel ; l'app valide et exécute ; le résultat revient ; le modèle répond ou appelle encore."
+ },
+ {
+  "id": "app.02.c13",
+  "front": "Rôle d'une description d'outil",
+  "back": "C'est un prompt pour la sélection d'outil : des descriptions vagues causent des appels erronés ou manqués."
+ },
+ {
+  "id": "app.02.c14",
+  "front": "Règles de sécurité pour les boucles d'outils",
+  "back": "Valider les arguments, renvoyer les erreurs comme données, plafonner le nombre de tours, moindre privilège, approbation pour les actions destructrices."
+ }
+]

@@ -1,0 +1,174 @@
+[
+  {
+    "id": "straight-ropes",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Conditional flow matching: each (data, noise) pair is joined by a straight rope x_t = (1 - t) x_0 + t x_1 (data at t = 0, noise at t = 1). Ropes from different pairs cross, which is why the learned field is an average. Blue and orange cross at t = 1/3.",
+      "fr": "Flow matching conditionnel : chaque paire (donnée, bruit) est reliée par une corde droite x_t = (1 - t) x_0 + t x_1 (donnée en t = 0, bruit en t = 1). Les cordes de paires différentes se croisent, ce qui explique que le champ appris soit une moyenne. Le bleu et l'orange se croisent en t = 1/3."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -2,
+        4.5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "3.5*(1-x)-1*x",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "2.5*(1-x)+1*x",
+          "color": "#d97706"
+        },
+        {
+          "fn": "3*(1-x)+0*x",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "2.5*(1-x)-1.5*x",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "curved-flow",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Trajectories of the learned (averaged) field v* for Gaussian data N(3, 0.5^2): x(t) = (1 - t) m + z sqrt((1 - t)^2 s^2 + t^2) with m = 3, s = 0.5 and a fixed z-score per trajectory (z = -1.5, -0.5, 0.5, 1.5). Unlike the ropes, these paths bend, so a one-step Euler sampler is not enough.",
+      "fr": "Trajectoires du champ appris (moyenné) v* pour des données gaussiennes N(3, 0,5^2) : x(t) = (1 - t) m + z sqrt((1 - t)^2 s^2 + t^2) avec m = 3, s = 0,5 et un score z fixe par trajectoire (z = -1,5, -0,5, 0,5, 1,5). Contrairement aux cordes, ces chemins se courbent, donc un échantillonneur d'Euler en un pas ne suffit pas."
+    },
+    "spec": {
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        -2,
+        4.5
+      ],
+      "height": 340,
+      "data": [
+        {
+          "fn": "3*(1-x)-1.5*sqrt(0.25*(1-x)^2+x^2)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "3*(1-x)-0.5*sqrt(0.25*(1-x)^2+x^2)",
+          "color": "#d97706"
+        },
+        {
+          "fn": "3*(1-x)+0.5*sqrt(0.25*(1-x)^2+x^2)",
+          "color": "#16a34a"
+        },
+        {
+          "fn": "3*(1-x)+1.5*sqrt(0.25*(1-x)^2+x^2)",
+          "color": "#7c3aed"
+        }
+      ]
+    }
+  },
+  {
+    "id": "fm-train-sample",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Flow matching in practice. Training is simulation-free: sample a pair and a time, form x_t, regress the velocity x_1 - x_0. Sampling integrates the ODE backwards from t = 1 to 0 with Euler steps; reflow re-trains on ODE-matched pairs to straighten paths.",
+      "fr": "Le flow matching en pratique. L'entraînement ne nécessite aucune simulation : tirer une paire et un temps, former x_t, régresser la vitesse x_1 - x_0. L'échantillonnage intègre l'EDO à rebours de t = 1 à 0 avec des pas d'Euler ; le reflow ré-entraîne sur des paires appariées par l'EDO pour redresser les chemins."
+    },
+    "code": {
+      "en": "flowchart TB\n  subgraph TR[\"Training\"]\n    direction LR\n    p[\"x_0 ~ data, x_1 ~ N(0,I), t ~ U[0,1]\"] --> xt[\"x_t = (1-t) x_0 + t x_1\"]\n    xt --> vt[\"v_theta(x_t, t)\"]\n    vt --> ls[\"L = || v_theta - (x_1 - x_0) ||^2\"]\n  end\n  subgraph SA[\"Sampling (Euler, N steps)\"]\n    direction LR\n    n1[\"x_1 ~ N(0,I)\"] --> st[\"x_(t - dt) = x_t - dt * v_theta(x_t, t)\"]\n    st --> st\n    st --> o[\"x_0\"]\n  end\n  TR -. \"reflow: pairs (x_1, x_0_hat) from the ODE\" .-> TR",
+      "fr": "flowchart TB\n  subgraph TR[\"Entraînement\"]\n    direction LR\n    p[\"x_0 ~ data, x_1 ~ N(0,I), t ~ U[0,1]\"] --> xt[\"x_t = (1-t) x_0 + t x_1\"]\n    xt --> vt[\"v_theta(x_t, t)\"]\n    vt --> ls[\"L = || v_theta - (x_1 - x_0) ||^2\"]\n  end\n  subgraph SA[\"Échantillonnage (Euler, N pas)\"]\n    direction LR\n    n1[\"x_1 ~ N(0,I)\"] --> st[\"x_(t - dt) = x_t - dt * v_theta(x_t, t)\"]\n    st --> st\n    st --> o[\"x_0\"]\n  end\n  TR -. \"reflow : paires (x_1, x_0_hat) issues de l'EDO\" .-> TR"
+    }
+  },
+  {
+    "id": "euler-steps",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Sample std of the Euler sampler on Gaussian data (true std 0.5) as the number of steps grows. With one step every noise point lands on the mean (std 0); the spread is recovered only with more steps because the paths are curved. Straighter paths need fewer steps.",
+      "fr": "Écart-type des échantillons de l'échantillonneur d'Euler sur des données gaussiennes (vrai écart-type 0,5) selon le nombre de pas. Avec un pas, tout point de bruit atterrit sur la moyenne (écart-type 0) ; la dispersion n'est retrouvée qu'avec plus de pas car les chemins sont courbes. Des chemins plus droits demandent moins de pas."
+    },
+    "code": {
+      "en": "xychart-beta\n  title \"sample std vs Euler steps N (true 0.5)\"\n  x-axis [\"N=1\",\"N=2\",\"N=4\",\"N=20\",\"N=100\"]\n  y-axis \"std\" 0 --> 0.6\n  bar [0, 0.199, 0.339, 0.462, 0.491]",
+      "fr": "xychart-beta\n  title \"écart-type vs pas d'Euler N (vrai 0,5)\"\n  x-axis [\"N=1\",\"N=2\",\"N=4\",\"N=20\",\"N=100\"]\n  y-axis \"std\" 0 --> 0.6\n  bar [0, 0.199, 0.339, 0.462, 0.491]"
+    }
+  },
+  {
+    "id": "fid-pipeline",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "FID: embed real and generated images with a fixed Inception network (2048 numbers each), fit a Gaussian to each set, and take the Frechet distance. Compare models only with the same extractor, preprocessing and a large sample size N.",
+      "fr": "FID : plonger images réelles et générées avec un réseau Inception fixe (2048 nombres chacune), ajuster une gaussienne à chaque ensemble, et prendre la distance de Frechet. Ne comparer des modèles qu'avec le même extracteur, le même prétraitement et un grand échantillon N."
+    },
+    "code": {
+      "en": "flowchart LR\n  R[\"real images\"] --> FR[\"Inception<br/>(N, 2048)\"]\n  G[\"generated images\"] --> FG[\"Inception<br/>(N, 2048)\"]\n  FR --> GR[\"mu_r (2048,), Sigma_r (2048,2048)\"]\n  FG --> GG[\"mu_g (2048,), Sigma_g (2048,2048)\"]\n  GR --> FD[\"d^2 = ||mu_r - mu_g||^2 + Tr(Sigma_r + Sigma_g - 2 (Sigma_r Sigma_g)^(1/2))\"]\n  GG --> FD\n  FD --> OUT[\"FID\"]",
+      "fr": "flowchart LR\n  R[\"images réelles\"] --> FR[\"Inception<br/>(N, 2048)\"]\n  G[\"images générées\"] --> FG[\"Inception<br/>(N, 2048)\"]\n  FR --> GR[\"mu_r (2048,), Sigma_r (2048,2048)\"]\n  FG --> GG[\"mu_g (2048,), Sigma_g (2048,2048)\"]\n  GR --> FD[\"d^2 = ||mu_r - mu_g||^2 + Tr(Sigma_r + Sigma_g - 2 (Sigma_r Sigma_g)^(1/2))\"]\n  GG --> FD\n  FD --> OUT[\"FID\"]"
+    }
+  },
+  {
+    "id": "precision-recall-gen",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Precision and recall for generators with k-NN support balls. Precision: generated points inside the real support (quality). Recall: real points inside the generated support (coverage). A collapsed generator has precision 1.0 but recall 0.035; FID alone would only say 'bad'.",
+      "fr": "Précision et rappel pour les générateurs avec des boules de support k-NN. Précision : points générés dans le support réel (qualité). Rappel : points réels dans le support généré (couverture). Un générateur effondré a une précision de 1,0 mais un rappel de 0,035 ; le FID seul dirait seulement « mauvais »."
+    },
+    "code": {
+      "en": "flowchart LR\n  RF[\"real features (N_r, d)\"] --> BR[\"k-NN balls around real points\"]\n  GF[\"generated features (N_g, d)\"] --> BG[\"k-NN balls around generated points\"]\n  BR --> PR[\"precision = generated points inside real balls\"]\n  GF --> PR\n  BG --> RC[\"recall = real points inside generated balls\"]\n  RF --> RC",
+      "fr": "flowchart LR\n  RF[\"descripteurs réels (N_r, d)\"] --> BR[\"boules k-NN autour des points réels\"]\n  GF[\"descripteurs générés (N_g, d)\"] --> BG[\"boules k-NN autour des points générés\"]\n  BR --> PR[\"précision = points générés dans les boules réelles\"]\n  GF --> PR\n  BG --> RC[\"rappel = points réels dans les boules générées\"]\n  RF --> RC"
+    }
+  },
+  {
+    "id": "elo-expected",
+    "after": 5,
+    "kind": "plot",
+    "caption": {
+      "en": "Elo expected score E_A = 1 / (1 + 10^((R_B - R_A)/400)) as a function of the rating gap R_A - R_B. Equal ratings give 0.5; a 200-point favourite has E = 0.760 and therefore gains only K (1 - 0.76) = 7.7 for a win with K = 32.",
+      "fr": "Score attendu Elo E_A = 1 / (1 + 10^((R_B - R_A)/400)) selon l'écart de classement R_A - R_B. Des classements égaux donnent 0,5 ; un favori de 200 points a E = 0,760 et ne gagne donc que K (1 - 0,76) = 7,7 pour une victoire avec K = 32."
+    },
+    "spec": {
+      "xDomain": [
+        -800,
+        800
+      ],
+      "yDomain": [
+        0,
+        1.05
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "1/(1+10^(-x/400))",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              0,
+              0.5
+            ],
+            [
+              200,
+              0.76
+            ]
+          ]
+        }
+      ]
+    }
+  }
+]

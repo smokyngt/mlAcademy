@@ -1,0 +1,72 @@
+[
+ {
+  "id": "gen.06.c1",
+  "front": "Chemin rectiligne (flow matching)",
+  "back": "$x_t=(1-t)x_0+tx_1$, de vitesse $x_1-x_0$."
+ },
+ {
+  "id": "gen.06.c2",
+  "front": "Perte de flow matching conditionnel",
+  "back": "$\\mathbb E\\|v_\\theta(x_t,t)-(x_1-x_0)\\|^2$."
+ },
+ {
+  "id": "gen.06.c3",
+  "front": "Champ de vitesse optimal",
+  "back": "$v^*(x,t)=\\mathbb E[x_1-x_0\\mid x_t=x]$."
+ },
+ {
+  "id": "gen.06.c4",
+  "front": "Échantillonneur d'Euler pour le flow matching",
+  "back": "$x_{t-\\Delta t}=x_t-\\Delta t\\,v_\\theta(x_t,t)$, de $t=1$ (bruit) à $0$ (données)."
+ },
+ {
+  "id": "gen.06.c5",
+  "front": "Pourquoi un pas donne la moyenne",
+  "back": "Avec des chemins qui se croisent, le champ au niveau du bruit est la direction moyenne ; un pas déplace chaque point vers la moyenne des données."
+ },
+ {
+  "id": "gen.06.c6",
+  "front": "Rectified flow / reflow",
+  "back": "Ré-entraîner sur des paires appariées par l'EDO pour redresser les chemins ; permet un échantillonnage en 2-4 pas."
+ },
+ {
+  "id": "gen.06.c7",
+  "front": "Pourquoi le flow matching est « sans simulation »",
+  "back": "L'entraînement n'a besoin que d'une paire et d'un instant échantillonnés, sans résolution d'EDO."
+ },
+ {
+  "id": "gen.06.c8",
+  "front": "Distance de Fréchet",
+  "back": "$\\|\\mu_r-\\mu_g\\|^2+\\mathrm{Tr}(\\Sigma_r+\\Sigma_g-2(\\Sigma_r\\Sigma_g)^{1/2})$."
+ },
+ {
+  "id": "gen.06.c9",
+  "front": "FID",
+  "back": "La distance de Fréchet entre des ajustements gaussiens aux caractéristiques Inception d'images réelles et générées."
+ },
+ {
+  "id": "gen.06.c10",
+  "front": "Trace stable de la racine carrée matricielle",
+  "back": "Somme des racines carrées des valeurs propres de $\\Sigma_r^{1/2}\\Sigma_g\\Sigma_r^{1/2}$ (symétrique SDP)."
+ },
+ {
+  "id": "gen.06.c11",
+  "front": "FID et taille d'échantillon",
+  "back": "Le bruit d'estimation gonfle le FID pour un petit $N$ ; ne comparer qu'à $N$ grand et égal avec le même extracteur."
+ },
+ {
+  "id": "gen.06.c12",
+  "front": "Précision / rappel d'un générateur",
+  "back": "Précision : points générés à l'intérieur du support réel (boules de k plus proches voisins). Rappel : points réels à l'intérieur du support généré."
+ },
+ {
+  "id": "gen.06.c13",
+  "front": "Mise à jour Elo",
+  "back": "$E_A=1/(1+10^{(R_B-R_A)/400})$, $R_A\\leftarrow R_A+K(S_A-E_A)$."
+ },
+ {
+  "id": "gen.06.c14",
+  "front": "Score CLIP",
+  "back": "Similarité cosinus des embeddings d'image et de prompt ; mesure la fidélité au prompt, avec les angles morts de CLIP."
+ }
+]

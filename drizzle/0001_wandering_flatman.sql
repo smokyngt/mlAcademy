@@ -1,0 +1,1 @@
+ALTER TABLE `courses` ADD `part` text DEFAULT 'ml' NOT NULL;

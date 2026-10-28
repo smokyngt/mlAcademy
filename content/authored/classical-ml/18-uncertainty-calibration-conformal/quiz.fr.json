@@ -1,0 +1,86 @@
+[
+ {
+  "id": "cml.18.q1",
+  "prompt": "Quel type d'incertitude diminue quand tu collectes plus de données d'entraînement ?",
+  "options": [
+   "Épistémique (ignorance du modèle)",
+   "Aléatoire (bruit du monde)",
+   "Les deux de la même façon",
+   "Aucune des deux"
+  ],
+  "explanation": "L'incertitude épistémique vient du fait d'avoir vu peu de données. Le bruit aléatoire est une propriété du processus et reste."
+ },
+ {
+  "id": "cml.18.q2",
+  "prompt": "Tu divises tous les logits par $T=2.5$ avant le softmax. Que deviennent la précision et la probabilité maximale moyenne ?",
+  "options": [
+   "Précision inchangée, la confiance baisse",
+   "La précision monte, la confiance monte",
+   "La précision baisse, la confiance est inchangée",
+   "Les deux sont inchangées"
+  ],
+  "explanation": "Diviser par une constante positive conserve l'arg-max, donc la précision est inchangée ; la distribution devient plus plate, donc la probabilité maximale baisse."
+ },
+ {
+  "id": "cml.18.q3",
+  "prompt": "Sur quelles données faut-il ajuster la température $T$ ?",
+  "options": [
+   "L'ensemble d'entraînement",
+   "L'ensemble de test après avoir vu les résultats",
+   "N'importe quel ensemble, cela ne change rien",
+   "Un ensemble de calibration mis de côté"
+  ],
+  "explanation": "Le modèle est trop confiant sur ses propres données d'entraînement, donc la NLL d'entraînement suggérerait $T\\approx1$ ou moins. Utilise des données mises de côté."
+ },
+ {
+  "id": "cml.18.q4",
+  "prompt": "Régression linéaire bayésienne avec $\\Phi=[[1]]$, $\\alpha=1$, $\\beta=1$, cible $t=[2]$. Quelle est la variance a posteriori $S_N$ de l'unique poids ?",
+  "options": [],
+  "explanation": "$S_N^{-1}=\\alpha+\\beta\\Phi^\\top\\Phi=1+1=2$, donc $S_N=0.5$ (et $m_N=\\beta S_N\\Phi^\\top t=1$)."
+ },
+ {
+  "id": "cml.18.q5",
+  "prompt": "Pour le même modèle, la variance prédictive en une requête avec $\\phi=1$ vaut...",
+  "options": [],
+  "explanation": "$\\beta^{-1}+\\phi^\\top S_N\\phi=1+0.5=1.5$ : bruit plus incertitude sur les paramètres."
+ },
+ {
+  "id": "cml.18.q6",
+  "prompt": "Dans la variance prédictive bayésienne $\\beta^{-1}+\\phi^\\top S_N\\phi$, que se passe-t-il quand $N\\to\\infty$ ?",
+  "options": [
+   "Les deux termes disparaissent",
+   "Le premier terme disparaît",
+   "Le second terme disparaît, ne laissant que le bruit $\\beta^{-1}$",
+   "La variance diverge"
+  ],
+  "explanation": "La loi a posteriori sur les poids se concentre (S_N diminue), donc il ne reste que le bruit irréductible."
+ },
+ {
+  "id": "cml.18.q7",
+  "prompt": "Conforme fractionnée avec $n=49$ scores de calibration et $\\alpha=0.1$. Quelle statistique d'ordre (le $k$-ième plus petit) donne $\\hat q$ ?",
+  "options": [],
+  "explanation": "$k=\\lceil (n+1)(1-\\alpha)\\rceil=\\lceil 50\\cdot0.9\\rceil=45$."
+ },
+ {
+  "id": "cml.18.q8",
+  "prompt": "Quelle hypothèse unique fait tenir le théorème de couverture conforme ?",
+  "options": [
+   "Le modèle est correct",
+   "Le bruit est gaussien",
+   "Les points de calibration et de test sont échangeables",
+   "Le modèle est linéaire"
+  ],
+  "explanation": "L'échangeabilité rend le rang du score de test uniforme parmi les $n+1$ scores ; rien d'autre n'est nécessaire."
+ },
+ {
+  "id": "cml.18.q9",
+  "prompt": "Tes intervalles conformes atteignent 90 % de couverture globale mais seulement 70 % sur un sous-groupe difficile. Le théorème est-il violé ?",
+  "options": [
+   "Oui, il promet la couverture partout",
+   "Oui, parce que le modèle est mauvais",
+   "Non, parce que la couverture est toujours de 100 % sur les sous-groupes",
+   "Non, la garantie est marginale, pas conditionnelle à $x$ ou à un sous-groupe"
+  ],
+  "explanation": "Le théorème fait une moyenne sur toute la distribution. La couverture par sous-groupe demande des techniques supplémentaires comme les scores normalisés."
+ }
+]

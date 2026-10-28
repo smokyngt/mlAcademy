@@ -1,0 +1,122 @@
+#@@ meta
+{"id": "cml.16.ex1", "title": "Soft-thresholding, lasso by coordinate descent and stability selection", "difficulty": 4, "runtime": "pyodide", "concepts": ["ml.lasso", "ml.featsel"], "hints": ["Soft threshold: sign(z) * max(|z| - t, 0).", "Coordinate descent keeps the residual r = y - X w. For coordinate j: add its contribution back (r += X[:, j] * w[j]), rho = X[:, j] @ r / n, w[j] = soft_threshold(rho, lam) / z_j with z_j = mean(X[:, j]**2), then subtract the new contribution from r.", "lambda_max = max_j |X[:, j] @ y| / n is the smallest penalty for which all coefficients are zero. Stability selection: repeat B times: subsample n//2 rows WITHOUT replacement, centre y, run the lasso, record which coefficients are non-zero, then average."]}
+#@@ prompt
+We minimise the lasso objective `(1/(2n)) * ||y - X w||^2 + lam * ||w||_1` (no intercept: y is centred, X is standardised).
+
+- `soft_threshold(z, t)`: works on scalars and arrays.
+- `lasso_cd(X, y, lam, n_iter=500, tol=1e-10)` -> `w` of shape `(d,)`: cyclic coordinate descent starting from zeros, stopping when the largest change in a sweep is below `tol`.
+- `lambda_max(X, y)` -> smallest `lam` giving the all-zero solution.
+- `lasso_path(X, y, lams)` -> array `(len(lams), d)`.
+- `stability_selection(X, y, lam, B, seed)` -> selection frequency of every feature over `B` half-samples, with `rng = np.random.default_rng(seed)` and `rng.choice(n, n // 2, replace=False)` for each subsample.
+- `mutual_information(x, y, bins)` -> mutual information in nats between two continuous 1-D arrays, estimated from a `bins x bins` histogram whose edges are the interior quantiles `np.quantile(v, np.linspace(0, 1, bins + 1)[1:-1])` of each variable (use `np.digitize`).
+#@@ starter
+import numpy as np
+
+def soft_threshold(z, t):
+    raise NotImplementedError
+
+def lasso_cd(X, y, lam, n_iter=500, tol=1e-10):
+    raise NotImplementedError
+
+def lambda_max(X, y):
+    raise NotImplementedError
+
+def lasso_path(X, y, lams):
+    raise NotImplementedError
+
+def stability_selection(X, y, lam, B, seed):
+    raise NotImplementedError
+
+def mutual_information(x, y, bins=8):
+    raise NotImplementedError
+#@@ tests
+import numpy as np
+
+check("soft threshold on scalars", lambda: soft_threshold(3.0, 1.0) == 2.0 and soft_threshold(-3.0, 1.0) == -2.0 and soft_threshold(0.5, 1.0) == 0.0)
+check("soft threshold on arrays", lambda: np.allclose(soft_threshold(np.array([-2., 0.3, 5.]), 1.0), [-1., 0., 4.]))
+
+rng = np.random.default_rng(0)
+n, d = 100, 10
+X = rng.normal(size=(n, d))
+X = (X - X.mean(0)) / X.std(0)
+wt = np.zeros(d)
+wt[[0, 1, 4]] = [3, -2, 1.5]
+y = X @ wt + 0.5 * rng.normal(size=n)
+y = y - y.mean()
+
+lm = lambda_max(X, y)
+check("lambda_max = 2.9795", lambda: abs(lm - 2.979490) < 1e-5)
+check("all coefficients are zero at lambda_max", lambda: np.allclose(lasso_cd(X, y, lm), 0))
+w = lasso_cd(X, y, 0.2 * lm)
+check("lam = 0.2 lambda_max keeps exactly features 0, 1, 4", lambda: set(np.nonzero(np.abs(w) > 1e-12)[0]) == {0, 1, 4})
+check("shrunken values 2.464, -1.309, 0.777", lambda: np.allclose([w[0], w[1], w[4]], [2.464, -1.309, 0.777], atol=1e-3))
+g = X.T @ (y - X @ w) / n
+check("KKT: active gradients equal lam*sign(w), inactive are bounded by lam", lambda: np.allclose(g[[0, 1, 4]], 0.2 * lm * np.sign(w[[0, 1, 4]]), atol=1e-6) and np.all(np.abs(np.delete(g, [0, 1, 4])) <= 0.2 * lm + 1e-9))
+ols = np.linalg.lstsq(X, y, rcond=None)[0]
+check("tiny penalty recovers least squares", lambda: np.allclose(lasso_cd(X, y, 1e-9, 5000), ols, atol=1e-6))
+P = lasso_path(X, y, lm * np.array([1.0, 0.5, 0.2, 0.05]))
+check("path shape (4, 10)", lambda: P.shape == (4, 10))
+check("number of non-zeros along the path: 0, 2, 3, 3", lambda: [int(np.sum(np.abs(r) > 1e-12)) for r in P] == [0, 2, 3, 3])
+check("the lasso shrinks: |w| is smaller than |OLS| on active features", lambda: np.all(np.abs(w[[0, 1, 4]]) < np.abs(ols[[0, 1, 4]])))
+fr = stability_selection(X, y, 0.03 * lm, 50, 0)
+check("stability frequencies: true features at 1.0", lambda: np.allclose(fr[[0, 1, 4]], 1.0))
+check("noise features are selected in less than half of the subsamples", lambda: np.all(np.delete(fr, [0, 1, 4]) < 0.5))
+
+r = np.random.default_rng(1)
+x = r.normal(size=2000)
+yq = x ** 2 + 0.1 * r.normal(size=2000)
+xn = r.normal(size=2000)
+check("correlation of x and x^2 is about 0", lambda: abs(np.corrcoef(x, yq)[0, 1]) < 0.05)
+check("but mutual information is about 1.02 nats", lambda: abs(mutual_information(x, yq) - 1.0244) < 0.01)
+check("independent noise has MI near 0 (about 0.012)", lambda: mutual_information(xn, yq) < 0.05)
+check("identical halves: MI = ln 2 with 2 bins", lambda: abs(mutual_information(np.array([0., 0, 1, 1]), np.array([0., 0, 1, 1]), 2) - np.log(2)) < 1e-12)
+#@@ solution
+import numpy as np
+
+def soft_threshold(z, t):
+    return np.sign(z) * np.maximum(np.abs(z) - t, 0.0)
+
+def lasso_cd(X, y, lam, n_iter=500, tol=1e-10):
+    n, d = X.shape
+    w = np.zeros(d)
+    r = y.astype(float).copy()
+    z = (X ** 2).sum(axis=0) / n
+    for _ in range(n_iter):
+        w_old = w.copy()
+        for j in range(d):
+            r += X[:, j] * w[j]
+            rho = X[:, j] @ r / n
+            w[j] = soft_threshold(rho, lam) / z[j] if z[j] > 0 else 0.0
+            r -= X[:, j] * w[j]
+        if np.max(np.abs(w - w_old)) < tol:
+            break
+    return w
+
+def lambda_max(X, y):
+    return float(np.max(np.abs(X.T @ y)) / len(y))
+
+def lasso_path(X, y, lams):
+    return np.array([lasso_cd(X, y, lam) for lam in lams])
+
+def stability_selection(X, y, lam, B, seed):
+    rng = np.random.default_rng(seed)
+    n, d = X.shape
+    counts = np.zeros(d)
+    for _ in range(B):
+        idx = rng.choice(n, n // 2, replace=False)
+        ys = y[idx] - y[idx].mean()
+        counts += np.abs(lasso_cd(X[idx], ys, lam)) > 1e-12
+    return counts / B
+
+def mutual_information(x, y, bins=8):
+    qs = np.linspace(0, 1, bins + 1)[1:-1]
+    a = np.digitize(x, np.quantile(x, qs))
+    b = np.digitize(y, np.quantile(y, qs))
+    P = np.zeros((bins, bins))
+    for i, j in zip(a, b):
+        P[i, j] += 1
+    P /= P.sum()
+    px = P.sum(axis=1, keepdims=True)
+    py = P.sum(axis=0, keepdims=True)
+    m = P > 0
+    return float(np.sum(P[m] * np.log(P[m] / (px @ py)[m])))

@@ -1,0 +1,12 @@
+{
+  "id": "mf.05.ex1",
+  "title": "Angles, rotations et ondes en code",
+  "prompt": "Travaille avec des angles, des rotations et des ondes.\n\n- `deg2rad(d)` : convertis des degrés en radians.\n- `polar(x, y)` : renvoie `(r, theta)` avec `theta` dans $(-\\pi,\\pi]$ (utilise `arctan2`).\n- `rotate(points, theta)` : fais tourner un tableau `(n, 2)` de points dans le sens inverse des aiguilles d'une montre de `theta` radians à l'aide de la matrice de rotation ; renvoie une forme `(n, 2)`.\n- `wave(t, A, f, phi)` : $A\\sin(2\\pi f t+\\varphi)$ pour un tableau `t`.\n- `fourier_amplitude(x, k)` : pour `N` échantillons `x[n]` régulièrement espacés couvrant une unité de temps, l'amplitude du contenu sinus/cosinus de fréquence `k` : $\\frac2N\\sqrt{(\\sum x_n\\cos\\frac{2\\pi kn}N)^2+(\\sum x_n\\sin\\frac{2\\pi kn}N)^2}$.\n- `pos_encoding(pos, d)` : vecteur de longueur `d` (`d` pair) dont l'entrée `2i` vaut $\\sin(pos/10000^{2i/d})$ et l'entrée `2i+1` vaut le cosinus du même angle.",
+  "hints": [
+    "deg2rad(d) = d * pi / 180. polar : r = np.hypot(x, y), theta = np.arctan2(y, x).",
+    "rotate(points, theta) : construis R = [[c, -s], [s, c]] et calcule points @ R.T pour un tableau (n, 2).",
+    "wave(t, A, f, phi) = A * np.sin(2*np.pi*f*t + phi).",
+    "fourier_amplitude(x, k) : t = np.arange(N) ; c = x @ cos(2 pi k t / N) ; s = x @ sin(2 pi k t / N) ; renvoie 2/N * sqrt(c**2 + s**2).",
+    "pos_encoding : l'indice 2i reçoit sin(pos / 10000**(2i/d)), l'indice 2i+1 reçoit cos(même angle)."
+  ]
+}

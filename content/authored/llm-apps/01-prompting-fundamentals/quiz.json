@@ -1,0 +1,120 @@
+[
+ {
+  "id": "app.01.q1",
+  "concept": "app.prompting",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A prompt is best described as...",
+  "options": [
+   "a command the model executes like a program",
+   "the token context that conditions the model's next-token distribution",
+   "a database query",
+   "a fine-tuning dataset"
+  ],
+  "answer": 1,
+  "explanation": "The model only predicts continuations of the tokens it is given; the prompt narrows which continuations are likely."
+ },
+ {
+  "id": "app.01.q2",
+  "concept": "app.prompting",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why should reasoning come BEFORE the answer field in a structured output?",
+  "options": [
+   "Tokens already written condition later tokens, so an early answer commits before any thinking",
+   "JSON requires alphabetical keys",
+   "It makes the output shorter",
+   "Models cannot output numbers first"
+  ],
+  "answer": 0,
+  "explanation": "Generation is left to right. If the answer is emitted first, the reasoning that follows only justifies it."
+ },
+ {
+  "id": "app.01.q3",
+  "concept": "app.self-consistency",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "Each sample is correct with probability 0.6, independently, wrong answers all different. Probability that a majority of 5 is correct?",
+  "options": [],
+  "answer": {
+   "value": 0.68256,
+   "tol": 0.0005
+  },
+  "explanation": "$10(0.6^3)(0.4^2)+5(0.6^4)(0.4)+0.6^5=0.3456+0.2592+0.07776=0.68256$."
+ },
+ {
+  "id": "app.01.q4",
+  "concept": "app.self-consistency",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Single-sample accuracy is 0.4 (independent errors, all different). What does majority voting over 5 samples do?",
+  "options": [
+   "raises accuracy toward 1",
+   "leaves it at 0.4",
+   "cannot be computed",
+   "lowers it (to about 0.317)"
+  ],
+  "answer": 3,
+  "explanation": "Voting amplifies the leading side. With $p<0.5$ the correct answer is the minority and loses more often: $A(0.4,5)=0.317$."
+ },
+ {
+  "id": "app.01.q5",
+  "concept": "app.self-consistency",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which situation breaks the benefit of self-consistency the most?",
+  "options": [
+   "the samples are produced at temperature 0.7",
+   "the answer is an integer",
+   "the model makes the same wrong answer in most samples",
+   "n is odd"
+  ],
+  "answer": 2,
+  "explanation": "Agreeing errors win the vote. Samples from one model share blind spots, so real gains are smaller than the independent formula says."
+ },
+ {
+  "id": "app.01.q6",
+  "concept": "app.prompting",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "You show the model 3 examples that all have label 'positive' for a three-label task. The likely problem is...",
+  "options": [
+   "the examples are too short",
+   "label imbalance in the examples biases the output toward the majority label shown",
+   "few-shot never works for classification",
+   "the system message is ignored"
+  ],
+  "answer": 1,
+  "explanation": "Cover every label (and keep balance) in few-shot examples; the model copies the patterns it sees."
+ },
+ {
+  "id": "app.01.q7",
+  "concept": "app.self-consistency",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "What does tree-of-thought add compared with self-consistency?",
+  "options": [
+   "it proposes, evaluates and prunes partial solutions as a search",
+   "it samples more chains in parallel",
+   "it removes the need for a parser",
+   "it makes the model deterministic"
+  ],
+  "answer": 0,
+  "explanation": "Tree-of-thought judges intermediate states and expands the best ones; self-consistency only votes on finished chains."
+ },
+ {
+  "id": "app.01.q8",
+  "concept": "app.self-consistency",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Majority-vote accuracy A(p, n) for odd n and p = 0.5 is...",
+  "options": [
+   "0",
+   "growing with n",
+   "1",
+   "0.5 for every n"
+  ],
+  "answer": 3,
+  "explanation": "At $p=1/2$ the binomial is symmetric, so the chance that more than half are correct is exactly 1/2."
+ }
+]

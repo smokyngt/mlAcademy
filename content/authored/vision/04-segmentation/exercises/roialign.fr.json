@@ -1,0 +1,10 @@
+{
+ "id": "vis.04.ex2",
+ "title": "Échantillonnage bilinéaire et RoIAlign",
+ "prompt": "La carte de caractéristiques `feat` est un tableau 2D `(H, W)` ; la valeur du pixel `(ligne i, colonne j)` se trouve à la coordonnée réelle `(y=i, x=j)`.\n\n- `bilinear_sample(feat, y, x)` : valeur à une position réelle, en mélangeant les quatre pixels environnants selon la distance ; les positions sont bornées dans `[0, H-1] x [0, W-1]`.\n- `roi_align(feat, box, out_size)` : `box = (x1, y1, x2, y2)` en coordonnées de la carte de caractéristiques (les flottants sont permis). Divise la boîte en `out_size x out_size` cases égales et renvoie l'échantillon bilinéaire au **centre** de chaque case, de forme `(out_size, out_size)`. (L'opérateur réel moyenne plusieurs échantillons par case ; un seul suffit pour voir l'idée.)\n- `roi_pool_rounded(feat, box, out_size)` : l'ancien comportement : arrondis d'abord les coins de la boîte à des entiers, puis fais le même échantillonnage. Sert à mesurer le désalignement.",
+ "hints": [
+  "Bilinéaire : y0 = floor(y), x0 = floor(x), wy = y - y0, wx = x - x0 ; résultat = (1-wy)(1-wx) f[y0,x0] + (1-wy)wx f[y0,x1] + wy(1-wx) f[y1,x0] + wy wx f[y1,x1], avec y1 = min(y0+1, H-1), x1 = min(x0+1, W-1).",
+  "Divise la boîte en out_size x out_size cases égales ; la case (i, j) a pour centre y = y1 + (i + 0.5) * bin_h et x = x1 + (j + 0.5) * bin_w. Échantillonne la carte de caractéristiques à cet endroit.",
+  "Pour l'arrondi de type RoIPool, arrondis d'abord les coins de la boîte à des entiers ; c'est exactement le désalignement que RoIAlign supprime."
+ ]
+}

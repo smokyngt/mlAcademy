@@ -1,0 +1,16 @@
+[
+ {"id": "adv.06.c1", "front": "Octets par paramètre d'Adam en précision mixte", "back": "2 poids + 2 gradients + 12 optimiseur (maître fp32, m, v) = 16."},
+ {"id": "adv.06.c2", "front": "Étapes de ZeRO", "back": "1 : partitionner l'état de l'optimiseur ; 2 : + gradients ; 3 : + paramètres (FSDP). Par GPU : $16\\psi/N$ à l'étape 3."},
+ {"id": "adv.06.c3", "front": "Que coûte en plus l'étape 3 ?", "back": "Des all-gathers des paramètres de chaque couche avant usage (et un re-partitionnement après) ; recouverts avec le calcul."},
+ {"id": "adv.06.c4", "front": "Parallélisme de données", "back": "Répliquer le modèle, découper le batch, all-reduce des gradients. Met à l'échelle le débit, pas la capacité."},
+ {"id": "adv.06.c5", "front": "Multiplication matricielle parallèle en colonnes contre en lignes", "back": "Colonnes : découper les colonnes de W, concaténer les sorties. Lignes : découper les colonnes de x et les lignes de W, sommer les produits partiels (all-reduce)."},
+ {"id": "adv.06.c6", "front": "Bulle de pipeline", "back": "Fraction d'inactivité $(p-1)/(m+p-1)$ pour $p$ étapes et $m$ micro-batchs ; surcoût relatif $(p-1)/m$."},
+ {"id": "adv.06.c7", "front": "Parallélisme 3D", "back": "TP dans un nœud, PP entre nœuds, DP entre répliques ; le nombre de GPU est le produit."},
+ {"id": "adv.06.c8", "front": "Idée de DualPipe", "back": "Alimenter les micro-batchs depuis les deux extrémités du pipeline et recouvrir l'all-to-all du MoE avec le calcul ; nécessite deux copies des couches par étape."},
+ {"id": "adv.06.c9", "front": "fp16 contre bf16", "back": "fp16 : 5 bits d'exposant, 10 de mantisse (plage étroite) ; bf16 : 8 bits d'exposant (plage de fp32), 7 de mantisse."},
+ {"id": "adv.06.c10", "front": "Mise à l'échelle de la perte", "back": "Multiplier la perte par $S$ avant la rétropropagation, diviser les gradients par $S$ en fp32 avant la mise à jour ; empêche l'underflow fp16."},
+ {"id": "adv.06.c11", "front": "Règle d'échelle dynamique de la perte", "back": "Sur inf/NaN : sauter le pas, diviser $S$ par deux. Après de nombreux pas propres : doubler $S$."},
+ {"id": "adv.06.c12", "front": "Mémoire du checkpointing", "back": "$M(k)=(L/k)a+kA$, minimale en $k=\\sqrt{La/A}$ avec $M=2\\sqrt{LaA}$."},
+ {"id": "adv.06.c13", "front": "Coût du recalcul complet contre sélectif", "back": "Complet : +1 passe avant, 4/3 d'un pas (+33 %). Sélectif (attention seulement) : environ +5 %."},
+ {"id": "adv.06.c14", "front": "Perte MTP", "back": "$\\mathcal{L}_{main}+\\frac{\\lambda}{D}\\sum_d\\mathcal{L}_d$, des têtes prédisant des tokens plus éloignés ; les modules séquentiels préservent la chaîne causale."}
+]

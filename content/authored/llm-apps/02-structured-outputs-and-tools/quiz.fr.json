@@ -1,0 +1,101 @@
+[
+ {
+  "id": "app.02.q1",
+  "prompt": "Qu'est-ce qui donne la garantie la plus forte que la sortie respecte une grammaire ?",
+  "options": [
+   "une instruction polie de répondre en JSON",
+   "le masquage des jetons illégaux par un automate à chaque pas de décodage",
+   "le mode JSON",
+   "réessayer jusqu'à ce que ça s'analyse"
+  ],
+  "explanation": "Le masquage rend les continuations invalides inatteignables ; les autres ne font que demander ou vérifier."
+ },
+ {
+  "id": "app.02.q2",
+  "prompt": "Dans le décodage contraint, les jetons illégaux reçoivent le logit $-\\infty$. Après le softmax, leur probabilité vaut...",
+  "options": [
+   "exactement 0",
+   "un petit nombre positif",
+   "1/V",
+   "inchangée"
+  ],
+  "explanation": "$e^{-\\infty}=0$, et la masse restante est renormalisée sur l'ensemble autorisé."
+ },
+ {
+  "id": "app.02.q3",
+  "prompt": "Les jetons sont multi-caractères. Un jeton est autorisé dans l'état q de l'automate si...",
+  "options": [
+   "son premier caractère a une transition depuis q",
+   "il figure dans les chaînes littérales de la grammaire",
+   "le logit du modèle pour lui est le plus grand",
+   "tous ses caractères peuvent être fournis en séquence sans transition manquante"
+  ],
+  "explanation": "La légalité se vérifie en faisant passer le jeton entier dans l'automate, pas seulement son premier caractère."
+ },
+ {
+  "id": "app.02.q4",
+  "prompt": "Après que la grammaire a imposé `{\"sentiment\":\"`, l'état du premier chiffre de `[0-9]{1,2}` autorise 6 jetons sur 25 dans le vocabulaire de la leçon. Pourquoi pas plus ?",
+  "options": [
+   "les chiffres sont rares",
+   "le modèle les préfère",
+   "seuls les jetons dont tous les caractères sont légaux ici sont autorisés : cinq jetons chiffres et 42",
+   "le masque en retire la moitié"
+  ],
+  "explanation": "Les déchets et les jetons mal placés sont masqués ; l'ensemble autorisé est les cinq jetons à un chiffre (1,2,7,0,9) plus le jeton à deux chiffres 42."
+ },
+ {
+  "id": "app.02.q5",
+  "prompt": "Un validateur JSON reçoit {\"price\": true} face à {\"type\":\"number\"}. Comportement correct ?",
+  "options": [
+   "accepter : True vaut 1",
+   "rejeter : un booléen JSON n'est pas un nombre",
+   "accepter seulement si price >= 0",
+   "planter"
+  ],
+  "explanation": "En Python, bool est une sous-classe de int, donc un isinstance naïf l'accepte à tort ; teste bool en premier."
+ },
+ {
+  "id": "app.02.q6",
+  "prompt": "Pourquoi l'ordre des champs dans un schéma est-il « de la logique, pas de la mise en forme » ?",
+  "options": [
+   "le modèle écrit de gauche à droite, donc une réponse placée avant le raisonnement est engagée sans lui",
+   "les objets JSON sont ordonnés par longueur de clé",
+   "les validateurs l'exigent",
+   "cela ne change que le nombre de jetons"
+  ],
+  "explanation": "Les jetons antérieurs conditionnent les suivants. Place le raisonnement d'abord quand tu veux qu'il influence la réponse."
+ },
+ {
+  "id": "app.02.q7",
+  "prompt": "Dans l'appel de fonctions, qui exécute la fonction ?",
+  "options": [
+   "le modèle, pendant sa passe avant",
+   "le tokenizer du fournisseur d'API",
+   "personne ; les résultats sont générés",
+   "le code de l'application, après avoir lu l'appel structuré du modèle"
+  ],
+  "explanation": "Le modèle n'émet que le nom de la fonction et les arguments ; ton code valide et exécute, puis renvoie le résultat."
+ },
+ {
+  "id": "app.02.q8",
+  "prompt": "Un outil renvoie une erreur « city not found ». Bonne pratique ?",
+  "options": [
+   "lever une exception et terminer la conversation",
+   "la cacher et répondre de mémoire",
+   "renvoyer le texte de l'erreur comme résultat de l'outil pour que le modèle s'ajuste",
+   "réessayer indéfiniment avec les mêmes arguments"
+  ],
+  "explanation": "Les erreurs sont des données auxquelles le modèle peut réagir ; borne toujours le nombre de tours d'outils."
+ },
+ {
+  "id": "app.02.q9",
+  "prompt": "La première réponse d'une boucle de réparation échoue à la validation avec '$.price: expected number, got str'. Quel retour faut-il renvoyer ?",
+  "options": [
+   "« faux, réessaie »",
+   "la liste d'erreurs avec chemins et règles, ajoutée à la conversation",
+   "rien, juste rééchantillonner",
+   "un prompt système plus long"
+  ],
+  "explanation": "Un retour précis par chemin permet au modèle de corriger exactement le champ cassé."
+ }
+]

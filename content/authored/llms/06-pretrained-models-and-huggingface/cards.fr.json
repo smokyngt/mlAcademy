@@ -1,0 +1,16 @@
+[
+  {"id": "llm.06.c1", "front": "Ce que contient un dépôt de modèle", "back": "Configuration, tokeniseur et poids. Ils doivent rester appariés."},
+  {"id": "llm.06.c2", "front": "Classes automatiques", "back": "Le chemin/la configuration du modèle dit quelle classe construire : AutoModel, AutoConfig, AutoTokenizer. Un registre associe le type de modèle à la classe."},
+  {"id": "llm.06.c3", "front": "Pipeline", "back": "tokeniseur -> modèle -> décodeur. Texte vers (ids, mask) $(B,T)$, puis logits $(B,K)$, puis résultats lisibles."},
+  {"id": "llm.06.c4", "front": "Masque d'attention", "back": "Tableau 0/1 distinguant vrais tokens et padding ; sans lui, les sorties dépendent de la composition du batch."},
+  {"id": "llm.06.c5", "front": "Décodeur de classification", "back": "Softmax sur les logits, l'argmax donne l'étiquette, sa probabilité est le score."},
+  {"id": "llm.06.c6", "front": "Classification zero-shot", "back": "Classer face à des étiquettes choisies librement sans fine-tuning sur elles."},
+  {"id": "llm.06.c7", "front": "Apprentissage few-shot", "back": "Mettre quelques exemples dans le prompt ; le modèle de langage extrapole le motif sans mise à jour des poids."},
+  {"id": "llm.06.c8", "front": "Pipeline de QA extractive", "back": "Renvoie un segment cité du texte fourni ; n'invente pas de texte."},
+  {"id": "llm.06.c9", "front": "Quatre façons d'utiliser un modèle pré-entraîné", "back": "Direct, zero-shot, prompting few-shot, fine-tuning. Les poids ne changent qu'avec le fine-tuning."},
+  {"id": "llm.06.c10", "front": "Flux de travail de fine-tuning", "back": "Choisir un modèle pour ta langue et ta tâche, ajouter/garder une tête, entraîner sur des données étiquetées avec un faible taux d'apprentissage, évaluer sur des données mises de côté."},
+  {"id": "llm.06.c11", "front": "Champs requis d'une fiche de modèle", "back": "Licence, langue, usage prévu, limites, données d'entraînement, métriques (et modèle de base s'il s'agit d'un fine-tuning)."},
+  {"id": "llm.06.c12", "front": "Pourquoi lire la licence séparément des poids ?", "back": "Des poids ouverts n'impliquent ni un jeu de données ouvert ni une licence permissive."},
+  {"id": "llm.06.c13", "front": "LLM hébergé versus auto-hébergé", "back": "Une API hébergée envoie ton texte à un serveur ; l'auto-hébergement (par exemple avec Ollama, selon le support) garde les données en local au prix du matériel."},
+  {"id": "llm.06.c14", "front": "Liste de contrôle avant d'adopter un modèle", "back": "Vérifier la licence, l'adéquation langue/domaine, l'exécuter sur tes propres exemples, noter l'id exact et la révision du modèle, examiner les biais connus."}
+]

@@ -1,0 +1,16 @@
+[
+  {"id": "llm.01.c1", "concept": "llm.tokenization", "front": "What is a tokeniser's contract?", "back": "A deterministic, lossless map text -> ids -> text: $\\mathrm{dec}(\\mathrm{enc}(b))=b$."},
+  {"id": "llm.01.c2", "concept": "llm.tokenization", "front": "Character-level vs word-level vs subword tokenisation", "back": "Characters: tiny vocabulary, very long sequences. Words: short sequences but a huge vocabulary and unknown words. Subwords: a compromise with a tunable vocabulary and no unknowns."},
+  {"id": "llm.01.c3", "concept": "llm.bpe", "front": "BPE training loop", "back": "Start from bytes; count adjacent pairs; merge the most frequent into a new token; record the rule; repeat for K steps."},
+  {"id": "llm.01.c4", "concept": "llm.bpe", "front": "Why does merging the most frequent pair compress the most?", "back": "A pair seen c times (non-overlapping) turns 2c tokens into c tokens, saving exactly c tokens."},
+  {"id": "llm.01.c5", "concept": "llm.bpe", "front": "How is new text encoded with learned merges?", "back": "From its bytes, repeatedly apply the present pair with the lowest rule number until no present pair is a rule."},
+  {"id": "llm.01.c6", "concept": "llm.bpe", "front": "How is a BPE token sequence decoded?", "back": "Expand each id to its bytes (merged ids are the concatenation of their two parts), join the bytes, decode as UTF-8."},
+  {"id": "llm.01.c7", "concept": "llm.tokenization", "front": "Vocabulary size formula for byte-level BPE", "back": "$V = 256 + K + |\\text{special tokens}|$ with K the number of merges."},
+  {"id": "llm.01.c8", "concept": "llm.tokenization", "front": "Byte-level fallback", "back": "The base vocabulary contains all 256 bytes, so any input can be encoded; no unknown token is needed."},
+  {"id": "llm.01.c9", "concept": "llm.tokenization", "front": "Special tokens", "back": "Reserved ids for structure (end of text, padding, chat role markers). Matched before BPE and never split or merged."},
+  {"id": "llm.01.c10", "concept": "llm.tokenization", "front": "Cost of a larger vocabulary", "back": "Embedding and output tables grow as $V\\cdot d$ each (unless tied), and rare tokens are poorly trained."},
+  {"id": "llm.01.c11", "concept": "llm.tokenization", "front": "Benefit of a larger vocabulary", "back": "Fewer tokens per text: shorter sequences, cheaper attention, more text per context window, fewer generation steps."},
+  {"id": "llm.01.c12", "concept": "llm.bpe", "front": "What does pre-tokenisation do?", "back": "A regex splits text into chunks (words with their leading space, numbers, punctuation) before BPE so merges do not cross word boundaries."},
+  {"id": "llm.01.c13", "concept": "llm.tokenization", "front": "Why do non-English languages often cost more tokens?", "back": "A vocabulary trained mostly on English has few merges for other scripts, so their text splits into many small pieces."},
+  {"id": "llm.01.c14", "concept": "llm.tokenization", "front": "Inputs and targets for next-token training", "back": "Targets are the inputs shifted by one: x = ids[:, :-1], y = ids[:, 1:], shapes (B, T) each."}
+]

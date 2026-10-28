@@ -1,0 +1,94 @@
+#@@ meta
+{"id": "app.06.ex2", "title": "A minimal deterministic agent graph runner", "difficulty": 4, "runtime": "pyodide", "concepts": ["app.agent-graph", "app.tool-calling"], "hints": ["Loop: if node == END stop with 'done'. If node is in interrupt_before and resume is False, stop with 'interrupted' and next=node. Otherwise run the node, merge its update, snapshot the state, pick the next node.", "Merge: for each key in the update, if the key has a reducer use reducers[key](old_value, new_value), otherwise overwrite. Snapshot with copy.deepcopy so later steps cannot change earlier checkpoints.", "Edges map a node to a node name or to a function of the state returning a node name. 'resume' only applies to the FIRST node of the call; afterwards interrupts apply again."]}
+#@@ prompt
+An agent loop (model -> maybe tool -> model ...) is a **state machine**: a state dict flows through **nodes** (functions returning a partial update) and **edges** (static or conditional). Making it explicit gives you checkpoints, interrupts for human approval, and a hard step limit.
+
+Implement `run_graph(graph, state, start=None, max_steps=20, interrupt_before=(), resume=False)` where `graph = {"nodes": {name: fn(state) -> dict}, "edges": {name: next_name | fn(state) -> next_name}, "reducers": {field: fn(old, new) -> value}, "entry": name}` and `END = "__end__"`. It returns a dict:
+
+- `"state"`: the final (or current) state;
+- `"trace"`: names of the nodes executed, in order;
+- `"checkpoints"`: after each executed node a dict `{"node", "state"}` with a **deep copy** of the state;
+- `"status"`: `"done"` (reached END), `"interrupted"` (about to run a node listed in `interrupt_before`, unless `resume=True` for that first node), or `"max_steps"` (executed `max_steps` nodes without reaching END);
+- `"next"`: the node to run next (for resuming), or `None`.
+
+Do not mutate the `state` you were given: work on a copy.
+#@@ starter
+import copy
+
+END = "__end__"
+
+def run_graph(graph, state, start=None, max_steps=20, interrupt_before=(), resume=False):
+    raise NotImplementedError
+#@@ tests
+import copy
+SCRIPT = [{"tool": "add", "args": [2, 3]}, {"final": "The sum is 5"}]
+
+def agent(state):
+    i = state["turn"]
+    out = SCRIPT[i % len(SCRIPT)] if state.get("loop") else SCRIPT[i]
+    return {"turn": i + 1, "messages": [("assistant", out)], "pending": out if "tool" in out else None}
+
+def tools(state):
+    call = state["pending"]
+    return {"messages": [("tool", sum(call["args"]))], "pending": None}
+
+def route(state):
+    return "tools" if state["pending"] else END
+
+G = {
+    "nodes": {"agent": agent, "tools": tools},
+    "edges": {"agent": route, "tools": "agent"},
+    "reducers": {"messages": lambda old, new: (old or []) + new},
+    "entry": "agent",
+}
+init = {"turn": 0, "messages": [("user", "what is 2+3?")], "pending": None}
+r = run_graph(G, init)
+check("react loop: agent, tools, agent", lambda: r["trace"] == ["agent", "tools", "agent"])
+check("status is done and next is None", lambda: r["status"] == "done" and r["next"] is None)
+check("messages accumulate through the reducer (user, assistant, tool, assistant)", lambda: len(r["state"]["messages"]) == 4)
+check("final message is the model's answer", lambda: r["state"]["messages"][-1] == ("assistant", {"final": "The sum is 5"}))
+check("input state is not mutated", lambda: init == {"turn": 0, "messages": [("user", "what is 2+3?")], "pending": None})
+check("one checkpoint per executed node", lambda: len(r["checkpoints"]) == 3 and [c["node"] for c in r["checkpoints"]] == r["trace"])
+check("checkpoints are snapshots, not aliases", lambda: r["checkpoints"][0]["state"]["turn"] == 1 and len(r["checkpoints"][0]["state"]["messages"]) == 2)
+G_noreduce = dict(G, reducers={})
+r_nr = run_graph(G_noreduce, init)
+check("without the reducer each update overwrites the history (the classic silent bug)", lambda: len(r_nr["state"]["messages"]) == 1)
+r1 = run_graph(G, init, interrupt_before={"tools"})
+check("interrupt before the tool node", lambda: r1["status"] == "interrupted" and r1["next"] == "tools" and r1["trace"] == ["agent"])
+r2 = run_graph(G, r1["state"], start=r1["next"], interrupt_before={"tools"}, resume=True)
+check("resume finishes the run", lambda: r2["status"] == "done" and r2["trace"] == ["tools", "agent"])
+check("interrupted + resumed run reaches the same final state as the uninterrupted run", lambda: r2["state"] == r["state"])
+G_loop = dict(G, reducers=G["reducers"])
+init_loop = {"turn": 0, "messages": [], "pending": None, "loop": True}
+def agent_forever(state):
+    return {"turn": state["turn"] + 1, "pending": {"tool": "add", "args": [1, 1]}}
+G_inf = {"nodes": {"agent": agent_forever, "tools": tools}, "edges": {"agent": route, "tools": "agent"}, "reducers": {"messages": G["reducers"]["messages"]}, "entry": "agent"}
+r3 = run_graph(G_inf, init_loop, max_steps=7)
+check("an agent that never stops is cut off at max_steps", lambda: r3["status"] == "max_steps" and len(r3["trace"]) == 7)
+check("the cut-off run knows where it would continue", lambda: r3["next"] == "tools")
+#@@ solution
+import copy
+
+END = "__end__"
+
+def run_graph(graph, state, start=None, max_steps=20, interrupt_before=(), resume=False):
+    state = copy.deepcopy(state)
+    node = start or graph["entry"]
+    trace, checkpoints = [], []
+    first = True
+    while True:
+        if node == END:
+            return {"state": state, "trace": trace, "checkpoints": checkpoints, "status": "done", "next": None}
+        if node in interrupt_before and not (resume and first):
+            return {"state": state, "trace": trace, "checkpoints": checkpoints, "status": "interrupted", "next": node}
+        if len(trace) >= max_steps:
+            return {"state": state, "trace": trace, "checkpoints": checkpoints, "status": "max_steps", "next": node}
+        first = False
+        update = graph["nodes"][node](state)
+        for k, v in update.items():
+            red = graph.get("reducers", {}).get(k)
+            state[k] = red(state.get(k), v) if red else v
+        trace.append(node)
+        checkpoints.append({"node": node, "state": copy.deepcopy(state)})
+        nxt = graph["edges"][node]
+        node = nxt(state) if callable(nxt) else nxt

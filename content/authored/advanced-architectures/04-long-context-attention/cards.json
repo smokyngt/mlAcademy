@@ -1,0 +1,16 @@
+[
+  { "id": "adv.04.c1", "concept": "adv.attn-variants", "front": "Cost of full causal attention", "back": "$N(N+1)/2$ score pairs per head per layer; KV cache linear in $N$." },
+  { "id": "adv.04.c2", "concept": "adv.attn-variants", "front": "Sliding-window attention", "back": "Query $i$ sees keys $i-W<j\\le i$: about $NW$ pairs and $W$ cached tokens per layer." },
+  { "id": "adv.04.c3", "concept": "adv.attn-variants", "front": "Receptive field of stacked windows", "back": "$L(W-1)+1$ positions after $L$ layers." },
+  { "id": "adv.04.c4", "concept": "adv.attn-variants", "front": "Global-local layouts", "back": "Mostly window layers plus a global layer every few (e.g. 5:1) or a few global tokens." },
+  { "id": "adv.04.c5", "concept": "adv.attn-variants", "front": "Native sparse attention branches", "back": "Compressed block summaries, selected fine-grained blocks (chosen by compressed scores), sliding window; mixed by a learned gate." },
+  { "id": "adv.04.c6", "concept": "adv.attn-variants", "front": "Why a mask alone does not save compute", "back": "The kernel must skip masked blocks (FlashAttention/FlexAttention block sparsity); a dense kernel still computes them." },
+  { "id": "adv.04.c7", "concept": "adv.attn-variants", "front": "Differential attention", "back": "$(\\mathrm{softmax}(Q_1K_1^\\top/\\sqrt d)-\\lambda\\,\\mathrm{softmax}(Q_2K_2^\\top/\\sqrt d))V$; cancels the common softmax noise floor." },
+  { "id": "adv.04.c8", "concept": "adv.kv-sharing", "front": "KV cache bytes", "back": "$2\\,L\\,h_{kv}\\,d_h\\,N_{\\text{kept}}\\,b$." },
+  { "id": "adv.04.c9", "concept": "adv.kv-sharing", "front": "MQA vs GQA vs MHA", "back": "KV heads: 1, G, h. Cache shrinks by h, h/G, 1 respectively." },
+  { "id": "adv.04.c10", "concept": "adv.kv-sharing", "front": "Which KV head does query head j use in GQA?", "back": "$\\lfloor j/(h/G)\\rfloor$." },
+  { "id": "adv.04.c11", "concept": "adv.kv-sharing", "front": "MLA idea", "back": "Cache a low-rank latent $c_t$ (rank $r$); reconstruct K and V per head with up-projections, absorbable into the query/output matrices." },
+  { "id": "adv.04.c12", "concept": "adv.kv-sharing", "front": "DeepSeek-V3 128K cache: MLA vs GQA baseline", "back": "7.625 GiB (r=512, 61 layers) vs 30.5 GiB (8 KV heads, d=128): 4x smaller, before the small rotary key." },
+  { "id": "adv.04.c13", "concept": "adv.kv-sharing", "front": "Effect of a sliding window on the cache", "back": "Each window layer keeps only $\\min(N,W)$ tokens, so the cache stops growing with context." },
+  { "id": "adv.04.c14", "concept": "adv.attn-variants", "front": "Attention sink", "back": "Softmax rows must sum to 1, so queries with nothing to attend to dump weight on early tokens; differential attention reduces this." }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "seq.03.q1",
+    "prompt": "Quelle est la principale raison pour laquelle un MLP est inadapté au texte de longueur variable ?",
+    "options": ["Il ne peut pas utiliser de non-linéarités", "Son nombre d'entrées est fixe", "Il a trop peu de paramètres", "Il ne peut pas être entraîné par rétropropagation"],
+    "explanation": "Un MLP attend un vecteur d'entrée de taille fixe ; un réseau récurrent réutilise la même cellule à chaque pas et gère donc n'importe quelle longueur."
+  },
+  {
+    "id": "seq.03.q2",
+    "prompt": "Pour $h_t=\\tanh(W_{xh}x_t+W_{hh}h_{t-1}+b)$ avec $x_t\\in\\mathbb{R}^n$ et une taille cachée $H$, la forme de $W_{hh}$ est...",
+    "options": ["$(H,n)$", "$(n,n)$", "$(H,H)$", "$(T,H)$"],
+    "explanation": "$W_{hh}$ envoie un état caché $(H)$ vers un état caché $(H)$, donc $(H,H)$. $W_{xh}$ est $(H,n)$."
+  },
+  {
+    "id": "seq.03.q3",
+    "prompt": "Pourquoi $\\bar W_{hh}$ est-il une somme sur les pas de temps dans la BPTT ?",
+    "options": ["Parce que la perte est sommée sur le batch", "Parce que le même $W_{hh}$ est utilisé à chaque pas, donc chaque pas contribue par la règle de la chaîne", "Parce que tanh est appliqué à chaque pas", "Parce que la couche de sortie a un biais"],
+    "explanation": "Un paramètre partagé par $T$ copies de la cellule reçoit la somme de ses gradients de toutes les copies : $\\bar W_{hh}=\\sum_t\\bar a_th_{t-1}^\\top$."
+  },
+  {
+    "id": "seq.03.q4",
+    "prompt": "Dans la BPTT, le gradient transmis du pas $t$ au pas $t-1$ est...",
+    "options": ["$\\bar h_{t-1}=W_{hh}^\\top\\big(\\bar h_t\\odot(1-h_t^2)\\big)$", "$\\bar h_{t-1}=W_{hh}\\bar h_t$", "$\\bar h_{t-1}=\\bar h_t\\odot(1-h_{t-1}^2)$", "$\\bar h_{t-1}=W_{xh}^\\top\\bar a_t$"],
+    "explanation": "À travers le tanh : $\\bar a_t=\\bar h_t\\odot(1-h_t^2)$ ; à travers l'application linéaire $a_t=\\dots+W_{hh}h_{t-1}$ : $\\bar h_{t-1}=W_{hh}^\\top\\bar a_t$."
+  },
+  {
+    "id": "seq.03.q5",
+    "prompt": "Dans l'exemple scalaire de la leçon ($w_{xh}=0.5$, $w_{hh}=0.8$, $x=(1,-1)$, $w_y=2$, $y=0.5$), quelle est la perte $L$ (3 décimales) ?",
+    "options": [],
+    "explanation": "$h_1=\\tanh(0.5)=0.4621$, $h_2=\\tanh(-0.5+0.8\\cdot0.4621)=-0.1296$, $\\hat y=-0.2591$, $L=\\tfrac12(-0.2591-0.5)^2=0.288$."
+  },
+  {
+    "id": "seq.03.q6",
+    "prompt": "La jacobienne $\\partial h_t/\\partial h_{t-1}$ d'un RNN tanh est...",
+    "options": ["$W_{hh}$", "$\\operatorname{diag}(1-h_t^2)\\,W_{hh}$", "$W_{hh}\\operatorname{diag}(1-h_{t-1}^2)$ transposée", "$\\tanh(W_{hh})$"],
+    "explanation": "$h_t=\\tanh(a_t)$ donne $\\operatorname{diag}(1-h_t^2)$, et $a_t=\\dots+W_{hh}h_{t-1}$ donne $W_{hh}$ ; la règle de la chaîne les multiplie."
+  },
+  {
+    "id": "seq.03.q7",
+    "prompt": "Dans un RNN linéaire avec $\\rho(W_{hh})=0.9$, quelle est approximativement la taille du facteur de gradient sur $T=100$ pas (utilise $\\rho^T$, donne l'exposant de 10, c.-à-d. $\\log_{10}$, à 1 décimale) ?",
+    "options": [],
+    "explanation": "$0.9^{100}\\approx2.66\\times10^{-5}$, donc $\\log_{10}\\approx-4.6$."
+  },
+  {
+    "id": "seq.03.q8",
+    "prompt": "L'écrêtage du gradient par norme globale...",
+    "options": ["guérit les gradients évanescents", "plafonne la longueur du gradient tout en préservant sa direction, protégeant contre les explosions", "change la fonction de perte", "supprime le besoin de BPTT"],
+    "explanation": "Le gradient est remis à l'échelle par $\\min(1,\\tau/\\lVert g\\rVert)$. Il ne peut pas restaurer un signal évanoui."
+  },
+  {
+    "id": "seq.03.q9",
+    "prompt": "Un $W_{hh}$ orthogonal dans un RNN linéaire donne $\\lVert W_{hh}^T\\rVert_2=$...",
+    "options": ["$0$ pour $T$ grand", "$T$", "$1$ pour tout $T$", "$\\infty$"],
+    "explanation": "Les matrices orthogonales préservent les normes, donc toutes les valeurs singulières valent 1, ainsi que celles de toute puissance. Avec tanh, la saturation change cela pendant l'entraînement."
+  }
+]

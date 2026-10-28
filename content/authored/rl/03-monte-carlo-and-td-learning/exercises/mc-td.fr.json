@@ -1,0 +1,10 @@
+{
+ "id": "rl.03.ex1",
+ "title": "Monte Carlo contre TD(0) sur la marche aléatoire",
+ "prompt": "Une marche aléatoire a 5 états (0..4) ; tu pars du milieu (état 2) et te déplaces à gauche ou à droite avec une probabilité 1/2 chacun. Sortir par l'extrémité gauche termine l'épisode avec une récompense 0, sortir par l'extrémité droite le termine avec une récompense 1 ; toutes les autres récompenses sont 0 et $\\gamma=1$. Les vraies valeurs sont $(1,2,3,4,5)/6$. `walk_episode` (fourni) renvoie les états visités `traj` (se terminant par `None`) et les récompenses `rew`.\n\nImplémente :\n\n- `mc_returns(rewards, gamma)` -> liste avec le retour $G_t$ pour chaque pas.\n- `td0_update(V, s, r, s_next, alpha, gamma)` -> la nouvelle valeur de `V[s]` (`s_next is None` signifie terminal, donc le terme de bootstrap vaut 0). Ne modifie pas `V`.\n- `mc_prediction(episodes, alpha, seed)` et `td0_prediction(episodes, alpha, seed)` -> vecteur de valeurs (5,) appris avec un pas constant, valeurs initiales 0.5.",
+ "hints": [
+  "mc_returns : parcours à l'envers avec G = r + gamma * G et stocke G à chaque pas.",
+  "td0_update : target = r if s_next is None else r + gamma * V[s_next] ; renvoie V[s] + alpha * (target - V[s]).",
+  "Dans les deux prédicteurs, utilise le MÊME générateur d'épisodes et les mêmes valeurs initiales 0.5. Le MC met à jour chaque état visité vers son retour, le TD met à jour après chaque pas."
+ ]
+}

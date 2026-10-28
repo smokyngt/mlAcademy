@@ -1,0 +1,17 @@
+[
+  { "id": "math.09.c1", "concept": "prob.rv", "front": "pmf versus pdf", "back": "pmf: $P(X=x)$, sums to 1, each value in $[0,1]$. pdf: $p(x)\\ge0$ integrates to 1; probabilities are areas, and $p(x)$ may exceed 1." },
+  { "id": "math.09.c2", "concept": "prob.rv", "front": "cdf", "back": "$F(x)=P(X\\le x)=\\int_{-\\infty}^x p(t)\\,dt$. Non-decreasing from 0 to 1." },
+  { "id": "math.09.c3", "concept": "prob.rv", "front": "Expected value of $g(X)$", "back": "$\\sum_x g(x)P(x)$ (discrete) or $\\int g(x)p(x)dx$ (continuous). The mean is $g(x)=x$." },
+  { "id": "math.09.c4", "concept": "prob.rv", "front": "Linearity of expectation", "back": "$\\mathbb E[aX+bY+c]=a\\mathbb E X+b\\mathbb E Y+c$, with no independence needed." },
+  { "id": "math.09.c5", "concept": "prob.rv", "front": "Variance, two forms", "back": "$\\mathbb E[(X-\\mu)^2]=\\mathbb E[X^2]-\\mu^2$. Compute it by centring first for numerical safety." },
+  { "id": "math.09.c6", "concept": "prob.rv", "front": "Why is the raw-score variance numerically unstable?", "back": "It subtracts two large nearly equal numbers (catastrophic cancellation); it can even come out negative." },
+  { "id": "math.09.c7", "concept": "prob.rv", "front": "Covariance and correlation", "back": "$\\operatorname{Cov}[X,Y]=\\mathbb E[XY]-\\mathbb E X\\,\\mathbb E Y$; correlation divides by both standard deviations, lies in $[-1,1]$ and is the cosine of the angle between the centred variables." },
+  { "id": "math.09.c8", "concept": "prob.rv", "front": "Independent versus uncorrelated", "back": "Independent implies uncorrelated, not the converse. Example: $X$ symmetric, $Y=X^2$." },
+  { "id": "math.09.c9", "concept": "prob.rv", "front": "Empirical covariance and its shape", "back": "$\\hat\\Sigma=\\frac1N X_c^\\top X_c$ for $X_c:(N,D)$ centred; result $(D,D)$ symmetric PSD. $1/N$ is biased by the factor $(N-1)/N$; use $1/(N-1)$ for unbiased." },
+  { "id": "math.09.c10", "concept": "prob.rv", "front": "Affine map of mean and covariance", "back": "$\\mathbf y=A\\mathbf x+\\mathbf b$: mean $A\\boldsymbol\\mu+\\mathbf b$, covariance $A\\Sigma A^\\top$ (shape $m\\times m$). $\\mathbf b$ does not affect the covariance." },
+  { "id": "math.09.c11", "concept": "prob.rv", "front": "Multivariate Gaussian density", "back": "$\\frac{1}{(2\\pi)^{D/2}|\\Sigma|^{1/2}}\\exp(-\\frac12(\\mathbf x-\\boldsymbol\\mu)^\\top\\Sigma^{-1}(\\mathbf x-\\boldsymbol\\mu))$. Contours are ellipses along the eigenvectors of $\\Sigma$." },
+  { "id": "math.09.c12", "concept": "prob.rv", "front": "Mahalanobis distance", "back": "$\\Delta^2=(\\mathbf x-\\boldsymbol\\mu)^\\top\\Sigma^{-1}(\\mathbf x-\\boldsymbol\\mu)=\\sum_i y_i^2/\\lambda_i$; equals the squared Euclidean distance when $\\Sigma=I$." },
+  { "id": "math.09.c13", "concept": "prob.rv", "front": "Sampling from $\\mathcal N(\\boldsymbol\\mu,\\Sigma)$", "back": "Cholesky $\\Sigma=LL^\\top$, draw $\\mathbf z\\sim\\mathcal N(0,I)$, return $\\boldsymbol\\mu+L\\mathbf z$." },
+  { "id": "math.09.c14", "concept": "prob.rv", "front": "Maximum likelihood for a Gaussian", "back": "$\\mu_{\\rm ML}$ = sample mean, $\\Sigma_{\\rm ML}$ = $1/N$ sample covariance (biased by $(N-1)/N$)." },
+  { "id": "math.09.c15", "concept": "prob.rv", "front": "Why MSE = maximum likelihood", "back": "Gaussian noise gives log-likelihood $-\\frac N2\\ln(2\\pi\\sigma^2)-\\frac1{2\\sigma^2}\\sum(t_n-f_n)^2$; maximising it minimises the sum of squares." }
+]

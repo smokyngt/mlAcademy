@@ -1,0 +1,40 @@
+[
+  {
+    "id": "mlp-shapes",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": { "en": "A 784 → 128 → 10 classifier on a batch of B images: every arrow carries a tensor, every box a parameter matrix. Shapes are the contract between layers.", "fr": "Un classifieur 784 → 128 → 10 sur un lot de B images : chaque flèche porte un tenseur, chaque boîte une matrice de paramètres. Les formes sont le contrat entre les couches." },
+    "code": {
+      "en": "flowchart LR\n  X[\"X\\n(B, 784)\"] --> L1[\"Linear 1\\nW1 (784,128)  b1 (128)\"]\n  L1 -->|\"Z1 (B,128)\"| R[\"ReLU\"]\n  R -->|\"A1 (B,128)\"| L2[\"Linear 2\\nW2 (128,10)  b2 (10)\"]\n  L2 -->|\"Z2 (B,10)\"| S[\"softmax\"]\n  S -->|\"P (B,10)\"| Loss[\"cross-entropy\\nscalar\"]",
+      "fr": "flowchart LR\n  X[\"X\\n(B, 784)\"] --> L1[\"Linéaire 1\\nW1 (784,128)  b1 (128)\"]\n  L1 -->|\"Z1 (B,128)\"| R[\"ReLU\"]\n  R -->|\"A1 (B,128)\"| L2[\"Linéaire 2\\nW2 (128,10)  b2 (10)\"]\n  L2 -->|\"Z2 (B,10)\"| S[\"softmax\"]\n  S -->|\"P (B,10)\"| Loss[\"entropie croisée\\nscalaire\"]"
+    }
+  },
+  {
+    "id": "activations",
+    "after": 4,
+    "kind": "plot",
+    "caption": { "en": "The three classic activations: ReLU (blue), sigmoid (green), tanh (orange). Only the nonlinearity lets stacked layers do more than one matrix.", "fr": "Les trois activations classiques : ReLU (bleu), sigmoïde (vert), tanh (orange). Seule la non-linéarité permet à des couches empilées de faire plus qu'une seule matrice." },
+    "spec": {
+      "xDomain": [-5, 5], "yDomain": [-1.5, 3], "height": 300,
+      "data": [
+        { "fn": "max(0, x)", "color": "#2563eb" },
+        { "fn": "1/(1+exp(-x))", "color": "#16a34a" },
+        { "fn": "tanh(x)", "color": "#d97706" }
+      ]
+    }
+  },
+  {
+    "id": "xor",
+    "after": 5,
+    "kind": "plot",
+    "caption": { "en": "XOR is not linearly separable: the points (0,0) and (1,1) (red) cannot be split from (1,0) and (0,1) (blue) by a single line. A hidden ReLU layer bends the space so a line suffices.", "fr": "Le XOR n'est pas linéairement séparable : les points (0,0) et (1,1) (rouge) ne peuvent pas être séparés de (1,0) et (0,1) (bleu) par une seule droite. Une couche cachée ReLU déforme l'espace pour qu'une droite suffise." },
+    "spec": {
+      "xDomain": [-0.5, 1.5], "yDomain": [-0.5, 1.5], "height": 320,
+      "data": [
+        { "fnType": "points", "graphType": "scatter", "color": "#dc2626", "attr": { "r": 7 }, "points": [[0, 0], [1, 1]] },
+        { "fnType": "points", "graphType": "scatter", "color": "#2563eb", "attr": { "r": 7 }, "points": [[1, 0], [0, 1]] },
+        { "fn": "0.5 - x", "color": "#9ca3af" }
+      ]
+    }
+  }
+]

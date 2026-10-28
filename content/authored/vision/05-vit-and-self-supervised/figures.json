@@ -1,0 +1,98 @@
+[
+  {
+    "id": "vit-pipeline",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "ViT-B/16 on a 224x224 image, with the shape after each step: 196 patches of 768 numbers, a class token makes 197 tokens, 12 pre-norm encoder blocks keep (197,768), and the class-token output feeds the head.",
+      "fr": "ViT-B/16 sur une image 224x224, avec la forme après chaque étape : 196 patchs de 768 nombres, un token de classe fait 197 tokens, 12 blocs d'encodeur pre-norm gardent (197,768), et la sortie du token de classe alimente la tête."
+    },
+    "code": {
+      "en": "flowchart LR\n  I[\"image<br/>(3,224,224)\"] --> P[\"patchify p=16<br/>(196, 768)\"]\n  P --> E[\"linear projection W_E<br/>(196, 768)\"]\n  E --> C[\"prepend class token<br/>(197, 768)\"]\n  C --> PE[\"+ E_pos<br/>(197, 768)\"]\n  PE --> B[\"12 encoder blocks<br/>(197, 768)\"]\n  B --> CLS[\"class-token output<br/>(768,)\"]\n  CLS --> H[\"head<br/>logits (C,)\"]",
+      "fr": "flowchart LR\n  I[\"image<br/>(3,224,224)\"] --> P[\"patchify p=16<br/>(196, 768)\"]\n  P --> E[\"projection linéaire W_E<br/>(196, 768)\"]\n  E --> C[\"ajout du token de classe<br/>(197, 768)\"]\n  C --> PE[\"+ E_pos<br/>(197, 768)\"]\n  PE --> B[\"12 blocs d'encodeur<br/>(197, 768)\"]\n  B --> CLS[\"sortie du token de classe<br/>(768,)\"]\n  CLS --> H[\"tête<br/>logits (C,)\"]"
+    }
+  },
+  {
+    "id": "vit-block",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "One pre-LayerNorm encoder block: z <- z + MSA(LN(z)), then z <- z + MLP(LN(z)) with the MLP D -> 4D -> D and GELU. Both sublayers sit on residual connections.",
+      "fr": "Un bloc d'encodeur pre-LayerNorm : z <- z + MSA(LN(z)), puis z <- z + MLP(LN(z)) avec le MLP D -> 4D -> D et GELU. Les deux sous-couches sont sur des connexions résiduelles."
+    },
+    "code": {
+      "en": "flowchart LR\n  Z0[\"z (N+1, D)\"] --> LN1[\"LayerNorm\"] --> MSA[\"multi-head self-attention\"] --> A1((\"+\"))\n  Z0 --> A1\n  A1 --> LN2[\"LayerNorm\"] --> M1[\"Linear D to 4D\"] --> GE[\"GELU\"] --> M2[\"Linear 4D to D\"] --> A2((\"+\"))\n  A1 --> A2\n  A2 --> Z1[\"z (N+1, D)\"]",
+      "fr": "flowchart LR\n  Z0[\"z (N+1, D)\"] --> LN1[\"LayerNorm\"] --> MSA[\"auto-attention multi-têtes\"] --> A1((\"+\"))\n  Z0 --> A1\n  A1 --> LN2[\"LayerNorm\"] --> M1[\"Linear D to 4D\"] --> GE[\"GELU\"] --> M2[\"Linear 4D to D\"] --> A2((\"+\"))\n  A1 --> A2\n  A2 --> Z1[\"z (N+1, D)\"]"
+    }
+  },
+  {
+    "id": "attention-cost",
+    "after": 3,
+    "kind": "plot",
+    "caption": {
+      "en": "Size of the patch-to-patch attention matrix N^2 with N = (224/p)^2 patches, against the patch size p. Halving p from 16 to 8 gives 614,656 entries instead of 38,416, 16 times more.",
+      "fr": "Taille de la matrice d'attention patch-à-patch N^2 avec N = (224/p)^2 patchs, selon la taille de patch p. Passer de p = 16 à p = 8 donne 614 656 entrées au lieu de 38 416, soit 16 fois plus."
+    },
+    "spec": {
+      "xDomain": [
+        6,
+        34
+      ],
+      "yDomain": [
+        0,
+        700000
+      ],
+      "height": 300,
+      "data": [
+        {
+          "fn": "(224/x)^4",
+          "color": "#2563eb"
+        },
+        {
+          "fnType": "points",
+          "graphType": "scatter",
+          "color": "#dc2626",
+          "attr": {
+            "r": 4
+          },
+          "points": [
+            [
+              16,
+              38416
+            ],
+            [
+              8,
+              614656
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "ntxent",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "NT-Xent (SimCLR): two augmentations per image give 2N views; the (2N,2N) cosine-similarity matrix has its diagonal masked, and each row is a (2N-1)-way classification whose target is the positive partner.",
+      "fr": "NT-Xent (SimCLR) : deux augmentations par image donnent 2N vues ; la matrice de similarité cosinus (2N,2N) a sa diagonale masquée, et chaque ligne est une classification à (2N-1) classes dont la cible est le partenaire positif."
+    },
+    "code": {
+      "en": "flowchart LR\n  X[\"batch of N images\"] --> A1[\"augmentation 1\"]\n  X --> A2[\"augmentation 2\"]\n  A1 --> ENC[\"encoder + projection head\"]\n  A2 --> ENC\n  ENC --> Z[\"z (2N, d)\"]\n  Z --> NRM[\"L2-normalise\"]\n  NRM --> S[\"S = Z Z^T / tau<br/>(2N, 2N)\"]\n  S --> MK[\"mask the diagonal (k != i)\"]\n  MK --> CE[\"row-wise cross-entropy, target = partner view\"]\n  CE --> L[\"L = mean over 2N\"]",
+      "fr": "flowchart LR\n  X[\"batch de N images\"] --> A1[\"augmentation 1\"]\n  X --> A2[\"augmentation 2\"]\n  A1 --> ENC[\"encodeur + tête de projection\"]\n  A2 --> ENC\n  ENC --> Z[\"z (2N, d)\"]\n  Z --> NRM[\"L2-normalisation\"]\n  NRM --> S[\"S = Z Z^T / tau<br/>(2N, 2N)\"]\n  S --> MK[\"masquer la diagonale (k != i)\"]\n  MK --> CE[\"entropie croisée par ligne, cible = vue partenaire\"]\n  CE --> L[\"L = mean sur 2N\"]"
+    }
+  },
+  {
+    "id": "dino-mae",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The two other self-supervised families. DINO: a student matches an EMA teacher on another view, with centring and sharpening to avoid collapse. MAE: hide 75% of the patches, encode the visible 25%, reconstruct the hidden pixels.",
+      "fr": "Les deux autres familles auto-supervisées. DINO : un élève imite un professeur EMA sur une autre vue, avec centrage et affinage contre l'effondrement. MAE : cacher 75 % des patchs, encoder les 25 % visibles, reconstruire les pixels cachés."
+    },
+    "code": {
+      "en": "flowchart LR\n  subgraph DINO[\"DINO\"]\n    direction LR\n    v1[\"view 1\"] --> S[\"student\"]\n    v2[\"view 2\"] --> TE[\"teacher: centre + sharpen\"]\n    S --> CE[\"cross-entropy\"]\n    TE --> CE\n    S -. \"EMA m=0.996\" .-> TE\n  end\n  subgraph MAE[\"MAE\"]\n    direction LR\n    im[\"patches\"] --> mk[\"mask 75%\"] --> en[\"encoder: visible 25%\"] --> de[\"small decoder\"] --> ls[\"MSE on masked patches\"]\n  end",
+      "fr": "flowchart LR\n  subgraph DINO[\"DINO\"]\n    direction LR\n    v1[\"vue 1\"] --> S[\"élève\"]\n    v2[\"vue 2\"] --> TE[\"professeur : centrage + affinage\"]\n    S --> CE[\"entropie croisée\"]\n    TE --> CE\n    S -. \"EMA m=0.996\" .-> TE\n  end\n  subgraph MAE[\"MAE\"]\n    direction LR\n    im[\"patchs\"] --> mk[\"masquer 75 %\"] --> en[\"encodeur : 25 % visibles\"] --> de[\"petit décodeur\"] --> ls[\"MSE sur patchs masqués\"]\n  end"
+    }
+  }
+]

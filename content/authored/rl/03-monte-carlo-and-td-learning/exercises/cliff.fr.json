@@ -1,0 +1,10 @@
+{
+ "id": "rl.03.ex2",
+ "title": "SARSA contre Q-learning sur une falaise",
+ "prompt": "Une grille de cliff walking 4x8 : tu pars du coin en bas à gauche et dois atteindre le coin en bas à droite. Chaque pas coûte -1 ; marcher sur la falaise (rangée du bas, colonnes 1..6) coûte -100 et te renvoie au départ. L'agent explore avec epsilon-greedy ($\\varepsilon=0.1$).\n\n`step` et `train` sont fournis. Implémente les deux mises à jour de contrôle TD (modifie `Q` sur place et renvoie l'erreur TD) :\n\n- `sarsa_update(Q, s, a, r, s2, a2, done, alpha, gamma)` -> sur la politique : bootstrap à partir de l'action `a2` effectivement choisie ensuite.\n- `q_learning_update(Q, s, a, r, s2, done, alpha, gamma)` -> hors politique : bootstrap à partir de la meilleure action en `s2`.\n\nLes tests entraînent les deux sur les mêmes graines et comparent les chemins gloutons et la récompense en ligne.",
+ "hints": [
+  "Les deux mises à jour calculent td_error = target - Q[s, a] puis font Q[s, a] += alpha * td_error. Elles ne diffèrent que par la cible.",
+  "Si done est True, la cible est simplement r (pas de bootstrap).",
+  "Cible SARSA : r + gamma * Q[s2, a2]. Cible Q-learning : r + gamma * Q[s2].max()."
+ ]
+}

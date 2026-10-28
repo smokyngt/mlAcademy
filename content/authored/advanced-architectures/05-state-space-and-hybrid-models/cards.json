@@ -1,0 +1,16 @@
+[
+  { "id": "adv.05.c1", "concept": "adv.ssm", "front": "Linear recurrence of an SSM", "back": "$h_t=a\\odot h_{t-1}+b\\,x_t,\\ y_t=c^\\top h_t$: constant memory and O(1) time per token." },
+  { "id": "adv.05.c2", "concept": "adv.ssm", "front": "Zero-order-hold discretisation", "back": "$\\bar A=e^{\\Delta A}$, $\\bar B=A^{-1}(e^{\\Delta A}-I)B\\approx\\Delta B$ for small $\\Delta A$." },
+  { "id": "adv.05.c3", "concept": "adv.ssm", "front": "Convolution view of an SSM", "back": "$y_t=\\sum_kK_kx_{t-k}$ with $K_k=c^\\top\\mathrm{diag}(a)^kb$; valid only if parameters are time-invariant." },
+  { "id": "adv.05.c4", "concept": "adv.ssm", "front": "What makes Mamba selective?", "back": "$\\Delta_t,B_t,C_t$ are computed from the input $x_t$." },
+  { "id": "adv.05.c5", "concept": "adv.ssm", "front": "Role of $\\Delta_t$", "back": "Forgetting gate: small = ignore token and keep state; large = reset state and write current token." },
+  { "id": "adv.05.c6", "concept": "adv.ssm", "front": "Why do pure SSMs lag on retrieval?", "back": "The state has fixed size, so exact details of a long history are compressed away." },
+  { "id": "adv.05.c7", "concept": "adv.scan", "front": "Scan element", "back": "The affine map $h\\mapsto a_th+b_t$ stored as the pair $(a_t,b_t)$." },
+  { "id": "adv.05.c8", "concept": "adv.scan", "front": "Scan combine operator", "back": "$(a_1,b_1)\\circ$ then $(a_2,b_2)=(a_1a_2,\\ a_2b_1+b_2)$; associative." },
+  { "id": "adv.05.c9", "concept": "adv.scan", "front": "Why associativity matters", "back": "Prefix products can be bracketed arbitrarily, so the recurrence can be computed in $\\lceil\\log_2T\\rceil$ parallel rounds." },
+  { "id": "adv.05.c10", "concept": "adv.scan", "front": "Hillis-Steele scan cost", "back": "$\\lceil\\log_2T\\rceil$ rounds, $O(T\\log T)$ work; Blelloch scan is work-efficient $O(T)$." },
+  { "id": "adv.05.c11", "concept": "adv.scan", "front": "Jamba layout", "back": "Blocks of 8: 7 Mamba + 1 attention, MoE feed-forward every other layer; 256k context on one 80 GB GPU." },
+  { "id": "adv.05.c12", "concept": "adv.scan", "front": "Why hybridise?", "back": "Attention layers give exact recall and state tracking; SSM layers give cheap, constant-memory bulk processing." },
+  { "id": "adv.05.c13", "concept": "adv.scan", "front": "Hybrid KV memory", "back": "Only attention layers have a cache: 4 of 32 layers means about 1/8 of the pure-transformer KV at the same head count." },
+  { "id": "adv.05.c14", "concept": "adv.ssm", "front": "State shape in selective SSM", "back": "$h_t\\in\\mathbb{R}^{D\\times n}$ (channels x state size), independent of sequence length." }
+]

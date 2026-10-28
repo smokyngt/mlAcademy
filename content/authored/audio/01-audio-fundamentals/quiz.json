@@ -1,0 +1,123 @@
+[
+ {
+  "id": "aud.01.q1",
+  "concept": "aud.waveform",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "A recording is a list of numbers $x[n]$. What does $n$ index?",
+  "options": [
+   "frequency bins",
+   "sample instants, at time $n/f_s$",
+   "amplitude levels",
+   "frames of 25 ms"
+  ],
+  "answer": 1,
+  "explanation": "$x[n]=s(n/f_s)$: the index counts samples, and dividing by the sampling rate gives seconds."
+ },
+ {
+  "id": "aud.01.q2",
+  "concept": "aud.waveform",
+  "kind": "numeric",
+  "prompt": "A tone of 7000 Hz is sampled at 10000 Hz. At what frequency (Hz) does it appear in the samples?",
+  "options": [],
+  "answer": {
+   "value": 3000,
+   "tol": 1
+  },
+  "explanation": "$7000 \\bmod 10000 = 7000$, folded: $\\min(7000, 10000-7000)=3000$."
+ },
+ {
+  "id": "aud.01.q3",
+  "concept": "aud.waveform",
+  "kind": "mcq",
+  "prompt": "Why must a resampler low-pass filter before throwing samples away?",
+  "options": [
+   "to make the audio louder",
+   "because energy above the new Nyquist frequency would fold into lower frequencies",
+   "because the FFT requires smooth input",
+   "to reduce the bit depth"
+  ],
+  "answer": 1,
+  "explanation": "Frequencies $f$ and $f+m f_s$ give identical samples, so anything above the new $f_s/2$ aliases on top of valid content unless removed first."
+ },
+ {
+  "id": "aud.01.q4",
+  "concept": "aud.waveform",
+  "kind": "mcq",
+  "prompt": "Each additional bit of quantisation depth improves the signal-to-quantisation-noise ratio by about...",
+  "options": [
+   "1 dB",
+   "3 dB",
+   "6 dB",
+   "12 dB"
+  ],
+  "answer": 2,
+  "explanation": "SNR $\\approx 6.02\\,b + 1.76 + 20\\log_{10}A$ dB: halving the step size quarters the noise power, which is 6 dB."
+ },
+ {
+  "id": "aud.01.q5",
+  "concept": "aud.stft",
+  "kind": "numeric",
+  "prompt": "A 10 second clip at 16 kHz is cut into frames of 400 samples with hop 160. How many complete frames are there?",
+  "options": [],
+  "answer": {
+   "value": 998,
+   "tol": 0
+  },
+  "explanation": "$(160000-400)/160=997.5$, floor 997, plus 1 gives 998."
+ },
+ {
+  "id": "aud.01.q6",
+  "concept": "aud.stft",
+  "kind": "numeric",
+  "prompt": "What is the spacing in Hz between DFT bins for $N=512$ at $f_s=16000$ Hz?",
+  "options": [],
+  "answer": {
+   "value": 31.25,
+   "tol": 0.01
+  },
+  "explanation": "Resolution is $f_s/N=16000/512=31.25$ Hz; bin $k$ is at $k f_s/N$."
+ },
+ {
+  "id": "aud.01.q7",
+  "concept": "aud.stft",
+  "kind": "mcq",
+  "prompt": "How many complex values does the one-sided DFT (`rfft`) of a real frame of length 512 have?",
+  "options": [
+   "256",
+   "257",
+   "512",
+   "1024"
+  ],
+  "answer": 1,
+  "explanation": "For real input $X[N-k]=\\overline{X[k]}$, so bins $0..N/2$ suffice: $N/2+1=257$."
+ },
+ {
+  "id": "aud.01.q8",
+  "concept": "aud.stft",
+  "kind": "mcq",
+  "prompt": "What is the main purpose of multiplying each frame by a Hann window?",
+  "options": [
+   "to normalise the loudness",
+   "to reduce spectral leakage caused by abrupt frame edges",
+   "to increase the frequency resolution",
+   "to remove the phase"
+  ],
+  "answer": 1,
+  "explanation": "Abrupt edges spread a tone's energy over many bins. The taper reduces leakage at the cost of a wider main lobe."
+ },
+ {
+  "id": "aud.01.q9",
+  "concept": "aud.stft",
+  "kind": "mcq",
+  "prompt": "You halve the frame length $N$ at fixed sampling rate. What happens?",
+  "options": [
+   "finer frequency resolution and coarser time resolution",
+   "coarser frequency resolution and finer time resolution",
+   "both improve",
+   "nothing changes"
+  ],
+  "answer": 1,
+  "explanation": "Frequency spacing $f_s/N$ doubles (coarser) while the window lasts half as long (finer time localisation): the two trade off."
+ }
+]

@@ -1,0 +1,8 @@
+[
+  { "id": "f2n.03.c1", "front": "Règle des formes pour la multiplication matricielle", "back": "$(m\\times n)(n\\times p)=(m\\times p)$. Les dimensions intérieures doivent coïncider." },
+  { "id": "f2n.03.c2", "front": "Formule du coefficient de $AB$", "back": "$(AB)_{ij}=\\sum_k a_{ik}b_{kj}$ : la ligne $i$ de $A$ multipliée scalairement par la colonne $j$ de $B$." },
+  { "id": "f2n.03.c3", "front": "Que sont les colonnes d'une matrice ?", "back": "Les images des vecteurs de base canoniques : $Ae_j$ est la colonne $j$. Donc $Ax$ est une combinaison linéaire des colonnes." },
+  { "id": "f2n.03.c4", "front": "Transposée d'un produit", "back": "$(AB)^\\top=B^\\top A^\\top$" },
+  { "id": "f2n.03.c5", "front": "Matrice de rotation 2D d'angle $\\theta$", "back": "$\\begin{pmatrix}\\cos\\theta&-\\sin\\theta\\\\\\sin\\theta&\\cos\\theta\\end{pmatrix}$. Elle conserve les longueurs." },
+  { "id": "f2n.03.c6", "front": "Formes d'une couche sur un lot", "back": "$X\\in\\mathbb{R}^{B\\times n}$, $W\\in\\mathbb{R}^{n\\times m}$ donne $XW\\in\\mathbb{R}^{B\\times m}$." }
+]

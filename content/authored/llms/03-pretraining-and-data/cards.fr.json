@@ -1,0 +1,17 @@
+[
+  {"id": "llm.03.c1", "front": "Règle 6ND", "back": "FLOPs d'entraînement $\\approx6ND$ : environ $2N$ en passe avant et $4N$ en passe arrière par token, fois $D$ tokens. Une estimation au premier ordre pour les transformers denses."},
+  {"id": "llm.03.c2", "front": "Paramètres d'un bloc de style GPT-2 (largeur d, MLP 4d)", "back": "$12d^2+13d$ : qkv $3d^2+3d$, sortie $d^2+d$, MLP $8d^2+5d$, deux LayerNorms $4d$."},
+  {"id": "llm.03.c3", "front": "Paramètres totaux de GPT-2 small", "back": "124,439,808 avec une tête de sortie partagée ; 163,037,184 avec une tête séparée ($V=50257$, $d=768$, $L=12$, ctx 1024)."},
+  {"id": "llm.03.c4", "front": "Forme de la perte de Chinchilla", "back": "$L(N,D)=A/N^\\alpha+B/D^\\beta+E$ ; $E$ est la perte irréductible du texte."},
+  {"id": "llm.03.c5", "front": "N optimal en calcul pour r tokens par paramètre", "back": "$D=rN$, $C=6rN^2$, donc $N=\\sqrt{C/(6r)}$. Pour r=20 : $N=\\sqrt{C/120}$."},
+  {"id": "llm.03.c6", "front": "Pourquoi 20 tokens/paramètre n'est-il qu'une règle empirique ?", "back": "La perte est plate près de l'optimum, les constantes ajustées sont incertaines (avec les constantes citées, le minimum sur grille est à un ratio plus élevé, mais meilleur de seulement 0.007 nat environ), et le coût de déploiement favorise des modèles plus petits entraînés plus longtemps."},
+  {"id": "llm.03.c7", "front": "Pourquoi sur-entraîner un petit modèle ?", "back": "Le coût d'entraînement se paie une fois, le coût d'inférence pour toujours ; un modèle plus petit entraîné sur bien plus de tokens est moins cher à servir pour une qualité similaire."},
+  {"id": "llm.03.c8", "front": "Empaquetage (packing)", "back": "Concaténer les documents avec des séparateurs de fin de texte et découper le flux en blocs ; $x$ = bloc, $y$ = bloc décalé d'un cran. Aucun gaspillage en padding."},
+  {"id": "llm.03.c9", "front": "Pourquoi séparer par document avant l'empaquetage ?", "back": "Pour éviter qu'un même document (ou des quasi-copies) apparaisse à la fois dans l'entraînement et la validation, ce qui rend la perte de validation optimiste."},
+  {"id": "llm.03.c10", "front": "Similarité de Jaccard de deux documents", "back": "$|S_n(A)\\cap S_n(B)|/|S_n(A)\\cup S_n(B)|$ sur des ensembles de shingles de n-grammes de mots."},
+  {"id": "llm.03.c11", "front": "MinHash + LSH", "back": "De courtes signatures de hachage dont la probabilité de concordance égale la similarité de Jaccard ; regrouper les signatures en casiers trouve les candidats quasi-doublons sans comparer toutes les paires."},
+  {"id": "llm.03.c12", "front": "Pourquoi dédupliquer ?", "back": "Les doublons gaspillent du calcul et causent de la mémorisation (régurgitation mot pour mot) ; c'est l'une des étapes de nettoyage les plus efficaces."},
+  {"id": "llm.03.c13", "front": "Mémoire d'entraînement par paramètre (Adam fp32, sans activations)", "back": "4 (poids) + 4 (gradients) + 8 (deux moments d'Adam) = 16 octets."},
+  {"id": "llm.03.c14", "front": "Taille du cache KV", "back": "$2\\cdot L\\cdot d\\cdot T$ nombres par séquence (clés et valeurs pour chaque couche et chaque token) ; croît linéairement avec le contexte et le batch."},
+  {"id": "llm.03.c15", "front": "Perte attendue à l'étape 0 et quoi surveiller d'autre", "back": "Environ $\\ln V$ (quasi uniforme). Ensuite, surveiller l'écart entraînement/validation (surapprentissage), les pics (taux d'apprentissage, mauvais batchs) et les plateaux (sous-entraînement, données bruitées)."}
+]

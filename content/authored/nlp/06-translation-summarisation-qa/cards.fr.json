@@ -1,0 +1,16 @@
+[
+ {"id":"nlp.06.c1","front":"Traduction encodeur-décodeur","back":"L'encodeur lit la source ; le décodeur, initialisé à partir de l'état de l'encodeur (ou en portant attention sur lui), émet les tokens cibles un par un : un LM conditionnel $P(y_t\\mid y_{<t},x)$."},
+ {"id":"nlp.06.c2","front":"Recherche gloutonne vs en faisceau","back":"La gloutonne prend le token arg max à chaque pas ; la recherche en faisceau garde les B meilleures sorties partielles (B autour de 4-5 en traduction)."},
+ {"id":"nlp.06.c3","front":"Précision de n-grammes écrêtée","back":"Chaque n-gramme du candidat est compté au plus autant de fois que son compte maximal dans une référence."},
+ {"id":"nlp.06.c4","front":"Formule de BLEU","back":"$\\mathrm{BP}\\cdot\\exp(\\frac1N\\sum_n\\ln p_n)$ avec généralement $N=4$."},
+ {"id":"nlp.06.c5","front":"Pénalité de brièveté","back":"$1$ si $|c|>\\rho$, sinon $e^{1-\\rho/|c|}$ ; $\\rho$ est la longueur de la référence la plus proche. Tient lieu de rappel."},
+ {"id":"nlp.06.c6","front":"Pourquoi le BLEU au niveau de la phrase est-il instable ?","back":"Toute précision de n-grammes nulle donne 0 ; BLEU est conçu pour des corpus (ou nécessite un lissage)."},
+ {"id":"nlp.06.c7","front":"ROUGE-n","back":"Recouvrement de n-grammes (écrêté) rapporté en précision, rappel et F1 ; orienté rappel, standard pour les résumés."},
+ {"id":"nlp.06.c8","front":"ROUGE-L et LCS","back":"Utilise la plus longue sous-séquence commune (dans l'ordre, pas nécessairement adjacente) ; PD en $O(|c||r|)$."},
+ {"id":"nlp.06.c9","front":"Résumés extractifs vs abstractifs","back":"L'extractif sélectionne des phrases sources (fidèle, rigide). L'abstractif génère un nouveau texte (fluide, peut halluciner)."},
+ {"id":"nlp.06.c10","front":"Mécanisme de la QA extractive","back":"Encoder question+passage, noter chaque token comme début et fin ; choisir $i\\le j<i+L_{max}$ maximisant $s_i+e_j$."},
+ {"id":"nlp.06.c11","front":"Correspondance exacte et F1 par token","back":"Après normalisation (minuscules, sans ponctuation ni articles) : l'EM exige des chaînes égales ; le F1 utilise le recouvrement de sacs de tokens."},
+ {"id":"nlp.06.c12","front":"Structure de la QA en domaine ouvert","back":"Un récupérateur trouve des passages, un lecteur extrait ou génère la réponse : la base du RAG."},
+ {"id":"nlp.06.c13","front":"Principal piège des métriques de recouvrement","back":"Elles mesurent la similarité de surface, pas le sens : les paraphrases obtiennent un score bas, les erreurs fluides peuvent obtenir un score élevé ; compare avec des références de base et des humains."},
+ {"id":"nlp.06.c14","front":"Pourquoi utiliser sacrebleu ?","back":"Une tokenisation standard et une signature rendent les scores BLEU reproductibles et comparables."}
+]

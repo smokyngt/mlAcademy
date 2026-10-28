@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gpu.01.q1",
+  "prompt": "Sur un GPU NVIDIA, un warp est...",
+  "options": [
+   "un groupe de 32 threads qui exécutent la même instruction au pas",
+   "un bloc d'au plus 1024 threads qui partagent de la mémoire",
+   "la partie de la HBM qu'un noyau peut adresser",
+   "un multiprocesseur de flux"
+  ],
+  "explanation": "Le SM émet une instruction pour 32 threads consécutifs (un warp). Les blocs sont faits de warps entiers ; un SM accueille de nombreux blocs."
+ },
+ {
+  "id": "gpu.01.q2",
+  "prompt": "Dans un noyau lancé avec 128 threads par bloc, un branchement est `if (threadIdx.x % 2 == 0) A(); else B();`. De combien de passes un warp a-t-il besoin ?",
+  "options": [
+   "1",
+   "16",
+   "2",
+   "32"
+  ],
+  "explanation": "Les voies paires et impaires de chaque warp divergent, donc le warp exécute A avec les voies impaires masquées, puis B avec les voies paires masquées : deux passes. Brancher sur `threadIdx.x / 32` n'en coûterait qu'une."
+ },
+ {
+  "id": "gpu.01.q3",
+  "prompt": "Chacune des 32 voies d'un warp charge un float32 à l'indice `2 * lane`, à partir d'une adresse alignée. Avec des lignes de 128 octets, combien de transactions ?",
+  "options": [
+   "1",
+   "16",
+   "32",
+   "2"
+  ],
+  "explanation": "Les 32 voies couvrent 32 * 2 * 4 = 256 octets, soit deux lignes de 128 octets. Un pas de 1 donnerait une ligne ; un pas de 32 en donnerait 32."
+ },
+ {
+  "id": "gpu.01.q4",
+  "prompt": "Un warp lit 32 mots en mémoire partagée aux indices de mot `32 * lane`. Quel est le degré de conflit de banc (cycles nécessaires) ?",
+  "options": [],
+  "explanation": "Le mot w est dans le banc w mod 32, donc chaque voie tape le banc 0 avec un mot différent : un conflit à 32 voies. Un remplissage jusqu'à un pas de 33 le rendrait sans conflit."
+ },
+ {
+  "id": "gpu.01.q5",
+  "prompt": "Un SM autorise 2048 threads, 64 warps et 65 536 registres. Un bloc a 256 threads et chaque thread utilise 64 registres. Quelle occupation (fraction des 64 warps) obtiens-tu, en supposant qu'aucune autre limite ne s'applique ?",
+  "options": [],
+  "explanation": "Registres par bloc = 64 * 256 = 16 384, donc 65 536 // 16 384 = 4 blocs = 32 warps, et 32/64 = 0.5. La limite de threads seule autoriserait 8 blocs."
+ },
+ {
+  "id": "gpu.01.q6",
+  "prompt": "Quel ordre des mémoires GPU, de la plus rapide/petite à la plus lente/grande, est correct ?",
+  "options": [
+   "registres, mémoire partagée, L2, HBM",
+   "HBM, L2, mémoire partagée, registres",
+   "mémoire partagée, registres, HBM, L2",
+   "registres, L2, mémoire partagée, HBM"
+  ],
+  "explanation": "Les registres appartiennent à un thread, la mémoire partagée à un bloc sur un SM, le L2 à toute la puce, et la HBM est la grande pile hors puce."
+ },
+ {
+  "id": "gpu.01.q7",
+  "prompt": "Une multiplication matricielle naïve charge 2MNK éléments depuis la mémoire globale. Avec des tuiles 32 x 32 en mémoire partagée, de quel facteur le nombre de chargements diminue-t-il (en ignorant les stockages de C) ?",
+  "options": [],
+  "explanation": "Chaque élément de A est chargé N/T fois au lieu de N, et chaque élément de B M/T fois au lieu de M : chargements = 2MNK/T, un facteur T = 32."
+ },
+ {
+  "id": "gpu.01.q8",
+  "prompt": "Dans le noyau de multiplication matricielle par tuiles, pourquoi le second `__syncthreads()` (après la boucle interne) est-il nécessaire ?",
+  "options": [
+   "pour rendre les chargements globaux coalescés",
+   "pour qu'aucun thread n'écrase la tuile partagée à l'itération suivante pendant que d'autres la lisent encore",
+   "pour vider les registres vers la HBM",
+   "pour terminer le lancement du noyau"
+  ],
+  "explanation": "La première barrière rend visible la tuile qui vient d'être écrite ; la seconde protège la tuile contre l'écrasement avant que tous les threads aient fini de l'utiliser."
+ },
+ {
+  "id": "gpu.01.q9",
+  "prompt": "Quel énoncé sur l'occupation est correct ?",
+  "options": [
+   "100 % d'occupation donne toujours le noyau le plus rapide",
+   "Elle compte le nombre de SM qu'utilise un noyau",
+   "C'est le rapport entre les warps résidents et le maximum du SM, et elle est limitée par la plus rare des ressources parmi les threads, les registres, la mémoire partagée et les emplacements de blocs",
+   "Elle est déterminée uniquement par la taille de la grille"
+  ],
+  "explanation": "L'occupation aide à masquer la latence mais un noyau avec plus de registres par thread peut être plus rapide à une occupation plus faible ; c'est un minimum sur plusieurs limites de ressources."
+ }
+]

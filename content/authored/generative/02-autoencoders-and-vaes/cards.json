@@ -1,0 +1,86 @@
+[
+ {
+  "id": "gen.02.c1",
+  "concept": "gen.vae",
+  "front": "Autoencoder",
+  "back": "Encoder $z=f(x)$ to a bottleneck, decoder $\\hat x=g(z)$, trained to minimise $\\|x-\\hat x\\|^2$."
+ },
+ {
+  "id": "gen.02.c2",
+  "concept": "gen.vae",
+  "front": "Denoising autoencoder",
+  "back": "Input $x+\\text{noise}$, target the clean $x$; learns structure instead of copying."
+ },
+ {
+  "id": "gen.02.c3",
+  "concept": "gen.vae",
+  "front": "ELBO",
+  "back": "$\\mathbb E_{q}[\\log p_\\theta(x|z)]-\\mathrm{KL}(q_\\phi(z|x)\\|p(z))\\le\\log p_\\theta(x)$."
+ },
+ {
+  "id": "gen.02.c4",
+  "concept": "gen.vae",
+  "front": "Gap of the ELBO",
+  "back": "$\\log p_\\theta(x)-\\mathrm{ELBO}=\\mathrm{KL}(q_\\phi(z|x)\\|p_\\theta(z|x))\\ge0$."
+ },
+ {
+  "id": "gen.02.c5",
+  "concept": "gen.vae",
+  "front": "Which inequality gives the ELBO?",
+  "back": "Jensen: $\\log\\mathbb E[Y]\\ge\\mathbb E[\\log Y]$ for concave $\\log$."
+ },
+ {
+  "id": "gen.02.c6",
+  "concept": "gen.vae",
+  "front": "KL to a standard normal (diagonal)",
+  "back": "$\\tfrac12\\sum_i(\\mu_i^2+\\sigma_i^2-\\log\\sigma_i^2-1)$."
+ },
+ {
+  "id": "gen.02.c7",
+  "concept": "gen.vae",
+  "front": "KL between two 1-D Gaussians",
+  "back": "$\\log\\frac{\\sigma_2}{\\sigma_1}+\\frac{\\sigma_1^2+(\\mu_1-\\mu_2)^2}{2\\sigma_2^2}-\\frac12$."
+ },
+ {
+  "id": "gen.02.c8",
+  "concept": "gen.vae",
+  "front": "Reparameterisation trick",
+  "back": "$z=\\mu+\\sigma\\odot\\varepsilon$, $\\varepsilon\\sim\\mathcal N(0,I)$: moves randomness out of the parameters so gradients flow."
+ },
+ {
+  "id": "gen.02.c9",
+  "concept": "gen.vae",
+  "front": "Gradient of loss wrt logvar via $z$",
+  "back": "$\\delta_z\\odot\\tfrac12\\sigma\\odot\\varepsilon$ since $\\partial\\sigma/\\partial\\text{logvar}=\\tfrac12\\sigma$."
+ },
+ {
+  "id": "gen.02.c10",
+  "concept": "gen.vae",
+  "front": "Gradients of the KL term",
+  "back": "$\\partial\\mathrm{KL}/\\partial\\mu=\\mu$, $\\partial\\mathrm{KL}/\\partial\\text{logvar}=\\tfrac12(e^{\\text{logvar}}-1)$."
+ },
+ {
+  "id": "gen.02.c11",
+  "concept": "gen.vae",
+  "front": "Posterior collapse",
+  "back": "Decoder ignores $z$, encoder outputs the prior, KL$\\to0$. Fix: KL annealing, free bits, weaker decoder."
+ },
+ {
+  "id": "gen.02.c12",
+  "concept": "gen.vae",
+  "front": "$\\beta$-VAE",
+  "back": "Loss $=\\text{rec}+\\beta\\,\\mathrm{KL}$; $\\beta>1$ gives a smoother code space and blurrier output."
+ },
+ {
+  "id": "gen.02.c13",
+  "concept": "gen.vae",
+  "front": "Why are VAE samples blurry?",
+  "back": "A Gaussian decoder with squared error outputs the conditional mean of plausible images."
+ },
+ {
+  "id": "gen.02.c14",
+  "concept": "gen.vae",
+  "front": "How to sample from a trained VAE",
+  "back": "Draw $z\\sim\\mathcal N(0,I)$ and decode: one forward pass."
+ }
+]

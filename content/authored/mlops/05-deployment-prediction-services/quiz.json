@@ -1,0 +1,133 @@
+[
+ {
+  "id": "ops.05.q1",
+  "concept": "ops.serving",
+  "stage": "pre",
+  "kind": "mcq",
+  "prompt": "Which task is a poor fit for batch prediction?",
+  "options": [
+   "Translating arbitrary text typed by users",
+   "Weekly purchase propensity for every customer",
+   "Nightly churn scores",
+   "Daily product recommendations for known users"
+  ],
+  "answer": 0,
+  "explanation": "Batch needs the inputs to be known in advance; open-ended inputs require online prediction."
+ },
+ {
+  "id": "ops.05.q2",
+  "concept": "ops.serving",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A feature is computed in batch on a dataframe for training and on a sliding window in a stream for serving. The main risk is...",
+  "options": [
+   "slower training",
+   "too much memory in training",
+   "the two pipelines produce different features (train/serve skew)",
+   "higher cloud bills only"
+  ],
+  "answer": 2,
+  "explanation": "Two separately maintained pipelines are a common source of silent bugs."
+ },
+ {
+  "id": "ops.05.q3",
+  "concept": "ops.queueing",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "An M/M/1 server has service rate $\\mu=10$ requests/s and arrival rate $\\lambda=9$ requests/s. What is the mean latency in seconds?",
+  "options": [],
+  "answer": {
+   "value": 1.0,
+   "tol": 0.001
+  },
+  "explanation": "$W=1/(\\mu-\\lambda)=1/(10-9)=1$ s."
+ },
+ {
+  "id": "ops.05.q4",
+  "concept": "ops.queueing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In an M/M/1 queue, what happens to mean latency as $\\lambda\\to\\mu$?",
+  "options": [
+   "It tends to the service time",
+   "It grows without bound",
+   "It halves",
+   "It stays constant"
+  ],
+  "answer": 1,
+  "explanation": "$1/(\\mu-\\lambda)\\to\\infty$: at full utilisation the queue is unstable."
+ },
+ {
+  "id": "ops.05.q5",
+  "concept": "ops.queueing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "A model takes $0.02+0.002\\cdot\\text{size}$ s per batch. Which batch size has the highest capacity (requests per second)?",
+  "options": [
+   "1",
+   "4",
+   "They are equal",
+   "16"
+  ],
+  "answer": 3,
+  "explanation": "Capacity is $B/(0.02+0.002B)$: 45.5, 143, 308 requests/s for $B=1,4,16$."
+ },
+ {
+  "id": "ops.05.q6",
+  "concept": "ops.queueing",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Why does dynamic batching use a maximum wait in addition to a maximum batch size?",
+  "options": [
+   "To save memory",
+   "To avoid quantisation",
+   "To bound the extra latency of requests waiting for the batch to fill",
+   "To reduce accuracy"
+  ],
+  "answer": 2,
+  "explanation": "Without a time limit a lone request could wait indefinitely for companions."
+ },
+ {
+  "id": "ops.05.q7",
+  "concept": "ops.compression",
+  "stage": "check",
+  "kind": "numeric",
+  "prompt": "A model has 100 million parameters stored as 32-bit floats. How many MB does it take after 8-bit quantisation (1 MB = $10^6$ bytes)?",
+  "options": [],
+  "answer": {
+   "value": 100,
+   "tol": 0.5
+  },
+  "explanation": "$10^8$ parameters $\\times 1$ byte $=100$ MB, a 4x reduction from 400 MB."
+ },
+ {
+  "id": "ops.05.q8",
+  "concept": "ops.compression",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "In knowledge distillation...",
+  "options": [
+   "a small student is trained to mimic a large teacher",
+   "weights are set to zero without retraining",
+   "the teacher is quantised to 1 bit",
+   "the student must have the teacher's architecture"
+  ],
+  "answer": 0,
+  "explanation": "The student can have a different architecture; the teacher's outputs guide it."
+ },
+ {
+  "id": "ops.05.q9",
+  "concept": "ops.serving",
+  "stage": "check",
+  "kind": "mcq",
+  "prompt": "Which is an advantage of edge deployment?",
+  "options": [
+   "Unlimited compute",
+   "Easier monitoring",
+   "No need for compression",
+   "No network round trip and data can stay on the device"
+  ],
+  "answer": 3,
+  "explanation": "Edge removes network latency and privacy exposure, at the price of weaker hardware and harder operations."
+ }
+]

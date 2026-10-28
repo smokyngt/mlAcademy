@@ -1,0 +1,16 @@
+[
+  { "id": "cml.07.c1", "front": "Modèle additif par étapes", "back": "$F_M(x)=F_0+\\nu\\sum_{m=1}^M h_m(x)$ ; chaque $h_m$ est ajusté avec les termes précédents figés." },
+  { "id": "cml.07.c2", "front": "Boosting contre bagging : ce que chacun réduit", "back": "Le bagging réduit la variance d'apprenants à faible biais ; le boosting réduit le biais en ajoutant séquentiellement des apprenants faibles." },
+  { "id": "cml.07.c3", "front": "Apprenant faible", "back": "Un modèle de base à peine meilleur que le hasard, comme une souche de décision (une seule coupure)." },
+  { "id": "cml.07.c4", "front": "Erreur pondérée d'AdaBoost", "back": "$\\epsilon_m=\\sum_n w_n[y_m(x_n)\\ne t_n]/\\sum_n w_n$." },
+  { "id": "cml.07.c5", "front": "Coefficient du modèle dans AdaBoost", "back": "$\\alpha_m=\\ln\\frac{1-\\epsilon_m}{\\epsilon_m}$ (convention de Bishop) ; nul pour $\\epsilon=0.5$." },
+  { "id": "cml.07.c6", "front": "Mise à jour des poids d'AdaBoost", "back": "$w_n\\leftarrow w_n e^{\\alpha_m[y_m(x_n)\\ne t_n]}$ : les points mal classés sont multipliés par $e^{\\alpha_m}$." },
+  { "id": "cml.07.c7", "front": "Quelle perte AdaBoost minimise-t-il ?", "back": "L'erreur exponentielle $\\sum_n e^{-t_nf(x_n)}$, par optimisation par étapes." },
+  { "id": "cml.07.c8", "front": "Faiblesse de la perte exponentielle", "back": "La pénalité croît exponentiellement pour de grandes marges négatives, donc les valeurs aberrantes et points mal étiquetés dominent ; ce n'est pas un modèle probabiliste." },
+  { "id": "cml.07.c9", "front": "Le gradient boosting en une phrase", "back": "Descente de gradient sur la perte par rapport aux prédictions $F(x_i)$ du modèle, chaque pas étant réalisé en ajustant un petit modèle sur le gradient négatif." },
+  { "id": "cml.07.c10", "front": "Pseudo-résidu", "back": "$r_i=-\\partial\\ell(y_i,F_i)/\\partial F_i$ ; vaut $y_i-F_i$ pour $\\ell=\\frac12(y-F)^2$, $\\operatorname{sign}(y_i-F_i)$ pour la perte absolue." },
+  { "id": "cml.07.c11", "front": "Algorithme du gradient boosting (perte quadratique)", "back": "$F_0=\\bar y$ ; répéter : $r=y-F$ ; ajuster l'arbre $h$ sur $r$ ; $F\\leftarrow F+\\nu h$." },
+  { "id": "cml.07.c12", "front": "Rôle du taux d'apprentissage (rétrécissement) $\\nu$", "back": "Met à l'échelle la contribution de chaque arbre ; un $\\nu$ plus petit demande plus de tours mais généralise en général mieux." },
+  { "id": "cml.07.c13", "front": "Profondeur des arbres en boosting", "back": "Contrôle l'ordre des interactions : les souches donnent des modèles additifs ; la profondeur $d$ permet des interactions entre jusqu'à $d$ variables. Typiquement 3-6." },
+  { "id": "cml.07.c14", "front": "Le boosting surapprend-il avec trop de tours ?", "back": "Oui : la perte d'entraînement continue de baisser mais la perte de validation finit par monter ; utilise l'arrêt précoce." }
+]

@@ -1,0 +1,945 @@
+# %% meta
+{"id": "proj.autograd", "title": "Construire un mini framework d'autograd en NumPy", "summary": "Écris un moteur de différentiation automatique sur tenseurs à partir de zéro : gradients qui gèrent le broadcasting, ordre topologique et accumulation, dix opérations différentiables vérifiées chacune par différences finies, modules Linear/Sequential, SGD et Adam, puis entraîne un MLP sur moons et montre que ton framework reproduit la rétropropagation dérivée à la main de la leçon sur la rétropropagation.", "level": "advanced", "minutes": 150, "requires": ["f2n.10", "f2n.12", "dl.01"], "outcomes": ["Implémenter la différentiation automatique en mode inverse sur des tableaux NumPy, avec un tri topologique et une accumulation des gradients", "Expliquer et implémenter l'unbroadcasting, l'inverse du broadcasting de NumPy", "Dériver et vérifier la règle de rétropropagation de add, mul, matmul, sum, mean, exp, log, ReLU, tanh et de l'entropie croisée avec softmax, grâce à des contrôles de gradient numériques", "Composer des couches Linear, un conteneur Sequential et les optimiseurs SGD et Adam en un modèle entraînable", "Prouver que les gradients de l'autograd sont égaux aux gradients de rétropropagation dérivés à la main, à la précision machine"], "stages": ["Mécanique du graphe", "Opérations différentiables", "Modules et optimiseurs", "Entraînement sur moons", "Concordance avec la rétropropagation à la main", "Rapport"]}
+# %% md Bienvenue
+# Un mini framework d'autograd
+
+Le `loss.backward()` de PyTorch ressemble à de la magie. Dans ce projet, tu construis le même mécanisme en environ 250 lignes de NumPy, puis tu t'en sers pour entraîner un réseau. Le but n'est pas la vitesse, c'est la compréhension : chaque ligne de la passe inverse sera une ligne que tu auras écrite et testée.
+
+Tu t'appuies sur [[f2n.10]] (les gradients dérivés à la main d'un MLP à deux couches : `dZ2 = (P - onehot(y)) / B`, `dW2 = A1.T @ dZ2`, ...), [[f2n.12]] (le graphe de calcul, le mode inverse, l'ordre topologique, l'accumulation avec `+=`) et [[dl.01]] (les mises à jour de la descente de gradient stochastique avec momentum et d'Adam).
+
+## La conception
+
+- Un `Tensor` enveloppe un tableau `data` en float64 et (après une passe inverse) un tableau `grad` de même forme. Il enregistre ses parents `_prev` et une fermeture `_backward` qui pousse `out.grad` dans le `grad` des parents.
+- Chaque opération est une simple fonction (`add`, `mul`, `matmul`, ...) qui construit le Tensor de sortie et lui attache la fermeture. Les méthodes et opérateurs de `Tensor` (`a + b`, `a @ b`, `x.sum()`) ne font qu'appeler ces fonctions : tu peux donc les implémenter dans n'importe quel ordre.
+- `backward()` trie le graphe topologiquement, initialise le gradient de la sortie, puis appelle les fermetures dans l'ordre inverse. Les gradients **s'accumulent** (`+=`) parce qu'un tenseur peut alimenter plusieurs consommateurs.
+- Le broadcasting de NumPy fait grossir les formes silencieusement dans la passe avant ; la passe inverse doit **unbroadcaster** (resommer) pour qu'un gradient ait toujours la forme de son tenseur.
+
+Chaque tâche est vérifiée par un contrôle caché ; le contrôle de gradient numérique que tu écris à l'étape 1 sert ensuite sur chaque opération.
+
+# %% md Étape 1 : mécanique du graphe
+## Étape 1 : mécanique du graphe
+
+Quatre petites briques font fonctionner le mode inverse pour n'importe quelle opération : `unbroadcast`, `accumulate`, `topo_order` et `backprop`. Tu les écris d'abord et tu les testes sur des graphes construits à la main, avant qu'aucune vraie opération n'existe.
+
+Commençons par la classe `Tensor` elle-même. Elle t'est fournie ; lis-la, car tout le reste en dépend. Remarque que les opérateurs délèguent à des fonctions que tu écriras plus tard (Python cherche les noms au moment de l'appel).
+
+# %% code
+import numpy as np
+
+class Tensor:
+    def __init__(self, data, requires_grad=False, _prev=(), _op=""):
+        self.data = np.array(data, dtype=np.float64)       # always a float64 copy
+        self.requires_grad = bool(requires_grad) or any(p.requires_grad for p in _prev)
+        self.grad = None                                    # same shape as data once filled
+        self._prev = tuple(_prev)                           # parent Tensors
+        self._backward = lambda: None                       # pushes self.grad into the parents
+        self._op = _op
+
+    @property
+    def shape(self): return self.data.shape
+    @property
+    def ndim(self): return self.data.ndim
+    def zero_grad(self): self.grad = None
+    def backward(self, grad=None): backprop(self, grad)
+    def __repr__(self): return f"Tensor({self.data!r}, op={self._op!r})"
+
+    def __add__(self, o): return add(self, as_tensor(o))
+    def __radd__(self, o): return add(as_tensor(o), self)
+    def __mul__(self, o): return mul(self, as_tensor(o))
+    def __rmul__(self, o): return mul(as_tensor(o), self)
+    def __neg__(self): return mul(self, as_tensor(-1.0))
+    def __sub__(self, o): return add(self, -as_tensor(o))
+    def __rsub__(self, o): return add(as_tensor(o), -self)
+    def __truediv__(self, o): return mul(self, pow_const(as_tensor(o), -1.0))
+    def __rtruediv__(self, o): return mul(as_tensor(o), pow_const(self, -1.0))
+    def __pow__(self, p): return pow_const(self, p)
+    def __matmul__(self, o): return matmul(self, as_tensor(o))
+    def sum(self, axis=None, keepdims=False): return tsum(self, axis, keepdims)
+    def mean(self, axis=None, keepdims=False): return tmean(self, axis, keepdims)
+    def exp(self): return exp(self)
+    def log(self): return log(self)
+    def relu(self): return relu(self)
+    def tanh(self): return tanh(self)
+
+def as_tensor(x):
+    return x if isinstance(x, Tensor) else Tensor(x)
+# %% md Un exemple d'opération complète
+Voici une opération complète, `pow_const` ($c = a^p$ pour un exposant constant $p$, $\partial c/\partial a = p\,a^{p-1}$). Étudie le schéma, tu le répéteras pour chaque opération : calculer la valeur avant, créer la sortie avec ses parents, définir une fermeture qui appelle `accumulate(parent, gradient_local)`, l'attacher.
+
+# %% code
+def pow_const(a, p):
+    out = Tensor(a.data ** p, _prev=(a,), _op=f"pow{p}")
+    def _backward():
+        accumulate(a, out.grad * p * a.data ** (p - 1))
+    out._backward = _backward
+    return out
+# %% task Unbroadcast
+def unbroadcast(grad, shape):
+    """Reduce `grad` (an array that was produced by broadcasting something of `shape`) back to `shape`.
+    1. Sum away the extra LEADING axes. 2. For every axis where `shape` has size 1 but grad has size > 1,
+    sum over that axis keeping the dimension. Return an array with exactly `shape`."""
+    g = np.asarray(grad, dtype=np.float64)
+    # TODO
+    raise NotImplementedError
+# %% check
+_g = np.arange(12.0).reshape(3, 4)
+check("(3,4) -> (4,) sums over rows", lambda: np.allclose(unbroadcast(_g, (4,)), _g.sum(0)) and unbroadcast(_g, (4,)).shape == (4,))
+check("(3,4) -> (3,1) sums over columns and keeps the axis", lambda: np.allclose(unbroadcast(_g, (3, 1)), _g.sum(1, keepdims=True)) and unbroadcast(_g, (3, 1)).shape == (3, 1))
+check("(3,4) -> () sums everything", lambda: np.shape(unbroadcast(_g, ())) == () and np.isclose(unbroadcast(_g, ()), _g.sum()))
+check("same shape is returned unchanged", lambda: np.array_equal(unbroadcast(_g, (3, 4)), _g))
+_g3 = np.arange(24.0).reshape(2, 3, 4)
+check("(2,3,4) -> (3,1) sums the leading axis AND the last axis", lambda: np.allclose(unbroadcast(_g3, (3, 1)), _g3.sum(0).sum(1, keepdims=True)) and unbroadcast(_g3, (3, 1)).shape == (3, 1))
+check("the total of the gradient is preserved", lambda: np.isclose(unbroadcast(_g3, (1, 4)).sum(), _g3.sum()), "Unbroadcasting only adds numbers up, it never drops or averages them")
+# %% hint
+`while g.ndim > len(shape): g = g.sum(axis=0)` supprime les axes de tête.
+# %% hint
+Ensuite `for i, s in enumerate(shape): if s == 1 and g.shape[i] != 1: g = g.sum(axis=i, keepdims=True)`.
+# %% solution
+def unbroadcast(grad, shape):
+    g = np.asarray(grad, dtype=np.float64)
+    while g.ndim > len(shape):
+        g = g.sum(axis=0)
+    for i, s in enumerate(shape):
+        if s == 1 and g.shape[i] != 1:
+            g = g.sum(axis=i, keepdims=True)
+    return g
+# %% task Accumuler un gradient
+def accumulate(t, g):
+    """Add the gradient contribution `g` into t.grad (the single place where gradients are written).
+    - Do nothing if t does not require grad.
+    - Unbroadcast g to t.data.shape first.
+    - If t.grad is None create zeros of t.data's shape, then ADD (never overwrite, never alias g)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_t = Tensor([1.0, 2.0, 3.0], requires_grad=True)
+accumulate(_t, np.array([1.0, 1.0, 1.0])); accumulate(_t, np.array([0.5, 0.0, 2.0]))
+check("two contributions add up", lambda: np.allclose(_t.grad, [1.5, 1.0, 3.0]), "Use +=, a second call must not overwrite the first")
+_c = Tensor([1.0, 2.0])
+accumulate(_c, np.ones(2))
+check("a tensor that does not require grad keeps grad None", lambda: _c.grad is None)
+_b = Tensor(np.zeros((2, 3)), requires_grad=True)
+accumulate(_b, np.ones((4, 2, 3)))
+check("contributions are unbroadcast to the tensor's shape", lambda: _b.grad.shape == (2, 3) and np.allclose(_b.grad, 4.0))
+_s = Tensor(2.0, requires_grad=True)
+accumulate(_s, np.ones((3, 3)))
+check("a scalar tensor receives the sum of a broadcast gradient", lambda: np.shape(_s.grad) == () and np.isclose(_s.grad, 9.0))
+_src = np.ones(3); _u = Tensor(np.zeros(3), requires_grad=True)
+accumulate(_u, _src); _src[:] = 100.0
+check("t.grad does not alias the array that was passed in", lambda: np.allclose(_u.grad, 1.0), "Start from np.zeros_like(t.data) and add into it")
+# %% hint
+`if not t.requires_grad: return`, puis `g = unbroadcast(g, t.data.shape)`, `if t.grad is None: t.grad = np.zeros_like(t.data)`, `t.grad += g`.
+# %% solution
+def accumulate(t, g):
+    if not t.requires_grad:
+        return
+    g = unbroadcast(g, t.data.shape)
+    if t.grad is None:
+        t.grad = np.zeros_like(t.data)
+    t.grad += g
+# %% task Ordre topologique
+def topo_order(root):
+    """Return the list of all Tensors reachable from `root` through `_prev`, each exactly once, ordered so that
+    every tensor appears AFTER all of its parents (the root is last). Must be iterative: graphs can be
+    thousands of nodes deep and Python's recursion limit is about 1000. Identify nodes with id(node)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+def _mk(data, parents, fn):
+    out = Tensor(data, _prev=parents)
+    out._backward = lambda: fn(out)
+    return out
+_a = Tensor(np.array([1.0, 2.0, 3.0]), requires_grad=True)
+_b = _mk(2 * _a.data, (_a,), lambda o: accumulate(_a, 2 * o.grad))
+_c = _mk(3 * _a.data, (_a,), lambda o: accumulate(_a, 3 * o.grad))
+_d = _mk(_b.data + _c.data, (_b, _c), lambda o: (accumulate(_b, o.grad), accumulate(_c, o.grad)))
+_ord = topo_order(_d)
+check("a diamond graph has 4 distinct nodes, the root last, the leaf first", lambda: len(_ord) == 4 and _ord[-1] is _d and _ord[0] is _a)
+check("a shared parent appears once", lambda: sum(1 for n in _ord if n is _a) == 1)
+check("every node comes after its parents", lambda: all(_ord.index(p) < _ord.index(n) for n in _ord for p in n._prev))
+_chain = [Tensor(1.0, requires_grad=True)]
+for _i in range(3000):
+    _chain.append(Tensor(1.0, _prev=(_chain[-1],)))
+check("a chain of 3000 nodes does not hit the recursion limit and is ordered", lambda: topo_order(_chain[-1]) == _chain, "Use an explicit stack of (node, expanded) pairs instead of recursion")
+_other = Tensor(5.0, requires_grad=True)
+check("unreachable nodes are not included", lambda: all(n is not _other for n in topo_order(_d)))
+_e = _mk(_b.data + _c.data + _a.data, (_d, _b, _a), lambda o: None)
+_ord2 = topo_order(_e)
+check("a node reachable by paths of different lengths still comes after all parents", lambda: len(_ord2) == 5 and all(_ord2.index(p) < _ord2.index(n) for n in _ord2 for p in n._prev))
+# %% hint
+Garde `order = []`, `seen = set()`, `stack = [(root, False)]`. Dépile `(node, expanded)`. Si `expanded` : ajoute à `order`. Sinon, si id(node) n'est pas dans `seen` : marque-le comme vu, empile `(node, True)`, puis empile `(p, False)` pour chaque parent pas encore vu.
+# %% solution
+def topo_order(root):
+    order, seen = [], set()
+    stack = [(root, False)]
+    while stack:
+        node, expanded = stack.pop()
+        if expanded:
+            order.append(node)
+            continue
+        if id(node) in seen:
+            continue
+        seen.add(id(node))
+        stack.append((node, True))
+        for p in node._prev:
+            if id(p) not in seen:
+                stack.append((p, False))
+    return order
+# %% task La passe inverse
+def backprop(root, seed=None):
+    """Reverse-mode differentiation from `root`.
+    1. Compute the topological order.
+    2. Reset the gradient of every NON-leaf node (a node with parents) to None: intermediate gradients belong
+       to ONE backward pass. Leaves keep what they have, so calling backward twice doubles leaf gradients.
+    3. Seed the root: accumulate(root, seed) with seed defaulting to ones of root's shape.
+    4. Call node._backward() for the nodes in REVERSE topological order, but only for nodes that require grad
+       (a node computed only from constants never receives a gradient, so its closure must not run)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_a = Tensor(np.array([1.0, 2.0, 3.0]), requires_grad=True)
+_b = _mk(2 * _a.data, (_a,), lambda o: accumulate(_a, 2 * o.grad))
+_c = _mk(3 * _a.data, (_a,), lambda o: accumulate(_a, 3 * o.grad))
+_d = _mk(_b.data + _c.data, (_b, _c), lambda o: (accumulate(_b, o.grad), accumulate(_c, o.grad)))
+_d.backward()
+check("diamond: the two paths 2 + 3 add up to 5 for each entry", lambda: np.allclose(_a.grad, 5.0), "accumulate, do not overwrite; process the root first")
+check("intermediate nodes received the seed (b.grad == 1)", lambda: np.allclose(_b.grad, 1.0) and np.allclose(_d.grad, 1.0))
+_d.backward()
+check("calling backward twice doubles a leaf gradient (and only that)", lambda: np.allclose(_a.grad, 10.0) and np.allclose(_b.grad, 1.0), "Reset non-leaf grads at the start of backprop")
+_a2 = Tensor(np.array([1.0, 2.0]), requires_grad=True)
+_o = _mk(4 * _a2.data, (_a2,), lambda o: accumulate(_a2, 4 * o.grad))
+_o.backward(np.array([1.0, 10.0]))
+check("an explicit seed is used", lambda: np.allclose(_a2.grad, [4.0, 40.0]))
+_k = Tensor(np.array([1.0]))
+_kk = Tensor(np.array([7.0]), requires_grad=True)
+_m = _mk(_k.data + _kk.data, (_k, _kk), lambda o: (accumulate(_k, o.grad), accumulate(_kk, o.grad)))
+_m.backward()
+check("a leaf that does not require grad stays None", lambda: _k.grad is None and np.allclose(_kk.grad, 1.0))
+# %% hint
+`order = topo_order(root)`, `for n in order: if n._prev: n.grad = None`, `accumulate(root, np.ones_like(root.data) if seed is None else seed)`, puis `for n in reversed(order): if n.requires_grad: n._backward()`.
+# %% solution
+def backprop(root, seed=None):
+    order = topo_order(root)
+    for n in order:
+        if n._prev:
+            n.grad = None
+    if seed is None:
+        seed = np.ones_like(root.data)
+    accumulate(root, seed)
+    for n in reversed(order):
+        if n.requires_grad:
+            n._backward()
+# %% md Gradients numériques
+Une passe inverse n'est digne de confiance qu'une fois testée contre quelque chose d'indépendant : la différence centrée $\partial f/\partial x_i \approx (f(x+h e_i) - f(x - h e_i))/2h$. C'est exactement le contrôle de [[f2n.10]] et [[f2n.12]], écrit ici comme un outil réutilisable sur de simples fonctions NumPy (aucun Tensor n'intervient, il ne peut donc pas partager un bug avec ton moteur).
+
+# %% task Gradient numérique
+def numeric_grad(f, x, h=1e-6):
+    """f maps a float array to a Python float. Return the central-difference gradient, same shape as x.
+    Do not modify the array the caller passed in."""
+    x = np.array(x, dtype=np.float64)
+    # TODO
+    raise NotImplementedError
+# %% check
+_x = np.array([[1.0, -2.0], [0.5, 3.0]])
+check("quadratic: grad of sum(x^2) is 2x", lambda: np.allclose(numeric_grad(lambda a: float((a ** 2).sum()), _x), 2 * _x, atol=1e-7))
+_w = np.array([[1.0, 2.0], [3.0, 4.0]])
+check("linear: grad of sum(x * w) is w", lambda: np.allclose(numeric_grad(lambda a: float((a * _w).sum()), _x), _w, atol=1e-7))
+check("nonlinear: grad of sum(sin(x)) is cos(x)", lambda: np.allclose(numeric_grad(lambda a: float(np.sin(a).sum()), _x), np.cos(_x), atol=1e-7))
+_keep = _x.copy(); numeric_grad(lambda a: float(a.sum()), _x)
+check("the input array is not modified", lambda: np.array_equal(_x, _keep))
+check("scalar input (0-d array) works and the shape is preserved", lambda: np.shape(numeric_grad(lambda a: float(a ** 3), np.array(2.0))) == () and abs(float(numeric_grad(lambda a: float(a ** 3), np.array(2.0))) - 12.0) < 1e-5)
+# %% hint
+`g = np.zeros_like(x)` ; `for idx in np.ndindex(*x.shape):` sauvegarde `old = x[idx]`, mets `x[idx] = old + h`, évalue, mets `x[idx] = old - h`, évalue, restaure.
+# %% solution
+def numeric_grad(f, x, h=1e-6):
+    x = np.array(x, dtype=np.float64)
+    g = np.zeros_like(x)
+    for idx in np.ndindex(*x.shape):
+        old = x[idx]
+        x[idx] = old + h
+        fp = f(x)
+        x[idx] = old - h
+        fm = f(x)
+        x[idx] = old
+        g[idx] = (fp - fm) / (2 * h)
+    return g
+# %% md Le vérificateur d'opérations
+`op_grad_error(fn, *arrays)` est le banc de test de tout le projet. Il exécute `fn` sur des Tensors, rétropropage un **gradient amont aléatoire fixé** `W` (pour que chaque entrée de la sortie compte, et pas seulement leur somme), et compare le `.grad` de chaque entrée avec `numeric_grad` du scalaire `sum(fn(...).data * W)`. Il renvoie l'erreur la plus grande `max |a - n| / (1 + |a| + |n|)`. Une opération correcte donne environ $10^{-9}$ ou moins.
+
+# %% code
+def op_grad_error(fn, *arrays, seed=0):
+    rng = np.random.default_rng(seed)
+    ts = [Tensor(a, requires_grad=True) for a in arrays]
+    out = fn(*ts)
+    W = rng.normal(size=out.shape)
+    out.backward(W)
+    worst = 0.0
+    for i, a in enumerate(arrays):
+        def f(x, i=i):
+            args = [Tensor(x if j == i else arrays[j]) for j in range(len(arrays))]
+            return float((fn(*args).data * W).sum())
+        num = numeric_grad(f, np.asarray(a, dtype=float))
+        ana = ts[i].grad if ts[i].grad is not None else np.zeros_like(num)
+        assert ana.shape == num.shape, f"input {i}: gradient shape {ana.shape} != {num.shape}"
+        worst = max(worst, float(np.max(np.abs(ana - num) / (1 + np.abs(ana) + np.abs(num)))))
+    return worst
+# %% md Résumé de l'étape 1
+**Ce que tu as appris.** Le mode inverse demande quatre ingrédients : un ordre où chaque nœud vient après ses parents, une graine, une écriture par accumulation (`+=`), et la réparation des formes après le broadcasting. Les gradients des nœuds non-feuilles sont un espace de travail pour une seule passe ; les gradients des feuilles persistent, c'est pourquoi les boucles d'entraînement doivent les remettre à zéro. Un contrôle numérique sur du NumPy pur est l'arbitre indépendant de tout ce qui suit.
+
+# %% report
+Dessine (ou décris) le graphe de `f = a*b + a**2` et écris les deux contributions qui arrivent dans `a.grad`. Explique ensuite ce qui irait mal si `accumulate` utilisait `=` au lieu de `+=`.
+# %% md Étape 2 : opérations différentiables
+## Étape 2 : les opérations
+
+Chaque opération suit le schéma de `pow_const`. Les fermetures de rétropropagation appellent `accumulate`, qui unbroadcaste ; tu n'écris donc que la dérivée *locale* multipliée par `out.grad`:
+
+| opération | passe avant | rétropropagation vers les entrées |
+|---|---|---|
+| `add(a, b)` | $a+b$ | $\bar a \mathrel{+}= \bar c,\ \bar b \mathrel{+}= \bar c$ |
+| `mul(a, b)` | $a\odot b$ | $\bar a \mathrel{+}= \bar c\odot b,\ \bar b \mathrel{+}= \bar c\odot a$ |
+| `matmul(a, b)` | $AB$ | $\bar A \mathrel{+}= \bar C B^\top,\ \bar B \mathrel{+}= A^\top \bar C$ |
+| `tsum`, `tmean` | réduction sur des axes | rediffuser $\bar c$ (et diviser par le nombre d'éléments pour la moyenne) |
+| `exp`, `log`, `relu`, `tanh` | terme à terme | $c\bar c,\ \bar c/a,\ \bar c\,[a>0],\ (1-c^2)\bar c$ |
+| `softmax_cross_entropy(z, y)` | entropie croisée moyenne | $\frac{1}{B}(P-\mathrm{onehot}(y))\,\bar c$ |
+
+La règle de `matmul` est la même paire de formules que tu as dérivée pour `dW2 = A1.T @ dZ2` et `dA1 = dZ2 @ W2.T` dans [[f2n.10]].
+
+# %% task add et mul
+def add(a, b):
+    """Elementwise sum with NumPy broadcasting. Return a Tensor with _prev=(a, b)."""
+    # TODO
+    raise NotImplementedError
+
+def mul(a, b):
+    """Elementwise product with NumPy broadcasting."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_rng = np.random.default_rng(10)
+_A = _rng.normal(size=(3, 4)); _B = _rng.normal(size=(4,)); _C = _rng.normal(size=(3, 1))
+check("forward values equal NumPy (with broadcasting)", lambda: np.allclose(add(Tensor(_A), Tensor(_B)).data, _A + _B) and np.allclose(mul(Tensor(_A), Tensor(_C)).data, _A * _C))
+check("add gradients: (3,4) + (4,) [row broadcast]", lambda: op_grad_error(add, _A, _B) < 1e-7, "The bias-like (4,) operand must receive the SUM over rows; accumulate/unbroadcast does that if you pass out.grad")
+check("mul gradients: (3,4) * (3,1) [column broadcast]", lambda: op_grad_error(mul, _A, _C) < 1e-7)
+check("mul gradients: (3,1) * (4,) -> (3,4) [both operands broadcast]", lambda: op_grad_error(mul, _C, _B) < 1e-7)
+check("scalar (0-d) operands", lambda: op_grad_error(add, _A, np.array(1.5)) < 1e-7 and op_grad_error(mul, np.array(2.0), _A) < 1e-7)
+_x = Tensor(np.array([1.0, 2.0, 3.0]), requires_grad=True)
+(_x * _x).backward()
+check("using the same tensor twice accumulates: d(x*x)/dx = 2x", lambda: np.allclose(_x.grad, 2 * _x.data))
+check("operators and derived ops (-, /, constants) work end to end", lambda: op_grad_error(lambda a, b: (a * b + a - b / 2.0) * 3.0 - 1.0 / (b * b + 1.0), _A, _A[::-1].copy()) < 1e-7)
+_k = Tensor(np.array([2.0, 2.0]))
+_v = Tensor(np.array([1.0, 5.0]), requires_grad=True)
+(_k * _v).backward()
+check("a constant operand gets no gradient", lambda: _k.grad is None and np.allclose(_v.grad, 2.0))
+# %% hint
+```
+out = Tensor(a.data + b.data, _prev=(a, b), _op="add")
+def _backward():
+    accumulate(a, out.grad)
+    accumulate(b, out.grad)
+out._backward = _backward
+return out
+```
+# %% hint
+Pour `mul`, le gradient vers `a` est `out.grad * b.data` et vers `b` est `out.grad * a.data`. Ne fais pas l'unbroadcasting toi-même : `accumulate` s'en charge.
+# %% solution
+def add(a, b):
+    out = Tensor(a.data + b.data, _prev=(a, b), _op="add")
+    def _backward():
+        accumulate(a, out.grad)
+        accumulate(b, out.grad)
+    out._backward = _backward
+    return out
+
+def mul(a, b):
+    out = Tensor(a.data * b.data, _prev=(a, b), _op="mul")
+    def _backward():
+        accumulate(a, out.grad * b.data)
+        accumulate(b, out.grad * a.data)
+    out._backward = _backward
+    return out
+# %% task matmul
+def matmul(a, b):
+    """Matrix product of two 2-D tensors, shapes (m, k) @ (k, n) -> (m, n)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_A = _rng.normal(size=(3, 4)); _B = _rng.normal(size=(4, 2)); _D = _rng.normal(size=(2, 5))
+check("forward equals NumPy and has shape (3, 2)", lambda: matmul(Tensor(_A), Tensor(_B)).shape == (3, 2) and np.allclose(matmul(Tensor(_A), Tensor(_B)).data, _A @ _B))
+check("gradients of both operands (3,4) @ (4,2)", lambda: op_grad_error(matmul, _A, _B) < 1e-7, "dA = dC @ B.T and dB = A.T @ dC")
+check("the @ operator and a chain a @ b @ d", lambda: op_grad_error(lambda a, b, d: a @ b @ d, _A, _B, _D) < 1e-7)
+_S = _rng.normal(size=(3, 3))
+check("a square matrix multiplied with itself (shared operand)", lambda: op_grad_error(lambda s: s @ s, _S) < 1e-7, "Both uses of s contribute; this only works if gradients accumulate")
+check("a single-row batch (1, 4) @ (4, 2)", lambda: op_grad_error(matmul, _A[:1], _B) < 1e-7)
+_X = Tensor(_A); _Wt = Tensor(_B, requires_grad=True)
+(_X @ _Wt).backward(np.ones((3, 2)))
+check("a constant input matrix (data) gets no gradient but the weights do", lambda: _X.grad is None and np.allclose(_Wt.grad, _A.sum(0)[:, None] * np.ones((1, 2))))
+# %% hint
+`out = Tensor(a.data @ b.data, _prev=(a, b), _op="matmul")`. Rétropropagation : `accumulate(a, out.grad @ b.data.T)` et `accumulate(b, a.data.T @ out.grad)`. Vérifie les formes : (m,n)(n,k) = (m,k) et (k,m)(m,n) = (k,n).
+# %% solution
+def matmul(a, b):
+    out = Tensor(a.data @ b.data, _prev=(a, b), _op="matmul")
+    def _backward():
+        accumulate(a, out.grad @ b.data.T)
+        accumulate(b, a.data.T @ out.grad)
+    out._backward = _backward
+    return out
+# %% task Réductions : somme et moyenne
+def tsum(a, axis=None, keepdims=False):
+    """Sum over `axis` (None, an int, or a tuple of ints), like np.sum. The backward pass must broadcast
+    out.grad back to a.data.shape; when keepdims is False the reduced axes have to be re-inserted first
+    (np.expand_dims) before broadcasting with np.broadcast_to."""
+    # TODO
+    raise NotImplementedError
+
+def tmean(a, axis=None, keepdims=False):
+    """Mean over `axis`: the sum divided by the number of reduced elements (backward: spread out.grad / count)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_A = _rng.normal(size=(3, 4, 2))
+check("tsum values: all, axis, tuple, keepdims, negative axis", lambda: np.isclose(tsum(Tensor(_A)).data, _A.sum()) and np.allclose(tsum(Tensor(_A), 1).data, _A.sum(1)) and tsum(Tensor(_A), (0, 2), True).shape == (1, 4, 1) and np.allclose(tsum(Tensor(_A), -1).data, _A.sum(-1)))
+check("tsum gradients for every axis choice", lambda: max(op_grad_error(lambda t, ax=ax, kd=kd: tsum(t, ax, kd), _A) for ax in (None, 0, 1, -1, (0, 2)) for kd in (False, True)) < 1e-7, "Without keepdims, re-insert the reduced axes with np.expand_dims before np.broadcast_to")
+check("tmean values", lambda: np.isclose(tmean(Tensor(_A)).data, _A.mean()) and np.allclose(tmean(Tensor(_A), (0, 1)).data, _A.mean((0, 1))))
+check("tmean gradients for every axis choice", lambda: max(op_grad_error(lambda t, ax=ax, kd=kd: tmean(t, ax, kd), _A) for ax in (None, 0, 2, (1, 2)) for kd in (False, True)) < 1e-7)
+_z = Tensor(np.ones((4, 5)), requires_grad=True)
+_z.mean().backward()
+check("mean of 20 ones: every gradient entry is 1/20", lambda: np.allclose(_z.grad, 1 / 20))
+_q = Tensor(np.ones(3), requires_grad=True)
+(_q.sum() * 2.0).backward()
+check("methods and scalars compose: d(2*sum(q))/dq = 2", lambda: np.allclose(_q.grad, 2.0) and tsum(Tensor(_A)).shape == ())
+# %% hint
+Pour `sum` : `out = Tensor(a.data.sum(axis=axis, keepdims=keepdims), _prev=(a,))`. Dans la fermeture : `g = out.grad` ; `if axis is not None and not keepdims: g = np.expand_dims(g, axis)` ; puis `accumulate(a, np.broadcast_to(g, a.data.shape))`.
+# %% hint
+`np.expand_dims` accepte un entier ou un tuple d'axes, y compris négatifs, donc le même code gère tous les cas.
+# %% hint
+`tmean` : `count = a.data.size / out.data.size` (nombre d'éléments moyennés dans chaque entrée de la sortie) et divise le gradient rediffusé par cette valeur.
+# %% solution
+def tsum(a, axis=None, keepdims=False):
+    out = Tensor(a.data.sum(axis=axis, keepdims=keepdims), _prev=(a,), _op="sum")
+    def _backward():
+        g = out.grad
+        if axis is not None and not keepdims:
+            g = np.expand_dims(g, axis)
+        accumulate(a, np.broadcast_to(g, a.data.shape))
+    out._backward = _backward
+    return out
+
+def tmean(a, axis=None, keepdims=False):
+    out = Tensor(a.data.mean(axis=axis, keepdims=keepdims), _prev=(a,), _op="mean")
+    count = a.data.size / out.data.size
+    def _backward():
+        g = out.grad
+        if axis is not None and not keepdims:
+            g = np.expand_dims(g, axis)
+        accumulate(a, np.broadcast_to(g, a.data.shape) / count)
+    out._backward = _backward
+    return out
+# %% task Terme à terme : exp, log, relu, tanh
+def exp(a):
+    """c = e^a. Hint: the derivative is the output itself."""
+    # TODO
+    raise NotImplementedError
+
+def log(a):
+    """c = ln a (natural log, a > 0)."""
+    # TODO
+    raise NotImplementedError
+
+def relu(a):
+    """c = max(0, a). Convention: the derivative at exactly 0 is 0, i.e. the mask is (a > 0)."""
+    # TODO
+    raise NotImplementedError
+
+def tanh(a):
+    """c = tanh(a). Derivative 1 - c^2."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_P = _rng.normal(size=(3, 4)); _Q = np.abs(_P) + 0.5
+check("exp: values and gradient", lambda: np.allclose(exp(Tensor(_P)).data, np.exp(_P)) and op_grad_error(exp, _P) < 1e-7)
+check("log: values and gradient (positive inputs)", lambda: np.allclose(log(Tensor(_Q)).data, np.log(_Q)) and op_grad_error(log, _Q) < 1e-7)
+check("tanh: values and gradient", lambda: np.allclose(tanh(Tensor(_P)).data, np.tanh(_P)) and op_grad_error(tanh, _P) < 1e-7)
+check("relu: values and gradient away from 0", lambda: np.allclose(relu(Tensor(_P)).data, np.maximum(0, _P)) and op_grad_error(relu, _P) < 1e-7)
+_r = Tensor(np.array([-1.0, 0.0, 2.0]), requires_grad=True)
+relu(_r).backward()
+check("relu gradient is 0 for negatives, 0 at exactly 0, 1 for positives", lambda: np.allclose(_r.grad, [0.0, 0.0, 1.0]))
+check("methods and pow_const compose: tanh(x).exp() and (x**3)", lambda: op_grad_error(lambda t: t.tanh().exp() + t ** 3, _P) < 1e-7)
+check("a composition of all four (chain rule through several nodes)", lambda: op_grad_error(lambda t: log(exp(relu(tanh(t) * 2.0 + 1.0)) + 1.0), _P) < 1e-7)
+# %% hint
+`exp` : `out = Tensor(np.exp(a.data), _prev=(a,), _op="exp")`, rétropropagation `accumulate(a, out.grad * out.data)`.
+# %% hint
+`log` : `accumulate(a, out.grad / a.data)`. `relu` : `accumulate(a, out.grad * (a.data > 0))`. `tanh` : `accumulate(a, out.grad * (1 - out.data ** 2))`.
+# %% solution
+def exp(a):
+    out = Tensor(np.exp(a.data), _prev=(a,), _op="exp")
+    def _backward():
+        accumulate(a, out.grad * out.data)
+    out._backward = _backward
+    return out
+
+def log(a):
+    out = Tensor(np.log(a.data), _prev=(a,), _op="log")
+    def _backward():
+        accumulate(a, out.grad / a.data)
+    out._backward = _backward
+    return out
+
+def relu(a):
+    out = Tensor(np.maximum(0.0, a.data), _prev=(a,), _op="relu")
+    def _backward():
+        accumulate(a, out.grad * (a.data > 0))
+    out._backward = _backward
+    return out
+
+def tanh(a):
+    out = Tensor(np.tanh(a.data), _prev=(a,), _op="tanh")
+    def _backward():
+        accumulate(a, out.grad * (1.0 - out.data ** 2))
+    out._backward = _backward
+    return out
+# %% task Entropie croisée avec softmax fusionnée
+def softmax_cross_entropy(logits, y):
+    """Mean cross-entropy of softmax(logits) against integer labels y. logits: Tensor (B, K); y: int array (B,).
+    Return a SCALAR Tensor. Compute log-softmax stably (subtract the row max). This is one fused op because
+    the combined gradient is simple: d loss / d logits = (P - onehot(y)) / B  (multiply by out.grad)."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_Z = _rng.normal(size=(5, 4)); _y = np.array([0, 3, 1, 1, 2])
+def _ref_ce(z, y):
+    zs = z - z.max(1, keepdims=True); lp = zs - np.log(np.exp(zs).sum(1, keepdims=True))
+    return -lp[np.arange(len(y)), y].mean()
+check("the loss is a scalar Tensor equal to the NumPy reference", lambda: softmax_cross_entropy(Tensor(_Z), _y).shape == () and np.isclose(softmax_cross_entropy(Tensor(_Z), _y).data, _ref_ce(_Z, _y)))
+check("finite-difference gradient check", lambda: op_grad_error(lambda z: softmax_cross_entropy(z, _y), _Z) < 1e-7)
+def _manual_dz(z, y):
+    zs = z - z.max(1, keepdims=True); P = np.exp(zs); P /= P.sum(1, keepdims=True)
+    P[np.arange(len(y)), y] -= 1; return P / len(y)
+_zt = Tensor(_Z, requires_grad=True); softmax_cross_entropy(_zt, _y).backward()
+check("gradient equals the hand-derived (P - onehot(y)) / B of lesson f2n.10", lambda: np.allclose(_zt.grad, _manual_dz(_Z, _y), atol=1e-12))
+check("stable for huge logits (no inf / nan)", lambda: np.isfinite(softmax_cross_entropy(Tensor(_Z * 500), _y).data) and np.isfinite(op_grad_error(lambda z: softmax_cross_entropy(z, _y), _Z * 50)))
+check("uniform logits give loss ln K", lambda: np.isclose(softmax_cross_entropy(Tensor(np.zeros((3, 4))), np.array([0, 1, 2])).data, np.log(4)))
+_zt2 = Tensor(_Z, requires_grad=True); (softmax_cross_entropy(_zt2, _y) * 3.0).backward()
+check("the upstream gradient is respected (3 * loss gives 3 * gradient)", lambda: np.allclose(_zt2.grad, 3 * _manual_dz(_Z, _y), atol=1e-12))
+check("every gradient row sums to 0", lambda: np.allclose(_zt.grad.sum(1), 0, atol=1e-12))
+# %% hint
+`Zs = z - z.max(1, keepdims=True)` ; `logp = Zs - np.log(np.exp(Zs).sum(1, keepdims=True))` ; perte `= -logp[np.arange(B), y].mean()` ; garde `P = np.exp(logp)` pour la passe inverse.
+# %% hint
+Rétropropagation : `d = P.copy(); d[np.arange(B), y] -= 1; accumulate(logits, d / B * out.grad)`. Ici `out.grad` est un tableau 0-d ; le multiplier est sans problème.
+# %% solution
+def softmax_cross_entropy(logits, y):
+    z = logits.data
+    B = len(y)
+    zs = z - z.max(axis=1, keepdims=True)
+    logp = zs - np.log(np.exp(zs).sum(axis=1, keepdims=True))
+    P = np.exp(logp)
+    out = Tensor(-logp[np.arange(B), y].mean(), _prev=(logits,), _op="softmax_ce")
+    def _backward():
+        d = P.copy()
+        d[np.arange(B), y] -= 1.0
+        accumulate(logits, d / B * out.grad)
+    out._backward = _backward
+    return out
+# %% md Le tableau de contrôle des gradients
+Chaque opération, un nombre chacune. C'est le tableau que tu collerais dans une pull request. Toutes les erreurs doivent être inférieures à $10^{-7}$.
+
+# %% code
+_r = np.random.default_rng(42)
+_M, _N, _V = _r.normal(size=(4, 3)), _r.normal(size=(3, 5)), _r.normal(size=(5,))
+_Zc, _yc = _r.normal(size=(6, 4)), np.array([0, 1, 2, 3, 0, 1])
+OP_TABLE = [
+    ("add (broadcast)",   lambda: op_grad_error(add, _M, _V[:3])),
+    ("mul (broadcast)",   lambda: op_grad_error(mul, _M, _V[:3])),
+    ("matmul",            lambda: op_grad_error(matmul, _M, _N)),
+    ("sum(axis=0)",       lambda: op_grad_error(lambda t: tsum(t, 0), _M)),
+    ("mean(axis=1, kd)",  lambda: op_grad_error(lambda t: tmean(t, 1, True), _M)),
+    ("exp",               lambda: op_grad_error(exp, _M)),
+    ("log",               lambda: op_grad_error(log, np.abs(_M) + 0.5)),
+    ("relu",              lambda: op_grad_error(relu, _M)),
+    ("tanh",              lambda: op_grad_error(tanh, _M)),
+    ("softmax_xent",      lambda: op_grad_error(lambda z: softmax_cross_entropy(z, _yc), _Zc)),
+]
+print(f"{'op':<20}{'max error':>12}")
+for _name, _fn in OP_TABLE:
+    _e = _fn()
+    print(f"{_name:<20}{_e:>12.2e}")
+    assert _e < 1e-7, _name + " failed its gradient check"
+# %% md Résumé de l'étape 2
+**Ce que tu as appris.** La rétropropagation de chaque opération, c'est « dérivée locale fois gradient amont, puis accumuler ». Le broadcasting se cache dans la passe avant et se défait dans `accumulate` ; les réductions ont le problème inverse (des axes disparaissent) et ont besoin de `expand_dims`. Fusionner softmax et entropie croisée transforme un produit de jacobiennes numériquement fragile en `(P - onehot) / B`. Et un gradient amont *aléatoire* fixé fait travailler le vérificateur sur chaque entrée de la sortie, ce qu'un simple `sum()` ne ferait pas.
+
+# %% report
+Pourquoi `op_grad_error` rétropropage-t-il un vecteur de poids aléatoire `W` au lieu d'appeler `.sum()` sur la sortie ? Donne un exemple de règle de rétropropagation fausse qu'un contrôle par simple somme pourrait laisser passer.
+# %% md Étape 3 : modules et optimiseurs
+## Étape 3 : modules et optimiseurs
+
+Les opérations suffisent pour écrire n'importe quel réseau à la main, mais un `Module` regroupe des paramètres avec le calcul qui les utilise, et un optimiseur met à jour une liste de Tensors de paramètres à partir de leur `.grad`. Fournis : la classe de base `Module`, et les enveloppes `ReLU` et `Tanh`. Tu écris `Linear` et `Sequential`.
+
+# %% code
+class Module:
+    def __call__(self, x): return self.forward(x)
+    def forward(self, x): raise NotImplementedError
+    def parameters(self): return []
+    def zero_grad(self):
+        for p in self.parameters():
+            p.grad = None
+
+class ReLU(Module):
+    def forward(self, x): return relu(x)
+
+class Tanh(Module):
+    def forward(self, x): return tanh(x)
+# %% task Linear et Sequential
+class Linear(Module):
+    def __init__(self, n_in, n_out, rng):
+        """W has shape (n_in, n_out), drawn from Normal(0, 2/n_in) with rng.normal (He initialisation);
+        b has shape (n_out,) of zeros. Both are Tensors with requires_grad=True: self.W, self.b."""
+        # TODO
+        raise NotImplementedError
+    def forward(self, x):
+        # TODO y = x @ W + b  (the bias broadcasts over the batch)
+        raise NotImplementedError
+    def parameters(self):
+        # TODO
+        raise NotImplementedError
+
+class Sequential(Module):
+    def __init__(self, *layers):
+        self.layers = list(layers)
+    def forward(self, x):
+        # TODO apply the layers in order
+        raise NotImplementedError
+    def parameters(self):
+        # TODO the concatenated parameters of all layers, in layer order
+        raise NotImplementedError
+# %% check
+_rg = np.random.default_rng(5)
+_lin = Linear(400, 300, np.random.default_rng(0))
+check("Linear parameters: shapes, zero bias, requires_grad", lambda: _lin.W.shape == (400, 300) and _lin.b.shape == (300,) and np.all(_lin.b.data == 0) and _lin.W.requires_grad and _lin.b.requires_grad and len(_lin.parameters()) == 2)
+check("He initialisation: std of W is sqrt(2/n_in) within 5%", lambda: abs(_lin.W.data.std() / np.sqrt(2 / 400) - 1) < 0.05)
+_l2 = Linear(3, 2, np.random.default_rng(1)); _xx = _rg.normal(size=(5, 3))
+check("Linear forward equals x @ W + b and returns a Tensor", lambda: isinstance(_l2(Tensor(_xx)), Tensor) and np.allclose(_l2(Tensor(_xx)).data, _xx @ _l2.W.data + _l2.b.data))
+_net = Sequential(Linear(3, 6, np.random.default_rng(2)), ReLU(), Linear(6, 4, np.random.default_rng(3)), Tanh(), Linear(4, 2, np.random.default_rng(4)))
+def _manual_net(net, x):
+    a = x
+    for L in net.layers:
+        if isinstance(L, Linear): a = a @ L.W.data + L.b.data
+        elif isinstance(L, ReLU): a = np.maximum(0, a)
+        else: a = np.tanh(a)
+    return a
+check("Sequential.parameters returns 6 tensors in layer order (W, b, W, b, ...)", lambda: len(_net.parameters()) == 6 and _net.parameters()[0] is _net.layers[0].W and _net.parameters()[3] is _net.layers[2].b and _net.parameters()[4] is _net.layers[4].W)
+check("Sequential forward equals the layer-by-layer NumPy computation", lambda: np.allclose(_net(Tensor(_xx)).data, _manual_net(_net, _xx)))
+_yy = np.array([0, 1, 1, 0, 1])
+softmax_cross_entropy(_net(Tensor(_xx)), _yy).backward()
+check("after backward every parameter has a gradient of its own shape (the bias gradient is summed over the batch)", lambda: all(p.grad is not None and p.grad.shape == p.data.shape for p in _net.parameters()))
+_net.zero_grad()
+check("zero_grad clears all parameter gradients", lambda: all(p.grad is None for p in _net.parameters()))
+check("the whole network passes a finite-difference check on its input", lambda: op_grad_error(lambda t: _net(t), _xx) < 1e-7)
+# %% hint
+`self.W = Tensor(rng.normal(0.0, np.sqrt(2.0 / n_in), (n_in, n_out)), requires_grad=True)` et `self.b = Tensor(np.zeros(n_out), requires_grad=True)`. `forward` : `return x @ self.W + self.b`.
+# %% hint
+`Sequential.parameters` : `return [p for layer in self.layers for p in layer.parameters()]`.
+# %% solution
+class Linear(Module):
+    def __init__(self, n_in, n_out, rng):
+        self.W = Tensor(rng.normal(0.0, np.sqrt(2.0 / n_in), (n_in, n_out)), requires_grad=True)
+        self.b = Tensor(np.zeros(n_out), requires_grad=True)
+    def forward(self, x):
+        return x @ self.W + self.b
+    def parameters(self):
+        return [self.W, self.b]
+
+class Sequential(Module):
+    def __init__(self, *layers):
+        self.layers = list(layers)
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
+# %% task SGD (avec momentum) et Adam pour les Tensors
+class SGD:
+    def __init__(self, params, lr, momentum=0.0):
+        self.params = list(params); self.lr = lr; self.mu = momentum
+        self.v = [np.zeros_like(p.data) for p in self.params]
+    def step(self):
+        """For each parameter with grad not None: v = mu*v - lr*grad ; p.data += v  (in place on p.data and v)."""
+        # TODO
+        raise NotImplementedError
+    def zero_grad(self):
+        for p in self.params:
+            p.grad = None
+
+class Adam:
+    def __init__(self, params, lr=1e-3, b1=0.9, b2=0.999, eps=1e-8):
+        self.params = list(params); self.lr, self.b1, self.b2, self.eps = lr, b1, b2, eps
+        self.m = [np.zeros_like(p.data) for p in self.params]
+        self.v = [np.zeros_like(p.data) for p in self.params]
+        self.t = 0
+    def step(self):
+        """t += 1 ONCE per call; for each parameter with grad not None: the bias-corrected Adam update of dl.01,
+        applied in place on p.data."""
+        # TODO
+        raise NotImplementedError
+    def zero_grad(self):
+        for p in self.params:
+            p.grad = None
+# %% check
+def _p(vals): return Tensor(np.array(vals, dtype=float), requires_grad=True)
+_w = _p([1.0, 2.0]); _o = SGD([_w], 0.1); _w.grad = np.array([1.0, -1.0]); _arr = _w.data; _o.step()
+check("SGD: p <- p - lr * g, in place on p.data", lambda: np.allclose(_w.data, [0.9, 2.1]) and _w.data is _arr)
+_w1 = _p([1.0]); _om = SGD([_w1], 0.1, 0.9)
+_w1.grad = np.array([1.0]); _om.step(); _w1.grad = np.array([1.0]); _om.step()
+check("SGD momentum after two steps: 0.71", lambda: np.allclose(_w1.data, [0.71]))
+_wa, _wb = _p([1.0]), _p([1.0]); _wa.grad = np.array([1.0]); SGD([_wa, _wb], 0.5).step()
+check("parameters whose grad is None are skipped (SGD)", lambda: np.allclose(_wa.data, 0.5) and np.allclose(_wb.data, 1.0))
+def _adam_ref(gs, lr=0.01, b1=0.9, b2=0.999, eps=1e-8):
+    p = np.zeros(2); m = np.zeros(2); v = np.zeros(2)
+    for t, g in enumerate(gs, 1):
+        m = b1 * m + (1 - b1) * g; v = b2 * v + (1 - b2) * g * g
+        p = p - lr * (m / (1 - b1 ** t)) / (np.sqrt(v / (1 - b2 ** t)) + eps)
+    return p
+_gs = [np.array([5.0, -0.02]), np.array([1.0, 0.3]), np.array([-2.0, 0.1])]
+_wd = _p([0.0, 0.0]); _oa = Adam([_wd], 0.01)
+_wd.grad = _gs[0].copy(); _oa.step(); _first = _wd.data.copy()
+for _g in _gs[1:]:
+    _wd.grad = _g.copy(); _oa.step()
+check("Adam: first step is about +-lr per coordinate whatever the gradient scale", lambda: np.allclose(_first, [-0.01, 0.01], atol=1e-6))
+check("Adam: three steps equal an independent reference", lambda: np.allclose(_wd.data, _adam_ref(_gs), atol=1e-10))
+_wc, _wd2 = _p([0.0, 0.0]), _p([0.0, 0.0]); _wc.grad = np.array([1.0, 1.0]); _wd2.grad = None
+_ob = Adam([_wc, _wd2], 0.1); _ob.step()
+check("Adam: skips None gradients and counts one step per call", lambda: _ob.t == 1 and np.allclose(_wd2.data, 0.0) and np.all(_wc.data < 0))
+_wz = _p([1.0]); _wz.grad = np.array([2.0]); _oz = SGD([_wz], 0.1); _oz.zero_grad()
+check("zero_grad sets every gradient to None", lambda: _wz.grad is None)
+# %% hint
+SGD : `for p, v in zip(self.params, self.v): if p.grad is None: continue; v *= self.mu; v -= self.lr * p.grad; p.data += v`.
+# %% hint
+Adam : après `self.t += 1`, calcule `c1 = 1 - b1**t`, `c2 = 1 - b2**t` ; pour chaque paramètre, mets à jour `m` et `v` sur place, puis `p.data -= lr * (m/c1) / (np.sqrt(v/c2) + eps)`.
+# %% solution
+class SGD:
+    def __init__(self, params, lr, momentum=0.0):
+        self.params = list(params); self.lr = lr; self.mu = momentum
+        self.v = [np.zeros_like(p.data) for p in self.params]
+    def step(self):
+        for p, v in zip(self.params, self.v):
+            if p.grad is None:
+                continue
+            v *= self.mu
+            v -= self.lr * p.grad
+            p.data += v
+    def zero_grad(self):
+        for p in self.params:
+            p.grad = None
+
+class Adam:
+    def __init__(self, params, lr=1e-3, b1=0.9, b2=0.999, eps=1e-8):
+        self.params = list(params); self.lr, self.b1, self.b2, self.eps = lr, b1, b2, eps
+        self.m = [np.zeros_like(p.data) for p in self.params]
+        self.v = [np.zeros_like(p.data) for p in self.params]
+        self.t = 0
+    def step(self):
+        self.t += 1
+        c1 = 1.0 - self.b1 ** self.t
+        c2 = 1.0 - self.b2 ** self.t
+        for p, m, v in zip(self.params, self.m, self.v):
+            if p.grad is None:
+                continue
+            m *= self.b1; m += (1 - self.b1) * p.grad
+            v *= self.b2; v += (1 - self.b2) * p.grad * p.grad
+            p.data -= self.lr * (m / c1) / (np.sqrt(v / c2) + self.eps)
+    def zero_grad(self):
+        for p in self.params:
+            p.grad = None
+# %% md Résumé de l'étape 3
+**Ce que tu as appris.** Un module, c'est simplement « des paramètres plus une fonction forward » ; le graphe est reconstruit à chaque appel de forward, donc rien dans le modèle n'a besoin d'être déclaré à l'avance (define-by-run). Les optimiseurs lisent `.grad` et modifient `.data` sur place, et un gradient resté d'une étape précédente est un bug que `zero_grad` existe pour empêcher.
+
+# %% report
+À quel endroit d'une étape d'entraînement faut-il appeler `zero_grad`, et pourquoi la réponse est-elle différente de « après `step` » ? Que deviendrait la courbe de la fonction de perte si tu l'oubliais complètement (tu testeras ta réponse à l'étape suivante) ?
+# %% md Étape 4 : entraînement sur moons
+## Étape 4 : entraîner un MLP sur moons
+
+L'heure d'utiliser le framework. Deux demi-cercles entrelacés avec du bruit, un réseau ReLU 2-16-16-2, un entraînement en full-batch. Tout le code ci-dessous est fourni, donc tout échec ici renvoie à l'un de tes composants.
+
+# %% code
+def make_moons(n, noise=0.15, seed=0):
+    rng = np.random.default_rng(seed)
+    t = np.linspace(0, np.pi, n // 2)
+    a = np.c_[np.cos(t), np.sin(t)]
+    b = np.c_[1 - np.cos(t), 0.5 - np.sin(t)]
+    X = np.vstack([a, b]) + noise * rng.normal(size=(2 * (n // 2), 2))
+    y = np.r_[np.zeros(n // 2), np.ones(n // 2)].astype(int)
+    perm = rng.permutation(len(y))
+    return X[perm], y[perm]
+
+Xm, ym = make_moons(400, 0.15, 0)
+Xm_tr, ym_tr, Xm_te, ym_te = Xm[:200], ym[:200], Xm[200:], ym[200:]
+
+def build_model(seed):
+    rng = np.random.default_rng(seed)
+    return Sequential(Linear(2, 16, rng), ReLU(), Linear(16, 16, rng), ReLU(), Linear(16, 2, rng))
+
+def accuracy_of(model, X, y):
+    return float((model(Tensor(X)).data.argmax(axis=1) == y).mean())
+
+def fit(model, opt, X, y, epochs, zero=True):
+    losses = []
+    for _ in range(epochs):
+        if zero:
+            opt.zero_grad()
+        loss = softmax_cross_entropy(model(Tensor(X)), y)
+        loss.backward()
+        opt.step()
+        losses.append(float(loss.data))
+    return losses
+
+def sparkline(v, width=40):
+    v = np.asarray(v, dtype=float)
+    idx = np.linspace(0, len(v) - 1, width).astype(int)
+    s = v[idx]; q = np.clip(((s - s.min()) / (s.max() - s.min() + 1e-12) * 9).astype(int), 0, 9)
+    return "".join(" .:-=+*#%@"[9 - i] for i in q)
+
+print(f"{'optimiser':<22}{'loss first -> last':<22}{'test acc':<10} loss curve")
+for _name, _mk in [("SGD lr 0.1", lambda ps: SGD(ps, 0.1)), ("SGD+momentum 0.9", lambda ps: SGD(ps, 0.02, 0.9)), ("Adam lr 0.01", lambda ps: Adam(ps, 0.01))]:
+    _m = build_model(0)
+    _l = fit(_m, _mk(_m.parameters()), Xm_tr, ym_tr, 150)
+    print(f"{_name:<22}{_l[0]:.3f} -> {_l[-1]:.3f}     {accuracy_of(_m, Xm_te, ym_te):<10.3f} |{sparkline(_l)}|")
+# %% md Que se passe-t-il sans zero_grad
+Si les gradients ne sont jamais remis à zéro, chaque passe inverse s'ajoute aux gradients précédents (l'accumulation des feuilles, que tu as implémentée dans `backprop`). La direction de mise à jour devient la somme cumulée de tous les gradients passés : un momentum caché sans décroissance et un pas effectif qui grandit sans cesse. Que cela aide ou nuise dépend du problème et du taux d'apprentissage (sur ce problème facile, cela peut même sembler correct pendant 60 étapes), mais ce n'est jamais ce que tu voulais écrire.
+
+# %% code
+_mz = build_model(0); _lz = fit(_mz, SGD(_mz.parameters(), 0.1), Xm_tr, ym_tr, 60, zero=False)
+_mo = build_model(0); _lo = fit(_mo, SGD(_mo.parameters(), 0.1), Xm_tr, ym_tr, 60, zero=True)
+print("with zero_grad    : loss", round(_lo[0], 3), "->", round(_lo[-1], 3), " test acc", round(accuracy_of(_mo, Xm_te, ym_te), 3))
+print("without zero_grad : loss", round(_lz[0], 3), "->", round(_lz[-1], 3), " test acc", round(accuracy_of(_mz, Xm_te, ym_te), 3))
+# %% md Résumé de l'étape 4
+**Ce que tu as appris.** Ton moteur entraîne un vrai réseau de bout en bout. SGD, momentum et Adam réduisent tous la fonction de perte avec ces réglages, Adam le plus vite sur ce minuscule problème. Oublier `zero_grad` ne fait rien planter, cela transforme silencieusement l'optimisation en autre chose (compare les deux exécutions affichées, et essaie un taux d'apprentissage plus grand), ce qui en fait l'un des bugs classiques des frameworks.
+
+# %% report
+Regarde l'affichage : décris la différence entre les trois courbes de la fonction de perte et entre les exécutions avec et sans `zero_grad`. Quel résultat t'a surpris ?
+# %% md Étape 5 : concordance avec la rétropropagation à la main
+## Étape 5 : le framework égale-t-il la rétropropagation dérivée à la main ?
+
+L'examen final. Dans [[f2n.10]], tu as dérivé, pour $Z_1 = XW_1 + b_1,\ A_1 = \mathrm{ReLU}(Z_1),\ Z_2 = A_1W_2 + b_2$ et l'entropie croisée softmax moyenne : $\bar Z_2 = (P - Y)/B$, $\bar W_2 = A_1^\top \bar Z_2$, $\bar b_2 = \sum_b \bar Z_{2,b}$, $\bar A_1 = \bar Z_2 W_2^\top$, $\bar Z_1 = \bar A_1 \odot [Z_1 > 0]$, $\bar W_1 = X^\top \bar Z_1$, $\bar b_1 = \sum_b \bar Z_{1,b}$. La fonction ci-dessous est cette dérivation en NumPy. Ton framework doit la reproduire à la précision machine, à la fois pour un gradient isolé et sur tout un entraînement.
+
+# %% code
+def manual_loss_and_grads(params, X, y):
+    """Hand-derived backprop from f2n.10. params = (W1, b1, W2, b2). Returns (loss, [dW1, db1, dW2, db2])."""
+    W1, b1, W2, b2 = params
+    B = len(y)
+    Z1 = X @ W1 + b1
+    A1 = np.maximum(0, Z1)
+    Z2 = A1 @ W2 + b2
+    Z = Z2 - Z2.max(axis=1, keepdims=True)
+    P = np.exp(Z); P /= P.sum(axis=1, keepdims=True)
+    loss = float(-np.mean(np.log(P[np.arange(B), y])))
+    dZ2 = P.copy(); dZ2[np.arange(B), y] -= 1; dZ2 /= B
+    dW2 = A1.T @ dZ2; db2 = dZ2.sum(axis=0)
+    dZ1 = (dZ2 @ W2.T) * (Z1 > 0)
+    dW1 = X.T @ dZ1; db1 = dZ1.sum(axis=0)
+    return loss, [dW1, db1, dW2, db2]
+# %% md Entraînement : à la main contre le framework
+Voici maintenant deux entraînements complets à partir de poids identiques sur les données moons : la descente de gradient simple avec les gradients manuels et `p -= lr * g` d'un côté ; le `Sequential`, le `softmax_cross_entropy` et le `SGD` du framework de l'autre. Si chaque composant est correct, les deux trajectoires de la fonction de perte sont les mêmes nombres, aux erreurs d'arrondi flottant près.
+
+# %% code
+def training_comparison(steps=100, lr=0.2, seed=0):
+    rng = np.random.default_rng(seed)
+    W1, b1 = rng.normal(0, np.sqrt(2 / 2), (2, 16)), np.zeros(16)
+    W2, b2 = rng.normal(0, np.sqrt(2 / 16), (16, 2)), np.zeros(2)
+    manual = [W1.copy(), b1.copy(), W2.copy(), b2.copy()]
+    model = Sequential(Linear(2, 16, np.random.default_rng(99)), ReLU(), Linear(16, 2, np.random.default_rng(99)))
+    for layer_p, arr in zip(model.parameters(), [W1, b1, W2, b2]):
+        layer_p.data[...] = arr
+    opt = SGD(model.parameters(), lr)
+    lm, lf = [], []
+    for _ in range(steps):
+        loss, grads = manual_loss_and_grads(manual, Xm_tr, ym_tr)
+        for p, g in zip(manual, grads):
+            p -= lr * g
+        lm.append(loss)
+        opt.zero_grad()
+        loss_t = softmax_cross_entropy(model(Tensor(Xm_tr)), ym_tr)
+        loss_t.backward(); opt.step()
+        lf.append(float(loss_t.data))
+    acc_m = float((np.maximum(0, Xm_te @ manual[0] + manual[1]) @ manual[2] + manual[3]).argmax(1).__eq__(ym_te).mean())
+    return {"manual_losses": lm, "framework_losses": lf, "manual_params": manual,
+            "framework_params": [p.data.copy() for p in model.parameters()],
+            "manual_acc": acc_m, "framework_acc": accuracy_of(model, Xm_te, ym_te)}
+# %% task Gradients via ton framework
+def autograd_grads(params, X, y):
+    """Compute the same network's loss and gradients with YOUR Tensor ops (matmul, add via +, relu,
+    softmax_cross_entropy), without Modules. params = (W1, b1, W2, b2) are NumPy arrays; wrap each in a
+    Tensor(requires_grad=True), build the graph from Tensor(X), call backward, and return
+    (float loss, [dW1, db1, dW2, db2]) as NumPy arrays in the same order as manual_loss_and_grads."""
+    # TODO
+    raise NotImplementedError
+# %% check
+_rg = np.random.default_rng(7)
+_X = _rg.normal(size=(30, 4)); _y = _rg.integers(0, 3, size=30)
+_pr = (_rg.normal(0, 0.7, (4, 8)), _rg.normal(0, 0.2, 8), _rg.normal(0, 0.7, (8, 3)), _rg.normal(0, 0.2, 3))
+_lm, _gm = manual_loss_and_grads(_pr, _X, _y)
+_la, _ga = autograd_grads(_pr, _X, _y)
+check("returns a float loss and four arrays with the parameter shapes", lambda: isinstance(_la, float) and [g.shape for g in _ga] == [q.shape for q in _pr])
+check("the loss equals the manual loss to 1e-12", lambda: abs(_la - _lm) < 1e-12)
+for _nm, _gg, _hh in zip(["dW1", "db1", "dW2", "db2"], _ga, _gm):
+    check(f"{_nm} equals the hand-derived gradient to 1e-10", (lambda gg=_gg, hh=_hh: np.max(np.abs(gg - hh)) < 1e-10), "Compare with the formulas in f2n.10; also check that you build the graph from Tensor(X) with requires_grad=False")
+_keep = [q.copy() for q in _pr]; autograd_grads(_pr, _X, _y)
+_trc = training_comparison(60, 0.2, 1)
+check("a full SGD training run through Sequential/SGD/softmax_cross_entropy reproduces the manual loss trajectory to 1e-9", lambda: np.max(np.abs(np.array(_trc["manual_losses"]) - np.array(_trc["framework_losses"]))) < 1e-9, "If one gradient matches but the run does not, look at the optimiser, zero_grad, or the Module wiring")
+check("and ends in the same trained parameters (1e-9) with a good test accuracy", lambda: max(np.max(np.abs(a - b)) for a, b in zip(_trc["manual_params"], _trc["framework_params"])) < 1e-9 and _trc["framework_acc"] > 0.85 and _trc["framework_acc"] == _trc["manual_acc"])
+check("the input arrays are not modified and no gradient state leaks between calls", lambda: all(np.array_equal(a, b) for a, b in zip(_pr, _keep)) and np.allclose(autograd_grads(_pr, _X, _y)[1][0], _gm[0], atol=1e-10))
+# %% hint
+`W1, b1, W2, b2 = [Tensor(p, requires_grad=True) for p in params]`, puis `logits = relu(Tensor(X) @ W1 + b1) @ W2 + b2` et `loss = softmax_cross_entropy(logits, y)`.
+# %% hint
+Après `loss.backward()`, renvoie `float(loss.data), [W1.grad, b1.grad, W2.grad, b2.grad]`.
+# %% solution
+def autograd_grads(params, X, y):
+    W1, b1, W2, b2 = [Tensor(p, requires_grad=True) for p in params]
+    logits = relu(Tensor(X) @ W1 + b1) @ W2 + b2
+    loss = softmax_cross_entropy(logits, y)
+    loss.backward()
+    return float(loss.data), [W1.grad.copy(), b1.grad.copy(), W2.grad.copy(), b2.grad.copy()]
+# %% md Le tableau de comparaison final
+Le tableau rassemble les quantités qui doivent concorder. La fonction ci-dessous construit ses lignes à partir des entraînements et d'une comparaison de gradients sur des paramètres fixés.
+
+# %% code
+def comparison_rows(result, params, X, y):
+    lm = np.array(result["manual_losses"]); lf = np.array(result["framework_losses"])
+    rows = [("loss at step 0", float(lm[0]), float(lf[0]), float(abs(lm[0] - lf[0]))),
+            ("loss at last step", float(lm[-1]), float(lf[-1]), float(abs(lm[-1] - lf[-1])))]
+    d = float(np.max(np.abs(lm - lf)))
+    rows.append(("max |loss diff| over the run", 0.0, d, d))
+    _, gm = manual_loss_and_grads(params, X, y)
+    _, ga = autograd_grads(params, X, y)
+    for name, a, b in zip(["dW1", "db1", "dW2", "db2"], ga, gm):
+        e = float(np.max(np.abs(a - b)))
+        rows.append((f"max |grad diff| {name}", 0.0, e, e))
+    pd = float(max(np.max(np.abs(a - b)) for a, b in zip(result["manual_params"], result["framework_params"])))
+    rows.append(("max |param diff| after training", 0.0, pd, pd))
+    rows.append(("test accuracy", float(result["manual_acc"]), float(result["framework_acc"]), float(abs(result["manual_acc"] - result["framework_acc"]))))
+    return rows
+# %% code
+_res = training_comparison(100, 0.2, 0)
+_pp = tuple(np.random.default_rng(3).normal(0, 0.5, s) for s in [(2, 16), (16,), (16, 2), (2,)])
+print(f"{'quantity':<36}{'manual':>14}{'framework':>14}{'|diff|':>12}")
+for _q, _a, _b, _d in comparison_rows(_res, _pp, Xm_tr, ym_tr):
+    print(f"{_q:<36}{_a:>14.6g}{_b:>14.6g}{_d:>12.2e}")
+# %% md Résumé de l'étape 5
+**Ce que tu as appris.** Le framework n'est pas une approximation de la rétropropagation dérivée à la main, il *est* la même suite de produits matriciels, découverte mécaniquement en parcourant le graphe à l'envers. Les différences sont des erreurs d'arrondi (de l'ordre de $10^{-16}$ à $10^{-13}$), plusieurs ordres de grandeur sous tout effet du taux d'apprentissage ou de la graine. Ce que le framework apporte en plus, c'est la généralité : tu n'as changé aucune ligne de code de gradient pour essayer une autre architecture.
+
+# %% report
+Avec tes propres mots : qu'est-ce que le framework automatise exactement par rapport à la dérivation à la main de [[f2n.10]], et quel en est le prix (pense à la mémoire retenue par le graphe, à la vitesse, et au temps passé à déboguer une mauvaise opération) ? Cite une chose que ce moteur ne sait pas faire et que PyTorch sait faire (par exemple le matmul par batch, les opérations en place, le GPU, les gradients d'ordre supérieur).
+# %% md Étape 6 : le rapport
+## Étape 6 : rédiger le rapport
+
+# %% report
+Rédige un rapport d'ingénierie d'une page (environ 250 mots) avec ces titres : **Ce qui a été construit** (les classes et les opérations, en deux phrases), **Comment cela a été vérifié** (le tableau de contrôle des gradients par opération et le tableau manuel contre framework, cite les ordres de grandeur des erreurs), **Bugs rencontrés** (au moins un, avec son symptôme et sa cause : par exemple un unbroadcast oublié, `=` au lieu de `+=`, ou un tri topologique récursif), **Limites** (ce que le moteur ne gère pas) et **Prochaine étape** (une extension que tu ajouterais : une nouvelle opération, les gradients d'ordre supérieur, ou une convolution).
+# %% md Sources
+## Sources
+
+Uniquement du matériel qui a réellement été ouvert pendant la rédaction de ce projet :
+
+- Leçon `[[f2n.10]]` (Rétropropagation, dérivée avec les formes) : `content/authored/ml/10-backpropagation/lesson.md` (la définition du réseau et la dérivation de la passe inverse) et son exercice `exercises/mlp-backprop.exercise.txt`. LU.
+- Leçon `[[f2n.12]]` (Différentiation automatique et validation contre PyTorch) : `content/authored/ml/12-autograd-validation/lesson.md` (graphe de calcul, mode inverse, algorithme du moteur scalaire avec ordre topologique, accumulation, pièges). LU.
+- Leçon `[[dl.01]]` (Optimiseurs et plannings de taux d'apprentissage) : `content/authored/deep-learning/01-optimisers/lesson.md` (momentum et Adam avec correction de biais). LU.
+- `docs/PROJECTS.md`, `docs/AGENT_BRIEF.md`, `docs/AUTHORING.md` : format et règles. LU.
+
+Tous les nombres affichés par le projet sont produits par le code qu'il contient ; aucun n'est cité d'une source.

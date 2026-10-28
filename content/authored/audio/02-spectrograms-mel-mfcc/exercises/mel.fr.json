@@ -1,0 +1,10 @@
+{
+  "id": "aud.02.ex1",
+  "title": "Banc de filtres mel, MFCC (DCT) et deltas à partir de zéro",
+  "prompt": "À partir d'une fonction auxiliaire de spectrogramme de puissance fournie, implémente le reste du front-end MFCC classique avec NumPy :\n\n- `hz_to_mel(f)`, `mel_to_hz(m)` : les formules `m = 2595 log10(1 + f/700)` et son inverse (doivent fonctionner sur des tableaux).\n- `mel_filterbank(n_mels, n_fft, sr, fmin=0.0, fmax=None)` -> matrice `(n_mels, n_fft//2 + 1)` de filtres triangulaires de hauteur maximale 1, aux frontières équidistantes en mel (`fmax` vaut `sr/2` par défaut), évaluée aux fréquences des bins `k * sr / n_fft`.\n- `dct_matrix(n_in, n_out)` -> matrice DCT-II orthonormée `(n_out, n_in)` (`alpha_0 = sqrt(1/n_in)`, `alpha_k = sqrt(2/n_in)`).\n- `mfcc_from_power(P, sr, n_fft, n_mels=26, n_mfcc=13)` -> `(T, n_mfcc)` : `log(P @ H.T + 1e-10)` suivi de la DCT.\n- `deltas(c, N=2)` -> caractéristiques de pente par moindres carrés, avec remplissage des bords, de même forme que `c`.",
+  "hints": [
+    "mel_to_hz est l'inverse de hz_to_mel : f = 700 * (10 ** (m / 2595) - 1). Les frontières du banc de filtres sont mel_to_hz(np.linspace(hz_to_mel(fmin), hz_to_mel(fmax), n_mels + 2)).",
+    "Le filtre j utilise les frontières lo = pts[j], mid = pts[j+1], hi = pts[j+2] : ligne = max(0, min((freqs - lo)/(mid - lo), (hi - freqs)/(hi - mid))) évaluée en freqs = arange(n_fft//2+1) * sr / n_fft.",
+    "Lignes de la DCT : sqrt(2/M) * cos(pi * k * (2m+1) / (2M)), et divise la ligne 0 par sqrt(2). Delta : remplis avec mode='edge', puis somme n * (pad[N+n : N+n+T] - pad[N-n : N-n+T]) pour n = 1..N et divise par 2 * somme(n^2)."
+  ]
+}

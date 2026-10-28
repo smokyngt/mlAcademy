@@ -1,0 +1,90 @@
+[
+  {
+    "id": "mle-map",
+    "after": 4,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Where the standard losses come from: choose how the data is generated, take the negative log-likelihood, and the loss falls out.",
+      "fr": "D'où viennent les pertes usuelles : on choisit comment les données sont générées, on prend l'opposé de la log-vraisemblance, et la perte en découle."
+    },
+    "code": {
+      "en": "flowchart TD\n  M[\"Model p_theta of y given x\"] --> NLL[\"Negative log-likelihood: - sum of ln p(y_i | x_i)\"]\n  NLL --> G[\"Gaussian noise, continuous y\"]\n  NLL --> Be[\"Bernoulli, y in 0 or 1\"]\n  NLL --> Ca[\"Categorical, K classes\"]\n  G --> MSE[\"Mean squared error\"]\n  Be --> BCE[\"Binary cross-entropy, p = sigmoid z\"]\n  Ca --> CE[\"Cross-entropy, p = softmax z\"]\n  BCE --> Gr[\"dL/dz = p - y\"]\n  CE --> Gr",
+      "fr": "flowchart TD\n  M[\"Modèle p_theta de y sachant x\"] --> NLL[\"Log-vraisemblance négative : - somme de ln p(y_i | x_i)\"]\n  NLL --> G[\"Bruit gaussien, y continu\"]\n  NLL --> Be[\"Bernoulli, y vaut 0 ou 1\"]\n  NLL --> Ca[\"Catégorielle, K classes\"]\n  G --> MSE[\"Erreur quadratique moyenne\"]\n  Be --> BCE[\"Entropie croisée binaire, p = sigmoïde z\"]\n  Ca --> CE[\"Entropie croisée, p = softmax z\"]\n  BCE --> Gr[\"dL/dz = p - y\"]\n  CE --> Gr"
+    }
+  },
+  {
+    "id": "loss-curves",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Loss as a function of the predicted probability p when the true label is y = 1: cross-entropy -ln p (blue) explodes as p goes to 0, while squared error (1 - p)² (orange) stays bounded by 1. The bounded loss gives a weak push to a confidently wrong model.",
+      "fr": "Perte en fonction de la probabilité prédite p quand le vrai label est y = 1 : l'entropie croisée -ln p (bleu) explose quand p tend vers 0, alors que l'erreur quadratique (1 - p)² (orange) reste bornée par 1. La perte bornée pousse peu un modèle sûr de lui et dans l'erreur."
+    },
+    "spec": {
+      "xDomain": [
+        0.01,
+        1
+      ],
+      "yDomain": [
+        0,
+        4.6
+      ],
+      "height": 300,
+      "title": "y = 1",
+      "data": [
+        {
+          "fn": "-log(x)",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(1 - x)^2",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "logit-gradients",
+    "after": 6,
+    "kind": "plot",
+    "caption": {
+      "en": "Gradient with respect to the logit z for y = 1, p = sigma(z). Cross-entropy gives p - 1 (blue): large when the model is confidently wrong (z very negative). Squared error gives (p - 1)·p·(1 - p) (orange): the sigma' factor makes it vanish exactly when the error is largest.",
+      "fr": "Gradient par rapport au logit z pour y = 1, p = sigma(z). L'entropie croisée donne p - 1 (bleu) : grand quand le modèle se trompe avec assurance (z très négatif). L'erreur quadratique donne (p - 1)·p·(1 - p) (orange) : le facteur sigma' l'annule exactement quand l'erreur est maximale."
+    },
+    "spec": {
+      "xDomain": [
+        -8,
+        8
+      ],
+      "yDomain": [
+        -1.1,
+        0.2
+      ],
+      "height": 300,
+      "title": "dL/dz",
+      "data": [
+        {
+          "fn": "1/(1+exp(-x)) - 1",
+          "color": "#2563eb"
+        },
+        {
+          "fn": "(1/(1+exp(-x)) - 1) * (1/(1+exp(-x))) * (1 - 1/(1+exp(-x)))",
+          "color": "#d97706"
+        }
+      ]
+    }
+  },
+  {
+    "id": "softmax-ce",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Stable softmax cross-entropy on the worked example z = (2, 1, 0.1), true class 0: subtract the max, exponentiate, normalise; the gradient with respect to the logits is simply p minus the one-hot label.",
+      "fr": "Entropie croisée softmax stable sur l'exemple résolu z = (2, 1, 0,1), vraie classe 0 : on soustrait le max, on exponentie, on normalise ; le gradient par rapport aux logits vaut simplement p moins le label one-hot."
+    },
+    "code": {
+      "en": "flowchart LR\n  Z[\"logits z = 2, 1, 0.1\"] -->|\"subtract max\"| S[\"z - max\"]\n  S -->|\"exp\"| E[\"7.389, 2.718, 1.105\"]\n  E -->|\"divide by sum 11.212\"| Pp[\"p = 0.659, 0.242, 0.099\"]\n  Pp --> L[\"L = -ln p_y = 0.417\"]\n  Pp --> Gz[\"grad z = p - onehot = -0.341, 0.242, 0.099\"]\n  Gz -.->|\"sums to zero\"| Zc[\"shift invariance\"]",
+      "fr": "flowchart LR\n  Z[\"logits z = 2, 1, 0,1\"] -->|\"soustraire le max\"| S[\"z - max\"]\n  S -->|\"exp\"| E[\"7,389 ; 2,718 ; 1,105\"]\n  E -->|\"diviser par la somme 11,212\"| Pp[\"p = 0,659 ; 0,242 ; 0,099\"]\n  Pp --> L[\"L = -ln p_y = 0,417\"]\n  Pp --> Gz[\"grad z = p - onehot = -0,341 ; 0,242 ; 0,099\"]\n  Gz -.->|\"somme nulle\"| Zc[\"invariance par translation\"]"
+    }
+  }
+]

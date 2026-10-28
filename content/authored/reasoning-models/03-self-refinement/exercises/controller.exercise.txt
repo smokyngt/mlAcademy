@@ -1,0 +1,123 @@
+#@@ meta
+{"id": "rsn.03.ex2", "title": "A critique-and-revise loop controller", "difficulty": 3, "runtime": "pyodide", "concepts": ["rsn.refine"], "hints": ["Order inside one iteration: ask for a critique (1 call); if it starts with the OK marker stop with reason 'critique_ok'; otherwise ask for a revision (1 call), score it, then apply the acceptance rule.", "Track 'stale' = number of consecutive iterations whose revision did NOT strictly improve the score (even if it was accepted because it tied). Stop with 'patience' when stale >= patience. Check the target after updating the current score.", "Use a flag or a for/else to distinguish 'finished max_iters' from an early break; if the loop ends without a reason, the reason is 'max_iters'."]}
+#@@ prompt
+Self-refinement alternates **critique** and **revise** steps. A loop needs rules for what to accept and when to stop, otherwise it spends compute (two model calls per round) for nothing or makes a good answer worse. Implement the controller with plain Python; the model is replaced by functions you are given.
+
+`refine_loop(initial, critique_fn, revise_fn, score_fn, max_iters=3, patience=2, target=None, ok_marker="LGTM", accept="not_worse")` returns a dict with
+
+- `final`: the draft that is kept,
+- `score`: its score,
+- `stop_reason`: one of `"target"`, `"critique_ok"`, `"patience"`, `"max_iters"`,
+- `llm_calls`: number of critique plus revise calls made,
+- `history`: a list with one dict per iteration containing `iteration`, `critique`, `revised` (or `None`), `score_before`, `score_after` (or `None`), `accepted`.
+
+Rules:
+
+1. Score the initial draft. If `target` is not `None` and the score already reaches it, stop at once with reason `"target"` (zero calls, empty history).
+2. Each iteration: `critique = critique_fn(current)`. If it starts with `ok_marker` (case-insensitive), stop with `"critique_ok"` (record the iteration with `revised=None`, `accepted=False`).
+3. Otherwise `revised = revise_fn(current, critique)`, `new = score_fn(revised)`. **Accept** the revision if `new >= current_score` when `accept="not_worse"` (the book's rule) or `new > current_score` when `accept="strict"`.
+4. A revision *improves* if `new > current_score` (compare before updating). After an iteration, if the target is reached stop with `"target"`; if `stale >= patience` consecutive non-improving iterations stop with `"patience"`.
+5. After `max_iters` iterations without another reason, stop with `"max_iters"`.
+#@@ starter
+def refine_loop(initial, critique_fn, revise_fn, score_fn, max_iters=3, patience=2,
+                target=None, ok_marker="LGTM", accept="not_worse"):
+    raise NotImplementedError
+#@@ tests
+class Scripted:
+    """Scripted 'model': each iteration k returns the k-th (critique, revised) pair; scores come from a dict."""
+    def __init__(self, steps, scores):
+        self.steps, self.scores = steps, scores
+        self.k_c = 0
+        self.k_r = 0
+    def critique(self, draft):
+        out = self.steps[self.k_c][0]
+        self.k_c += 1
+        return out
+    def revise(self, draft, critique):
+        out = self.steps[self.k_r][1]
+        self.k_r += 1
+        return out
+    def score(self, draft):
+        return self.scores[draft]
+
+def run(steps, scores, initial="d0", **kw):
+    s = Scripted(steps, scores)
+    return refine_loop(initial, s.critique, s.revise, s.score, **kw)
+
+# A: refinement helps, then the critic is satisfied
+rA = run([("fix the arithmetic", "d1"), ("LGTM, looks right", None)], {"d0": 1.0, "d1": 2.0})
+check("A: keeps the improved draft", lambda: rA["final"] == "d1" and rA["score"] == 2.0)
+check("A: stops because the critic is satisfied", lambda: rA["stop_reason"] == "critique_ok")
+check("A: 3 calls = critique, revise, critique", lambda: rA["llm_calls"] == 3)
+check("A: history has two entries, the second without revision", lambda: len(rA["history"]) == 2 and rA["history"][1]["revised"] is None and rA["history"][0]["accepted"] is True)
+check("A: history fields", lambda: rA["history"][0]["score_before"] == 1.0 and rA["history"][0]["score_after"] == 2.0 and rA["history"][0]["iteration"] == 1)
+
+# B: refinement hurts; the acceptance guard keeps the original, patience stops the loop
+rB = run([("try again", "d1"), ("try harder", "d2"), ("again", "d3")], {"d0": 2.0, "d1": 1.5, "d2": 1.2, "d3": 0.1})
+check("B: worse revisions are rejected", lambda: rB["final"] == "d0" and rB["score"] == 2.0)
+check("B: patience=2 stops after two non-improving rounds", lambda: rB["stop_reason"] == "patience" and len(rB["history"]) == 2)
+check("B: 4 calls", lambda: rB["llm_calls"] == 4)
+check("B: both rejected", lambda: [h["accepted"] for h in rB["history"]] == [False, False])
+
+# C: target reached by the initial draft
+rC = run([("x", "d1")], {"d0": 3.0, "d1": 4.0}, target=3.0)
+check("C: stops immediately, no calls", lambda: rC["stop_reason"] == "target" and rC["llm_calls"] == 0 and rC["history"] == [] and rC["final"] == "d0")
+
+# D: target reached after one revision
+rD = run([("improve", "d1"), ("improve", "d2")], {"d0": 1.0, "d1": 3.0, "d2": 4.0}, target=2.5)
+check("D: stops as soon as the target is reached", lambda: rD["stop_reason"] == "target" and rD["final"] == "d1" and rD["llm_calls"] == 2)
+
+# E: max_iters
+rE = run([("a", "d1"), ("b", "d2"), ("c", "d3"), ("d", "d4")], {"d0": 1.0, "d1": 2.0, "d2": 3.0, "d3": 4.0, "d4": 5.0}, max_iters=3)
+check("E: three improving rounds hit max_iters", lambda: rE["stop_reason"] == "max_iters" and rE["final"] == "d3" and len(rE["history"]) == 3 and rE["llm_calls"] == 6)
+
+# F: tie handling
+rF1 = run([("a", "d1"), ("LGTM", None)], {"d0": 1.0, "d1": 1.0})
+rF2 = run([("a", "d1"), ("LGTM", None)], {"d0": 1.0, "d1": 1.0}, accept="strict")
+check("F: not_worse accepts a tie", lambda: rF1["history"][0]["accepted"] is True and rF1["final"] == "d1")
+check("F: strict rejects a tie", lambda: rF2["history"][0]["accepted"] is False and rF2["final"] == "d0")
+
+# G: a tie counts as 'stale' even when accepted
+rG = run([("a", "d1"), ("b", "d2"), ("c", "d3")], {"d0": 1.0, "d1": 1.0, "d2": 1.0, "d3": 5.0}, patience=2)
+check("G: two tied rounds trigger patience", lambda: rG["stop_reason"] == "patience" and len(rG["history"]) == 2 and rG["final"] == "d2")
+
+# H: the controller follows the score, not the truth
+rH = run([("be more careful", "answer 38"), ("LGTM", None)], {"answer 83": 1.0, "answer 38": 1.4}, initial="answer 83")
+check("H: a confident wrong revision is accepted (the score is only a proxy)", lambda: rH["final"] == "answer 38")
+check("critique marker is case-insensitive", lambda: run([("lgtm", None)], {"d0": 1.0})["stop_reason"] == "critique_ok")
+#@@ solution
+def refine_loop(initial, critique_fn, revise_fn, score_fn, max_iters=3, patience=2,
+                target=None, ok_marker="LGTM", accept="not_worse"):
+    current = initial
+    cur_score = score_fn(current)
+    history = []
+    calls = 0
+    stale = 0
+    reason = "max_iters"
+    if target is not None and cur_score >= target:
+        return {"final": current, "score": cur_score, "stop_reason": "target", "llm_calls": 0, "history": history}
+    for it in range(1, max_iters + 1):
+        critique = critique_fn(current)
+        calls += 1
+        if critique.strip().upper().startswith(ok_marker.upper()):
+            history.append({"iteration": it, "critique": critique, "revised": None,
+                            "score_before": cur_score, "score_after": None, "accepted": False})
+            reason = "critique_ok"
+            break
+        revised = revise_fn(current, critique)
+        calls += 1
+        new = score_fn(revised)
+        accepted = new >= cur_score if accept == "not_worse" else new > cur_score
+        improved = new > cur_score
+        history.append({"iteration": it, "critique": critique, "revised": revised,
+                        "score_before": cur_score, "score_after": new, "accepted": accepted})
+        if accepted:
+            current, cur_score = revised, new
+        stale = 0 if improved else stale + 1
+        if target is not None and cur_score >= target:
+            reason = "target"
+            break
+        if stale >= patience:
+            reason = "patience"
+            break
+    return {"final": current, "score": cur_score, "stop_reason": reason, "llm_calls": calls, "history": history}

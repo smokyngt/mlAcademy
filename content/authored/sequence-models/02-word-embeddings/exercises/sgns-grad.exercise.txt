@@ -1,0 +1,74 @@
+#@@ meta
+{"id": "seq.02.ex1", "title": "Skip-gram negative sampling: loss and gradients", "difficulty": 3, "runtime": "pyodide", "concepts": ["seq.embedding", "nn.backprop"], "hints": ["Scores: s_pos = U[o] @ V[c] and s_neg = U[negs] @ V[c] (shape (k,)). Loss = -log sigmoid(s_pos) - sum log sigmoid(-s_neg). Use -np.logaddexp(0, -s) for log sigmoid.", "Let g_pos = sigmoid(s_pos) - 1 and g_neg = sigmoid(s_neg) (shape (k,)). Then dV[c] = g_pos*U[o] + g_neg @ U[negs], dU[o] += g_pos*V[c], and each negative k adds g_neg[k]*V[c] to dU[negs[k]].", "Negatives can repeat (or equal o): use np.add.at(dU, negs, np.outer(g_neg, V[c])) so repeated rows accumulate."]}
+#@@ prompt
+Implement `sgns_loss_grads(V, U, c, o, negs)` for one training pair of skip-gram with negative sampling.
+
+- `V`: `(n, d)` centre-word table, `U`: `(n, d)` context-word table, `c`: centre index, `o`: true context index, `negs`: integer array of `k` noise indices (may contain repeats).
+- Loss: $-\log\sigma(u_o\cdot v_c)-\sum_{k}\log\sigma(-u_k\cdot v_c)$.
+- Return `(loss, dV, dU)` where `dV` and `dU` are dense arrays with the shapes of `V` and `U` (all rows zero except the ones that were used).
+#@@ starter
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def sgns_loss_grads(V, U, c, o, negs):
+    raise NotImplementedError
+
+# lesson worked example: d = 2, vocabulary of 4 words
+V = np.zeros((4, 2)); U = np.zeros((4, 2))
+V[0] = [0.5, 1.0]
+U[1] = [1.0, 0.5]; U[2] = [-0.5, 0.5]; U[3] = [1.0, -1.0]
+loss, dV, dU = sgns_loss_grads(V, U, 0, 1, np.array([2, 3]))
+print(round(loss, 4)); print(dV[0].round(4)); print(dU.round(4))
+#@@ tests
+import numpy as np
+n, d, k = 7, 4, 5
+rng = np.random.default_rng(0)
+V = rng.normal(size=(n, d)); U = rng.normal(size=(n, d))
+negs = np.array([2, 5, 5, 1, 3])
+loss, dV, dU = sgns_loss_grads(V, U, 1, 3, negs)
+check("shapes", lambda: dV.shape == V.shape and dU.shape == U.shape)
+check("loss is a finite scalar", lambda: np.ndim(loss) == 0 and np.isfinite(loss))
+check("zero tables give (1+k) ln 2", lambda: abs(sgns_loss_grads(np.zeros((n, d)), np.zeros((n, d)), 0, 1, negs)[0] - 6 * np.log(2)) < 1e-12)
+def f(Vp, Up): return sgns_loss_grads(Vp, Up, 1, 3, negs)[0]
+def numgrad(which):
+    g = np.zeros((n, d))
+    for idx in np.ndindex(n, d):
+        a, b = V.copy(), U.copy(); c_, e = V.copy(), U.copy()
+        (a if which == 0 else b)[idx] += 1e-6
+        (c_ if which == 0 else e)[idx] -= 1e-6
+        g[idx] = (f(a, b) - f(c_, e)) / 2e-6
+    return g
+check("dV matches finite differences", lambda: np.allclose(dV, numgrad(0), atol=1e-7, rtol=1e-5), "dV[c] = (sigma(s_pos)-1) u_o + sum_k sigma(s_k) u_k")
+check("dU matches finite differences (repeated negative handled)", lambda: np.allclose(dU, numgrad(1), atol=1e-7, rtol=1e-5), "use np.add.at so a repeated negative index accumulates")
+check("only used rows have gradient", lambda: np.count_nonzero(np.abs(dU).sum(1)) == 4 and np.count_nonzero(np.abs(dV).sum(1)) == 1)
+Vw = np.zeros((4, 2)); Uw = np.zeros((4, 2))
+Vw[0] = [0.5, 1.0]; Uw[1] = [1.0, 0.5]; Uw[2] = [-0.5, 0.5]; Uw[3] = [1.0, -1.0]
+lw, dVw, dUw = sgns_loss_grads(Vw, Uw, 0, 1, np.array([2, 3]))
+check("lesson worked example loss", lambda: abs(lw - 1.6133) < 5e-4 and np.allclose(dVw[0], [-0.1725, -0.2309], atol=5e-4))
+#@@ solution
+import numpy as np
+
+def sigmoid(s):
+    return 0.5 * (1.0 + np.tanh(0.5 * s))
+
+def sgns_loss_grads(V, U, c, o, negs):
+    negs = np.asarray(negs)
+    v = V[c]
+    s_pos = U[o] @ v
+    s_neg = U[negs] @ v
+    loss = float(np.logaddexp(0.0, -s_pos) + np.logaddexp(0.0, s_neg).sum())
+    g_pos = sigmoid(s_pos) - 1.0
+    g_neg = sigmoid(s_neg)
+    dV = np.zeros_like(V); dU = np.zeros_like(U)
+    dV[c] = g_pos * U[o] + g_neg @ U[negs]
+    dU[o] += g_pos * v
+    np.add.at(dU, negs, np.outer(g_neg, v))
+    return loss, dV, dU
+
+V = np.zeros((4, 2)); U = np.zeros((4, 2))
+V[0] = [0.5, 1.0]
+U[1] = [1.0, 0.5]; U[2] = [-0.5, 0.5]; U[3] = [1.0, -1.0]
+loss, dV, dU = sgns_loss_grads(V, U, 0, 1, np.array([2, 3]))
+print(round(loss, 4)); print(dV[0].round(4)); print(dU.round(4))

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "guarantee-ladder",
+    "after": 3,
+    "kind": "mermaid",
+    "caption": {
+      "en": "The structured-output spectrum from weakest to strongest guarantee. Only constrained decoding makes validity true by construction; the others need a validator and a retry.",
+      "fr": "Le spectre des sorties structurées, de la garantie la plus faible à la plus forte. Seul le décodage contraint rend la validité vraie par construction ; les autres demandent un validateur et une nouvelle tentative."
+    },
+    "code": {
+      "en": "flowchart LR\n  P[\"1. Prompt only\"] --> J[\"2. JSON mode<br/>parses, no schema\"] --> S[\"3. Schema mode<br/>provider enforces schema\"] --> C[\"4. Constrained decoding<br/>mask by construction\"]",
+      "fr": "flowchart LR\n  P[\"1. Prompt seul\"] --> J[\"2. Mode JSON<br/>syntaxe valide, sans schéma\"] --> S[\"3. Mode schéma<br/>le fournisseur impose le schéma\"] --> C[\"4. Décodage contraint<br/>masque par construction\"]"
+    }
+  },
+  {
+    "id": "regex-automaton",
+    "after": 5,
+    "kind": "mermaid",
+    "caption": {
+      "en": "A tiny automaton for the regular expression -?[0-9]+ (a JSON integer). A token is allowed in a state only if feeding its characters one by one never reaches the dead state; everything else gets logit minus infinity.",
+      "fr": "Un petit automate pour l'expression régulière -?[0-9]+ (un entier JSON). Un jeton est autorisé dans un état seulement si ses caractères, lus un par un, n'atteignent jamais l'état mort ; tout le reste reçoit un logit moins l'infini."
+    },
+    "code": {
+      "en": "stateDiagram-v2\n  [*] --> Start\n  Start --> Sign: \"-\"\n  Start --> Digits: \"0-9\"\n  Sign --> Digits: \"0-9\"\n  Digits --> Digits: \"0-9\"\n  Digits --> [*]: end of value",
+      "fr": "stateDiagram-v2\n  [*] --> Start\n  Start --> Sign: \"-\"\n  Start --> Digits: \"0-9\"\n  Sign --> Digits: \"0-9\"\n  Digits --> Digits: \"0-9\"\n  Digits --> [*]: fin de la valeur"
+    }
+  },
+  {
+    "id": "validate-repair",
+    "after": 7,
+    "kind": "mermaid",
+    "caption": {
+      "en": "Validate and repair: check the output against the schema, and on failure send the validator's error message back to the model for a bounded number of retries before failing safely.",
+      "fr": "Valider et réparer : vérifier la sortie contre le schéma et, en cas d'échec, renvoyer le message d'erreur du validateur au modèle pour un nombre borné de tentatives avant d'échouer proprement."
+    },
+    "code": {
+      "en": "flowchart LR\n  G[\"model output\"] --> V{\"valid against schema?\"}\n  V -->|\"yes\"| OK[\"accept\"]\n  V -->|\"no\"| R{\"retries left?\"}\n  R -->|\"yes: send error back\"| G\n  R -->|\"no\"| F[\"fail safely\"]",
+      "fr": "flowchart LR\n  G[\"sortie du modèle\"] --> V{\"valide selon le schéma ?\"}\n  V -->|\"oui\"| OK[\"accepter\"]\n  V -->|\"non\"| R{\"tentatives restantes ?\"}\n  R -->|\"oui : renvoyer l'erreur\"| G\n  R -->|\"non\"| F[\"échouer proprement\"]"
+    }
+  }
+]

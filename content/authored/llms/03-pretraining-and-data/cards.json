@@ -1,0 +1,17 @@
+[
+  {"id": "llm.03.c1", "concept": "llm.scaling", "front": "6ND rule", "back": "Training FLOPs $\\approx6ND$: about $2N$ forward and $4N$ backward per token, times $D$ tokens. A first-order estimate for dense transformers."},
+  {"id": "llm.03.c2", "concept": "llm.scaling", "front": "Parameters of one GPT-2-style block (width d, MLP 4d)", "back": "$12d^2+13d$: qkv $3d^2+3d$, out $d^2+d$, MLP $8d^2+5d$, two LayerNorms $4d$."},
+  {"id": "llm.03.c3", "concept": "llm.scaling", "front": "Total parameters of GPT-2 small", "back": "124,439,808 with a tied output head; 163,037,184 with a separate head ($V=50257$, $d=768$, $L=12$, ctx 1024)."},
+  {"id": "llm.03.c4", "concept": "llm.scaling", "front": "Chinchilla loss form", "back": "$L(N,D)=A/N^\\alpha+B/D^\\beta+E$; $E$ is the irreducible loss of the text."},
+  {"id": "llm.03.c5", "concept": "llm.scaling", "front": "Compute-optimal N for tokens-per-parameter r", "back": "$D=rN$, $C=6rN^2$, so $N=\\sqrt{C/(6r)}$. At r=20: $N=\\sqrt{C/120}$."},
+  {"id": "llm.03.c6", "concept": "llm.scaling", "front": "Why is 20 tokens/parameter only a rule of thumb?", "back": "The loss is flat near the optimum, the fitted constants are uncertain (with the quoted constants the grid minimum is at a higher ratio, yet only about 0.007 nats better), and deployment cost favours smaller, longer-trained models."},
+  {"id": "llm.03.c7", "concept": "llm.scaling", "front": "Why over-train a small model?", "back": "Training cost is paid once, inference cost forever; a smaller model trained on many more tokens is cheaper to serve at similar quality."},
+  {"id": "llm.03.c8", "concept": "llm.pretraining-data", "front": "Packing", "back": "Concatenate documents with end-of-text separators and cut the stream into blocks; $x$ = block, $y$ = block shifted by one. Wastes no padding."},
+  {"id": "llm.03.c9", "concept": "llm.pretraining-data", "front": "Why split by document before packing?", "back": "To avoid the same document (or near-copies) appearing in both train and validation, which makes validation loss optimistic."},
+  {"id": "llm.03.c10", "concept": "llm.pretraining-data", "front": "Jaccard similarity of two documents", "back": "$|S_n(A)\\cap S_n(B)|/|S_n(A)\\cup S_n(B)|$ over sets of word n-gram shingles."},
+  {"id": "llm.03.c11", "concept": "llm.pretraining-data", "front": "MinHash + LSH", "back": "Short hash signatures whose agreement probability equals Jaccard similarity; bucketing signatures finds candidate near-duplicates without comparing all pairs."},
+  {"id": "llm.03.c12", "concept": "llm.pretraining-data", "front": "Why deduplicate?", "back": "Duplicates waste compute and cause memorisation (verbatim regurgitation); it is among the most effective cleaning steps."},
+  {"id": "llm.03.c13", "concept": "llm.scaling", "front": "Training memory per parameter (fp32 Adam, no activations)", "back": "4 (weights) + 4 (gradients) + 8 (two Adam moments) = 16 bytes."},
+  {"id": "llm.03.c14", "concept": "llm.scaling", "front": "KV cache size", "back": "$2\\cdot L\\cdot d\\cdot T$ numbers per sequence (keys and values for every layer and token); grows linearly with context and batch."},
+  {"id": "llm.03.c15", "concept": "llm.scaling", "front": "Expected loss at step 0 and what else to watch", "back": "About $\\ln V$ (near uniform). Then watch the train/validation gap (overfitting), spikes (learning rate, bad batches) and plateaus (under-training, noisy data)."}
+]

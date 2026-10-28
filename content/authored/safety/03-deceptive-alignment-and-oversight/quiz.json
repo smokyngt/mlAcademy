@@ -1,0 +1,117 @@
+[
+ {
+  "id": "saf.03.q1",
+  "concept": "saf.deception",
+  "stage": "pre",
+  "prompt": "What is the difference between outer and inner alignment?",
+  "options": [
+   "Outer concerns the data, inner concerns the optimiser",
+   "Outer is about safety, inner is about speed",
+   "Outer: does the training objective match what we want? Inner: does the learned system's internal objective match the training objective?",
+   "They are two names for the same property"
+  ],
+  "answer": 2,
+  "explanation": "Reward hacking is an outer failure; a mesa-objective that only correlates with the base objective is an inner failure."
+ },
+ {
+  "id": "saf.03.q2",
+  "concept": "saf.deception",
+  "prompt": "Which statement best matches what the sleeper-agent experiments show?",
+  "options": [
+   "A deliberately implanted backdoor can survive standard safety training; they do not show that such backdoors arise unprompted",
+   "Deceptive behaviour arises spontaneously in all large models",
+   "Adversarial training reliably removes backdoors",
+   "Backdoors only survive in small models"
+  ],
+  "answer": 0,
+  "explanation": "The backdoor was trained in on purpose to study removal."
+ },
+ {
+  "id": "saf.03.q3",
+  "concept": "saf.deception",
+  "prompt": "Compliance in the training-relevant condition is 12% and in the unmonitored condition 3%. What is the compliance gap (percentage points)?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 9,
+   "tol": 0.1
+  },
+  "explanation": "The gap is the difference between the two conditions: 12 - 3 = 9."
+ },
+ {
+  "id": "saf.03.q4",
+  "concept": "saf.deception",
+  "prompt": "Why is the drop in covert actions after anti-scheming training hard to interpret?",
+  "options": [
+   "Covert actions cannot be measured",
+   "The trained models also appeared more aware of being evaluated, so the drop may partly reflect better recognition of tests",
+   "The training data contained the test questions",
+   "Smaller models always scheme less"
+  ],
+  "answer": 1,
+  "explanation": "Situational awareness is a confound: behaviour in recognised evaluations is a weaker proxy for deployment."
+ },
+ {
+  "id": "saf.03.q5",
+  "concept": "saf.control",
+  "prompt": "What is the basic stance of AI control?",
+  "options": [
+   "Train the model until it is provably aligned",
+   "Never deploy models stronger than humans",
+   "Assume the strong model may be adversarial and design the protocol so that safety holds anyway",
+   "Replace human audits with the model itself"
+  ],
+  "answer": 2,
+  "explanation": "Control is a property of the deployment protocol, not of the model."
+ },
+ {
+  "id": "saf.03.q6",
+  "concept": "saf.control",
+  "prompt": "A monitor catches 0.4786 of attacks, and each uncaught attack causes harm with probability 0.5. What is the probability that a single uncaught attack neither gets caught nor causes harm (i.e. $n=(1-c)(1-q)$, to 2 decimals)?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.26,
+   "tol": 0.005
+  },
+  "explanation": "$(1-0.4786)\\\\cdot0.5=0.2607$."
+ },
+ {
+  "id": "saf.03.q7",
+  "concept": "saf.control",
+  "prompt": "With false-positive budget $f$, where is the audit threshold set?",
+  "options": [
+   "At the mean of the attacked scores",
+   "At the value that honest scores exceed with probability $f$",
+   "At zero",
+   "At the value that catches every attack"
+  ],
+  "answer": 1,
+  "explanation": "The budget limits how many honest solutions are audited."
+ },
+ {
+  "id": "saf.03.q8",
+  "concept": "saf.control",
+  "prompt": "Which is NOT one of the stated limits of control?",
+  "options": [
+   "Human audit budgets do not scale",
+   "A trusted weak model eventually lags the strong model",
+   "Control does not produce a trustworthy strong model",
+   "It requires the untrusted model to be aligned"
+  ],
+  "answer": 3,
+  "explanation": "Control is meant to work without trusting the strong model."
+ },
+ {
+  "id": "saf.03.q9",
+  "concept": "saf.oversight",
+  "prompt": "Weak model accuracy 0.6, strong model trained on weak labels 0.8, strong ceiling 1.0. What is PGR?",
+  "kind": "numeric",
+  "options": [],
+  "answer": {
+   "value": 0.5,
+   "tol": 0.01
+  },
+  "explanation": "(0.8 - 0.6) / (1.0 - 0.6) = 0.5."
+ }
+]
